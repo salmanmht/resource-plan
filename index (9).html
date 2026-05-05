@@ -1,0 +1,2336 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MEP Resource Plan 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+:root{
+  --bg:#f0f2f5;--surf:#fff;--surf2:#f5f6f8;--bdr:#e4e6ea;
+  --tx:#1a1c20;--tx2:#5a5d6b;--tx3:#9a9dab;
+  --acc:#1a56db;--acc2:#ebf0ff;
+  --grn:#057a55;--grn2:#def7ec;
+  --amb:#c27803;--amb2:#fdf6b2;
+  --red:#c81e1e;--red2:#fde8e8;
+  --pur:#7e3af2;--pur2:#edebff;
+  --tel:#0694a2;--tel2:#d5f5f6;
+  --r:8px;--rl:12px;--sb:220px;--hh:52px;--bn:58px;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;}
+.app{display:flex;min-height:100vh;}
+
+/* PIN */
+#pin-screen{position:fixed;inset:0;background:linear-gradient(135deg,#0f172a 0%,#1e3a5f 100%);display:flex;align-items:center;justify-content:center;z-index:9999;}
+.pin-box{background:#fff;border-radius:16px;padding:36px 40px;width:min(360px,92vw);text-align:center;box-shadow:0 24px 80px rgba(0,0,0,.4);}
+.pin-logo{font-size:11px;font-weight:800;letter-spacing:.12em;color:var(--tx3);margin-bottom:6px;}
+.pin-title{font-size:22px;font-weight:800;margin-bottom:4px;}
+.pin-sub{font-size:12px;color:var(--tx3);margin-bottom:24px;}
+.pin-dots{display:flex;gap:12px;justify-content:center;margin-bottom:24px;}
+.pin-dot{width:16px;height:16px;border-radius:50%;background:var(--bdr);transition:.2s;}
+.pin-dot.filled{background:var(--acc);}
+.pin-pad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:14px;}
+.pin-btn{padding:16px;border-radius:10px;border:1px solid var(--bdr);background:var(--surf);font-size:18px;font-weight:700;cursor:pointer;transition:.12s;}
+.pin-btn:hover{background:var(--acc2);border-color:var(--acc);}
+.pin-btn:active{transform:scale(.95);}
+.pin-err{color:var(--red);font-size:12px;min-height:18px;}
+
+/* SIDEBAR */
+.sb{width:var(--sb);background:#0f172a;color:#fff;flex-shrink:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:200;transition:transform .25s;}
+.sb-logo{padding:16px 14px 12px;border-bottom:1px solid rgba(255,255,255,.07);}
+.sb-logo-t{font-size:11px;font-weight:800;letter-spacing:.1em;}
+.sb-logo-s{font-size:10px;color:rgba(255,255,255,.3);margin-top:2px;}
+.sb-sync{font-size:9px;color:rgba(255,255,255,.25);padding:5px 14px;display:flex;align-items:center;gap:5px;}
+.sync-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;flex-shrink:0;}
+.sync-dot.off{background:#ef4444;}
+.sb-sec{font-size:9px;font-weight:700;letter-spacing:.1em;color:rgba(255,255,255,.25);padding:14px 14px 4px;text-transform:uppercase;}
+.sbi{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:6px;margin:1px 6px;cursor:pointer;color:rgba(255,255,255,.5);font-size:11px;font-weight:500;transition:.12s;user-select:none;}
+.sbi:hover{background:rgba(255,255,255,.07);color:rgba(255,255,255,.85);}
+.sbi.on{background:var(--acc);color:#fff;}
+.sbi svg{width:14px;height:14px;flex-shrink:0;}
+.sb-badge{margin-left:auto;background:rgba(255,255,255,.12);color:rgba(255,255,255,.55);font-size:9px;padding:1px 6px;border-radius:10px;}
+.sbi.on .sb-badge{background:rgba(255,255,255,.25);color:#fff;}
+.sb-foot{margin-top:auto;padding:10px 14px 14px;border-top:1px solid rgba(255,255,255,.06);font-size:10px;color:rgba(255,255,255,.25);}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:199;}
+
+/* MAIN */
+.main{margin-left:var(--sb);flex:1;min-width:0;}
+.hdr{background:var(--surf);border-bottom:1px solid var(--bdr);height:var(--hh);display:flex;align-items:center;justify-content:space-between;padding:0 16px;position:sticky;top:0;z-index:100;}
+.hdr-t{font-size:15px;font-weight:700;}
+.hdr-s{font-size:11px;color:var(--tx3);background:var(--surf2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);margin-left:8px;}
+.pc{padding:14px 16px;}
+
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;gap:5px;padding:7px 13px;border-radius:var(--r);font-size:12px;font-weight:600;cursor:pointer;border:none;font-family:inherit;transition:.12s;white-space:nowrap;}
+.btn-p{background:var(--acc);color:#fff;}
+.btn-p:hover{background:#1648c0;}
+.btn-g{background:var(--surf);color:var(--tx2);border:1px solid var(--bdr);}
+.btn-g:hover{background:var(--surf2);}
+.btn-d{background:var(--red2);color:var(--red);border:1px solid #fca5a5;}
+.btn-sm{padding:5px 10px;font-size:11px;}
+.btn-xs{padding:3px 8px;font-size:10px;border-radius:5px;}
+
+/* METRICS */
+.mrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:14px;}
+.mc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:13px 15px;}
+.mc.hi{border-top:3px solid var(--acc);}
+.mc.gr{border-top:3px solid var(--grn);}
+.mc.am{border-top:3px solid var(--amb);}
+.mc.re{border-top:3px solid var(--red);}
+.mc.pu{border-top:3px solid var(--pur);}
+.mc.te{border-top:3px solid var(--tel);}
+.mc-l{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:4px;}
+.mc-v{font-size:22px;font-weight:800;line-height:1;}
+.mc-s{font-size:10px;color:var(--tx3);margin-top:3px;}
+
+/* CARDS */
+.card{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;}
+.card-t{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin-bottom:12px;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.cbox{position:relative;width:100%;height:210px;}
+
+/* TABLES */
+.tbl{width:100%;border-collapse:collapse;font-size:11px;}
+.tbl th{background:var(--surf2);padding:7px 9px;text-align:left;font-weight:700;color:var(--tx2);font-size:9px;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid var(--bdr);white-space:nowrap;}
+.tbl td{padding:7px 9px;border-bottom:1px solid var(--bdr);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tr:hover td{background:var(--surf2);}
+.tbl tr.tot td{background:#f8f8f0;font-weight:700;border-top:2px solid var(--bdr);}
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+
+/* PROJECT TABLE */
+.proj-tbl{border-collapse:collapse;font-size:11px;min-width:100%;}
+.proj-tbl th{padding:5px 7px;background:#1e3a5f;color:#fff;font-size:9px;font-weight:700;white-space:nowrap;border:1px solid #2d4f7a;text-align:center;}
+.proj-tbl th.left{text-align:left;}
+.proj-tbl td{padding:4px 6px;border:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;font-size:11px;}
+.proj-tbl tr.disc-hd td{background:#1e3a5f;font-weight:700;font-size:10px;color:#fff !important;}
+.proj-tbl tr.disc-hd.hvac td{background:#93c5fd;color:#1e3a5f !important;}
+.proj-tbl tr.disc-hd.phe td{background:#86efac;color:#14532d !important;}
+.proj-tbl tr.disc-hd.ele td{background:#fcd34d;color:#78350f !important;}
+.proj-tbl tr.disc-hd.elv td{background:#f9a8d4;color:#831843 !important;}
+.proj-tbl tr.disc-hd td{color:#1e293b !important;}
+.proj-tbl tr.eng-row td{background:#fff;}
+.proj-tbl tr.eng-row:hover td{background:#f0f9ff;}
+.proj-tbl td.week-cell{text-align:center;min-width:38px;padding:2px;}
+.proj-tbl td.week-cell input{width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid transparent;border-radius:4px;background:transparent;}
+.proj-tbl td.week-cell input:focus{border-color:var(--acc);background:#fff;outline:none;}
+.proj-tbl .wk-total{background:#e0f2fe;font-weight:700;text-align:center;}
+
+/* BADGES */
+.bdg{display:inline-flex;align-items:center;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:700;white-space:nowrap;}
+.b-grn{background:var(--grn2);color:var(--grn);}
+.b-amb{background:var(--amb2);color:var(--amb);}
+.b-gry{background:var(--surf2);color:var(--tx2);border:1px solid var(--bdr);}
+.b-dxb{background:#ede9fe;color:#5b21b6;}
+.b-egy{background:#fee2e2;color:#991b1b;}
+.b-hvac{background:#dbeafe;color:#1d4ed8;}
+.b-phe{background:#dcfce7;color:#166534;}
+.b-ele{background:#fef9c3;color:#854d0e;}
+.b-elv{background:#fce7f3;color:#9d174d;}
+
+/* HEATMAP CELL */
+.hc{display:inline-block;min-width:36px;text-align:center;font-size:10px;font-weight:700;border-radius:4px;padding:2px 3px;}
+
+/* MODALS */
+.ov{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:400;align-items:flex-start;justify-content:center;overflow-y:auto;padding:20px 12px;}
+.ov.open{display:flex;}
+.modal{background:var(--surf);border-radius:var(--rl);width:100%;max-width:600px;box-shadow:0 20px 60px rgba(0,0,0,.2);margin:auto;}
+.modal-hd{padding:15px 20px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;}
+.modal-ht{font-size:14px;font-weight:700;}
+.modal-bd{padding:18px 20px;overflow-y:auto;max-height:70vh;}
+.modal-ft{padding:11px 20px;border-top:1px solid var(--bdr);display:flex;justify-content:flex-end;gap:8px;align-items:center;}
+.cls{background:none;border:none;cursor:pointer;color:var(--tx3);font-size:22px;line-height:1;padding:2px 6px;}
+
+/* FORMS */
+.fg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:10px;}
+.full{grid-column:1/-1;}
+.ff{display:flex;flex-direction:column;gap:4px;}
+label{font-size:10px;font-weight:700;color:var(--tx2);}
+input,select{width:100%;padding:7px 10px;border:1px solid var(--bdr);border-radius:var(--r);font-size:12px;color:var(--tx);background:var(--surf);font-family:inherit;transition:border-color .12s;}
+input:focus,select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(26,86,219,.08);}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9dab'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;-webkit-appearance:none;}
+
+/* SORT */
+.sort-btn{padding:5px 11px;font-size:11px;font-weight:600;border-radius:20px;border:1px solid var(--bdr);background:var(--surf);color:var(--tx2);cursor:pointer;font-family:inherit;transition:.12s;white-space:nowrap;}
+.sort-btn:hover{background:var(--acc2);border-color:var(--acc);color:var(--acc);}
+.sort-btn.on{background:var(--acc);color:#fff;border-color:var(--acc);}
+.sort-btn.on.asc::after{content:' ↑';font-size:9px;}
+.sort-btn.on.desc::after{content:' ↓';font-size:9px;}
+
+/* PROGRESS BAR */
+.pb{height:5px;border-radius:3px;background:var(--bdr);overflow:hidden;}
+.pb-f{height:100%;border-radius:3px;}
+
+/* FBAR */
+.fbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+
+/* BOTTOM NAV */
+.bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bn);background:#0f172a;border-top:1px solid rgba(255,255,255,.08);z-index:300;padding-bottom:env(safe-area-inset-bottom);}
+.bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:rgba(255,255,255,.4);font-size:9px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;border:none;background:none;font-family:inherit;padding:6px 2px;transition:.12s;}
+.bn-item.on{color:#fff;}
+.bn-item svg{width:20px;height:20px;}
+
+/* TOAST */
+.toast{position:fixed;bottom:20px;right:20px;background:#0f172a;color:#fff;padding:10px 16px;border-radius:var(--r);font-size:12px;z-index:9999;opacity:0;transform:translateY(6px);transition:.2s;pointer-events:none;}
+.toast.show{opacity:1;transform:none;}
+
+/* MOBILE */
+@media(max-width:700px){
+  .sb{transform:translateX(-100%);}
+  .sb.mob-open{transform:translateX(0);}
+  .main{margin-left:0;padding-bottom:var(--bn);}
+  .bot-nav{display:flex!important;}
+  .hdr{padding:0 12px;}
+  .hdr-s{display:none;}
+  .mob-menu-btn{display:flex!important;}
+  .pc{padding:10px 10px;}
+  .mrow{grid-template-columns:repeat(2,1fr)!important;}
+  .g2{grid-template-columns:1fr!important;}
+  .cbox{height:180px!important;}
+  .fbar{flex-direction:column!important;gap:6px!important;}
+  .tbl .col-desig,.tbl .col-grade,.tbl .col-cost{display:none;}
+  .modal{max-width:100%!important;border-radius:var(--rl) var(--rl) 0 0;margin:auto 0 0 0;}
+  .ov{padding:0!important;align-items:flex-end!important;}
+  .modal-bd{max-height:65vh!important;}
+  .fg{grid-template-columns:1fr!important;}
+}
+
+/* ── Print / PDF ─────────────────────────────────────── */
+@media print {
+  body { background: #fff !important; font-size: 11px; }
+  .sb, .mob-sb-overlay, .mob-menu-btn, .btn-p, .btn-g, .btn-d,
+  #proj-back-btn, .fbar, .sort-bar { display: none !important; }
+  select { display: none !important; }
+  .main { margin-left: 0 !important; padding: 10px !important; }
+  .hdr { position: static !important; box-shadow: none !important; border-bottom: 2px solid #1e3a5f; margin-bottom: 12px; padding: 8px 0; }
+  .card { break-inside: avoid; box-shadow: none !important; border: 1px solid #ddd !important; margin-bottom: 10px; }
+  .cbox { height: 180px !important; }
+  canvas { max-width: 100% !important; }
+  .tbl-wrap { overflow: visible !important; max-height: none !important; }
+  .tbl { font-size: 9px; }
+  .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .mrow { display: grid; grid-template-columns: repeat(5,1fr); gap: 6px; }
+  .mc { padding: 8px !important; }
+  .pc { padding: 8px !important; }
+  #pdf-header { display: block !important; }
+  @page { margin: 15mm; size: A4 landscape; }
+}
+#pdf-header { display: none; padding: 0 0 8px 0; border-bottom: 2px solid #1e3a5f; margin-bottom: 10px; }
+</style>
+</head>
+<body>
+
+<!-- PIN -->
+<div id="pin-screen">
+  <div class="pin-box">
+    <div class="pin-logo">MEINHARDT GROUP</div>
+    <div class="pin-title">MEP Resource Plan</div>
+    <div class="pin-sub">Enter your PIN to continue</div>
+    <div class="pin-dots">
+      <div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div>
+      <div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div>
+    </div>
+    <div class="pin-pad">
+      <button class="pin-btn" onclick="pinKey('1')">1</button><button class="pin-btn" onclick="pinKey('2')">2</button><button class="pin-btn" onclick="pinKey('3')">3</button>
+      <button class="pin-btn" onclick="pinKey('4')">4</button><button class="pin-btn" onclick="pinKey('5')">5</button><button class="pin-btn" onclick="pinKey('6')">6</button>
+      <button class="pin-btn" onclick="pinKey('7')">7</button><button class="pin-btn" onclick="pinKey('8')">8</button><button class="pin-btn" onclick="pinKey('9')">9</button>
+      <button class="pin-btn" onclick="pinClear()">CLR</button><button class="pin-btn" onclick="pinKey('0')">0</button><button class="pin-btn" onclick="pinBack()">⌫</button>
+    </div>
+    <div class="pin-err" id="pin-err"></div>
+    <div style="font-size:11px;color:var(--tx3);margin-top:10px;">Contact your administrator for the PIN</div>
+  </div>
+</div>
+
+<div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
+
+<div class="app" id="app-shell" style="display:none">
+<div class="sb" id="sidebar">
+  <div class="sb-logo">
+    <div style="display:flex;align-items:center;justify-content:space-between;">
+      <div><div class="sb-logo-t">MEP RESOURCE PLAN</div><div class="sb-logo-s">Meinhardt Group · 2026</div></div>
+      <button onclick="closeMobSB()" id="sb-close-btn" style="display:none;background:none;border:none;color:rgba(255,255,255,.4);font-size:20px;cursor:pointer;padding:4px;">✕</button>
+    </div>
+  </div>
+  <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button></div>
+  <div class="sb-sec">Overview</div>
+  <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Combined MEP</div>
+  <div class="sbi" id="nav-dxb" onclick="nav('dxb')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Dubai Office<span class="sb-badge" id="sb-dxb">—</span></div>
+  <div class="sbi" id="nav-egy" onclick="nav('egy')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>Egypt Office<span class="sb-badge" id="sb-egy">—</span></div>
+  <div class="sb-sec">Disciplines</div>
+  <div class="sbi" id="nav-hvac" onclick="nav('hvac')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>HVAC<span class="sb-badge" id="sb-hvac">—</span></div>
+  <div class="sbi" id="nav-phe" onclick="nav('phe')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>PH &amp; Fire<span class="sb-badge" id="sb-phe">—</span></div>
+  <div class="sbi" id="nav-ele" onclick="nav('ele')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Electrical<span class="sb-badge" id="sb-ele">—</span></div>
+  <div class="sbi" id="nav-elv" onclick="nav('elv')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>ELV<span class="sb-badge" id="sb-elv">—</span></div>
+  <div class="sb-sec">Manage</div>
+  <div class="sbi" id="nav-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
+  <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
+  <div class="sbi" id="nav-leave" onclick="nav('leave')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave</div>
+  <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours</div>
+  <div class="sbi" id="nav-holidays" onclick="nav('holidays')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays</div>
+  <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
+  <div class="sb-foot" id="sb-foot">Loading…</div>
+</div>
+
+<div class="main">
+  <!-- COMBINED MEP -->
+  <div id="pg-mep">
+    <div class="hdr" style="flex-wrap:wrap;gap:6px;">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Combined MEP</span><span class="hdr-s" id="dash-period-label">All Offices</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
+        <div style="display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:3px 8px;">
+          <span style="font-size:10px;color:var(--tx3);white-space:nowrap;">From</span>
+          <select id="dashFrom" onchange="onDashRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
+          <span style="font-size:10px;color:var(--tx3);">To</span>
+          <select id="dashTo" onchange="onDashRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
+        </div>
+        <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset to full range">All</button>
+        <button class="btn btn-p btn-sm" onclick="exportPDF()" style="display:flex;align-items:center;gap:4px;">&#8681; PDF</button>
+      </div>
+    </div>
+    <div class="pc">
+      <div id="pdf-header"></div>
+      <div class="mrow" id="mep-metrics"></div>
+      <div class="g2">
+        <div class="card"><div class="card-t">Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
+        <div class="card"><div class="card-t">Hours by Discipline</div><div class="cbox"><canvas id="c-mep-donut"></canvas></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="card-t">Dubai vs Egypt</div><div class="cbox"><canvas id="c-mep-office"></canvas></div></div>
+        <div class="card"><div class="card-t">Workload by Project</div><div class="cbox"><canvas id="c-mep-proj"></canvas></div></div>
+      </div>
+      <div class="card"><div class="card-t">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
+      <div class="card"><div class="card-t">Engineer Heatmap — click any row to see project breakdown</div><div class="tbl-wrap"><table class="tbl" id="t-mep-heat"></table></div></div>
+    </div>
+  </div>
+
+  <!-- OFFICE PAGES -->
+  <div id="pg-dxb" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Dubai Office</span><span class="hdr-s" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd">DXB</span></div></div><div class="pc" id="pc-dxb"></div></div>
+  <div id="pg-egy" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Egypt Office</span><span class="hdr-s" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">EGY</span></div></div><div class="pc" id="pc-egy"></div></div>
+  <div id="pg-hvac" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">HVAC</span><span class="hdr-s" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">HVAC</span></div></div><div class="pc" id="pc-hvac"></div></div>
+  <div id="pg-phe" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">PH &amp; Fire</span><span class="hdr-s" style="background:#dcfce7;color:#166534;border-color:#86efac">PH&amp;E</span></div></div><div class="pc" id="pc-phe"></div></div>
+  <div id="pg-ele" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Electrical</span><span class="hdr-s" style="background:#fef9c3;color:#854d0e;border-color:#fde047">ELE</span></div></div><div class="pc" id="pc-ele"></div></div>
+  <div id="pg-elv" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">ELV</span><span class="hdr-s" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4">ELV</span></div></div><div class="pc" id="pc-elv"></div></div>
+
+  <!-- TEAM -->
+  <div id="pg-team" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Team Register</span>
+      </div>
+      <button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>
+    </div>
+    <div class="pc">
+      <div class="fbar" style="flex-direction:row;flex-wrap:wrap;">
+        <input id="ts-q" placeholder="Search…" oninput="renderTeam()" style="flex:1;min-width:120px;max-width:220px;">
+        <select id="ts-disc" onchange="renderTeam()" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select>
+        <select id="ts-off" onchange="renderTeam()" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option></select>
+        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap;margin-top:2px;">
+          <span style="font-size:10px;font-weight:700;color:var(--tx3);">Sort by:</span>
+          <div style="display:flex;gap:4px;flex-wrap:wrap;" id="sort-btns">
+            <button class="sort-btn on asc" data-col="name" onclick="setSort('name')">Name</button>
+            <button class="sort-btn" data-col="disc" onclick="setSort('disc')">Discipline</button>
+            <button class="sort-btn" data-col="off" onclick="setSort('off')">Office</button>
+            <button class="sort-btn" data-col="grade" onclick="setSort('grade')">Grade</button>
+            <button class="sort-btn" data-col="util" onclick="setSort('util')">Utilisation</button>
+            <button class="sort-btn" data-col="projects" onclick="setSort('projects')">Projects</button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table class="tbl">
+        <thead><tr><th style="width:20px"></th><th>#</th><th>Name</th><th class="col-desig">Designation</th><th>Disc</th><th>Off</th><th class="col-grade">Grade</th><th>Avg Util</th><th>Proj</th><th></th></tr></thead>
+        <tbody id="team-body"></tbody>
+      </table></div></div>
+    </div>
+  </div>
+
+  <!-- PROJECTS -->
+  <div id="pg-proj" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t" id="proj-hdr-title">Projects</span>
+      </div>
+      <div style="display:flex;gap:6px;align-items:center;">
+        <button class="btn btn-g btn-sm" id="proj-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
+        <button class="btn btn-p" onclick="openProjModal()">+ New Project</button>
+      </div>
+    </div>
+    <!-- LIST VIEW -->
+    <div id="proj-list-view" class="pc">
+      <div class="fbar">
+        <input id="ps-q" placeholder="Search..." oninput="renderProj()" style="flex:1;max-width:220px;">
+        <select id="ps-st" onchange="renderProj()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
+      </div>
+      <div id="proj-list"></div>
+    </div>
+    <!-- DETAIL VIEW -->
+    <div id="proj-detail-view" style="display:none;" class="pc">
+      <div id="proj-detail-content"></div>
+    </div>
+  </div>
+
+  <!-- ANNUAL LEAVE -->
+  <div id="pg-leave" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Annual Leave</span>
+        <span class="hdr-s" id="leave-period-label"></span>
+      </div>
+      <button class="btn btn-g btn-sm" onclick="clearLeaveHrs()">Clear All</button>
+    </div>
+    <div class="pc" id="pc-leave"></div>
+  </div>
+
+  <!-- MGMT HOURS -->
+  <div id="pg-mgmt" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Management Hours</span>
+        <span class="hdr-s">Associate Engineers only</span>
+      </div>
+    </div>
+    <div class="pc" id="pc-mgmt"></div>
+  </div>
+
+  <!-- PUBLIC HOLIDAYS -->
+  <div id="pg-holidays" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Public Holidays</span>
+        <span class="hdr-s">UAE & Egypt — affects utilisation, not billable</span>
+      </div>
+      <button class="btn btn-p btn-sm" onclick="saveHolidays()">💾 Save Holidays</button>
+    </div>
+    <div class="pc" id="pc-holidays"></div>
+  </div>
+
+  <!-- COST RATES -->
+  <div id="pg-rates" style="display:none">
+    <div class="hdr"><span class="hdr-t">Cost Rates 🔒</span><button class="btn btn-p btn-sm" onclick="saveRates()">💾 Save All Rates</button></div>
+    <div class="pc">
+      <div style="background:var(--amb2);border:1px solid #fde68a;border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--amb);margin-bottom:12px;">💡 Admin only. Separate AED/hour rates for Dubai and Egypt offices. Changes sync instantly to all cost calculations.</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;">
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="background:#1e3a5f;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🇦🇪 Dubai Office (DXB) — AED/hour</div>
+          <table class="tbl"><thead><tr><th>Grade Tier</th><th style="width:140px">AED / hour</th></tr></thead><tbody id="rates-body-dxb"></tbody></table>
+        </div>
+        <div class="card" style="padding:0;overflow:hidden">
+          <div style="background:#166534;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🇪🇬 Egypt Office (EGY) — AED/hour</div>
+          <table class="tbl"><thead><tr><th>Grade Tier</th><th style="width:140px">AED / hour</th>
+          </tr></thead>
+          <tbody id="rates-body-egy"></tbody></table>
+        </div>
+      </div>
+      <div style="max-width:900px;margin-top:10px;padding:10px 14px;background:#f0fdf4;border-radius:var(--r);border:1px solid #86efac;font-size:11px;color:#166534;">
+        ℹ️ Rates are automatically applied based on each engineer's office. DXB engineers use Dubai rates, EGY engineers use Egypt rates.
+      </div>
+    </div>
+  </div>
+</div><!-- end main -->
+
+<!-- BOTTOM NAV -->
+<nav class="bot-nav">
+  <button class="bn-item on" id="bn-mep" onclick="nav('mep')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Dash</button>
+  <button class="bn-item" id="bn-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team</button>
+  <button class="bn-item" id="bn-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</button>
+  <button class="bn-item" id="bn-more" onclick="openMobSB()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>More</button>
+</nav>
+</div><!-- end app -->
+
+<!-- ENGINEER MODAL -->
+<div class="ov" id="eng-ov">
+<div class="modal" style="max-width:480px;">
+  <div class="modal-hd"><div class="modal-ht" id="eng-title">Add Engineer</div><button class="cls" onclick="closeEngModal()">&times;</button></div>
+  <div class="modal-bd" style="max-height:none">
+    <div class="fg">
+      <div class="ff full"><label>Full Name *</label><input id="em-name"></div>
+      <div class="ff full"><label>Designation</label><input id="em-desig" placeholder="e.g. Senior Electrical Engineer"></div>
+      <div class="ff"><label>Employee No.</label><input id="em-empno" placeholder="e.g. EMEP001"></div>
+      <div class="ff"><label>Grade Label</label><input id="em-grade-txt" placeholder="e.g. Grade 4"></div>
+      <div class="ff"><label>Discipline *</label><select id="em-disc"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
+      <div class="ff"><label>Office *</label><select id="em-off"><option>DXB</option><option>EGY</option></select></div>
+      <div class="ff"><label>Grade Tier (cost)</label><select id="em-grade"></select></div>
+      <div class="ff"><label>Capacity hrs/wk</label><input type="number" id="em-cap" value="45" min="1" max="80"></div>
+      <div class="ff full"><label>Note</label><input id="em-note" placeholder="e.g. Part-time, joining Jul…"></div>
+    </div>
+  </div>
+  <div class="modal-ft"><button class="btn btn-g" onclick="closeEngModal()">Cancel</button><button class="btn btn-p" onclick="saveEng()">Save</button></div>
+</div>
+</div>
+
+<!-- PROJECT MODAL -->
+<div class="ov" id="proj-ov">
+<div class="modal" style="max-width:500px;">
+  <div class="modal-hd"><div class="modal-ht" id="proj-title">New Project</div><button class="cls" onclick="closeProjModal()">&times;</button></div>
+  <div class="modal-bd" style="max-height:none">
+    <div class="fg">
+      <div class="ff"><label>Project Number *</label><input id="pw-no" placeholder="e.g. 24035"></div>
+      <div class="ff"><label>Project Name *</label><input id="pw-name" placeholder="e.g. Dubai Square Mall"></div>
+      <div class="ff"><label>Client</label><input id="pw-client"></div>
+      <div class="ff"><label>Project Manager</label><input id="pw-pm"></div>
+      <div class="ff"><label>Start Date</label><input type="date" id="pw-start" value="2026-04-06"></div>
+      <div class="ff"><label>End Date</label><input type="date" id="pw-end" value="2026-12-31"></div>
+      <div class="ff"><label>Status</label><select id="pw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
+      <div class="ff"><label>Location</label><input id="pw-loc"></div>
+      <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
+    </div>
+  </div>
+  <div class="modal-ft"><button class="btn btn-g" onclick="closeProjModal()">Cancel</button><button class="btn btn-p" onclick="saveProj()">Save Project</button></div>
+</div>
+</div>
+
+<!-- ADMIN PIN MODAL -->
+<div class="ov" id="admin-ov">
+<div class="modal" style="max-width:340px;">
+  <div class="modal-hd"><div class="modal-ht">🔒 Admin Access</div><button class="cls" onclick="document.getElementById('admin-ov').classList.remove('open')">&times;</button></div>
+  <div class="modal-bd" style="max-height:none;text-align:center;padding:24px 20px;">
+    <div style="font-size:12px;color:var(--tx2);margin-bottom:16px;">Enter the admin PIN to access Cost Rates.</div>
+    <input id="admin-pin-input" type="password" maxlength="8" placeholder="Admin PIN" style="text-align:center;font-size:18px;letter-spacing:.2em;font-weight:700;max-width:200px;margin:0 auto 8px;" onkeydown="if(event.key==='Enter')checkAdminPin()">
+    <div id="admin-pin-err" style="color:var(--red);font-size:11px;min-height:16px;margin-top:4px;"></div>
+  </div>
+  <div class="modal-ft" style="justify-content:center;">
+    <button class="btn btn-g" onclick="document.getElementById('admin-ov').classList.remove('open')">Cancel</button>
+    <button class="btn btn-p" onclick="checkAdminPin()">Unlock</button>
+  </div>
+</div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ═══════════════════════════════════════
+// CONFIG — change PINs here
+// ═══════════════════════════════════════
+const SB_URL    = 'https://wgmkqrxivesphvutychm.supabase.co';
+const SB_KEY    = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
+const TEAM_PIN  = '2026';
+const ADMIN_PIN = '9999';
+
+const MON   = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const MONL  = ['April','May','June','July','August','September','October','November','December'];
+const WPM   = [4,4,5,4,5,4,5,4,4];
+// ── Dynamic range support ──────────────────────────────
+// All months across ALL project data, computed at runtime
+let G_START_MI = 0;   // global range start month index (0=Apr2026)
+let G_END_MI   = 8;   // global range end month index
+let G_NMON     = 9;   // number of months in current range
+// Convert absolute month index (0=Apr2026) to {year,month0based}
+function miToDate(mi){const y=2026+Math.floor((mi+3)/12);const m=(mi+3)%12;return{y,m};}
+// Get short label for absolute month index
+function miLabel(mi){const {y,m}=miToDate(mi);return ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][m]+' '+y;}
+function miLabelL(mi){const {y,m}=miToDate(mi);return ['January','February','March','April','May','June','July','August','September','October','November','December'][m]+' '+y;}
+// Weeks per month for any absolute month index
+// Full 12-month weeks-per-month table (Jan-Dec)
+const WPM12=[4,4,5,4,4,5,4,5,4,5,4,4];
+function wpmFor(mi){const {m}=miToDate(mi);return WPM12[m]||4;}
+// Convert a Date object to absolute month index
+function dateToMI(d){return(d.getFullYear()-2026)*12+(d.getMonth()-3);}
+const GRADES= ['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer','Senior Engineer','Engineer','Junior / Grad Engineer','BIM / Technician','Intern'];
+const DEF_RATES_DXB={'Technical Manager':350,'Associate Engineer':280,'Principal Engineer':260,'Lead Engineer':240,'Senior Engineer':200,'Engineer':150,'Junior / Grad Engineer':120,'BIM / Technician':110,'Intern':80};
+const DEF_RATES_EGY={'Technical Manager':80,'Associate Engineer':50,'Principal Engineer':45,'Lead Engineer':45,'Senior Engineer':30,'Engineer':15,'Junior / Grad Engineer':13,'BIM / Technician':10,'Intern':6};
+// DEF_RATES kept for backwards compat - will be replaced by S.ratesDXB/S.ratesEGY
+const DEF_RATES=DEF_RATES_DXB;
+const DC={HVAC:'#1d4ed8','PH&E':'#166534',ELE:'#854d0e',ELV:'#9d174d'};
+const DISC_CLS={HVAC:'hvac','PH&E':'phe',ELE:'ele',ELV:'elv'};
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let S={engineers:[],projects:[],rates:{},ratesDXB:{},ratesEGY:{},leaveHrs:{},mgmtHrs:{},holidaysUAE:[],holidaysEGY:[]};
+let eId=null,pId=null,adminUnlocked=false;
+const CH={};
+window.projCollapsed={};
+window.engExpanded={};
+window.teamSort={col:'name',dir:'asc'};
+
+// ═══════════════════════════════════════
+// PIN
+// ═══════════════════════════════════════
+let pinVal='';
+function pinKey(k){if(pinVal.length>=4)return;pinVal+=k;updDots();if(pinVal.length===4)setTimeout(checkPin,150);}
+function pinBack(){pinVal=pinVal.slice(0,-1);updDots();}
+function pinClear(){pinVal='';updDots();}
+function updDots(){for(let i=0;i<4;i++)document.getElementById('d'+i).classList.toggle('filled',i<pinVal.length);}
+function checkPin(){
+  if(pinVal===TEAM_PIN){
+    document.getElementById('pin-screen').style.display='none';
+    document.getElementById('app-shell').style.display='flex';
+    initApp();
+  } else {
+    document.getElementById('pin-err').textContent='Incorrect PIN. Try again.';
+    pinVal='';updDots();
+    setTimeout(()=>document.getElementById('pin-err').textContent='',2000);
+  }
+}
+
+// ═══════════════════════════════════════
+// ADMIN
+// ═══════════════════════════════════════
+function requireAdmin(){
+  if(adminUnlocked){nav('rates');return;}
+  document.getElementById('admin-pin-input').value='';
+  document.getElementById('admin-pin-err').textContent='';
+  document.getElementById('admin-ov').classList.add('open');
+  setTimeout(()=>document.getElementById('admin-pin-input').focus(),100);
+}
+function checkAdminPin(){
+  const v=document.getElementById('admin-pin-input').value;
+  if(v===ADMIN_PIN){adminUnlocked=true;document.getElementById('admin-ov').classList.remove('open');nav('rates');toast('Admin access granted ✓');}
+  else{document.getElementById('admin-pin-err').textContent='Incorrect PIN.';document.getElementById('admin-pin-input').value='';setTimeout(()=>document.getElementById('admin-pin-err').textContent='',2000);}
+}
+
+// ═══════════════════════════════════════
+// SUPABASE
+// ═══════════════════════════════════════
+async function sbFetch(path,method='GET',body=null,prefer='return=representation'){
+  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+SB_KEY,'Content-Type':'application/json','Prefer':prefer}};
+  if(body)opts.body=JSON.stringify(body);
+  const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
+  if(!r.ok)throw new Error(await r.text());
+  const t=await r.text();return t?JSON.parse(t):[];
+}
+async function sbGet(t){return sbFetch(t+'?select=*');}
+async function sbUpsert(table,row){
+  // merge-duplicates = UPDATE on conflict, never errors on duplicate key
+  return sbFetch(table,'POST',row,'resolution=merge-duplicates,return=representation');
+}
+async function sbDel(table,id){return sbFetch(table+'?id=eq.'+id,'DELETE');}
+function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;}
+
+async function initApp(){
+  setSyncStatus(false,'Connecting…');
+  try{
+    const[engs,projs,sets,leaveRows,mgmtRows,holRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays')]);
+    S.engineers=engs.map(r=>r.data);
+    S.projects=projs.map(r=>r.data);
+    const rr=Array.isArray(sets)?sets.find(r=>r.key==='ratesDXB'):null;
+    S.ratesDXB=rr?rr.value:JSON.parse(JSON.stringify(DEF_RATES_DXB));
+    const regy=Array.isArray(sets)?sets.find(r=>r.key==='ratesEGY'):null;
+    S.ratesEGY=regy?regy.value:JSON.parse(JSON.stringify(DEF_RATES_EGY));
+    // Legacy rates fallback
+    const rrOld=Array.isArray(sets)?sets.find(r=>r.key==='rates'):null;
+    S.rates=S.ratesDXB; // keep S.rates pointing to DXB for backward compat
+    const re=Array.isArray(sets)?sets.find(r=>r.key==='mgmtExtra'):null;
+    S.mgmtExtra=re?re.value:[];
+    S.mgmtExtraTemp=(S.mgmtExtra||[]).map(id=>({id}));
+    // leaveHrs: {engId: [hrs per week indexed from global start]}
+    S.leaveHrs={};leaveRows.forEach(r=>{if(r.id&&r.data)S.leaveHrs[r.id]=r.data;});
+    S.mgmtHrs={};mgmtRows.forEach(r=>{if(r.id&&r.data)S.mgmtHrs[r.id]=r.data;});
+    const holUAE=holRows.find(r=>r.id==='uae');
+    const holEGY=holRows.find(r=>r.id==='egy');
+    S.holidaysUAE=holUAE?holUAE.data:getDefaultHolidays('UAE');
+    S.holidaysEGY=holEGY?holEGY.data:getDefaultHolidays('EGY');
+    if(!S.engineers.length)await seedData();
+    setSyncStatus(true,'Live · '+new Date().toLocaleTimeString());
+  }catch(e){
+    setSyncStatus(false,'Offline — local cache');
+    loadLocal();
+    console.error('Supabase connection failed:',e);
+    // Show toast with actual error
+    toast('DB Error: '+((e&&e.message)||String(e)).slice(0,80));
+  }
+  updSB();DASH_FROM_MI=null;DASH_TO_MI=null;nav('mep');
+}
+async function seedData(){
+  S.engineers=mkEngineers();S.projects=mkProjects(S.engineers);S.rates=JSON.parse(JSON.stringify(DEF_RATES));
+  for(const e of S.engineers)await sbUpsert('engineers',{id:e.id,data:e});
+  for(const p of S.projects)await sbUpsert('projects',{id:p.id,data:p});
+  await sbFetch('settings','POST',{key:'rates',value:S.rates},'resolution=merge-duplicates,return=representation');
+}
+function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;S.rates=p.rates||S.rates;S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){}
+  if(!S.engineers||!S.engineers.length){S.engineers=mkEngineers();S.projects=mkProjects(S.engineers);S.rates=JSON.parse(JSON.stringify(DEF_RATES));}}
+function saveLocal(){try{localStorage.setItem('mepR26',JSON.stringify(S));}catch(e){}}
+async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
+async function pushProj(p){try{await sbUpsert('projects',{id:p.id,data:p});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
+async function pushRates(){try{
+  await Promise.all([
+    sbFetch('settings','POST',{key:'ratesDXB',value:S.ratesDXB},'resolution=merge-duplicates,return=representation'),
+    sbFetch('settings','POST',{key:'ratesEGY',value:S.ratesEGY},'resolution=merge-duplicates,return=representation'),
+  ]);
+  setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
+
+// ═══════════════════════════════════════
+// SEED DATA
+// ═══════════════════════════════════════
+function d2g(d){
+  const s=(d||'').toLowerCase();
+  if(s.includes('technical manager')||s.includes('mep technical'))return 'Technical Manager';
+  if(s.includes('associate engineer')||s.includes('associate electrical')||s.includes('associate mech')||s.includes('associate elv'))return 'Associate Engineer';
+  if(s.includes('principal'))return 'Principal Engineer';
+  if(s.includes('lead'))return 'Lead Engineer';
+  if(s.includes('senior')||s.includes('sr.'))return 'Senior Engineer';
+  if(s.includes('junior')||s.includes('jr.')||s.includes('grad'))return 'Junior / Grad Engineer';
+  if(s.includes('intern'))return 'Intern';
+  if(s.includes('bim')||s.includes('technician'))return 'BIM / Technician';
+  return 'Engineer';
+}
+function mkE(id,name,desig,disc,off,empno,gl){return{id,name,desig,disc,off,empno:empno||'',gradeLabel:gl||'',grade:d2g(desig),cap:45,note:''};}
+function mkEngineers(){return[
+  mkE('h1','Shadi M. Sobh','Associate Engineer (HVAC)','HVAC','DXB','EMEP024','Grade 7'),
+  mkE('h2','Maqsood Alam','Associate Engineer (HVAC)','HVAC','DXB','EMEP025','Grade 7'),
+  mkE('h3','Chandra Muniyappa','Principal Engineer (HVAC)','HVAC','DXB','EMEP026','Grade 9'),
+  mkE('h4','Maged Hanna','Sr. Engineer (HVAC)','HVAC','DXB','EMEP027','Grade 5'),
+  mkE('h5','Nuzaan Majgaonkar','Sr. Engineer (HVAC)','HVAC','DXB','EMEP028','Grade 5'),
+  mkE('h6','Zain Ul Abedin Syed','Sr. Engineer (HVAC)','HVAC','DXB','EMEP029','Grade 5'),
+  mkE('h7','Abdulrahman','Sr. Engineer (HVAC)','HVAC','DXB','EMEP030','Grade 5'),
+  mkE('h8','Mohd Mubassir','Engineer (HVAC)','HVAC','DXB','EMEP031','Grade 4'),
+  mkE('h9','Tarique Mahboob','Engineer (HVAC)','HVAC','DXB','EMEP032','Grade 4'),
+  mkE('h10','Atul Tale','Engineer (HVAC)','HVAC','DXB','EMEP033','Grade 4'),
+  mkE('h11','Abhijith Ts','BIM Engineer (HVAC)','HVAC','DXB','EMEP034','Grade 3'),
+  mkE('h12','Venkata Kolli','BIM Engineer (HVAC)','HVAC','DXB','EMEP035','Grade 3'),
+  mkE('h13','Shahnawaz','BIM Engineer (HVAC)','HVAC','DXB','EMEP036','Grade 3'),
+  mkE('h14','Mariam','Lead Engineer (HVAC-EGY)','HVAC','EGY','EMEP037','Grade 6'),
+  mkE('h15','Mahmoud Ashraf','Sr. Engineer (HVAC-EGY)','HVAC','EGY','EMEP038','Grade 5'),
+  mkE('h16','Hasabo','Sr. Engineer (HVAC-EGY)','HVAC','EGY','EMEP039','Grade 5'),
+  mkE('h17','Sherif Yasser','Engineer (HVAC-EGY)','HVAC','EGY','EMEP040','Grade 4'),
+  mkE('h18','Mohd Salah','Engineer (HVAC-EGY)','HVAC','EGY','EMEP041','Grade 4'),
+  mkE('p1','Salman Sabir','Associate Engineer (PH)','PH&E','DXB','EMEP042','Grade 7'),
+  mkE('p2','Leo Jr. Correa','Sr. Engineer (PH)','PH&E','DXB','EMEP043','Grade 5'),
+  mkE('p3','Rayan Escuadro','Sr. Engineer (PH)','PH&E','DXB','EMEP044','Grade 5'),
+  mkE('p4','Danish Idrees','Sr. Engineer (PH)','PH&E','DXB','EMEP045','Grade 5'),
+  mkE('p5','Shahwaz Taj','Engineer (PH)','PH&E','DXB','EMEP046','Grade 4'),
+  mkE('p6','Fatma Abady Awad Abady','Lead Engineer (PH-EGY)','PH&E','EGY','EMEP047','Grade 6'),
+  mkE('p7','Abd El Hamid Mansour','Engineer (PH-EGY)','PH&E','EGY','EMEP048','Grade 4'),
+  mkE('p8','Omar Ramdan','Engineer (PH-EGY)','PH&E','EGY','EMEP049','Grade 4'),
+  mkE('p9','Mohamed Adel','Engineer (PH-EGY)','PH&E','EGY','EMEP050','Grade 4'),
+  mkE('e0','Amr Ahmed Mohamed Elsayed Shahin','MEP Technical Manager','ELE','DXB','EMEP001','Grade 9'),
+  mkE('e1','Senthil Kumar Sundara Rajan','Associate Electrical Engineer','ELE','DXB','EMEP004','Grade 7'),
+  mkE('e2','Vijoy Vadakkan Varghese Varghese','Principal Electrical Engineer','ELE','DXB','EMEP003','Grade 9'),
+  mkE('e3','Parvez Alam Wasiq Ahmad','Senior Electrical Engineer','ELE','DXB','EMEP005','Grade 5'),
+  mkE('e4','Zafar Hasmatulla Shaikh','Senior Electrical Engineer','ELE','DXB','EMEP006','Grade 4'),
+  mkE('e5','Janeet Singh Ananth','Senior Electrical Engineer','ELE','DXB','EMEP007','Grade 5'),
+  mkE('e6','Navas Ambalath Veettil Abdul Nasar','Electrical Engineer','ELE','DXB','EMEP008','Grade 4'),
+  mkE('e7','Tajammul Hussain Mohammad Tahir','Electrical Engineer','ELE','DXB','EMEP009','Grade 4'),
+  mkE('e8','Mel Bryan Amistas Malapad','Electrical Engineer','ELE','DXB','EMEP010','Grade 4'),
+  mkE('e9','Maithah Abdulla Mohamed Saad Alyaaqeib','Electrical Engineer','ELE','DXB','EMEP011','Grade 4'),
+  mkE('e10','Mohamed Anwar','Lead Electrical Engineer (EGY)','ELE','EGY','EMEP012','Grade 6'),
+  mkE('e11','Mahmoud Gomaa','Senior Design Engineer (EGY)','ELE','EGY','EMEP013','Grade 5'),
+  mkE('e12','Mohamed Hamdy','Electrical Design Engineer (EGY)','ELE','EGY','EMEP014','Grade 4'),
+  mkE('e13','Mohamed Ismail','Electrical Design Engineer (EGY)','ELE','EGY','EMEP015','Grade 4'),
+  mkE('e14','Hady Khaled','Junior Electrical Engineer (EGY)','ELE','EGY','EMEP016','Grade 3'),
+  mkE('e15','Mahmoud Badawy','Junior Electrical Engineer (EGY)','ELE','EGY','EMEP017','Grade 3'),
+  mkE('e16','Alaa Adel','Intern. Electrical Engineer (EGY)','ELE','EGY','EMEP018','Grade 2'),
+  mkE('e17','Ahmed Ismail','Intern. Electrical Engineer (EGY)','ELE','EGY','EMEP019','Grade 2'),
+  mkE('v1','Amgad Mostafa Aly Mostafa Abdelhalim','Principal ELV Engineer','ELV','DXB','EMEP020','Grade 9'),
+  mkE('v2','Suresh Kumar Selvaraj','Lead ELV Engineer','ELV','DXB','EMEP021','Grade 6'),
+  mkE('v3','Dilish George George Abraham Edakkara','Senior ELV Engineer','ELV','DXB','EMEP022','Grade 5'),
+  mkE('v4','Kushal','Sr. ELV Engineer','ELV','DXB','EMEP023','Grade 5'),
+  mkE('v5','Senthilkumar Jayaprakash','ELV Engineer','ELV','DXB','EMEP051','Grade 4'),
+  mkE('v6','Mohamed Malek','Principal ELV Engineer (EGY)','ELV','EGY','EMEP052','Grade 9'),
+  mkE('v7','Mohamed Eid','Senior ELV Engineer (EGY)','ELV','EGY','EMEP053','Grade 5'),
+  mkE('v8','Ahmed Darrag','ELV Design Engineer (EGY)','ELV','EGY','EMEP054','Grade 4'),
+  mkE('v9','Omar Ibrahim','Design Engineer (EGY)','ELV','EGY','EMEP055','Grade 4'),
+  mkE('v10','Mohamed Ehab','Intern. ELV Engineer (EGY)','ELV','EGY','EMEP056','Grade 2'),
+];}
+
+function stageWeeks(start,end){
+  const wks=[];let d=new Date(start);const day=d.getDay();
+  if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
+  const se=new Date(end);
+  while(d<=se){wks.push(new Date(d));d=new Date(d);d.setDate(d.getDate()+7);}
+  return wks;
+}
+function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/864e5+j.getDay()+1)/7);}
+
+// AUTO-GENERATED weekly hours from Excel files
+const EXCEL_WEEKLY_HRS = {
+  "pr1": {
+    "e0": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e1": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4.5],
+    "e10": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 27, 27, 18, 18],
+    "e14": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 27, 27, 27, 0, 0, 27, 27],
+    "e2": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e7": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 36, 0, 0, 36, 36, 36, 36, 36, 45, 45, 45, 45, 45, 45],
+    "h1": [0, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 5, 5, 5, 9, 9, 9, 9, 9, 9, 9, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "h14": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+    "h16": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "h17": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "p1": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 4.5, 4.5, 4.5, 4.5, 9, 18, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 9],
+    "p3": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 0, 0, 18, 18, 18, 9, 9, 9, 18, 18, 18, 18, 18, 27],
+  },
+  "pr10": {
+    "e0": [0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e1": [4.5, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e14": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 18, 18],
+    "e15": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e17": [18, 18, 18, 18, 18, 18, 18, 18],
+    "e2": [9, 9, 0, 9, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e5": [18, 18, 18, 18, 18, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e7": [0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 0, 0, 0, 0, 0, 0, 18, 18],
+    "e8": [9, 9, 9, 9, 9, 9, 9, 9, 0, 9, 0, 0, 0, 9, 9, 9, 9, 9, 9],
+    "h10": [0, 0, 0, 18, 18, 18, 18, 18, 36, 36, 36, 18, 18, 36, 36, 36, 36, 36, 36],
+    "h2": [18, 9, 9, 9, 9, 9, 9, 18, 18, 18, 9, 9, 9, 9, 9, 9, 18, 18, 18],
+    "h5": [9, 9, 18, 9, 36, 36, 18, 18, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36],
+    "h6": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18],
+    "p1": [0, 4.5, 4.5, 9, 4.5, 4.5, 4.5, 4.5, 9, 9, 4.5, 4.5, 4.5, 4.5, 4.5, 9, 9, 9, 18, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9],
+    "p2": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 18, 18, 18, 18, 18, 18, 9],
+    "p3": [0, 0, 9, 0, 18, 18, 18, 18, 18, 18, 18, 18, 0, 0, 0, 18, 18, 18, 27],
+    "p5": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "p9": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 18],
+  },
+  "pr11": {
+    "e0": [1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "e1": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e10": [18, 18, 18, 18, 18, 18, 0, 0, 18],
+    "e14": [18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e2": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e4": [18, 36, 36, 36, 36, 36, 45, 45, 45],
+    "e7": [9, 18, 18, 18, 18, 0, 0, 18, 18],
+    "e9": [9, 0, 0, 9, 9, 9, 9, 9, 9],
+    "h11": [36, 36, 36, 36, 36, 36, 36, 36, 36],
+    "h2": [18, 18, 9, 9, 9, 9, 9, 9, 9],
+    "h7": [36, 36, 18, 18, 18, 18, 18, 18, 18],
+    "p1": [1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "p3": [18, 18, 18, 18, 0, 0, 9, 18, 18],
+  },
+  "pr12": {
+  },
+  "pr13": {
+    "e0": [0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e1": [0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e11": [27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0, 0, 27, 27, 27, 27, 27, 27, 27, 27],
+    "e12": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e13": [27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0, 0, 0, 27, 27, 27],
+    "e17": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e3": [36, 36, 36, 0, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 0, 0, 36, 36, 36],
+    "e4": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36],
+    "h10": [18, 18, 36, 36, 36, 36, 36, 9, 36, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 9, 9, 9, 9, 9, 9, 9, 9, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h13": [45, 45, 45, 45, 45, 45, 45, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 36, 36, 36, 36, 36, 36, 36, 0, 0, 0, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h2": [0, 9, 9, 9, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h6": [45, 45, 45, 45, 45, 45, 45, 45, 45, 36, 36, 36, 36, 36, 36, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h8": [0, 0, 0, 0, 0, 0, 36, 9, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 45, 45, 45],
+    "p1": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "p2": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "p5": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 0, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+  },
+  "pr14": {
+    "e0": [1, 1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    "e1": [0, 0, 0, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e13": [0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 18, 18, 18, 18],
+    "e16": [0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e2": [4.5, 4.5, 4.5, 4.5, 9, 9, 4.5, 4.5, 4.5, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 9],
+    "e4": [0, 18, 18, 18, 36, 36, 18, 18, 45, 45, 45, 36, 36, 36, 36, 0, 0, 0, 45, 45, 45, 45],
+    "e5": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 45, 45, 45, 45, 45, 45, 45],
+    "e6": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 27, 27, 27, 27, 27, 27],
+    "e7": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18],
+    "e8": [0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "h1": [22.5, 22.5, 22.5, 22.5, 22.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "h14": [0, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5, 22.5],
+    "h15": [0, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h18": [0, 22.5, 22.5, 27, 27, 27, 18, 18, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h4": [18, 18, 18, 18, 18, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "p1": [4.5, 4.5, 4.5, 4.5, 4.5, 18, 9, 9, 9, 9, 18, 9, 9, 9, 9, 9, 9, 9, 9, 9, 18, 22.5, 4.5, 4.5, 4.5, 4.5, 9, 9, 9, 9],
+    "p2": [0, 0, 0, 0, 9, 18, 18, 18, 9, 0, 0, 0, 0, 0, 0, 0, 0, 27, 27, 27, 27, 18, 27, 27, 27, 27, 27, 27, 27, 18],
+    "p3": [0, 0, 0, 18, 18, 18, 18, 18, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 27, 27, 36, 18, 27, 27, 27, 27, 27, 27, 27, 27],
+    "p4": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 18, 18, 18, 18, 27, 27, 27, 27],
+    "p5": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 27, 27, 27, 27, 27, 27, 27, 27],
+    "p6": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "p7": [18, 18, 18, 18],
+    "p8": [0, 0, 0, 0, 0, 0, 9, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+  },
+  "pr2": {
+    "e0": [0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e1": [9, 0, 0, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e12": [9, 18, 18, 18, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e15": [18, 18, 18, 18, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 45, 45],
+    "e16": [9],
+    "e17": [9],
+    "e2": [9, 9, 0, 9, 36, 36, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 27, 27],
+    "e6": [45, 45, 45, 45, 45, 45, 0, 45, 45, 45, 45, 45, 45, 45, 45, 0, 0, 45, 45, 45],
+    "e9": [45, 18, 18, 18, 0, 0, 0, 0, 18, 0, 0, 18, 18, 18, 18, 18, 18, 18, 45, 45],
+    "h11": [0, 0, 0, 0, 36, 18, 18, 9, 9, 9, 9, 45, 45, 9, 9, 9, 9, 45, 45],
+    "h12": [9, 9, 45, 45, 45, 45, 45, 36, 36, 36, 36, 45, 45, 36, 36, 36, 45, 45, 45],
+    "h2": [9, 9, 4, 9, 9, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5, 5],
+    "h3": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h4": [45, 45, 45, 45, 27, 27, 27, 18, 18, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h8": [45, 45, 45, 45, 45, 45, 45, 27, 27, 27, 27, 45, 45, 27, 27, 27, 45, 45, 45],
+    "p1": [0, 18, 18, 18, 9, 9, 9, 9, 9, 18, 18, 18, 27, 27, 9, 9, 9, 9, 9, 18],
+    "p4": [54, 9, 54, 9, 45, 45, 45, 36, 45, 45, 45, 36, 45, 45, 45, 45, 45, 45, 45, 45],
+    "p9": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+  },
+  "pr3": {
+    "e0": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "e15": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e2": [0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 9],
+    "e4": [0, 18, 18, 18, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 0, 0, 18, 18, 18, 0, 18],
+    "e7": [18, 18, 18, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 0, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e9": [9, 9, 9, 9, 9, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h11": [5, 27, 27, 0, 0, 0, 9, 9, 9, 27, 27, 27, 36, 36, 36, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 45, 45, 45, 45, 45, 45, 45],
+    "h2": [10, 10, 18, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h7": [27, 27, 27, 9, 9, 9, 18, 18, 18, 18, 18, 27, 27, 27, 27, 9, 9, 9, 18, 18, 18, 18, 18, 18, 18, 18, 18, 36, 36, 36, 36, 36],
+    "p1": [0.5, 0.5, 0.5, 0, 0, 0, 0, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5],
+    "p3": [9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 0, 0, 0, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 18],
+  },
+  "pr4": {
+    "e0": [0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e1": [4.5, 0, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e10": [9, 9, 9, 9, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 0, 0, 9, 9, 0, 0, 0, 0, 27, 27],
+    "e11": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 0, 0, 18, 18, 18, 18, 0, 0, 18, 18],
+    "e12": [27, 27, 27, 27, 27, 27, 27, 27, 18, 18, 18, 18, 18, 27, 27, 27, 27, 27, 0, 0, 0, 0, 27, 27, 27, 27],
+    "e14": [36, 36, 36, 36, 36, 36, 36, 36, 0, 0, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 0, 0, 9, 9],
+    "e16": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 9, 9, 45, 45],
+    "e17": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 36, 36],
+    "e3": [27, 27, 27, 0, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 0, 0, 27, 27, 27],
+    "h1": [18, 18, 18, 18, 18, 9, 9, 18, 18, 18, 18, 18, 18, 18, 13.5, 13.5, 13.5, 13.5, 9, 9, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2],
+    "h12": [0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18],
+    "h14": [0, 0, 0, 0, 0, 0, 1, 1, 1, 9, 9, 9],
+    "h15": [0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18],
+    "h18": [0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18],
+    "h3": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 0, 0, 4.5, 4.5, 4.5, 4.5],
+    "h9": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 18, 18, 27, 27, 27, 27, 9, 9, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "p1": [15, 15, 15, 15, 9, 9, 9, 0, 0, 0, 0, 18, 18, 27, 27, 27, 27, 27, 9, 9, 9, 9, 18, 18, 9, 9, 9, 9, 0, 0, 9, 9, 9, 9],
+    "p2": [18, 18, 18, 27, 9, 9, 18, 18, 18, 27, 27, 0, 0, 0, 0, 27, 27, 27, 9, 9, 18, 18, 27, 27, 9, 9, 9, 9, 9, 9],
+    "p6": [18, 18, 18, 18, 9, 9, 27, 27, 27, 27, 45, 45, 45, 45, 45, 45, 45, 45, 18, 18, 45, 45, 45, 45, 18, 18, 18, 18, 18, 18, 27, 27, 27, 27],
+    "p7": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 27, 27, 27, 27],
+    "p8": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 18, 9, 18, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 18],
+  },
+  "pr5": {
+    "e0": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "e1": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e10": [18, 18, 18, 18, 18, 18, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e11": [27, 27, 27, 27, 27, 27, 27, 27, 0, 0, 27, 27, 27, 27, 27, 27, 27, 27],
+    "e14": [45, 45],
+    "e16": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 45, 45, 18, 18],
+    "e17": [36, 36, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 0, 0, 45, 45],
+    "h1": [3, 3, 3, 3, 3, 3, 9, 9, 9, 3, 3, 3, 3, 3, 9, 9, 9, 3, 3, 3, 3, 3],
+    "h11": [0, 0, 18, 18, 18, 18, 27, 27, 27, 27, 27, 18],
+    "h13": [0, 0, 18, 18, 18, 18, 45, 45, 45, 45, 45, 18],
+    "h3": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "h9": [27, 22.5, 22.5, 22.5, 22.5, 22.5, 45, 45, 45, 45, 45, 45, 22.5, 22.5, 18, 18, 9, 9, 9, 9, 9, 9],
+    "p1": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 13.5, 13.5, 13.5, 13.5, 4.5, 4.5, 4.5, 4.5, 4.5],
+    "p4": [9, 9, 9, 0, 18, 18, 18, 9, 9, 18, 18, 18, 18, 18, 27, 18, 18, 18, 27, 18, 0, 0, 9, 9, 9, 9],
+    "p9": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+  },
+  "pr6": {
+    "e0": [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "e1": [9, 0, 9, 9, 9, 9, 9, 4.5, 4.5, 4.5],
+    "e10": [36, 36, 36, 36, 36, 36, 36, 36, 36, 36],
+    "e11": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e12": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e13": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "e15": [27, 27, 27, 27, 45, 45, 45, 45, 45, 45],
+    "e17": [9, 9, 9, 9, 9, 9, 9, 9, 18, 18],
+    "h1": [2, 2, 2, 2, 2, 2, 0, 0, 0, 1],
+    "h11": [0, 0, 0, 0, 0, 0, 0, 0, 0, 36],
+    "h12": [0, 0, 0, 0, 0, 0, 0, 0, 0, 18],
+    "h13": [0, 0, 0, 0, 0, 0, 0, 0, 0, 9],
+    "h14": [45, 45, 45, 45, 45, 45, 45, 45, 45, 18],
+    "h15": [45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h16": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h17": [45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h18": [45, 45, 45, 45, 45, 45, 45, 45, 45, 18],
+    "p6": [27, 27, 27, 27, 27, 27, 27, 27, 27],
+    "p8": [45, 45, 45, 45, 45, 45, 45, 45, 18, 18, 18, 18, 18],
+    "p9": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+  },
+  "pr7": {
+    "e0": [1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "e1": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e13": [18, 18, 18, 18, 18, 18, 18, 0, 0, 27, 45, 45, 45],
+    "e14": [9, 9, 9, 9, 9, 9, 9, 18, 18, 0, 0, 18, 18],
+    "e8": [36, 36, 36, 36, 36, 36, 36, 36, 36, 45, 45, 45, 45],
+    "h1": [9, 9, 9, 4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 9, 9, 9, 9, 9, 13.5, 13.5, 13.5, 9, 9, 9, 4.5, 4.5, 9, 9, 9, 9],
+    "h14": [36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36, 36],
+    "h16": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "h17": [45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45, 45],
+    "p1": [4.5, 4.5, 4.5, 4.5, 4.5, 4.5, 9, 9, 9, 9, 9, 9, 9, 9, 4.5, 0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "p2": [9, 18, 18, 18, 18, 18, 18, 9, 0, 0, 0, 0, 9, 18, 18, 18, 18, 18, 18, 18, 18],
+    "p3": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 9, 18, 18, 18, 18, 18, 18, 18, 9],
+    "p4": [9, 9, 9, 9, 9, 9, 9, 9, 27, 27, 27, 27, 18, 18, 18, 18, 18, 27, 27, 27, 9],
+    "p5": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 9, 27, 27, 27, 27, 27, 27, 27, 27, 27],
+    "p6": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "p7": [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27],
+    "p8": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 9, 0, 0, 0, 0, 0, 18, 18, 18, 18],
+    "p9": [0, 0, 0, 0, 18, 18, 18, 18, 18, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 27, 18],
+  },
+  "pr8": {
+    "e0": [0, 1, 1, 1, 1, 1, 1, 1, 1, 1],
+    "e2": [4.5, 0, 4.5, 4.5, 9, 0, 0, 9, 9, 9],
+    "e7": [9, 9, 9, 9, 18, 18, 18, 0, 18, 18],
+    "h1": [18, 18, 18, 18, 22.5, 22.5, 22.5, 22.5, 22.5],
+    "h14": [0, 0, 5, 5, 5, 9, 18, 18, 18],
+    "p1": [0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 1, 1, 1],
+    "p2": [5, 5, 5, 9, 18, 18, 18, 18, 18, 18],
+    "p4": [18, 18, 18, 18],
+  },
+  "pr9": {
+    "e0": [9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e1": [4.5, 4.5, 4.5, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e13": [36, 36, 36, 27, 27, 27, 27, 27, 27, 36, 36, 36, 36],
+    "e15": [0, 0, 0, 0, 0, 0, 9, 9, 9, 45, 45, 45, 45],
+    "e17": [18, 18, 18, 18],
+    "e2": [0, 0, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9],
+    "e5": [27, 0, 27, 27, 27, 27, 27, 27, 27, 27, 45, 45, 45],
+    "e7": [9, 9, 9, 0, 0, 0, 18, 0, 0, 18, 18, 18, 18],
+    "e8": [36, 36, 36, 36, 0, 36, 18, 0, 0, 27, 27, 27, 27],
+    "h10": [18, 18, 18, 9, 9, 9, 9, 9, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "h13": [9, 27, 27, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18],
+    "h2": [4, 4, 4, 9, 9, 9, 9, 9, 9, 9, 9, 9, 9, 5, 5, 5, 5, 5, 5, 5],
+    "h3": [4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4, 4],
+    "h5": [18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 18, 27, 27, 27, 27, 27],
+    "p1": [9, 9, 9, 9, 9, 9, 9, 9, 9, 18, 18, 18, 18, 18, 18, 27, 27, 18, 18],
+    "p3": [27, 27, 27, 27, 27, 45, 45, 27, 0, 0, 27, 27, 27, 27, 45, 27, 27, 45, 45],
+    "p6": [27, 27, 27, 27],
+    "p7": [0, 0, 0, 0, 45, 45, 45, 45, 45, 45, 45, 0, 0, 0, 45, 45, 45, 45, 45],
+  },
+};
+
+function mkProjects(engineers){
+  const defs=[
+    {id:'pr1',no:'24001',name:'Dubai Mall',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-12-31',status:'Active'},
+    {id:'pr2',no:'24002',name:'Trump Tower',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-09-30',status:'Active'},
+    {id:'pr3',no:'24035',name:'DSM',client:'Nakheel',pm:'RS',loc:'Dubai',start:'2026-05-04',end:'2026-12-31',status:'Active'},
+    {id:'pr4',no:'24004',name:'IL Teatro',client:'Private',pm:'RS',loc:'Sharjah',start:'2026-04-06',end:'2026-11-28',status:'Active'},
+    {id:'pr5',no:'24005',name:'Hittin',client:'',pm:'RS',loc:'KSA',start:'2026-06-01',end:'2026-12-31',status:'Active'},
+    {id:'pr6',no:'24006',name:'Masar BRT Package A',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-08-28',status:'Active'},
+    {id:'pr7',no:'24007',name:'Al Khalidiyia',client:'',pm:'RS',loc:'KSA',start:'2026-07-06',end:'2026-12-31',status:'Active'},
+    {id:'pr8',no:'24008',name:'SETE',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-07-31',status:'Active'},
+    {id:'pr9',no:'24009',name:'ICON Tower',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-05-04',end:'2026-12-31',status:'Active'},
+    {id:'pr10',no:'24010',name:'ICON Tower (Plaza & OC)',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-10-30',status:'Active'},
+    {id:'pr11',no:'24011',name:'DSM - Mall Impact',client:'Nakheel',pm:'RS',loc:'Dubai',start:'2026-06-01',end:'2026-12-31',status:'Active'},
+    {id:'pr12',no:'24012',name:'Diriyah Company Specs',client:'',pm:'RS',loc:'KSA',start:'2026-08-03',end:'2026-12-31',status:'Active'},
+    {id:'pr13',no:'24013',name:'Qiddiya Theme Park',client:'Qiddiya',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-12-31',status:'Active'},
+    {id:'pr14',no:'24014',name:'DIFC Plot 5',client:'DIFC',pm:'RS',loc:'Dubai',start:'2026-05-04',end:'2026-11-27',status:'Active'},
+    {id:'pr15',no:'24015',name:'Project - TBA 1',client:'TBA',pm:'',loc:'TBA',start:'2026-09-07',end:'2026-12-31',status:'On Hold'},
+    {id:'pr16',no:'24016',name:'Project - TBA 2',client:'TBA',pm:'',loc:'TBA',start:'2026-10-05',end:'2026-12-31',status:'On Hold'},
+    {id:'pr17',no:'24017',name:'Project - TBA 3',client:'TBA',pm:'',loc:'TBA',start:'2026-04-06',end:'2026-06-26',status:'On Hold'},
+    {id:'pr18',no:'24018',name:'Project - TBA 4',client:'TBA',pm:'',loc:'TBA',start:'2026-07-06',end:'2026-09-25',status:'On Hold'},
+    {id:'pr19',no:'24019',name:'Project - TBA 5',client:'TBA',pm:'',loc:'TBA',start:'2026-04-06',end:'2026-12-31',status:'On Hold'},
+    {id:'pr20',no:'24020',name:'Project - TBA 6',client:'TBA',pm:'',loc:'TBA',start:'2026-06-01',end:'2026-12-31',status:'On Hold'},
+  ];
+  return defs.map(p=>{
+    // Use real hours from Excel; pad shorter arrays with zeros to match project week count
+    const weeks=stageWeeks(p.start,p.end);
+    const srcHrs=EXCEL_WEEKLY_HRS[p.id]||{};
+    const weeklyHrs={};
+    Object.entries(srcHrs).forEach(([eid,arr])=>{
+      if(arr.some(v=>v>0)){
+        // Pad to project week length
+        const padded=Array.from({length:weeks.length},(_,i)=>arr[i]||0);
+        weeklyHrs[eid]=padded;
+      }
+    });
+    return{...p,weeklyHrs};
+  });
+}
+
+// ═══════════════════════════════════════
+// COMPUTATION
+// ═══════════════════════════════════════
+function computeAll(){
+  // Build a date anchor per project: first Monday >= project start
+  // Then for each weeklyHrs entry, compute actual week dates from that anchor
+  // This ensures hours entered beyond declared end date are still counted
+  function projWeekDate(pStart, wkIdx){
+    // Returns the Date for week index wkIdx, anchored to pStart's first Monday
+    const d=new Date(pStart);const day=d.getDay();
+    if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
+    d.setDate(d.getDate()+wkIdx*7);
+    return d;
+  }
+  // Pass 1: find true min/max MI across ALL hours data (including beyond project end)
+  let minMI=999,maxMI=-999;
+  S.projects.forEach(p=>{
+    if(!p.start)return;
+    const wh=p.weeklyHrs||{};
+    const hasData=Object.values(wh).some(a=>a&&a.some(v=>v>0));
+    // Always include project declared range
+    const weeks=stageWeeks(p.start,p.end);
+    if(weeks.length){
+      minMI=Math.min(minMI,dateToMI(weeks[0]));
+      maxMI=Math.max(maxMI,dateToMI(weeks[weeks.length-1]));
+    }
+    // Also scan actual hours data for weeks beyond project end
+    if(hasData){
+      Object.values(wh).forEach(arr=>{
+        if(!arr)return;
+        for(let wi=arr.length-1;wi>=0;wi--){
+          if(arr[wi]){
+            const wkDate=projWeekDate(p.start,wi);
+            const mi=dateToMI(wkDate);
+            minMI=Math.min(minMI,mi);
+            maxMI=Math.max(maxMI,mi);
+            break;
+          }
+        }
+      });
+    }
+  });
+  if(minMI===999){minMI=0;maxMI=8;}
+  const NMON=maxMI-minMI+1;
+  const hrs={};
+  S.engineers.forEach(e=>{hrs[e.id]=Array(NMON).fill(0);});
+  S.projects.forEach(p=>{
+    if(!p.start)return;
+    Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
+      if(!wArr)return;
+      if(!hrs[eid])hrs[eid]=Array(NMON).fill(0);
+      wArr.forEach((h,wi)=>{
+        if(!h)return;
+        const wk=projWeekDate(p.start,wi);
+        const mi=dateToMI(wk)-minMI;
+        if(mi>=0&&mi<NMON)hrs[eid][mi]+=h;
+      });
+    });
+  });
+  // Add leave + mgmt hours into total utilisation
+  // leaveHrs/mgmtHrs are indexed by global week index (from Apr 2026)
+  // We need to map them to the same MI buckets
+  const gWeeks=[];{const d=new Date('2026-04-06');while(d<=new Date('2027-12-31')){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
+
+  const leaveByMI={};  // {engId: [hrs per MI]}
+  const mgmtByMI={};
+  // Build holiday week maps for UAE and EGY
+  const holMapUAE=buildHolidayWeekMap(S.holidaysUAE||[]);
+  const holMapEGY=buildHolidayWeekMap(S.holidaysEGY||[]);
+  S.engineers.forEach(e=>{
+    leaveByMI[e.id]=Array(NMON).fill(0);
+    mgmtByMI[e.id]=Array(NMON).fill(0);
+    const lArr=S.leaveHrs[e.id]||[];
+    const mArr=S.mgmtHrs[e.id]||[];
+    const holMap=e.off==='EGY'?holMapEGY:holMapUAE;
+    gWeeks.forEach((wk,wi)=>{
+      const mi=dateToMI(wk)-minMI;
+      if(mi<0||mi>=NMON)return;
+      if(lArr[wi])leaveByMI[e.id][mi]+=lArr[wi];
+      if(mArr[wi])mgmtByMI[e.id][mi]+=mArr[wi];
+      // Add holiday hours to leave bucket (same treatment — not billable)
+      const wkStr=wk.toISOString().slice(0,10);
+      if(holMap[wkStr])leaveByMI[e.id][mi]+=holMap[wkStr];
+    });
+  });
+
+  const util={};      // total util including leave+mgmt+holidays
+  const billUtil={};  // billable util = project hours only
+  S.engineers.forEach(e=>{
+    util[e.id]=hrs[e.id].map((h,mi)=>{
+      const leave=leaveByMI[e.id][mi]||0;
+      const mgmt=mgmtByMI[e.id][mi]||0;
+      const c=(e.cap||45)*wpmFor(minMI+mi);
+      return c?(h+leave+mgmt)/c*100:0;
+    });
+    billUtil[e.id]=hrs[e.id].map((h,mi)=>{
+      const c=(e.cap||45)*wpmFor(minMI+mi);
+      return c?h/c*100:0;
+    });
+  });
+  return{hrs,util,billUtil,leaveByMI,mgmtByMI,minMI,maxMI,NMON};
+}
+function subUtil(sub,util,minMI,NMON){
+  const n=NMON||9;
+  if(!sub.length)return Array(n).fill(0);
+  return Array(n).fill(0).map((_,m)=>sub.reduce((a,e)=>(util[e.id]||Array(n).fill(0))[m]+a,0)/sub.length);
+}
+function subHrs(sub,hrs){return sub.reduce((a,e)=>(hrs[e.id]||[]).reduce((b,h)=>b+h,0)+a,0);}
+// Get rate for an engineer based on their office (DXB vs EGY)
+function getRate(e){
+  const rates=e.off==='EGY'?S.ratesEGY:S.ratesDXB;
+  return (rates&&rates[e.grade])||(e.off==='EGY'?15:150);
+}
+function engCost(e,hrs){return(hrs[e.id]||[]).reduce((a,b)=>a+b,0)*getRate(e);}
+function projTotalHrs(p){const wks=stageWeeks(p.start,p.end);let h=0;Object.values(p.weeklyHrs||{}).forEach(a=>wks.forEach((_,wi)=>h+=a[wi]||0));return h;}
+function projCost(p){const wks=stageWeeks(p.start,p.end);let c=0;Object.entries(p.weeklyHrs||{}).forEach(([eid,a])=>{const eng=S.engineers.find(e=>e.id===eid);if(!eng)return;const rate=getRate(eng);wks.forEach((_,wi)=>c+=(a[wi]||0)*rate);});return c;}
+function engProjHrs(engId,minMI,NMON){
+  const n=NMON||9;const base=minMI||0;
+  const result=[];
+  S.projects.forEach(p=>{
+    const wh=p.weeklyHrs||{};if(!wh[engId])return;
+    const weeks=stageWeeks(p.start,p.end);
+    const mHrs=Array(n).fill(0);
+    weeks.forEach((wk,wi)=>{const h=wh[engId][wi]||0;if(!h)return;const mi=dateToMI(wk)-base;if(mi>=0&&mi<n)mHrs[mi]+=h;});
+    if(mHrs.some(v=>v>0))result.push({proj:p,mHrs});
+  });
+  return result;
+}
+
+// ═══════════════════════════════════════
+// CHARTS
+// ═══════════════════════════════════════
+function mkChart(id,type,labels,datasets,opts){
+  const el=document.getElementById(id);if(!el)return;
+  if(CH[id]){try{CH[id].destroy();}catch(e){}}
+  try{CH[id]=new Chart(el,{type,data:{labels,datasets},options:{responsive:true,maintainAspectRatio:false,animation:{duration:300},
+    plugins:{legend:{labels:{font:{size:10},boxWidth:10,padding:8}},...(opts&&opts.plugins||{})},
+    scales:type==='doughnut'||type==='pie'?undefined:{y:{ticks:{font:{size:10}},...(opts&&opts.y||{})},x:{ticks:{font:{size:10},maxRotation:0},grid:{display:false},...(opts&&opts.x||{})}},...(opts&&opts.extra||{})
+  }});}catch(e){}
+}
+
+// ═══════════════════════════════════════
+// NAV
+// ═══════════════════════════════════════
+const PAGES=['mep','dxb','egy','hvac','phe','ele','elv','team','proj','leave','mgmt','holidays','rates'];
+function nav(p){
+  PAGES.forEach(x=>{
+    const pg=document.getElementById('pg-'+x);if(pg)pg.style.display=x===p?'':'none';
+    const ni=document.getElementById('nav-'+x);if(ni)ni.classList.toggle('on',x===p);
+  });
+  ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
+  if(isMobile())closeMobSB();
+  window.scrollTo(0,0);
+  if(p==='mep')renderMEP();
+  else if(p==='dxb')setTimeout(()=>renderOffice('DXB','pc-dxb'),0);
+  else if(p==='egy')setTimeout(()=>renderOffice('EGY','pc-egy'),0);
+  else if(p==='hvac')setTimeout(()=>renderDisc('HVAC','pc-hvac'),0);
+  else if(p==='phe')setTimeout(()=>renderDisc('PH&E','pc-phe'),0);
+  else if(p==='ele')setTimeout(()=>renderDisc('ELE','pc-ele'),0);
+  else if(p==='elv')setTimeout(()=>renderDisc('ELV','pc-elv'),0);
+  else if(p==='team')renderTeam();
+  else if(p==='proj')renderProj();
+  else if(p==='rates')renderRates();
+  else if(p==='leave')renderLeave();
+  else if(p==='mgmt')renderMgmt();
+  else if(p==='holidays')renderHolidays();
+}
+function updSB(){
+  const f=fn=>S.engineers.filter(fn).length;
+  document.getElementById('sb-dxb').textContent=f(e=>e.off==='DXB');
+  document.getElementById('sb-egy').textContent=f(e=>e.off==='EGY');
+  document.getElementById('sb-hvac').textContent=f(e=>e.disc==='HVAC');
+  document.getElementById('sb-phe').textContent=f(e=>e.disc==='PH&E');
+  document.getElementById('sb-ele').textContent=f(e=>e.disc==='ELE');
+  document.getElementById('sb-elv').textContent=f(e=>e.disc==='ELV');
+  document.getElementById('sb-team').textContent=S.engineers.length;
+  document.getElementById('sb-foot').textContent=`${S.engineers.length} engineers · ${S.projects.filter(p=>p.status==='Active').length} active`;
+}
+
+// ═══════════════════════════════════════
+// MOBILE
+// ═══════════════════════════════════════
+function isMobile(){return window.innerWidth<=700;}
+function openMobSB(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('sb-overlay').style.display='block';document.getElementById('sb-close-btn').style.display='block';}
+function closeMobSB(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('sb-overlay').style.display='none';document.getElementById('sb-close-btn').style.display='none';}
+function showMobMenuBtns(){document.querySelectorAll('.mob-menu-btn').forEach(b=>b.style.display=isMobile()?'flex':'none');}
+window.addEventListener('resize',showMobMenuBtns);
+
+// ═══════════════════════════════════════
+// HEATMAP with project drill-down
+// ═══════════════════════════════════════
+function toggleEngRow(engId,tableId){
+  window.engExpanded[tableId]=window.engExpanded[tableId]||{};
+  window.engExpanded[tableId][engId]=!window.engExpanded[tableId][engId];
+  const detailRow=document.getElementById(`eng-detail-${tableId}-${engId}`);
+  const chevron=document.getElementById(`eng-chev-${tableId}-${engId}`);
+  if(!detailRow||!chevron)return;
+  const isOpen=window.engExpanded[tableId][engId];
+  chevron.textContent=isOpen?'▼':'▶';
+  detailRow.style.display=isOpen?'':'none';
+}
+
+function heatTable(elId,sub,util,hrs,minMI,NMON,mF){
+  const el=document.getElementById(elId);if(!el)return;
+  const n=NMON||9;const base=minMI||0;
+  const cols=mF!==null&&mF!==undefined?[mF-base]:Array.from({length:n},(_,i)=>i);
+  const colLabels=cols.map(ci=>miLabel(base+ci));
+  const tId=elId;
+  let h=`<thead><tr><th style="width:20px"></th><th>#</th><th>Name</th><th>Disc</th><th>Off</th>${colLabels.map(l=>'<th>'+l+'</th>').join('')}<th>Avg%</th></tr></thead><tbody>`;
+  sub.forEach((e,i)=>{
+    const u=util[e.id]||Array(n).fill(0);const avg=u.slice(cols[0],cols[cols.length-1]+1).reduce((a,b)=>a+b,0)/cols.length;
+    const projData=engProjHrs(e.id,minMI,NMON);const hasProjs=projData.length>0;
+    const isOpen=window.engExpanded[tId]&&window.engExpanded[tId][e.id];
+    const cells=cols.map(mi=>{const v=u[mi];const bg=v>=110?'#fca5a5':v>=85?'#bbf7d0':v>=50?'#fde68a':'#fed7aa';const tc=v>=110?'#7f1d1d':v>=85?'#14532d':v>=50?'#78350f':'#7c2d12';return`<td><span class="hc" style="background:${bg};color:${tc}">${v.toFixed(0)}%</span></td>`;}).join('');
+    h+=`<tr style="cursor:${hasProjs?'pointer':'default'}" onclick="${hasProjs?`toggleEngRow('${e.id}','${tId}')`:''}" title="${hasProjs?'Click to see project breakdown':''}">
+      <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-${tId}-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
+      <td style="color:var(--tx3)">${i+1}</td>
+      <td style="font-weight:600;white-space:nowrap">${e.name}</td>
+      <td><span class="bdg b-${(e.disc||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc}</span></td>
+      <td><span class="bdg ${e.off==='DXB'?'b-dxb':'b-egy'}">${e.off}</span></td>
+      ${cells}<td style="font-weight:700">${avg.toFixed(1)}%</td></tr>`;
+    if(hasProjs){
+      const projRows=projData.map(({proj,mHrs})=>{
+        const totH=mHrs.reduce((a,b)=>a+b,0);
+        return`<tr style="background:#f8fbff;border-top:1px solid #dbeafe;">
+          <td></td><td></td>
+          <td style="padding-left:22px;font-size:11px;white-space:nowrap"><span style="color:var(--acc);margin-right:4px">↳</span><strong>${proj.no}</strong><span style="color:var(--tx3);margin-left:4px">${proj.name.length>20?proj.name.slice(0,19)+'…':proj.name}</span></td>
+          <td colspan="2">${proj.status==='Active'?'<span class="bdg b-grn">Active</span>':'<span class="bdg b-amb">'+proj.status+'</span>'}</td>
+          ${cols.map(mi=>`<td style="text-align:center;font-size:10px;font-weight:${mHrs[mi]>0?'600':'400'};color:${mHrs[mi]>0?'var(--acc)':'var(--tx3)'}">${mHrs[mi]>0?Math.round(mHrs[mi])+'h':'—'}</td>`).join('')}
+          <td style="font-weight:700;color:var(--acc);font-size:11px">${Math.round(totH)}h</td></tr>`;
+      }).join('');
+      h+=`<tr id="eng-detail-${tId}-${e.id}" style="display:${isOpen?'':'none'}">
+        <td colspan="${5+cols.length+1}" style="padding:0;background:#f8fbff;border-bottom:2px solid #dbeafe;">
+          <table style="width:100%;border-collapse:collapse;">
+            <thead><tr style="background:#eff6ff">
+              <th style="width:20px"></th><th style="width:30px"></th>
+              <th style="text-align:left;padding:5px 9px;font-size:9px;color:var(--acc);text-transform:uppercase">Project</th>
+              <th colspan="2" style="font-size:9px;color:var(--tx3)">Status</th>
+              ${cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${miLabel(base+ci)}</th>`).join('')}
+              <th style="font-size:9px;color:var(--tx3);padding:5px 8px">Total</th>
+            </tr></thead>
+            <tbody>${projRows}</tbody>
+          </table>
+        </td></tr>`;
+    }
+  });
+  // Monthly totals row — avg% across all engineers shown
+  if(sub.length>0){
+    const totRow=cols.map(mi=>{
+      const vals=sub.map(e=>(util[e.id]||[])[mi]||0);
+      const avg=vals.reduce((a,b)=>a+b,0)/sub.length;
+      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#f0f4ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
+    }).join('');
+    const overallAvg=sub.reduce((a,e)=>{const u=util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
+    h+=`<tr style="border-top:2px solid #1e3a5f;background:#f0f4ff;">
+      <td></td><td></td>
+      <td colspan="3" style="padding:5px 10px;font-weight:700;font-size:11px;color:#1e3a5f">TEAM AVG%</td>
+      ${totRow}
+      <td style="text-align:center;font-weight:800;font-size:12px;color:#1e3a5f;background:#e0e7ff">${overallAvg.toFixed(1)}%</td>
+    </tr>`;
+  }
+  el.innerHTML=h+'</tbody>';
+}
+
+// ═══════════════════════════════════════
+// MEP DASHBOARD
+// ═══════════════════════════════════════
+// ── Dashboard range state ──────────────────────────────
+let DASH_FROM_MI = null;  // null = full range
+let DASH_TO_MI   = null;
+
+function initDashRange(forceRebuild){
+  // Compute full range from all project data dynamically
+  const {minMI,maxMI} = computeAll();
+  const fromSel=document.getElementById('dashFrom');
+  const toSel=document.getElementById('dashTo');
+  // Only skip rebuild if range is identical to what's already rendered
+  const alreadyBuilt=DASH_FROM_MI!==null &&
+    fromSel.options.length>0 &&
+    parseInt(fromSel.options[0].value)===minMI &&
+    parseInt(fromSel.options[fromSel.options.length-1].value)===maxMI;
+  if(alreadyBuilt && !forceRebuild) return;
+  // Remember current selection before rebuilding
+  const prevFrom=DASH_FROM_MI!==null?DASH_FROM_MI:minMI;
+  const prevTo=DASH_TO_MI!==null?DASH_TO_MI:maxMI;
+  fromSel.innerHTML=''; toSel.innerHTML='';
+  for(let mi=minMI;mi<=maxMI;mi++){
+    const o1=document.createElement('option');o1.value=mi;o1.textContent=miLabel(mi);fromSel.appendChild(o1);
+    const o2=document.createElement('option');o2.value=mi;o2.textContent=miLabel(mi);toSel.appendChild(o2);
+  }
+  // Restore selection clamped to new range
+  const newFrom=Math.max(minMI,Math.min(prevFrom,maxMI));
+  const newTo=Math.max(minMI,Math.min(prevTo,maxMI));
+  fromSel.value=newFrom; toSel.value=newTo;
+  DASH_FROM_MI=newFrom; DASH_TO_MI=newTo;
+}
+function onDashRangeChange(){
+  let f=parseInt(document.getElementById('dashFrom').value);
+  let t=parseInt(document.getElementById('dashTo').value);
+  if(t<f){t=f;document.getElementById('dashTo').value=f;}
+  DASH_FROM_MI=f; DASH_TO_MI=t;
+  renderMEP();
+}
+function resetDashRange(){
+  const {minMI,maxMI}=computeAll();
+  DASH_FROM_MI=minMI; DASH_TO_MI=maxMI;
+  document.getElementById('dashFrom').value=minMI;
+  document.getElementById('dashTo').value=maxMI;
+  renderMEP();
+}
+
+function computeRange(){
+  // computeAll gives us the full universe; we slice to DASH range
+  const full=computeAll();
+  const fmi=DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI;
+  const tmi=DASH_TO_MI!==null?DASH_TO_MI:full.maxMI;
+  const NMON=tmi-fmi+1;
+  const offset=fmi-full.minMI;  // how many months into full array our window starts
+  // Slice hrs and util arrays
+  const hrs={},util={},billUtil={};
+  S.engineers.forEach(e=>{
+    const fh=full.hrs[e.id]||[];
+    hrs[e.id]=Array.from({length:NMON},(_,i)=>fh[offset+i]||0);
+    const fu=full.util[e.id]||[];
+    util[e.id]=Array.from({length:NMON},(_,i)=>fu[offset+i]||0);
+    const fb=full.billUtil?full.billUtil[e.id]||[]:fu;
+    billUtil[e.id]=Array.from({length:NMON},(_,i)=>fb[offset+i]||0);
+  });
+  return{hrs,util,billUtil,minMI:fmi,maxMI:tmi,NMON};
+}
+
+function renderMEP(){
+  initDashRange();
+  const{hrs,util,billUtil,minMI,NMON}=computeRange();
+  const labels=Array.from({length:NMON},(_,i)=>miLabel(minMI+i));
+  const labelsL=Array.from({length:NMON},(_,i)=>miLabelL(minMI+i));
+  const all=S.engineers;
+  const tu=subUtil(all,util,minMI,NMON);
+  const avgU=tu.length?tu.reduce((a,b)=>a+b,0)/NMON:0;
+  const tb=subUtil(all,billUtil||util,minMI,NMON);
+  const avgBill=tb.length?tb.reduce((a,b)=>a+b,0)/NMON:0;
+  const totH=subHrs(all,hrs);const totC=all.reduce((a,e)=>a+engCost(e,hrs),0);
+  const dxb=all.filter(e=>e.off==='DXB'),egy=all.filter(e=>e.off==='EGY');
+  const discs=['HVAC','PH&E','ELE','ELV'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d'];
+  const periodLabel=NMON===1?labelsL[0]:(miLabel(minMI)+' – '+miLabel(minMI+NMON-1));
+  document.getElementById('dash-period-label').textContent='All Offices · '+periodLabel;
+  document.getElementById('mep-metrics').innerHTML=`
+    <div class="mc hi"><div class="mc-l">Total Engineers</div><div class="mc-v">${all.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
+    <div class="mc gr"><div class="mc-l">Avg Utilisation</div><div class="mc-v">${avgU.toFixed(1)}%</div><div class="mc-s">${periodLabel}</div></div>
+    <div class="mc" style="border-top:3px solid #0891b2"><div class="mc-l">Billable Util</div><div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div><div class="mc-s">Excl. leave & mgmt</div></div>
+    <div class="mc am"><div class="mc-l">Total Hours</div><div class="mc-v">${fN(Math.round(totH))}</div></div>
+    <div class="mc pu"><div class="mc-l">Est. Cost</div><div class="mc-v">${fAED(totC)}</div></div>
+    <div class="mc te"><div class="mc-l">Active Projects</div><div class="mc-v">${S.projects.filter(p=>p.status==='Active').length}</div><div class="mc-s">of ${S.projects.length}</div></div>`;
+  mkChart('c-mep-line','line',labels,discs.map((d,i)=>({label:d,data:subUtil(all.filter(e=>e.disc===d),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+  const dH=discs.map(d=>Math.round(subHrs(all.filter(e=>e.disc===d),hrs)));
+  mkChart('c-mep-donut','doughnut',discs,[{data:dH,backgroundColor:dClr,borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+  mkChart('c-mep-office','bar',labels,[{label:'Dubai',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'Egypt',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
+  const actP=S.projects.filter(p=>p.status==='Active').slice(0,12);
+  mkChart('c-mep-proj','bar',actP.map(p=>p.name.length>16?p.name.slice(0,15)+'…':p.name),[{label:'Hrs',data:actP.map(p=>Math.round(projTotalHrs(p))),backgroundColor:actP.map((_,i)=>dClr[i%4]),borderRadius:3,borderSkipped:false}],{extra:{indexAxis:'y'},y:{ticks:{font:{size:9}}},x:{grid:{display:false}}});
+  // Billing vs Utilisation combined line chart
+  mkChart('c-mep-bill','line',labels,[
+    {label:'Total Utilisation',data:subUtil(all,util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
+    {label:'Billable Utilisation',data:subUtil(all,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
+  ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
+  heatTable('t-mep-heat',all,util,hrs,minMI,NMON,null);
+}
+
+// ═══════════════════════════════════════
+// OFFICE / DISCIPLINE
+// ═══════════════════════════════════════
+function renderOffice(off,pcId){
+  const{hrs,util,minMI,NMON}=computeAll();const sub=S.engineers.filter(e=>e.off===off);
+  const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=off.toLowerCase();
+  const discs=[...new Set(sub.map(e=>e.disc))],dClr=['#1d4ed8','#166534','#854d0e','#9d174d'];
+  document.getElementById(pcId).innerHTML=`
+    <div class="mrow">
+      <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div></div>
+      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div></div>
+      <div class="mc am"><div class="mc-l">Total Hrs</div><div class="mc-v">${fN(Math.round(subHrs(sub,hrs)))}</div></div>
+      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-t">By Discipline</div><div class="cbox"><canvas id="off-l-${cid}"></canvas></div></div>
+      <div class="card"><div class="card-t">Composition</div><div class="cbox"><canvas id="off-d-${cid}"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-t">Heatmap — click row for project breakdown</div><div class="tbl-wrap"><table class="tbl" id="off-t-${cid}"></table></div></div>`;
+  setTimeout(()=>{
+    mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discs.map((d,i)=>({label:d,data:subUtil(sub.filter(e=>e.disc===d),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i%4],borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+    const dc={};sub.forEach(e=>{dc[e.disc]=(dc[e.disc]||0)+1;});
+    mkChart(`off-d-${cid}`,'doughnut',Object.keys(dc),[{data:Object.values(dc),backgroundColor:Object.keys(dc).map(d=>DC[d]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+    heatTable(`off-t-${cid}`,sub,util,hrs,minMI,NMON,null);
+  },0);
+}
+function renderDisc(disc,pcId){
+  const{hrs,util,billUtil,minMI,NMON}=computeAll();const sub=S.engineers.filter(e=>e.disc===disc);
+  const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
+  const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=disc.toLowerCase().replace('&','');
+  const mH=Array(NMON).fill(0);sub.forEach(e=>(hrs[e.id]||[]).forEach((h,i)=>mH[i]+=h));
+  document.getElementById(pcId).innerHTML=`
+    <div class="mrow">
+      <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
+      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div></div>
+      <div class="mc am"><div class="mc-l">Total Hrs</div><div class="mc-v">${fN(Math.round(subHrs(sub,hrs)))}</div></div>
+      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div></div>
+    </div>
+    <div class="g2">
+      <div class="card"><div class="card-t">DXB vs EGY Utilisation</div><div class="cbox"><canvas id="di-off-${cid}"></canvas></div></div>
+      <div class="card"><div class="card-t">Monthly Hours</div><div class="cbox"><canvas id="di-hrs-${cid}"></canvas></div></div>
+    </div>
+    <div class="card"><div class="card-t">Utilisation vs Billable — ${disc}</div><div class="cbox"><canvas id="di-bill-${cid}"></canvas></div></div>
+    <div class="g2">
+      <div class="card"><div class="card-t">DXB Team — click row for projects</div><div class="tbl-wrap"><table class="tbl" id="di-dxb-${cid}"></table></div></div>
+      <div class="card"><div class="card-t">EGY Team — click row for projects</div><div class="tbl-wrap"><table class="tbl" id="di-egy-${cid}"></table></div></div>
+    </div>`;
+  setTimeout(()=>{
+    mkChart(`di-off-${cid}`,'bar',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[{label:'DXB',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'EGY',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
+    mkChart(`di-hrs-${cid}`,'bar',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[{label:'Hours',data:mH.map(v=>Math.round(v)),backgroundColor:DC[disc]||'#374151',borderRadius:3,borderSkipped:false}],{});
+    mkChart(`di-bill-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[
+      {label:'Total Utilisation',data:subUtil(sub,util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
+      {label:'Billable Utilisation',data:subUtil(sub,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
+    ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
+    heatTable(`di-dxb-${cid}`,dxb,util,hrs,minMI,NMON,null);
+    heatTable(`di-egy-${cid}`,egy,util,hrs,minMI,NMON,null);
+  },0);
+}
+
+// ═══════════════════════════════════════
+// TEAM + SORT
+// ═══════════════════════════════════════
+function setSort(col){
+  if(window.teamSort.col===col)window.teamSort.dir=window.teamSort.dir==='asc'?'desc':'asc';
+  else{window.teamSort.col=col;window.teamSort.dir='asc';}
+  document.querySelectorAll('.sort-btn').forEach(b=>{
+    const isOn=b.dataset.col===col;
+    b.classList.toggle('on',isOn);b.classList.remove('asc','desc');
+    if(isOn)b.classList.add(window.teamSort.dir);
+  });
+  renderTeam();
+}
+
+function renderTeam(){
+  const q=(document.getElementById('ts-q').value||'').toLowerCase();
+  const df=document.getElementById('ts-disc').value;
+  const of2=document.getElementById('ts-off').value;
+  const{hrs,util,minMI,NMON}=computeAll();
+  const GO={'Technical Manager / Director':0,'Principal / Associate Engineer':1,'Lead Engineer':2,'Senior Engineer':3,'Associate Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'BIM / Technician':7,'Intern':8};
+  const avgUtil=e=>(util[e.id]||Array(NMON).fill(0)).reduce((a,b)=>a+b,0)/NMON;
+  const projCntV=e=>S.projects.filter(p=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
+  const{col,dir}=window.teamSort;
+  let list=S.engineers.filter(e=>{
+    if(df!=='all'&&e.disc!==df)return false;
+    if(of2!=='all'&&e.off!==of2)return false;
+    if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
+    return true;
+  });
+  list.sort((a,b)=>{
+    let av,bv;
+    if(col==='name'){av=a.name;bv=b.name;}
+    else if(col==='disc'){av=a.disc;bv=b.disc;}
+    else if(col==='off'){av=a.off;bv=b.off;}
+    else if(col==='grade'){av=GO[a.grade]??9;bv=GO[b.grade]??9;}
+    else if(col==='util'){av=avgUtil(a);bv=avgUtil(b);}
+    else if(col==='cost'){av=S.rates[a.grade]||150;bv=S.rates[b.grade]||150;}
+    else if(col==='projects'){av=projCntV(a);bv=projCntV(b);}
+    else{av=a.name;bv=b.name;}
+    if(typeof av==='string')return dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
+    return dir==='asc'?av-bv:bv-av;
+  });
+  document.getElementById('team-body').innerHTML=list.map((e,i)=>{
+    const u=util[e.id]||Array(NMON).fill(0);const avg=u.reduce((a,b)=>a+b,0)/NMON;
+    const bw=Math.min(avg,150)/150*100;const bc=avg>=100?'var(--red)':avg>=70?'var(--grn)':'var(--amb)';
+    const pc=projCntV(e);
+    const projData=engProjHrs(e.id,minMI,NMON);const hasProjs=projData.length>0;
+    const isOpen=window.engExpanded['team-body']&&window.engExpanded['team-body'][e.id];
+    const projDetail=hasProjs?`<tr id="eng-detail-team-body-${e.id}" style="display:${isOpen?'':'none'}">
+      <td colspan="11" style="padding:0;background:#f8fbff;border-bottom:2px solid #dbeafe;">
+        <table style="width:100%;border-collapse:collapse;">
+          <thead><tr style="background:#eff6ff">
+            <th colspan="2"></th>
+            <th style="text-align:left;padding:5px 12px;font-size:9px;color:var(--acc);text-transform:uppercase">Project</th>
+            <th style="font-size:9px;color:var(--tx3);text-align:center">Status</th>
+            ${Array.from({length:NMON},(_,i)=>miLabel(minMI+i)).map(m=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 3px">${m}</th>`).join('')}
+            <th style="font-size:9px;color:var(--tx3);text-align:center">Total</th>
+          </tr></thead>
+          <tbody>${projData.map(({proj,mHrs})=>`
+            <tr style="border-top:1px solid #dbeafe;">
+              <td colspan="2"></td>
+              <td style="padding:5px 12px;font-size:11px;white-space:nowrap"><span style="color:var(--acc);margin-right:4px">↳</span><strong>${proj.no}</strong><span style="color:var(--tx3);margin-left:4px">${proj.name.length>22?proj.name.slice(0,21)+'…':proj.name}</span></td>
+              <td style="text-align:center">${proj.status==='Active'?'<span class="bdg b-grn">Active</span>':'<span class="bdg b-amb">'+proj.status+'</span>'}</td>
+              ${mHrs.map(v=>`<td style="text-align:center;font-size:10px;font-weight:${v>0?'600':'400'};color:${v>0?'var(--acc)':'var(--tx3)'}">${v>0?Math.round(v)+'h':'—'}</td>`).join('')}
+              <td style="text-align:center;font-weight:700;font-size:11px;color:var(--acc)">${Math.round(mHrs.reduce((a,b)=>a+b,0))}h</td>
+            </tr>`).join('')}
+          </tbody>
+        </table>
+      </td></tr>`:'';
+    return`<tr style="cursor:${hasProjs?'pointer':'default'}" onclick="${hasProjs?`toggleEngRow('${e.id}','team-body')`:''}" title="${hasProjs?'Click for project breakdown':''}">
+      <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-team-body-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
+      <td style="color:var(--tx3)">${e.empno||i+1}</td>
+      <td style="font-weight:600;white-space:nowrap">${e.name}</td>
+      <td class="col-desig" style="font-size:10px;color:var(--tx2)">${e.desig||'—'}</td>
+      <td><span class="bdg b-${(e.disc||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc}</span></td>
+      <td><span class="bdg ${e.off==='DXB'?'b-dxb':'b-egy'}">${e.off}</span></td>
+      <td class="col-grade" style="font-size:10px">${e.gradeLabel||e.grade}</td>
+      <td><div style="display:flex;align-items:center;gap:7px;min-width:100px"><div class="pb" style="flex:1"><div class="pb-f" style="width:${bw}%;background:${bc}"></div></div><span>${avg.toFixed(1)}%</span></div></td>
+      <td>${pc}</td>
+      <td style="white-space:nowrap">
+        <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')">Edit</button>
+        <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')">Del</button>
+      </td></tr>${projDetail}`;
+  }).join('');
+}
+
+// ═══════════════════════════════════════
+// PROJECTS — LIST + DETAIL
+// ═══════════════════════════════════════
+function renderProj(){
+  const q=(document.getElementById('ps-q').value||'').toLowerCase();
+  const sf=document.getElementById('ps-st').value;
+  const list=S.projects.filter(p=>{if(sf!=='all'&&p.status!==sf)return false;if(q&&!(p.name||'').toLowerCase().includes(q)&&!(p.no||'').toLowerCase().includes(q))return false;return true;});
+  const sb=p=>p.status==='Active'?'b-grn':p.status==='On Hold'?'b-amb':'b-gry';
+  document.getElementById('proj-list').innerHTML=list.map(p=>{
+    const weeks=stageWeeks(p.start,p.end);
+    const wh=p.weeklyHrs||{};
+    const assignedCount=Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)).length;
+    const stageCount=(p.stages||[]).length;
+    return`<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;cursor:pointer;transition:box-shadow .15s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.boxShadow='0 4px 20px rgba(26,86,219,.13)'" onmouseout="this.style.boxShadow=''">
+      <div style="background:#1e3a5f;color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;">
+        <div style="display:flex;gap:14px;align-items:center;flex-wrap:wrap">
+          <div><span style="font-size:9px;opacity:.6">NO.</span><br><strong style="font-size:13px">${p.no||'—'}</strong></div>
+          <div><span style="font-size:9px;opacity:.6">NAME</span><br><strong>${p.name}</strong></div>
+          <div><span style="font-size:9px;opacity:.6">CLIENT</span><br><span style="opacity:.8">${p.client||'—'}</span></div>
+          <div><span style="font-size:9px;opacity:.6">PM</span><br><span style="opacity:.8">${p.pm||'—'}</span></div>
+          <div><span style="font-size:9px;opacity:.6">START</span><br><span style="opacity:.8">${p.start}</span></div>
+          <div><span style="font-size:9px;opacity:.6">END</span><br><span style="opacity:.8">${p.end}</span></div>
+          <span class="bdg ${sb(p)}">${p.status}</span>
+        </div>
+        <div style="display:flex;gap:6px" onclick="event.stopPropagation()">
+          <button class="btn btn-g btn-sm" onclick="editProj('${p.id}')">&#9998; Edit</button>
+          <button class="btn btn-d btn-sm" onclick="delProj('${p.id}')">&#128465;</button>
+        </div>
+      </div>
+      <div style="background:#e0f2fe;padding:6px 16px;display:flex;gap:16px;font-size:11px;color:#075985;flex-wrap:wrap;">
+        <span>&#128197; <strong>${weeks.length}</strong> weeks</span>
+        <span>&#9200; <strong>${fN(Math.round(projTotalHrs(p)))}</strong> hrs</span>
+        <span>&#128119; <strong>${assignedCount}</strong> assigned</span>
+        <span>&#128203; <strong>${stageCount}</strong> programme stage${stageCount!==1?'s':''}</span>
+        <span>&#128176; Fee factor <strong>${(p.feeFactor||1.0).toFixed(2)}×</strong></span>
+        <span style="margin-left:auto;font-size:10px;opacity:.6">Click to open &#8594;</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function openProjDetail(id){
+  const p=S.projects.find(x=>x.id===id);if(!p)return;
+  document.getElementById('proj-list-view').style.display='none';
+  document.getElementById('proj-detail-view').style.display='';
+  document.getElementById('proj-back-btn').style.display='';
+  document.getElementById('proj-hdr-title').textContent=p.no+' — '+p.name;
+  renderProjDetail(p);
+}
+function closeProjDetail(){
+  document.getElementById('proj-list-view').style.display='';
+  document.getElementById('proj-detail-view').style.display='none';
+  document.getElementById('proj-back-btn').style.display='none';
+  document.getElementById('proj-hdr-title').textContent='Projects';
+  renderProj();
+}
+
+const DEFAULT_STAGES=['Concept Design (CD)','Schematic Design (SD)','Design Development (DD)','Construction Documents (CD)','Construction (CA)','Review','Tender','Procurement','No Programme'];
+
+function renderProjDetail(p){
+  if(!p.stages)p.stages=[];
+  const weeks=stageWeeks(p.start,p.end);
+  const wkHdrs=weeks.map(w=>`<th style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#1e3a5f;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('');
+
+  // Build stage rows HTML
+  const stageRowsHtml=p.stages.map((st,si)=>{
+    const isCustom=!DEFAULT_STAGES.includes(st.name);
+    const stageOptions=DEFAULT_STAGES.map(s=>`<option${s===st.name?' selected':''}>${s}</option>`).join('');
+    const weekCells=weeks.map((_,wi)=>{
+      const v=(st.weekVals&&st.weekVals[wi])||'';
+      const vEsc=v.replace(/"/g,'&quot;');
+      return`<td style="padding:2px;text-align:center;"><input type="text" value="${vEsc}" placeholder="" maxlength="30"
+        style="width:44px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?'#86efac':'#e4e6ea'};border-radius:3px;background:${v?'#dcfce7':'#fff'}"
+        oninput="setProjStageCell('${p.id}',${si},${wi},this)"></td>`;
+    }).join('');
+    const nameEsc=(st.name||'').replace(/"/g,'&quot;');
+    return`<tr style="background:#f8fbff;">
+      <td style="padding:4px 6px;min-width:220px;vertical-align:middle;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;"
+            onchange="handleStageSelect('${p.id}',${si},this)">
+            ${stageOptions}
+            <option value="__custom__">Custom (type below)…</option>
+          </select>
+          <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Type stage name…"
+            style="${isCustom?'':'display:none;'}flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
+            onchange="setProjStageNameCustom('${p.id}',${si},this.value)"
+            onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
+          <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage">&#10005;</button>
+        </div>
+        <div style="display:flex;gap:4px;margin-top:4px;align-items:center;">
+          <input type="date" value="${st.from||''}" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;flex:1;" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
+          <span style="font-size:10px;color:var(--tx3)">to</span>
+          <input type="date" value="${st.to||''}" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;flex:1;" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
+        </div>
+      </td>
+      ${weekCells}
+    </tr>`;
+  }).join('');
+
+  // Notes rows
+  if(!p.noteRows)p.noteRows=[];
+  const noteRowsHtml=p.noteRows.map((nr,ni)=>{
+    const weekCells=weeks.map((_,wi)=>{
+      const v=(nr.weekVals&&nr.weekVals[wi])||'';
+      return`<td style="padding:2px;text-align:center;"><input type="text" value="${v}" placeholder="" maxlength="30"
+        style="width:44px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?'#e9d8fd':'#e4e6ea'};border-radius:3px;background:${v?'#f5f0ff':'#fff'}"
+        oninput="setProjNoteCell('${p.id}',${ni},${wi},this)"></td>`;
+    }).join('');
+    return`<tr style="background:#fdfaff;">
+      <td style="padding:4px 6px;vertical-align:middle;">
+        <div style="display:flex;align-items:center;gap:4px;">
+          <input type="text" value="${nr.label||''}" placeholder="Row label…" style="flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
+            onchange="setProjNoteLabel('${p.id}',${ni},this.value)">
+          <button class="btn btn-d btn-xs" onclick="removeProjNoteRow('${p.id}',${ni})" title="Remove row">&#10005;</button>
+        </div>
+      </td>
+      ${weekCells}
+    </tr>`;
+  }).join('');
+
+  const sb=p.status==='Active'?'b-grn':p.status==='On Hold'?'b-amb':'b-gry';
+
+  document.getElementById('proj-detail-content').innerHTML=`
+    <!-- Project header card -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+      <div style="background:#1e3a5f;color:#fff;padding:12px 16px;display:flex;gap:16px;flex-wrap:wrap;align-items:center;justify-content:space-between;">
+        <div style="display:flex;gap:16px;flex-wrap:wrap;align-items:center;">
+          <div><span style="font-size:9px;opacity:.6">PROJECT NO.</span><br><strong style="font-size:15px">${p.no||'—'}</strong></div>
+          <div><span style="font-size:9px;opacity:.6">NAME</span><br><strong style="font-size:13px">${p.name}</strong></div>
+          <div><span style="font-size:9px;opacity:.6">CLIENT</span><br><span>${p.client||'—'}</span></div>
+          <div><span style="font-size:9px;opacity:.6">PM</span><br><span>${p.pm||'—'}</span></div>
+          <div><span style="font-size:9px;opacity:.6">LOCATION</span><br><span>${p.location||'—'}</span></div>
+          <div><span style="font-size:9px;opacity:.6">START</span><br><span>${p.start}</span></div>
+          <div><span style="font-size:9px;opacity:.6">END</span><br><span>${p.end}</span></div>
+          <div><span style="font-size:9px;opacity:.6">FEE FACTOR</span><br><span style="font-weight:700;color:#86efac">${(p.feeFactor||1.0).toFixed(2)}×</span></div>
+          <span class="bdg ${sb}">${p.status}</span>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-g btn-sm" onclick="editProj('${p.id}')">&#9998; Edit</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Programme table -->
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:14px;">
+      <div style="background:#f0f4ff;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--bdr);">
+        <strong style="font-size:12px;color:#1e3a5f;">&#128197; Programme</strong>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-g btn-sm" onclick="addProjStage('${p.id}')">+ Add Stage</button>
+          <button class="btn btn-g btn-sm" onclick="addProjNoteRow('${p.id}')">+ Add Row</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
+          <thead>
+            <tr>
+              <th style="min-width:220px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
+              ${wkHdrs}
+            </tr>
+          </thead>
+          <tbody id="prog-body-${p.id}">
+            ${stageRowsHtml}
+            ${noteRowsHtml}
+            ${p.stages.length===0&&p.noteRows.length===0?`<tr><td colspan="999" style="text-align:center;padding:20px;color:var(--tx3);font-size:12px;">No stages yet — click <strong>+ Add Stage</strong> to get started.</td></tr>`:''}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Weekly hours table -->
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="background:#f0f4ff;padding:10px 14px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
+        <strong style="font-size:12px;color:#1e3a5f;">&#9200; Weekly Hours by Engineer</strong>
+        <div style="display:flex;gap:14px;font-size:11px;color:#075985;background:#e0f2fe;padding:5px 12px;border-radius:20px;">
+          <span>&#128119; <strong>${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).length}</strong> assigned</span>
+          <span>&#9200; <strong>${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">${renderProjCard(p,'inner')}</div>
+    </div>
+  `;
+}
+
+function addProjStage(projId){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  if(!p.stages)p.stages=[];
+  p.stages.push({name:DEFAULT_STAGES[0],from:'',to:'',weekVals:[]});
+  pushProj(p);renderProjDetail(p);
+}
+function removeProjStage(projId,si){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  p.stages.splice(si,1);pushProj(p);renderProjDetail(p);
+}
+function handleStageSelect(projId,si,sel){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  if(sel.value==='__custom__'){
+    // Show text input, hide select
+    const txt=document.getElementById('sttxt-'+projId+'-'+si);
+    const selEl=document.getElementById('stsel-'+projId+'-'+si);
+    if(selEl)selEl.style.display='none';
+    if(txt){txt.style.flex='1';txt.style.display='';txt.value='';txt.focus();}
+    p.stages[si].name='';
+  } else {
+    p.stages[si].name=sel.value;
+    clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+  }
+}
+function setProjStageNameCustom(projId,si,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  if(!val||!val.trim())return;
+  p.stages[si].name=val.trim();
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function setProjStageName(projId,si,val){
+  // kept for backwards compatibility
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  p.stages[si].name=val;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function setProjStageDate(projId,si,field,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  p.stages[si][field]=val;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function setProjStageCell(projId,si,wi,el){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  if(!p.stages[si].weekVals)p.stages[si].weekVals=[];
+  p.stages[si].weekVals[wi]=el.value;
+  const v=el.value;
+  el.style.border=`1px solid ${v?'#86efac':'#e4e6ea'}`;
+  el.style.background=v?'#dcfce7':'#fff';
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function addProjNoteRow(projId){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  if(!p.noteRows)p.noteRows=[];
+  p.noteRows.push({label:'',weekVals:[]});
+  pushProj(p);renderProjDetail(p);
+}
+function removeProjNoteRow(projId,ni){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  p.noteRows.splice(ni,1);pushProj(p);renderProjDetail(p);
+}
+function setProjNoteLabel(projId,ni,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.noteRows[ni])return;
+  p.noteRows[ni].label=val;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function setProjNoteCell(projId,ni,wi,el){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.noteRows[ni])return;
+  if(!p.noteRows[ni].weekVals)p.noteRows[ni].weekVals=[];
+  p.noteRows[ni].weekVals[wi]=el.value;
+  const v=el.value;
+  el.style.border=`1px solid ${v?'#e9d8fd':'#e4e6ea'}`;
+  el.style.background=v?'#f5f0ff':'#fff';
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
+}
+function renderProjCard(p, mode){
+  const weeks=stageWeeks(p.start,p.end);
+  const discs=['HVAC','PH&E','ELE','ELV'];
+  const wh=p.weeklyHrs||{};
+  const sb=p.status==='Active'?'b-grn':p.status==='On Hold'?'b-amb':'b-gry';
+  const collapsed=window.projCollapsed[p.id]||false;
+  const assignedCount=Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)).length;
+  const wkHdrs=weeks.map(w=>`<th style="min-width:38px;text-align:center;font-size:9px">W${wkNum(w)}<br><span style="opacity:.7">${wkLabel(w)}</span></th>`).join('');
+  let rows='';
+  discs.forEach(disc=>{
+    const discEngs=S.engineers.filter(e=>e.disc===disc);
+    const discCls=DISC_CLS[disc]||'';
+    rows+=`<tr class="disc-hd ${discCls}">
+      <td colspan="5" style="padding:5px 10px;color:#fff;font-weight:700">MEP-${disc}</td>
+      <td style="text-align:center;font-size:9px;font-weight:700">Disc Cost (AED/K)</td>
+      ${weeks.map((_,wi)=>{const v=discEngs.reduce((a,e)=>a+(wh[e.id]&&wh[e.id][wi]?(wh[e.id][wi]*getRate(e)):0),0)/1000;return`<td style="font-size:9px;text-align:center;font-weight:600">${v>0?v.toFixed(1):'-'}</td>`;}).join('')}
+      <td style="font-size:9px;text-align:center;font-weight:700">Total</td></tr>`;
+    // Fee row = Disc Cost × feeFactor
+    const ff=p.feeFactor||1.0;
+    if(ff!==1.0||true){
+      const discTotFee=discEngs.reduce((a,e)=>a+((wh[e.id]||[]).reduce((b,h)=>b+h,0)*getRate(e)),0)/1000*ff;
+      rows+=`<tr class="disc-hd ${discCls}" style="opacity:.85">
+        <td colspan="5" style="padding:3px 10px;font-size:9px;color:#fff;opacity:.9">Fee (×${ff.toFixed(2)})</td>
+        <td style="text-align:center;font-size:9px;font-weight:700;font-style:italic">Fee (AED/K)</td>
+        ${weeks.map((_,wi)=>{const cost=discEngs.reduce((a,e)=>a+(wh[e.id]&&wh[e.id][wi]?(wh[e.id][wi]*getRate(e)):0),0)/1000;const v=cost*ff;return`<td style="font-size:9px;text-align:center;font-weight:600;font-style:italic">${v>0?v.toFixed(1):'-'}</td>`;}).join('')}
+        <td style="font-size:9px;text-align:center;font-weight:700;font-style:italic">${discTotFee>0?discTotFee.toFixed(1):'-'}</td></tr>`;
+    }
+    discEngs.forEach((eng,ei)=>{
+      const isAssigned=wh[eng.id]&&wh[eng.id].some(v=>v>0);
+      rows+=`<tr class="eng-row">
+        <td style="color:var(--tx3);padding:4px 8px">${p.no}</td>
+        <td style="padding:4px 8px"><span class="bdg b-${discCls}">${disc}</span></td>
+        <td style="padding:4px 8px;text-align:center">${isAssigned?'✓':''}</td>
+        <td style="padding:4px 8px;color:var(--tx3);font-size:10px">${eng.empno||ei+1}</td>
+        <td style="padding:4px 8px;font-weight:600;white-space:nowrap;min-width:130px">${eng.name.split(' ').slice(0,2).join(' ')}</td>
+        <td style="padding:4px 8px;font-size:10px;color:var(--tx2)">${eng.desig||'—'}</td>
+        ${weeks.map((wk,wi)=>{const v=(wh[eng.id]&&wh[eng.id][wi])||'';
+          const gWI=Math.round((wk-new Date('2026-04-07'))/(7*24*3600*1000));
+          const lv=(S.leaveHrs[eng.id]&&gWI>=0)?S.leaveHrs[eng.id][gWI]||0:0;
+          const cap=eng.cap||45;
+          // Holiday check
+          const wkStr=wk.toISOString().slice(0,10);
+          const holMap=eng.off==='EGY'?buildHolidayWeekMap(S.holidaysEGY||[]):buildHolidayWeekMap(S.holidaysUAE||[]);
+          const hv=holMap[wkStr]||0;
+          // Priority: leave (red/orange) > holiday (blue) > normal (green)
+          const tdBg=lv>=cap?'#fca5a5':lv>0?'#fed7aa':hv>0?'#bfdbfe':'';
+          const bdr=lv>=cap?'#ef4444':lv>0?'#f97316':hv>0?'#3b82f6':v?'#86efac':'transparent';
+          const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:'';
+          return`<td class="week-cell" style="${tdBg?'background:'+tdBg+';':''}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'}"></td>`;}).join('')}
+        <td class="wk-total">${wh[eng.id]?wh[eng.id].reduce((a,b)=>a+(b||0),0).toFixed(0):'-'}</td></tr>`;
+    });
+  });
+  const wkTots=weeks.map((_,wi)=>S.engineers.reduce((a,e)=>a+(wh[e.id]&&wh[e.id][wi]?wh[e.id][wi]:0),0));
+  rows+=`<tr class="tot"><td colspan="6" style="padding:6px 10px;background:#e0f2fe;color:#075985">TOTAL HOURS / WEEK</td>${wkTots.map(t=>`<td class="wk-total">${t>0?t.toFixed(0):'-'}</td>`).join('')}<td class="wk-total">${wkTots.reduce((a,b)=>a+b,0).toFixed(0)}</td></tr>`;
+  if(mode==='inner'){
+    return`<table class="proj-tbl">
+      <thead><tr><th class="left" style="min-width:60px">Proj No.</th><th class="left" style="min-width:50px">Disc</th><th style="min-width:28px">Inv</th><th class="left" style="min-width:65px">Emp No.</th><th class="left" style="min-width:140px">Name</th><th class="left" style="min-width:150px">Position</th>${wkHdrs}<th style="min-width:46px;background:#0369a1">Total</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>`;
+  }
+  return'';
+}
+function toggleProj(id,event){
+  if(event)event.stopPropagation();
+  window.projCollapsed[id]=!window.projCollapsed[id];
+  const p=S.projects.find(x=>x.id===id);if(!p)return;
+  const old=document.getElementById('proj-body-'+id);
+  if(old&&old.parentElement)old.parentElement.outerHTML=renderProjCard(p);
+}
+function setWeekHrsProj(projId,engId,wkIdx,inputEl){
+  const val=parseFloat(inputEl.value)||0;
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  if(!p.weeklyHrs)p.weeklyHrs={};
+  if(!p.weeklyHrs[engId])p.weeklyHrs[engId]=[];
+  p.weeklyHrs[engId][wkIdx]=val;
+  inputEl.style.background=val?'#dcfce7':'transparent';
+  inputEl.style.border=val?'1px solid #86efac':'1px solid transparent';
+  clearTimeout(inputEl._t);
+  inputEl._t=setTimeout(()=>pushProj(p),1200);
+}
+
+// ═══════════════════════════════════════
+// COST RATES
+// ═══════════════════════════════════════
+function renderRates(){
+  const dxbBody=document.getElementById('rates-body-dxb');
+  const egyBody=document.getElementById('rates-body-egy');
+  if(!dxbBody||!egyBody)return;
+  const mkRow=(g,val,prefix)=>`
+    <tr>
+      <td style="font-weight:500;font-size:12px">${g}</td>
+      <td><input type="number" id="${prefix}-${g.replace(/[^\w]/g,'_')}" value="${val||0}" min="0" max="5000"
+        style="width:120px;text-align:right;font-weight:700;font-size:13px;padding:4px 8px;border:1px solid var(--bdr);border-radius:5px;"></td>
+    </tr>`;
+  dxbBody.innerHTML=GRADES.map(g=>mkRow(g,S.ratesDXB[g]||DEF_RATES_DXB[g]||0,'dxb')).join('');
+  egyBody.innerHTML=GRADES.map(g=>mkRow(g,S.ratesEGY[g]||DEF_RATES_EGY[g]||0,'egy')).join('');
+}
+function saveRates(){
+  GRADES.forEach(g=>{
+    const dEl=document.getElementById('dxb-'+g.replace(/[^\w]/g,'_'));
+    const eEl=document.getElementById('egy-'+g.replace(/[^\w]/g,'_'));
+    if(dEl)S.ratesDXB[g]=parseFloat(dEl.value)||0;
+    if(eEl)S.ratesEGY[g]=parseFloat(eEl.value)||0;
+  });
+  S.rates=S.ratesDXB; // keep backward compat
+  pushRates();toast('Rates saved & synced ✓');
+}
+
+// ═══════════════════════════════════════
+// ENGINEER MODAL
+// ═══════════════════════════════════════
+function fillGrade(){document.getElementById('em-grade').innerHTML=GRADES.map(g=>`<option>${g}</option>`).join('');}
+function openEngModal(){eId=null;document.getElementById('eng-title').textContent='Add Engineer';['em-name','em-desig','em-empno','em-grade-txt','em-note'].forEach(id=>document.getElementById(id).value='');document.getElementById('em-disc').value='HVAC';document.getElementById('em-off').value='DXB';document.getElementById('em-cap').value=45;fillGrade();document.getElementById('eng-ov').classList.add('open');}
+function editEng(id){const e=S.engineers.find(x=>x.id===id);if(!e)return;eId=id;document.getElementById('eng-title').textContent='Edit Engineer';document.getElementById('em-name').value=e.name;document.getElementById('em-desig').value=e.desig||'';document.getElementById('em-empno').value=e.empno||'';document.getElementById('em-grade-txt').value=e.gradeLabel||'';document.getElementById('em-disc').value=e.disc;document.getElementById('em-off').value=e.off;document.getElementById('em-cap').value=e.cap||45;document.getElementById('em-note').value=e.note||'';fillGrade();document.getElementById('em-grade').value=e.grade||'Engineer';document.getElementById('eng-ov').classList.add('open');}
+function closeEngModal(){document.getElementById('eng-ov').classList.remove('open');}
+async function saveEng(){
+  const name=document.getElementById('em-name').value.trim();if(!name){toast('Name required');return;}
+  const eng={id:eId||'e'+Date.now(),name,desig:document.getElementById('em-desig').value.trim(),empno:document.getElementById('em-empno').value.trim(),gradeLabel:document.getElementById('em-grade-txt').value.trim(),disc:document.getElementById('em-disc').value,off:document.getElementById('em-off').value,grade:document.getElementById('em-grade').value,cap:+document.getElementById('em-cap').value||45,note:document.getElementById('em-note').value.trim()};
+  if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
+  await pushEng(eng);closeEngModal();renderTeam();updSB();toast('Saved & synced ✓');
+}
+async function delEng(id){if(!confirm('Remove engineer?'))return;S.engineers=S.engineers.filter(e=>e.id!==id);try{await sbDel('engineers',id);}catch{saveLocal();}renderTeam();updSB();toast('Removed');}
+
+// ═══════════════════════════════════════
+// PROJECT MODAL
+// ═══════════════════════════════════════
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-st').value='Active';document.getElementById('proj-ov').classList.add('open');}
+function editProj(id){const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-st').value=p.status;document.getElementById('proj-ov').classList.add('open');}
+function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
+async function saveProj(){
+  const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
+  const existing=pId?S.projects.find(x=>x.id===pId):null;
+  const feeFactor=parseFloat(document.getElementById('pw-fee').value)||1.0;
+  const newStart=document.getElementById('pw-start').value;
+  const newEnd=document.getElementById('pw-end').value;
+  const newWeeks=stageWeeks(newStart,newEnd);
+  // Preserve existing hours, padding arrays to new week count
+  let weeklyHrs={};
+  if(existing&&existing.weeklyHrs){
+    const oldWeeks=stageWeeks(existing.start,existing.end);
+    // Build date->hours maps per engineer for accurate re-alignment
+    Object.entries(existing.weeklyHrs).forEach(([eid,arr])=>{
+      const dateMap={};
+      oldWeeks.forEach((wk,wi)=>{if(arr[wi])dateMap[wk.toISOString().slice(0,10)]=arr[wi];});
+      const newArr=newWeeks.map(wk=>dateMap[wk.toISOString().slice(0,10)]||0);
+      if(newArr.some(v=>v>0))weeklyHrs[eid]=newArr;
+    });
+  }
+  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
+  if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
+  await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
+  // If detail view is open for this project, re-render it with new dates
+  const detailView=document.getElementById('proj-detail-view');
+  if(detailView&&detailView.style.display!=='none'&&pId){
+    const updated=S.projects.find(x=>x.id===pId);
+    if(updated){renderProjDetail(updated);document.getElementById('proj-hdr-title').textContent=updated.no+' — '+updated.name;}
+  } else {renderProj();}
+}
+async function delProj(id){if(!confirm('Delete project?'))return;S.projects=S.projects.filter(p=>p.id!==id);try{await sbDel('projects',id);}catch{saveLocal();}renderProj();updSB();toast('Deleted');}
+
+// ═══════════════════════════════════════
+// UTILS
+// ═══════════════════════════════════════
+function fN(n){return n.toLocaleString();}
+function fAED(n){if(n>=1e6)return'AED '+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'AED '+(n/1e3).toFixed(0)+'K';return'AED '+Math.round(n);}
+let _tt;
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2800);}
+document.querySelectorAll('.ov').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+showMobMenuBtns();
+
+// ═══════════════════════════════════════
+// ANNUAL LEAVE & MGMT HOURS
+// ═══════════════════════════════════════
+
+// Global week spine: Apr 2026 → Dec 2027 (92 weeks covers 2 years comfortably)
+function globalWeeks(){
+  const start='2026-04-06';
+  const end='2027-12-31';
+  return stageWeeks(start,end);
+}
+
+function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor){
+  const weeks=globalWeeks();
+  const el=document.getElementById(containerId);
+  if(!el)return;
+
+  // Group engineers by discipline
+  const discs=['HVAC','PH&E','ELE','ELV'];
+  let html='<div style="overflow-x:auto">';
+  html+=`<table class="proj-tbl" style="min-width:100%">
+    <thead><tr>
+      <th class="left" style="min-width:180px;position:sticky;left:0;z-index:2;background:#1e3a5f;color:#fff">Engineer</th>
+      <th class="left" style="min-width:60px;background:#1e3a5f;color:#fff">Disc</th>
+      <th class="left" style="min-width:40px;background:#1e3a5f;color:#fff">Off</th>
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#1e3a5f;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+      <th style="min-width:50px;background:#0369a1;color:#fff;text-align:center">Total</th>
+    </tr></thead>
+    <tbody>`;
+
+  discs.forEach(disc=>{
+    const discEngs=engList.filter(e=>e.disc===disc);
+    if(!discEngs.length)return;
+    const dClr={HVAC:'#93c5fd',['PH&E']:'#86efac',ELE:'#fcd34d',ELV:'#f9a8d4'}[disc]||'#e2e8f0';
+    const dTxt={HVAC:'#1e3a5f',['PH&E']:'#14532d',ELE:'#78350f',ELV:'#831843'}[disc]||'#1e293b';
+    html+=`<tr><td colspan="${weeks.length+3}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px">MEP-${disc}</td></tr>`;
+
+    discEngs.forEach(eng=>{
+      const arr=hrsObj[eng.id]||[];
+      const total=arr.reduce((a,b)=>a+(b||0),0);
+      html+=`<tr>
+        <td style="position:sticky;left:0;z-index:1;background:var(--surf);font-weight:500;padding:4px 8px">${eng.name}</td>
+        <td style="padding:4px 6px"><span class="bdg b-${(DISC_CLS[eng.disc]||'')}">${eng.disc}</span></td>
+        <td style="padding:4px 6px;font-size:10px;color:var(--tx3)">${eng.off}</td>
+        ${weeks.map((w,wi)=>{
+          const v=arr[wi]||0;
+          const cap=eng.cap||45;
+          const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
+          const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+          return`<td style="padding:2px;text-align:center">
+            <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'}"
+              oninput="${setFn}('${eng.id}',${wi},this)">
+          </td>`;
+        }).join('')}
+        <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
+      </tr>`;
+    });
+  });
+
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
+}
+
+function renderLeave(){
+  const el=document.getElementById('pc-leave');
+  if(!el)return;
+  const weeks=globalWeeks();
+  const firstW=weeks[0],lastW=weeks[weeks.length-1];
+  const lbl=document.getElementById('leave-period-label');
+  if(lbl)lbl.textContent=wkLabel(firstW)+' – '+wkLabel(lastW);
+
+  // Summary bar
+  const totalLeaveHrs=Object.values(S.leaveHrs).reduce((a,arr)=>a+(arr||[]).reduce((b,h)=>b+(h||0),0),0);
+  el.innerHTML=`
+    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#fef3c7;border-left:4px solid #f59e0b;">
+      <span style="font-size:12px;color:#78350f;font-weight:600">🏖 Total Leave Hours: <strong>${totalLeaveHrs.toFixed(0)}</strong></span>
+      <span style="font-size:11px;color:#92400e">Full week leave = <span style="background:#fca5a5;padding:1px 6px;border-radius:4px">red</span> &nbsp; Partial week = <span style="background:#fed7aa;padding:1px 6px;border-radius:4px">orange</span></span>
+    </div>
+    <div id="leave-grid"></div>`;
+  renderLeaveGrid('leave-grid', S.engineers, S.leaveHrs, 'setLeaveHr', 'Annual Leave', '#f59e0b');
+}
+
+function getMgmtEngineers(){
+  // Associates + Technical Managers + any custom additions saved in S.mgmtExtra
+  const base=S.engineers.filter(e=>{
+    const grade=e.grade||'';
+    const desig=(e.desig||'').toLowerCase();
+    return grade==='Associate Engineer'||grade==='Technical Manager / Director'||
+           desig.includes('associate')||desig.includes('technical manager');
+  });
+  // Add custom extra engineers from S.mgmtExtra (array of engIds)
+  const extra=(S.mgmtExtra||[]).map(id=>S.engineers.find(e=>e.id===id)).filter(Boolean);
+  const ids=new Set(base.map(e=>e.id));
+  extra.forEach(e=>{if(!ids.has(e.id)){base.push(e);ids.add(e.id);}});
+  return base;
+}
+
+function renderMgmt(){
+  const el=document.getElementById('pc-mgmt');
+  if(!el)return;
+  const mgmtEngs=getMgmtEngineers();
+  const totalMgmtHrs=Object.values(S.mgmtHrs).reduce((a,arr)=>a+(arr||[]).reduce((b,h)=>b+(h||0),0),0);
+  el.innerHTML=`
+    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#ede9fe;border-left:4px solid #7c3aed;">
+      <span style="font-size:12px;color:#4c1d95;font-weight:600">📊 Total Management Hours: <strong>${totalMgmtHrs.toFixed(0)}</strong></span>
+      <span style="font-size:11px;color:#5b21b6">Counts toward utilisation · Not billable · Associates & Managers</span>
+    </div>
+    <div id="mgmt-grid"></div>
+    <div class="card" style="margin-top:12px;padding:12px 16px;">
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;">+ Add engineer to management hours</div>
+      <div id="mgmt-extra-rows"></div>
+      <button class="btn btn-g btn-sm" style="margin-top:8px;" onclick="addMgmtExtraRow()">+ Add Row</button>
+    </div>`;
+  renderLeaveGrid('mgmt-grid', mgmtEngs, S.mgmtHrs, 'setMgmtHr', 'Mgmt Hours', '#7c3aed');
+  renderMgmtExtraRows();
+}
+
+function renderMgmtExtraRows(){
+  const el=document.getElementById('mgmt-extra-rows');
+  if(!el)return;
+  const existing=getMgmtEngineers().map(e=>e.id);
+  const available=S.engineers.filter(e=>!existing.includes(e.id));
+  // Show 3 empty dropdown rows always
+  const rows=(S.mgmtExtraTemp||[{},{}]);
+  el.innerHTML=rows.map((r,ri)=>`
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+      <select onchange="selectMgmtExtra(${ri},this.value)" style="flex:1;font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;">
+        <option value="">— Select engineer —</option>
+        ${available.map(e=>`<option value="${e.id}"${r.id===e.id?' selected':''}>${e.name} (${e.disc})</option>`).join('')}
+      </select>
+      ${r.id?`<button class="btn btn-d btn-xs" onclick="removeMgmtExtra(${ri})">✕</button>`:''}
+    </div>`).join('');
+}
+
+function addMgmtExtraRow(){
+  if(!S.mgmtExtraTemp)S.mgmtExtraTemp=[{}];
+  S.mgmtExtraTemp.push({});
+  renderMgmtExtraRows();
+}
+
+function selectMgmtExtra(ri, engId){
+  if(!S.mgmtExtraTemp)S.mgmtExtraTemp=[{}];
+  if(!S.mgmtExtra)S.mgmtExtra=[];
+  S.mgmtExtraTemp[ri]={id:engId};
+  if(engId&&!S.mgmtExtra.includes(engId)){
+    S.mgmtExtra.push(engId);
+    // Save to settings
+    sbFetch('settings','POST',{key:'mgmtExtra',value:S.mgmtExtra},'resolution=merge-duplicates,return=representation');
+    renderMgmt();
+  }
+}
+
+function removeMgmtExtra(ri){
+  if(!S.mgmtExtraTemp)return;
+  const engId=S.mgmtExtraTemp[ri].id;
+  S.mgmtExtraTemp.splice(ri,1);
+  if(engId){S.mgmtExtra=(S.mgmtExtra||[]).filter(id=>id!==engId);}
+  sbFetch('settings','POST',{key:'mgmtExtra',value:S.mgmtExtra||[]},'resolution=merge-duplicates,return=representation');
+  renderMgmt();
+}
+
+function setLeaveHr(engId, wi, el){
+  const v=parseFloat(el.value)||0;
+  if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
+  S.leaveHrs[engId][wi]=v;
+  const cap=S.engineers.find(e=>e.id===engId)?.cap||45;
+  el.style.background=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
+  el.style.color=v>=cap?'#7f1d1d':v>0?'#7c2d12':'inherit';
+  el.style.border=`1px solid ${v?'#f59e0b':'#e4e6ea'}`;
+  clearTimeout(el._t);el._t=setTimeout(()=>pushLeave(engId),1500);
+}
+
+function setMgmtHr(engId, wi, el){
+  const v=parseFloat(el.value)||0;
+  if(!S.mgmtHrs[engId])S.mgmtHrs[engId]=[];
+  S.mgmtHrs[engId][wi]=v;
+  el.style.border=`1px solid ${v?'#7c3aed':'#e4e6ea'}`;
+  el.style.background=v?'#ede9fe':'';
+  clearTimeout(el._t);el._t=setTimeout(()=>pushMgmt(engId),1500);
+}
+
+async function pushLeave(engId){
+  const data=S.leaveHrs[engId]||[];
+  try{await sbFetch('leave_hrs','POST',{id:engId,data},'resolution=merge-duplicates,return=representation');}
+  catch(e){console.error('Leave save error:',e);}
+  saveLocal();
+}
+
+async function pushMgmt(engId){
+  const data=S.mgmtHrs[engId]||[];
+  try{await sbFetch('mgmt_hrs','POST',{id:engId,data},'resolution=merge-duplicates,return=representation');}
+  catch(e){console.error('Mgmt save error:',e);}
+  saveLocal();
+}
+
+async function clearLeaveHrs(){
+  if(!confirm('Clear ALL annual leave hours? This cannot be undone.'))return;
+  S.leaveHrs={};
+  try{await sbFetch('leave_hrs?id=neq.none','DELETE');}catch(e){}
+  renderLeave();
+  toast('Leave hours cleared');
+}
+
+
+// ═══════════════════════════════════════
+// PUBLIC HOLIDAYS
+// ═══════════════════════════════════════
+
+function getDefaultHolidays(country){
+  const UAE=[
+    {name:'Eid Al Fitr',date:'2026-03-30',hours:27,note:'3 days — moon sighting may shift ±1 day'},
+    {name:'Eid Al Fitr Holiday',date:'2026-03-31',hours:9,note:''},
+    {name:'Eid Al Fitr Holiday',date:'2026-04-01',hours:9,note:''},
+    {name:'Eid Al Adha',date:'2026-06-06',hours:27,note:'3 days — moon sighting may shift ±1 day'},
+    {name:'Eid Al Adha Holiday',date:'2026-06-07',hours:9,note:''},
+    {name:'Eid Al Adha Holiday',date:'2026-06-08',hours:9,note:''},
+    {name:'Arafat (Haj) Day',date:'2026-06-05',hours:9,note:''},
+    {name:'Islamic New Year',date:'2026-06-27',hours:9,note:'Moon sighting dependent'},
+    {name:"Prophet's Birthday",date:'2026-09-04',hours:9,note:'Moon sighting dependent'},
+    {name:'UAE National Day',date:'2026-12-02',hours:9,note:''},
+    {name:'UAE National Day Holiday',date:'2026-12-03',hours:9,note:''},
+    {name:"New Year's Day",date:'2027-01-01',hours:9,note:''},
+  ];
+  const EGY=[
+    {name:'Sinai Liberation Day',date:'2026-04-25',hours:9,note:''},
+    {name:'Labour Day',date:'2026-05-01',hours:9,note:''},
+    {name:'Eid Al Fitr',date:'2026-03-29',hours:27,note:'3 days — Egypt moon sighting'},
+    {name:'Eid Al Fitr Holiday',date:'2026-03-30',hours:9,note:''},
+    {name:'Eid Al Fitr Holiday',date:'2026-03-31',hours:9,note:''},
+    {name:'Eid Al Adha',date:'2026-06-05',hours:27,note:'3 days — Egypt moon sighting'},
+    {name:'Eid Al Adha Holiday',date:'2026-06-06',hours:9,note:''},
+    {name:'Eid Al Adha Holiday',date:'2026-06-07',hours:9,note:''},
+    {name:'June 30 Revolution',date:'2026-06-30',hours:9,note:''},
+    {name:'Revolution Day',date:'2026-07-23',hours:9,note:''},
+    {name:'Islamic New Year',date:'2026-06-26',hours:9,note:'Egypt moon sighting'},
+    {name:'Armed Forces Day',date:'2026-10-06',hours:9,note:''},
+    {name:"Prophet's Birthday",date:'2026-09-03',hours:9,note:'Egypt moon sighting'},
+    {name:"New Year's Day",date:'2027-01-01',hours:9,note:''},
+  ];
+  return country==='UAE'?UAE:EGY;
+}
+
+// Get week start date (Monday) for a given date string
+function weekStartFor(dateStr){
+  const d=new Date(dateStr);
+  const day=d.getDay(); // 0=Sun
+  const diff=day===0?-6:1-day;
+  d.setDate(d.getDate()+diff);
+  return d.toISOString().slice(0,10);
+}
+
+// Build a map: weekStartDate -> total holiday hours, for a given holidays array
+function buildHolidayWeekMap(holidays){
+  const map={};
+  (holidays||[]).forEach(h=>{
+    const ws=weekStartFor(h.date);
+    map[ws]=(map[ws]||0)+(h.hours||9);
+  });
+  return map;
+}
+
+function renderHolidaySection(holidays, country, accentColor, flagEmoji){
+  const totalHrs=holidays.reduce((a,h)=>a+(h.hours||0),0);
+  return`
+    <div class="card" style="padding:0;overflow:hidden;margin-bottom:16px;">
+      <div style="background:${accentColor};color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-weight:700;font-size:13px;">${flagEmoji} ${country} Public Holidays</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+          <span style="font-size:11px;opacity:.85">${holidays.length} holidays · ${totalHrs} hrs total</span>
+          <button class="btn btn-sm" onclick="addHoliday('${country}')" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);font-size:11px;">+ Add</button>
+        </div>
+      </div>
+      <table class="tbl" style="width:100%">
+        <thead><tr>
+          <th style="width:200px">Holiday Name</th>
+          <th style="width:140px">Date</th>
+          <th style="width:100px">Hours</th>
+          <th>Note (moon sighting etc)</th>
+          <th style="width:60px"></th>
+        </tr></thead>
+        <tbody id="hol-body-${country}">
+          ${holidays.map((h,i)=>`<tr>
+            <td><input type="text" value="${h.name}" style="width:100%;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;" onchange="updateHoliday('${country}',${i},'name',this.value)"></td>
+            <td><input type="date" value="${h.date}" style="font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;width:130px;" onchange="updateHoliday('${country}',${i},'date',this.value)"></td>
+            <td><input type="number" value="${h.hours}" min="1" max="45" style="width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;text-align:center;" onchange="updateHoliday('${country}',${i},'hours',parseFloat(this.value)||9)"></td>
+            <td><input type="text" value="${h.note||''}" placeholder="e.g. moon sighting may shift ±1 day" style="width:100%;font-size:10px;padding:3px 6px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx3);" onchange="updateHoliday('${country}',${i},'note',this.value)"></td>
+            <td style="text-align:center;"><button class="btn btn-d btn-xs" onclick="removeHoliday('${country}',${i})">✕</button></td>
+          </tr>`).join('')}
+        </tbody>
+      </table>
+    </div>`;
+}
+
+function renderHolidays(){
+  const el=document.getElementById('pc-holidays');
+  if(!el)return;
+  el.innerHTML=`
+    <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:var(--r);padding:10px 14px;font-size:11px;color:#1e3a5f;margin-bottom:16px;">
+      🔵 <strong>Blue highlight</strong> in project cells = holiday week &nbsp;|&nbsp;
+      🟠 <strong>Orange/Red</strong> = annual leave &nbsp;|&nbsp;
+      Holidays count toward utilisation but are <strong>not billable</strong>. Moon-sighting dates are approximate — update as needed.
+    </div>
+    ${renderHolidaySection(S.holidaysUAE,'UAE','#1d4ed8','🇦🇪')}
+    ${renderHolidaySection(S.holidaysEGY,'EGY','#166534','🇪🇬')}`;
+}
+
+function updateHoliday(country, idx, field, val){
+  const arr=country==='UAE'?S.holidaysUAE:S.holidaysEGY;
+  if(arr[idx])arr[idx][field]=val;
+}
+
+function addHoliday(country){
+  const arr=country==='UAE'?S.holidaysUAE:S.holidaysEGY;
+  arr.push({name:'New Holiday',date:'2026-01-01',hours:9,note:''});
+  renderHolidays();
+}
+
+function removeHoliday(country, idx){
+  const arr=country==='UAE'?S.holidaysUAE:S.holidaysEGY;
+  arr.splice(idx,1);
+  renderHolidays();
+}
+
+async function saveHolidays(){
+  try{
+    await Promise.all([
+      sbFetch('holidays','POST',{id:'uae',data:S.holidaysUAE},'resolution=merge-duplicates,return=representation'),
+      sbFetch('holidays','POST',{id:'egy',data:S.holidaysEGY},'resolution=merge-duplicates,return=representation'),
+    ]);
+    toast('Holidays saved ✓');
+  }catch(e){toast('Save failed: '+e.message);console.error(e);}
+}
+
+// ═══════════════════════════════════════
+// PDF EXPORT
+// ═══════════════════════════════════════
+function exportPDF(){
+  // Show hidden print header
+  let hdr = document.getElementById('pdf-header');
+  if(!hdr){
+    hdr = document.createElement('div');
+    hdr.id = 'pdf-header';
+    document.querySelector('.pc') && document.querySelector('#pg-mep .pc').prepend(hdr);
+  }
+  const{minMI,NMON}=computeAll();
+  const from=miLabelL(DASH_FROM_MI!==null?DASH_FROM_MI:minMI);
+  const to=miLabelL(DASH_TO_MI!==null?DASH_TO_MI:minMI+NMON-1);
+  const period=from===to?from:from+' – '+to;
+  if(hdr){
+    hdr.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;">
+      <div>
+        <div style="font-size:18px;font-weight:800;color:#1e3a5f;">MEP Resource Plan</div>
+        <div style="font-size:11px;color:#64748b;">Meinhardt Group · ${period} · Generated ${new Date().toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      </div>
+      <div style="font-size:10px;color:#94a3b8;text-align:right;">CONFIDENTIAL</div>
+    </div>`;
+    hdr.style.display='block';
+  }
+  setTimeout(()=>{
+    window.print();
+    setTimeout(()=>{if(hdr)hdr.style.display='none';},500);
+  },300);
+}
+</script>
+</body>
+</html>
