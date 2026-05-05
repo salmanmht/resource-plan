@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -294,15 +295,24 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
     <div class="pc">
       <div id="pdf-header"></div>
       <div class="mrow" id="mep-metrics"></div>
-      <div class="g2">
-        <div class="card"><div class="card-t">Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
-        <div class="card"><div class="card-t">Hours by Discipline</div><div class="cbox"><canvas id="c-mep-donut"></canvas></div></div>
-      </div>
-      <div class="g2">
-        <div class="card"><div class="card-t">Dubai vs Egypt</div><div class="cbox"><canvas id="c-mep-office"></canvas></div></div>
-        <div class="card"><div class="card-t">Workload by Project</div><div class="cbox"><canvas id="c-mep-proj"></canvas></div></div>
-      </div>
       <div class="card"><div class="card-t">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
+      <!-- Deep Dive Section -->
+      <div class="card" style="padding:0;overflow:hidden;">
+        <div id="deep-dive-hdr" onclick="toggleDeepDive()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f8faff;border-bottom:1px solid var(--bdr);user-select:none;">
+          <span style="font-weight:700;font-size:12px;color:#1e3a5f;">📊 Deep Dive Analytics</span>
+          <span id="deep-dive-chevron" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
+        </div>
+        <div id="deep-dive-body" style="display:none;padding:14px;">
+          <div class="g2">
+            <div class="card"><div class="card-t">Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
+            <div class="card"><div class="card-t">Hours by Discipline</div><div class="cbox"><canvas id="c-mep-donut"></canvas></div></div>
+          </div>
+          <div class="g2" style="margin-top:12px;">
+            <div class="card"><div class="card-t">Dubai vs Egypt</div><div class="cbox"><canvas id="c-mep-office"></canvas></div></div>
+            <div class="card"><div class="card-t">Workload by Project</div><div class="cbox"><canvas id="c-mep-proj"></canvas></div></div>
+          </div>
+        </div>
+      </div>
       <div class="card"><div class="card-t">Engineer Heatmap — click any row to see project breakdown</div><div class="tbl-wrap"><table class="tbl" id="t-mep-heat"></table></div></div>
     </div>
   </div>
@@ -1225,7 +1235,7 @@ function toggleEngRow(engId,tableId){
   detailRow.style.display=isOpen?'':'none';
 }
 
-function heatTable(elId,sub,util,hrs,minMI,NMON,mF){
+function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil){
   const el=document.getElementById(elId);if(!el)return;
   const n=NMON||9;const base=minMI||0;
   const cols=mF!==null&&mF!==undefined?[mF-base]:Array.from({length:n},(_,i)=>i);
@@ -1269,19 +1279,32 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF){
         </td></tr>`;
     }
   });
-  // Monthly totals row — avg% across all engineers shown
+  // Monthly totals — two rows: Total Util and Billable Util
   if(sub.length>0){
+    const bu=billUtil||util; // fallback to util if billUtil not passed
+    // Total utilisation row
     const totRow=cols.map(mi=>{
-      const vals=sub.map(e=>(util[e.id]||[])[mi]||0);
-      const avg=vals.reduce((a,b)=>a+b,0)/sub.length;
-      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#f0f4ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
+      const avg=sub.map(e=>(util[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
+      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#e0e7ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
     }).join('');
-    const overallAvg=sub.reduce((a,e)=>{const u=util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
-    h+=`<tr style="border-top:2px solid #1e3a5f;background:#f0f4ff;">
+    const overallUtil=sub.reduce((a,e)=>{const u=util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
+    // Billable utilisation row
+    const billRow=cols.map(mi=>{
+      const avg=sub.map(e=>(bu[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
+      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#cffafe;color:#164e63">${avg.toFixed(0)}%</td>`;
+    }).join('');
+    const overallBill=sub.reduce((a,e)=>{const u=bu[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
+    h+=`<tr style="border-top:2px solid #1e3a5f;background:#e0e7ff;">
       <td></td><td></td>
-      <td colspan="3" style="padding:5px 10px;font-weight:700;font-size:11px;color:#1e3a5f">TEAM AVG%</td>
+      <td colspan="3" style="padding:4px 10px;font-weight:700;font-size:11px;color:#1e3a5f">TEAM UTIL%</td>
       ${totRow}
-      <td style="text-align:center;font-weight:800;font-size:12px;color:#1e3a5f;background:#e0e7ff">${overallAvg.toFixed(1)}%</td>
+      <td style="text-align:center;font-weight:800;font-size:12px;color:#1e3a5f;background:#c7d2fe">${overallUtil.toFixed(1)}%</td>
+    </tr>
+    <tr style="background:#cffafe;">
+      <td></td><td></td>
+      <td colspan="3" style="padding:4px 10px;font-weight:700;font-size:11px;color:#164e63">BILLABLE%</td>
+      ${billRow}
+      <td style="text-align:center;font-weight:800;font-size:12px;color:#164e63;background:#a5f3fc">${overallBill.toFixed(1)}%</td>
     </tr>`;
   }
   el.innerHTML=h+'</tbody>';
@@ -1376,28 +1399,48 @@ function renderMEP(){
     <div class="mc am"><div class="mc-l">Total Hours</div><div class="mc-v">${fN(Math.round(totH))}</div></div>
     <div class="mc pu"><div class="mc-l">Est. Cost</div><div class="mc-v">${fAED(totC)}</div></div>
     <div class="mc te"><div class="mc-l">Active Projects</div><div class="mc-v">${S.projects.filter(p=>p.status==='Active').length}</div><div class="mc-s">of ${S.projects.length}</div></div>`;
-  mkChart('c-mep-line','line',labels,discs.map((d,i)=>({label:d,data:subUtil(all.filter(e=>e.disc===d),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
-  const dH=discs.map(d=>Math.round(subHrs(all.filter(e=>e.disc===d),hrs)));
-  mkChart('c-mep-donut','doughnut',discs,[{data:dH,backgroundColor:dClr,borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
-  mkChart('c-mep-office','bar',labels,[{label:'Dubai',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'Egypt',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
-  const actP=S.projects.filter(p=>p.status==='Active').slice(0,12);
-  mkChart('c-mep-proj','bar',actP.map(p=>p.name.length>16?p.name.slice(0,15)+'…':p.name),[{label:'Hrs',data:actP.map(p=>Math.round(projTotalHrs(p))),backgroundColor:actP.map((_,i)=>dClr[i%4]),borderRadius:3,borderSkipped:false}],{extra:{indexAxis:'y'},y:{ticks:{font:{size:9}}},x:{grid:{display:false}}});
-  // Billing vs Utilisation combined line chart
+  // Billing vs Utilisation — always visible
   mkChart('c-mep-bill','line',labels,[
     {label:'Total Utilisation',data:subUtil(all,util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
     {label:'Billable Utilisation',data:subUtil(all,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
   ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
-  heatTable('t-mep-heat',all,util,hrs,minMI,NMON,null);
+  heatTable('t-mep-heat',all,util,hrs,minMI,NMON,null,billUtil);
+  // Store data for deep dive rendering when expanded
+  window._mepDeepDiveData={labels,all,util,billUtil,hrs,discs,dClr,dxb,egy,minMI,NMON};
+  // Re-render deep dive if already open
+  if(document.getElementById('deep-dive-body').style.display!=='none')renderDeepDive();
+}
+
+function renderDeepDive(){
+  const d=window._mepDeepDiveData;
+  if(!d)return;
+  const {labels,all,util,hrs,discs,dClr,dxb,egy,minMI,NMON}=d;
+  mkChart('c-mep-line','line',labels,discs.map((disc,i)=>({label:disc,data:subUtil(all.filter(e=>e.disc===disc),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+  const dH=discs.map(disc=>Math.round(subHrs(all.filter(e=>e.disc===disc),hrs)));
+  mkChart('c-mep-donut','doughnut',discs,[{data:dH,backgroundColor:dClr,borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+  mkChart('c-mep-office','bar',labels,[{label:'Dubai',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'Egypt',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
+  const actP=S.projects.filter(p=>p.status==='Active').slice(0,12);
+  mkChart('c-mep-proj','bar',actP.map(p=>p.name.length>16?p.name.slice(0,15)+'…':p.name),[{label:'Hrs',data:actP.map(p=>Math.round(projTotalHrs(p))),backgroundColor:actP.map((_,i)=>dClr[i%4]),borderRadius:3,borderSkipped:false}],{extra:{indexAxis:'y'},y:{ticks:{font:{size:9}}},x:{grid:{display:false}}});
+}
+
+function toggleDeepDive(){
+  const body=document.getElementById('deep-dive-body');
+  const chev=document.getElementById('deep-dive-chevron');
+  const open=body.style.display==='none';
+  body.style.display=open?'':'none';
+  chev.textContent=open?'▼ Click to collapse':'▶ Click to expand';
+  if(open)setTimeout(renderDeepDive,50);
 }
 
 // ═══════════════════════════════════════
 // OFFICE / DISCIPLINE
 // ═══════════════════════════════════════
 function renderOffice(off,pcId){
-  const{hrs,util,minMI,NMON}=computeAll();const sub=S.engineers.filter(e=>e.off===off);
+  const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.off===off);
   const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=off.toLowerCase();
   const discs=[...new Set(sub.map(e=>e.disc))],dClr=['#1d4ed8','#166534','#854d0e','#9d174d'];
   document.getElementById(pcId).innerHTML=`
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div></div>
@@ -1413,15 +1456,16 @@ function renderOffice(off,pcId){
     mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discs.map((d,i)=>({label:d,data:subUtil(sub.filter(e=>e.disc===d),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i%4],borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
     const dc={};sub.forEach(e=>{dc[e.disc]=(dc[e.disc]||0)+1;});
     mkChart(`off-d-${cid}`,'doughnut',Object.keys(dc),[{data:Object.values(dc),backgroundColor:Object.keys(dc).map(d=>DC[d]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
-    heatTable(`off-t-${cid}`,sub,util,hrs,minMI,NMON,null);
+    heatTable(`off-t-${cid}`,sub,util,hrs,minMI,NMON,null,billUtil);
   },0);
 }
 function renderDisc(disc,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeAll();const sub=S.engineers.filter(e=>e.disc===disc);
+  const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.disc===disc);
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
   const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=disc.toLowerCase().replace('&','');
   const mH=Array(NMON).fill(0);sub.forEach(e=>(hrs[e.id]||[]).forEach((h,i)=>mH[i]+=h));
   document.getElementById(pcId).innerHTML=`
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div></div>
@@ -1444,8 +1488,8 @@ function renderDisc(disc,pcId){
       {label:'Total Utilisation',data:subUtil(sub,util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
       {label:'Billable Utilisation',data:subUtil(sub,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
-    heatTable(`di-dxb-${cid}`,dxb,util,hrs,minMI,NMON,null);
-    heatTable(`di-egy-${cid}`,egy,util,hrs,minMI,NMON,null);
+    heatTable(`di-dxb-${cid}`,dxb,util,hrs,minMI,NMON,null,billUtil);
+    heatTable(`di-egy-${cid}`,egy,util,hrs,minMI,NMON,null,billUtil);
   },0);
 }
 
