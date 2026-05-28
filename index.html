@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Resource Plan</title>
+<title>MEP Resource Plan</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007aff">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -138,7 +138,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 }
 
 /* SIDEBAR */
-.sb{width:var(--sb);background:#fff;color:var(--tx);flex-shrink:0;position:fixed;top:0;left:0;height:100vh;overflow-y:auto;display:flex;flex-direction:column;z-index:200;transition:transform .25s;border-right:1px solid var(--bdr);}
+.sb{width:var(--sb);background:#fff;color:var(--tx);flex-shrink:0;position:fixed;top:0;left:0;height:100vh;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;z-index:200;transition:transform .25s;border-right:1px solid var(--bdr);overscroll-behavior:contain;}
 .sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bdr);}
 .sb-logo-t{font-size:12px;font-weight:700;letter-spacing:-.02em;color:var(--tx);}
 .sb-logo-s{font-size:10px;color:var(--tx3);margin-top:2px;}
@@ -154,7 +154,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .sbi.on .sb-badge{background:rgba(0,122,255,.12);color:var(--acc);border-color:transparent;}
 .sb-foot{margin-top:auto;padding:10px 14px 6px;border-top:1px solid var(--bdr);font-size:10px;color:var(--tx3);}
 .sb-user{padding:8px 14px 14px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px;}
-.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199;}
+.sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199;touch-action:none;}
 
 /* MAIN */
 .main{margin-left:var(--sb);flex:1;min-width:0;}
@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.4 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.5 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.4 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.5 · 28 May 2026</div>
 </div>
 
 <div class="main">
