@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.5 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.6 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.5 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.6 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -1882,6 +1882,7 @@ function updSB(){
 function isMobile(){return window.innerWidth<=700;}
 // iOS-safe scroll lock
 let _mobSBScrollY=0;
+let _sbTouchStartY=0;
 function openMobSB(){
   document.getElementById('sidebar').classList.add('mob-open');
   document.getElementById('sb-overlay').style.display='block';
@@ -1894,6 +1895,12 @@ function openMobSB(){
   document.body.style.overflow='hidden';
   const ov=document.getElementById('sb-overlay');
   if(ov) ov.addEventListener('touchmove',_preventScroll,{passive:false});
+  // Prevent iOS rubber-band bounce at scroll boundaries
+  const sb=document.getElementById('sidebar');
+  if(sb){
+    sb.addEventListener('touchstart',_sbTouchStart,{passive:true});
+    sb.addEventListener('touchmove',_sbTouchMove,{passive:false});
+  }
 }
 function closeMobSB(){
   document.getElementById('sidebar').classList.remove('mob-open');
@@ -1907,8 +1914,25 @@ function closeMobSB(){
   window.scrollTo(0,_mobSBScrollY);
   const ov=document.getElementById('sb-overlay');
   if(ov) ov.removeEventListener('touchmove',_preventScroll);
+  const sb=document.getElementById('sidebar');
+  if(sb){
+    sb.removeEventListener('touchstart',_sbTouchStart);
+    sb.removeEventListener('touchmove',_sbTouchMove);
+  }
 }
 function _preventScroll(e){ e.preventDefault(); }
+function _sbTouchStart(e){ _sbTouchStartY=e.touches[0].clientY; }
+function _sbTouchMove(e){
+  const sb=document.getElementById('sidebar');
+  if(!sb) return;
+  const delta=_sbTouchStartY-e.touches[0].clientY;
+  const atTop=sb.scrollTop===0;
+  const atBottom=sb.scrollTop+sb.clientHeight>=sb.scrollHeight-1;
+  // Block scroll if at boundary and trying to scroll further in that direction
+  if((atTop&&delta<0)||(atBottom&&delta>0)){
+    e.preventDefault();
+  }
+}
 function showMobMenuBtns(){document.querySelectorAll('.mob-menu-btn').forEach(b=>b.style.display=isMobile()?'flex':'none');}
 window.addEventListener('resize',showMobMenuBtns);
 window.addEventListener('popstate',function(e){
