@@ -1,7 +1,6 @@
-const CACHE_NAME = 'mep-rp-v1';
+const CACHE_NAME = 'mep-rp-v2';   // bumped once to flush the old stale shell
 const SHELL_ASSETS = [
-  '/',
-  '/index.html',
+  '/index.html',                  // kept only as an offline fallback
   '/manifest.json',
   'https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js',
@@ -25,13 +24,29 @@ self.addEventListener('activate', e => {
 });
 
 self.addEventListener('fetch', e => {
-  // Network-first for API calls (Supabase)
-  if (e.request.url.includes('supabase.co')) {
-    e.respondWith(fetch(e.request));
+  const req = e.request;
+
+  // Supabase always live
+  if (req.url.includes('supabase.co')) {
+    e.respondWith(fetch(req));
     return;
   }
-  // Cache-first for shell assets
+
+  // The page itself: always fresh from network, fall back to cache only offline
+  if (req.mode === 'navigate') {
+    e.respondWith(
+      fetch(req, { cache: 'no-store' })
+        .then(res => {
+          caches.open(CACHE_NAME).then(c => c.put('/index.html', res.clone()));
+          return res;
+        })
+        .catch(() => caches.match('/index.html'))
+    );
+    return;
+  }
+
+  // Everything else (pinned CDN libs, manifest): cache-first, they don't change
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request))
+    caches.match(req).then(cached => cached || fetch(req))
   );
 });
