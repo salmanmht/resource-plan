@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.12 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.19 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.12 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.19 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -603,7 +603,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="card" style="padding:0;overflow:hidden;">
         <div id="hire-fire-hdr" onclick="toggleHireFire()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-weight:700;font-size:12px;color:#0c4a6e;">💓 Workforce Pulse</span>
+            <span style="font-weight:700;font-size:12px;color:#1e3a5f;">💓 Workforce Pulse</span>
             <div onclick="event.stopPropagation()" style="display:flex;gap:3px;background:#e5e7eb;border-radius:6px;padding:2px;">
               <button id="wf-tab-mep" onclick="switchWFTab('mep')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:#1e3a5f;color:#fff;transition:.15s;">MEP</button>
               <button id="wf-tab-bim" onclick="switchWFTab('bim')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:transparent;color:#6b7280;transition:.15s;">BIM</button>
@@ -2233,7 +2233,7 @@ function renderMEP(){
   const avgBill=tb.length?tb.reduce((a,b)=>a+b,0)/NMON:0;
   const totH=subHrs(all,hrs);const totC=all.reduce((a,e)=>a+engCost(e,hrs),0);
   const dxb=all.filter(e=>e.off==='DXB'),egy=all.filter(e=>e.off==='EGY');
-  const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#0d9488'];
+  const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
   const periodLabel=NMON===1?labelsL[0]:(miLabel(minMI)+' – '+miLabel(minMI+NMON-1));
   document.getElementById('dash-period-label').textContent='All Offices · '+periodLabel;
   // Build interactive KPI cards with sparklines and click-to-drill
@@ -2811,7 +2811,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
     return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#9a3412;">🌴 Annual Leave — click to expand</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave — click to expand</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;font-size:11px;color:var(--tx3);text-align:center;">No annual leave booked in this period.</div>
@@ -2930,7 +2930,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
   return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#9a3412;">🌴 Annual Leave${overlaps.length?` — ${overlaps.length} overlap week${overlaps.length===1?'':'s'}`:''} — click to expand</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave${mode==='bim'?' — BIM Team':mode==='office'?' — MEP Engineers':''} — click to expand</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;">
@@ -2953,7 +2953,7 @@ function renderOffice(off,pcId){
   const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.off===off);
   const subMEP=sub.filter(e=>e.team!=='BIM');const subBIM=sub.filter(e=>e.team==='BIM');
   const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=off.toLowerCase();
-  const discs=[...new Set(sub.map(e=>e.disc))],dClr=['#1d4ed8','#166534','#854d0e','#9d174d'];
+  const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
@@ -2966,26 +2966,49 @@ function renderOffice(off,pcId){
       <div class="card"><div class="card-t">By Discipline</div><div class="cbox"><canvas id="off-l-${cid}"></canvas></div></div>
       <div class="card"><div class="card-t">Composition</div><div class="cbox"><canvas id="off-d-${cid}"></canvas></div></div>
     </div>
-    ${buildLeaveCard('office',sub,minMI,NMON,cid)}
+    ${buildLeaveCard('office',subMEP,minMI,NMON,cid)}
+    ${subBIM.length?buildLeaveCard('bim',subBIM,minMI,NMON,cid+'bim'):''}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('off-heat-body-${cid}','off-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
         <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Heatmap — click row for project breakdown</span>
         <span id="off-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
-      <div id="off-heat-body-${cid}" style="display:none;padding:14px;"><div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="off-t-${cid}"></table></div></div>
+      <div id="off-heat-body-${cid}" style="display:none;">
+        <div style="display:flex;gap:0;border-bottom:2px solid var(--bdr);padding:0 14px;background:#f5f5f7;">
+          <button onclick="switchOffHeatTab('${cid}','eng')" id="off-heat-tab-eng-${cid}" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid var(--acc);background:#f5f5f7;color:var(--acc);cursor:pointer;border-radius:8px 8px 0 0;margin-bottom:-2px;transition:.15s;">Engineers</button>
+          <button onclick="switchOffHeatTab('${cid}','bim')" id="off-heat-tab-bim-${cid}" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--tx2);cursor:pointer;border-radius:8px 8px 0 0;margin-bottom:-2px;transition:.15s;">BIM</button>
+        </div>
+        <div id="off-heat-panel-eng-${cid}" style="padding:14px;"><div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="off-t-${cid}"></table></div></div>
+        <div id="off-heat-panel-bim-${cid}" style="display:none;padding:14px;"><div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="off-t-bim-${cid}"></table></div></div>
+      </div>
     </div>`;
   setTimeout(()=>{
-    mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discs.map((d,i)=>({label:d,data:subUtil(sub.filter(e=>e.disc===d),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i%4],borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
-    const dc={};sub.forEach(e=>{dc[e.disc]=(dc[e.disc]||0)+1;});
-    mkChart(`off-d-${cid}`,'doughnut',Object.keys(dc),[{data:Object.values(dc),backgroundColor:Object.keys(dc).map(d=>DC[d]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+    mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discs.map((d,i)=>({label:d,data:subUtil(d==='BIM'?subBIM:sub.filter(e=>e.disc===d&&e.team!=='BIM'),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i%5]||dClr[i%4],borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+    const dc={HVAC:0,'PH&E':0,ELE:0,ELV:0,BIM:0};
+    subMEP.forEach(e=>{if(dc[e.disc]!==undefined)dc[e.disc]++;});
+    subBIM.forEach(()=>{dc['BIM']++;});
+    const dcKeys=Object.keys(dc).filter(k=>dc[k]>0);
+    const dcClr={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
+    mkChart(`off-d-${cid}`,'doughnut',dcKeys,[{data:dcKeys.map(k=>dc[k]),backgroundColor:dcKeys.map(k=>dcClr[k]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly();
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
-      heatTable(`off-t-${cid}`,sub,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
+      heatTable(`off-t-${cid}`,subMEP,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
+      heatTable(`off-t-bim-${cid}`,subBIM,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
     } else {
-      heatTable(`off-t-${cid}`,sub,util,hrs,minMI,NMON,null,billUtil);
+      heatTable(`off-t-${cid}`,subMEP,util,hrs,minMI,NMON,null,billUtil);
+      heatTable(`off-t-bim-${cid}`,subBIM,util,hrs,minMI,NMON,null,billUtil);
     }
   },0);
+}
+
+function switchOffHeatTab(cid,tab){
+  ['eng','bim'].forEach(t=>{
+    const btn=document.getElementById(`off-heat-tab-${t}-${cid}`);
+    const panel=document.getElementById(`off-heat-panel-${t==='eng'?'eng':'bim'}-${cid}`);
+    if(btn){btn.style.borderBottomColor=t===tab?'var(--acc)':'transparent';btn.style.color=t===tab?'var(--acc)':'var(--tx2)';btn.style.background=t===tab?'#f5f5f7':'transparent';}
+    if(panel)panel.style.display=t===tab?'':'none';
+  });
 }
 function renderDisc(disc,pcId){
   const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');
@@ -3075,7 +3098,7 @@ function renderBIM(pcId){
     ${buildLeaveCard('bim',sub,minMI,NMON,cid)}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('bim-heat-body-${cid}','bim-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f0fdfa;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#0f766e;">🔥 BIM Team Heatmaps — DXB & IND (click row for project breakdown)</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 BIM Team Heatmaps — DXB & IND (click row for project breakdown)</span>
         <span id="bim-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="bim-heat-body-${cid}" style="display:none;padding:14px;">
@@ -3589,7 +3612,7 @@ function renderProjDetail(p){
           ${(()=>{
             const locked=(window._progLocked&&window._progLocked[p.id])||false;
             return`<button onclick="toggleProgLock('${p.id}')" title="${locked?'Unlock programme to edit':'Lock programme to prevent edits'}"
-              style="display:flex;align-items:center;gap:4px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid ${locked?'#f97316':'#cbd5e1'};background:${locked?'#fff7ed':'#f8fafc'};color:${locked?'#ea580c':'#64748b'};cursor:pointer;">
+              style="display:flex;align-items:center;gap:4px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid ${locked?'#f97316':'#cbd5e1'};background:${locked?'#fff7ed':'#f8fafc'};color:${locked?'#0d9488':'#64748b'};cursor:pointer;">
               ${locked?'🔒 Locked':'🔓 Lock'}
             </button>
             ${locked?'':
