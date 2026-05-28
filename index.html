@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.8.1 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.8.2 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.8.1 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.8.2 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -2354,8 +2354,22 @@ function updSB(){
 // MOBILE
 // ═══════════════════════════════════════
 function isMobile(){return window.innerWidth<=700;}
-function openMobSB(){document.getElementById('sidebar').classList.add('mob-open');document.getElementById('sb-overlay').style.display='block';document.getElementById('sb-close-btn').style.display='block';}
-function closeMobSB(){document.getElementById('sidebar').classList.remove('mob-open');document.getElementById('sb-overlay').style.display='none';document.getElementById('sb-close-btn').style.display='none';}
+function openMobSB(){
+  document.getElementById('sidebar').classList.add('mob-open');
+  document.getElementById('sb-overlay').style.display='block';
+  document.getElementById('sb-close-btn').style.display='block';
+  document.body.style.overflow='hidden';
+  document.body.style.position='fixed';
+  document.body.style.width='100%';
+}
+function closeMobSB(){
+  document.getElementById('sidebar').classList.remove('mob-open');
+  document.getElementById('sb-overlay').style.display='none';
+  document.getElementById('sb-close-btn').style.display='none';
+  document.body.style.overflow='';
+  document.body.style.position='';
+  document.body.style.width='';
+}
 function showMobMenuBtns(){document.querySelectorAll('.mob-menu-btn').forEach(b=>b.style.display=isMobile()?'flex':'none');}
 window.addEventListener('resize',showMobMenuBtns);
 window.addEventListener('popstate',function(e){
@@ -4966,7 +4980,7 @@ function renderProjCard(p, mode){
           const stageNames=(stageMap.get(wi)||[]).map(si=>(p.stages[si]&&p.stages[si].name)||`Stage ${si+1}`).join(' + ');
           const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:stageNames?`Stage: ${stageNames}`:'';
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'}"></td>`;}).join('')}
+          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -5109,52 +5123,74 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   inputEl.style.border=val?'1px solid #86efac':'1px solid transparent';
   clearTimeout(inputEl._t);
   inputEl._t=setTimeout(()=>pushProj(p),1200);
+  // Always do in-place totals update only — NEVER re-render the table
+  updateProjCardTotals(p);
+}
 
-  // Live-refresh totals — debounced so it doesn't fire on every keystroke
-  clearTimeout(window._totalsTimer);
-  window._totalsTimer=setTimeout(()=>{
-    // If fullscreen is active for this project, do in-place update only — never re-render
-    if(_fsPid===projId){
-      updateProjCardTotals(p);
-      return;
-    }
-    const dv=document.getElementById('proj-detail-view');
-    if(dv&&dv.style.display!=='none'){
-      const titleEl=document.getElementById('proj-hdr-title');
-      if(titleEl&&titleEl.textContent.startsWith(p.no)){
-        // Save which sections are currently open
-        const secIds=['sec-prog-'+p.id,'sec-cost-'+p.id,'sec-weekly-'+p.id];
-        const secState={};
-        secIds.forEach(id=>{
-          const el=document.getElementById(id);
-          if(el) secState[id]={display:el.style.display,dataset:el.dataset.display||''};
-        });
-        const scrollY=dv.scrollTop;
-        renderProjDetail(p);
-        // Restore section open states
-        secIds.forEach(id=>{
-          const saved=secState[id];
-          if(!saved) return;
-          const el=document.getElementById(id);
-          if(!el) return;
-          el.style.display=saved.display;
-          if(saved.dataset) el.dataset.display=saved.dataset;
-          const arrowId=id.replace('sec-prog-','sec-prog-arrow-').replace('sec-cost-','sec-cost-arrow-').replace('sec-weekly-','sec-weekly-arrow-');
-          const arrow=document.getElementById(arrowId);
-          if(arrow) arrow.textContent=saved.display==='none'?'▶':'▼';
-        });
-        dv.scrollTop=scrollY;
-        try{
-          const active=document.activeElement;
-          const alreadyInInput=active&&active.tagName==='INPUT'&&active.type==='number';
-          if(!alreadyInInput){
-            const inputs=document.querySelectorAll(`input[oninput*="'${p.id}','${engId}',${wkIdx}"]`);
-            if(inputs[0]){inputs[0].focus();inputs[0].select();}
-          }
-        }catch(e){}
+// Spreadsheet-style keyboard navigation for week cells
+function handleWeekCellKey(e,projId,engId,wi){
+  const NAV_KEYS=['Tab','Enter','ArrowRight','ArrowLeft','ArrowDown','ArrowUp'];
+  if(!NAV_KEYS.includes(e.key)) return;
+  e.preventDefault();
+  const val=parseFloat(e.target.value)||0;
+  const p=S.projects.find(x=>x.id===projId);
+  if(p){
+    if(!p.weeklyHrs)p.weeklyHrs={};
+    if(!p.weeklyHrs[engId])p.weeklyHrs[engId]=[];
+    p.weeklyHrs[engId][wi]=val;
+    e.target.style.background=val?'#dcfce7':'transparent';
+    e.target.style.border=val?'1px solid #86efac':'1px solid transparent';
+    clearTimeout(e.target._t);
+    e.target._t=setTimeout(()=>pushProj(p),1200);
+    updateProjCardTotals(p);
+  }
+  const table=e.target.closest('table');
+  if(!table) return;
+  const allInputs=Array.from(table.querySelectorAll('td.week-cell input[type="number"]'));
+  const curIdx=allInputs.indexOf(e.target);
+  if(curIdx<0) return;
+  const curRow=e.target.closest('tr');
+  const rowInputs=Array.from(curRow.querySelectorAll('td.week-cell input[type="number"]'));
+  const numWeekCols=rowInputs.length;
+  const posInRow=rowInputs.indexOf(e.target);
+  let targetInput=null;
+  if(e.key==='Tab'||e.key==='ArrowRight'){
+    if(!e.shiftKey){ targetInput=allInputs[curIdx+1]||null; }
+    else { targetInput=allInputs[curIdx-1]||null; }
+  } else if(e.key==='ArrowLeft'){
+    targetInput=allInputs[curIdx-1]||null;
+  } else if(e.key==='Enter'||e.key==='ArrowDown'){
+    if(!e.shiftKey){
+      let si=curIdx+1;
+      while(si<allInputs.length){
+        const cr=allInputs[si].closest('tr');
+        const ri=Array.from(cr.querySelectorAll('td.week-cell input[type="number"]'));
+        if(ri.length===numWeekCols&&ri[posInRow]){targetInput=ri[posInRow];break;}
+        si++;
+      }
+    } else {
+      let si=curIdx-1;
+      while(si>=0){
+        const cr=allInputs[si].closest('tr');
+        const ri=Array.from(cr.querySelectorAll('td.week-cell input[type="number"]'));
+        if(ri.length===numWeekCols&&ri[posInRow]){targetInput=ri[posInRow];break;}
+        si--;
       }
     }
-  },400);
+  } else if(e.key==='ArrowUp'){
+    let si=curIdx-1;
+    while(si>=0){
+      const cr=allInputs[si].closest('tr');
+      const ri=Array.from(cr.querySelectorAll('td.week-cell input[type="number"]'));
+      if(ri.length===numWeekCols&&ri[posInRow]){targetInput=ri[posInRow];break;}
+      si--;
+    }
+  }
+  if(targetInput){
+    targetInput.focus();
+    targetInput.select();
+    targetInput.scrollIntoView({block:'nearest',inline:'nearest'});
+  }
 }
 
 // In-place totals update for fullscreen mode — updates eng row total + weekly totals + grand totals
