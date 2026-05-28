@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.1 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.3 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.1 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.3 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -1542,7 +1542,6 @@ async function initApp(){
     const holEGY=holRows.find(r=>r.id==='egy');
     S.holidaysUAE=holUAE?holUAE.data:getDefaultHolidays('UAE');
     S.holidaysEGY=holEGY?holEGY.data:getDefaultHolidays('EGY');
-    if(!S.engineers.length)await seedData();
     loadBIMSeedData();  // Step 6 — inject BIM seed members + hours
     setSyncStatus(true,'Live · '+new Date().toLocaleTimeString());
   }catch(e){
@@ -1558,17 +1557,10 @@ async function initApp(){
   const savedPage=sessionStorage.getItem('lastPage');
   nav(savedPage&&PAGES.includes(savedPage)?savedPage:'mep');
 }
-async function seedData(){
-  S.engineers=mkEngineers();S.projects=mkProjects(S.engineers);S.rates=JSON.parse(JSON.stringify(DEF_RATES));
-  for(const e of S.engineers)await sbUpsert('engineers',{id:e.id,data:e});
-  for(const p of S.projects)await sbUpsert('projects',{id:p.id,data:p});
-  await sbFetch('settings','POST',{key:'rates',value:S.rates},'resolution=merge-duplicates,return=representation');
-}
+
 function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;S.rates=p.rates||S.rates;S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){}
-  if(!S.engineers||!S.engineers.length){S.engineers=mkEngineers();S.projects=mkProjects(S.engineers);S.rates=JSON.parse(JSON.stringify(DEF_RATES));}
-  // Backfill team field on any engineer missing it (default MEP for existing 55)
+  // Backfill team field on any engineer missing it
   S.engineers.forEach(e=>{ if(!e.team) e.team='MEP'; });
-  loadBIMSeedData();  // ensure BIM members always present
 }
 function saveLocal(){try{localStorage.setItem('mepR26',JSON.stringify(S));}catch(e){}}
 async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
@@ -1591,119 +1583,6 @@ async function pushRates(){try{
 // ═══════════════════════════════════════
 // SEED DATA
 // ═══════════════════════════════════════
-function d2g(d){
-  const s=(d||'').toLowerCase();
-  if(s.includes('technical manager')||s.includes('mep technical'))return 'Technical Manager';
-  if(s.includes('associate engineer')||s.includes('associate electrical')||s.includes('associate mech')||s.includes('associate elv'))return 'Associate Engineer';
-  if(s.includes('principal'))return 'Principal Engineer';
-  if(s.includes('lead'))return 'Lead Engineer';
-  if(s.includes('senior')||s.includes('sr.'))return 'Senior Engineer';
-  if(s.includes('junior')||s.includes('jr.')||s.includes('grad'))return 'Junior / Grad Engineer';
-  if(s.includes('intern'))return 'Intern';
-  if(s.includes('bim')||s.includes('technician'))return 'BIM / Technician';
-  return 'Engineer';
-}
-function mkE(id,name,desig,disc,off,empno,gl){return{id,name,desig,disc,off,empno:empno||'',gradeLabel:gl||'',grade:d2g(desig),cap:45,note:''};}
-function mkEngineers(){return[
-  mkE('h1','Shadi M. Sobh','Associate Engineer (HVAC)','HVAC','DXB','EMEP024','Grade 7'),
-  mkE('h2','Maqsood Alam','Associate Engineer (HVAC)','HVAC','DXB','EMEP025','Grade 7'),
-  mkE('h3','Chandra Muniyappa','Principal Engineer (HVAC)','HVAC','DXB','EMEP026','Grade 9'),
-  mkE('h4','Maged Hanna','Sr. Engineer (HVAC)','HVAC','DXB','EMEP027','Grade 5'),
-  mkE('h5','Nuzaan Majgaonkar','Sr. Engineer (HVAC)','HVAC','DXB','EMEP028','Grade 5'),
-  mkE('h6','Zain Ul Abedin Syed','Sr. Engineer (HVAC)','HVAC','DXB','EMEP029','Grade 5'),
-  mkE('h7','Abdulrahman','Sr. Engineer (HVAC)','HVAC','DXB','EMEP030','Grade 5'),
-  mkE('h8','Mohd Mubassir','Engineer (HVAC)','HVAC','DXB','EMEP031','Grade 4'),
-  mkE('h9','Tarique Mahboob','Engineer (HVAC)','HVAC','DXB','EMEP032','Grade 4'),
-  mkE('h10','Atul Tale','Engineer (HVAC)','HVAC','DXB','EMEP033','Grade 4'),
-  mkE('h11','Abhijith Ts','BIM Engineer (HVAC)','HVAC','DXB','EMEP034','Grade 3'),
-  mkE('h12','Venkata Kolli','BIM Engineer (HVAC)','HVAC','DXB','EMEP035','Grade 3'),
-  mkE('h13','Shahnawaz','BIM Engineer (HVAC)','HVAC','DXB','EMEP036','Grade 3'),
-  mkE('h14','Mariam','Lead Engineer (HVAC-EGY)','HVAC','EGY','EMEP037','Grade 6'),
-  mkE('h15','Mahmoud Ashraf','Sr. Engineer (HVAC-EGY)','HVAC','EGY','EMEP038','Grade 5'),
-  mkE('h16','Hasabo','Sr. Engineer (HVAC-EGY)','HVAC','EGY','EMEP039','Grade 5'),
-  mkE('h17','Sherif Yasser','Engineer (HVAC-EGY)','HVAC','EGY','EMEP040','Grade 4'),
-  mkE('h18','Mohd Salah','Engineer (HVAC-EGY)','HVAC','EGY','EMEP041','Grade 4'),
-  mkE('p1','Salman Sabir','Associate Engineer (PH)','PH&E','DXB','EMEP042','Grade 7'),
-  mkE('p2','Leo Jr. Correa','Sr. Engineer (PH)','PH&E','DXB','EMEP043','Grade 5'),
-  mkE('p3','Rayan Escuadro','Sr. Engineer (PH)','PH&E','DXB','EMEP044','Grade 5'),
-  mkE('p4','Danish Idrees','Sr. Engineer (PH)','PH&E','DXB','EMEP045','Grade 5'),
-  mkE('p5','Shahwaz Taj','Engineer (PH)','PH&E','DXB','EMEP046','Grade 4'),
-  mkE('p6','Fatma Abady Awad Abady','Lead Engineer (PH-EGY)','PH&E','EGY','EMEP047','Grade 6'),
-  mkE('p7','Abd El Hamid Mansour','Engineer (PH-EGY)','PH&E','EGY','EMEP048','Grade 4'),
-  mkE('p8','Omar Ramdan','Engineer (PH-EGY)','PH&E','EGY','EMEP049','Grade 4'),
-  mkE('p9','Mohamed Adel','Engineer (PH-EGY)','PH&E','EGY','EMEP050','Grade 4'),
-  mkE('e0','Amr Ahmed Mohamed Elsayed Shahin','MEP Technical Manager','ELE','DXB','EMEP001','Grade 9'),
-  mkE('e1','Senthil Kumar Sundara Rajan','Associate Electrical Engineer','ELE','DXB','EMEP004','Grade 7'),
-  mkE('e2','Vijoy Vadakkan Varghese Varghese','Principal Electrical Engineer','ELE','DXB','EMEP003','Grade 9'),
-  mkE('e3','Parvez Alam Wasiq Ahmad','Senior Electrical Engineer','ELE','DXB','EMEP005','Grade 5'),
-  mkE('e4','Zafar Hasmatulla Shaikh','Senior Electrical Engineer','ELE','DXB','EMEP006','Grade 4'),
-  mkE('e5','Janeet Singh Ananth','Senior Electrical Engineer','ELE','DXB','EMEP007','Grade 5'),
-  mkE('e6','Navas Ambalath Veettil Abdul Nasar','Electrical Engineer','ELE','DXB','EMEP008','Grade 4'),
-  mkE('e7','Tajammul Hussain Mohammad Tahir','Electrical Engineer','ELE','DXB','EMEP009','Grade 4'),
-  mkE('e8','Mel Bryan Amistas Malapad','Electrical Engineer','ELE','DXB','EMEP010','Grade 4'),
-  mkE('e9','Maithah Abdulla Mohamed Saad Alyaaqeib','Electrical Engineer','ELE','DXB','EMEP011','Grade 4'),
-  mkE('e10','Mohamed Anwar','Lead Electrical Engineer (EGY)','ELE','EGY','EMEP012','Grade 6'),
-  mkE('e11','Mahmoud Gomaa','Senior Design Engineer (EGY)','ELE','EGY','EMEP013','Grade 5'),
-  mkE('e12','Mohamed Hamdy','Electrical Design Engineer (EGY)','ELE','EGY','EMEP014','Grade 4'),
-  mkE('e13','Mohamed Ismail','Electrical Design Engineer (EGY)','ELE','EGY','EMEP015','Grade 4'),
-  mkE('e14','Hady Khaled','Junior Electrical Engineer (EGY)','ELE','EGY','EMEP016','Grade 3'),
-  mkE('e15','Mahmoud Badawy','Junior Electrical Engineer (EGY)','ELE','EGY','EMEP017','Grade 3'),
-  mkE('e16','Alaa Adel','Intern. Electrical Engineer (EGY)','ELE','EGY','EMEP018','Grade 2'),
-  mkE('e17','Ahmed Ismail','Intern. Electrical Engineer (EGY)','ELE','EGY','EMEP019','Grade 2'),
-  mkE('v1','Amgad Mostafa Aly Mostafa Abdelhalim','Principal ELV Engineer','ELV','DXB','EMEP020','Grade 9'),
-  mkE('v2','Suresh Kumar Selvaraj','Lead ELV Engineer','ELV','DXB','EMEP021','Grade 6'),
-  mkE('v3','Dilish George George Abraham Edakkara','Senior ELV Engineer','ELV','DXB','EMEP022','Grade 5'),
-  mkE('v4','Kushal','Sr. ELV Engineer','ELV','DXB','EMEP023','Grade 5'),
-  mkE('v5','Senthilkumar Jayaprakash','ELV Engineer','ELV','DXB','EMEP051','Grade 4'),
-  mkE('v6','Mohamed Malek','Principal ELV Engineer (EGY)','ELV','EGY','EMEP052','Grade 9'),
-  mkE('v7','Mohamed Eid','Senior ELV Engineer (EGY)','ELV','EGY','EMEP053','Grade 5'),
-  mkE('v8','Ahmed Darrag','ELV Design Engineer (EGY)','ELV','EGY','EMEP054','Grade 4'),
-  mkE('v9','Omar Ibrahim','Design Engineer (EGY)','ELV','EGY','EMEP055','Grade 4'),
-  mkE('v10','Mohamed Ehab','Intern. ELV Engineer (EGY)','ELV','EGY','EMEP056','Grade 2'),
-];}
-
-function stageWeeks(start,end){
-  const wks=[];let d=new Date(start);const day=d.getDay();
-  if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
-  const se=new Date(end);
-  while(d<=se){wks.push(new Date(d));d=new Date(d);d.setDate(d.getDate()+7);}
-  return wks;
-}
-function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/864e5+j.getDay()+1)/7);}
-
-// AUTO-GENERATED weekly hours from Excel resource plans (4 disciplines, 2026)
-
-// Annual leave hours per engineer, anchored to 2026-04-06, 39 weeks
-
-// Admin / management hours per engineer, anchored to 2026-04-06, 39 weeks
-
-function mkProjects(engineers){
-  const defs=[
-    {id:'pr1',no:'24001',name:'Dubai Mall',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr2',no:'24002',name:'Trump Tower',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-09-30',status:'Active'},
-    {id:'pr3',no:'24035',name:'DSM',client:'Nakheel',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr4',no:'24004',name:'IL Teatro',client:'Private',pm:'RS',loc:'Sharjah',start:'2026-04-06',end:'2026-11-28',status:'Active'},
-    {id:'pr5',no:'24005',name:'Hittin',client:'',pm:'RS',loc:'KSA',start:'2026-06-01',end:'2026-12-31',status:'Active'},
-    {id:'pr6',no:'24006',name:'Masar BRT Package A',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-08-28',status:'Active'},
-    {id:'pr7',no:'24007',name:'Al Khalidiyia',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr8',no:'24008',name:'SETE',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-07-31',status:'Active'},
-    {id:'pr9',no:'24009',name:'ICON Tower',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr10',no:'24010',name:'ICON Tower (Plaza & OC)',client:'Emaar',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-10-30',status:'Active'},
-    {id:'pr11',no:'24011',name:'DSM - Mall Impact',client:'Nakheel',pm:'RS',loc:'Dubai',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr12',no:'24012',name:'Diriyah Company Specs',client:'',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr13',no:'24013',name:'Qiddiya Theme Park',client:'Qiddiya',pm:'RS',loc:'KSA',start:'2026-04-06',end:'2026-12-31',status:'Active'},
-    {id:'pr14',no:'24014',name:'DIFC Plot 5',client:'DIFC',pm:'RS',loc:'Dubai',start:'2026-05-04',end:'2026-11-27',status:'Active'},
-    {id:'pr15',no:'24015',name:'Project - TBA 1',client:'TBA',pm:'',loc:'TBA',start:'2026-09-07',end:'2026-12-31',status:'On Hold'},
-    {id:'pr16',no:'24016',name:'Project - TBA 2',client:'TBA',pm:'',loc:'TBA',start:'2026-10-05',end:'2026-12-31',status:'On Hold'},
-    {id:'pr17',no:'24017',name:'Project - TBA 3',client:'TBA',pm:'',loc:'TBA',start:'2026-04-06',end:'2026-06-26',status:'On Hold'},
-    {id:'pr18',no:'24018',name:'Project - TBA 4',client:'TBA',pm:'',loc:'TBA',start:'2026-07-06',end:'2026-09-25',status:'On Hold'},
-    {id:'pr19',no:'24019',name:'Project - TBA 5',client:'TBA',pm:'',loc:'TBA',start:'2026-04-06',end:'2026-12-31',status:'On Hold'},
-    {id:'pr20',no:'24020',name:'Project - TBA 6',client:'TBA',pm:'',loc:'TBA',start:'2026-06-01',end:'2026-12-31',status:'On Hold'},
-  ];
-  return defs.map(p=>({...p,weeklyHrs:{}}));
-}
-
 // ═══════════════════════════════════════
 // COMPUTATION
 // ═══════════════════════════════════════
@@ -1991,22 +1870,35 @@ function updSB(){
 // MOBILE
 // ═══════════════════════════════════════
 function isMobile(){return window.innerWidth<=700;}
+// iOS-safe scroll lock
+let _mobSBScrollY=0;
 function openMobSB(){
   document.getElementById('sidebar').classList.add('mob-open');
   document.getElementById('sb-overlay').style.display='block';
   document.getElementById('sb-close-btn').style.display='block';
-  document.body.style.overflow='hidden';
+  _mobSBScrollY=window.scrollY||window.pageYOffset||0;
+  document.body.style.top='-'+_mobSBScrollY+'px';
   document.body.style.position='fixed';
-  document.body.style.width='100%';
+  document.body.style.left='0';
+  document.body.style.right='0';
+  document.body.style.overflow='hidden';
+  const ov=document.getElementById('sb-overlay');
+  if(ov) ov.addEventListener('touchmove',_preventScroll,{passive:false});
 }
 function closeMobSB(){
   document.getElementById('sidebar').classList.remove('mob-open');
   document.getElementById('sb-overlay').style.display='none';
   document.getElementById('sb-close-btn').style.display='none';
-  document.body.style.overflow='';
   document.body.style.position='';
-  document.body.style.width='';
+  document.body.style.top='';
+  document.body.style.left='';
+  document.body.style.right='';
+  document.body.style.overflow='';
+  window.scrollTo(0,_mobSBScrollY);
+  const ov=document.getElementById('sb-overlay');
+  if(ov) ov.removeEventListener('touchmove',_preventScroll);
 }
+function _preventScroll(e){ e.preventDefault(); }
 function showMobMenuBtns(){document.querySelectorAll('.mob-menu-btn').forEach(b=>b.style.display=isMobile()?'flex':'none');}
 window.addEventListener('resize',showMobMenuBtns);
 window.addEventListener('popstate',function(e){
