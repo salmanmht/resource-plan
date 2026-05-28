@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.19 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.20 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -545,11 +545,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours</div>
   <div class="sbi" id="nav-holidays" onclick="nav('holidays')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays</div>
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
+  <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.19 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.20 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -792,6 +793,27 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
     </div>
   </div>
+
+  <!-- PROPOSALS (Admin Only) -->
+  <div id="pg-proposals" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t" id="prop-hdr-title">Proposals</span>
+        <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <button class="btn btn-p btn-sm" id="prop-hdr-new-btn" onclick="openPropModal()">+ New Proposal</button>
+      </div>
+    </div>
+    <div id="prop-list-view" class="pc">
+      <div class="fbar">
+        <input id="prp-q" placeholder="Search..." oninput="renderProposals()" style="flex:1;max-width:220px;">
+        <select id="prp-st" onchange="renderProposals()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
+      </div>
+      <div id="prop-list"></div>
+    </div>
+  </div>
 </div><!-- end main -->
 
 <!-- BOTTOM NAV -->
@@ -913,13 +935,50 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Client</label><input id="pw-client"></div>
       <div class="ff"><label>Project Manager</label><input id="pw-pm"></div>
       <div class="ff"><label>Start Date</label><input type="date" id="pw-start" value="2026-04-06"></div>
-      <div class="ff"><label>End Date</label><input type="date" id="pw-end" value="2026-12-31"></div>
+      <div class="ff"><label>Contractual End Date</label><input type="date" id="pw-end" value="2026-12-31"></div>
+      <div class="ff"><label>Forecast End Date <span style="font-size:10px;color:var(--tx3);font-weight:400;">(if different)</span></label><input type="date" id="pw-fend"></div>
       <div class="ff"><label>Status</label><select id="pw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
+      <div class="ff"><label>Project Type</label><select id="pw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="pw-loc"></div>
+      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;"> HVAC</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-phe" value="PH&E" style="accent-color:#166534;"> PH&amp;E</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-ele" value="ELE" style="accent-color:#854d0e;"> ELE</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-elv" value="ELV" style="accent-color:#9d174d;"> ELV</label>
+      </div></div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
   </div>
   <div class="modal-ft"><button class="btn btn-g" onclick="closeProjModal()">Cancel</button><button class="btn btn-p" onclick="saveProj()">Save Project</button></div>
+</div>
+</div>
+
+<!-- PROPOSAL MODAL -->
+<div class="ov" id="prop-ov">
+<div class="modal" style="max-width:500px;">
+  <div class="modal-hd"><div class="modal-ht" id="prop-title">New Proposal</div><button class="cls" onclick="closePropModal()">&times;</button></div>
+  <div class="modal-bd" style="max-height:none">
+    <div class="fg">
+      <div class="ff"><label>Project Number *</label><input id="ppw-no" placeholder="e.g. 24035"></div>
+      <div class="ff"><label>Project Name *</label><input id="ppw-name" placeholder="e.g. Dubai Square Mall"></div>
+      <div class="ff"><label>Client</label><input id="ppw-client"></div>
+      <div class="ff"><label>Project Manager</label><input id="ppw-pm"></div>
+      <div class="ff"><label>Start Date</label><input type="date" id="ppw-start" value="2026-04-06"></div>
+      <div class="ff"><label>Contractual End Date</label><input type="date" id="ppw-end" value="2026-12-31"></div>
+      <div class="ff"><label>Forecast End Date <span style="font-size:10px;color:var(--tx3);font-weight:400;">(if different)</span></label><input type="date" id="ppw-fend"></div>
+      <div class="ff"><label>Status</label><select id="ppw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
+      <div class="ff"><label>Project Type</label><select id="ppw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
+      <div class="ff"><label>Location</label><input id="ppw-loc"></div>
+      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;"> HVAC</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-phe" value="PH&E" style="accent-color:#166534;"> PH&amp;E</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-ele" value="ELE" style="accent-color:#854d0e;"> ELE</label>
+        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-elv" value="ELV" style="accent-color:#9d174d;"> ELV</label>
+      </div></div>
+      <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="ppw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
+    </div>
+  </div>
+  <div class="modal-ft"><button class="btn btn-g" onclick="closePropModal()">Cancel</button><button class="btn btn-p" onclick="saveProp()">Save Proposal</button></div>
 </div>
 </div>
 
@@ -987,7 +1046,7 @@ const DISC_CLS={HVAC:'hvac','PH&E':'phe',ELE:'ele',ELV:'elv'};
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let S={engineers:[],projects:[],rates:{},ratesDXB:{},ratesEGY:{},leaveHrs:{},mgmtHrs:{},holidaysUAE:[],holidaysEGY:[]};
+let S={engineers:[],projects:[],proposals:[],rates:{},ratesDXB:{},ratesEGY:{},leaveHrs:{},mgmtHrs:{},holidaysUAE:[],holidaysEGY:[]};
 let eId=null,pId=null,adminUnlocked=false;
 const CH={};
 window.projCollapsed={};
@@ -1332,7 +1391,7 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&d.user.email===ADMIN_EMAIL)adminUnlocked=true;
+    if(d.user&&d.user.email===ADMIN_EMAIL){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -1362,6 +1421,7 @@ async function doLogout(){
   sessionStorage.removeItem('mep_session');
   const up=document.getElementById('sb-user');if(up)up.style.display='none';
   const so=document.getElementById('sb-signout');if(so)so.style.display='none';
+  const pnav=document.getElementById('nav-proposals');if(pnav)pnav.style.display='none';
   ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
@@ -1401,7 +1461,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&d.user.email===ADMIN_EMAIL) adminUnlocked=true;
+          if(d.user&&d.user.email===ADMIN_EMAIL){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           const pinRow = await fetchUserPin();
@@ -1439,6 +1499,10 @@ function requireAdmin(){
   if(adminUnlocked){nav('rates');return;}
   toast('Access denied — admin account required.');
 }
+function requireProposals(){
+  if(adminUnlocked){nav('proposals');return;}
+  toast('Access denied — admin account required.');
+}
 
 // ═══════════════════════════════════════
 // SUPABASE
@@ -1462,9 +1526,10 @@ function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sy
 async function initApp(){
   setSyncStatus(false,'Connecting…');
   try{
-    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*')]);
+    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),sbGet('proposals').catch(()=>[])]);
     S.engineers=engs.map(r=>normaliseEng(r.data));
     S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; return d; });
+    S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
     if(Array.isArray(projHrsRows)){
       projHrsRows.forEach(row=>{
@@ -1518,6 +1583,16 @@ function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JS
 function saveLocal(){try{localStorage.setItem('mepR26',JSON.stringify(S));}catch(e){}}
 async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
 async function pushProj(p){
+  // If proposal, save to proposals table
+  if(p && p.id && p.id.toString().startsWith('prp')){
+    try{
+      const cleanProp=JSON.parse(JSON.stringify(p));
+      delete cleanProp._isProposal;
+      await sbUpsert('proposals',{id:p.id,data:cleanProp});
+      setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+    }catch{setSyncStatus(false,'Sync failed');}
+    return;
+  }
   try{
     // Save metadata only — weeklyHrs stored separately in project_hours table
     const {weeklyHrs,...meta}=p;
@@ -1784,16 +1859,26 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','leave','mgmt','holidays','rates'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','leave','mgmt','holidays','rates','proposals'];
 let CURRENT_PAGE='mep';
 function nav(p, fromPopstate){
+  // If we were viewing a proposal detail and navigating anywhere, clean up first
+  // (to-proposals nav still cleans up — user expects to land on the list)
+  if(window._propViewing){
+    try{closePropDetail();}catch(e){console.error('closePropDetail err',e);}
+  }
   CURRENT_PAGE=p;
   sessionStorage.setItem('lastPage',p);
   if(!fromPopstate) history.pushState({page:p},'','');
   PAGES.forEach(x=>{
     const pg=document.getElementById('pg-'+x);if(pg)pg.style.display=x===p?'':'none';
+    // proposals nav visibility is controlled by admin state, not nav toggle — skip it
+    if(x==='proposals')return;
     const ni=document.getElementById('nav-'+x);if(ni)ni.classList.toggle('on',x===p);
   });
+  // proposals nav: keep display state, only toggle 'on' class
+  const propNav=document.getElementById('nav-proposals');
+  if(propNav)propNav.classList.toggle('on',p==='proposals');
   ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
   if(isMobile())closeMobSB();
   window.scrollTo(0,0);
@@ -1812,6 +1897,7 @@ function nav(p, fromPopstate){
   else if(p==='leave')renderLeave();
   else if(p==='mgmt')renderMgmt();
   else if(p==='holidays')renderHolidays();
+  else if(p==='proposals')renderProposals();
 }
 function updSB(){
   const f=fn=>S.engineers.filter(fn).length;
@@ -3751,7 +3837,7 @@ function renderProjDetail(p){
     <div class="card" style="padding:0;overflow:hidden;">
       <div style="background:#f5f5f7;padding:6px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-height:34px;cursor:pointer;" onclick="toggleSection('sec-weekly-${p.id}','sec-weekly-arrow-${p.id}')">
         <div class="weekly-sec-hdr-inner" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-          <span id="sec-weekly-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">▶</span>
+          <span id="sec-weekly-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-weekly-'+p.id])?'▼':'▶'}</span>
           <span style="font-size:13px;">⏱</span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Engineer</strong>
           ${(()=>{
@@ -3767,7 +3853,7 @@ function renderProjDetail(p){
           })()}
         </div>
       </div>
-      <div id="sec-weekly-${p.id}" style="display:none;">
+      <div id="sec-weekly-${p.id}" style="display:${(window._secOpen&&window._secOpen['sec-weekly-'+p.id])?'block':'none'};">
         <!-- Toolbar: only visible when section is expanded -->
         <div style="background:#f8fafc;border-bottom:1px solid var(--bdr);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;" onclick="event.stopPropagation()">
           <div style="display:flex;align-items:center;gap:8px;">
@@ -3786,15 +3872,28 @@ function renderProjDetail(p){
               Show Rate column
             </label>
             <div style="display:flex;gap:6px;align-items:center;">
-              <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">Add engineer:</span>
+              <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">${window._propViewing?'Add grade:':'Add engineer:'}</span>
               <select id="add-eng-${p.id}" onchange="addEngineerToProject('${p.id}',this.value);this.value='';" style="font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:#fff;min-width:240px;">
                 <option value="">— select to add —</option>
                 ${(function(){
                   const wh=p.weeklyHrs||{};
                   const assignedIds=new Set(Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)));
                   const discOrder={'HVAC':1,'PH&E':2,'ELE':3,'ELV':4};
-                  const mepAvail=S.engineers.filter(e=>e.team!=='BIM'&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=S.engineers.filter(e=>e.team==='BIM'&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  // PROPOSAL MODE: only show virtual engineers (grades), grouped by discipline
+                  if(window._propViewing){
+                    const virts=S.engineers.filter(e=>e._isVirtual&&!assignedIds.has(e.id));
+                    const mepV=virts.filter(e=>e.team!=='BIM').sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9));
+                    const bimV=virts.filter(e=>e.team==='BIM').sort((a,b)=>(discOrder[a.subDisc]||9)-(discOrder[b.subDisc]||9));
+                    let html='',lastD='';
+                    mepV.forEach(e=>{if(e.disc!==lastD){if(lastD)html+='</optgroup>';html+=`<optgroup label="MEP-${e.disc}">`;lastD=e.disc;}html+=`<option value="${e.id}">${e.name}</option>`;});
+                    if(lastD)html+='</optgroup>';
+                    let lastBD='';
+                    bimV.forEach(e=>{const bd=e.subDisc;if(bd!==lastBD){if(lastBD)html+='</optgroup>';html+=`<optgroup label="BIM-${bd}">`;lastBD=bd;}html+=`<option value="${e.id}">${e.name}</option>`;});
+                    if(lastBD)html+='</optgroup>';
+                    return html||'<option disabled>All grades already added</option>';
+                  }
+                  const mepAvail=S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='',lastDisc='';
                   mepAvail.forEach(e=>{
                     if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
@@ -3887,6 +3986,9 @@ function toggleSection(id, arrowId){
     el.style.display='none';
   }
   if(arrow) arrow.textContent=collapsed?'▼':'▶';
+  // Persist open state so re-renders don't collapse it
+  if(!window._secOpen)window._secOpen={};
+  window._secOpen[id]=collapsed; // collapsed===true means we just OPENED it
 }
 
 function toggleStageRow(projId, si){
@@ -4643,6 +4745,22 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
 
 // Write or delete a single hour row in project_hours table
 async function pushHourRow(projId,engId,wkIdx,hours){
+  // Proposal mode: save the whole proposal to proposals table (debounced)
+  if(projId && projId.toString().startsWith('prp')){
+    const prop=(S.proposals||[]).find(x=>x.id===projId);
+    if(!prop){setSyncStatus(false,'Proposal not found');return;}
+    clearTimeout(window._propSaveTimer);
+    window._propSaveTimer=setTimeout(async()=>{
+      try{
+        // Strip virtual flags before save
+        const cleanProp=JSON.parse(JSON.stringify(prop));
+        delete cleanProp._isProposal;
+        await sbUpsert('proposals',{id:prop.id,data:cleanProp});
+        setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+      }catch(e){setSyncStatus(false,'Sync failed');console.error('proposal save:',e);}
+    },800);
+    return;
+  }
   try{
     if(hours>0){
       await sbFetch('project_hours','POST',
@@ -4883,9 +5001,9 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-st').value='Active';document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-st').value=p.status;document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
@@ -4906,7 +5024,8 @@ async function saveProj(){
       if(newArr.some(v=>v>0))weeklyHrs[eid]=newArr;
     });
   }
-  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
+  const disciplines=['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value);
+  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
   if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
   await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
   // If detail view is open for this project, re-render it with new dates
@@ -4917,6 +5036,133 @@ async function saveProj(){
   } else {renderProj();}
 }
 async function delProj(id){if(!confirm('Delete project?'))return;S.projects=S.projects.filter(p=>p.id!==id);try{await sbDel('projects',id);}catch{saveLocal();}renderProj();updSB();toast('Deleted');}
+
+// ═══════════════════════════════════════
+// PROPOSALS (Admin Only)
+// ═══════════════════════════════════════
+let propId=null;
+
+function renderProposals(){
+  const q=(document.getElementById('prp-q').value||'').toLowerCase();
+  const sf=document.getElementById('prp-st').value;
+  const list=(S.proposals||[]).filter(p=>{if(sf!=='all'&&p.status!==sf)return false;if(q&&!(p.name||'').toLowerCase().includes(q)&&!(p.no||'').toLowerCase().includes(q))return false;return true;});
+  const statusRank=s=>s==='Active'?0:s==='On Hold'?1:2;
+  list.sort((a,b)=>{const ra=statusRank(a.status),rb=statusRank(b.status);if(ra!==rb)return ra-rb;return(a.name||'').localeCompare(b.name||'');});
+  const COLS='80px 1fr 130px 110px 110px 90px';
+  const statusDot=p=>{const color=p.status==='Active'?'#22c55e':p.status==='On Hold'?'#f59e0b':'#9ca3af';return`<span title="${p.status||'—'}" style="display:inline-block;width:8px;height:8px;border-radius:50%;background:${color};flex-shrink:0;margin-right:6px;"></span>`;};
+  const discBadges=p=>(p.disciplines||[]).map(d=>{const colors={HVAC:'#dbeafe;color:#1d4ed8','PH&E':'#dcfce7;color:#166534',ELE:'#fef9c3;color:#854d0e',ELV:'#fce7f3;color:#9d174d'};const c=colors[d]||'#f1f5f9;color:#374151';return`<span style="font-size:9px;font-weight:600;padding:1px 5px;border-radius:4px;background:${c};white-space:nowrap;">${d}</span>`;}).join('');
+  const typeLabel=p=>p.projType?`<span style="font-size:9px;font-weight:600;padding:1px 6px;border-radius:4px;background:#fef3c7;color:#92400e;">${p.projType}</span>`:'—';
+  const fmt=d=>{if(!d)return'—';const dt=new Date(d);return dt.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'});};
+  const headerRow=`<div style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;"><div>Proj No.</div><div>Name</div><div>Type / Disciplines</div><div>Start</div><div>Contractual End</div><div style="text-align:right;font-size:10px;">Actions</div></div>`;
+  const rowsHtml=list.map(p=>`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openPropDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
+    <div style="color:var(--tx3);font-size:12px;font-weight:500;">${p.no||'—'}</div>
+    <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span></div>
+    <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;">${typeLabel(p)}<div style="display:flex;gap:3px;flex-wrap:wrap;">${discBadges(p)}</div></div>
+    <div style="font-size:11px;color:var(--tx2);">${fmt(p.start)}</div>
+    <div style="font-size:11px;color:var(--tx2);">${fmt(p.end)}${p.forecastEnd&&p.forecastEnd!==p.end?`<div style="font-size:10px;color:#f59e0b;">Forecast: ${fmt(p.forecastEnd)}</div>`:''}</div>
+    <div class="row-actions" style="text-align:right;opacity:0;transition:opacity .12s;display:flex;gap:4px;justify-content:flex-end;" onclick="event.stopPropagation()">
+      <button class="btn btn-g btn-xs" onclick="editProp('${p.id}')" title="Edit" style="padding:3px 6px;font-size:11px;">&#9998;</button>
+      <button class="btn btn-d btn-xs" onclick="delProp('${p.id}')" title="Delete" style="padding:3px 6px;font-size:11px;">&#128465;</button>
+    </div>
+  </div>`).join('');
+  const emptyMsg=list.length===0?`<div style="text-align:center;padding:32px;color:var(--tx3);font-size:13px;font-style:italic;">No proposals yet. Click "+ New Proposal" to add one.</div>`:'';
+  document.getElementById('prop-list').innerHTML=`<div class="card" style="padding:0;overflow:hidden;">${headerRow}${rowsHtml}${emptyMsg}</div>`;
+}
+
+function openPropModal(){propId=null;document.getElementById('prop-title').textContent='New Proposal';['ppw-no','ppw-name','ppw-client','ppw-pm','ppw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('ppw-start').value='2026-04-06';document.getElementById('ppw-end').value='2026-12-31';document.getElementById('ppw-fend').value='';document.getElementById('ppw-st').value='Active';document.getElementById('ppw-ptype').value='';['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});document.getElementById('ppw-fee').value='';document.getElementById('prop-ov').classList.add('open');}
+function closePropModal(){document.getElementById('prop-ov').classList.remove('open');}
+function editProp(id){const p=(S.proposals||[]).find(x=>x.id===id);if(!p)return;propId=id;document.getElementById('prop-title').textContent='Edit: '+p.name;document.getElementById('ppw-no').value=p.no||'';document.getElementById('ppw-name').value=p.name;document.getElementById('ppw-client').value=p.client||'';document.getElementById('ppw-pm').value=p.pm||'';document.getElementById('ppw-fee').value=p.feeFactor||1.0;document.getElementById('ppw-loc').value=p.location||'';document.getElementById('ppw-start').value=p.start||'2026-04-06';document.getElementById('ppw-end').value=p.end||'2026-12-31';document.getElementById('ppw-fend').value=p.forecastEnd||'';document.getElementById('ppw-st').value=p.status;document.getElementById('ppw-ptype').value=p.projType||'';const discs=p.disciplines||[];['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});document.getElementById('prop-ov').classList.add('open');}
+async function saveProp(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const name=document.getElementById('ppw-name').value.trim();if(!name){toast('Name required');return;}
+  const disciplines=['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value);
+  const p={id:propId||'prp'+Date.now(),no:document.getElementById('ppw-no').value.trim(),name,client:document.getElementById('ppw-client').value.trim(),pm:document.getElementById('ppw-pm').value.trim(),location:document.getElementById('ppw-loc').value.trim(),start:document.getElementById('ppw-start').value,end:document.getElementById('ppw-end').value,forecastEnd:document.getElementById('ppw-fend').value||'',projType:document.getElementById('ppw-ptype').value||'',disciplines,status:document.getElementById('ppw-st').value,feeFactor:parseFloat(document.getElementById('ppw-fee').value)||1.0};
+  if(!S.proposals)S.proposals=[];
+  if(propId){const i=S.proposals.findIndex(x=>x.id===propId);S.proposals[i]=p;}else S.proposals.push(p);
+  try{await sbUpsert('proposals',{id:p.id,data:p});}catch(e){saveLocal();}
+  closePropModal();renderProposals();toast(propId?'Proposal updated ✓':'Proposal created ✓');
+}
+async function delProp(id){if(!confirm('Delete proposal?'))return;S.proposals=(S.proposals||[]).filter(p=>p.id!==id);try{await sbDel('proposals',id);}catch{saveLocal();}renderProposals();toast('Deleted');}
+
+// ─── Proposal Detail View — reuses the Projects detail view exactly ───
+// Injects virtual "engineers" (one per discipline × grade) into S.engineers,
+// adds the proposal to S.projects, and hijacks the projects-page detail DOM.
+function openPropDetail(id){
+  const p=(S.proposals||[]).find(x=>x.id===id);if(!p)return;
+  if(!p.weeklyHrs)p.weeklyHrs={};
+  if(!p.stages)p.stages=[];
+  if(!p.noteRows)p.noteRows=[];
+
+  // 1) Add proposal to S.projects temporarily so all proj-* functions work
+  if(!S.projects.find(x=>x.id===id)){
+    p._isProposal=true;
+    S.projects.push(p);
+  }
+
+  // 2) Build virtual engineers — one per (discipline × grade), but DO NOT add their hours yet
+  // Rows only appear when user picks them from the "Add grade" dropdown (just like projects)
+  const disciplines=(p.disciplines&&p.disciplines.length)?p.disciplines:['HVAC','PH&E','ELE','ELV'];
+  const BIM_SET=new Set(BIM_GRADES);
+  // Remove any existing virtuals first (defensive)
+  S.engineers=S.engineers.filter(e=>!e._isVirtual);
+  const virtuals=[];
+  disciplines.forEach(disc=>{
+    GRADES.forEach(grade=>{
+      const isBim=BIM_SET.has(grade);
+      // BIM grades only make sense for "real" disciplines, not separate BIM tracks
+      const vid='grd_'+id+'_'+disc.replace(/[^a-zA-Z0-9]/g,'_')+'_'+grade.replace(/[^a-zA-Z0-9]/g,'_');
+      virtuals.push({
+        id:vid,name:grade,empno:'',desig:grade,
+        disc:isBim?undefined:disc,
+        subDisc:isBim?disc:undefined,
+        grade:grade,off:'DXB',
+        team:isBim?'BIM':'MEP',
+        _isVirtual:true,_propId:id
+      });
+    });
+  });
+  S.engineers=S.engineers.concat(virtuals);
+  window._propViewing=id;
+
+  // 3) Hijack the projects-page detail DOM
+  document.getElementById('pg-proposals').style.display='none';
+  const pgProj=document.getElementById('pg-proj');
+  pgProj.style.display='';
+  document.getElementById('proj-list-view').style.display='none';
+  document.getElementById('proj-detail-view').style.display='';
+  document.getElementById('proj-hdr-title').innerHTML='<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:4px;font-size:10px;font-weight:700;margin-right:8px;">PROPOSAL</span>'+(p.no?p.no+' — ':'')+p.name;
+  // Override the back button to return to proposals
+  const backBtn=document.getElementById('proj-hdr-back-btn');
+  backBtn.style.display='';
+  backBtn.setAttribute('onclick','closePropDetail()');
+  document.getElementById('proj-hdr-export-btn').style.display='none';
+  document.getElementById('proj-hdr-import-btn').style.display='none';
+  document.getElementById('proj-hdr-new-btn').style.display='none';
+
+  renderProjDetail(p);
+}
+
+function closePropDetail(){
+  // Restore S.engineers (remove virtuals)
+  S.engineers=S.engineers.filter(e=>!e._isVirtual);
+  // Remove proposal from S.projects
+  S.projects=S.projects.filter(x=>!x._isProposal);
+  // Restore projects-page DOM
+  document.getElementById('proj-detail-view').style.display='none';
+  document.getElementById('proj-list-view').style.display='';
+  const backBtn=document.getElementById('proj-hdr-back-btn');
+  backBtn.style.display='none';
+  backBtn.setAttribute('onclick','closeProjDetail()');
+  document.getElementById('proj-hdr-export-btn').style.display='';
+  document.getElementById('proj-hdr-import-btn').style.display='';
+  document.getElementById('proj-hdr-new-btn').style.display='';
+  document.getElementById('proj-hdr-title').textContent='Projects';
+  document.getElementById('pg-proj').style.display='none';
+  document.getElementById('pg-proposals').style.display='';
+  window._propViewing=null;
+  renderProposals();
+}
+
 
 // ═══════════════════════════════════════
 // UTILS
