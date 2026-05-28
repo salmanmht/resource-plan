@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.9 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.12 · 28 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -549,7 +549,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
     <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
   </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.9 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.12 · 28 May 2026</div>
 </div>
 
 <div class="main">
@@ -602,7 +602,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <!-- Workforce Pulse Panel (collapsible) -->
       <div class="card" style="padding:0;overflow:hidden;">
         <div id="hire-fire-hdr" onclick="toggleHireFire()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-          <span style="font-weight:700;font-size:12px;color:#0c4a6e;">💓 Workforce Pulse</span>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <span style="font-weight:700;font-size:12px;color:#0c4a6e;">💓 Workforce Pulse</span>
+            <div onclick="event.stopPropagation()" style="display:flex;gap:3px;background:#e5e7eb;border-radius:6px;padding:2px;">
+              <button id="wf-tab-mep" onclick="switchWFTab('mep')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:#1e3a5f;color:#fff;transition:.15s;">MEP</button>
+              <button id="wf-tab-bim" onclick="switchWFTab('bim')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:transparent;color:#6b7280;transition:.15s;">BIM</button>
+              <button id="wf-tab-all" onclick="switchWFTab('all')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:transparent;color:#6b7280;transition:.15s;">All</button>
+            </div>
+          </div>
           <span id="hire-fire-chevron" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
         </div>
         <div id="hire-fire-body" style="display:none;padding:14px;">
@@ -1808,9 +1815,9 @@ function nav(p, fromPopstate){
 }
 function updSB(){
   const f=fn=>S.engineers.filter(fn).length;
-  document.getElementById('sb-dxb').textContent=f(e=>e.off==='DXB'&&e.team!=='BIM');
-  document.getElementById('sb-egy').textContent=f(e=>e.off==='EGY'&&e.team!=='BIM');
-  document.getElementById('sb-ind').textContent=f(e=>e.off==='IND'&&e.team!=='BIM');
+  document.getElementById('sb-dxb').textContent=f(e=>e.off==='DXB');
+  document.getElementById('sb-egy').textContent=f(e=>e.off==='EGY');
+  document.getElementById('sb-ind').textContent=f(e=>e.off==='IND');
   // Discipline badges count MEP team only
   document.getElementById('sb-hvac').textContent=f(e=>e.disc==='HVAC'&&e.team!=='BIM');
   document.getElementById('sb-phe').textContent=f(e=>e.disc==='PH&E'&&e.team!=='BIM');
@@ -2226,7 +2233,7 @@ function renderMEP(){
   const avgBill=tb.length?tb.reduce((a,b)=>a+b,0)/NMON:0;
   const totH=subHrs(all,hrs);const totC=all.reduce((a,e)=>a+engCost(e,hrs),0);
   const dxb=all.filter(e=>e.off==='DXB'),egy=all.filter(e=>e.off==='EGY');
-  const discs=['HVAC','PH&E','ELE','ELV'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d'];
+  const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#0d9488'];
   const periodLabel=NMON===1?labelsL[0]:(miLabel(minMI)+' – '+miLabel(minMI+NMON-1));
   document.getElementById('dash-period-label').textContent='All Offices · '+periodLabel;
   // Build interactive KPI cards with sparklines and click-to-drill
@@ -2364,8 +2371,8 @@ function renderDeepDive(){
   const d=window._mepDeepDiveData;
   if(!d)return;
   const {labels,all,util,hrs,discs,dClr,dxb,egy,minMI,NMON}=d;
-  mkChart('c-mep-line','line',labels,discs.map((disc,i)=>({label:disc,data:subUtil(all.filter(e=>e.disc===disc),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
-  const dH=discs.map(disc=>Math.round(subHrs(all.filter(e=>e.disc===disc),hrs)));
+  mkChart('c-mep-line','line',labels,discs.map((disc,i)=>({label:disc,data:subUtil(disc==='BIM'?all.filter(e=>e.team==='BIM'):all.filter(e=>e.disc===disc&&e.team!=='BIM'),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+  const dH=discs.map(disc=>Math.round(subHrs(disc==='BIM'?all.filter(e=>e.team==='BIM'):all.filter(e=>e.disc===disc&&e.team!=='BIM'),hrs)));
   mkChart('c-mep-donut','doughnut',discs,[{data:dH,backgroundColor:dClr,borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
   mkChart('c-mep-office','bar',labels,[{label:'Dubai',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'Egypt',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
   const actP=S.projects.filter(p=>p.status==='Active').slice(0,12);
@@ -2484,11 +2491,28 @@ function toggleHireFire(){
   if(open)setTimeout(renderHireFire,50);
 }
 
+let _wfTab='mep'; // 'mep' | 'bim' | 'all'
+function switchWFTab(tab){
+  _wfTab=tab;
+  ['mep','bim','all'].forEach(t=>{
+    const btn=document.getElementById('wf-tab-'+t);
+    if(!btn)return;
+    btn.style.background=t===tab?'#1e3a5f':'transparent';
+    btn.style.color=t===tab?'#fff':'#6b7280';
+  });
+  renderHireFire();
+}
+
 function renderHireFire(){
   try{
     const c=computeRange();
     const{util,hrs,minMI,NMON}=c;
-    const all=S.engineers.filter(e=>!e.name||!e.name.startsWith('JSE-'));
+    const all=S.engineers.filter(e=>{
+      if(!e.name||e.name.startsWith('JSE-'))return false;
+      if(_wfTab==='mep')return e.team!=='BIM';
+      if(_wfTab==='bim')return e.team==='BIM';
+      return true; // 'all'
+    });
     if(!all.length){
       document.getElementById('hire-fire-content').innerHTML='<div style="padding:20px;text-align:center;color:var(--tx3);">No engineer data available.</div>';
       return;
@@ -2577,9 +2601,9 @@ function renderHireFire(){
     }
 
     // === Discipline breakdown ===
-    const discs=['HVAC','PH&E','ELE','ELV'];
+    const discs=['HVAC','PH&E','ELE','ELV','BIM'];
     const discStats=discs.map(d=>{
-      const sub=all.filter(e=>e.disc===d);
+      const sub=d==='BIM'?all.filter(e=>e.team==='BIM'):all.filter(e=>e.disc===d&&e.team!=='BIM');
       if(!sub.length)return null;
       const u=subUtil(sub,util,minMI,NMON);
       const avg=u.reduce((a,b)=>a+b,0)/NMON;
