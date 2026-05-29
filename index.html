@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.23 · 29 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.24 · 29 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -550,7 +550,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.23 · 29 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.24 · 29 May 2026</div>
 </div>
 
 <div class="main">
@@ -1017,7 +1017,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 // ═══════════════════════════════════════
 const SB_URL      = 'https://wgmkqrxivesphvutychm.supabase.co';
 const SB_KEY      = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
-const ADMIN_EMAIL = 'salman.sabir@meinhardtgroup.com';
+let ADMIN_EMAILS=['salman.sabir@meinhardtgroup.com']; // loaded from Supabase settings at startup
+function isAdmin(email){ return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase()); }
 let   SB_SESSION  = null;
 
 const MON   = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1365,7 +1366,7 @@ function populateSidebarUser(user){
   document.getElementById('sb-user-desig').textContent=displayDesig;
   document.getElementById('sb-user-email').textContent=email;
   document.getElementById('sb-user-initial').textContent=displayName.charAt(0).toUpperCase();
-  document.getElementById('sb-user-role').textContent=(email===ADMIN_EMAIL)?'Admin':'Team';
+  document.getElementById('sb-user-role').textContent=(isAdmin(email))?'Admin':'Team';
 }
 
 function enterApp(){
@@ -1397,7 +1398,7 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&d.user.email===ADMIN_EMAIL){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
+    if(d.user&&d.user.isAdmin(email)){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -1467,7 +1468,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&d.user.email===ADMIN_EMAIL){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
+          if(d.user&&d.user.isAdmin(email)){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           const pinRow = await fetchUserPin();
@@ -1555,6 +1556,9 @@ async function initApp(){
     if(!S.settings)S.settings={};
     S.settings.jseCap=rjse?rjse.value:55;
     setTimeout(()=>{ const ji=document.getElementById('jse-cap-input'); if(ji)ji.value=S.settings.jseCap||55; },200);
+    // Load admin emails list
+    const radmin=Array.isArray(sets)?sets.find(r=>r.key==='admin_emails'):null;
+    if(radmin&&Array.isArray(radmin.value))ADMIN_EMAILS=radmin.value;
     // Legacy rates fallback
     const rrOld=Array.isArray(sets)?sets.find(r=>r.key==='rates'):null;
     S.rates=S.ratesDXB; // keep S.rates pointing to DXB for backward compat
