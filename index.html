@@ -541,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.58 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.63 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -599,7 +599,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.58 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.63 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -1078,25 +1078,35 @@ function canEditDisc(disc){
   if(adminUnlocked)return true;
   const roles=myRoles();
   if(!roles.length){
-    // Fallback to engineer data if no roles defined yet
     const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
     if(!eng)return false;
     const isBimGrade=['BIM Manager','Assistant BIM Manager'].includes(eng.grade)||eng.team==='BIM';
-    if(isBimGrade)return disc==='BIM';
+    if(isBimGrade)return eng.team==='BIM';
     const extra=(eng.extraDiscs||[]).map(d=>d.toUpperCase());
     return (eng.disc||'').toUpperCase()===(disc||'').toUpperCase()||extra.includes((disc||'').toUpperCase());
   }
+  const hasBimRole=roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()==='BIM');
+  // BIM lead can edit BIM engineers only — BIM engineers have subDisc (HVAC/ELE etc) not 'BIM'
+  // So we need a separate check for BIM engineers in the caller, not here
+  if(hasBimRole&&disc==='BIM')return true;
   return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()===(disc||'').toUpperCase());
+}
+function isBimLead(){
+  if(adminUnlocked)return true;
+  const roles=myRoles();
+  return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()==='BIM');
 }
 // Is current user MEP Lead for a project?
 function isMepLeadFor(projId){
   if(adminUnlocked)return true;
+  const currentEmail=currentUserEmail().toLowerCase();
+  // Check roles table first
   const roles=myRoles();
-  if(roles.length) return roles.some(r=>r.role==='mep_lead'&&r.scope===projId);
-  // Fallback to mepLeadEmail on project
+  if(roles.some(r=>r.role==='mep_lead'&&r.scope===projId))return true;
+  // Always also check mepLeadEmail on the project (set via Edit Project modal)
   const p=S.projects.find(x=>x.id===projId);
-  if(!p)return false;
-  return p.mepLeadEmail&&p.mepLeadEmail.toLowerCase()===currentUserEmail().toLowerCase();
+  if(p&&p.mepLeadEmail&&p.mepLeadEmail.toLowerCase()===currentEmail)return true;
+  return false;
 }
 let   SB_SESSION  = null;
 
@@ -4045,7 +4055,7 @@ function renderProjDetail(p){
     <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;">
       <div class="prog-sec-hdr" style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-prog-${p.id}','sec-prog-arrow-${p.id}')">
         <div class="prog-sec-hdr-left" style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
-          <span id="sec-prog-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">▶</span>
+          <span id="sec-prog-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'▼':'▶'}</span>
           <span style="font-size:13px;">📅</span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Programme</strong>
           ${(()=>{
@@ -4075,7 +4085,7 @@ function renderProjDetail(p){
           })()}
         </div>
       </div>
-      <div id="sec-prog-${p.id}" style="display:none;">
+      <div id="sec-prog-${p.id}" style="display:${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'block':'none'};">
       <div style="overflow-x:auto;">
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
@@ -4166,7 +4176,7 @@ function renderProjDetail(p){
         <div class="cost-sec-hdr" style="padding:8px 14px;background:#f5f5f7;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer;flex:1;min-width:0;" onclick="toggleSection('sec-cost-${p.id}','sec-cost-arrow-${p.id}')">
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
-              <span id="sec-cost-arrow-${p.id}" style="font-size:11px;color:#64748b;">▶</span>
+              <span id="sec-cost-arrow-${p.id}" style="font-size:11px;color:#64748b;">${(window._secOpen&&window._secOpen['sec-cost-'+p.id])?'▼':'▶'}</span>
               <span style="font-size:13px;">📊</span>
               <span style="font-size:12px;font-weight:700;color:#1e3a5f;">Cost &amp; Fee Breakdown</span>
             </div>
@@ -4191,7 +4201,7 @@ function renderProjDetail(p){
             ${tabBtn('bim','BIM only')}
           </div>
         </div>
-        <div id="sec-cost-${p.id}" data-display="flex" style="padding:10px 14px;display:none;gap:8px;flex-wrap:wrap;align-items:stretch;">
+        <div id="sec-cost-${p.id}" data-display="flex" style="padding:10px 14px;display:${(window._secOpen&&window._secOpen['sec-cost-'+p.id])?'flex':'none'};gap:8px;flex-wrap:wrap;align-items:stretch;">
           <div class="cost-by-disc-label" style="display:flex;gap:4px;align-items:center;font-size:9px;font-weight:700;color:var(--tx3);text-transform:uppercase;letter-spacing:.08em;align-self:center;white-space:nowrap;padding-right:8px;border-right:1px solid var(--bdr);">By<br>Disc</div>
           <div class="cost-cards-wrap" style="flex:1;display:flex;gap:8px;flex-wrap:wrap;align-items:stretch;">${discStats.map(makeCard).join('')}
           ${bimCard}
@@ -4256,8 +4266,9 @@ function renderProjDetail(p){
                     return html||'<option disabled>All grades already added</option>';
                   }
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
-                  const mepAvail=S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&canEditDisc(e.disc)&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&canEditDisc(e.subDisc||e.disc)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  const userIsBimLead=isBimLead();
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(adminUnlocked||userIsBimLead)?S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name)):[];
                   let html='',lastDisc='';
                   mepAvail.forEach(e=>{
                     if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
@@ -4457,8 +4468,8 @@ function addEngineerToProject(projId,engId){
   const eng=S.engineers.find(e=>e.id===engId);if(!eng)return;
   // Discipline access check (skip for proposals)
   if(!projId.toString().startsWith('prp')){
-    const disc=eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc;
-    if(!canEditDisc(disc)){toast('⛔ You can only add engineers from your own discipline.');return;}
+    const canAdd=eng.team==='BIM'?isBimLead():canEditDisc(eng.disc);
+    if(!canAdd){toast('⛔ You can only add engineers from your own discipline.');return;}
   }
   if(!p.weeklyHrs)p.weeklyHrs={};
   const weeks=stageWeeks(p.start,p.end);
@@ -4478,8 +4489,9 @@ function removeEngineerFromProject(projId,engId){
   const shortName=eng?eng.name.split(' ').slice(0,2).join(' '):'engineer';
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
-    const disc=eng?(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc):'';
-    if(!canEditDisc(disc)){toast('⛔ You can only remove engineers from your own discipline.');return;}
+    const disc=eng?(eng.team==='BIM'?'BIM':eng.disc):'';
+    const canRemove=eng&&eng.team==='BIM'?isBimLead():canEditDisc(disc);
+    if(!canRemove){toast('⛔ You can only remove engineers from your own discipline.');return;}
   }
   if(!confirm(`Remove ${shortName} from this project? All their hours on this project will be cleared.`))return;
   if(p.weeklyHrs&&p.weeklyHrs[engId]){
@@ -4965,7 +4977,7 @@ function renderProjCard(p, mode){
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
-        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
+        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${eng.empno||ei+1}</td>
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
         <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')}</td>
@@ -4994,7 +5006,7 @@ function renderProjCard(p, mode){
           const stageNames=(stageMap.get(wi)||[]).map(si=>(p.stages[si]&&p.stages[si].name)||`Stage ${si+1}`).join(' + ');
           const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:stageNames?`Stage: ${stageNames}`:'';
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
+          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -5131,7 +5143,7 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
     const eng=S.engineers.find(e=>e.id===engId);
-    const disc=eng?(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc):'';
+    const disc=eng?(eng.team==='BIM'?'BIM':eng.disc):'';
     if(!canEditDisc(disc)){
       inputEl.value=inputEl.defaultValue||'';
       toast('⛔ You can only edit hours for your own discipline.');
