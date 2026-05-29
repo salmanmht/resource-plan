@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.20 · 28 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.21 · 29 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -521,6 +521,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
         <div id="sb-user-email" style="font-size:9px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">—</div>
       </div>
+      <button id="sb-signout-icon" onclick="doLogout()" title="Sign Out" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:5px;border-radius:8px;color:#ef4444;opacity:.7;transition:.15s;" onmouseover="this.style.opacity='1';this.style.background='#fee2e2'" onmouseout="this.style.opacity='.7';this.style.background='none'">
+        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+      </button>
     </div>
   </div>
 
@@ -547,10 +550,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div id="sb-signout" style="display:none;padding:8px 10px 12px;">
-    <button onclick="doLogout()" style="width:100%;font-size:11px;font-weight:600;color:var(--red);background:var(--red2);border:1px solid #ffcccb;border-radius:8px;cursor:pointer;padding:7px;font-family:inherit;letter-spacing:-.01em;transition:.12s;" onmouseover="this.style.background='#ffd5d3'" onmouseout="this.style.background='var(--red2)'">⎋ Sign Out</button>
-  </div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.20 · 28 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.21 · 29 May 2026</div>
 </div>
 
 <div class="main">
@@ -934,6 +934,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Project Name *</label><input id="pw-name" placeholder="e.g. Dubai Square Mall"></div>
       <div class="ff"><label>Client</label><input id="pw-client"></div>
       <div class="ff"><label>Project Manager</label><input id="pw-pm"></div>
+      <div class="ff" style="grid-column:1/-1"><label>MEP Lead <span style="font-size:10px;color:var(--tx3);font-weight:400;">(controls Programme editing)</span></label>
+        <select id="pw-meplead" style="width:100%">
+          <option value="">— None —</option>
+        </select>
+      </div>
       <div class="ff"><label>Start Date</label><input type="date" id="pw-start" value="2026-04-06"></div>
       <div class="ff"><label>Contractual End Date</label><input type="date" id="pw-end" value="2026-12-31"></div>
       <div class="ff"><label>Forecast End Date <span style="font-size:10px;color:var(--tx3);font-weight:400;">(if different)</span></label><input type="date" id="pw-fend"></div>
@@ -1339,7 +1344,7 @@ function populateSidebarUser(user){
   const userPanel=document.getElementById('sb-user');
   if(!userPanel)return;
   userPanel.style.display='block';
-  document.getElementById('sb-signout').style.display='block';
+  
   const email=user.email||'';
   const meta=user.user_metadata||{};
   const rawName=meta.full_name||meta.name||'';
@@ -1420,7 +1425,7 @@ async function doLogout(){
   SB_SESSION=null;adminUnlocked=false;PIN_BUFFER='';
   sessionStorage.removeItem('mep_session');
   const up=document.getElementById('sb-user');if(up)up.style.display='none';
-  const so=document.getElementById('sb-signout');if(so)so.style.display='none';
+  
   const pnav=document.getElementById('nav-proposals');if(pnav)pnav.style.display='none';
   ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
@@ -1528,7 +1533,7 @@ async function initApp(){
   try{
     const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),sbGet('proposals').catch(()=>[])]);
     S.engineers=engs.map(r=>normaliseEng(r.data));
-    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; return d; });
+    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; return d; });
     S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
     if(Array.isArray(projHrsRows)){
@@ -1595,8 +1600,9 @@ async function pushProj(p){
   }
   try{
     // Save metadata only — weeklyHrs stored separately in project_hours table
+    // mep_lead_email saved as top-level column for RLS enforcement
     const {weeklyHrs,...meta}=p;
-    await sbUpsert('projects',{id:p.id,data:meta});
+    await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
   }catch{setSyncStatus(false,'Sync failed');saveLocal();}
 }
@@ -3539,7 +3545,11 @@ function renderProjDetail(p){
   }).join('');
 
   // Build stage rows HTML
-  const progLocked=(window._progLocked&&window._progLocked[p.id])||false;
+  // Programme is editable only by admin or the assigned MEP Lead
+  const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
+  const isMepLead=p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+  const canEditProg=adminUnlocked||isMepLead;
+  const progLocked=!canEditProg||((window._progLocked&&window._progLocked[p.id])||false);
   const stageRowsHtml=p.stages.map((st,si)=>{
     const sc=stageColor(si,st);
     const isCustom=!DEFAULT_STAGES.includes(st.name);
@@ -3696,7 +3706,13 @@ function renderProjDetail(p){
         </div>
         <div class="prog-sec-hdr-btns" style="display:flex;gap:6px;align-items:center;" onclick="event.stopPropagation()">
           ${(()=>{
+            const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
+            const isMepLead=p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+            const canEdit=adminUnlocked||isMepLead;
             const locked=(window._progLocked&&window._progLocked[p.id])||false;
+            if(!canEdit){
+              return`<span style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid #f97316;background:#fff7ed;color:#9a3412;">🔒 Locked — MEP Lead only</span>`;
+            }
             return`<button onclick="toggleProgLock('${p.id}')" title="${locked?'Unlock programme to edit':'Lock programme to prevent edits'}"
               style="display:flex;align-items:center;gap:4px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid ${locked?'#f97316':'#cbd5e1'};background:${locked?'#fff7ed':'#f8fafc'};color:${locked?'#0d9488':'#64748b'};cursor:pointer;">
               ${locked?'🔒 Locked':'🔓 Lock'}
@@ -3867,10 +3883,6 @@ function renderProjDetail(p){
             </button>
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
-            <label style="font-size:11px;color:var(--tx2);font-weight:600;display:flex;align-items:center;gap:5px;cursor:pointer;user-select:none;white-space:nowrap;" title="Show or hide the editable Rate AED/hr column">
-              <input type="checkbox" ${isRateColShown(p.id)?'checked':''} onchange="toggleRateCol('${p.id}')" style="margin:0;cursor:pointer;">
-              Show Rate column
-            </label>
             <div style="display:flex;gap:6px;align-items:center;">
               <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">${window._propViewing?'Add grade:':'Add engineer:'}</span>
               <select id="add-eng-${p.id}" onchange="addEngineerToProject('${p.id}',this.value);this.value='';" style="font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:#fff;min-width:240px;">
@@ -4346,10 +4358,25 @@ function renderJseDemandPanel(projectFilter){
   </div>`;
 }
 
+function populateMepLeadDropdown(selId, currentEmail){
+  const sel=document.getElementById(selId);if(!sel)return;
+  const MEP_LEAD_GRADES=['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer'];
+  const leads=S.engineers.filter(e=>MEP_LEAD_GRADES.includes(e.grade)&&!e._isVirtual&&e.empno);
+  leads.sort((a,b)=>a.name.localeCompare(b.name));
+  sel.innerHTML=`<option value="">— None —</option>`+leads.map(e=>{
+    // Try to match engineer to a Supabase auth email — use empno as fallback identifier
+    const val=e.email||e.empno||e.id;
+    return`<option value="${val}" ${val===currentEmail?'selected':''}>${e.name} — ${e.grade} [${e.off||'DXB'}]</option>`;
+  }).join('');
+}
+
 function toggleProgLock(projId){
+  const p=S.projects.find(x=>x.id===projId);
+  const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
+  const isMepLead=p&&p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+  if(!adminUnlocked&&!isMepLead){toast('🔒 Only MEP Lead or Admin can lock/unlock the programme.');return;}
   window._progLocked = window._progLocked || {};
   window._progLocked[projId] = !window._progLocked[projId];
-  const p = S.projects.find(x=>x.id===projId);
   if(p) renderProjDetail(p);
   toast(window._progLocked[projId] ? '🔒 Programme locked' : '🔓 Programme unlocked');
 }
@@ -4381,7 +4408,7 @@ function renderProjCard(p, mode){
   const wh=p.weeklyHrs||{};
   const ff=p.feeFactor||1.0;
   const stageMap=getStageWeekMap(p);
-  const showRate=isRateColShown(p.id);
+  const showRate=false;
   // Holiday maps — built once per render, reused per cell
   const HOL_MAP_UAE=buildHolidayWeekMap(S.holidaysUAE||[]);
   const HOL_MAP_EGY=buildHolidayWeekMap(S.holidaysEGY||[]);
@@ -5001,9 +5028,9 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});populateMepLeadDropdown('pw-meplead','');document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
@@ -5025,7 +5052,8 @@ async function saveProj(){
     });
   }
   const disciplines=['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value);
-  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
+  const mepLeadEmail=document.getElementById('pw-meplead').value||'';
+  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,mepLeadEmail,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
   if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
   await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
   // If detail view is open for this project, re-render it with new dates
