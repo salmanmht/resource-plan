@@ -541,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.35 · 29 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.58 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -592,14 +592,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
-  <div class="sbi" id="nav-leave" onclick="nav('leave')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave</div>
-  <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours</div>
-  <div class="sbi" id="nav-holidays" onclick="nav('holidays')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays</div>
-  <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
+  <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
+  <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
+  <div class="sbi" id="nav-holidays" onclick="nav('holidays')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays 🔒</div>
+  <div class="sbi" id="nav-rates" onclick="requireAdmin()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.35 · 29 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.58 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -700,34 +700,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Team Register</span>
       </div>
-      <div style="display:flex;gap:6px;">
-        <button class="btn" onclick="refreshAllGrades()" title="Re-derive grade from designation for all engineers (fixes wrong rates)" style="background:#0c4a6e;color:#fff;">&#8635; Refresh Grades</button>
-        <button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>
-      </div>
+      <div style="display:flex;gap:6px;" id="team-hdr-btns"></div>
     </div>
     <div class="pc">
-      <!-- Team tabs -->
-      <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--bdr);" id="team-tab-bar">
-        <button onclick="switchTeamTab('engineers')" id="team-tab-engineers" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid var(--acc);background:#f5f5f7;color:var(--acc);cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">Engineers</button>
-        <button onclick="switchTeamTab('bim')" id="team-tab-bim" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid transparent;background:transparent;color:var(--tx2);cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">BIM</button>
-      </div>
       <div class="fbar" style="flex-direction:row;flex-wrap:wrap;">
         <input id="ts-q" placeholder="Search…" oninput="renderTeam()" style="flex:1;min-width:120px;max-width:220px;">
-        <select id="ts-disc" onchange="renderTeam()" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select>
+        <select id="ts-disc" onchange="renderTeam()" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
         <select id="ts-off" onchange="renderTeam()" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
-        <div style="display:flex;align-items:center;gap:6px;width:100%;flex-wrap:wrap;margin-top:2px;">
-          <span style="font-size:10px;font-weight:700;color:var(--tx3);">Sort by:</span>
-          <div style="display:flex;gap:4px;flex-wrap:wrap;" id="sort-btns">
-            <button class="sort-btn on asc" data-col="name" onclick="setSort('name')">Name</button>
-            <button class="sort-btn" data-col="disc" onclick="setSort('disc')">Discipline</button>
-            <button class="sort-btn" data-col="off" onclick="setSort('off')">Office</button>
-          </div>
-        </div>
       </div>
-      <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th style="width:20px"></th><th>Name</th><th>Disc</th><th>Off</th><th style="text-align:right"></th></tr></thead>
-        <tbody id="team-body"></tbody>
-      </table></div></div>
+      <div id="team-grid"></div>
     </div>
   </div>
 
@@ -740,10 +721,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" id="proj-hdr-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
-        <button class="btn btn-g btn-sm proj-hdr-export-btn" id="proj-hdr-export-btn" onclick="exportProjXLSX()" title="Export project info &amp; programme stages to Excel" style="display:flex;align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export Programme</span></button>
-        <button class="btn btn-g btn-sm proj-hdr-import-btn" id="proj-hdr-import-btn" onclick="document.getElementById('proj-xlsx-import-input').click()" title="Import project info &amp; programme stages from Excel" style="display:flex;align-items:center;gap:4px;"><span class="proj-btn-icon">📂</span><span class="proj-btn-label"> Import Programme</span></button>
+        <button class="btn btn-g btn-sm proj-hdr-export-btn" id="proj-hdr-export-btn" onclick="exportProjXLSX()" title="Export project info &amp; programme stages to Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export Programme</span></button>
+        <button class="btn btn-g btn-sm proj-hdr-import-btn" id="proj-hdr-import-btn" onclick="document.getElementById('proj-xlsx-import-input').click()" title="Import project info &amp; programme stages from Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">📂</span><span class="proj-btn-label"> Import Programme</span></button>
         <input type="file" id="proj-xlsx-import-input" accept=".xlsx,.xls" style="display:none;" onchange="importProjXLSX(this)">
-        <button class="btn btn-p btn-sm" id="proj-hdr-new-btn" onclick="openProjModal()">+ New Project</button>
+        <button class="btn btn-p btn-sm" id="proj-hdr-new-btn" onclick="openProjModal()" style="display:none;">+ New Project</button>
       </div>
     </div>
     <!-- LIST VIEW -->
@@ -855,6 +836,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <button id="um-tab-pending" onclick="umTab('pending')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:#007aff;border-bottom:2px solid #007aff;margin-bottom:-2px;font-family:inherit;">Pending <span id="um-pending-count" style="background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;"></span></button>
         <button id="um-tab-active" onclick="umTab('active')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;">Active Users</button>
         <button id="um-tab-admins" onclick="umTab('admins')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;">Admins</button>
+        <button id="um-tab-roles" onclick="umTab('roles')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;">Roles</button>
       </div>
       <div id="pending-users-list"></div>
     </div>
@@ -1020,7 +1002,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
   </div>
-  <div class="modal-ft"><button class="btn btn-g" onclick="closeProjModal()">Cancel</button><button class="btn btn-p" onclick="saveProj()">Save Project</button></div>
+  <div class="modal-ft"><button class="btn btn-g" onclick="closeProjModal()">Cancel</button><button class="btn btn-d" id="proj-modal-del-btn" style="display:none;" onclick="const id=this.dataset.id;closeProjModal();delProj(id);">Delete Project</button><button class="btn btn-p" onclick="saveProj()">Save Project</button></div>
 </div>
 </div>
 
@@ -1082,8 +1064,40 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 // ═══════════════════════════════════════
 const SB_URL      = 'https://wgmkqrxivesphvutychm.supabase.co';
 const SB_KEY      = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
-let ADMIN_EMAILS=['salman.sabir@meinhardtgroup.com']; // loaded from Supabase settings at startup
-function isAdmin(email){ return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase()); }
+let ADMIN_EMAILS=['salman.sabir@meinhardtgroup.com']; // fallback only — overridden by engineer_roles table
+function isAdmin(email){ 
+  if(S.roles&&S.roles.length) return S.roles.some(r=>r.role==='admin'&&r.email.toLowerCase()===(email||'').toLowerCase());
+  return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase()); 
+}
+// Get current user's email
+function currentUserEmail(){ return SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email||'':''; }
+// Get all roles for current user
+function myRoles(){ const e=currentUserEmail().toLowerCase(); return (S.roles||[]).filter(r=>r.email.toLowerCase()===e); }
+// Can current user edit a discipline?
+function canEditDisc(disc){
+  if(adminUnlocked)return true;
+  const roles=myRoles();
+  if(!roles.length){
+    // Fallback to engineer data if no roles defined yet
+    const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
+    if(!eng)return false;
+    const isBimGrade=['BIM Manager','Assistant BIM Manager'].includes(eng.grade)||eng.team==='BIM';
+    if(isBimGrade)return disc==='BIM';
+    const extra=(eng.extraDiscs||[]).map(d=>d.toUpperCase());
+    return (eng.disc||'').toUpperCase()===(disc||'').toUpperCase()||extra.includes((disc||'').toUpperCase());
+  }
+  return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()===(disc||'').toUpperCase());
+}
+// Is current user MEP Lead for a project?
+function isMepLeadFor(projId){
+  if(adminUnlocked)return true;
+  const roles=myRoles();
+  if(roles.length) return roles.some(r=>r.role==='mep_lead'&&r.scope===projId);
+  // Fallback to mepLeadEmail on project
+  const p=S.projects.find(x=>x.id===projId);
+  if(!p)return false;
+  return p.mepLeadEmail&&p.mepLeadEmail.toLowerCase()===currentUserEmail().toLowerCase();
+}
 let   SB_SESSION  = null;
 
 const MON   = ['Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -1118,7 +1132,7 @@ const DISC_CLS={HVAC:'hvac','PH&E':'phe',ELE:'ele',ELV:'elv'};
 // ═══════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════
-let S={engineers:[],projects:[],proposals:[],rates:{},ratesDXB:{},ratesEGY:{},leaveHrs:{},mgmtHrs:{},holidaysUAE:[],holidaysEGY:[]};
+let S={engineers:[],projects:[],proposals:[],roles:[],rates:{},ratesDXB:{},ratesEGY:{},leaveHrs:{},mgmtHrs:{},holidaysUAE:[],holidaysEGY:[]};
 let eId=null,pId=null,adminUnlocked=false;
 const CH={};
 window.projCollapsed={};
@@ -1283,17 +1297,16 @@ async function deleteUserPin(){
   });
 }
 
+function hideAllViews(){['view-login','view-pin','view-set-pin','view-signup','view-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});}
 function showEmailLogin(){
+  hideAllViews();
   document.getElementById('view-login').style.display='';
-  document.getElementById('view-pin').style.display='none';
-  document.getElementById('view-set-pin').style.display='none';
   document.getElementById('pin-err').textContent='';
   PIN_BUFFER='';
 }
 
 function showPinEntry(displayName, initial){
-  document.getElementById('view-login').style.display='none';
-  document.getElementById('view-set-pin').style.display='none';
+  hideAllViews();
   document.getElementById('view-pin').style.display='';
   document.getElementById('pin-welcome').textContent='Welcome back, '+displayName.split(' ')[0];
   document.getElementById('pin-avatar').textContent=initial;
@@ -1303,6 +1316,7 @@ function showPinEntry(displayName, initial){
 }
 
 function showSetPin(){
+  hideAllViews();
   document.getElementById('view-login').style.display='none';
   document.getElementById('view-pin').style.display='none';
   document.getElementById('view-set-pin').style.display='';
@@ -1455,7 +1469,7 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -1489,6 +1503,10 @@ async function doLogout(){
   
   const pnav=document.getElementById('nav-proposals');if(pnav)pnav.style.display='none';
   const pendnav=document.getElementById('nav-pending');if(pendnav)pendnav.style.display='none';
+  const ratesnav=document.getElementById('nav-rates');if(ratesnav)ratesnav.style.display='none';
+  const mgmtnav=document.getElementById('nav-mgmt');if(mgmtnav)mgmtnav.style.display='none';
+  const holidaysnav=document.getElementById('nav-holidays');if(holidaysnav)holidaysnav.style.display='none';
+  const leavenav=document.getElementById('nav-leave');if(leavenav)leavenav.style.display='none';
   ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
@@ -1529,7 +1547,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           const pinRow = await fetchUserPin();
@@ -1563,7 +1581,7 @@ function requireProposals(){
 }
 
 function showSignUp(){
-  ['view-login','view-pin','view-set-pin','view-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  hideAllViews();
   document.getElementById('view-signup').style.display='';
   document.getElementById('signup-err').textContent='';
 }
@@ -1620,7 +1638,7 @@ async function loadPendingBadge(){
 let _umTab='pending';
 function umTab(tab){
   _umTab=tab;
-  ['pending','active','admins'].forEach(t=>{
+  ['pending','active','admins','roles'].forEach(t=>{
     const btn=document.getElementById('um-tab-'+t);
     if(btn){btn.style.color=t===tab?'#007aff':'var(--tx2)';btn.style.borderBottomColor=t===tab?'#007aff':'transparent';}
   });
@@ -1631,7 +1649,7 @@ async function renderPendingUsers(){
   const el=document.getElementById('pending-users-list');
   el.innerHTML='<div style="padding:20px;color:var(--tx3);font-size:13px;">Loading...</div>';
   try{
-    const [pendingRows, engRows] = await Promise.all([sbGet('pending_users'), sbGet('engineers')]);
+    const [pendingRows, engRows] = await Promise.all([sbGet('pending_users').catch(()=>[]), sbGet('engineers').catch(()=>[])]);
     const engineers=engRows.map(r=>r.data||r);
     const pending=pendingRows.filter(r=>(r.data||r).status==='pending').map(r=>r.data||r);
     // Update badge
@@ -1672,22 +1690,137 @@ async function renderPendingUsers(){
         </div>`).join('');
 
     } else if(_umTab==='admins'){
-      el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${ADMIN_EMAILS.length} admin${ADMIN_EMAILS.length>1?'s':''}</div>`+
-        ADMIN_EMAILS.map(email=>{
-          const eng=engineers.find(e=>e.email&&e.email.toLowerCase()===email.toLowerCase());
+      const adminRoles=S.roles.filter(r=>r.role==='admin');
+      el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${adminRoles.length} admin${adminRoles.length>1?'s':''}</div>`+
+        (adminRoles.length?adminRoles.map(r=>{
+          const eng=engineers.find(e=>e.email&&e.email.toLowerCase()===r.email.toLowerCase());
           return`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
-            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(eng?eng.name:email).charAt(0).toUpperCase()}</div>
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(eng?eng.name:r.email).charAt(0).toUpperCase()}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:600;color:var(--tx);">${eng?eng.name:email}</div>
-              <div style="font-size:11px;color:var(--tx3);">${email}</div>
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">${eng?eng.name:r.email}</div>
+              <div style="font-size:11px;color:var(--tx3);">${r.email}</div>
               ${eng?`<div style="font-size:10px;color:var(--tx3);">${eng.desig||'—'}</div>`:'<div style="font-size:10px;color:#f59e0b;">⚠ Not linked to an engineer profile</div>'}
             </div>
             <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fef3c7;color:#92400e;">Admin</span>
           </div>`;
-        }).join('')+
-        `<div style="font-size:11px;color:var(--tx3);margin-top:12px;padding:10px;background:#f8fafc;border-radius:8px;">To add/remove admins, update the <strong>admin_emails</strong> array in Supabase → Settings table.</div>`;
+        }).join(''):`<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No admins defined in Roles tab yet.</div>`)+
+        `<div style="font-size:11px;color:var(--tx3);margin-top:12px;padding:10px;background:#f8fafc;border-radius:8px;">Add admins via the <strong>Roles tab</strong> — select engineer, role = Admin.</div>`;
+    } else if(_umTab==='roles'){
+      // Load fresh from Supabase
+      const rolesRows=await sbGet('engineer_roles').catch(()=>[]);
+      S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
+      const ROLE_LABELS={admin:'Admin',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer'};
+      const ROLE_COLORS={admin:'#fef3c7;color:#92400e',mep_lead:'#e0f2fe;color:#0369a1',disc_lead:'#dcfce7;color:#166534',bim_lead:'#fce7f3;color:#9d174d',viewer:'#f1f5f9;color:#374151'};
+      const SCOPE_OPTIONS={
+        admin:[''],mep_lead:S.projects.map(p=>p.id),
+        disc_lead:['HVAC','PH&E','ELE','ELV'],
+        bim_lead:[''],viewer:['']
+      };
+      const engEmails=engineers.filter(e=>e.email).map(e=>e.email.toLowerCase());
+      // Add role form
+      const addForm=`<div class="card" style="padding:14px 16px;margin-bottom:14px;">
+        <div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">+ Add Role</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:8px;align-items:end;">
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;">Engineer</div>
+            <select id="role-eng-sel" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;" onchange="updateScopeOptions()">
+              <option value="">— Select —</option>
+              ${engineers.filter(e=>e.email).sort((a,b)=>a.name.localeCompare(b.name)).map(e=>`<option value="${e.email}">${e.name.split(' ').slice(0,2).join(' ')}</option>`).join('')}
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;">Role</div>
+            <select id="role-role-sel" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;" onchange="updateScopeOptions()">
+              <option value="admin">Admin</option>
+              <option value="mep_lead">MEP Lead</option>
+              <option value="disc_lead" selected>Disc Lead</option>
+              <option value="bim_lead">BIM Lead</option>
+              <option value="viewer">Viewer</option>
+            </select>
+          </div>
+          <div>
+            <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;">Scope</div>
+            <select id="role-scope-sel" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;">
+              <option value="HVAC">HVAC</option>
+              <option value="PH&E">PH&E</option>
+              <option value="ELE">ELE</option>
+              <option value="ELV">ELV</option>
+            </select>
+          </div>
+          <button class="btn btn-p btn-sm" onclick="addRole()" style="white-space:nowrap;">+ Add</button>
+        </div>
+      </div>`;
+      // Roles table
+      const tableHeader=`<div style="display:grid;grid-template-columns:1fr 140px 100px 80px;gap:8px;padding:8px 14px;background:#f1f5f9;border-radius:8px 8px 0 0;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--bdr);">
+        <div>Engineer</div><div>Role</div><div>Scope</div><div style="text-align:right;">Action</div>
+      </div>`;
+      const rows=S.roles.length?S.roles.map((r,i)=>{
+        const eng=engineers.find(e=>e.email&&e.email.toLowerCase()===r.email.toLowerCase());
+        const name=eng?eng.name.split(' ').slice(0,2).join(' '):r.email;
+        const roleColor=ROLE_COLORS[r.role]||'#f1f5f9;color:#374151';
+        const scopeLabel=r.role==='mep_lead'?(S.projects.find(p=>p.id===r.scope)||{}).no||r.scope||'—':r.scope||'—';
+        return`<div style="display:grid;grid-template-columns:1fr 140px 100px 80px;gap:8px;padding:10px 14px;border:1px solid var(--bdr);border-top:none;background:#fff;${i===S.roles.length-1?'border-radius:0 0 8px 8px':''}">
+          <div>
+            <div style="font-size:12px;font-weight:600;">${name}</div>
+            <div style="font-size:10px;color:var(--tx3);">${r.email}</div>
+          </div>
+          <div><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;background:${roleColor};">${ROLE_LABELS[r.role]||r.role}</span></div>
+          <div style="font-size:11px;color:var(--tx2);">${scopeLabel}</div>
+          <div style="text-align:right;"><button class="btn btn-d btn-xs" onclick="removeRole('${r.id}')">Remove</button></div>
+        </div>`;
+      }).join(''):`<div style="padding:24px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;border:1px solid var(--bdr);border-top:none;border-radius:0 0 8px 8px;background:#fff;">No roles defined yet. Add roles above.</div>`;
+      el.innerHTML=addForm+tableHeader+rows;
     }
-  }catch(e){el.innerHTML='<div style="padding:20px;color:var(--red);">Error loading users. Please try again.</div>';}
+  }catch(e){console.error(e);el.innerHTML='<div style="padding:20px;color:var(--red);">Error loading. Please refresh.</div>';}
+}
+
+function updateScopeOptions(){
+  const role=document.getElementById('role-role-sel').value;
+  const scopeSel=document.getElementById('role-scope-sel');
+  if(!scopeSel)return;
+  if(role==='disc_lead'){
+    scopeSel.innerHTML='<option value="HVAC">HVAC</option><option value="PH&E">PH&amp;E</option><option value="ELE">ELE</option><option value="ELV">ELV</option><option value="BIM">BIM</option>';
+    scopeSel.disabled=false;
+  } else if(role==='mep_lead'){
+    scopeSel.innerHTML=S.projects.map(p=>`<option value="${p.id}">${p.no||p.id} — ${p.name}</option>`).join('');
+    scopeSel.disabled=false;
+  } else if(role==='bim_lead'){
+    scopeSel.innerHTML='<option value="BIM">BIM</option>';
+    scopeSel.disabled=true;
+  } else {
+    scopeSel.innerHTML='<option value="">—</option>';
+    scopeSel.disabled=true;
+  }
+}
+
+async function addRole(){
+  const email=document.getElementById('role-eng-sel').value;
+  const role=document.getElementById('role-role-sel').value;
+  const scope=document.getElementById('role-scope-sel').value||'';
+  if(!email){toast('Select an engineer first');return;}
+  const id='role_'+Date.now();
+  const data={id,email:email.toLowerCase(),role,scope,created_at:new Date().toISOString()};
+  try{
+    await sbUpsert('engineer_roles',{id,data});
+    S.roles.push(data);
+    toast('Role added ✓');
+    renderPendingUsers();
+    // Re-check admin status
+    if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
+      adminUnlocked=true;
+      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+    }
+  }catch(e){toast('Error adding role');}
+}
+
+async function removeRole(id){
+  if(!confirm('Remove this role?'))return;
+  try{
+    await sbDel('engineer_roles',id);
+    S.roles=S.roles.filter(r=>r.id!==id);
+    toast('Role removed');
+    renderPendingUsers();
+  }catch(e){toast('Error removing role');}
 }
 
 async function approvePendingUser(email){
@@ -1740,10 +1873,12 @@ function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sy
 async function initApp(){
   setSyncStatus(false,'Connecting…');
   try{
-    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),sbGet('proposals').catch(()=>[])]);
+    const safeGet=async(t)=>{try{return await sbGet(t);}catch(e){console.warn('Table load failed:',t,e.message);return[];}};
+    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows,rolesRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),safeGet('proposals'),safeGet('engineer_roles')]);
     S.engineers=engs.map(r=>normaliseEng(r.data));
     // Re-populate sidebar now that engineers (with emails) are loaded
     if(SB_SESSION&&SB_SESSION.user)populateSidebarUser(SB_SESSION.user);
+    S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
   // Load pending users badge for admins
   if(adminUnlocked)setTimeout(loadPendingBadge,2000);
     S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; return d; });
@@ -1770,6 +1905,21 @@ async function initApp(){
     // Load admin emails list
     const radmin=Array.isArray(sets)?sets.find(r=>r.key==='admin_emails'):null;
     if(radmin&&Array.isArray(radmin.value))ADMIN_EMAILS=radmin.value;
+    // Re-check admin status now that roles are loaded
+    if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
+      adminUnlocked=true;
+      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+      const eb=document.getElementById('proj-hdr-export-btn');if(eb)eb.style.display='flex';
+      const ib=document.getElementById('proj-hdr-import-btn');if(ib)ib.style.display='flex';
+      const nb=document.getElementById('proj-hdr-new-btn');if(nb)nb.style.display='';
+    }
+    // Show Annual Leave for disc leads
+    const userEmail2=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
+    const isDiscLead2=S.roles.some(r=>r.email.toLowerCase()===userEmail2.toLowerCase()&&(r.role==='disc_lead'||r.role==='bim_lead'));
+    if(adminUnlocked||isDiscLead2){const ln=document.getElementById('nav-leave');if(ln)ln.style.display='';}
+    // Re-render current page in case permissions changed after roles loaded
+    if(CURRENT_PAGE==='proj'){const dv=document.getElementById('proj-detail-view');if(dv&&dv.style.display!=='none'){const pdet=S.projects.find(p=>p.id===window._viewingProjId);if(pdet)renderProjDetail(pdet);}}
+
     // Legacy rates fallback
     const rrOld=Array.isArray(sets)?sets.find(r=>r.key==='rates'):null;
     S.rates=S.ratesDXB; // keep S.rates pointing to DXB for backward compat
@@ -3458,113 +3608,101 @@ function setSort(col){
 }
 
 function switchTeamTab(tab){
-  window.teamActiveTab = tab;
-  const isEng = tab === 'engineers';
-  const isBIM = tab === 'bim';
-  const engBtn = document.getElementById('team-tab-engineers');
-  const bimBtn = document.getElementById('team-tab-bim');
-  if(engBtn){ engBtn.style.borderBottomColor = isEng ? 'var(--acc)' : 'transparent'; engBtn.style.background = isEng ? '#f0f4ff' : 'transparent'; engBtn.style.color = isEng ? 'var(--acc)' : 'var(--tx2)'; }
-  if(bimBtn){ bimBtn.style.borderBottomColor = isBIM ? '#0d9488' : 'transparent'; bimBtn.style.background = isBIM ? '#f0fdfa' : 'transparent'; bimBtn.style.color = isBIM ? '#0f766e' : 'var(--tx2)'; }
-  // Update disc filter options for BIM (sub-disc, no grade)
-  const discSel = document.getElementById('ts-disc');
-  if(discSel) discSel.value = 'all';
-  const offSel = document.getElementById('ts-off');
-  if(offSel){ offSel.innerHTML = isBIM
-    ? '<option value="all">All Offices</option><option>DXB</option>'
-    : '<option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option>'; }
+  const sel=document.getElementById('ts-disc');
+  if(sel&&tab==='bim')sel.value='BIM';
+  else if(sel&&tab==='engineers')sel.value='all';
   renderTeam();
 }
 
+
 function renderTeam(){
-  const tab = window.teamActiveTab || 'engineers';
-  const isBIM = tab === 'bim';
+  const hdrBtns=document.getElementById('team-hdr-btns');
+  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="refreshAllGrades()" style="background:#0c4a6e;color:#fff;">&#8635; Refresh Grades</button><button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>`:'';
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   const df=document.getElementById('ts-disc').value;
   const of2=document.getElementById('ts-off').value;
-  const{hrs,util,minMI,NMON}=computeAll();
-  const GO={'Technical Manager':0,'Technical Manager / Director':0,'Associate Engineer':1,'Principal Engineer':2,'Principal / Associate Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14,'BIM / Technician':8};
-  const avgUtil=e=>(util[e.id]||Array(NMON).fill(0)).reduce((a,b)=>a+b,0)/NMON;
-  const projCntV=e=>S.projects.filter(p=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
-  const{col,dir}=window.teamSort;
+  const GO={'Technical Manager':0,'Associate Engineer':1,'Principal Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14};
 
-  // Tab-based filter first
-  let list=S.engineers.filter(e=>{
-    if(isBIM && e.team !== 'BIM') return false;
-    if(!isBIM && e.team === 'BIM') return false;
-    const discField = isBIM ? (e.subDisc || e.disc) : e.disc;
-    if(df!=='all' && discField !== df) return false;
-    if(of2!=='all'&&e.off!==of2)return false;
+  const DISC_STYLES={
+    'HVAC':{bg:'#B5D4F4',color:'#0C447C',badge:'#E6F1FB',badgeTxt:'#185FA5'},
+    'PH&E':{bg:'#C0DD97',color:'#27500A',badge:'#EAF3DE',badgeTxt:'#3B6D11'},
+    'ELE':{bg:'#FAC775',color:'#633806',badge:'#FAEEDA',badgeTxt:'#854F0B'},
+    'ELV':{bg:'#F4C0D1',color:'#72243E',badge:'#FBEAF0',badgeTxt:'#993556'},
+    'BIM':{bg:'#CECBF6',color:'#3C3489',badge:'#EEEDFE',badgeTxt:'#534AB7'},
+  };
+
+  const filterEng=(e)=>{
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
+    if(of2!=='all'&&e.off!==of2)return false;
     return true;
+  };
+
+  const makeCard=(e,disc)=>{
+    const st=DISC_STYLES[disc]||DISC_STYLES['BIM'];
+    const initials=e.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+    const offLabel=e.off==='IND'?'IND 🇮🇳':e.off==='EGY'?'EGY':e.off||'DXB';
+    return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color .15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
+      <div style="width:38px;height:38px;border-radius:50%;background:${st.bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${st.color};flex-shrink:0;">${initials}</div>
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+        <div style="font-size:11px;color:var(--tx2);margin-top:2px;display:flex;align-items:center;gap:6px;">
+          <span>${e.desig||'—'}</span>
+          <span style="color:var(--tx3);">·</span>
+          <span style="color:var(--tx3);">${offLabel}</span>
+        </div>
+      </div>
+      ${adminUnlocked?`<div style="display:flex;gap:4px;flex-shrink:0;">
+        <button class="btn btn-g btn-xs" onclick="editEng('${e.id}')" style="padding:3px 8px;">Edit</button>
+        <button class="btn btn-d btn-xs" onclick="delEng('${e.id}')" style="padding:3px 8px;">Del</button>
+      </div>`:''}
+    </div>`;
+  };
+
+  const makeSection=(disc,engs)=>{
+    if(!engs.length)return'';
+    const st=DISC_STYLES[disc]||DISC_STYLES['BIM'];
+    const sorted=[...engs].sort((a,b)=>(GO[a.grade]??9)-(GO[b.grade]??9)||a.name.localeCompare(b.name));
+    return`<div style="margin-bottom:20px;">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--bdr);margin-bottom:10px;">
+        <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${st.badge};color:${st.badgeTxt};">${disc}</span>
+        <span style="font-size:11px;color:var(--tx3);">${engs.length} ${disc==='BIM'?'members':'engineers'}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">
+        ${sorted.map(e=>makeCard(e,disc)).join('')}
+      </div>
+    </div>`;
+  };
+
+  const grid=document.getElementById('team-grid');
+  if(!grid)return;
+
+  if(df!=='all'){
+    // Single discipline filter
+    const isBIM=df==='BIM';
+    const engs=S.engineers.filter(e=>{
+      if(isBIM&&e.team!=='BIM')return false;
+      if(!isBIM&&(e.team==='BIM'||(isBIM?e.subDisc:e.disc)!==df))return false;
+      if(!isBIM&&e.disc!==df)return false;
+      return filterEng(e);
+    });
+    grid.innerHTML=makeSection(df,engs)||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
+    return;
+  }
+
+  // All disciplines grouped
+  const DISCS=['HVAC','PH&E','ELE','ELV'];
+  let html='';
+  DISCS.forEach(disc=>{
+    const engs=S.engineers.filter(e=>e.team!=='BIM'&&e.disc===disc&&filterEng(e));
+    html+=makeSection(disc,engs);
   });
+  // BIM grouped
+  const bimEngs=S.engineers.filter(e=>e.team==='BIM'&&filterEng(e));
+  html+=makeSection('BIM',bimEngs);
 
-  // Update tab labels with live counts
-  const mepTotal = S.engineers.filter(e=>e.team!=='BIM').length;
-  const bimTotal = S.engineers.filter(e=>e.team==='BIM').length;
-  const engBtn = document.getElementById('team-tab-engineers');
-  const bimBtn = document.getElementById('team-tab-bim');
-  if(engBtn) engBtn.textContent = `Engineers (${mepTotal})`;
-  if(bimBtn) bimBtn.textContent = `BIM (${bimTotal})`;
-
-  list.sort((a,b)=>{
-    let av,bv;
-    if(col==='name'){av=a.name;bv=b.name;}
-    else if(col==='disc'){av=(isBIM?a.subDisc:a.disc)||'';bv=(isBIM?b.subDisc:b.disc)||'';}
-    else if(col==='off'){av=a.off;bv=b.off;}
-    else if(col==='grade'){av=GO[a.grade]??9;bv=GO[b.grade]??9;}
-    else if(col==='util'){av=avgUtil(a);bv=avgUtil(b);}
-    else if(col==='cost'){av=getRate(a);bv=getRate(b);}
-    else if(col==='projects'){av=projCntV(a);bv=projCntV(b);}
-    else{av=a.name;bv=b.name;}
-    if(typeof av==='string')return dir==='asc'?av.localeCompare(bv):bv.localeCompare(av);
-    return dir==='asc'?av-bv:bv-av;
-  });
-
-  const accentColor = isBIM ? '#0d9488' : 'var(--acc)';
-  const accentLight = isBIM ? '#f0fdfa' : '#f0f4ff';
-
-  document.getElementById('team-body').innerHTML=list.map((e,i)=>{
-    const u=util[e.id]||Array(NMON).fill(0);const avg=u.reduce((a,b)=>a+b,0)/NMON;
-    const bw=Math.min(avg,150)/150*100;const bc=avg>=100?'var(--red)':avg>=70?'var(--grn)':'var(--amb)';
-    const pc=projCntV(e);
-    const projData=engProjHrs(e.id,minMI,NMON);const hasProjs=projData.length>0;
-    const isOpen=window.engExpanded['team-body']&&window.engExpanded['team-body'][e.id];
-    const discDisplay = isBIM ? (e.subDisc||e.disc) : e.disc;
-    const discBadge = isBIM
-      ? `<span class="bdg b-${(discDisplay||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${discDisplay}</span> <span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`
-      : `<span class="bdg b-${(e.disc||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc}</span>`;
-    const projDetail=hasProjs?`<tr id="eng-detail-team-body-${e.id}" style="display:${isOpen?'':'none'}">
-      <td colspan="11" style="padding:0;background:${accentLight};border-bottom:2px solid ${isBIM?'#99f6e4':'#dbeafe'};">
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr style="background:${isBIM?'#ccfbf1':'#eff6ff'}">
-            <th colspan="2"></th>
-            <th style="text-align:left;padding:5px 12px;font-size:9px;color:${accentColor};text-transform:uppercase">Project</th>
-            <th style="font-size:9px;color:var(--tx3);text-align:center">Status</th>
-            ${Array.from({length:NMON},(_,i)=>miLabel(minMI+i)).map(m=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 3px">${m}</th>`).join('')}
-            <th style="font-size:9px;color:var(--tx3);text-align:center">Total</th>
-          </tr></thead>
-          <tbody>${projData.map(({proj,mHrs})=>`
-            <tr style="border-top:1px solid ${isBIM?'#99f6e4':'#dbeafe'};">
-              <td colspan="2"></td>
-              <td style="padding:5px 12px;font-size:11px;white-space:nowrap"><span style="color:${accentColor};margin-right:4px">↳</span><strong>${proj.no}</strong><span style="color:var(--tx3);margin-left:4px">${proj.name.length>22?proj.name.slice(0,21)+'…':proj.name}</span></td>
-              <td style="text-align:center">${proj.status==='Active'?'<span class="bdg b-grn">Active</span>':'<span class="bdg b-amb">'+proj.status+'</span>'}</td>
-              ${mHrs.map(v=>`<td style="text-align:center;font-size:10px;font-weight:${v>0?'600':'400'};color:${v>0?accentColor:'var(--tx3)'}">${v>0?Math.round(v)+'h':'—'}</td>`).join('')}
-              <td style="text-align:center;font-weight:700;font-size:11px;color:${accentColor}">${Math.round(mHrs.reduce((a,b)=>a+b,0))}h</td>
-            </tr>`).join('')}
-          </tbody>
-        </table>
-      </td></tr>`:'';
-    return`<tr style="cursor:${hasProjs?'pointer':'default'}${isBIM?';background:#fafffe':''}" onclick="${hasProjs?`toggleEngRow('${e.id}','team-body')`:''}" title="${hasProjs?'Click for project breakdown':''}">
-      <td style="text-align:center;font-size:11px;color:${accentColor}" id="eng-chev-team-body-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
-      <td style="font-weight:600;white-space:nowrap">${e.name}${isBIM&&e.off==='IND'?` <span title="India Resource Centre" style="font-size:8px;color:var(--tx3);font-weight:400;">(IND)</span>`:''}<div style="font-size:9px;color:var(--tx3);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px;">${e.desig||''} · ${e.cap||45}h/wk</div></td>
-      <td>${discBadge}</td>
-      <td>${isBIM&&e.off==='IND'?'':`<span class="bdg ${e.off==='DXB'?'b-dxb':e.off==='EGY'?'b-egy':'b-gry'}">${e.off}</span>`}</td>
-      <td style="text-align:right;white-space:nowrap;">
-        <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')">Edit</button>
-        <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')">Del</button>
-      </td></tr>${projDetail}`;
-  }).join('');
+  grid.innerHTML=html||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
 }
+
 
 // ═══════════════════════════════════════
 // PROJECTS — LIST + DETAIL
@@ -3684,7 +3822,6 @@ function renderProj(){
       <div style="text-align:right;font-weight:600;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs)):'—'}</div>
       <div class="row-actions" style="text-align:right;opacity:0;transition:opacity .12s;display:flex;gap:4px;justify-content:flex-end;" onclick="event.stopPropagation()">
         <button class="btn btn-g btn-xs" onclick="editProj('${p.id}')" title="Edit" style="display:${adminUnlocked?'':'none'};padding:3px 6px;font-size:11px;">&#9998;</button>
-        <button class="btn btn-d btn-xs" onclick="delProj('${p.id}')" title="Delete" style="padding:3px 6px;font-size:11px;">&#128465;</button>
       </div>
     </div>`;
   }).join('');
@@ -3699,6 +3836,7 @@ function renderProj(){
 }
 
 function openProjDetail(id){
+  window._viewingProjId=id;
   const p=S.projects.find(x=>x.id===id);if(!p)return;
   document.getElementById('proj-list-view').style.display='none';
   document.getElementById('proj-detail-view').style.display='';
@@ -3759,7 +3897,7 @@ function renderProjDetail(p){
   // Build stage rows HTML
   // Programme is editable only by admin or the assigned MEP Lead
   const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
-  const isMepLead=p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+  const isMepLead=isMepLeadFor(p.id);
   const canEditProg=adminUnlocked||isMepLead;
   const progLocked=!canEditProg||((window._progLocked&&window._progLocked[p.id])||false);
   const stageRowsHtml=p.stages.map((st,si)=>{
@@ -3920,7 +4058,7 @@ function renderProjDetail(p){
         <div class="prog-sec-hdr-btns" style="display:flex;gap:6px;align-items:center;" onclick="event.stopPropagation()">
           ${(()=>{
             const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
-            const isMepLead=p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+            const isMepLead=isMepLeadFor(p.id);
             const canEdit=adminUnlocked||isMepLead;
             const locked=(window._progLocked&&window._progLocked[p.id])||false;
             if(!canEdit){
@@ -4071,11 +4209,14 @@ function renderProjDetail(p){
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Engineer</strong>
           ${(()=>{
             const assigned=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
+            const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
+            const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
             const totalH=projTotalHrs(p);
             const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
+            const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
             return assigned>0
               ?`<div class="weekly-badges" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-                <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${assigned} engineers</span>
+                <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${memberLabel}</span>
                 <span style="font-size:10px;color:#0f766e;font-weight:600;background:#ccfbf1;border-radius:20px;padding:1px 8px;">${fN(Math.round(totalH))} hrs total</span>
                 <span style="font-size:10px;color:#374151;font-weight:500;background:#f1f5f9;border-radius:20px;padding:1px 8px;">${discs.join(' · ')}</span></div>`
               :'<span style="font-size:10px;color:var(--tx3);">No engineers assigned</span>';
@@ -4086,10 +4227,7 @@ function renderProjDetail(p){
         <!-- Toolbar: only visible when section is expanded -->
         <div style="background:#f8fafc;border-bottom:1px solid var(--bdr);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;" onclick="event.stopPropagation()">
           <div style="display:flex;align-items:center;gap:8px;">
-            <button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas"
-              style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">
-              📊 Export Stage Summary
-            </button>
+            ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">📊 Export Stage Summary</button>`:''})()}
             <button onclick="openWeeklyFs('${p.id}')" title="Toggle fullscreen" class="weekly-fs-hide"
               style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #6366f1;background:#eef2ff;color:#4338ca;cursor:pointer;">
               ⛶ Fullscreen
@@ -4117,8 +4255,9 @@ function renderProjDetail(p){
                     if(lastBD)html+='</optgroup>';
                     return html||'<option disabled>All grades already added</option>';
                   }
-                  const mepAvail=S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
+                  const mepAvail=S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&canEditDisc(e.disc)&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&canEditDisc(e.subDisc||e.disc)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='',lastDisc='';
                   mepAvail.forEach(e=>{
                     if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
@@ -4309,10 +4448,18 @@ async function cycleStatus(projId){
   toast('Status → '+p.status+' ✓');
 }
 
+// Access control: can the current user edit hours/engineers for a given discipline?
+// Admin → always yes. BIM grades → only BIM disc. Others → only their own disc.
+
 function addEngineerToProject(projId,engId){
   if(!engId)return;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   const eng=S.engineers.find(e=>e.id===engId);if(!eng)return;
+  // Discipline access check (skip for proposals)
+  if(!projId.toString().startsWith('prp')){
+    const disc=eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc;
+    if(!canEditDisc(disc)){toast('⛔ You can only add engineers from your own discipline.');return;}
+  }
   if(!p.weeklyHrs)p.weeklyHrs={};
   const weeks=stageWeeks(p.start,p.end);
   // Initialise with a placeholder 1 in the first week so the row shows up
@@ -4329,6 +4476,11 @@ function removeEngineerFromProject(projId,engId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   const eng=S.engineers.find(e=>e.id===engId);
   const shortName=eng?eng.name.split(' ').slice(0,2).join(' '):'engineer';
+  // Discipline access check
+  if(!projId.toString().startsWith('prp')){
+    const disc=eng?(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc):'';
+    if(!canEditDisc(disc)){toast('⛔ You can only remove engineers from your own discipline.');return;}
+  }
   if(!confirm(`Remove ${shortName} from this project? All their hours on this project will be cleared.`))return;
   if(p.weeklyHrs&&p.weeklyHrs[engId]){
     delete p.weeklyHrs[engId];
@@ -4593,7 +4745,7 @@ function getMepLeadName(email){
 function toggleProgLock(projId){
   const p=S.projects.find(x=>x.id===projId);
   const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
-  const isMepLead=p&&p.mepLeadEmail&&currentEmail&&p.mepLeadEmail.toLowerCase()===currentEmail.toLowerCase();
+  const isMepLead=isMepLeadFor(projId);
   if(!adminUnlocked&&!isMepLead){toast('🔒 Only MEP Lead or Admin can lock/unlock the programme.');return;}
   window._progLocked = window._progLocked || {};
   window._progLocked[projId] = !window._progLocked[projId];
@@ -4706,7 +4858,7 @@ function renderProjCard(p, mode){
   // Month-band frozen cells use corner helper (z-index 7 — must beat both axes)
   const monthHdrFrozen=FROZEN_WIDTHS.map((w,i)=>{
     const isLast = i===FROZEN_WIDTHS_FULL.length-1;
-    const label  = isLast ? '(frozen ⇨)' : '';
+    const label  = '';
     return `<th style="${stickyThCorner(i,'background:#0f172a;color:#94a3b8;padding:4px 6px;font-size:9px;font-weight:500;text-align:center;white-space:nowrap;')}">${label}</th>`;
   }).join('');
   const monthHdrRate=showRate?`<th style="position:sticky;top:0;z-index:4;background:#0f172a;color:#fff;padding:4px 6px;font-size:10px;text-align:center;">Rate</th>`:'';
@@ -4813,10 +4965,10 @@ function renderProjCard(p, mode){
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
-        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}"><button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button></td>
+        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${eng.empno||ei+1}</td>
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
-        <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.desig||'—'}</td>
+        <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
         <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${engCost>0?fN(Math.round(engCost)):'-'}</td>
         <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="Fee = Cost × ${ff.toFixed(2)}">${engFee>0?fN(Math.round(engFee)):'-'}</td>
@@ -4842,7 +4994,7 @@ function renderProjCard(p, mode){
           const stageNames=(stageMap.get(wi)||[]).map(si=>(p.stages[si]&&p.stages[si].name)||`Stage ${si+1}`).join(' + ');
           const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:stageNames?`Stage: ${stageNames}`:'';
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'}"></td>`;}).join('')}
+          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${canEditDisc(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc)?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -4976,6 +5128,16 @@ function toggleProj(id,event){
   if(old&&old.parentElement)old.parentElement.outerHTML=renderProjCard(p);
 }
 function setWeekHrsProj(projId,engId,wkIdx,inputEl){
+  // Discipline access check
+  if(!projId.toString().startsWith('prp')){
+    const eng=S.engineers.find(e=>e.id===engId);
+    const disc=eng?(eng.team==='BIM'?(eng.subDisc||eng.disc):eng.disc):'';
+    if(!canEditDisc(disc)){
+      inputEl.value=inputEl.defaultValue||'';
+      toast('⛔ You can only edit hours for your own discipline.');
+      return;
+    }
+  }
   const val=parseFloat(inputEl.value)||0;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   if(!p.weeklyHrs)p.weeklyHrs={};
@@ -5178,6 +5340,7 @@ function fillGrade(isBIM){
   document.getElementById('em-grade').innerHTML=list.map(g=>`<option>${g}</option>`).join('');
 }
 function openEngModal(){
+  if(!adminUnlocked){toast('Admin access required');return;}
   eId=null;
   document.getElementById('eng-title').textContent='Add Engineer';
   ['em-name','em-desig','em-empno','em-note','em-email'].forEach(id=>document.getElementById(id).value='');
@@ -5191,6 +5354,7 @@ function openEngModal(){
   document.getElementById('eng-ov').classList.add('open');
 }
 function editEng(id){
+  if(!adminUnlocked){toast('Admin access required');return;}
   const e=S.engineers.find(x=>x.id===id);if(!e)return;
   eId=id;
   document.getElementById('eng-title').textContent='Edit Engineer';
@@ -5234,7 +5398,7 @@ async function saveEng(){
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();renderTeam();updSB();toast('Saved & synced ✓');
 }
-async function delEng(id){if(!confirm('Remove engineer?'))return;S.engineers=S.engineers.filter(e=>e.id!==id);try{await sbDel('engineers',id);}catch{saveLocal();}renderTeam();updSB();toast('Removed');}
+async function delEng(id){if(!adminUnlocked){toast('Admin access required');return;}if(!confirm('Remove engineer?'))return;S.engineers=S.engineers.filter(e=>e.id!==id);try{await sbDel('engineers',id);}catch{saveLocal();}renderTeam();updSB();toast('Removed');}
 
 // Normalise any engineer object that may use longform field names (e.g. from external imports).
 // Ensures 'disc' and 'off' are always set, regardless of source.
@@ -5247,9 +5411,9 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});populateMepLeadDropdown('pw-meplead','');document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){if(!adminUnlocked){toast('Admin access required');return;}const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
@@ -5468,7 +5632,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
   const el=document.getElementById(containerId);
   if(!el)return;
 
-  // Group engineers by discipline
+  // Group engineers by discipline — all visible, but only editable for user's disciplines
   const discs=['HVAC','PH&E','ELE','ELV'];
   let html='<div style="overflow-x:auto">';
   html+=`<table class="proj-tbl" style="min-width:100%">
@@ -5499,12 +5663,13 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
           const cap=eng.cap||45;
+          const editable=adminUnlocked||canEditDisc(disc);
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'}"
-              oninput="${setFn}('${eng.id}',${gwi},this)">
+              ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
         <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
@@ -5647,10 +5812,11 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const cap=eng.cap||45;
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+          const editable=adminUnlocked||canEditDisc('BIM');
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'}"
-              oninput="${setFn}('${eng.id}',${gwi},this)">
+              ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
         <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
