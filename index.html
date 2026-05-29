@@ -541,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.63 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.64 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -599,7 +599,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.63 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.64 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -784,7 +784,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="hdr"><span class="hdr-t">Cost Rates 🔒</span><button class="btn btn-p btn-sm" onclick="saveRates()">💾 Save All Rates</button></div>
     <div class="pc">
       <div style="background:var(--amb2);border:1px solid #fde68a;border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--amb);margin-bottom:12px;">💡 Admin only. Separate AED/hour rates for Dubai and Egypt offices. Changes sync instantly to all cost calculations.</div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:900px;">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:900px;">
         <div class="card" style="padding:0;overflow:hidden">
           <div style="background:#1e3a5f;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🇦🇪 Dubai Office (DXB) — AED/hour</div>
           <table class="tbl"><thead><tr><th>Grade Tier</th><th style="width:140px">AED / hour</th></tr></thead><tbody id="rates-body-dxb"></tbody></table>
