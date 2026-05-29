@@ -37,7 +37,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
   position:fixed;inset:0;z-index:9999;
   display:flex;align-items:center;justify-content:center;
   background:#f5f5f7;
-  overflow:hidden;
+  overflow-y:auto;
+}
+#pin-screen .pin-box{
+  position:relative;z-index:2;
+  width:min(400px,94vw);
+  background:#fff;
+  border-radius:20px;
+  padding:40px 36px 32px;
+  text-align:center;
+  box-shadow:0 2px 4px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08), 0 0 0 0.5px rgba(0,0,0,.06);
+  margin:auto;
 }
 
 /* very subtle noise texture feel via SVG filter */
@@ -59,16 +69,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 }
 @keyframes porb{0%{transform:translate(0,0);}100%{transform:translate(30px,-30px);}}
 
-/* card */
-.pin-box{
-  position:relative;z-index:2;
-  width:min(400px,94vw);
-  background:#fff;
-  border-radius:20px;
-  padding:40px 36px 32px;
-  text-align:center;
-  box-shadow:0 2px 4px rgba(0,0,0,.04), 0 12px 40px rgba(0,0,0,.08), 0 0 0 0.5px rgba(0,0,0,.06);
-}
+/* card - defined under #pin-screen above */
 
 .pin-logo{display:none;}
 
@@ -540,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.32 · 29 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.33 · 29 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -595,10 +596,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours</div>
   <div class="sbi" id="nav-holidays" onclick="nav('holidays')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays</div>
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
-  <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Pending Users 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
+  <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.32 · 29 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.33 · 29 May 2026</div>
 </div>
 
 <div class="main">
@@ -839,16 +840,22 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
   </div>
 
-  <!-- PENDING USERS (Admin Only) -->
+  <!-- USER MANAGEMENT (Admin Only) -->
   <div id="pg-pending" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        <span class="hdr-t">Pending Users</span>
+        <span class="hdr-t">User Management</span>
         <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
       </div>
+      <button class="btn btn-g btn-sm" onclick="renderPendingUsers()">↻ Refresh</button>
     </div>
     <div class="pc">
+      <div style="display:flex;gap:8px;margin-bottom:14px;border-bottom:2px solid var(--bdr);padding-bottom:0;">
+        <button id="um-tab-pending" onclick="umTab('pending')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:#007aff;border-bottom:2px solid #007aff;margin-bottom:-2px;font-family:inherit;">Pending <span id="um-pending-count" style="background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;"></span></button>
+        <button id="um-tab-active" onclick="umTab('active')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;">Active Users</button>
+        <button id="um-tab-admins" onclick="umTab('admins')" style="padding:8px 16px;font-size:12px;font-weight:700;border:none;background:none;cursor:pointer;color:var(--tx2);border-bottom:2px solid transparent;margin-bottom:-2px;font-family:inherit;">Admins</button>
+      </div>
       <div id="pending-users-list"></div>
     </div>
   </div>
@@ -1610,29 +1617,77 @@ async function loadPendingBadge(){
   }catch(e){}
 }
 
+let _umTab='pending';
+function umTab(tab){
+  _umTab=tab;
+  ['pending','active','admins'].forEach(t=>{
+    const btn=document.getElementById('um-tab-'+t);
+    if(btn){btn.style.color=t===tab?'#007aff':'var(--tx2)';btn.style.borderBottomColor=t===tab?'#007aff':'transparent';}
+  });
+  renderPendingUsers();
+}
+
 async function renderPendingUsers(){
   const el=document.getElementById('pending-users-list');
   el.innerHTML='<div style="padding:20px;color:var(--tx3);font-size:13px;">Loading...</div>';
   try{
-    const rows=await sbGet('pending_users');
-    const pending=rows.filter(r=>(r.data||r).status==='pending').map(r=>r.data||r);
-    if(!pending.length){
-      el.innerHTML='<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No pending users — all clear ✓</div>';
-      return;
+    const [pendingRows, engRows] = await Promise.all([sbGet('pending_users'), sbGet('engineers')]);
+    const engineers=engRows.map(r=>r.data||r);
+    const pending=pendingRows.filter(r=>(r.data||r).status==='pending').map(r=>r.data||r);
+    // Update badge
+    const badge=document.getElementById('pending-badge');
+    if(badge){badge.textContent=pending.length;badge.style.display=pending.length>0?'':'none';}
+    const countEl=document.getElementById('um-pending-count');
+    if(countEl){countEl.textContent=pending.length>0?pending.length:'';countEl.style.display=pending.length>0?'':'none';}
+
+    if(_umTab==='pending'){
+      if(!pending.length){
+        el.innerHTML='<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No pending requests — all clear ✓</div>';
+        return;
+      }
+      el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${pending.length} pending request${pending.length>1?'s':''}</div>`+
+        pending.map(u=>`<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+          <div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx);">${u.email}</div>
+            <div style="font-size:11px;color:var(--tx3);margin-top:2px;">Requested: ${u.requested_at?new Date(u.requested_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</div>
+          </div>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-p btn-sm" onclick="approvePendingUser('${u.email}')">✓ Approve</button>
+            <button class="btn btn-d btn-sm" onclick="rejectPendingUser('${u.email}')">✕ Reject</button>
+          </div>
+        </div>`).join('');
+
+    } else if(_umTab==='active'){
+      const activeEngs=engineers.filter(e=>e.email).sort((a,b)=>a.name.localeCompare(b.name));
+      if(!activeEngs.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No engineers with email set yet.</div>';return;}
+      el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${activeEngs.length} active user${activeEngs.length>1?'s':''}</div>`+
+        activeEngs.map(e=>`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+          <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#007aff,#5856d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(e.name||'?').charAt(0)}</div>
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+            <div style="font-size:11px;color:var(--tx3);">${e.email}</div>
+            <div style="font-size:10px;color:var(--tx3);">${e.desig||'—'} · ${e.off||'DXB'}</div>
+          </div>
+          ${isAdmin(e.email)?'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;">Admin</span>':''}
+        </div>`).join('');
+
+    } else if(_umTab==='admins'){
+      el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${ADMIN_EMAILS.length} admin${ADMIN_EMAILS.length>1?'s':''}</div>`+
+        ADMIN_EMAILS.map(email=>{
+          const eng=engineers.find(e=>e.email&&e.email.toLowerCase()===email.toLowerCase());
+          return`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
+            <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(eng?eng.name:email).charAt(0).toUpperCase()}</div>
+            <div style="flex:1;min-width:0;">
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">${eng?eng.name:email}</div>
+              <div style="font-size:11px;color:var(--tx3);">${email}</div>
+              ${eng?`<div style="font-size:10px;color:var(--tx3);">${eng.desig||'—'}</div>`:'<div style="font-size:10px;color:#f59e0b;">⚠ Not linked to an engineer profile</div>'}
+            </div>
+            <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fef3c7;color:#92400e;">Admin</span>
+          </div>`;
+        }).join('')+
+        `<div style="font-size:11px;color:var(--tx3);margin-top:12px;padding:10px;background:#f8fafc;border-radius:8px;">To add/remove admins, update the <strong>admin_emails</strong> array in Supabase → Settings table.</div>`;
     }
-    const items=pending.map(u=>`
-      <div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--tx);">${u.email}</div>
-          <div style="font-size:11px;color:var(--tx3);margin-top:2px;">Requested: ${u.requested_at?new Date(u.requested_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</div>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-p btn-sm" onclick="approvePendingUser('${u.email}')">✓ Approve</button>
-          <button class="btn btn-d btn-sm" onclick="rejectPendingUser('${u.email}')">✕ Reject</button>
-        </div>
-      </div>`).join('');
-    el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${pending.length} pending request${pending.length>1?'s':''}</div>${items}`;
-  }catch(e){el.innerHTML='<div style="padding:20px;color:var(--red);">Error loading pending users.</div>';}
+  }catch(e){el.innerHTML='<div style="padding:20px;color:var(--red);">Error loading users. Please try again.</div>';}
 }
 
 async function approvePendingUser(email){
