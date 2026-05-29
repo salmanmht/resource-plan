@@ -436,7 +436,54 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       onmouseover="this.style.background='#0066e0'" onmouseout="this.style.background='#007aff'">
       Sign In
     </button>
+    <div style="text-align:center;margin-top:12px;font-size:12px;color:#8e8e93;">
+      Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
+    </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- ── VIEW D: Sign Up ── -->
+  <div class="pin-box" id="view-signup" style="display:none;">
+    <div class="pin-icon" style="background:linear-gradient(160deg,#5856d6 0%,#007aff 100%);box-shadow:0 4px 16px rgba(88,86,214,.3);">
+      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+    </div>
+    <div class="pin-title">Request Access</div>
+    <div class="pin-sub">Use your Meinhardt work email</div>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:16px;">
+      <input id="signup-email" type="email" placeholder="Work email address" autocomplete="email"
+        style="width:100%;padding:10px 13px;border:1px solid #d2d2d7;border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:.15s;"
+        onfocus="this.style.borderColor='#007aff';this.style.boxShadow='0 0 0 3px rgba(0,122,255,.12)'"
+        onblur="this.style.borderColor='#d2d2d7';this.style.boxShadow='none'">
+      <input id="signup-pass" type="password" placeholder="Choose a password (min 6 chars)"
+        style="width:100%;padding:10px 13px;border:1px solid #d2d2d7;border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:.15s;"
+        onfocus="this.style.borderColor='#007aff';this.style.boxShadow='0 0 0 3px rgba(0,122,255,.12)'"
+        onblur="this.style.borderColor='#d2d2d7';this.style.boxShadow='none'"
+        onkeydown="if(event.key==='Enter')doSignUp()">
+      <input id="signup-confirm" type="password" placeholder="Confirm password"
+        style="width:100%;padding:10px 13px;border:1px solid #d2d2d7;border-radius:10px;font-size:13px;font-family:inherit;outline:none;transition:.15s;"
+        onfocus="this.style.borderColor='#007aff';this.style.boxShadow='0 0 0 3px rgba(0,122,255,.12)'"
+        onblur="this.style.borderColor='#d2d2d7';this.style.boxShadow='none'"
+        onkeydown="if(event.key==='Enter')doSignUp()">
+    </div>
+    <button onclick="doSignUp()" id="signup-btn"
+      style="width:100%;padding:11px;background:#5856d6;color:#fff;border:none;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit;transition:.15s;"
+      onmouseover="this.style.background='#4240c4'" onmouseout="this.style.background='#5856d6'">
+      Create Account
+    </button>
+    <div style="text-align:center;margin-top:12px;font-size:12px;color:#8e8e93;">
+      Already have an account? <span onclick="showEmailLogin()" style="color:#007aff;cursor:pointer;font-weight:600;">Sign In</span>
+    </div>
+    <div class="pin-err" id="signup-err" style="margin-top:10px;"></div>
+  </div>
+
+  <!-- ── VIEW E: Pending Approval ── -->
+  <div class="pin-box" id="view-pending" style="display:none;">
+    <div class="pin-icon" style="background:linear-gradient(160deg,#ff9500 0%,#ff6000 100%);box-shadow:0 4px 16px rgba(255,149,0,.3);">
+      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    </div>
+    <div class="pin-title">Access Pending</div>
+    <div class="pin-sub" id="pending-msg">Your account has been created. Please wait for admin approval before you can access the app.</div>
+    <button onclick="showEmailLogin()" style="width:100%;padding:11px;background:#f1f1f4;color:#333;border:none;border-radius:10px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit;margin-top:8px;">← Back to Sign In</button>
   </div>
 
   <!-- ── VIEW B: Enter PIN (return visit) ── -->
@@ -493,7 +540,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.30 · 29 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.32 · 29 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -548,9 +595,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours</div>
   <div class="sbi" id="nav-holidays" onclick="nav('holidays')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays</div>
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
+  <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Pending Users 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.30 · 29 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.32 · 29 May 2026</div>
 </div>
 
 <div class="main">
@@ -788,6 +836,20 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           </div>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- PENDING USERS (Admin Only) -->
+  <div id="pg-pending" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Pending Users</span>
+        <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
+      </div>
+    </div>
+    <div class="pc">
+      <div id="pending-users-list"></div>
     </div>
   </div>
 
@@ -1342,27 +1404,19 @@ function populateSidebarUser(user){
   const userPanel=document.getElementById('sb-user');
   if(!userPanel)return;
   userPanel.style.display='block';
-  
   const email=user.email||'';
   const meta=user.user_metadata||{};
   const rawName=meta.full_name||meta.name||'';
   const derivedName=rawName||email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-  const KNOWN={
-    'salman.sabir@meinhardtgroup.com':   {name:'Salman Sabir',   desig:'Associate · MEP'},
-    'imran.siddiqui@meinhardtgroup.com': {name:'Imran Siddiqui', desig:'Technical Manager · MEP'},
-    'amr.shahin@meinhardtgroup.com':     {name:'Amr Shahin',     desig:'MEP Technical Manager · ELE'},
-    'maqsood.alam@meinhardtgroup.com':   {name:'Maqsood Alam',   desig:'Associate Engineer · HVAC'},
-    'shadi.sobh@meinhardtgroup.com':     {name:'Shadi Sobh',     desig:'Associate Engineer · HVAC'},
-    'sayan.bal@meinhardtgroup.com':      {name:'Sayan Bal',      desig:'BIM Manager'},
-  };
-  const known=KNOWN[email.toLowerCase()];
-  const displayName=known?known.name:derivedName;
-  const displayDesig=known?known.desig:(meta.designation||meta.title||'Meinhardt Group');
+  // Look up engineer from DB by email
+  const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===email.toLowerCase());
+  const displayName=eng?eng.name:derivedName;
+  const displayDesig=eng?(eng.desig||'Meinhardt Group'):(meta.designation||meta.title||'Meinhardt Group');
   document.getElementById('sb-user-name').textContent=displayName;
   document.getElementById('sb-user-desig').textContent=displayDesig;
   document.getElementById('sb-user-email').textContent=email;
   document.getElementById('sb-user-initial').textContent=displayName.charAt(0).toUpperCase();
-  document.getElementById('sb-user-role').textContent=(isAdmin(email))?'Admin':'Team';
+  document.getElementById('sb-user-role').textContent=isAdmin(email)?'Admin':'Team';
 }
 
 function enterApp(){
@@ -1394,7 +1448,7 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
+    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -1427,6 +1481,7 @@ async function doLogout(){
   const up=document.getElementById('sb-user');if(up)up.style.display='none';
   
   const pnav=document.getElementById('nav-proposals');if(pnav)pnav.style.display='none';
+  const pendnav=document.getElementById('nav-pending');if(pendnav)pendnav.style.display='none';
   ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
@@ -1467,23 +1522,13 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;const pn=document.getElementById('nav-proposals');if(pn)pn.style.display='';}
+          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           const pinRow = await fetchUserPin();
           if(pinRow && pinRow.pin_hash){
-            // Has PIN — show PIN entry screen
             const email = d.user.email||'';
-            const KNOWN={
-              'salman.sabir@meinhardtgroup.com':   {name:'Salman Sabir'},
-              'imran.siddiqui@meinhardtgroup.com': {name:'Imran Siddiqui'},
-              'amr.shahin@meinhardtgroup.com':     {name:'Amr Shahin'},
-              'maqsood.alam@meinhardtgroup.com':   {name:'Maqsood Alam'},
-              'shadi.sobh@meinhardtgroup.com':     {name:'Shadi Sobh'},
-              'sayan.bal@meinhardtgroup.com':      {name:'Sayan Bal'},
-            };
-            const known = KNOWN[email.toLowerCase()];
-            const displayName = known ? known.name : email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+            const displayName = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
             showPinEntry(displayName, displayName.charAt(0).toUpperCase());
           } else {
             // No PIN — go straight to app
@@ -1501,13 +1546,121 @@ async function doLogout(){
 // ═══════════════════════════════════════
 // ADMIN
 // ═══════════════════════════════════════
-function requireAdmin(){
-  if(adminUnlocked){nav('rates');return;}
+function requireAdmin(page){
+  if(adminUnlocked){nav(page||'rates');return;}
   toast('Access denied — admin account required.');
 }
 function requireProposals(){
   if(adminUnlocked){nav('proposals');return;}
   toast('Access denied — admin account required.');
+}
+
+function showSignUp(){
+  ['view-login','view-pin','view-set-pin','view-pending'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='none';});
+  document.getElementById('view-signup').style.display='';
+  document.getElementById('signup-err').textContent='';
+}
+
+async function doSignUp(){
+  const email=document.getElementById('signup-email').value.trim().toLowerCase();
+  const pass=document.getElementById('signup-pass').value;
+  const confirm=document.getElementById('signup-confirm').value;
+  const err=document.getElementById('signup-err');
+  const btn=document.getElementById('signup-btn');
+  if(!email){err.textContent='Email required';return;}
+  if(pass.length<6){err.textContent='Password must be at least 6 characters';return;}
+  if(pass!==confirm){err.textContent='Passwords do not match';return;}
+  btn.disabled=true;btn.textContent='Creating account...';err.textContent='';
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/signup',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email,password:pass})
+    });
+    const d=await r.json();
+    if(!r.ok||d.error){err.textContent=d.error_description||d.msg||'Sign up failed.';btn.disabled=false;btn.textContent='Create Account';return;}
+    // Check if email exists in engineers table
+    const engRes=await sbGet('engineers');
+    const matched=engRes.some(row=>{const eng=row.data||row;return eng.email&&eng.email.toLowerCase()===email;});
+    if(matched){
+      // Email found — log them straight in
+      document.getElementById('view-signup').style.display='none';
+      document.getElementById('login-email').value=email;
+      document.getElementById('pin-err').textContent='Account created! Please sign in.';
+      document.getElementById('view-login').style.display='';
+    } else {
+      // Email not found — save to pending_users and show pending screen
+      await sbUpsert('pending_users',{id:email,data:{email,requested_at:new Date().toISOString(),status:'pending'}});
+      document.getElementById('view-signup').style.display='none';
+      document.getElementById('pending-msg').textContent=`Account created for ${email}. An admin will review your request. You'll be able to sign in once approved.`;
+      document.getElementById('view-pending').style.display='';
+      // Update pending badge if admin is logged in (unlikely but safe)
+      loadPendingBadge();
+    }
+  }catch(e){err.textContent='Connection error. Please try again.';btn.disabled=false;btn.textContent='Create Account';}
+}
+
+async function loadPendingBadge(){
+  if(!adminUnlocked)return;
+  try{
+    const rows=await sbGet('pending_users');
+    const pending=rows.filter(r=>(r.data||r).status==='pending');
+    const badge=document.getElementById('pending-badge');
+    if(badge){badge.textContent=pending.length;badge.style.display=pending.length>0?'':'none';}
+  }catch(e){}
+}
+
+async function renderPendingUsers(){
+  const el=document.getElementById('pending-users-list');
+  el.innerHTML='<div style="padding:20px;color:var(--tx3);font-size:13px;">Loading...</div>';
+  try{
+    const rows=await sbGet('pending_users');
+    const pending=rows.filter(r=>(r.data||r).status==='pending').map(r=>r.data||r);
+    if(!pending.length){
+      el.innerHTML='<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No pending users — all clear ✓</div>';
+      return;
+    }
+    const items=pending.map(u=>`
+      <div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+        <div>
+          <div style="font-size:13px;font-weight:600;color:var(--tx);">${u.email}</div>
+          <div style="font-size:11px;color:var(--tx3);margin-top:2px;">Requested: ${u.requested_at?new Date(u.requested_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</div>
+        </div>
+        <div style="display:flex;gap:6px;">
+          <button class="btn btn-p btn-sm" onclick="approvePendingUser('${u.email}')">✓ Approve</button>
+          <button class="btn btn-d btn-sm" onclick="rejectPendingUser('${u.email}')">✕ Reject</button>
+        </div>
+      </div>`).join('');
+    el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${pending.length} pending request${pending.length>1?'s':''}</div>${items}`;
+  }catch(e){el.innerHTML='<div style="padding:20px;color:var(--red);">Error loading pending users.</div>';}
+}
+
+async function approvePendingUser(email){
+  if(!confirm(`Approve ${email}?`))return;
+  try{
+    // Add to engineers table as a placeholder
+    const id='e'+Date.now();
+    const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+    await sbUpsert('engineers',{id,data:{id,name,email:email.toLowerCase(),disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup',empno:''}});
+    // Mark as approved in pending_users
+    await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
+    toast(`✓ ${name} approved — profile created, please update their details in Team`);
+    renderPendingUsers();
+    loadPendingBadge();
+    // Reload engineers
+    const engs=await sbGet('engineers');
+    S.engineers=engs.map(r=>normaliseEng(r.data));
+  }catch(e){toast('Error approving user');}
+}
+
+async function rejectPendingUser(email){
+  if(!confirm(`Reject and delete ${email}?`))return;
+  try{
+    await sbUpsert('pending_users',{id:email,data:{email,status:'rejected',rejected_at:new Date().toISOString()}});
+    toast(`✕ ${email} rejected`);
+    renderPendingUsers();
+    loadPendingBadge();
+  }catch(e){toast('Error rejecting user');}
 }
 
 // ═══════════════════════════════════════
@@ -1534,6 +1687,10 @@ async function initApp(){
   try{
     const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),sbGet('proposals').catch(()=>[])]);
     S.engineers=engs.map(r=>normaliseEng(r.data));
+    // Re-populate sidebar now that engineers (with emails) are loaded
+    if(SB_SESSION&&SB_SESSION.user)populateSidebarUser(SB_SESSION.user);
+  // Load pending users badge for admins
+  if(adminUnlocked)setTimeout(loadPendingBadge,2000);
     S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; return d; });
     S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
@@ -1869,7 +2026,7 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','leave','mgmt','holidays','rates','proposals'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','leave','mgmt','holidays','rates','pending','proposals'];
 let CURRENT_PAGE='mep';
 function nav(p, fromPopstate){
   // If we were viewing a proposal detail and navigating anywhere, clean up first
@@ -1908,6 +2065,7 @@ function nav(p, fromPopstate){
   else if(p==='mgmt')renderMgmt();
   else if(p==='holidays')renderHolidays();
   else if(p==='proposals')renderProposals();
+  else if(p==='pending')renderPendingUsers();
 }
 function updSB(){
   const f=fn=>S.engineers.filter(fn).length;
