@@ -293,7 +293,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .g2{grid-template-columns:1fr!important;}
   .cbox{height:180px!important;}
   .fbar{flex-direction:column!important;gap:6px!important;}
-  .tbl .col-desig,.tbl .col-grade,.tbl .col-cost{display:none;}
+  .tbl .col-grade,.tbl .col-cost{display:none;}
   .modal{max-width:100%!important;border-radius:var(--rl) var(--rl) 0 0;margin:auto 0 0 0;}
   .ov{padding:0!important;align-items:flex-end!important;}
   .modal-bd{max-height:65vh!important;}
@@ -493,7 +493,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.27 · 29 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.28 · 29 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -550,7 +550,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-rates" onclick="requireAdmin()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.27 · 29 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.28 · 29 May 2026</div>
 </div>
 
 <div class="main">
@@ -672,15 +672,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
             <button class="sort-btn on asc" data-col="name" onclick="setSort('name')">Name</button>
             <button class="sort-btn" data-col="disc" onclick="setSort('disc')">Discipline</button>
             <button class="sort-btn" data-col="off" onclick="setSort('off')">Office</button>
-            <button class="sort-btn" data-col="name" onclick="setSort('name')">Name ↑</button>
-            <button class="sort-btn" data-col="disc" onclick="setSort('disc')">Discipline</button>
-            <button class="sort-btn" data-col="off" onclick="setSort('off')">Office</button>
-            <button class="sort-btn" data-col="projects" onclick="setSort('projects')">Projects</button>
           </div>
         </div>
       </div>
       <div class="card" style="padding:0;overflow:hidden"><div class="tbl-wrap"><table class="tbl">
-        <thead><tr><th style="width:20px"></th><th>Name</th><th class="col-desig">Designation</th><th>Disc</th><th>Off</th><th>Capacity</th><th></th></tr></thead>
+        <thead><tr><th style="width:20px"></th><th>Name</th><th class="col-desig">Designation</th><th>Disc</th><th>Off</th><th style="text-align:right"></th></tr></thead>
         <tbody id="team-body"></tbody>
       </table></div></div>
     </div>
@@ -3347,12 +3343,11 @@ function renderTeam(){
       </td></tr>`:'';
     return`<tr style="cursor:${hasProjs?'pointer':'default'}${isBIM?';background:#fafffe':''}" onclick="${hasProjs?`toggleEngRow('${e.id}','team-body')`:''}" title="${hasProjs?'Click for project breakdown':''}">
       <td style="text-align:center;font-size:11px;color:${accentColor}" id="eng-chev-team-body-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
-      <td style="font-weight:600;white-space:nowrap">${e.name}${isBIM&&e.off==='IND'?` <span title="India Resource Centre" style="font-size:8px;color:var(--tx3);font-weight:400;">(IND)</span>`:''}</td>
+      <td style="font-weight:600;white-space:nowrap">${e.name}${isBIM&&e.off==='IND'?` <span title="India Resource Centre" style="font-size:8px;color:var(--tx3);font-weight:400;">(IND)</span>`:''}<div style="font-size:9px;color:var(--tx3);font-weight:400;">${e.cap||45} hrs/wk</div></td>
       <td class="col-desig" style="font-size:10px;color:var(--tx2)">${e.desig||'—'}</td>
       <td>${discBadge}</td>
       <td>${isBIM&&e.off==='IND'?'':`<span class="bdg ${e.off==='DXB'?'b-dxb':e.off==='EGY'?'b-egy':'b-gry'}">${e.off}</span>`}</td>
-      <td style="font-size:11px;color:var(--tx2)">${e.cap||45} hrs/wk</td>
-      <td>
+      <td style="text-align:right;white-space:nowrap;">
         <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')">Edit</button>
         <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')">Del</button>
       </td></tr>${projDetail}`;
