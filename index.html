@@ -541,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.66 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.68 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -599,7 +599,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.66 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.68 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -1721,6 +1721,14 @@ async function renderPendingUsers(){
       S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
       const ROLE_LABELS={admin:'Admin',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer'};
       const ROLE_COLORS={admin:'#fef3c7;color:#92400e',mep_lead:'#e0f2fe;color:#0369a1',disc_lead:'#dcfce7;color:#166534',bim_lead:'#fce7f3;color:#9d174d',viewer:'#f1f5f9;color:#374151'};
+
+      // Build combined list: engineer_roles + MEP leads from projects
+      const allRoles=[...S.roles];
+      S.projects.forEach(p=>{
+        if(p.mepLeadEmail){
+          allRoles.push({id:'proj_mep_'+p.id,email:p.mepLeadEmail.toLowerCase(),role:'mep_lead',scope:p.no||p.name,_fromProject:true,_projId:p.id});
+        }
+      });
       const SCOPE_OPTIONS={
         admin:[''],mep_lead:S.projects.map(p=>p.id),
         disc_lead:['HVAC','PH&E','ELE','ELV'],
@@ -1761,22 +1769,23 @@ async function renderPendingUsers(){
         </div>
       </div>`;
       // Roles table
-      const tableHeader=`<div style="display:grid;grid-template-columns:1fr 120px 80px 80px;gap:8px;padding:8px 14px;background:#f1f5f9;border-radius:8px 8px 0 0;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--bdr);">
-        <div>Engineer</div><div>Role</div><div>Scope</div><div style="text-align:right;">Action</div>
+      const tableHeader=`<div style="display:grid;grid-template-columns:1fr 100px 60px 60px;gap:6px;padding:8px 12px;background:#f1f5f9;border-radius:8px 8px 0 0;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--bdr);">
+        <div>Engineer</div><div>Role</div><div>Scope</div><div style="text-align:right;">Del</div>
       </div>`;
-      const rows=S.roles.length?S.roles.map((r,i)=>{
+      const rows=allRoles.length?allRoles.map((r,i)=>{
         const eng=engineers.find(e=>e.email&&e.email.toLowerCase()===r.email.toLowerCase());
         const name=eng?eng.name.split(' ').slice(0,2).join(' '):r.email;
         const roleColor=ROLE_COLORS[r.role]||'#f1f5f9;color:#374151';
-        const scopeLabel=r.role==='mep_lead'?(S.projects.find(p=>p.id===r.scope)||{}).no||r.scope||'—':r.scope||'—';
-        return`<div style="display:grid;grid-template-columns:1fr 120px 80px 80px;gap:8px;padding:10px 14px;border:1px solid var(--bdr);border-top:none;background:#fff;${i===S.roles.length-1?'border-radius:0 0 8px 8px':''}">
+        const scopeLabel=r._fromProject?r.scope:(r.role==='mep_lead'?(S.projects.find(p=>p.id===r.scope)||{}).no||r.scope||'—':r.scope||'—');
+        const actionBtn=r._fromProject?`<span style="font-size:9px;color:var(--tx3);">via project</span>`:`<button class="btn btn-d btn-xs" onclick="removeRole('${r.id}')" style="padding:3px 6px;font-size:10px;">✕</button>`;
+        return`<div style="display:grid;grid-template-columns:1fr 100px 60px 60px;gap:6px;padding:10px 12px;border:1px solid var(--bdr);border-top:none;background:#fff;${i===allRoles.length-1?'border-radius:0 0 8px 8px':''}">
           <div>
             <div style="font-size:12px;font-weight:600;">${name}</div>
             <div style="font-size:10px;color:var(--tx3);">${r.email}</div>
           </div>
           <div><span style="font-size:11px;font-weight:600;padding:2px 8px;border-radius:5px;background:${roleColor};">${ROLE_LABELS[r.role]||r.role}</span></div>
-          <div style="font-size:11px;color:var(--tx2);">${scopeLabel}</div>
-          <div style="text-align:right;"><button class="btn btn-d btn-xs" onclick="removeRole('${r.id}')">Remove</button></div>
+          <div style="font-size:11px;color:var(--tx2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${scopeLabel}</div>
+          <div style="text-align:right;">${actionBtn}</div>
         </div>`;
       }).join(''):`<div style="padding:24px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;border:1px solid var(--bdr);border-top:none;border-radius:0 0 8px 8px;background:#fff;">No roles defined yet. Add roles above.</div>`;
       el.innerHTML=addForm+tableHeader+rows;
