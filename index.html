@@ -541,7 +541,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.64 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.65 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -599,7 +599,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.64 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.65 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -1761,7 +1761,7 @@ async function renderPendingUsers(){
         </div>
       </div>`;
       // Roles table
-      const tableHeader=`<div style="display:grid;grid-template-columns:1fr 140px 100px 80px;gap:8px;padding:8px 14px;background:#f1f5f9;border-radius:8px 8px 0 0;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--bdr);">
+      const tableHeader=`<div style="display:grid;grid-template-columns:1fr 120px 80px 80px;gap:8px;padding:8px 14px;background:#f1f5f9;border-radius:8px 8px 0 0;font-size:10px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;border:1px solid var(--bdr);">
         <div>Engineer</div><div>Role</div><div>Scope</div><div style="text-align:right;">Action</div>
       </div>`;
       const rows=S.roles.length?S.roles.map((r,i)=>{
@@ -1769,7 +1769,7 @@ async function renderPendingUsers(){
         const name=eng?eng.name.split(' ').slice(0,2).join(' '):r.email;
         const roleColor=ROLE_COLORS[r.role]||'#f1f5f9;color:#374151';
         const scopeLabel=r.role==='mep_lead'?(S.projects.find(p=>p.id===r.scope)||{}).no||r.scope||'—':r.scope||'—';
-        return`<div style="display:grid;grid-template-columns:1fr 140px 100px 80px;gap:8px;padding:10px 14px;border:1px solid var(--bdr);border-top:none;background:#fff;${i===S.roles.length-1?'border-radius:0 0 8px 8px':''}">
+        return`<div style="display:grid;grid-template-columns:1fr 120px 80px 80px;gap:8px;padding:10px 14px;border:1px solid var(--bdr);border-top:none;background:#fff;${i===S.roles.length-1?'border-radius:0 0 8px 8px':''}">
           <div>
             <div style="font-size:12px;font-weight:600;">${name}</div>
             <div style="font-size:10px;color:var(--tx3);">${r.email}</div>
@@ -3863,10 +3863,12 @@ function closeProjDetail(){
   document.getElementById('proj-detail-view').style.display='none';
   document.getElementById('proj-hdr-back-btn').style.display='none';
   document.getElementById('proj-hdr-title').textContent='Projects';
-  // Restore list-only header buttons
-  document.getElementById('proj-hdr-export-btn').style.display='';
-  document.getElementById('proj-hdr-import-btn').style.display='';
-  document.getElementById('proj-hdr-new-btn').style.display='';
+  // Restore list-only header buttons (admin only)
+  if(adminUnlocked){
+    document.getElementById('proj-hdr-export-btn').style.display='flex';
+    document.getElementById('proj-hdr-import-btn').style.display='flex';
+    document.getElementById('proj-hdr-new-btn').style.display='';
+  }
   renderProj();
 }
 
