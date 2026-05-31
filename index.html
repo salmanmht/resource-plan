@@ -596,7 +596,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-table thead .wt-h1 th{
     background:#1e3a5f!important;color:#fff!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:7px!important;font-weight:600;
+    font-size:7.5px!important;font-weight:600;
     white-space:normal!important;line-height:1.15;
     vertical-align:middle;
   }
@@ -609,35 +609,40 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-proj-name{font-size:7px!important;}
   body.wt-printing .wt-proj-no{font-size:6px!important;}
   body.wt-printing .wt-table .wt-disc td{
-    background:#f5f5f7!important;
+    background:#e8edf2!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    padding:2px 8px!important;font-size:6px!important;font-weight:700;
+    padding:2px 8px!important;font-size:6px!important;font-weight:700;color:#1e3a5f!important;
   }
   body.wt-printing .wt-row td{border-bottom:1px solid #e5e5e7!important;}
-  body.wt-printing .wt-row:nth-child(even) td{background:#f8f9fb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.wt-printing .wt-row:nth-child(even) td{background:#f3f5f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-row:nth-child(odd) td{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  body.wt-printing .wt-name{padding:2px 4px!important;font-size:7px!important;font-weight:500;}
-  body.wt-printing .wt-name-sub{font-size:6px!important;color:#86868b;margin-top:0!important;}
+  body.wt-printing .wt-name{padding:2px 4px!important;font-size:7.5px!important;font-weight:600;}
+  body.wt-printing .wt-name-sub{font-size:6px!important;color:#64748b!important;margin-top:0!important;}
   body.wt-printing .wt-loc{font-size:6px!important;color:#86868b;}
   body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
-  body.wt-printing .wt-task-note{font-size:6px!important;padding:1px 3px!important;line-height:1.2!important;color:#1d1d1f;}
+  body.wt-printing .wt-task-note{font-size:6.5px!important;padding:1px 3px!important;line-height:1.2!important;color:#1d1d1f;}
+  body.wt-printing .wt-task-note::placeholder{color:transparent!important;}
+  body.wt-printing .wt-ghost{display:none!important;}
   body.wt-printing .wt-hcell{padding:0!important;}
   body.wt-printing .wt-hcell input{
     width:100%!important;height:auto!important;
-    font-size:7px!important;padding:2px!important;
+    font-size:7.5px!important;padding:2px!important;
     border:none!important;background:transparent!important;
-    text-align:center;font-weight:600;color:#1d1d1f;
+    text-align:center;font-weight:700;color:#1d1d1f;
   }
   body.wt-printing .wt-hcell.wt-nb{background:#e8faf0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-hcell.wt-nb input{color:#1a7a34!important;}
   body.wt-printing .wt-total{
-    background:#f5f5f7!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:7px!important;font-weight:700;
+    background:#eef1f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    font-size:7.5px!important;font-weight:700;
   }
+  body.wt-printing .wt-total.wt-tt-ok{background:#d1fae5!important;color:#065f46!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.wt-printing .wt-total.wt-tt-mild{background:#fef3c7!important;color:#92400e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.wt-printing .wt-total.wt-tt-bad{background:#fee2e2!important;color:#991b1b!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-totals td{
     background:#1e3a5f!important;color:#fff!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    padding:3px 4px!important;font-size:7px!important;font-weight:700;
+    padding:3px 4px!important;font-size:7.5px!important;font-weight:700;
   }
   /* Hide the forecast overlay so empty cells stay empty in print */
   body.wt-printing .wt-hcell > div > div:first-child{display:none!important;}
@@ -783,7 +788,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.90 · 1 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.94 · 1 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -842,7 +847,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.90 · 1 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.94 · 1 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -2571,7 +2576,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v7.9.90)
+// WEEKLY TRACKER  (v7.9.94)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -2895,16 +2900,16 @@ function wtBuild(canEdit){
     projects.forEach(p=>{
       const a=projTotals[p.id]||0,f=projForecastTotals[p.id]||0,d=a-f,s=d>0?'+':'';
       const dt=(a>0&&f>0&&d!==0)?' · '+s+Math.round(d):'';
-      html+='<td class="wt-tot-stack"><div>'+(a||'—')+'</div><div class="wt-tot-fc">/ '+(f||0)+dt+'</div></td>';
+      html+='<td id="wt-tot-'+p.id+'" class="wt-tot-stack"><div>'+(a||'')+'</div><div class="wt-tot-fc">'+(f>0?'/ '+f+dt:'')+'</div></td>';
     });
-    WT_NONBILL.forEach(nb=>{html+='<td>'+(nbTot[nb.key]||'—')+'</td>';});
+    WT_NONBILL.forEach(nb=>{html+='<td id="wt-tot-'+nb.key+'">'+(nbTot[nb.key]||'')+'</td>';});
     const gd=grand-grandForecast,gs=gd>0?'+':'';
     const gdt=(grand>0&&grandForecast>0&&gd!==0)?' · '+gs+Math.round(gd):'';
-    html+='<td class="wt-tot-stack"><div>'+(grand||'—')+'</div><div class="wt-tot-fc">/ '+(grandForecast||0)+gdt+'</div></td></tr>';
+    html+='<td id="wt-tot-grand" class="wt-tot-stack"><div>'+(grand||'—')+'</div><div class="wt-tot-fc">'+(grandForecast>0?'/ '+grandForecast+gdt:'')+'</div></td></tr>';
   } else {
-    projects.forEach(p=>{html+='<td>'+(projTotals[p.id]||'—')+'</td>';});
-    WT_NONBILL.forEach(nb=>{html+='<td>'+(nbTot[nb.key]||'—')+'</td>';});
-    html+='<td>'+(grand||'—')+'</td></tr>';
+    projects.forEach(p=>{html+='<td id="wt-tot-'+p.id+'">'+(projTotals[p.id]||'')+'</td>';});
+    WT_NONBILL.forEach(nb=>{html+='<td id="wt-tot-'+nb.key+'">'+(nbTot[nb.key]||'')+'</td>';});
+    html+='<td id="wt-tot-grand">'+(grand||'—')+'</td></tr>';
   }
   html+='</tbody></table></div>';
 
@@ -3108,28 +3113,22 @@ function wtUpdateAllTotals(){
     if(rowTotal>0)activeCount++;
     grand+=rowTotal;
   }));
-  // Update totals row cells
-  const totRow=document.querySelector('.wt-totals');
-  if(totRow){
-    const cells=totRow.querySelectorAll('td');
-    if(cells.length>=3+projects.length+WT_NONBILL.length){
-      let idx=1;
-      if(WT_view==='variance'){
-        projects.forEach(p=>{
-          const a=projTotals[p.id]||0,f=projForecastTotals[p.id]||0,d=a-f,s=d>0?'+':'';
-          const dt=(a>0&&f>0&&d!==0)?' · '+s+Math.round(d):'';
-          cells[idx++].innerHTML='<div>'+(a||'—')+'</div><div class="wt-tot-fc">/ '+(f||0)+dt+'</div>';
-        });
-        WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
-        const gd=grand-grandForecast,gs=gd>0?'+':'';
-        const gdt=(grand>0&&grandForecast>0&&gd!==0)?' · '+gs+Math.round(gd):'';
-        cells[idx].innerHTML='<div>'+(grand||'—')+'</div><div class="wt-tot-fc">/ '+(grandForecast||0)+gdt+'</div>';
-      } else {
-        projects.forEach(p=>{cells[idx++].textContent=projTotals[p.id]||'—';});
-        WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
-        cells[idx].textContent=grand||'—';
-      }
-    }
+  // Update totals row cells by ID — immune to hidden columns
+  const setTot=(id,html)=>{const el=document.getElementById('wt-tot-'+id);if(el)el.innerHTML=html;};
+  if(WT_view==='variance'){
+    projects.forEach(p=>{
+      const a=projTotals[p.id]||0,f=projForecastTotals[p.id]||0,d=a-f,s=d>0?'+':'';
+      const dt=(a>0&&f>0&&d!==0)?' · '+s+Math.round(d):'';
+      setTot(p.id,'<div>'+(a||'')+'</div><div class="wt-tot-fc">'+(f>0?'/ '+f+dt:'')+'</div>');
+    });
+    WT_NONBILL.forEach(nb=>{setTot(nb.key,nbTot[nb.key]||'');});
+    const gd=grand-grandForecast,gs=gd>0?'+':'';
+    const gdt=(grand>0&&grandForecast>0&&gd!==0)?' · '+gs+Math.round(gd):'';
+    setTot('grand','<div>'+(grand||'—')+'</div><div class="wt-tot-fc">'+(grandForecast>0?'/ '+grandForecast+gdt:'')+'</div>');
+  } else {
+    projects.forEach(p=>{setTot(p.id,projTotals[p.id]||'');});
+    WT_NONBILL.forEach(nb=>{setTot(nb.key,nbTot[nb.key]||'');});
+    setTot('grand',grand||'—');
   }
   // Update stat cards
   const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
@@ -3270,34 +3269,58 @@ function wtExportPDF(){
   const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
   wtBuild(canEdit);
   setTimeout(()=>{
-    // Mark empty project columns (header + all cells) so CSS can hide them
+    // Physically remove empty project columns from the DOM before printing
     const table=document.querySelector('.wt-table');
-    const emptyColIdxs=new Set();
     if(table){
-      // Find <th> elements with wt-c-proj class to get column indices
-      const headers=[...table.querySelectorAll('thead th')];
-      headers.forEach((th,i)=>{
-        if(th.classList.contains('wt-c-proj')){
-          // Check if any body cell in this column has a non-empty, non-zero value
-          const cells=[...table.querySelectorAll('tbody tr td:nth-child('+(i+1)+')')];
-          const hasValue=cells.some(td=>{
-            const inp=td.querySelector('input');
-            if(inp&&inp.value&&parseFloat(inp.value)>0)return true;
-            return false;
-          });
-          if(!hasValue)emptyColIdxs.add(i+1); // 1-based for nth-child
-        }
+      const projects=wtColumnProjects();
+      const projStart=3; // columns 0=Name,1=Loc,2=Tasks, then projects start at 3
+
+      // Find which project indices (0-based within projects array) are empty
+      const emptyPI=[];
+      projects.forEach((p,pi)=>{
+        const rows=[...table.querySelectorAll('tbody tr.wt-row')];
+        const hasVal=rows.some(tr=>{
+          const cells=[...tr.children];
+          const cell=cells[projStart+pi];
+          if(!cell)return false;
+          const inp=cell.querySelector('input');
+          return inp&&inp.value&&parseFloat(inp.value)>0;
+        });
+        if(!hasVal)emptyPI.push(pi);
       });
-      emptyColIdxs.forEach(ci=>{
-        table.querySelectorAll('thead th:nth-child('+ci+'), tbody td:nth-child('+ci+')').forEach(el=>el.classList.add('wt-print-hide'));
-      });
+
+      if(emptyPI.length>0){
+        // Remove right-to-left so indices stay valid
+        const rev=[...emptyPI].reverse();
+
+        // 1. Header row
+        const ths=[...table.querySelectorAll('thead tr th')];
+        rev.forEach(pi=>{const th=ths[projStart+pi];if(th)th.remove();});
+
+        // 2. Body rows
+        table.querySelectorAll('tbody tr').forEach(tr=>{
+          if(tr.classList.contains('wt-disc')){
+            // Discipline separator: single td with colspan — reduce it
+            const td=tr.querySelector('td');
+            if(td){td.setAttribute('colspan',parseInt(td.getAttribute('colspan')||1)-emptyPI.length);}
+          } else if(tr.classList.contains('wt-totals')){
+            // Totals: td[0]=TOTALS(colspan3), td[1..N]=one per project, then NB, then grand
+            const tds=[...tr.children];
+            rev.forEach(pi=>{const td=tds[1+pi];if(td)td.remove();}); // +1 because [0] is label
+          } else {
+            // Engineer row: td[0]=name,td[1]=loc,td[2]=tasks,td[3+]=projects
+            const tds=[...tr.children];
+            rev.forEach(pi=>{const td=tds[projStart+pi];if(td)td.remove();});
+          }
+        });
+      }
     }
+
     document.body.classList.add('wt-printing');
     setTimeout(()=>{
       window.print();
       document.body.classList.remove('wt-printing');
-      // Remove print-hide classes
-      if(table)table.querySelectorAll('.wt-print-hide').forEach(el=>el.classList.remove('wt-print-hide'));
+      // Rebuild restores everything from scratch
       WT_visibleProjects=savedProjs;
       Object.assign(WT_offFilter,savedOff);
       wtBuild(canEdit);
