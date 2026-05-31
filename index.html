@@ -506,6 +506,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .wt-v-over .wt-vact-in{color:#501313;}
 .wt-v-over .wt-vfc{color:#A32D2D;}
 
+/* Variance stat cards — colored top border like app's .mc.gr/am/re */
+.mc.wt-card-match{border-top:3px solid var(--grn);}
+.mc.wt-card-warn{border-top:3px solid var(--amb);}
+.mc.wt-card-over{border-top:3px solid var(--red);}
+
 /* Stacked row total in variance view */
 .wt-total-stack{padding:2px 4px;text-align:center;line-height:1.1;}
 .wt-tt-act{font-size:13px;font-weight:600;}
@@ -769,7 +774,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.84 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.87 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -828,7 +833,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.84 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.87 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -2547,7 +2552,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v7.9.84)
+// WEEKLY TRACKER  (v7.9.87)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -2697,8 +2702,10 @@ async function wtLoadWeek(){
   const iso=wtISO(WT_weekMonday);
   const prevMon=new Date(WT_weekMonday);prevMon.setDate(prevMon.getDate()-7);
   const prevIso=wtISO(prevMon);
+  console.log('[WT load] fetching week',iso);
   try{
     const rows=await sbFetch('weekly_actuals?select=*&week_commencing=eq.'+iso);
+    console.log('[WT load] received',Array.isArray(rows)?rows.length:0,'rows for',iso,rows);
     (Array.isArray(rows)?rows:[]).forEach(r=>{
       if(!WT_actuals[r.engineer_id])WT_actuals[r.engineer_id]={};
       if(r.category==='task'){
@@ -2898,12 +2905,20 @@ function wtBuild(canEdit){
 
   // Stats strip
   const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
+  const billableForecast=Object.values(projForecastTotals).reduce((a,b)=>a+b,0);
   const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training;
   html+='<div class="wt-stats">';
-  html+=wtStatCard('Total Hours',grand,'this week');
-  html+=wtStatCard('Billable',billable,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
-  html+=wtStatCard('Non-Billable',nonBill,'leave · comp · hol · training');
-  html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+  if(WT_view==='variance'){
+    html+=wtStatCardVar('Total Hours',grand,grandForecast);
+    html+=wtStatCardVar('Billable',billable,billableForecast);
+    html+=wtStatCardVar('Non-Billable',nonBill,null,'leave · comp · hol · training');
+    html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+  } else {
+    html+=wtStatCard('Total Hours',grand,'this week');
+    html+=wtStatCard('Billable',billable,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
+    html+=wtStatCard('Non-Billable',nonBill,'leave · comp · hol · training');
+    html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+  }
   html+='</div>';
 
   // Summary panel
@@ -2919,6 +2934,24 @@ function wtBuild(canEdit){
 
 function wtStatCard(label,val,sub){
   return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+val+'</div><div class="mc-s">'+sub+'</div></div>';
+}
+
+// Variance stat card: shows actual on top, forecast + diff below, colored by variance
+function wtStatCardVar(label,actual,forecast,sub){
+  const a=actual||0;
+  const f=forecast==null?null:(forecast||0);
+  let cls='',subTxt=sub||'';
+  if(f!=null){
+    const diff=a-f;
+    const sign=diff>0?'+':'';
+    const ratio=f===0?(a>0?1:0):Math.abs(diff)/f;
+    if(a>0||f>0){
+      cls=ratio<0.05?'wt-card-match':ratio<0.2?'wt-card-warn':'wt-card-over';
+    }
+    const diffTxt=(a>0&&f>0&&diff!==0)?' · '+sign+Math.round(diff)+'h':'';
+    subTxt='vs '+f+'h forecast'+diffTxt;
+  }
+  return '<div class="mc '+cls+'"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+a+'</div><div class="mc-s">'+subTxt+'</div></div>';
 }
 
 function wtSummaryHTML(projects,projTotals,nbTot,grand){
@@ -2940,31 +2973,55 @@ function wtEdit(engId,key,rawVal){
   } else {
     WT_actuals[engId][key]=parseFloat(rawVal)||0;
   }
-  // Update row total + column totals + stats live
+  // Update row total + column totals + stats live (no full rebuild — preserves focus)
   wtUpdateRowTotal(engId);
   wtUpdateAllTotals();
-  // In variance view, schedule a soft rebuild so cell colors + forecast diffs refresh
+  // In variance view, update just this cell's color + diff in place
   if(WT_view==='variance'&&key!=='task_note'){
-    clearTimeout(WT_rebuildTimer);
-    WT_rebuildTimer=setTimeout(()=>{
-      // Preserve focus on the edited cell
-      const active=document.activeElement;
-      const focusKey=active&&active.classList.contains('wt-vact-in')?{engId,key}:null;
-      const caret=focusKey?active.selectionStart:null;
-      const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
-      wtBuild(canEdit);
-      // Restore focus
-      if(focusKey){
-        const row=document.querySelector('input.wt-vact-in[oninput*="\''+focusKey.engId+'\'"][oninput*="\''+focusKey.key+'\'"]');
-        if(row){row.focus();if(caret!=null)row.setSelectionRange(caret,caret);}
-      }
-    },800);
+    wtUpdateCellVariance(engId,key);
   }
   // Debounced save
   clearTimeout(WT_actuals[engId]._t);
   WT_actuals[engId]._t=setTimeout(()=>wtSaveCell(engId,key),1500);
 }
-let WT_rebuildTimer=null;
+
+// Update just one cell's variance display (color + forecast diff text) without rebuilding the table
+function wtUpdateCellVariance(engId,key){
+  const inp=document.querySelector('input.wt-vact-in[oninput*="\''+engId+'\'"][oninput*="\''+key+'\'"]');
+  if(!inp)return;
+  const vcell=inp.closest('.wt-vcell');
+  if(!vcell)return;
+  const eng=S.engineers.find(e=>e.id===engId);
+  const proj=S.projects.find(p=>p.id===key);
+  if(!eng||!proj)return;
+  const fc=wtForecast(proj,engId);
+  const act=WT_actuals[engId]||{};
+  const av=act[key];
+  const actual=av!=null&&!isNaN(av)?Number(av):null;
+  // Recompute variance class
+  vcell.classList.remove('wt-v-match','wt-v-warn','wt-v-over');
+  if(actual!=null&&(fc>0||actual>0)){
+    const diff=actual-fc;
+    const ratio=fc===0?(actual>0?1:0):Math.abs(diff)/fc;
+    const cls=ratio<0.05?'wt-v-match':ratio<0.2?'wt-v-warn':'wt-v-over';
+    vcell.classList.add(cls);
+  }
+  // Update forecast / diff sub-line
+  const fcLine=vcell.querySelector('.wt-vfc');
+  if(fcLine){
+    if(fc>0||actual!=null){
+      const a=actual!=null?actual:0;
+      const diff=a-fc;
+      const sign=diff>0?'+':'';
+      let diffTxt='';
+      if(actual!=null&&fc>0&&diff!==0)diffTxt=' · '+sign+Math.round(diff);
+      else if(actual!=null&&fc===0&&a>0)diffTxt=' · '+sign+Math.round(a);
+      fcLine.textContent='/ '+(fc||0)+diffTxt;
+    } else {
+      fcLine.innerHTML='&nbsp;';
+    }
+  }
+}
 
 // Color coding for weekly total — target is 45 hrs/week
 const WT_TARGET=45;
@@ -2985,16 +3042,29 @@ function wtTotalTitle(t){
 
 function wtUpdateRowTotal(engId){
   const act=WT_actuals[engId]||{};
-  let t=0;
+  let t=0,tf=0;
   const projects=wtColumnProjects();
-  projects.forEach(p=>{t+=act[p.id]||0;});
+  const eng=S.engineers.find(x=>x.id===engId);
+  projects.forEach(p=>{t+=act[p.id]||0; if(eng)tf+=wtForecast(p,eng.id);});
   WT_NONBILL.forEach(nb=>{t+=act[nb.key]||0;});
   const el=document.getElementById('wt-rt-'+engId);
-  if(el){
+  if(!el)return;
+  if(WT_view==='variance'){
+    // Stacked total — actual on top, forecast below with diff
+    const diff=t-tf;
+    const sign=diff>0?'+':'';
+    let cls='';
+    if(t>0||tf>0){
+      const ratio=tf===0?(t>0?1:0):Math.abs(diff)/tf;
+      cls=ratio<0.05?'wt-tt-ok':ratio<0.2?'wt-tt-mild':'wt-tt-bad';
+    }
+    const diffTxt=(t>0&&tf>0&&diff!==0)?' · '+sign+Math.round(diff):'';
+    el.className='wt-total wt-total-stack '+cls;
+    el.innerHTML='<div class="wt-tt-act">'+(t||'—')+'</div><div class="wt-tt-fc">/ '+(tf||0)+diffTxt+'</div>';
+    el.title='Actual: '+t+'h · Forecast: '+tf+'h';
+  } else {
+    el.className='wt-total '+wtTotalClass(t);
     el.textContent=t||'—';
-    el.classList.remove('wt-tt-ok','wt-tt-mild','wt-tt-bad');
-    const cls=wtTotalClass(t);
-    if(cls)el.classList.add(cls);
     el.title=wtTotalTitle(t);
   }
 }
@@ -3004,12 +3074,16 @@ function wtUpdateAllTotals(){
   const projects=wtColumnProjects();
   const groups=wtEngineerRows();
   const projTotals={};projects.forEach(p=>projTotals[p.id]=0);
-  let grand=0,activeCount=0;
+  const projForecastTotals={};projects.forEach(p=>projForecastTotals[p.id]=0);
+  let grand=0,grandForecast=0,activeCount=0;
   const nbTot={leave:0,compoff:0,holiday:0,training:0};
   groups.forEach(g=>g.engs.forEach(e=>{
     const act=WT_actuals[e.id]||{};
     let rowTotal=0;
-    projects.forEach(p=>{const v=act[p.id]||0;rowTotal+=v;projTotals[p.id]+=v;});
+    projects.forEach(p=>{
+      const v=act[p.id]||0;rowTotal+=v;projTotals[p.id]+=v;
+      const f=wtForecast(p,e.id);projForecastTotals[p.id]+=f;grandForecast+=f;
+    });
     WT_NONBILL.forEach(nb=>{const v=act[nb.key]||0;rowTotal+=v;nbTot[nb.key]+=v;});
     if(rowTotal>0)activeCount++;
     grand+=rowTotal;
@@ -3018,68 +3092,102 @@ function wtUpdateAllTotals(){
   const totRow=document.querySelector('.wt-totals');
   if(totRow){
     const cells=totRow.querySelectorAll('td');
-    // [0]=label (colspan 2), [1]=tasks, [2..]=projects, then nonbill, then grand
     if(cells.length>=3+projects.length+WT_NONBILL.length){
       let idx=1;
-      projects.forEach(p=>{cells[idx++].textContent=projTotals[p.id]||'—';});
-      WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
-      cells[idx].textContent=grand||'—';
+      if(WT_view==='variance'){
+        projects.forEach(p=>{
+          const a=projTotals[p.id]||0,f=projForecastTotals[p.id]||0,d=a-f,s=d>0?'+':'';
+          const dt=(a>0&&f>0&&d!==0)?' · '+s+Math.round(d):'';
+          cells[idx++].innerHTML='<div>'+(a||'—')+'</div><div class="wt-tot-fc">/ '+(f||0)+dt+'</div>';
+        });
+        WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
+        const gd=grand-grandForecast,gs=gd>0?'+':'';
+        const gdt=(grand>0&&grandForecast>0&&gd!==0)?' · '+gs+Math.round(gd):'';
+        cells[idx].innerHTML='<div>'+(grand||'—')+'</div><div class="wt-tot-fc">/ '+(grandForecast||0)+gdt+'</div>';
+      } else {
+        projects.forEach(p=>{cells[idx++].textContent=projTotals[p.id]||'—';});
+        WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
+        cells[idx].textContent=grand||'—';
+      }
     }
   }
-  // Update stat cards (the four mc cards in .wt-stats)
+  // Update stat cards
   const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
+  const billableForecast=Object.values(projForecastTotals).reduce((a,b)=>a+b,0);
   const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training;
-  const stats=document.querySelectorAll('.wt-stats .mc-v');
-  if(stats.length>=4){
-    stats[0].textContent=grand;
-    stats[1].textContent=billable;
-    stats[2].textContent=nonBill;
-    stats[3].textContent=activeCount;
-  }
-  // Billable sub-text
-  const billSub=document.querySelectorAll('.wt-stats .mc-s');
-  if(billSub.length>=2){
-    billSub[1].textContent=grand>0?Math.round(billable/grand*100)+'% of total':'0%';
+  const cards=document.querySelectorAll('.wt-stats > .mc');
+  if(cards.length>=4){
+    const updateCard=(card,actual,forecast,fallbackSub)=>{
+      const v=card.querySelector('.mc-v');const s=card.querySelector('.mc-s');
+      if(v)v.textContent=actual;
+      card.classList.remove('wt-card-match','wt-card-warn','wt-card-over');
+      if(WT_view==='variance'&&forecast!=null){
+        const diff=actual-forecast;
+        const sign=diff>0?'+':'';
+        const ratio=forecast===0?(actual>0?1:0):Math.abs(diff)/forecast;
+        if(actual>0||forecast>0){
+          card.classList.add(ratio<0.05?'wt-card-match':ratio<0.2?'wt-card-warn':'wt-card-over');
+        }
+        const diffTxt=(actual>0&&forecast>0&&diff!==0)?' · '+sign+Math.round(diff)+'h':'';
+        if(s)s.textContent='vs '+forecast+'h forecast'+diffTxt;
+      } else if(s&&fallbackSub){
+        s.textContent=fallbackSub;
+      }
+    };
+    if(WT_view==='variance'){
+      updateCard(cards[0],grand,grandForecast);
+      updateCard(cards[1],billable,billableForecast);
+      updateCard(cards[2],nonBill,null,'leave · comp · hol · training');
+      updateCard(cards[3],activeCount,null,'logged hours');
+    } else {
+      updateCard(cards[0],grand,null,'this week');
+      updateCard(cards[1],billable,null,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
+      updateCard(cards[2],nonBill,null,'leave · comp · hol · training');
+      updateCard(cards[3],activeCount,null,'logged hours');
+    }
   }
 }
 
 async function wtSaveCell(engId,key){
   const iso=wtISO(WT_weekMonday);
   const act=WT_actuals[engId]||{};
+  console.log('[WT save]',{engId,key,iso,value:act[key]});
   try{
+    let result;
     if(key==='task_note'){
       const note=act['task_note']||'';
       if(note){
-        await sbFetch('weekly_actuals','POST',
+        result=await sbFetch('weekly_actuals','POST',
           {week_commencing:iso,engineer_id:engId,project_id:'__task__',category:'task',hours:0,note:note},
           'resolution=merge-duplicates,return=representation');
       } else {
-        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.task','DELETE');
+        result=await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.task','DELETE');
       }
     } else if(WT_NONBILL.find(n=>n.key===key)){
       const v=act[key]||0;
       if(v>0){
-        await sbFetch('weekly_actuals','POST',
+        result=await sbFetch('weekly_actuals','POST',
           {week_commencing:iso,engineer_id:engId,project_id:'__'+key+'__',category:key,hours:v,note:''},
           'resolution=merge-duplicates,return=representation');
       } else {
-        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.'+key,'DELETE');
+        result=await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.'+key,'DELETE');
       }
     } else {
       // project cell
       const v=act[key]||0;
       if(v>0){
-        await sbFetch('weekly_actuals','POST',
+        result=await sbFetch('weekly_actuals','POST',
           {week_commencing:iso,engineer_id:engId,project_id:key,category:'project',hours:v,note:''},
           'resolution=merge-duplicates,return=representation');
       } else {
-        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&project_id=eq.'+key+'&category=eq.project','DELETE');
+        result=await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&project_id=eq.'+key+'&category=eq.project','DELETE');
       }
     }
+    console.log('[WT save] OK',result);
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
   }catch(e){
-    setSyncStatus(false,'Weekly save failed');
-    console.error('wtSaveCell',e);
+    setSyncStatus(false,'Weekly save failed: '+e.message);
+    console.error('[WT save] FAILED',engId,key,e);
   }
 }
 
