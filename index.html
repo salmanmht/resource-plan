@@ -441,12 +441,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
 .wt-disc td{background:var(--bg);padding:5px 14px;font-size:9px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
 .wt-row td{border-bottom:1px solid var(--bdr);vertical-align:middle;}
-.wt-row:hover td{background:var(--bg);}
-.wt-row-readonly td{background:#fafafa;}
-.wt-row-readonly:hover td{background:#fafafa;}
+.wt-row:nth-child(even) td{background:#f8f9fb;}
+.wt-row:nth-child(odd) td{background:#fff;}
+.wt-row:hover td{background:var(--acc2)!important;}
+.wt-row-readonly:nth-child(even) td{background:#f5f5f8;}
+.wt-row-readonly:nth-child(odd) td{background:#fafafa;}
+.wt-row-readonly:hover td{background:#f0f0f5!important;}
 .wt-row-readonly .wt-name{color:var(--tx3);}
 .wt-row-readonly input,.wt-row-readonly textarea{color:var(--tx3)!important;cursor:not-allowed;}
 .wt-name{padding:7px 14px;font-weight:500;color:var(--tx);font-size:12px;}
+.wt-name-sub{font-size:9px;font-weight:400;color:var(--tx3);margin-top:1px;letter-spacing:.01em;}
 .wt-loc{text-align:center;color:var(--tx3);font-size:10px;font-weight:500;}
 .wt-total{text-align:center;font-weight:600;background:var(--bg);color:var(--tx);font-size:12px;transition:background .2s;}
 .wt-total.wt-tt-ok{background:var(--grn2);color:#1a7a34;}
@@ -610,7 +614,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     padding:2px 8px!important;font-size:6px!important;font-weight:700;
   }
   body.wt-printing .wt-row td{border-bottom:1px solid #e5e5e7!important;}
+  body.wt-printing .wt-row:nth-child(even) td{background:#f8f9fb!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.wt-printing .wt-row:nth-child(odd) td{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-name{padding:2px 4px!important;font-size:7px!important;font-weight:500;}
+  body.wt-printing .wt-name-sub{font-size:6px!important;color:#86868b;margin-top:0!important;}
   body.wt-printing .wt-loc{font-size:6px!important;color:#86868b;}
   body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
   body.wt-printing .wt-task-note{font-size:6px!important;padding:1px 3px!important;line-height:1.2!important;color:#1d1d1f;}
@@ -634,6 +641,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   }
   /* Hide the forecast overlay so empty cells stay empty in print */
   body.wt-printing .wt-hcell > div > div:first-child{display:none!important;}
+  /* Hide empty project columns during print */
+  body.wt-printing .wt-print-hide{display:none!important;}
   /* Page setup — A3 landscape */
   @page{size:A3 landscape;margin:6mm;}
 }
@@ -774,7 +783,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.89 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.90 · 1 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -833,7 +842,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.89 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.90 · 1 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -2562,7 +2571,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v7.9.89)
+// WEEKLY TRACKER  (v7.9.90)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -2793,7 +2802,8 @@ function wtBuild(canEdit){
       const canEditRow=wtCanEditEng(e);
       let rowTotal=0,rowForecast=0;
       html+='<tr class="wt-row'+(canEditRow?'':' wt-row-readonly')+'">';
-      html+='<td class="wt-name">'+esc(e.name)+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</td>';
+      const desig=[e.grade,e.subDisc||e.disc].filter(Boolean).join(' · ');
+      html+='<td class="wt-name"><div>'+esc(e.name)+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</div>'+(desig?'<div class="wt-name-sub">'+esc(desig)+'</div>':'')+'</td>';
       html+='<td class="wt-loc">'+wtEngOffLabel(e)+'</td>';
 
       // Tasks cell — description only (no hours)
@@ -3260,10 +3270,34 @@ function wtExportPDF(){
   const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
   wtBuild(canEdit);
   setTimeout(()=>{
+    // Mark empty project columns (header + all cells) so CSS can hide them
+    const table=document.querySelector('.wt-table');
+    const emptyColIdxs=new Set();
+    if(table){
+      // Find <th> elements with wt-c-proj class to get column indices
+      const headers=[...table.querySelectorAll('thead th')];
+      headers.forEach((th,i)=>{
+        if(th.classList.contains('wt-c-proj')){
+          // Check if any body cell in this column has a non-empty, non-zero value
+          const cells=[...table.querySelectorAll('tbody tr td:nth-child('+(i+1)+')')];
+          const hasValue=cells.some(td=>{
+            const inp=td.querySelector('input');
+            if(inp&&inp.value&&parseFloat(inp.value)>0)return true;
+            return false;
+          });
+          if(!hasValue)emptyColIdxs.add(i+1); // 1-based for nth-child
+        }
+      });
+      emptyColIdxs.forEach(ci=>{
+        table.querySelectorAll('thead th:nth-child('+ci+'), tbody td:nth-child('+ci+')').forEach(el=>el.classList.add('wt-print-hide'));
+      });
+    }
     document.body.classList.add('wt-printing');
     setTimeout(()=>{
       window.print();
       document.body.classList.remove('wt-printing');
+      // Remove print-hide classes
+      if(table)table.querySelectorAll('.wt-print-hide').forEach(el=>el.classList.remove('wt-print-hide'));
       WT_visibleProjects=savedProjs;
       Object.assign(WT_offFilter,savedOff);
       wtBuild(canEdit);
