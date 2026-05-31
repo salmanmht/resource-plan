@@ -13,6 +13,7 @@
 <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
 <style>
 :root{
@@ -404,6 +405,234 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 #weekly-fs-content{flex:1;overflow:auto;padding:0;}
 /* Fullscreen weekly table */
 
+
+/* ── WEEKLY TRACKER ── */
+/* Uses the app's existing design tokens — no custom colors */
+.wt-controls{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:10px 0 12px;}
+.wt-weeknav{display:flex;align-items:center;gap:6px;}
+.wt-weeknav button{background:#1e3a5f;color:#fff;border:none;width:28px;height:28px;border-radius:var(--r);cursor:pointer;font-size:13px;display:flex;align-items:center;justify-content:center;transition:.15s;}
+.wt-weeknav button:hover{background:#2c4a73;}
+.wt-weeknav button.wt-today{width:auto;padding:0 12px;font-size:11px;font-weight:500;}
+.wt-weeklabel{font-size:14px;font-weight:700;color:var(--tx);min-width:220px;text-align:center;letter-spacing:-.02em;}
+.wt-viewtoggle{display:flex;border:1px solid var(--bdr);border-radius:var(--r);overflow:hidden;background:var(--surf);}
+.wt-viewtoggle button{background:transparent;border:none;padding:6px 14px;cursor:pointer;font-size:12px;font-weight:500;color:var(--tx2);font-family:inherit;transition:.15s;}
+.wt-viewtoggle button.on{background:#1e3a5f;color:#fff;}
+.wt-viewtoggle button:not(.on):hover{background:var(--bg);}
+
+.wt-tabs{display:flex;align-items:center;gap:0;border-bottom:1px solid var(--bdr);margin-bottom:10px;}
+.wt-tab{padding:8px 14px;font-size:12px;font-weight:500;cursor:pointer;border-bottom:2px solid transparent;color:var(--tx3);transition:.12s;letter-spacing:-.01em;}
+.wt-tab.on{color:var(--acc);border-bottom-color:var(--acc);font-weight:600;}
+.wt-tab:hover:not(.on){color:var(--tx);}
+.wt-offchips{margin-left:auto;display:flex;gap:4px;padding-bottom:4px;}
+.wt-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--bdr);background:var(--surf);color:var(--tx3);transition:.12s;}
+.wt-chip.on{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}
+
+.wt-tablewrap{overflow-x:auto;border:1px solid var(--bdr);border-radius:var(--rl);background:var(--surf);box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.wt-table{width:100%;border-collapse:collapse;font-size:12px;}
+.wt-table thead .wt-h1 th{background:#1e3a5f;color:#fff;padding:8px 8px;font-weight:600;font-size:10px;white-space:nowrap;text-align:center;position:sticky;top:0;letter-spacing:.02em;text-transform:uppercase;vertical-align:middle;}
+.wt-table th.wt-c-name{text-align:left;min-width:145px;padding-left:14px;}
+.wt-table th.wt-c-loc{min-width:36px;}
+.wt-table th.wt-c-tasks{text-align:left;min-width:240px;padding:8px 12px!important;background:#162f52;}
+.wt-table th.wt-c-proj{min-width:78px;max-width:95px;background:#1a3457;padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
+.wt-proj-name{font-size:10px;font-weight:600;line-height:1.2;word-wrap:break-word;hyphens:auto;}
+.wt-proj-no{font-size:9px;font-weight:400;opacity:.7;margin-top:3px;letter-spacing:.04em;}
+.wt-table th.wt-c-nb{min-width:55px;background:#1f4d3a;padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
+.wt-table th.wt-c-total{min-width:50px;background:#0f2540;}
+
+.wt-disc td{background:var(--bg);padding:5px 14px;font-size:9px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
+.wt-row td{border-bottom:1px solid var(--bdr);vertical-align:middle;}
+.wt-row:hover td{background:var(--bg);}
+.wt-row-readonly td{background:#fafafa;}
+.wt-row-readonly:hover td{background:#fafafa;}
+.wt-row-readonly .wt-name{color:var(--tx3);}
+.wt-row-readonly input,.wt-row-readonly textarea{color:var(--tx3)!important;cursor:not-allowed;}
+.wt-name{padding:7px 14px;font-weight:500;color:var(--tx);font-size:12px;}
+.wt-loc{text-align:center;color:var(--tx3);font-size:10px;font-weight:500;}
+.wt-total{text-align:center;font-weight:600;background:var(--bg);color:var(--tx);font-size:12px;transition:background .2s;}
+.wt-total.wt-tt-ok{background:var(--grn2);color:#1a7a34;}
+.wt-total.wt-tt-mild{background:var(--amb2);color:#a05c00;}
+.wt-total.wt-tt-bad{background:var(--red2);color:var(--red);}
+.wt-legend{display:flex;align-items:center;gap:16px;padding:8px 12px;margin-top:8px;font-size:11px;color:var(--tx3);flex-wrap:wrap;}
+.wt-legend b{color:var(--tx);font-weight:600;}
+.wt-legend span{display:inline-flex;align-items:center;gap:5px;}
+.wt-leg-dot{display:inline-block;width:12px;height:12px;border-radius:3px;}
+.wt-leg-dot.wt-tt-ok{background:var(--grn2);border:1px solid #86efac;}
+.wt-leg-dot.wt-tt-mild{background:var(--amb2);border:1px solid #fcd34d;}
+.wt-leg-dot.wt-tt-bad{background:var(--red2);border:1px solid #fca5a5;}
+
+/* Tasks cell */
+.wt-tasks{padding:0;border-left:2px solid var(--acc2);border-right:2px solid var(--acc2);background:#fafcff;min-width:240px;vertical-align:top;}
+.wt-task-note{width:100%;min-height:34px;border:none;background:transparent;font-size:11px;color:var(--tx2);padding:8px 10px;outline:none;font-family:inherit;resize:none;line-height:1.4;overflow-y:hidden;word-wrap:break-word;display:block;}
+.wt-task-note::-webkit-scrollbar{width:0;height:0;}
+.wt-task-note::placeholder{color:var(--tx3);font-style:italic;}
+.wt-task-note:focus{background:var(--acc2);}
+.wt-ghost{font-size:10px;color:var(--tx3);padding:2px 8px 3px;font-style:italic;line-height:1.3;background:var(--bg);border-top:1px dashed var(--bdr);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:278px;}
+.wt-ghost::before{content:'↩ ';font-style:normal;color:var(--bdr);}
+
+/* Project hour cells */
+.wt-hcell{text-align:center;padding:0;position:relative;background:var(--surf);}
+.wt-hcell input{width:100%;height:34px;border:none;border-right:1px solid var(--bdr);background:transparent;text-align:center;font-size:12px;font-weight:500;color:var(--tx);outline:none;cursor:pointer;font-family:inherit;transition:.1s;}
+.wt-hcell input:focus{background:var(--acc2);}
+/* Forecast placeholder — visible light number */
+.wt-hcell input::placeholder{color:var(--bdr);font-size:11px;font-weight:400;}
+.wt-hcell input:not(:placeholder-shown){color:var(--tx);font-weight:600;}
+.wt-hcell input:disabled{cursor:default;}
+/* Non-billable cells */
+.wt-hcell.wt-nb{background:var(--grn2);}
+.wt-hcell.wt-nb input{border-right:1px solid var(--bdr);}
+.wt-hcell.wt-nb input:not(:placeholder-shown){color:#1a7a34;font-weight:600;}
+.wt-hcell.wt-nb input:focus{background:#daf5e0;}
+
+/* Forecast visible as background number */
+.wt-hcell .wt-fc{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#c0c0c8;pointer-events:none;z-index:0;letter-spacing:-.01em;}
+.wt-hcell input:not(:placeholder-shown) ~ .wt-fc{opacity:0;}
+.wt-hcell input:focus ~ .wt-fc{opacity:0;}
+
+/* Variance badges */
+/* ── Variance view: actual on top, forecast below ── */
+.wt-vcell{display:flex;flex-direction:column;align-items:stretch;justify-content:center;min-height:38px;padding:2px 0;}
+.wt-vact-in{width:100%;height:18px;border:none;background:transparent;text-align:center;font-size:12px;font-weight:600;color:var(--tx);outline:none;font-family:inherit;cursor:pointer;padding:0;}
+.wt-vact-in::placeholder{color:var(--bdr);font-weight:400;}
+.wt-vact-in:focus{background:rgba(255,255,255,.5);}
+.wt-vact-in:disabled{cursor:default;}
+.wt-vfc{font-size:9px;color:var(--tx3);text-align:center;line-height:1.1;padding:0 2px;}
+.wt-v-match{background:var(--grn2);}
+.wt-v-match .wt-vact-in{color:#173404;}
+.wt-v-match .wt-vfc{color:#3B6D11;}
+.wt-v-warn{background:var(--amb2);}
+.wt-v-warn .wt-vact-in{color:#412402;}
+.wt-v-warn .wt-vfc{color:#854F0B;}
+.wt-v-over{background:var(--red2);}
+.wt-v-over .wt-vact-in{color:#501313;}
+.wt-v-over .wt-vfc{color:#A32D2D;}
+
+/* Stacked row total in variance view */
+.wt-total-stack{padding:2px 4px;text-align:center;line-height:1.1;}
+.wt-tt-act{font-size:13px;font-weight:600;}
+.wt-tt-fc{font-size:9px;opacity:.75;margin-top:1px;}
+.wt-tot-stack{padding:4px;text-align:center;line-height:1.1;}
+.wt-tot-stack > div:first-child{font-size:12px;font-weight:600;}
+.wt-tot-fc{font-size:9px;opacity:.7;margin-top:1px;}
+
+/* Variance legend dots */
+.wt-leg-dot.wt-v-match{background:var(--grn2);border:1px solid #86efac;}
+.wt-leg-dot.wt-v-warn{background:var(--amb2);border:1px solid #fcd34d;}
+.wt-leg-dot.wt-v-over{background:var(--red2);border:1px solid #fca5a5;}
+
+/* Totals row */
+.wt-totals td{background:#1e3a5f;color:#fff;padding:8px;text-align:center;font-weight:600;font-size:12px;border-top:2px solid #162f52;}
+.wt-totals td:first-child{text-align:left;padding-left:14px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
+
+/* Stats strip — use .mc cards from the app */
+.wt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:12px;}
+
+/* Summary panel */
+.wt-summary{margin-top:10px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.wt-sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px;}
+.wt-sum-grid h4{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin:0 0 8px;}
+.wt-sum-row{display:flex;justify-content:space-between;padding:4px 0;border-bottom:1px solid var(--bg);font-size:12px;color:var(--tx2);}
+.wt-sum-row:last-child{border:none;font-weight:600;color:var(--tx);}
+
+/* Column picker — use app's .modal classes */
+.wt-modal-list{display:flex;flex-direction:column;gap:1px;max-height:50vh;overflow-y:auto;}
+.wt-modal-item{display:flex;align-items:center;gap:10px;padding:8px 12px;border-radius:8px;font-size:12px;cursor:pointer;color:var(--tx2);}
+.wt-modal-item:hover{background:var(--bg);}
+.wt-modal-item input[type=checkbox]{accent-color:var(--acc);width:15px;height:15px;cursor:pointer;}
+.wt-modal-item b{color:var(--tx3);font-weight:500;font-size:11px;min-width:42px;}
+.wt-modal-item .proj-name{font-weight:500;color:var(--tx);flex:1;}
+.wt-modal-badge{font-size:10px;font-weight:500;padding:2px 8px;border-radius:10px;background:var(--grn2);color:#1a7a34;border:1px solid var(--grn2);}
+.wt-modal-badge.inactive{background:var(--bg);color:var(--tx3);border-color:var(--bdr);}
+
+@media print{
+  /* When printing Weekly Tracker, hide everything except the tracker itself */
+  body.wt-printing *{visibility:hidden;}
+  body.wt-printing .wt-print-area,
+  body.wt-printing .wt-print-area *{visibility:visible;}
+  body.wt-printing .wt-print-area{
+    position:absolute;top:0;left:0;right:0;
+    padding:6px 8px;
+    background:#fff;
+  }
+  body.wt-printing .main{margin-left:0!important;}
+  /* Print header */
+  body.wt-printing .wt-print-hdr{
+    display:flex!important;
+    align-items:center;justify-content:space-between;
+    padding-bottom:6px;border-bottom:2px solid #1e3a5f;margin-bottom:6px;
+  }
+  body.wt-printing .wt-print-hdr-title{font-size:12px;font-weight:700;color:#1e3a5f;}
+  body.wt-printing .wt-print-hdr-week{font-size:10px;color:#86868b;}
+  body.wt-printing .wt-print-hdr-logo{font-size:9px;color:#86868b;}
+  /* Hide controls, tabs, stats, summary, ghost text */
+  body.wt-printing .wt-controls,
+  body.wt-printing .wt-tabs,
+  body.wt-printing .wt-stats,
+  body.wt-printing .wt-summary,
+  body.wt-printing .wt-ghost{display:none!important;}
+  /* Table — force fit by removing all min-widths */
+  body.wt-printing .wt-tablewrap{
+    border:none!important;overflow:visible!important;
+    box-shadow:none!important;
+  }
+  body.wt-printing .wt-table{
+    font-size:7px;width:100%;table-layout:fixed;
+    border-collapse:collapse;
+  }
+  body.wt-printing .wt-table th,
+  body.wt-printing .wt-table td{
+    min-width:0!important;max-width:none!important;
+    padding:2px 3px!important;
+    word-wrap:break-word;overflow:hidden;
+  }
+  body.wt-printing .wt-table thead .wt-h1 th{
+    background:#1e3a5f!important;color:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    font-size:7px!important;font-weight:600;
+    white-space:normal!important;line-height:1.15;
+    vertical-align:middle;
+  }
+  body.wt-printing .wt-c-name{width:8%!important;text-align:left!important;}
+  body.wt-printing .wt-c-loc{width:3%!important;}
+  body.wt-printing .wt-c-tasks{width:14%!important;background:#162f52!important;text-align:left!important;}
+  body.wt-printing .wt-c-proj{width:auto!important;background:#1a3457!important;}
+  body.wt-printing .wt-c-nb{width:auto!important;background:#1f4d3a!important;}
+  body.wt-printing .wt-c-total{width:4%!important;background:#0f2540!important;}
+  body.wt-printing .wt-proj-name{font-size:7px!important;}
+  body.wt-printing .wt-proj-no{font-size:6px!important;}
+  body.wt-printing .wt-table .wt-disc td{
+    background:#f5f5f7!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    padding:2px 8px!important;font-size:6px!important;font-weight:700;
+  }
+  body.wt-printing .wt-row td{border-bottom:1px solid #e5e5e7!important;}
+  body.wt-printing .wt-name{padding:2px 4px!important;font-size:7px!important;font-weight:500;}
+  body.wt-printing .wt-loc{font-size:6px!important;color:#86868b;}
+  body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
+  body.wt-printing .wt-task-note{font-size:6px!important;padding:1px 3px!important;line-height:1.2!important;color:#1d1d1f;}
+  body.wt-printing .wt-hcell{padding:0!important;}
+  body.wt-printing .wt-hcell input{
+    width:100%!important;height:auto!important;
+    font-size:7px!important;padding:2px!important;
+    border:none!important;background:transparent!important;
+    text-align:center;font-weight:600;color:#1d1d1f;
+  }
+  body.wt-printing .wt-hcell.wt-nb{background:#e8faf0!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
+  body.wt-printing .wt-hcell.wt-nb input{color:#1a7a34!important;}
+  body.wt-printing .wt-total{
+    background:#f5f5f7!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+    font-size:7px!important;font-weight:700;
+  }
+  body.wt-printing .wt-totals td{
+    background:#1e3a5f!important;color:#fff!important;
+    -webkit-print-color-adjust:exact;print-color-adjust:exact;
+    padding:3px 4px!important;font-size:7px!important;font-weight:700;
+  }
+  /* Hide the forecast overlay so empty cells stay empty in print */
+  body.wt-printing .wt-hcell > div > div:first-child{display:none!important;}
+  /* Page setup — A3 landscape */
+  @page{size:A3 landscape;margin:6mm;}
+}
+
 </style>
 </head>
 <body>
@@ -540,7 +769,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.70 · 30 May 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v7.9.84 · 30 May 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -591,6 +820,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
+  <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
   <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
   <div class="sbi" id="nav-holidays" onclick="nav('holidays')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays 🔒</div>
@@ -598,7 +828,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.70 · 30 May 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v7.9.84 · 30 May 2026</div>
 </div>
 
 <div class="main">
@@ -739,6 +969,23 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div id="proj-detail-content"></div>
     </div>
   </div>
+
+  <!-- WEEKLY TRACKER -->
+  <div id="pg-weekly" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Weekly Tracker</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" id="wt-cols-btn" onclick="wtOpenColsModal()" title="Choose which projects show as columns">⚙ Columns</button>
+        <button class="btn btn-g btn-sm" id="wt-summary-btn" onclick="wtToggleSummary()" title="Hours breakdown">📈 Summary</button>
+        <button class="btn btn-g btn-sm" id="wt-pdf-btn" onclick="wtExportPDF()" title="Export weekly report PDF">⬇ Export PDF</button>
+      </div>
+    </div>
+    <div class="pc" id="pc-weekly"></div>
+  </div>
+
 
   <!-- ANNUAL LEAVE -->
   <div id="pg-leave" style="display:none">
@@ -1063,7 +1310,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 // ═══════════════════════════════════════
 const SB_URL      = 'https://wgmkqrxivesphvutychm.supabase.co';
 const SB_KEY      = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
-let ADMIN_EMAILS=[]; // Bootstrap fallback only. Admins are managed in the DB: add role 'admin' rows to engineer_roles, or set the 'admin_emails' setting (a list). Put an email here ONLY to seed the very first admin before any DB roles exist.
+let ADMIN_EMAILS=['salman.sabir@meinhardtgroup.com']; // fallback only — overridden by engineer_roles table
 function isAdmin(email){ 
   if(S.roles&&S.roles.length) return S.roles.some(r=>r.role==='admin'&&r.email.toLowerCase()===(email||'').toLowerCase());
   return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase()); 
@@ -1478,7 +1725,7 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -1516,6 +1763,7 @@ async function doLogout(){
   const mgmtnav=document.getElementById('nav-mgmt');if(mgmtnav)mgmtnav.style.display='none';
   const holidaysnav=document.getElementById('nav-holidays');if(holidaysnav)holidaysnav.style.display='none';
   const leavenav=document.getElementById('nav-leave');if(leavenav)leavenav.style.display='none';
+  const weeklynav=document.getElementById('nav-weekly');if(weeklynav)weeklynav.style.display='none';
   ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
@@ -1556,7 +1804,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           const pinRow = await fetchUserPin();
@@ -1872,7 +2120,7 @@ async function addRole(){
     // Re-check admin status
     if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
       adminUnlocked=true;
-      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
     }
   }catch(e){toast('Error adding role');}
 }
@@ -1920,25 +2168,7 @@ async function rejectPendingUser(email){
 // ═══════════════════════════════════════
 async function sbFetch(path,method='GET',body=null,prefer='return=representation'){
   const token=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
-  const baseHdrs={'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':prefer};
-  // Auto-paginate GET requests — Supabase caps each response at 1000 rows
-  if(method==='GET' && !body){
-    const PAGE=1000;
-    let all=[];
-    let start=0;
-    while(start<=50000){
-      const hdrs={...baseHdrs,'Range-Unit':'items','Range':start+'-'+(start+PAGE-1)};
-      const r=await fetch(SB_URL+'/rest/v1/'+path,{method,headers:hdrs});
-      if(!r.ok)throw new Error(await r.text());
-      const t=await r.text();
-      const rows=t?JSON.parse(t):[];
-      all=all.concat(rows);
-      if(rows.length<PAGE)break;
-      start+=PAGE;
-    }
-    return all;
-  }
-  const opts={method,headers:baseHdrs};
+  const opts={method,headers:{'apikey':SB_KEY,'Authorization':'Bearer '+token,'Content-Type':'application/json','Prefer':prefer}};
   if(body)opts.body=JSON.stringify(body);
   const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
   if(!r.ok)throw new Error(await r.text());
@@ -1956,9 +2186,7 @@ async function initApp(){
   setSyncStatus(false,'Connecting…');
   try{
     const safeGet=async(t)=>{try{return await sbGet(t);}catch(e){console.warn('Table load failed:',t,e.message);return[];}};
-    // engineers + projects stay critical: if they fail, the outer catch falls back to the offline cache.
-    // Everything else is wrapped so one missing/misnamed table can't blank the whole app.
-    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows,rolesRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),safeGet('settings'),safeGet('leave_hrs'),safeGet('mgmt_hrs'),safeGet('holidays'),safeGet('project_hours'),safeGet('proposals'),safeGet('engineer_roles')]);
+    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows,rolesRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbFetch('project_hours?select=*'),safeGet('proposals'),safeGet('engineer_roles')]);
     S.engineers=engs.map(r=>normaliseEng(r.data));
     // Re-populate sidebar now that engineers (with emails) are loaded
     if(SB_SESSION&&SB_SESSION.user)populateSidebarUser(SB_SESSION.user);
@@ -1992,7 +2220,7 @@ async function initApp(){
     // Re-check admin status now that roles are loaded
     if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
       adminUnlocked=true;
-      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
       const eb=document.getElementById('proj-hdr-export-btn');if(eb)eb.style.display='flex';
       const ib=document.getElementById('proj-hdr-import-btn');if(ib)ib.style.display='flex';
       const nb=document.getElementById('proj-hdr-new-btn');if(nb)nb.style.display='';
@@ -2000,7 +2228,7 @@ async function initApp(){
     // Show Annual Leave for disc leads
     const userEmail2=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
     const isDiscLead2=S.roles.some(r=>r.email.toLowerCase()===userEmail2.toLowerCase()&&(r.role==='disc_lead'||r.role==='bim_lead'));
-    if(adminUnlocked||isDiscLead2){const ln=document.getElementById('nav-leave');if(ln)ln.style.display='';}
+    if(adminUnlocked||isDiscLead2){const ln=document.getElementById('nav-leave');if(ln)ln.style.display='';const wn=document.getElementById('nav-weekly');if(wn)wn.style.display='';}
     // Re-render current page in case permissions changed after roles loaded
     if(CURRENT_PAGE==='proj'){const dv=document.getElementById('proj-detail-view');if(dv&&dv.style.display!=='none'){const pdet=S.projects.find(p=>p.id===window._viewingProjId);if(pdet)renderProjDetail(pdet);}}
 
@@ -2315,8 +2543,617 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','leave','mgmt','holidays','rates','pending','proposals'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','weekly','leave','mgmt','holidays','rates','pending','proposals'];
 let CURRENT_PAGE='mep';
+
+// ═══════════════════════════════════════
+// WEEKLY TRACKER  (v7.9.84)
+// Forecast (project_hours) vs Actual (weekly_actuals)
+// ═══════════════════════════════════════
+const WT_NONBILL=[
+  {key:'leave',   label:'Annual Leave'},
+  {key:'compoff', label:'Comp Off'},
+  {key:'holiday', label:'Public Hol'},
+  {key:'training',label:'Training'}
+];
+let WT_weekMonday=null;        // Date of currently-viewed Monday
+let WT_view='variance';        // 'clean' | 'variance' (default: variance)
+let WT_tab='all';              // discipline filter
+let WT_offFilter={UAE:true,EGY:true,IND:true,JSE:true};
+let WT_visibleProjects=null;   // array of project ids shown as columns (null = auto active)
+let WT_actuals={};             // {engId:{key:val}}  key = projId | 'task_hrs' | 'task_note' | nonbill key
+let WT_prevNotes={};           // {engId: note string} from previous week
+let WT_summaryOpen=false;
+
+function wtMondayOf(d){
+  const x=new Date(d);const day=x.getDay();
+  // Monday-commencing: if not Monday, go back to Monday
+  const diff=(day===0?-6:1-day);
+  x.setDate(x.getDate()+diff);
+  x.setHours(0,0,0,0);
+  return x;
+}
+function wtFmtWeek(d){
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const wk=wkNum(d);
+  return 'Week '+wk+' · Mon '+d.getDate()+' '+months[d.getMonth()]+' '+d.getFullYear();
+}
+function wtISO(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+
+// First Monday >= project start (same logic as computeAll)
+function wtProjFirstMonday(pStart){
+  const d=new Date(pStart);const day=d.getDay();
+  if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
+  d.setHours(0,0,0,0);
+  return d;
+}
+// For a given project & target Monday, return the project-relative week_index (or -1 if before start)
+function wtWeekIndexFor(p,targetMonday){
+  if(!p.start)return -1;
+  const fm=wtProjFirstMonday(p.start);
+  const diffDays=Math.round((targetMonday-fm)/864e5);
+  if(diffDays<0)return -1;
+  return Math.round(diffDays/7);
+}
+// Forecast hours for engineer on project for the viewed week
+function wtForecast(p,engId){
+  const wi=wtWeekIndexFor(p,WT_weekMonday);
+  if(wi<0)return 0;
+  const arr=p.weeklyHrs&&p.weeklyHrs[engId];
+  if(!arr)return 0;
+  return Number(arr[wi])||0;
+}
+
+// Which projects are columns
+function wtColumnProjects(){
+  let list=S.projects.filter(p=>p.id!=='proj-00000');
+  if(WT_visibleProjects){
+    list=list.filter(p=>WT_visibleProjects.includes(p.id));
+  } else {
+    list=list.filter(p=>p.status==='Active');
+  }
+  // Sort by project number
+  return list.sort((a,b)=>String(a.no||a.id).localeCompare(String(b.no||b.id)));
+}
+
+// Engineers grouped by discipline section, respecting tab + office filters
+function wtEngineerRows(){
+  const out=[];
+  // Discipline section definitions in display order
+  const sections=[
+    {key:'HVAC',  label:'HVAC',  match:e=>e.disc==='HVAC'&&e.team!=='BIM'},
+    {key:'PH&E',  label:'PH & Fire', match:e=>e.disc==='PH&E'&&e.team!=='BIM'},
+    {key:'ELE',   label:'Electrical', match:e=>e.disc==='ELE'&&e.team!=='BIM'},
+    {key:'ELV',   label:'ELV', match:e=>e.disc==='ELV'&&e.team!=='BIM'},
+    {key:'BIM-MEC',label:'BIM — Mechanical', match:e=>e.team==='BIM'&&(e.subDisc==='HVAC'||e.subDisc==='MEC'||e.subDisc==='Mechanical')},
+    {key:'BIM-ELE',label:'BIM — Electrical', match:e=>e.team==='BIM'&&(e.subDisc==='ELE')},
+    {key:'BIM-PH', label:'BIM — Plumbing & Fire', match:e=>e.team==='BIM'&&(e.subDisc==='PH&E'||e.subDisc==='PH')},
+    {key:'BIM-ELV',label:'BIM — ELV', match:e=>e.team==='BIM'&&(e.subDisc==='ELV')},
+    {key:'BIM-OTH',label:'BIM — Other', match:e=>e.team==='BIM'&&!['HVAC','MEC','Mechanical','ELE','PH&E','PH','ELV'].includes(e.subDisc)},
+    {key:'OTHER', label:'Other / Unassigned', match:e=>e.team!=='BIM'&&!['HVAC','PH&E','ELE','ELV'].includes(e.disc)}
+  ];
+  const TAB_TO_SEC={hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV'};
+  const tabMatch=(secKey)=>{
+    if(WT_tab==='all')return true;
+    if(WT_tab==='bim')return secKey.startsWith('BIM');
+    return secKey===TAB_TO_SEC[WT_tab];
+  };
+  sections.forEach(sec=>{
+    if(!tabMatch(sec.key))return;
+    const engs=S.engineers.filter(e=>{
+      if(!sec.match(e))return false;
+      const off=(e.off||'').toUpperCase();
+      const isJSE=(off==='IND'||(e.id||'').includes('jse'));
+      if(isJSE)return WT_offFilter.JSE;
+      if(off==='DXB')return WT_offFilter.UAE;
+      if(off==='EGY')return WT_offFilter.EGY;
+      return true; // any other office — always show so nobody is hidden
+    }).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+    if(engs.length)out.push({section:sec,engs});
+  });
+  return out;
+}
+
+function wtEngOffLabel(e){
+  const off=(e.off||'').toUpperCase();
+  if(off==='IND'||(e.id||'').includes('jse'))return 'JSE';
+  if(off==='DXB')return 'UAE';
+  return off||'—';
+}
+
+// Per-engineer edit permission
+function wtCanEditEng(eng){
+  if(adminUnlocked)return true;
+  if(!eng)return false;
+  const roles=myRoles();
+  if(!roles.length)return false;
+  // BIM engineer? → only BIM lead (any scope BIM)
+  if(eng.team==='BIM'){
+    return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()==='BIM');
+  }
+  // MEP engineer → disc lead with matching scope
+  const engDisc=(eng.disc||'').toUpperCase();
+  return roles.some(r=>r.role==='disc_lead'&&(r.scope||'').toUpperCase()===engDisc);
+}
+// Can the current user edit anything at all? (used to show/hide the page)
+function wtCanEditAny(){
+  if(adminUnlocked)return true;
+  return myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead');
+}
+
+async function renderWeekly(){
+  const c=document.getElementById('pc-weekly');
+  if(!c)return;
+  if(!WT_weekMonday)WT_weekMonday=wtMondayOf(new Date());
+  // Permission to access page
+  const canEdit=wtCanEditAny();
+  c.innerHTML='<div style="padding:20px;color:var(--tx3);">Loading week…</div>';
+  await wtLoadWeek();
+  wtBuild(canEdit);
+}
+
+async function wtLoadWeek(){
+  WT_actuals={};WT_prevNotes={};
+  const iso=wtISO(WT_weekMonday);
+  const prevMon=new Date(WT_weekMonday);prevMon.setDate(prevMon.getDate()-7);
+  const prevIso=wtISO(prevMon);
+  try{
+    const rows=await sbFetch('weekly_actuals?select=*&week_commencing=eq.'+iso);
+    (Array.isArray(rows)?rows:[]).forEach(r=>{
+      if(!WT_actuals[r.engineer_id])WT_actuals[r.engineer_id]={};
+      if(r.category==='task'){
+        WT_actuals[r.engineer_id]['task_note']=r.note||'';
+      } else if(r.category==='project'){
+        WT_actuals[r.engineer_id][r.project_id]=Number(r.hours)||0;
+      } else {
+        WT_actuals[r.engineer_id][r.category]=Number(r.hours)||0;
+      }
+    });
+    // previous week task notes (ghost)
+    const prevRows=await sbFetch('weekly_actuals?select=engineer_id,note,category&week_commencing=eq.'+prevIso+'&category=eq.task');
+    (Array.isArray(prevRows)?prevRows:[]).forEach(r=>{ if(r.note)WT_prevNotes[r.engineer_id]=r.note; });
+  }catch(e){
+    console.error('wtLoadWeek error',e);
+    setSyncStatus(false,'Weekly load failed');
+  }
+}
+
+function wtBuild(canEdit){
+  const c=document.getElementById('pc-weekly');
+  const projects=wtColumnProjects();
+  const groups=wtEngineerRows();
+
+  // ── Control bar ──
+  let html='<div class="wt-print-area">';
+  // Print-only header (hidden on screen, visible when printing)
+  html+='<div class="wt-print-hdr" style="display:none;">';
+  html+='<div><div class="wt-print-hdr-title">MEP Resource Plan — Weekly Tracker</div>';
+  html+='<div class="wt-print-hdr-week">'+wtFmtWeek(WT_weekMonday)+'</div></div>';
+  html+='<div class="wt-print-hdr-logo">Meinhardt Group</div></div>';
+  html+='<div class="wt-controls">';
+  html+='<div class="wt-weeknav"><button onclick="wtChangeWeek(-1)">◀</button>'+
+        '<span class="wt-weeklabel">'+wtFmtWeek(WT_weekMonday)+'</span>'+
+        '<button onclick="wtChangeWeek(1)">▶</button>'+
+        '<button onclick="wtThisWeek()" class="wt-today">Today</button></div>';
+  html+='<div class="wt-viewtoggle">'+
+        '<button class="'+(WT_view==='clean'?'on':'')+'" onclick="wtSetView(\'clean\')">Clean</button>'+
+        '<button class="'+(WT_view==='variance'?'on':'')+'" onclick="wtSetView(\'variance\')">Forecast vs Actual</button>'+
+        '</div>';
+  html+='</div>';
+
+  // ── Discipline tabs ──
+  const tabs=[['all','All'],['hvac','HVAC'],['phe','PH&E'],['ele','ELE'],['elv','ELV'],['bim','BIM']];
+  html+='<div class="wt-tabs">';
+  tabs.forEach(t=>{html+='<div class="wt-tab '+(WT_tab===t[0]?'on':'')+'" onclick="wtSetTab(\''+t[0]+'\')">'+t[1]+'</div>';});
+  // office filter chips
+  html+='<div class="wt-offchips">';
+  ['UAE','EGY','JSE'].forEach(o=>{html+='<span class="wt-chip '+(WT_offFilter[o]?'on':'')+'" onclick="wtToggleOff(\''+o+'\')">'+o+'</span>';});
+  html+='</div></div>';
+
+  if(!projects.length){
+    html+='<div style="padding:24px;color:var(--tx3);text-align:center;">No active projects to show. Use ⚙ Columns to pick projects.</div>';
+    c.innerHTML=html;return;
+  }
+
+  // ── Table ──
+  html+='<div class="wt-tablewrap"><table class="wt-table"><thead><tr class="wt-h1">';
+  const nameLabel=WT_tab==='bim'?'BIM Team':'Engineer';
+  html+='<th class="wt-c-name">'+nameLabel+'</th><th class="wt-c-loc">Loc</th>';
+  html+='<th class="wt-c-tasks">Weekly Tasks &amp; Support</th>';
+  projects.forEach(p=>{html+='<th class="wt-c-proj" title="'+esc((p.no?p.no+' — ':'')+(p.name||p.id))+'"><div class="wt-proj-name">'+esc(p.name||p.id)+'</div>'+(p.no?'<div class="wt-proj-no">'+esc(p.no)+'</div>':'')+'</th>';});
+  WT_NONBILL.forEach(nb=>{html+='<th class="wt-c-nb">'+nb.label+'</th>';});
+  html+='<th class="wt-c-total">Total</th></tr></thead><tbody>';
+
+  const projTotals={};projects.forEach(p=>projTotals[p.id]=0);
+  const projForecastTotals={};projects.forEach(p=>projForecastTotals[p.id]=0);
+  let grand=0,grandForecast=0;const nbTot={leave:0,compoff:0,holiday:0,training:0};
+  let activeCount=0;
+
+  groups.forEach(g=>{
+    html+='<tr class="wt-disc"><td colspan="'+(projects.length+WT_NONBILL.length+4)+'">'+esc(g.section.label)+'</td></tr>';
+    g.engs.forEach(e=>{
+      const act=WT_actuals[e.id]||{};
+      const canEditRow=wtCanEditEng(e);
+      let rowTotal=0,rowForecast=0;
+      html+='<tr class="wt-row'+(canEditRow?'':' wt-row-readonly')+'">';
+      html+='<td class="wt-name">'+esc(e.name)+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</td>';
+      html+='<td class="wt-loc">'+wtEngOffLabel(e)+'</td>';
+
+      // Tasks cell — description only (no hours)
+      const tNote=act['task_note']||'';
+      const ghost=WT_prevNotes[e.id]||'';
+      html+='<td class="wt-tasks">';
+      html+='<textarea class="wt-task-note" rows="1" placeholder="task / support description…" '+(canEditRow?'':'disabled')+' oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';wtEdit(\''+e.id+'\',\'task_note\',this.value)">'+esc(tNote)+'</textarea>';
+      if(ghost)html+='<div class="wt-ghost" title="'+esc(ghost)+'">'+esc(ghost)+'</div>';
+      html+='</td>';
+
+      // Project cells
+      projects.forEach(p=>{
+        const fc=wtForecast(p,e.id);
+        const av=act[p.id];
+        const actual=av!=null?Number(av):null;
+        const shown=actual!=null?actual:'';
+        let cell='';
+        if(WT_view==='variance'){
+          // Variance view: input on top, forecast below with diff, color-tinted background
+          let bgClass='';
+          if(fc>0||(actual!=null&&actual>0)){
+            const a=actual!=null?actual:0;
+            const diff=a-fc;
+            const ratio=fc===0?(a>0?1:0):Math.abs(diff)/fc;
+            // Only color if user entered an actual (don't color forecast-only cells)
+            if(actual!=null){
+              bgClass=ratio<0.05?' wt-v-match':ratio<0.2?' wt-v-warn':' wt-v-over';
+            }
+          }
+          // Top: actual input (editable). Bottom: forecast + diff
+          cell='<div class="wt-vcell'+bgClass+'">';
+          cell+='<input class="wt-vact-in" type="number" min="0" max="999" step="0.5" placeholder="—" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Click to enter actual hours">';
+          if(fc>0||actual!=null){
+            const a=actual!=null?actual:0;
+            const diff=a-fc;
+            const sign=diff>0?'+':'';
+            let diffTxt='';
+            if(actual!=null&&fc>0&&diff!==0)diffTxt=' · '+sign+Math.round(diff);
+            else if(actual!=null&&fc===0&&a>0)diffTxt=' · '+sign+Math.round(a);
+            cell+='<div class="wt-vfc">/ '+(fc||0)+diffTxt+'</div>';
+          } else {
+            cell+='<div class="wt-vfc">&nbsp;</div>';
+          }
+          cell+='</div>';
+        } else {
+          // Clean view: just the input, no forecast clutter
+          cell='<input type="number" min="0" max="999" step="0.5" placeholder="" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Forecast: '+fc+'h" style="background:transparent;width:100%;height:34px;border:none;text-align:center;outline:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx);cursor:pointer;">';
+        }
+        html+='<td class="wt-hcell">'+cell+'</td>';
+        const v=actual!=null?actual:0;
+        rowTotal+=v;projTotals[p.id]+=v;
+        if(!projForecastTotals[p.id])projForecastTotals[p.id]=0;
+        projForecastTotals[p.id]+=fc;
+        rowForecast+=fc;
+      });
+
+      // Non-billable
+      WT_NONBILL.forEach(nb=>{
+        const v=act[nb.key]||0;
+        html+='<td class="wt-hcell wt-nb"><input type="number" min="0" max="99" step="0.5" placeholder="" value="'+(v||'')+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+nb.key+'\',this.value)"></td>';
+        rowTotal+=v;nbTot[nb.key]+=v;
+      });
+
+      if(rowTotal>0)activeCount++;
+      grand+=rowTotal;
+      grandForecast+=rowForecast;
+      // Row total — in variance view show actual + forecast stacked
+      if(WT_view==='variance'){
+        const diff=rowTotal-rowForecast;
+        const sign=diff>0?'+':'';
+        let totCls='';
+        if(rowTotal>0||rowForecast>0){
+          const ratio=rowForecast===0?(rowTotal>0?1:0):Math.abs(diff)/rowForecast;
+          totCls=ratio<0.05?'wt-tt-ok':ratio<0.2?'wt-tt-mild':'wt-tt-bad';
+        }
+        let diffTxt='';
+        if(rowTotal>0&&rowForecast>0&&diff!==0)diffTxt=' · '+sign+Math.round(diff);
+        html+='<td class="wt-total wt-total-stack '+totCls+'" id="wt-rt-'+e.id+'" title="Actual: '+rowTotal+'h · Forecast: '+rowForecast+'h"><div class="wt-tt-act">'+(rowTotal||'—')+'</div><div class="wt-tt-fc">/ '+(rowForecast||0)+diffTxt+'</div></td>';
+      } else {
+        html+='<td class="wt-total '+wtTotalClass(rowTotal)+'" id="wt-rt-'+e.id+'" title="'+wtTotalTitle(rowTotal)+'">'+(rowTotal||'—')+'</td>';
+      }
+      html+='</tr>';
+    });
+  });
+
+  // Totals row — show forecast totals in variance view
+  html+='<tr class="wt-totals"><td colspan="3">TOTALS</td>';
+  if(WT_view==='variance'){
+    projects.forEach(p=>{
+      const a=projTotals[p.id]||0,f=projForecastTotals[p.id]||0,d=a-f,s=d>0?'+':'';
+      const dt=(a>0&&f>0&&d!==0)?' · '+s+Math.round(d):'';
+      html+='<td class="wt-tot-stack"><div>'+(a||'—')+'</div><div class="wt-tot-fc">/ '+(f||0)+dt+'</div></td>';
+    });
+    WT_NONBILL.forEach(nb=>{html+='<td>'+(nbTot[nb.key]||'—')+'</td>';});
+    const gd=grand-grandForecast,gs=gd>0?'+':'';
+    const gdt=(grand>0&&grandForecast>0&&gd!==0)?' · '+gs+Math.round(gd):'';
+    html+='<td class="wt-tot-stack"><div>'+(grand||'—')+'</div><div class="wt-tot-fc">/ '+(grandForecast||0)+gdt+'</div></td></tr>';
+  } else {
+    projects.forEach(p=>{html+='<td>'+(projTotals[p.id]||'—')+'</td>';});
+    WT_NONBILL.forEach(nb=>{html+='<td>'+(nbTot[nb.key]||'—')+'</td>';});
+    html+='<td>'+(grand||'—')+'</td></tr>';
+  }
+  html+='</tbody></table></div>';
+
+  // Legend — different for variance view
+  html+='<div class="wt-legend">';
+  if(WT_view==='variance'){
+    html+='<span><b>Each cell:</b> actual / forecast</span>';
+    html+='<span><i class="wt-leg-dot wt-v-match"></i> matches forecast</span>';
+    html+='<span><i class="wt-leg-dot wt-v-warn"></i> ±20%</span>';
+    html+='<span><i class="wt-leg-dot wt-v-over"></i> &gt;±50%</span>';
+  } else {
+    html+='<span><b>Target: '+WT_TARGET+'h/week</b></span>';
+    html+='<span><i class="wt-leg-dot wt-tt-ok"></i> On target</span>';
+    html+='<span><i class="wt-leg-dot wt-tt-mild"></i> ±5h variance</span>';
+    html+='<span><i class="wt-leg-dot wt-tt-bad"></i> &gt; ±5h (check)</span>';
+  }
+  html+='</div>';
+
+  // Stats strip
+  const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
+  const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training;
+  html+='<div class="wt-stats">';
+  html+=wtStatCard('Total Hours',grand,'this week');
+  html+=wtStatCard('Billable',billable,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
+  html+=wtStatCard('Non-Billable',nonBill,'leave · comp · hol · training');
+  html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+  html+='</div>';
+
+  // Summary panel
+  if(WT_summaryOpen){
+    html+='<div class="wt-summary">'+wtSummaryHTML(projects,projTotals,nbTot,grand)+'</div>';
+  }
+
+  html+='</div>'; // close wt-print-area
+  c.innerHTML=html;
+  // Auto-grow any task notes that had content on load
+  c.querySelectorAll('.wt-task-note').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px';});
+}
+
+function wtStatCard(label,val,sub){
+  return '<div class="mc"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+val+'</div><div class="mc-s">'+sub+'</div></div>';
+}
+
+function wtSummaryHTML(projects,projTotals,nbTot,grand){
+  let h='<div class="wt-sum-grid"><div><h4>Hours by Project</div>';
+  projects.forEach(p=>{h+='<div class="wt-sum-row"><span style="flex:1;">'+esc(p.name||p.id)+'<span style="color:var(--tx3);font-size:10px;margin-left:6px;">'+esc(p.no||'')+'</span></span><span style="font-weight:600;">'+((projTotals[p.id]||0)>0?projTotals[p.id]:'—')+'</span></div>';});
+  const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
+  h+='<div class="wt-sum-row" style="font-weight:600;"><span>Total Billable</span><span>'+(billable||'—')+'</span></div></div>';
+  h+='<div><h4>Non-Billable</div>';
+  WT_NONBILL.forEach(nb=>{h+='<div class="wt-sum-row"><span>'+nb.label+'</span><span>'+(nbTot[nb.key]||'—')+'</span></div>';});
+  h+='<div class="wt-sum-row" style="font-weight:600;"><span>Grand Total</span><span>'+(grand||'—')+'</span></div></div></div>';
+  return h;
+}
+
+// ── Editing ──
+function wtEdit(engId,key,rawVal){
+  if(!WT_actuals[engId])WT_actuals[engId]={};
+  if(key==='task_note'){
+    WT_actuals[engId][key]=rawVal;
+  } else {
+    WT_actuals[engId][key]=parseFloat(rawVal)||0;
+  }
+  // Update row total + column totals + stats live
+  wtUpdateRowTotal(engId);
+  wtUpdateAllTotals();
+  // In variance view, schedule a soft rebuild so cell colors + forecast diffs refresh
+  if(WT_view==='variance'&&key!=='task_note'){
+    clearTimeout(WT_rebuildTimer);
+    WT_rebuildTimer=setTimeout(()=>{
+      // Preserve focus on the edited cell
+      const active=document.activeElement;
+      const focusKey=active&&active.classList.contains('wt-vact-in')?{engId,key}:null;
+      const caret=focusKey?active.selectionStart:null;
+      const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
+      wtBuild(canEdit);
+      // Restore focus
+      if(focusKey){
+        const row=document.querySelector('input.wt-vact-in[oninput*="\''+focusKey.engId+'\'"][oninput*="\''+focusKey.key+'\'"]');
+        if(row){row.focus();if(caret!=null)row.setSelectionRange(caret,caret);}
+      }
+    },800);
+  }
+  // Debounced save
+  clearTimeout(WT_actuals[engId]._t);
+  WT_actuals[engId]._t=setTimeout(()=>wtSaveCell(engId,key),1500);
+}
+let WT_rebuildTimer=null;
+
+// Color coding for weekly total — target is 45 hrs/week
+const WT_TARGET=45;
+function wtTotalClass(t){
+  if(!t||t===0)return '';
+  if(t===WT_TARGET)return 'wt-tt-ok';
+  const diff=Math.abs(t-WT_TARGET);
+  if(diff<=5)return 'wt-tt-mild';   // 40-44 or 46-50
+  return 'wt-tt-bad';                // <40 or >50
+}
+function wtTotalTitle(t){
+  if(!t||t===0)return 'No hours logged this week';
+  if(t===WT_TARGET)return 'On target ('+WT_TARGET+' hrs)';
+  const diff=t-WT_TARGET;
+  const sign=diff>0?'+':'';
+  return 'Total: '+t+' hrs · '+sign+diff+' vs target ('+WT_TARGET+' hrs)';
+}
+
+function wtUpdateRowTotal(engId){
+  const act=WT_actuals[engId]||{};
+  let t=0;
+  const projects=wtColumnProjects();
+  projects.forEach(p=>{t+=act[p.id]||0;});
+  WT_NONBILL.forEach(nb=>{t+=act[nb.key]||0;});
+  const el=document.getElementById('wt-rt-'+engId);
+  if(el){
+    el.textContent=t||'—';
+    el.classList.remove('wt-tt-ok','wt-tt-mild','wt-tt-bad');
+    const cls=wtTotalClass(t);
+    if(cls)el.classList.add(cls);
+    el.title=wtTotalTitle(t);
+  }
+}
+
+// Recompute column totals + stat cards by summing from in-memory actuals
+function wtUpdateAllTotals(){
+  const projects=wtColumnProjects();
+  const groups=wtEngineerRows();
+  const projTotals={};projects.forEach(p=>projTotals[p.id]=0);
+  let grand=0,activeCount=0;
+  const nbTot={leave:0,compoff:0,holiday:0,training:0};
+  groups.forEach(g=>g.engs.forEach(e=>{
+    const act=WT_actuals[e.id]||{};
+    let rowTotal=0;
+    projects.forEach(p=>{const v=act[p.id]||0;rowTotal+=v;projTotals[p.id]+=v;});
+    WT_NONBILL.forEach(nb=>{const v=act[nb.key]||0;rowTotal+=v;nbTot[nb.key]+=v;});
+    if(rowTotal>0)activeCount++;
+    grand+=rowTotal;
+  }));
+  // Update totals row cells
+  const totRow=document.querySelector('.wt-totals');
+  if(totRow){
+    const cells=totRow.querySelectorAll('td');
+    // [0]=label (colspan 2), [1]=tasks, [2..]=projects, then nonbill, then grand
+    if(cells.length>=3+projects.length+WT_NONBILL.length){
+      let idx=1;
+      projects.forEach(p=>{cells[idx++].textContent=projTotals[p.id]||'—';});
+      WT_NONBILL.forEach(nb=>{cells[idx++].textContent=nbTot[nb.key]||'—';});
+      cells[idx].textContent=grand||'—';
+    }
+  }
+  // Update stat cards (the four mc cards in .wt-stats)
+  const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
+  const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training;
+  const stats=document.querySelectorAll('.wt-stats .mc-v');
+  if(stats.length>=4){
+    stats[0].textContent=grand;
+    stats[1].textContent=billable;
+    stats[2].textContent=nonBill;
+    stats[3].textContent=activeCount;
+  }
+  // Billable sub-text
+  const billSub=document.querySelectorAll('.wt-stats .mc-s');
+  if(billSub.length>=2){
+    billSub[1].textContent=grand>0?Math.round(billable/grand*100)+'% of total':'0%';
+  }
+}
+
+async function wtSaveCell(engId,key){
+  const iso=wtISO(WT_weekMonday);
+  const act=WT_actuals[engId]||{};
+  try{
+    if(key==='task_note'){
+      const note=act['task_note']||'';
+      if(note){
+        await sbFetch('weekly_actuals','POST',
+          {week_commencing:iso,engineer_id:engId,project_id:'__task__',category:'task',hours:0,note:note},
+          'resolution=merge-duplicates,return=representation');
+      } else {
+        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.task','DELETE');
+      }
+    } else if(WT_NONBILL.find(n=>n.key===key)){
+      const v=act[key]||0;
+      if(v>0){
+        await sbFetch('weekly_actuals','POST',
+          {week_commencing:iso,engineer_id:engId,project_id:'__'+key+'__',category:key,hours:v,note:''},
+          'resolution=merge-duplicates,return=representation');
+      } else {
+        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&category=eq.'+key,'DELETE');
+      }
+    } else {
+      // project cell
+      const v=act[key]||0;
+      if(v>0){
+        await sbFetch('weekly_actuals','POST',
+          {week_commencing:iso,engineer_id:engId,project_id:key,category:'project',hours:v,note:''},
+          'resolution=merge-duplicates,return=representation');
+      } else {
+        await sbFetch('weekly_actuals?week_commencing=eq.'+iso+'&engineer_id=eq.'+engId+'&project_id=eq.'+key+'&category=eq.project','DELETE');
+      }
+    }
+    setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+  }catch(e){
+    setSyncStatus(false,'Weekly save failed');
+    console.error('wtSaveCell',e);
+  }
+}
+
+// ── Controls ──
+function wtChangeWeek(dir){
+  WT_weekMonday=new Date(WT_weekMonday);
+  WT_weekMonday.setDate(WT_weekMonday.getDate()+dir*7);
+  renderWeekly();
+}
+function wtThisWeek(){WT_weekMonday=wtMondayOf(new Date());renderWeekly();}
+function wtSetView(v){WT_view=v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetTab(t){WT_tab=t;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtToggleOff(o){WT_offFilter[o]=!WT_offFilter[o];const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtToggleSummary(){WT_summaryOpen=!WT_summaryOpen;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+
+// ── Column picker modal ──
+function wtOpenColsModal(){
+  const all=S.projects.filter(p=>p.id!=='proj-00000').sort((a,b)=>String(a.no||a.id).localeCompare(String(b.no||b.id)));
+  const current=WT_visibleProjects||all.filter(p=>p.status==='Active').map(p=>p.id);
+  let h='<div class="modal-overlay" onclick="wtCloseColsModal(event)" style="display:flex;align-items:center;justify-content:center;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;padding:16px;">';
+  h+='<div class="modal" style="max-width:440px;width:100%;" onclick="event.stopPropagation()">';
+  h+='<div class="modal-hd"><div class="modal-ht">Project Columns</div><button class="cls" onclick="wtCloseColsModal()">&times;</button></div>';
+  h+='<div class="modal-bd" style="padding:12px 16px;">';
+  h+='<p style="font-size:11px;color:var(--tx3);margin:0 0 10px;">Choose which projects appear as columns this week.</p>';
+  h+='<div class="wt-modal-list">';
+  all.forEach(p=>{
+    const ck=current.includes(p.id)?'checked':'';
+    const isActive=p.status==='Active';
+    h+='<label class="wt-modal-item"><input type="checkbox" value="'+p.id+'" '+ck+'>';
+    h+='<b>'+esc(p.no||'')+'</b>';
+    h+='<span class="proj-name">'+esc(p.name||p.id)+'</span>';
+    h+='<span class="wt-modal-badge'+(isActive?'':' inactive')+'">'+esc(p.status||'—')+'</span>';
+    h+='</label>';
+  });
+  h+='</div></div>';
+  h+='<div class="modal-ft">';
+  h+='<button class="btn btn-g btn-sm" onclick="wtColsActive()">Active only</button>';
+  h+='<button class="btn btn-g btn-sm" onclick="wtCloseColsModal()">Cancel</button>';
+  h+='<button class="btn btn-p btn-sm" onclick="wtApplyCols()">Apply</button>';
+  h+='</div></div></div>';
+  const d=document.createElement('div');d.id='wt-cols-modal';d.innerHTML=h;document.body.appendChild(d);
+}
+function wtCloseColsModal(ev){if(ev&&ev.target&&!ev.target.classList.contains('wt-modal-bg')&&ev.type==='click'&&ev.target.id!=='wt-cols-modal')return;const m=document.getElementById('wt-cols-modal');if(m)m.remove();}
+function wtColsActive(){WT_visibleProjects=null;wtCloseColsModal();renderWeekly();}
+function wtApplyCols(){
+  const m=document.getElementById('wt-cols-modal');
+  if(!m)return;
+  const checked=[...m.querySelectorAll('input[type=checkbox]:checked')].map(c=>c.value);
+  WT_visibleProjects=checked.length?checked:null;
+  wtCloseColsModal();renderWeekly();
+}
+
+// ── PDF export (print) ──
+function wtExportPDF(){
+  // Keep current tab — only force all offices and all projects so nothing is hidden
+  const savedProjs=WT_visibleProjects;
+  const savedOff={...WT_offFilter};
+  WT_visibleProjects=null; // all active projects
+  WT_offFilter={UAE:true,EGY:true,IND:true,JSE:true};
+  const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
+  wtBuild(canEdit);
+  setTimeout(()=>{
+    document.body.classList.add('wt-printing');
+    setTimeout(()=>{
+      window.print();
+      document.body.classList.remove('wt-printing');
+      WT_visibleProjects=savedProjs;
+      Object.assign(WT_offFilter,savedOff);
+      wtBuild(canEdit);
+    },300);
+  },150);
+}
+
+
 function nav(p, fromPopstate){
   // If we were viewing a proposal detail and navigating anywhere, clean up first
   // (to-proposals nav still cleans up — user expects to land on the list)
@@ -2349,6 +3186,7 @@ function nav(p, fromPopstate){
   else if(p==='bim')setTimeout(()=>renderBIM('pc-bim'),0);
   else if(p==='team')renderTeam();
   else if(p==='proj')renderProj();
+  else if(p==='weekly')renderWeekly();
   else if(p==='rates')renderRates();
   else if(p==='leave')renderLeave();
   else if(p==='mgmt')renderMgmt();
@@ -7746,7 +8584,7 @@ function loadBIMSeedData(){
 <script>
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
-    navigator.serviceWorker.register('sw.js')
+    navigator.serviceWorker.register('/sw.js')
       .then(r=>console.log('SW registered',r.scope))
       .catch(e=>console.log('SW failed',e));
   });
