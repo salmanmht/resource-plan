@@ -360,7 +360,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 @media print {
   body { background: #fff !important; font-size: 11px; }
   .sb, .mob-sb-overlay, .mob-menu-btn, .btn-p, .btn-g, .btn-d,
-  #proj-hdr-back-btn, .fbar, .sort-bar { display: none !important; }
+  #proj-hdr-back-btn, .fbar, .sort-bar, .ai-fab, .ai-panel { display: none !important; }
   select { display: none !important; }
   .main { margin-left: 0 !important; padding: 10px !important; }
   .hdr { position: static !important; box-shadow: none !important; border-bottom: 2px solid #1e3a5f; margin-bottom: 12px; padding: 8px 0; }
@@ -669,8 +669,59 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-hcell > div > div:first-child{display:none!important;}
   /* Hide empty project columns during print */
   body.wt-printing .wt-print-hide{display:none!important;}
+  body.wt-printing .ai-fab,body.wt-printing .ai-panel{display:none!important;}
   /* Page setup — A3 landscape */
   @page{size:A3 landscape;margin:6mm;}
+}
+
+/* ── AI ASSISTANT CHAT ── */
+.ai-fab{position:fixed;bottom:20px;right:20px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;cursor:pointer;box-shadow:0 4px 20px rgba(79,70,229,.4);z-index:9998;display:flex;align-items:center;justify-content:center;font-size:22px;transition:transform .2s,box-shadow .2s;}
+.ai-fab:hover{transform:scale(1.08);box-shadow:0 6px 28px rgba(79,70,229,.5);}
+.ai-fab:active{transform:scale(.95);}
+.ai-fab .ai-fab-badge{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ef4444;border-radius:50%;border:2px solid #fff;display:none;}
+.ai-panel{position:fixed;bottom:0;right:0;width:400px;height:70vh;max-height:600px;background:#fff;border-radius:16px 16px 0 0;box-shadow:0 -4px 40px rgba(0,0,0,.15);z-index:9999;display:none;flex-direction:column;overflow:hidden;}
+.ai-panel.open{display:flex;}
+.ai-panel-hd{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ai-panel-hd .ai-title{font-weight:700;font-size:14px;display:flex;align-items:center;gap:8px;}
+.ai-panel-hd .ai-close{background:none;border:none;color:#fff;font-size:20px;cursor:pointer;padding:4px 8px;opacity:.8;border-radius:6px;}
+.ai-panel-hd .ai-close:hover{opacity:1;background:rgba(255,255,255,.15);}
+.ai-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.ai-msg{max-width:88%;padding:10px 14px;border-radius:14px;font-size:13px;line-height:1.5;word-wrap:break-word;}
+.ai-msg.user{align-self:flex-end;background:#4f46e5;color:#fff;border-bottom-right-radius:4px;}
+.ai-msg.bot{align-self:flex-start;background:#f3f4f6;color:#1f2937;border-bottom-left-radius:4px;}
+.ai-msg.bot .ai-typing{display:inline-flex;gap:4px;padding:4px 0;}
+.ai-msg.bot .ai-typing span{width:6px;height:6px;background:#9ca3af;border-radius:50%;animation:aiDot .6s infinite alternate;}
+.ai-msg.bot .ai-typing span:nth-child(2){animation-delay:.2s;}
+.ai-msg.bot .ai-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes aiDot{from{opacity:.3;transform:translateY(0)}to{opacity:1;transform:translateY(-4px)}}
+.ai-input-bar{display:flex;gap:8px;padding:10px 14px;border-top:1px solid #e5e7eb;background:#fafafa;flex-shrink:0;}
+.ai-input-bar input{flex:1;border:1px solid #d1d5db;border-radius:10px;padding:10px 14px;font-size:13px;font-family:inherit;outline:none;transition:border-color .15s;}
+.ai-input-bar input:focus{border-color:#7c3aed;}
+.ai-input-bar button{background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;border:none;border-radius:10px;padding:10px 16px;cursor:pointer;font-weight:600;font-size:13px;white-space:nowrap;}
+.ai-input-bar button:disabled{opacity:.5;cursor:not-allowed;}
+.ai-quick-btns{display:flex;gap:6px;padding:0 16px 10px;flex-wrap:wrap;}
+.ai-quick-btn{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;transition:background .15s;}
+.ai-quick-btn:hover{background:#ddd6fe;}
+/* AI Risk Flags on Dashboard */
+.ai-insights-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px;}
+.ai-insight-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;position:relative;overflow:hidden;transition:box-shadow .15s;}
+.ai-insight-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);}
+.ai-insight-card.risk{border-left:3px solid #ef4444;}
+.ai-insight-card.warn{border-left:3px solid #f59e0b;}
+.ai-insight-card.ok{border-left:3px solid #10b981;}
+.ai-insight-card.info{border-left:3px solid #6366f1;}
+.ai-insight-icon{font-size:16px;margin-bottom:4px;}
+.ai-insight-title{font-size:11px;font-weight:700;color:#1f2937;margin-bottom:3px;}
+.ai-insight-desc{font-size:11px;color:#6b7280;line-height:1.4;}
+.ai-insight-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;}
+.ai-insight-hdr span{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#7c3aed;}
+.ai-insight-hdr button{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe;border-radius:6px;padding:3px 10px;font-size:10px;cursor:pointer;font-weight:600;font-family:inherit;}
+.ai-insight-hdr button:hover{background:#ddd6fe;}
+/* Mobile AI */
+@media(max-width:700px){
+  .ai-fab{bottom:70px;right:14px;width:46px;height:46px;font-size:19px;}
+  .ai-panel{width:100%;height:85vh;max-height:none;border-radius:16px 16px 0 0;}
+  .ai-insights-row{grid-template-columns:1fr!important;}
 }
 
 </style>
@@ -809,7 +860,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.0.0 · 1 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.0 · 1 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -868,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.0.0 · 1 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.0 · 1 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -899,6 +950,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
     <div class="pc">
       <div id="pdf-header"></div>
+      <div id="ai-insights-container" style="margin-bottom:4px;"></div>
       <div class="mrow" id="mep-metrics"></div>
       <div class="card"><div class="card-t">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
       <!-- Deep Dive Section -->
@@ -1090,6 +1142,24 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div style="max-width:900px;margin-top:14px;" class="card" id="rate-overrides-card">
         <div style="background:#7c3aed;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">👤 Per-Engineer Rate Overrides</div>
         <div id="rate-overrides-body" style="padding:14px 16px;font-size:12px;color:var(--tx2);"></div>
+      </div>
+      <!-- AI Settings -->
+      <div style="max-width:900px;margin-top:14px;" class="card">
+        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🤖 AI Assistant Settings</div>
+        <div style="padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+          <div style="flex:1;min-width:240px;">
+            <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">Anthropic API Key</label>
+            <div style="display:flex;align-items:center;gap:8px;">
+              <input type="password" id="ai-key-input" placeholder="sk-ant-…"
+                style="flex:1;font-size:12px;padding:6px 10px;border:2px solid #7c3aed;border-radius:6px;font-family:monospace;"
+                onfocus="this.type='text'" onblur="this.type='password'">
+              <button class="btn btn-p btn-sm" onclick="aiSaveKey()" style="background:#7c3aed;">Save</button>
+            </div>
+          </div>
+          <div style="font-size:10px;color:var(--tx3);background:#f5f3ff;padding:8px 12px;border-radius:6px;border:1px solid #ddd6fe;flex:1;min-width:200px;">
+            Get your key from <strong>console.anthropic.com</strong>. This enables the AI chat assistant and dashboard risk flags. Key is stored securely in Supabase.
+          </div>
+        </div>
       </div>
       <!-- JSE Capacity Setting -->
       <div style="max-width:900px;margin-top:14px;" class="card">
@@ -1746,8 +1816,11 @@ function populateSidebarUser(user){
 function enterApp(){
   document.getElementById('pin-screen').style.display='none';
   document.getElementById('app-shell').style.display='flex';
+  const fab=document.getElementById('ai-fab');if(fab)fab.style.display='flex';
   populateSidebarUser(SB_SESSION.user);
+  window._currentUserEmail=SB_SESSION?.user?.email||'';
   initApp();
+  aiLoadKey(); // load AI key in background
 }
 
 // ═══════════════════════════════════════
@@ -2606,7 +2679,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.0.0)
+// WEEKLY TRACKER  (v8.1.0)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -3442,7 +3515,7 @@ function nav(p, fromPopstate){
   ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
   if(isMobile())closeMobSB();
   window.scrollTo(0,0);
-  if(p==='mep')renderMEP();
+  if(p==='mep'){renderMEP();setTimeout(aiRenderInsights,200);}
   else if(p==='dxb')setTimeout(()=>renderOffice('DXB','pc-dxb'),0);
   else if(p==='egy')setTimeout(()=>renderOffice('EGY','pc-egy'),0);
   else if(p==='ind')setTimeout(()=>renderOffice('IND','pc-ind'),0);
@@ -6499,6 +6572,9 @@ function renderRates(){
   const dxbBody=document.getElementById('rates-body-dxb');
   const egyBody=document.getElementById('rates-body-egy');
   if(!dxbBody||!egyBody)return;
+  // Load AI key into input
+  if(AI_KEY){const kInput=document.getElementById('ai-key-input');if(kInput)kInput.value=AI_KEY;}
+  else aiLoadKey().then(()=>{const kInput=document.getElementById('ai-key-input');if(kInput&&AI_KEY)kInput.value=AI_KEY;});
   const mkRow=(g,val,prefix)=>`
     <tr>
       <td style="font-weight:500;font-size:12px">${g}</td>
@@ -8878,6 +8954,350 @@ if('serviceWorker' in navigator){
       .catch(e=>console.log('SW failed',e));
   });
 }
+</script>
+
+<!-- AI ASSISTANT -->
+<button class="ai-fab" id="ai-fab" onclick="aiToggle()" title="Ask AI about your resource plan" style="display:none;">🤖<span class="ai-fab-badge" id="ai-fab-badge"></span></button>
+<div class="ai-panel" id="ai-panel">
+  <div class="ai-panel-hd">
+    <div class="ai-title">🤖 AI Assistant<span style="font-size:10px;font-weight:400;opacity:.7;">powered by Claude</span></div>
+    <button class="ai-close" onclick="aiToggle()">×</button>
+  </div>
+  <div class="ai-msgs" id="ai-msgs">
+    <div class="ai-msg bot">Hi! I can answer questions about your resource plan, projects, engineers, utilisation, and costs. Try asking me anything.</div>
+  </div>
+  <div class="ai-quick-btns" id="ai-quick-btns">
+    <button class="ai-quick-btn" onclick="aiAsk(this.textContent)">Who's underutilised?</button>
+    <button class="ai-quick-btn" onclick="aiAsk(this.textContent)">Projects over forecast?</button>
+    <button class="ai-quick-btn" onclick="aiAsk(this.textContent)">Weekly summary</button>
+    <button class="ai-quick-btn" onclick="aiAsk(this.textContent)">DXB vs EGY utilisation</button>
+  </div>
+  <div class="ai-input-bar">
+    <input id="ai-input" placeholder="Ask about your resource plan…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend();}">
+    <button id="ai-send-btn" onclick="aiSend()">Send</button>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// AI ASSISTANT (v8.1.0)
+// Chat + Risk Flags — uses Claude API via Anthropic
+// ═══════════════════════════════════════
+
+let AI_KEY=''; // loaded from Supabase settings
+let AI_BUSY=false;
+let AI_HISTORY=[]; // conversation history for context
+
+// Load API key from settings
+async function aiLoadKey(){
+  try{
+    const sets=await sbFetch('settings?key=eq.anthropic_key&select=value');
+    if(Array.isArray(sets)&&sets.length>0&&sets[0].value){AI_KEY=sets[0].value;return true;}
+  }catch(e){console.log('AI key not configured');}
+  return false;
+}
+// Save API key (admin only)
+async function aiSaveKey(){
+  const v=document.getElementById('ai-key-input').value.trim();
+  if(!v){toast('Enter an API key');return;}
+  await sbFetch('settings','POST',{key:'anthropic_key',value:v},'resolution=merge-duplicates,return=representation');
+  AI_KEY=v;
+  toast('AI key saved ✓');
+}
+
+function aiToggle(){
+  const p=document.getElementById('ai-panel');
+  p.classList.toggle('open');
+  if(p.classList.contains('open')){
+    document.getElementById('ai-input').focus();
+    if(!AI_KEY)aiLoadKey();
+  }
+}
+
+function aiSend(){
+  const inp=document.getElementById('ai-input');
+  const q=inp.value.trim();
+  if(!q||AI_BUSY)return;
+  inp.value='';
+  aiAsk(q);
+}
+
+async function aiAsk(question){
+  if(AI_BUSY)return;
+  // Open panel if closed
+  const p=document.getElementById('ai-panel');
+  if(!p.classList.contains('open'))p.classList.add('open');
+
+  const msgs=document.getElementById('ai-msgs');
+  // Add user message
+  msgs.insertAdjacentHTML('beforeend','<div class="ai-msg user">'+esc(question)+'</div>');
+  // Add typing indicator
+  msgs.insertAdjacentHTML('beforeend','<div class="ai-msg bot" id="ai-typing"><div class="ai-typing"><span></span><span></span><span></span></div></div>');
+  msgs.scrollTop=msgs.scrollHeight;
+
+  // Hide quick buttons after first question
+  document.getElementById('ai-quick-btns').style.display='none';
+
+  AI_BUSY=true;
+  document.getElementById('ai-send-btn').disabled=true;
+
+  try{
+    if(!AI_KEY){
+      const loaded=await aiLoadKey();
+      if(!loaded){
+        aiShowResponse('⚙️ AI not configured. An admin needs to add the Anthropic API key in **Cost Rates → AI Settings**.');
+        return;
+      }
+    }
+
+    // Build context from app data
+    const context=aiBuildContext(question);
+
+    // Add to history
+    AI_HISTORY.push({role:'user',content:context+'\n\nUser question: '+question});
+
+    // Call Claude API
+    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'x-api-key':AI_KEY,
+        'anthropic-version':'2023-06-01',
+        'anthropic-dangerous-direct-browser-access':'true'
+      },
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:1024,
+        system:'You are an AI assistant embedded in the Meinhardt MEP Resource Plan app. You help managers and discipline leads understand resource allocation, utilisation, costs, and project status. Be concise — responses should be 2-4 short paragraphs max. Use numbers and names. If you see issues (over-utilisation, under-allocation, budget risks), flag them clearly. Format important numbers in bold. Do not use markdown headers or bullet lists — write in natural prose.',
+        messages:AI_HISTORY.slice(-10) // last 10 messages for context window
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message||'API error '+resp.status);
+    }
+
+    const data=await resp.json();
+    const answer=data.content.map(c=>c.text||'').join('');
+    AI_HISTORY.push({role:'assistant',content:answer});
+    aiShowResponse(answer);
+
+  }catch(e){
+    console.error('AI error:',e);
+    aiShowResponse('Sorry, something went wrong: '+e.message);
+  }
+}
+
+function aiShowResponse(text){
+  AI_BUSY=false;
+  document.getElementById('ai-send-btn').disabled=false;
+  const typing=document.getElementById('ai-typing');
+  if(typing)typing.remove();
+  const msgs=document.getElementById('ai-msgs');
+  // Convert **bold** to <strong> and newlines to <br>
+  const html=esc(text).replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>').replace(/\n/g,'<br>');
+  msgs.insertAdjacentHTML('beforeend','<div class="ai-msg bot">'+html+'</div>');
+  msgs.scrollTop=msgs.scrollHeight;
+}
+
+function aiBuildContext(question){
+  // Pack relevant data based on question keywords
+  const q=question.toLowerCase();
+  let ctx='Current date: '+new Date().toISOString().slice(0,10)+'.\n';
+  ctx+='Total engineers: '+S.engineers.length+'. ';
+  ctx+='Active projects: '+S.projects.filter(p=>p.status==='Active').length+'.\n';
+
+  // Always include engineer summary
+  const discCounts={};
+  const offCounts={};
+  S.engineers.forEach(e=>{
+    discCounts[e.disc]=(discCounts[e.disc]||0)+1;
+    offCounts[e.off]=(offCounts[e.off]||0)+1;
+  });
+  ctx+='Engineers by discipline: '+JSON.stringify(discCounts)+'\n';
+  ctx+='Engineers by office: '+JSON.stringify(offCounts)+'\n';
+
+  // Active projects summary
+  ctx+='Active projects:\n';
+  S.projects.filter(p=>p.status==='Active').forEach(p=>{
+    ctx+=p.no+' '+p.name+' ('+p.start+' to '+p.end+', client: '+(p.client||'—')+')\n';
+  });
+
+  // If question is about specific engineers or utilisation, include details
+  if(q.includes('util')||q.includes('free')||q.includes('available')||q.includes('under')||q.includes('over')||q.includes('who')||q.includes('engineer')||q.includes('team')||q.includes('capacity')){
+    ctx+='\nEngineer details (name, disc, office, grade, capacity hrs/wk):\n';
+    S.engineers.forEach(e=>{
+      ctx+=e.name+', '+e.disc+', '+e.off+', '+e.grade+', cap:'+e.cap+'h/wk\n';
+    });
+  }
+
+  // If question is about costs or rates
+  if(q.includes('cost')||q.includes('rate')||q.includes('budget')||q.includes('fee')||q.includes('aed')||q.includes('spend')){
+    ctx+='\nCost rates (AED/hr) DXB: '+JSON.stringify(S.ratesDXB)+'\n';
+    ctx+='Cost rates (AED/hr) EGY: '+JSON.stringify(S.ratesEGY)+'\n';
+    S.engineers.forEach(e=>{
+      ctx+=e.name+' → '+getRate(e)+' AED/hr\n';
+    });
+  }
+
+  // If question is about weekly/actuals — include current weekly actuals
+  if(q.includes('week')||q.includes('actual')||q.includes('tracker')||q.includes('this week')||q.includes('hour')){
+    ctx+='\nWeekly actuals for current week ('+WT_weekMonday?.toISOString().slice(0,10)+'):\n';
+    const projects=S.projects.filter(p=>p.status==='Active');
+    S.engineers.forEach(e=>{
+      const act=WT_actuals[e.id];
+      if(!act)return;
+      let hrs=[];
+      projects.forEach(p=>{if(act[p.id]>0)hrs.push(p.name+':'+act[p.id]+'h');});
+      WT_NONBILL.forEach(nb=>{if(act[nb.key]>0)hrs.push(nb.label+':'+act[nb.key]+'h');});
+      if(hrs.length)ctx+=e.name+' ('+e.disc+', '+e.off+'): '+hrs.join(', ')+'\n';
+    });
+  }
+
+  // If about a specific project name mentioned
+  S.projects.forEach(p=>{
+    const pname=(p.name||'').toLowerCase();
+    if(pname&&q.includes(pname.split(' ')[0].toLowerCase())){
+      ctx+='\nProject detail — '+p.name+' ('+p.no+'): status='+p.status+', start='+p.start+', end='+p.end+', client='+(p.client||'—')+', PM='+(p.pm||'—')+'\n';
+      // Include forecast hours for this project
+      const engHrs=[];
+      S.engineers.forEach(e=>{
+        const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
+        if(wh){
+          const total=wh.reduce((a,b)=>a+b,0);
+          if(total>0)engHrs.push(e.name+': '+total+'h total forecast');
+        }
+      });
+      if(engHrs.length)ctx+='Forecast allocations: '+engHrs.join(', ')+'\n';
+    }
+  });
+
+  // Include forecast hours summary per project
+  if(q.includes('forecast')||q.includes('plan')||q.includes('allocat')||q.includes('summary')){
+    ctx+='\nForecast hours summary per project:\n';
+    S.projects.filter(p=>p.status==='Active').forEach(p=>{
+      let total=0;
+      S.engineers.forEach(e=>{
+        const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
+        if(wh)total+=wh.reduce((a,b)=>a+b,0);
+      });
+      if(total>0)ctx+=p.name+' ('+p.no+'): '+Math.round(total)+' total forecast hrs\n';
+    });
+  }
+
+  return ctx;
+}
+
+// ═══════════════════════════════════════
+// AI RISK FLAGS — Dashboard Cards
+// ═══════════════════════════════════════
+function aiRenderInsights(){
+  const container=document.getElementById('ai-insights-container');
+  if(!container)return;
+
+  const insights=aiAnalyseRisks();
+  if(insights.length===0){
+    container.innerHTML='<div class="ai-insight-hdr"><span>🤖 AI Insights</span></div><div style="font-size:11px;color:var(--tx3);padding:4px 0;">No risks detected — looking good!</div>';
+    return;
+  }
+
+  let h='<div class="ai-insight-hdr"><span>🤖 AI Insights</span><button onclick="aiRefreshInsights()">↻ Refresh</button></div>';
+  h+='<div class="ai-insights-row">';
+  insights.slice(0,6).forEach(ins=>{
+    h+='<div class="ai-insight-card '+ins.type+'">';
+    h+='<div class="ai-insight-icon">'+ins.icon+'</div>';
+    h+='<div class="ai-insight-title">'+esc(ins.title)+'</div>';
+    h+='<div class="ai-insight-desc">'+esc(ins.desc)+'</div>';
+    h+='</div>';
+  });
+  h+='</div>';
+  container.innerHTML=h;
+}
+
+function aiRefreshInsights(){aiRenderInsights();}
+
+function aiAnalyseRisks(){
+  const risks=[];
+  const activeProjects=S.projects.filter(p=>p.status==='Active');
+  const TARGET=45;
+
+  // 1. Check weekly actuals for over/under utilisation
+  if(WT_actuals&&Object.keys(WT_actuals).length>0){
+    S.engineers.forEach(e=>{
+      const act=WT_actuals[e.id];
+      if(!act)return;
+      let total=0;
+      activeProjects.forEach(p=>{total+=(act[p.id]||0);});
+      WT_NONBILL.forEach(nb=>{total+=(act[nb.key]||0);});
+
+      const cap=e.cap||TARGET;
+      if(total>cap*1.15){
+        risks.push({type:'risk',icon:'🔴',title:e.name+' over capacity',desc:Math.round(total)+'h / '+cap+'h target ('+Math.round(total/cap*100)+'%). Risk of burnout.'});
+      }
+      if(total>0&&total<cap*0.5){
+        risks.push({type:'warn',icon:'🟡',title:e.name+' underutilised',desc:'Only '+Math.round(total)+'h / '+cap+'h ('+Math.round(total/cap*100)+'%). Available for reallocation.'});
+      }
+    });
+  }
+
+  // 2. Discipline capacity check
+  const discGroups={};
+  S.engineers.filter(e=>e.team!=='BIM').forEach(e=>{
+    if(!discGroups[e.disc])discGroups[e.disc]={total:0,count:0,off:{}};
+    discGroups[e.disc].count++;
+    if(!discGroups[e.disc].off[e.off])discGroups[e.disc].off[e.off]=0;
+    discGroups[e.disc].off[e.off]++;
+  });
+
+  // 3. Single-person dependency
+  activeProjects.forEach(p=>{
+    const assigned=[];
+    S.engineers.forEach(e=>{
+      const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
+      if(wh&&wh.reduce((a,b)=>a+b,0)>0)assigned.push(e.name);
+    });
+    if(assigned.length===1){
+      risks.push({type:'warn',icon:'⚠️',title:'Single-person dependency',desc:p.name+' only has '+assigned[0]+' allocated. No backup if they\'re unavailable.'});
+    }
+  });
+
+  // 4. Projects ending soon
+  const now=new Date();
+  const twoWeeks=new Date(now.getTime()+14*86400000);
+  activeProjects.forEach(p=>{
+    const end=new Date(p.end);
+    if(end<=twoWeeks&&end>=now){
+      const days=Math.ceil((end-now)/86400000);
+      risks.push({type:'info',icon:'📅',title:p.name+' ending soon',desc:'Project end date in '+days+' days ('+p.end+'). Review deliverables and close-out.'});
+    }
+  });
+
+  // 5. Zero-hour engineers (no forecast at all)
+  const zeroEngineers=[];
+  S.engineers.filter(e=>e.team!=='BIM').forEach(e=>{
+    let totalForecast=0;
+    activeProjects.forEach(p=>{
+      const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
+      if(wh)totalForecast+=wh.reduce((a,b)=>a+b,0);
+    });
+    if(totalForecast===0)zeroEngineers.push(e.name);
+  });
+  if(zeroEngineers.length>0&&zeroEngineers.length<=5){
+    risks.push({type:'warn',icon:'👤',title:zeroEngineers.length+' engineer'+(zeroEngineers.length>1?'s':'')+' with no forecast',desc:zeroEngineers.join(', ')+' — not allocated to any active project.'});
+  } else if(zeroEngineers.length>5){
+    risks.push({type:'warn',icon:'👥',title:zeroEngineers.length+' engineers with no forecast',desc:'Multiple team members have zero project allocation. Review staffing plan.'});
+  }
+
+  // Sort: risk first, then warn, then info
+  const order={risk:0,warn:1,info:2,ok:3};
+  risks.sort((a,b)=>(order[a.type]||3)-(order[b.type]||3));
+
+  return risks;
+}
+
+// Hook into dashboard render to show insights
+const _origNav=typeof nav==='function'?nav:null;
 </script>
 </body>
 </html>
