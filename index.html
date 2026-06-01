@@ -860,7 +860,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.0 · 1 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.1 · 1 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -919,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.0 · 1 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.1 · 1 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -1145,19 +1145,19 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <!-- AI Settings -->
       <div style="max-width:900px;margin-top:14px;" class="card">
-        <div style="background:linear-gradient(135deg,#7c3aed,#4f46e5);color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🤖 AI Assistant Settings</div>
+        <div style="background:linear-gradient(135deg,#1a73e8,#4285f4);color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🤖 AI Assistant Settings</div>
         <div style="padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <div style="flex:1;min-width:240px;">
-            <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">Anthropic API Key</label>
+            <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">Google Gemini API Key</label>
             <div style="display:flex;align-items:center;gap:8px;">
-              <input type="password" id="ai-key-input" placeholder="sk-ant-…"
-                style="flex:1;font-size:12px;padding:6px 10px;border:2px solid #7c3aed;border-radius:6px;font-family:monospace;"
+              <input type="password" id="ai-key-input" placeholder="AIza…"
+                style="flex:1;font-size:12px;padding:6px 10px;border:2px solid #4285f4;border-radius:6px;font-family:monospace;"
                 onfocus="this.type='text'" onblur="this.type='password'">
-              <button class="btn btn-p btn-sm" onclick="aiSaveKey()" style="background:#7c3aed;">Save</button>
+              <button class="btn btn-p btn-sm" onclick="aiSaveKey()" style="background:#1a73e8;">Save</button>
             </div>
           </div>
-          <div style="font-size:10px;color:var(--tx3);background:#f5f3ff;padding:8px 12px;border-radius:6px;border:1px solid #ddd6fe;flex:1;min-width:200px;">
-            Get your key from <strong>console.anthropic.com</strong>. This enables the AI chat assistant and dashboard risk flags. Key is stored securely in Supabase.
+          <div style="font-size:10px;color:var(--tx3);background:#e8f0fe;padding:8px 12px;border-radius:6px;border:1px solid #c2d7f5;flex:1;min-width:200px;">
+            Get your free key from <strong>aistudio.google.com</strong> → API Keys → Create. Free tier: 15 requests/min, 1500/day. No credit card needed.
           </div>
         </div>
       </div>
@@ -2679,7 +2679,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.0)
+// WEEKLY TRACKER  (v8.1.1)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -8960,7 +8960,7 @@ if('serviceWorker' in navigator){
 <button class="ai-fab" id="ai-fab" onclick="aiToggle()" title="Ask AI about your resource plan" style="display:none;">🤖<span class="ai-fab-badge" id="ai-fab-badge"></span></button>
 <div class="ai-panel" id="ai-panel">
   <div class="ai-panel-hd">
-    <div class="ai-title">🤖 AI Assistant<span style="font-size:10px;font-weight:400;opacity:.7;">powered by Claude</span></div>
+    <div class="ai-title">🤖 AI Assistant<span style="font-size:10px;font-weight:400;opacity:.7;">powered by Gemini</span></div>
     <button class="ai-close" onclick="aiToggle()">×</button>
   </div>
   <div class="ai-msgs" id="ai-msgs">
@@ -8980,7 +8980,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.0)
+// AI ASSISTANT (v8.1.1)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
@@ -8991,7 +8991,7 @@ let AI_HISTORY=[]; // conversation history for context
 // Load API key from settings
 async function aiLoadKey(){
   try{
-    const sets=await sbFetch('settings?key=eq.anthropic_key&select=value');
+    const sets=await sbFetch('settings?key=eq.gemini_key&select=value');
     if(Array.isArray(sets)&&sets.length>0&&sets[0].value){AI_KEY=sets[0].value;return true;}
   }catch(e){console.log('AI key not configured');}
   return false;
@@ -9000,9 +9000,9 @@ async function aiLoadKey(){
 async function aiSaveKey(){
   const v=document.getElementById('ai-key-input').value.trim();
   if(!v){toast('Enter an API key');return;}
-  await sbFetch('settings','POST',{key:'anthropic_key',value:v},'resolution=merge-duplicates,return=representation');
+  await sbFetch('settings','POST',{key:'gemini_key',value:v},'resolution=merge-duplicates,return=representation');
   AI_KEY=v;
-  toast('AI key saved ✓');
+  toast('Gemini AI key saved ✓');
 }
 
 function aiToggle(){
@@ -9045,31 +9045,26 @@ async function aiAsk(question){
     if(!AI_KEY){
       const loaded=await aiLoadKey();
       if(!loaded){
-        aiShowResponse('⚙️ AI not configured. An admin needs to add the Anthropic API key in **Cost Rates → AI Settings**.');
+        aiShowResponse('⚙️ AI not configured. An admin needs to add the Google Gemini API key in **Cost Rates → AI Settings**. Get a free key at aistudio.google.com.');
         return;
       }
     }
 
     // Build context from app data
     const context=aiBuildContext(question);
+    const systemPrompt='You are an AI assistant embedded in the Meinhardt MEP Resource Plan app. You help managers and discipline leads understand resource allocation, utilisation, costs, and project status. Be concise — responses should be 2-4 short paragraphs max. Use numbers and names. If you see issues (over-utilisation, under-allocation, budget risks), flag them clearly. Format important numbers in **bold**. Do not use markdown headers or bullet lists — write in natural prose.';
 
-    // Add to history
-    AI_HISTORY.push({role:'user',content:context+'\n\nUser question: '+question});
+    // Add to history for Gemini format
+    AI_HISTORY.push({role:'user',parts:[{text:context+'\n\nUser question: '+question}]});
 
-    // Call Claude API
-    const resp=await fetch('https://api.anthropic.com/v1/messages',{
+    // Call Gemini API
+    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+AI_KEY,{
       method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'x-api-key':AI_KEY,
-        'anthropic-version':'2023-06-01',
-        'anthropic-dangerous-direct-browser-access':'true'
-      },
+      headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
-        model:'claude-sonnet-4-20250514',
-        max_tokens:1024,
-        system:'You are an AI assistant embedded in the Meinhardt MEP Resource Plan app. You help managers and discipline leads understand resource allocation, utilisation, costs, and project status. Be concise — responses should be 2-4 short paragraphs max. Use numbers and names. If you see issues (over-utilisation, under-allocation, budget risks), flag them clearly. Format important numbers in bold. Do not use markdown headers or bullet lists — write in natural prose.',
-        messages:AI_HISTORY.slice(-10) // last 10 messages for context window
+        system_instruction:{parts:[{text:systemPrompt}]},
+        contents:AI_HISTORY.slice(-10),
+        generationConfig:{maxOutputTokens:1024,temperature:0.7}
       })
     });
 
@@ -9079,8 +9074,8 @@ async function aiAsk(question){
     }
 
     const data=await resp.json();
-    const answer=data.content.map(c=>c.text||'').join('');
-    AI_HISTORY.push({role:'assistant',content:answer});
+    const answer=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
+    AI_HISTORY.push({role:'model',parts:[{text:answer}]});
     aiShowResponse(answer);
 
   }catch(e){
