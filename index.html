@@ -703,8 +703,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .ai-quick-btn{background:#ede9fe;color:#5b21b6;border:1px solid #ddd6fe;border-radius:20px;padding:5px 12px;font-size:11px;cursor:pointer;font-family:inherit;font-weight:500;transition:background .15s;}
 .ai-quick-btn:hover{background:#ddd6fe;}
 /* AI Risk Flags on Dashboard */
-.ai-insights-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:10px;margin-bottom:14px;}
-.ai-insight-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;position:relative;overflow:hidden;transition:box-shadow .15s;}
+.ai-insights-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:10px;margin-bottom:14px;}
+.ai-insight-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;position:relative;overflow:hidden;transition:box-shadow .15s;max-width:400px;}
 .ai-insight-card:hover{box-shadow:0 4px 16px rgba(0,0,0,.06);}
 .ai-insight-card.risk{border-left:3px solid #ef4444;}
 .ai-insight-card.warn{border-left:3px solid #f59e0b;}
@@ -9058,7 +9058,7 @@ async function aiAsk(question){
     AI_HISTORY.push({role:'user',parts:[{text:context+'\n\nUser question: '+question}]});
 
     // Call Gemini API
-    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key='+AI_KEY,{
+    const resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='+AI_KEY,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify({
@@ -9193,11 +9193,12 @@ function aiRenderInsights(){
 
   const insights=aiAnalyseRisks();
   if(insights.length===0){
-    container.innerHTML='<div class="ai-insight-hdr"><span>🤖 AI Insights</span></div><div style="font-size:11px;color:var(--tx3);padding:4px 0;">No risks detected — looking good!</div>';
+    container.innerHTML='<div class="card" style="padding:12px 16px;margin-bottom:10px;border-left:3px solid #7c3aed;"><div class="ai-insight-hdr"><span>🤖 AI Insights</span></div><div style="font-size:11px;color:var(--tx3);padding:4px 0;">✅ No risks detected — looking good!</div></div>';
     return;
   }
 
-  let h='<div class="ai-insight-hdr"><span>🤖 AI Insights</span><button onclick="aiRefreshInsights()">↻ Refresh</button></div>';
+  let h='<div class="card" style="padding:12px 16px;margin-bottom:10px;border-left:3px solid #7c3aed;">';
+  h+='<div class="ai-insight-hdr"><span>🤖 AI Insights</span><button onclick="aiRefreshInsights()">↻ Refresh</button></div>';
   h+='<div class="ai-insights-row">';
   insights.slice(0,6).forEach(ins=>{
     h+='<div class="ai-insight-card '+ins.type+'">';
@@ -9206,7 +9207,7 @@ function aiRenderInsights(){
     h+='<div class="ai-insight-desc">'+esc(ins.desc)+'</div>';
     h+='</div>';
   });
-  h+='</div>';
+  h+='</div></div>';
   container.innerHTML=h;
 }
 
