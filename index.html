@@ -860,7 +860,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.3 · 2 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.4 · 2 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -919,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.3 · 2 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.4 · 2 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -2679,7 +2679,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.3)
+// WEEKLY TRACKER  (v8.1.4)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -8981,13 +8981,14 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.3)
+// AI ASSISTANT (v8.1.4)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
 let AI_KEY=''; // loaded from Supabase settings
 let AI_BUSY=false;
 let AI_HISTORY=[]; // conversation history for context
+let AI_MODEL=null; // cached discovered model name
 
 // Load API key from settings
 async function aiLoadKey(){
@@ -9016,6 +9017,7 @@ function aiToggle(){
 }
 function aiClearChat(){
   AI_HISTORY=[];
+  AI_MODEL=null;
   document.getElementById('ai-msgs').innerHTML='<div class="ai-msg bot">Hi! I can answer questions about your resource plan, projects, engineers, utilisation, and costs. Try asking me anything.</div>';
   document.getElementById('ai-quick-btns').style.display='flex';
 }
@@ -9064,30 +9066,49 @@ async function aiAsk(question){
     const fullPrompt=systemPrompt+'\n\n'+context+'\n\nUser question: '+question;
     AI_HISTORY.push({role:'user',parts:[{text:fullPrompt}]});
 
-    // Try models in order until one works
-    const MODELS=['gemini-2.0-flash-lite','gemini-1.5-flash-latest','gemini-1.5-flash','gemini-pro'];
-    let resp=null,lastErr='';
-    for(const model of MODELS){
-      try{
-        resp=await fetch('https://generativelanguage.googleapis.com/v1beta/models/'+model+':generateContent?key='+AI_KEY,{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({
-            contents:AI_HISTORY.slice(-10),
-            generationConfig:{maxOutputTokens:1024,temperature:0.7}
-          })
-        });
-        if(resp.ok)break;
-        const e=await resp.json().catch(()=>({}));
-        lastErr=e.error?.message||'Error '+resp.status;
-        console.log('AI model '+model+' failed:',lastErr);
-        resp=null;
-      }catch(e){lastErr=e.message;resp=null;}
+    // Auto-discover available models (cached after first call)
+    if(!AI_MODEL){
+      const apiVersions=['v1beta','v1'];
+      for(const ver of apiVersions){
+        try{
+          const listResp=await fetch('https://generativelanguage.googleapis.com/'+ver+'/models?key='+AI_KEY);
+          if(!listResp.ok)continue;
+          const listData=await listResp.json();
+          if(!listData.models)continue;
+          const supported=listData.models.filter(m=>
+            m.supportedGenerationMethods&&m.supportedGenerationMethods.includes('generateContent')
+          );
+          if(supported.length===0)continue;
+          const prefer=supported.find(m=>m.name.includes('flash-lite'))
+            ||supported.find(m=>m.name.includes('flash')&&!m.name.includes('thinking'))
+            ||supported.find(m=>m.name.includes('pro')&&!m.name.includes('vision'))
+            ||supported[0];
+          if(prefer){
+            AI_MODEL=prefer.name;
+            console.log('AI: discovered model',AI_MODEL,'('+ver+')');
+            break;
+          }
+        }catch(e){console.log('AI: model discovery failed for '+ver,e);}
+      }
     }
 
-    if(!resp||!resp.ok){
-      const err=resp?await resp.json().catch(()=>({})):{};
-      throw new Error(err.error?.message||lastErr||'All models failed');
+    if(!AI_MODEL){
+      throw new Error('No compatible Gemini models found. Check your API key at aistudio.google.com.');
+    }
+
+    const apiUrl='https://generativelanguage.googleapis.com/v1beta/'+AI_MODEL+':generateContent?key='+AI_KEY;
+    const resp=await fetch(apiUrl,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        contents:AI_HISTORY.slice(-10),
+        generationConfig:{maxOutputTokens:1024,temperature:0.7}
+      })
+    });
+
+    if(!resp.ok){
+      const err=await resp.json().catch(()=>({}));
+      throw new Error(err.error?.message||'API error '+resp.status);
     }
 
     const data=await resp.json();
