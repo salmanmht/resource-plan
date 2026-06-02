@@ -860,7 +860,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.5 · 2 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.0 · 2 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -919,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.5 · 2 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.0 · 2 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -2679,7 +2679,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.5)
+// WEEKLY TRACKER  (v8.2.0)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5553,7 +5553,163 @@ function renderProjDetail(p){
         <div style="overflow:auto;max-height:calc(100vh - 320px);min-height:300px;position:relative;isolation:isolate;">${renderProjCard(p,'inner')}</div>
       </div>
     </div>
+
+    <!-- Gantt Chart — Project Timeline + Engineer Allocation -->
+    <div class="card" style="padding:0;overflow:hidden;margin-top:10px;">
+      <div style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-gantt-${p.id}','sec-gantt-arrow-${p.id}')">
+        <div style="display:flex;align-items:center;gap:10px;">
+          <span id="sec-gantt-arrow-${p.id}" style="font-size:11px;color:#64748b;">${(window._secOpen&&window._secOpen['sec-gantt-'+p.id])?'▼':'▶'}</span>
+          <span style="font-size:13px;">📊</span>
+          <strong style="font-size:12px;color:#1e3a5f;">Gantt Chart</strong>
+          <span style="font-size:10px;color:var(--tx3);">Timeline + allocation</span>
+        </div>
+      </div>
+      <div id="sec-gantt-${p.id}" style="display:${(window._secOpen&&window._secOpen['sec-gantt-'+p.id])?'block':'none'};overflow-x:auto;padding:14px;">
+        ${renderProjGantt(p)}
+      </div>
+    </div>
   `;
+}
+
+// ── Gantt Chart for Project Detail ──
+function renderProjGantt(p){
+  const weeks=stageWeeks(p.start,p.end);
+  if(weeks.length===0)return'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px;">Set project start/end dates to see the Gantt chart.</div>';
+
+  const wh=p.weeklyHrs||{};
+  const assigned=S.engineers.filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0));
+  if(assigned.length===0)return'<div style="padding:20px;text-align:center;color:var(--tx3);font-size:12px;">No engineers assigned to this project yet.</div>';
+
+  const LABEL_W=180;
+  const COL_W=36;
+  const ROW_H=28;
+  const HDR_H=40;
+  const STAGE_H=18;
+  const chartW=LABEL_W+weeks.length*COL_W+20;
+
+  // Stages
+  const stages=p.stages||[];
+  const stageMap=getStageWeekMap(p);
+
+  // Build header — months
+  const months=[];
+  let curMonth='';
+  weeks.forEach((w,i)=>{
+    const m=w.toLocaleDateString('en-GB',{month:'short',year:'2-digit'});
+    if(m!==curMonth){months.push({label:m,start:i,count:1});curMonth=m;}
+    else months[months.length-1].count++;
+  });
+
+  let h='<div style="position:relative;min-width:'+chartW+'px;font-family:inherit;">';
+
+  // Month headers
+  h+='<div style="display:flex;margin-left:'+LABEL_W+'px;height:20px;">';
+  months.forEach(m=>{
+    h+='<div style="width:'+(m.count*COL_W)+'px;text-align:center;font-size:9px;font-weight:700;color:#64748b;border-left:1px solid #e2e8f0;padding:2px 0;">'+m.label+'</div>';
+  });
+  h+='</div>';
+
+  // Week headers
+  h+='<div style="display:flex;margin-left:'+LABEL_W+'px;height:20px;border-bottom:2px solid #1e3a5f;">';
+  weeks.forEach((w,i)=>{
+    const isNow=isCurrentWeek(w);
+    h+='<div style="width:'+COL_W+'px;text-align:center;font-size:8px;font-weight:600;color:'+(isNow?'#fff':'#94a3b8')+';background:'+(isNow?'#1e3a5f':'transparent')+';border-radius:'+(isNow?'3px':'0')+';padding:2px 0;">W'+wkNum(w)+'</div>';
+  });
+  h+='</div>';
+
+  // Stage bars
+  if(stages.length>0){
+    h+='<div style="display:flex;align-items:center;height:'+(STAGE_H+8)+'px;border-bottom:1px solid #f1f5f9;">';
+    h+='<div style="width:'+LABEL_W+'px;padding:0 10px;font-size:10px;font-weight:700;color:#64748b;flex-shrink:0;">STAGES</div>';
+    h+='<div style="position:relative;flex:1;height:'+STAGE_H+'px;">';
+    stages.forEach((st,si)=>{
+      const sc=stageColor(si,st);
+      // Find first and last week for this stage
+      let first=-1,last=-1;
+      stageMap.forEach((siArr,wi)=>{
+        if(siArr.includes(si)){if(first<0)first=wi;last=wi;}
+      });
+      if(first>=0){
+        const left=first*COL_W;
+        const width=(last-first+1)*COL_W;
+        h+='<div style="position:absolute;left:'+left+'px;top:0;width:'+width+'px;height:'+STAGE_H+'px;background:'+sc.bdr+';border-radius:4px;display:flex;align-items:center;justify-content:center;overflow:hidden;" title="'+esc(st.name)+'">';
+        h+='<span style="font-size:8px;font-weight:700;color:#fff;white-space:nowrap;text-overflow:ellipsis;overflow:hidden;padding:0 4px;">'+esc(st.name)+'</span>';
+        h+='</div>';
+      }
+    });
+    h+='</div></div>';
+  }
+
+  // Engineer rows
+  const discOrder={'HVAC':0,'PH&E':1,'ELE':2,'ELV':3,'BIM':4};
+  assigned.sort((a,b)=>{
+    const da=(discOrder[a.team==='BIM'?'BIM':a.disc]??5);
+    const db=(discOrder[b.team==='BIM'?'BIM':b.disc]??5);
+    return da-db||a.name.localeCompare(b.name);
+  });
+
+  const DISC_COLORS={'HVAC':'#3b82f6','PH&E':'#10b981','ELE':'#f59e0b','ELV':'#ec4899','BIM':'#8b5cf6'};
+  let lastDisc='';
+
+  assigned.forEach(e=>{
+    const disc=e.team==='BIM'?'BIM':e.disc;
+    const hrs=wh[e.id]||[];
+    const maxH=Math.max(...hrs.filter(v=>v>0),1);
+    const color=DISC_COLORS[disc]||'#6b7280';
+
+    // Discipline separator
+    if(disc!==lastDisc){
+      lastDisc=disc;
+      h+='<div style="display:flex;align-items:center;height:18px;background:#f8fafc;border-bottom:1px solid #e2e8f0;">';
+      h+='<div style="width:'+LABEL_W+'px;padding:0 10px;font-size:8px;font-weight:700;color:'+color+';letter-spacing:.08em;text-transform:uppercase;">'+disc+'</div>';
+      h+='<div style="flex:1;"></div></div>';
+    }
+
+    h+='<div style="display:flex;align-items:center;height:'+ROW_H+'px;border-bottom:1px solid #f1f5f9;">';
+
+    // Label
+    h+='<div style="width:'+LABEL_W+'px;padding:0 10px;display:flex;align-items:center;gap:6px;flex-shrink:0;overflow:hidden;">';
+    h+='<div style="width:8px;height:8px;border-radius:50%;background:'+color+';flex-shrink:0;"></div>';
+    h+='<div style="min-width:0;"><div style="font-size:10px;font-weight:600;color:#1e293b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+esc(e.name)+'</div>';
+    h+='<div style="font-size:8px;color:#94a3b8;">'+esc(e.grade||'')+'</div></div></div>';
+
+    // Bars
+    h+='<div style="display:flex;align-items:end;height:'+(ROW_H-4)+'px;">';
+    weeks.forEach((_,wi)=>{
+      const v=hrs[wi]||0;
+      if(v>0){
+        const barH=Math.max(4,Math.round((v/maxH)*(ROW_H-8)));
+        const opacity=Math.max(0.3,v/maxH);
+        h+='<div style="width:'+COL_W+'px;display:flex;align-items:end;justify-content:center;height:100%;" title="W'+wkNum(weeks[wi])+': '+v+'h">';
+        h+='<div style="width:'+(COL_W-4)+'px;height:'+barH+'px;background:'+color+';opacity:'+opacity.toFixed(2)+';border-radius:2px 2px 0 0;"></div>';
+        h+='</div>';
+      } else {
+        h+='<div style="width:'+COL_W+'px;"></div>';
+      }
+    });
+    h+='</div></div>';
+  });
+
+  // Today marker
+  const now=new Date();
+  const todayWi=weeks.findIndex(w=>{
+    const wEnd=new Date(w.getTime()+6*86400000);
+    return now>=w&&now<=wEnd;
+  });
+  if(todayWi>=0){
+    const left=LABEL_W+todayWi*COL_W+COL_W/2;
+    h+='<div style="position:absolute;top:0;left:'+left+'px;width:2px;height:100%;background:#ef4444;opacity:.5;pointer-events:none;z-index:5;"></div>';
+    h+='<div style="position:absolute;top:0;left:'+(left-12)+'px;font-size:7px;font-weight:700;color:#ef4444;background:#fff;padding:1px 4px;border-radius:3px;z-index:6;">TODAY</div>';
+  }
+
+  h+='</div>';
+  return h;
+}
+
+function isCurrentWeek(wStart){
+  const now=new Date();
+  const wEnd=new Date(wStart.getTime()+6*86400000);
+  return now>=wStart&&now<=wEnd;
 }
 
 function addProjStage(projId){
@@ -8981,7 +9137,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.5)
+// AI ASSISTANT (v8.2.0)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
