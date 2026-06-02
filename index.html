@@ -860,7 +860,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.4 · 2 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.5 · 2 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -919,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.4 · 2 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.5 · 2 Jun 2026</div>
 </div>
 
 <div class="main">
@@ -1145,19 +1145,19 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <!-- AI Settings -->
       <div style="max-width:900px;margin-top:14px;" class="card">
-        <div style="background:linear-gradient(135deg,#1a73e8,#4285f4);color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🤖 AI Assistant Settings</div>
+        <div style="background:linear-gradient(135deg,#f55036,#ff6b4a);color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🤖 AI Assistant Settings</div>
         <div style="padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <div style="flex:1;min-width:240px;">
-            <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">Google Gemini API Key</label>
+            <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">Groq API Key</label>
             <div style="display:flex;align-items:center;gap:8px;">
-              <input type="password" id="ai-key-input" placeholder="AIza…"
-                style="flex:1;font-size:12px;padding:6px 10px;border:2px solid #4285f4;border-radius:6px;font-family:monospace;"
+              <input type="password" id="ai-key-input" placeholder="gsk_…"
+                style="flex:1;font-size:12px;padding:6px 10px;border:2px solid #f55036;border-radius:6px;font-family:monospace;"
                 onfocus="this.type='text'" onblur="this.type='password'">
-              <button class="btn btn-p btn-sm" onclick="aiSaveKey()" style="background:#1a73e8;">Save</button>
+              <button class="btn btn-p btn-sm" onclick="aiSaveKey()" style="background:#f55036;">Save</button>
             </div>
           </div>
-          <div style="font-size:10px;color:var(--tx3);background:#e8f0fe;padding:8px 12px;border-radius:6px;border:1px solid #c2d7f5;flex:1;min-width:200px;">
-            Get your free key from <strong>aistudio.google.com</strong> → API Keys → Create. Free tier: 15 requests/min, 1500/day. No credit card needed.
+          <div style="font-size:10px;color:var(--tx3);background:#fff5f3;padding:8px 12px;border-radius:6px;border:1px solid #fecdc8;flex:1;min-width:200px;">
+            Get your free key from <strong>console.groq.com</strong> → API Keys → Create. Free tier: 30 requests/min, no credit card needed.
           </div>
         </div>
       </div>
@@ -2679,7 +2679,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.4)
+// WEEKLY TRACKER  (v8.1.5)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -8960,7 +8960,7 @@ if('serviceWorker' in navigator){
 <button class="ai-fab" id="ai-fab" onclick="aiToggle()" title="Ask AI about your resource plan" style="display:none;">🤖<span class="ai-fab-badge" id="ai-fab-badge"></span></button>
 <div class="ai-panel" id="ai-panel">
   <div class="ai-panel-hd">
-    <div class="ai-title">🤖 AI Assistant<span style="font-size:10px;font-weight:400;opacity:.7;">powered by Gemini</span></div>
+    <div class="ai-title">🤖 AI Assistant<span style="font-size:10px;font-weight:400;opacity:.7;">powered by Llama</span></div>
     <button class="ai-close" onclick="aiClearChat()" title="Clear chat" style="font-size:14px;margin-right:4px;">🗑</button>
     <button class="ai-close" onclick="aiToggle()">×</button>
   </div>
@@ -8981,19 +8981,18 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.4)
+// AI ASSISTANT (v8.1.5)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
 let AI_KEY=''; // loaded from Supabase settings
 let AI_BUSY=false;
 let AI_HISTORY=[]; // conversation history for context
-let AI_MODEL=null; // cached discovered model name
 
 // Load API key from settings
 async function aiLoadKey(){
   try{
-    const sets=await sbFetch('settings?key=eq.gemini_key&select=value');
+    const sets=await sbFetch('settings?key=eq.groq_key&select=value');
     if(Array.isArray(sets)&&sets.length>0&&sets[0].value){AI_KEY=sets[0].value;return true;}
   }catch(e){console.log('AI key not configured');}
   return false;
@@ -9002,9 +9001,9 @@ async function aiLoadKey(){
 async function aiSaveKey(){
   const v=document.getElementById('ai-key-input').value.trim();
   if(!v){toast('Enter an API key');return;}
-  await sbFetch('settings','POST',{key:'gemini_key',value:v},'resolution=merge-duplicates,return=representation');
+  await sbFetch('settings','POST',{key:'groq_key',value:v},'resolution=merge-duplicates,return=representation');
   AI_KEY=v;
-  toast('Gemini AI key saved ✓');
+  toast('Groq AI key saved ✓');
 }
 
 function aiToggle(){
@@ -9017,7 +9016,6 @@ function aiToggle(){
 }
 function aiClearChat(){
   AI_HISTORY=[];
-  AI_MODEL=null;
   document.getElementById('ai-msgs').innerHTML='<div class="ai-msg bot">Hi! I can answer questions about your resource plan, projects, engineers, utilisation, and costs. Try asking me anything.</div>';
   document.getElementById('ai-quick-btns').style.display='flex';
 }
@@ -9053,7 +9051,7 @@ async function aiAsk(question){
     if(!AI_KEY){
       const loaded=await aiLoadKey();
       if(!loaded){
-        aiShowResponse('⚙️ AI not configured. An admin needs to add the Google Gemini API key in **Cost Rates → AI Settings**. Get a free key at aistudio.google.com.');
+        aiShowResponse('⚙️ AI not configured. An admin needs to add the Groq API key in **Cost Rates → AI Settings**. Get a free key at console.groq.com.');
         return;
       }
     }
@@ -9062,47 +9060,24 @@ async function aiAsk(question){
     const context=aiBuildContext(question);
     const systemPrompt='You are an AI assistant embedded in the Meinhardt MEP Resource Plan app. You help managers and discipline leads understand resource allocation, utilisation, costs, and project status. Be concise — responses should be 2-4 short paragraphs max. Use numbers and names. If you see issues (over-utilisation, under-allocation, budget risks), flag them clearly. Format important numbers in **bold**. Do not use markdown headers or bullet lists — write in natural prose.';
 
-    // Add to history for Gemini format — include system prompt in first user message
-    const fullPrompt=systemPrompt+'\n\n'+context+'\n\nUser question: '+question;
-    AI_HISTORY.push({role:'user',parts:[{text:fullPrompt}]});
+    // Add to history (OpenAI format)
+    AI_HISTORY.push({role:'user',content:context+'\n\nUser question: '+question});
 
-    // Auto-discover available models (cached after first call)
-    if(!AI_MODEL){
-      const apiVersions=['v1beta','v1'];
-      for(const ver of apiVersions){
-        try{
-          const listResp=await fetch('https://generativelanguage.googleapis.com/'+ver+'/models?key='+AI_KEY);
-          if(!listResp.ok)continue;
-          const listData=await listResp.json();
-          if(!listData.models)continue;
-          const supported=listData.models.filter(m=>
-            m.supportedGenerationMethods&&m.supportedGenerationMethods.includes('generateContent')
-          );
-          if(supported.length===0)continue;
-          const prefer=supported.find(m=>m.name.includes('flash-lite'))
-            ||supported.find(m=>m.name.includes('flash')&&!m.name.includes('thinking'))
-            ||supported.find(m=>m.name.includes('pro')&&!m.name.includes('vision'))
-            ||supported[0];
-          if(prefer){
-            AI_MODEL=prefer.name;
-            console.log('AI: discovered model',AI_MODEL,'('+ver+')');
-            break;
-          }
-        }catch(e){console.log('AI: model discovery failed for '+ver,e);}
-      }
-    }
-
-    if(!AI_MODEL){
-      throw new Error('No compatible Gemini models found. Check your API key at aistudio.google.com.');
-    }
-
-    const apiUrl='https://generativelanguage.googleapis.com/v1beta/'+AI_MODEL+':generateContent?key='+AI_KEY;
-    const resp=await fetch(apiUrl,{
+    // Call Groq API (OpenAI-compatible)
+    const resp=await fetch('https://api.groq.com/openai/v1/chat/completions',{
       method:'POST',
-      headers:{'Content-Type':'application/json'},
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':'Bearer '+AI_KEY
+      },
       body:JSON.stringify({
-        contents:AI_HISTORY.slice(-10),
-        generationConfig:{maxOutputTokens:1024,temperature:0.7}
+        model:'llama-3.3-70b-versatile',
+        messages:[
+          {role:'system',content:systemPrompt},
+          ...AI_HISTORY.slice(-10)
+        ],
+        max_tokens:1024,
+        temperature:0.7
       })
     });
 
@@ -9112,8 +9087,8 @@ async function aiAsk(question){
     }
 
     const data=await resp.json();
-    const answer=data.candidates?.[0]?.content?.parts?.[0]?.text||'No response received.';
-    AI_HISTORY.push({role:'model',parts:[{text:answer}]});
+    const answer=data.choices?.[0]?.message?.content||'No response received.';
+    AI_HISTORY.push({role:'assistant',content:answer});
     aiShowResponse(answer);
 
   }catch(e){
