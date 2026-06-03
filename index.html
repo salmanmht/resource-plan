@@ -873,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.0 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.1 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -932,7 +932,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.0 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.1 · 3 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2692,7 +2692,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.2.0)
+// WEEKLY TRACKER  (v8.2.1)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5182,18 +5182,12 @@ function renderProjDetail(p){
     const isCustom=!DEFAULT_STAGES.includes(st.name);
     const stageOptions=DEFAULT_STAGES.map(s=>`<option${s===st.name?' selected':''}>${s}</option>`).join('');
     const weekCells=weeks.map((_,wi)=>{
-      const v=(st.weekVals&&st.weekVals[wi])||'';
-      const vEsc=v.replace(/"/g,'&quot;');
       const inStage=(stageMap.get(wi)||[]).includes(si);
       const cellBg=inStage?sc.bg:'';
       const cls='swk-'+p.id+'-'+si;
-      if(progLocked){
-        return`<td class="${cls}" style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}">
-          <span style="display:inline-block;width:42px;font-size:10px;text-align:center;padding:2px 1px;color:${v?'#374151':'var(--tx3)'};font-weight:${v?'600':'400'};">${v||'—'}</span></td>`;
-      }
-      return`<td class="${cls}" style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}"><input type="text" value="${vEsc}" placeholder="" maxlength="30"
-        style="width:42px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?sc.bdr:'#e4e6ea'};border-radius:3px;background:${v?sc.bg:'#fff'}"
-        oninput="setProjStageCell('${p.id}',${si},${wi},this)"></td>`;
+      // Programme week cells are visual-only — the coloured band shows the stage
+      // timeline (driven by the stage's from→to dates). Not free-text editable.
+      return`<td class="${cls}" style="padding:0;min-width:48px;height:30px;border-right:1px solid #f0f0f2;${cellBg?'background:'+cellBg+';':''}"></td>`;
     }).join('');
     const nameEsc=(st.name||'').replace(/"/g,'&quot;');
     let stageWkCount=0;
@@ -5253,23 +5247,23 @@ function renderProjDetail(p){
       const sIdx=stageMap.get(wi)||[];
       const cellBg=sIdx.length?stageColor(sIdx[0],p.stages[sIdx[0]]).bg+'66':'';
       if(progLocked){
-        return`<td style="padding:2px;text-align:center;${cellBg?'background:'+cellBg+';':''}">
-          <span style="display:inline-block;width:44px;font-size:10px;text-align:center;padding:2px 1px;color:${v?'#374151':'var(--tx3)'};font-weight:${v?'600':'400'};">${v||'—'}</span></td>`;
+        return`<td style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}">
+          <span style="display:inline-block;width:42px;font-size:10px;text-align:center;padding:2px 1px;color:${v?'#374151':'var(--tx3)'};font-weight:${v?'600':'400'};">${v||'—'}</span></td>`;
       }
-      return`<td style="padding:2px;text-align:center;${cellBg?'background:'+cellBg+';':''}"><input type="text" value="${esc(v)}" placeholder="" maxlength="30"
-        style="width:44px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?'#e9d8fd':'#e4e6ea'};border-radius:3px;background:${v?'#f5f0ff':'#fff'}"
+      return`<td style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}"><input type="text" value="${esc(v)}" placeholder="" maxlength="30"
+        style="width:42px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?'#e9d8fd':'#e4e6ea'};border-radius:3px;background:${v?'#f5f0ff':'#fff'}"
         oninput="setProjNoteCell('${p.id}',${ni},${wi},this)"></td>`;
     }).join('');
     if(progLocked){
       return`<tr style="background:#fdfaff;">
-        <td style="padding:6px 10px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+        <td style="padding:6px 10px;min-width:260px;width:260px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
           <span style="font-size:11px;font-weight:600;color:#4c1d95;">${esc(nr.label||'—')}</span>
         </td>
         ${weekCells}
       </tr>`;
     }
     return`<tr style="background:#fdfaff;">
-      <td style="padding:4px 6px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+      <td style="padding:4px 6px;min-width:260px;width:260px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
         <div style="display:flex;align-items:center;gap:4px;">
           <input type="text" value="${esc(nr.label||'')}" placeholder="Row label…" style="flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
             onchange="setProjNoteLabel('${p.id}',${ni},this.value)">
@@ -5354,7 +5348,7 @@ function renderProjDetail(p){
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
             <tr>
-              <th style="min-width:220px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
+              <th style="min-width:260px;width:260px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
               ${wkHdrs}
             </tr>
           </thead>
@@ -8992,7 +8986,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.2.0)
+// AI ASSISTANT (v8.2.1)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
