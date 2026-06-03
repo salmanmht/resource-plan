@@ -874,7 +874,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.4.0 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.5.0 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -934,7 +934,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.4.0 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.5.0 · 3 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2729,7 +2729,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.4.0)
+// WEEKLY TRACKER  (v8.5.0)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5035,7 +5035,7 @@ function renderProj(){
   });
 
   // Compact single-line row layout with programme strip
-  const COLS='80px 1fr minmax(220px,2fr) 100px 90px';
+  const COLS='40px 80px 1fr minmax(220px,2fr) 100px 90px';
   const statusDot=p=>{
     const color=p.status==='Active'?'#22c55e':p.status==='On Hold'?'#f59e0b':'#9ca3af';
     const title=p.status||'—';
@@ -5119,6 +5119,7 @@ function renderProj(){
   };
 
   const headerRow=`<div class="proj-row-header" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;">
+    <div>#</div>
     <div>Proj No.</div>
     <div>Name</div>
     <div>Programme (${(()=>{ return 'stages over project timeline'; })()})</div>
@@ -5126,11 +5127,12 @@ function renderProj(){
     <div style="text-align:right;font-size:10px;">Actions</div>
   </div>`;
 
-  const rowsHtml=list.map(p=>{
+  const rowsHtml=list.map((p,idx)=>{
     const totalHrs=projTotalHrs(p);
     const startStr=p.start||'—';
     const endStr=p.end||'—';
     return`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
+      <div style="color:var(--tx3);font-size:12px;font-weight:600;">${idx+1}</div>
       <div style="color:var(--tx3);font-size:12px;font-weight:500;">${p.no||'—'}</div>
       <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span>${p.mepLeadEmail?`<span style="font-size:9px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 5px;border-radius:4px;white-space:nowrap;">⚙ ${getMepLeadName(p.mepLeadEmail)}</span>`:''}</div>
       <div style="min-width:0;">${buildStrip(p)}</div>
@@ -5143,7 +5145,8 @@ function renderProj(){
 
   const emptyMsg=list.length===0?`<div style="text-align:center;padding:32px;color:var(--tx3);font-size:13px;font-style:italic;">No projects match the current filter.</div>`:'';
 
-  document.getElementById('proj-list').innerHTML=`<div class="card" style="padding:0;overflow:hidden;">
+  document.getElementById('proj-list').innerHTML=`<div style="font-size:11px;color:var(--tx3);margin-bottom:8px;padding:0 2px;"><strong style="color:var(--tx2);">${list.length}</strong> project${list.length===1?'':'s'}${(q||sf!=='all')?' shown':''} · <strong style="color:var(--tx2);">${S.projects.length}</strong> total</div>
+  <div class="card" style="padding:0;overflow:hidden;">
     ${headerRow}
     ${rowsHtml}
     ${emptyMsg}
@@ -5209,46 +5212,66 @@ function fmtMsDate(d){
   if(isNaN(dt))return d;
   return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
+// Milestone status vocabulary. 'overdue' is auto-derived from date, not in the cycle.
+const MS_STATES={
+  upcoming:{dot:'#ff9500',dotTxt:'',label:'#1d1d1f',strike:false,badge:'Upcoming',bBg:'#fff4e0',bFg:'#b06800'},
+  progress:{dot:'#007aff',dotTxt:'',label:'#1d1d1f',strike:false,badge:'In progress',bBg:'#e6f1fb',bFg:'#1f5fa6'},
+  done:{dot:'#34c759',dotTxt:'✓',label:'#86868b',strike:true,badge:'Done',bBg:'#e1f5ee',bFg:'#0c7a55'},
+  hold:{dot:'#9ca3af',dotTxt:'',label:'#6b7280',strike:false,badge:'On hold',bBg:'#f0f0f2',bFg:'#6b7280'},
+  overdue:{dot:'#ff3b30',dotTxt:'',label:'#ff3b30',strike:false,badge:'Overdue',bBg:'#fff0ee',bFg:'#c0271d'}
+};
+const MS_CYCLE=['upcoming','progress','done','hold'];
+// Resolve a milestone's effective status: explicit status, with auto-overdue overlay
+function msEffectiveState(m){
+  let s=m.status||(m.done?'done':'upcoming');
+  if(s!=='done' && s!=='hold' && m.date && m.date<todayISO()) return 'overdue';
+  return s;
+}
 function renderMilestoneSection(p){
   if(!p.milestones)p.milestones=[];
   if(!p.statusLog)p.statusLog=[];
   const canEdit=adminUnlocked||isMepLeadFor(p.id);
-  const collapsed=(window._msCollapsed&&window._msCollapsed[p.id])||false;
   const ms=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
   const log=[...p.statusLog].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
 
-  const msRows=ms.map((m,i)=>{
-    const overdue=!m.done && m.date && m.date<todayISO();
-    const icon=m.done?'<span style="color:#34c759;">✔</span>':(overdue?'<span style="color:#ff3b30;">●</span>':'<span style="color:#ff9500;">○</span>');
-    const txtCol=m.done?'#86868b':(overdue?'#ff3b30':'#1d1d1f');
-    const deco=m.done?'text-decoration:line-through;':'';
-    return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f7;">
-      <span onclick="${canEdit?`toggleMsDone('${p.id}',${i})`:''}" style="font-size:13px;${canEdit?'cursor:pointer;':''}width:16px;text-align:center;flex-shrink:0;">${icon}</span>
-      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${fmtMsDate(m.date)}</span>
-      <span style="font-size:12px;color:${txtCol};${deco}flex:1;">${esc(m.label)}</span>
-      ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeMilestone('${p.id}',${i})" title="Remove">&#10005;</button>`:''}
+  const msRows=ms.map((m)=>{
+    const origIdx=p.milestones.indexOf(m);
+    const stKey=msEffectiveState(m);
+    const st=MS_STATES[stKey];
+    const deco=st.strike?'text-decoration:line-through;':'';
+    const dotStyle=`width:18px;height:18px;border-radius:50%;border:none;background:${st.dot};color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;${canEdit?'cursor:pointer;':''}`;
+    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f2f2f7;">
+      <span onclick="${canEdit?`cycleMsStatus('${p.id}',${origIdx})`:''}" title="${canEdit?'Tap to change status':st.badge}" style="${dotStyle}">${st.dotTxt}</span>
+      <span ${canEdit?`onclick="editMilestoneDate('${p.id}',${origIdx})" title="Click to change date" style="cursor:pointer;`:'style="'}font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${fmtMsDate(m.date)}</span>
+      <span ${canEdit?`onclick="editMilestoneLabel('${p.id}',${origIdx})" title="Click to edit" style="cursor:pointer;`:'style="'}font-size:12px;color:${st.label};${deco}flex:1;">${esc(m.label)}</span>
+      <span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:9px;background:${st.bBg};color:${st.bFg};white-space:nowrap;flex-shrink:0;">${st.badge}</span>
+      ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeMilestone('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
     </div>`;
   }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No milestones yet.</div>';
 
-  const logRows=log.map((n,i)=>{
+  const logRows=log.map((n)=>{
     const origIdx=p.statusLog.indexOf(n);
     return`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f7;">
-      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${n.date?fmtMsDate(n.date):'—'}</span>
-      <span style="font-size:12px;color:var(--tx2);flex:1;line-height:1.55;">${esc(n.text)}</span>
+      <span ${canEdit?`onclick="editStatusDate('${p.id}',${origIdx})" title="Click to change date" style="cursor:pointer;`:'style="'}font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${n.date?fmtMsDate(n.date):'—'}</span>
+      <span ${canEdit?`onclick="editStatusNote('${p.id}',${origIdx})" title="Click to edit" style="cursor:pointer;`:'style="'}font-size:12px;color:var(--tx2);flex:1;line-height:1.55;">${esc(n.text)}</span>
       ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeStatusNote('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
     </div>`;
   }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No status updates yet.</div>';
 
-  const doneCount=ms.filter(m=>m.done).length;
+  const doneCount=ms.filter(m=>msEffectiveState(m)==='done').length;
+  const open=(window._secOpen&&window._secOpen['sec-ms-'+p.id])||false;
 
-  return`<div class="card" style="margin-top:14px;">
-    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleMsSection('${p.id}')">
-      <span id="ms-arrow-${p.id}" style="font-size:11px;color:var(--tx3);">${collapsed?'▶':'▼'}</span>
-      <span style="font-size:13px;font-weight:700;color:#1e3a5f;">📋 Milestones &amp; Status</span>
-      <span class="hdr-s" style="margin-left:0;">${doneCount}/${ms.length} done</span>
-      <span class="hdr-s" style="margin-left:0;">${log.length} updates</span>
+  return`<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;">
+    <div style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-ms-${p.id}','sec-ms-arrow-${p.id}')">
+      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;flex-wrap:wrap;">
+        <span id="sec-ms-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${open?'▼':'▶'}</span>
+        <span style="font-size:13px;">📋</span>
+        <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Milestones &amp; Status</strong>
+        <span class="hdr-s" style="margin-left:0;">${doneCount}/${ms.length} done</span>
+        <span class="hdr-s" style="margin-left:0;">${log.length} updates</span>
+      </div>
     </div>
-    <div id="ms-body-${p.id}" style="display:${collapsed?'none':'block'};margin-top:14px;">
+    <div id="sec-ms-${p.id}" style="display:${open?'block':'none'};padding:14px;">
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="ms-grid">
         <div>
           <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
@@ -5268,13 +5291,6 @@ function renderMilestoneSection(p){
     </div>
   </div>`;
 }
-function toggleMsSection(pid){
-  if(!window._msCollapsed)window._msCollapsed={};
-  window._msCollapsed[pid]=!window._msCollapsed[pid];
-  const b=document.getElementById('ms-body-'+pid),a=document.getElementById('ms-arrow-'+pid);
-  if(b)b.style.display=window._msCollapsed[pid]?'none':'block';
-  if(a)a.textContent=window._msCollapsed[pid]?'▶':'▼';
-}
 function addMilestone(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
@@ -5283,7 +5299,7 @@ function addMilestone(pid){
   const date=prompt('Due date (YYYY-MM-DD):',todayISO());
   if(!date)return;
   if(!p.milestones)p.milestones=[];
-  p.milestones.push({date:date.trim(),label:label.trim(),done:false});
+  p.milestones.push({date:date.trim(),label:label.trim(),done:false,status:'upcoming'});
   pushProj(p);renderProjDetail(p);
 }
 function removeMilestone(pid,i){
@@ -5292,15 +5308,33 @@ function removeMilestone(pid,i){
   if(!confirm('Remove this milestone?'))return;
   p.milestones.splice(i,1);pushProj(p);renderProjDetail(p);
 }
-function toggleMsDone(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
+function cycleMsStatus(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  // i refers to the SORTED index; map back to original
-  const sorted=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  const target=sorted[i];const orig=p.milestones.indexOf(target);
-  if(orig<0)return;
-  p.milestones[orig].done=!p.milestones[orig].done;
+  const m=p.milestones[i];
+  const cur=m.status||(m.done?'done':'upcoming');
+  // find position in cycle (overdue isn't a manual state — treat as upcoming for cycling)
+  let idx=MS_CYCLE.indexOf(cur);
+  if(idx<0)idx=0;
+  const next=MS_CYCLE[(idx+1)%MS_CYCLE.length];
+  m.status=next;
+  m.done=(next==='done'); // keep legacy flag in sync
   pushProj(p);renderProjDetail(p);
+}
+function editMilestoneLabel(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const v=prompt('Edit milestone label:',p.milestones[i].label||'');
+  if(v===null)return;
+  if(!v.trim())return toast('Label cannot be empty');
+  p.milestones[i].label=v.trim();pushProj(p);renderProjDetail(p);
+}
+function editMilestoneDate(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const v=prompt('Edit due date (YYYY-MM-DD):',p.milestones[i].date||todayISO());
+  if(v===null)return;
+  p.milestones[i].date=v.trim();pushProj(p);renderProjDetail(p);
 }
 function addStatusNote(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
@@ -5310,6 +5344,21 @@ function addStatusNote(pid){
   if(!p.statusLog)p.statusLog=[];
   p.statusLog.push({date:todayISO(),text:text.trim()});
   pushProj(p);renderProjDetail(p);
+}
+function editStatusNote(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const v=prompt('Edit status update:',p.statusLog[i].text||'');
+  if(v===null)return;
+  if(!v.trim())return toast('Update cannot be empty');
+  p.statusLog[i].text=v.trim();pushProj(p);renderProjDetail(p);
+}
+function editStatusDate(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const v=prompt('Edit update date (YYYY-MM-DD):',p.statusLog[i].date||todayISO());
+  if(v===null)return;
+  p.statusLog[i].date=v.trim();pushProj(p);renderProjDetail(p);
 }
 function removeStatusNote(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog)return;
@@ -5323,9 +5372,8 @@ function removeStatusNote(pid,i){
 // ═══════════════════════════════════════
 function trackerProjStatus(p){
   const ms=p.milestones||[];
-  const today=todayISO();
-  const overdue=ms.filter(m=>!m.done && m.date && m.date<today).length;
-  const done=ms.filter(m=>m.done).length;
+  const overdue=ms.filter(m=>msEffectiveState(m)==='overdue').length;
+  const done=ms.filter(m=>msEffectiveState(m)==='done').length;
   if(overdue>0)return{label:overdue+' overdue',cls:'amb',bg:'var(--amb2)',fg:'var(--amb)'};
   if(ms.length>0 && done===ms.length)return{label:'all done',cls:'grn',bg:'var(--grn2)',fg:'var(--grn)'};
   if(ms.length>0)return{label:done+'/'+ms.length+' done',cls:'hi',bg:'var(--acc2)',fg:'var(--acc)'};
@@ -5337,38 +5385,15 @@ function renderTracker(){
   const filter=document.getElementById('trk-filter')?.value||'all';
   const today=todayISO();
 
-  // Build flat list of upcoming (not-done, dated) milestones across all projects
-  const upcoming=[];
-  S.projects.forEach(p=>{
-    (p.milestones||[]).forEach(m=>{
-      if(!m.done && m.date) upcoming.push({pid:p.id,pname:p.name,pno:p.no,date:m.date,label:m.label});
-    });
-  });
-  upcoming.sort((a,b)=>a.date.localeCompare(b.date));
-
-  const dayDiff=(d)=>{const a=new Date(d+'T00:00:00'),b=new Date(today+'T00:00:00');return Math.round((a-b)/86400000);};
-  const stripCards=upcoming.slice(0,12).map(u=>{
-    const dd=dayDiff(u.date);
-    const od=dd<0;
-    const when=od?('overdue '+Math.abs(dd)+'d'):(dd===0?'today':'in '+dd+' days');
-    const accent=od?'border-left:3px solid var(--red);border-radius:0;':'border-radius:var(--r);';
-    const wc=od?'color:var(--red);':'color:var(--tx3);';
-    return`<div onclick="openTrackerProj('${u.pid}')" style="flex:0 0 auto;min-width:130px;max-width:170px;cursor:pointer;background:var(--surf);border:1px solid var(--bdr);${accent}padding:9px 11px;">
-      <div style="font-size:10px;${wc}">${when}</div>
-      <div style="font-size:13px;font-weight:700;margin:2px 0;">${fmtMsDate(u.date)}</div>
-      <div style="font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(u.pname)} · ${esc(u.label)}</div>
-    </div>`;
-  }).join('')||'<div style="font-size:12px;color:var(--tx3);padding:8px 0;">No upcoming milestones.</div>';
-
   // Project cards — only projects that have any milestone or status data, plus filter/search
   let projs=S.projects.filter(p=>(p.milestones&&p.milestones.length)||(p.statusLog&&p.statusLog.length));
   if(q)projs=projs.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.no||'').toString().toLowerCase().includes(q));
-  if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>!m.done&&m.date&&m.date<today));
-  if(filter==='upcoming')projs=projs.filter(p=>(p.milestones||[]).some(m=>!m.done&&m.date&&m.date>=today));
+  if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>msEffectiveState(m)==='overdue'));
+  if(filter==='upcoming')projs=projs.filter(p=>(p.milestones||[]).some(m=>{const s=msEffectiveState(m);return s==='upcoming'||s==='progress';}));
   // Sort: most overdue first, then by name
   projs.sort((a,b)=>{
-    const ao=(a.milestones||[]).filter(m=>!m.done&&m.date&&m.date<today).length;
-    const bo=(b.milestones||[]).filter(m=>!m.done&&m.date&&m.date<today).length;
+    const ao=(a.milestones||[]).filter(m=>msEffectiveState(m)==='overdue').length;
+    const bo=(b.milestones||[]).filter(m=>msEffectiveState(m)==='overdue').length;
     if(ao!==bo)return bo-ao;
     return (a.name||'').localeCompare(b.name||'');
   });
@@ -5379,10 +5404,10 @@ function renderTracker(){
     const log=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
     const lead=p.mepLead||(p.pm)||'';
     const msHtml=ms.slice(0,5).map(m=>{
-      const overdue=!m.done&&m.date&&m.date<today;
-      const ic=m.done?'<span style="color:var(--grn);">✔</span>':(overdue?'<span style="color:var(--red);">●</span>':'<span style="color:var(--amb);">○</span>');
-      const tc=m.done?'color:var(--tx3);text-decoration:line-through;':(overdue?'color:var(--red);':'');
-      return`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ic} <span style="color:var(--tx3);">${fmtMsDate(m.date)}</span> <span style="${tc}">${esc(m.label)}</span></div>`;
+      const st=MS_STATES[msEffectiveState(m)];
+      const dot=`<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:${st.dot};margin-right:2px;vertical-align:middle;"></span>`;
+      const tc=st.strike?'color:var(--tx3);text-decoration:line-through;':`color:${st.label};`;
+      return`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${dot} <span style="color:var(--tx3);">${fmtMsDate(m.date)}</span> <span style="${tc}">${esc(m.label)}</span></div>`;
     }).join('')||'<div style="color:var(--tx3);">No milestones</div>';
     const latest=log[0];
     const logHtml=latest?`<div style="border-top:1px solid #f2f2f7;margin-top:8px;padding-top:8px;font-size:11px;color:var(--tx2);">💬 ${esc(latest.text)} ${latest.date?`<span style="color:var(--tx3);">(${fmtMsDate(latest.date)})</span>`:''}</div>`:'';
@@ -5397,8 +5422,6 @@ function renderTracker(){
   }).join('');
 
   host.innerHTML=`
-    <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin:4px 0 8px;">Upcoming deadlines</div>
-    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:20px;-webkit-overflow-scrolling:touch;">${stripCards}</div>
     <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
       <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">All projects</span>
       <span style="font-size:11px;color:var(--tx3);">· ${projs.length} with milestones</span>
@@ -5423,8 +5446,7 @@ function exportTrackerXLSX(){
         return;
       }
       ms.forEach((m,i)=>{
-        const overdue=!m.done&&m.date&&m.date<today;
-        const stat=m.done?'Done':(overdue?'Overdue':'Upcoming');
+        const stat=MS_STATES[msEffectiveState(m)].badge;
         rows.push([i===0?(p.no||''):'',i===0?(p.name||''):'',i===0?(p.mepLead||p.pm||''):'',m.label,m.date||'',stat,i===0&&latest?latest.text:'']);
       });
     });
@@ -9302,7 +9324,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.4.0)
+// AI ASSISTANT (v8.5.0)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
