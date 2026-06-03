@@ -3,6 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="Meinhardt MEP Resource Planning — internal tool">
+<meta name="robots" content="noindex, nofollow">
 <title>MEP Resource Plan</title>
 <link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#007aff">
@@ -12,6 +14,11 @@
 <link rel="apple-touch-icon" href="icons/icon-152x152.png">
 <link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
 <link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+<link rel="preconnect" href="https://cdnjs.cloudflare.com">
+<link rel="preconnect" href="https://cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+<link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+<link rel="dns-prefetch" href="https://api.groq.com">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
@@ -735,7 +742,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- ── VIEW A: Email + Password ── -->
   <div class="pin-box" id="view-login">
     <div class="pin-icon">
-      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+      <svg aria-hidden="true" focusable="false" width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
     </div>
     <div class="pin-title">MEP Resource Plan</div>
     <div class="pin-sub">Sign in to continue</div>
@@ -765,7 +772,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- ── VIEW D: Sign Up ── -->
   <div class="pin-box" id="view-signup" style="display:none;">
     <div class="pin-icon" style="background:linear-gradient(160deg,#5856d6 0%,#007aff 100%);box-shadow:0 4px 16px rgba(88,86,214,.3);">
-      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
+      <svg aria-hidden="true" focusable="false" width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"/></svg>
     </div>
     <div class="pin-title">Request Access</div>
     <div class="pin-sub">Use your Meinhardt work email</div>
@@ -799,7 +806,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- ── VIEW E: Pending Approval ── -->
   <div class="pin-box" id="view-pending" style="display:none;">
     <div class="pin-icon" style="background:linear-gradient(160deg,#ff9500 0%,#ff6000 100%);box-shadow:0 4px 16px rgba(255,149,0,.3);">
-      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <svg aria-hidden="true" focusable="false" width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
     </div>
     <div class="pin-title">Access Pending</div>
     <div class="pin-sub" id="pending-msg">Your account has been created. Please wait for admin approval before you can access the app.</div>
@@ -835,7 +842,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- ── VIEW C: Set PIN (after first login) ── -->
   <div class="pin-box" id="view-set-pin" style="display:none;">
     <div class="pin-icon" style="background:linear-gradient(160deg,#34c759 0%,#248a3d 100%);box-shadow:0 4px 16px rgba(52,199,89,.3);">
-      <svg width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
+      <svg aria-hidden="true" focusable="false" width="24" height="24" fill="none" stroke="#fff" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
     </div>
     <div class="pin-title" id="set-pin-title">Set your PIN</div>
     <div class="pin-sub" id="set-pin-sub">Choose a 4-digit PIN for quick access</div>
@@ -860,13 +867,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.1 · 2 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.7 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
 
 <div class="app" id="app-shell" style="display:none">
-<div class="sb" id="sidebar">
+<div class="sb" id="sidebar" role="navigation" aria-label="Main navigation">
   <div class="sb-logo">
     <div style="display:flex;align-items:center;justify-content:space-between;">
       <div><div class="sb-logo-t">MEP RESOURCE PLAN</div><div class="sb-logo-s">Meinhardt Group</div></div>
@@ -889,7 +896,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <div id="sb-user-email" style="font-size:9px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">—</div>
       </div>
       <button id="sb-signout-icon" onclick="doLogout()" title="Sign Out" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:5px;border-radius:8px;color:#ef4444;opacity:.7;transition:.15s;" onmouseover="this.style.opacity='1';this.style.background='#fee2e2'" onmouseout="this.style.opacity='.7';this.style.background='none'">
-        <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+        <svg aria-hidden="true" focusable="false" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
     </div>
   </div>
@@ -897,37 +904,37 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button></div>
 
   <div class="sb-sec">Overview</div>
-  <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Combined MEP</div>
-  <div class="sbi" id="nav-dxb" onclick="nav('dxb')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Dubai Office<span class="sb-badge" id="sb-dxb">—</span></div>
-  <div class="sbi" id="nav-egy" onclick="nav('egy')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>Egypt Office<span class="sb-badge" id="sb-egy">—</span></div>
-  <div class="sbi" id="nav-ind" onclick="nav('ind')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>India Office<span class="sb-badge" id="sb-ind">—</span></div>
+  <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Combined MEP</div>
+  <div class="sbi" id="nav-dxb" onclick="nav('dxb')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Dubai Office<span class="sb-badge" id="sb-dxb">—</span></div>
+  <div class="sbi" id="nav-egy" onclick="nav('egy')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>Egypt Office<span class="sb-badge" id="sb-egy">—</span></div>
+  <div class="sbi" id="nav-ind" onclick="nav('ind')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>India Office<span class="sb-badge" id="sb-ind">—</span></div>
 
   <div class="sb-sec">Disciplines</div>
-  <div class="sbi" id="nav-hvac" onclick="nav('hvac')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>HVAC<span class="sb-badge" id="sb-hvac">—</span></div>
-  <div class="sbi" id="nav-phe" onclick="nav('phe')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>PH &amp; Fire<span class="sb-badge" id="sb-phe">—</span></div>
-  <div class="sbi" id="nav-ele" onclick="nav('ele')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Electrical<span class="sb-badge" id="sb-ele">—</span></div>
-  <div class="sbi" id="nav-elv" onclick="nav('elv')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>ELV<span class="sb-badge" id="sb-elv">—</span></div>
-  <div class="sbi" id="nav-bim" onclick="nav('bim')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>BIM<span class="sb-badge" id="sb-bim">—</span></div>
+  <div class="sbi" id="nav-hvac" onclick="nav('hvac')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>HVAC<span class="sb-badge" id="sb-hvac">—</span></div>
+  <div class="sbi" id="nav-phe" onclick="nav('phe')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>PH &amp; Fire<span class="sb-badge" id="sb-phe">—</span></div>
+  <div class="sbi" id="nav-ele" onclick="nav('ele')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Electrical<span class="sb-badge" id="sb-ele">—</span></div>
+  <div class="sbi" id="nav-elv" onclick="nav('elv')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>ELV<span class="sb-badge" id="sb-elv">—</span></div>
+  <div class="sbi" id="nav-bim" onclick="nav('bim')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>BIM<span class="sb-badge" id="sb-bim">—</span></div>
   <div class="sb-sec">Manage</div>
-  <div class="sbi" id="nav-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
-  <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
-  <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
-  <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
-  <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
-  <div class="sbi" id="nav-holidays" onclick="nav('holidays')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays 🔒</div>
-  <div class="sbi" id="nav-rates" onclick="requireAdmin()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
-  <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
-  <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
+  <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
+  <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
+  <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
+  <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
+  <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
+  <div class="sbi" id="nav-holidays" onclick="nav('holidays')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays 🔒</div>
+  <div class="sbi" id="nav-rates" onclick="requireAdmin()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
+  <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
+  <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.1 · 2 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.7 · 3 Jun 2026</div>
 </div>
 
-<div class="main">
+<div class="main" role="main">
   <!-- COMBINED MEP -->
   <div id="pg-mep">
     <div class="hdr" style="flex-wrap:wrap;gap:6px;">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Combined MEP</span><span class="hdr-s" id="dash-period-label">All Offices</span>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
@@ -1005,20 +1012,20 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   </div>
 
   <!-- OFFICE PAGES -->
-  <div id="pg-dxb" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Dubai Office</span><span class="hdr-s" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd">DXB</span></div></div><div class="pc" id="pc-dxb"></div></div>
-  <div id="pg-egy" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Egypt Office</span><span class="hdr-s" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">EGY</span></div></div><div class="pc" id="pc-egy"></div></div>
-  <div id="pg-ind" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">India Office</span><span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d">IND</span></div></div><div class="pc" id="pc-ind"></div></div>
-  <div id="pg-hvac" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">HVAC</span><span class="hdr-s" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">HVAC</span></div></div><div class="pc" id="pc-hvac"></div></div>
-  <div id="pg-phe" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">PH &amp; Fire</span><span class="hdr-s" style="background:#dcfce7;color:#166534;border-color:#86efac">PH&amp;E</span></div></div><div class="pc" id="pc-phe"></div></div>
-  <div id="pg-ele" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Electrical</span><span class="hdr-s" style="background:#fef9c3;color:#854d0e;border-color:#fde047">ELE</span></div></div><div class="pc" id="pc-ele"></div></div>
-  <div id="pg-elv" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">ELV</span><span class="hdr-s" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4">ELV</span></div></div><div class="pc" id="pc-elv"></div></div>
-  <div id="pg-bim" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">BIM</span><span class="hdr-s" style="background:#f0fdfa;color:#0f766e;border-color:#5eead4">BIM</span></div></div><div class="pc" id="pc-bim"></div></div>
+  <div id="pg-dxb" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Dubai Office</span><span class="hdr-s" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd">DXB</span></div></div><div class="pc" id="pc-dxb"></div></div>
+  <div id="pg-egy" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Egypt Office</span><span class="hdr-s" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">EGY</span></div></div><div class="pc" id="pc-egy"></div></div>
+  <div id="pg-ind" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">India Office</span><span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d">IND</span></div></div><div class="pc" id="pc-ind"></div></div>
+  <div id="pg-hvac" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">HVAC</span><span class="hdr-s" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">HVAC</span></div></div><div class="pc" id="pc-hvac"></div></div>
+  <div id="pg-phe" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">PH &amp; Fire</span><span class="hdr-s" style="background:#dcfce7;color:#166534;border-color:#86efac">PH&amp;E</span></div></div><div class="pc" id="pc-phe"></div></div>
+  <div id="pg-ele" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Electrical</span><span class="hdr-s" style="background:#fef9c3;color:#854d0e;border-color:#fde047">ELE</span></div></div><div class="pc" id="pc-ele"></div></div>
+  <div id="pg-elv" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">ELV</span><span class="hdr-s" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4">ELV</span></div></div><div class="pc" id="pc-elv"></div></div>
+  <div id="pg-bim" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">BIM</span><span class="hdr-s" style="background:#f0fdfa;color:#0f766e;border-color:#5eead4">BIM</span></div></div><div class="pc" id="pc-bim"></div></div>
 
   <!-- TEAM -->
   <div id="pg-team" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Team Register</span>
       </div>
       <div style="display:flex;gap:6px;" id="team-hdr-btns"></div>
@@ -1037,7 +1044,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-proj" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="proj-hdr-title">Projects</span>
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
@@ -1066,7 +1073,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-weekly" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Weekly Tracker</span>
       </div>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
@@ -1084,7 +1091,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-leave" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Annual Leave</span>
         <span class="hdr-s" id="leave-period-label"></span>
       </div>
@@ -1097,7 +1104,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-mgmt" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Management Hours</span>
         <span class="hdr-s">Associate Engineers only</span>
       </div>
@@ -1109,7 +1116,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-holidays" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Public Holidays</span>
         <span class="hdr-s">UAE & Egypt — affects utilisation, not billable</span>
       </div>
@@ -1187,7 +1194,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-pending" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">User Management</span>
         <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
       </div>
@@ -1208,7 +1215,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div id="pg-proposals" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
-        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="prop-hdr-title">Proposals</span>
         <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
       </div>
@@ -1228,10 +1235,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
 <!-- BOTTOM NAV -->
 <nav class="bot-nav">
-  <button class="bn-item on" id="bn-mep" onclick="nav('mep')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Dash</button>
-  <button class="bn-item" id="bn-team" onclick="nav('team')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team</button>
-  <button class="bn-item" id="bn-proj" onclick="nav('proj')"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</button>
-  <button class="bn-item" id="bn-more" onclick="openMobSB()"><svg fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>More</button>
+  <button class="bn-item on" id="bn-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Dash</button>
+  <button class="bn-item" id="bn-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team</button>
+  <button class="bn-item" id="bn-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</button>
+  <button class="bn-item" id="bn-more" onclick="openMobSB()"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>More</button>
 </nav>
 </div><!-- end app -->
 
@@ -2679,7 +2686,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.2.1)
+// WEEKLY TRACKER  (v8.1.7)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5190,7 +5197,7 @@ function renderProjDetail(p){
     if(progLocked){
       const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
       return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-        <td style="padding:6px 10px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};">
+        <td style="padding:6px 10px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:${sc.bg}55;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
@@ -5205,7 +5212,7 @@ function renderProjDetail(p){
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
     return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-      <td style="padding:4px 6px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};">
+      <td style="padding:4px 6px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:${sc.bg}55;">
         <div style="display:flex;align-items:center;gap:4px;">
 
           <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour" 
@@ -5252,14 +5259,14 @@ function renderProjDetail(p){
     }).join('');
     if(progLocked){
       return`<tr style="background:#fdfaff;">
-        <td style="padding:6px 10px;vertical-align:middle;">
+        <td style="padding:6px 10px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
           <span style="font-size:11px;font-weight:600;color:#4c1d95;">${esc(nr.label||'—')}</span>
         </td>
         ${weekCells}
       </tr>`;
     }
     return`<tr style="background:#fdfaff;">
-      <td style="padding:4px 6px;vertical-align:middle;">
+      <td style="padding:4px 6px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
         <div style="display:flex;align-items:center;gap:4px;">
           <input type="text" value="${esc(nr.label||'')}" placeholder="Row label…" style="flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
             onchange="setProjNoteLabel('${p.id}',${ni},this.value)">
@@ -5287,11 +5294,11 @@ function renderProjDetail(p){
           <div style="min-width:0;">
             <div style="font-size:17px;font-weight:800;color:#0f172a;line-height:1.2;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)}</div>
             <div class="proj-detail-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center;">
-              ${p.client?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>${esc(p.client)}</span>`:''}
+              ${p.client?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>${esc(p.client)}</span>`:''}
               ${p.mepLeadEmail?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:5px;padding:2px 8px;font-weight:600;">⚙ ${getMepLeadName(p.mepLeadEmail)}</span>`:''}
-              ${p.pm?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>${esc(p.pm)}</span>`:''}
-              ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
-              <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
+              ${p.pm?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>${esc(p.pm)}</span>`:''}
+              ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${(p.feeFactor||1.0).toFixed(2)}× FF</span>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${p.status}</span>
             </div>
@@ -5299,7 +5306,7 @@ function renderProjDetail(p){
         </div>
         <!-- Right: Edit button -->
         <button class="proj-detail-edit-btn" onclick="${adminUnlocked?`editProj('${p.id}')`:`toast('Admin access required to edit project details')`}" style="display:${adminUnlocked?'inline-flex':'none'};align-items:center;gap:6px;padding:8px 16px;font-size:12px;font-weight:700;border-radius:8px;border:1.5px solid #e2e8f0;background:#fff;color:#0f172a;cursor:pointer;font-family:inherit;transition:all .15s;flex-shrink:0;box-shadow:0 1px 3px rgba(0,0,0,.06);" onmouseover="this.style.background='#f8fafc';this.style.borderColor='#94a3b8';" onmouseout="this.style.background='#fff';this.style.borderColor='#e2e8f0';">
-          <svg width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          <svg aria-hidden="true" focusable="false" width="13" height="13" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
           Edit Project
         </button>
       </div>
@@ -8981,7 +8988,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.2.0)
+// AI ASSISTANT (v8.1.7)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
