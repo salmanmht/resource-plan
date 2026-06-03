@@ -873,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.8 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.9 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -932,7 +932,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.8 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.9 · 3 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2692,7 +2692,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.8)
+// WEEKLY TRACKER  (v8.1.9)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5203,7 +5203,7 @@ function renderProjDetail(p){
     if(progLocked){
       const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
       return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-        <td style="padding:6px 10px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:${sc.bg}cc;">
+        <td style="padding:6px 10px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
@@ -5218,7 +5218,7 @@ function renderProjDetail(p){
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
     return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-      <td style="padding:4px 6px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:${sc.bg}cc;">
+      <td style="padding:4px 6px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
         <div style="display:flex;align-items:center;gap:4px;">
 
           <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour" 
@@ -8994,7 +8994,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.8)
+// AI ASSISTANT (v8.1.9)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
