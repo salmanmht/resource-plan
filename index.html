@@ -342,6 +342,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .proj-row > :nth-child(5),.proj-row-header > :nth-child(5){display:none!important;}
 
   /* Programme table — mobile first column */
+  .ms-grid{grid-template-columns:1fr!important;}
   #proj-detail-content td[style*="position:sticky"][style*="left:0"]{
     min-width:140px!important;max-width:160px!important;white-space:normal!important;word-break:break-word;
   }
@@ -873,7 +874,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.3 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.4.0 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -924,6 +925,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
+  <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
   <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
   <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
@@ -932,7 +934,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.3 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.4.0 · 3 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1072,6 +1074,25 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <!-- DETAIL VIEW -->
     <div id="proj-detail-view" style="display:none;" class="pc">
       <div id="proj-detail-content"></div>
+    </div>
+  </div>
+
+  <div id="pg-tracker" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Deadline Tracker</span>
+      </div>
+      <div style="display:flex;gap:4px;align-items:center;">
+        <button class="btn btn-g btn-sm" onclick="exportTrackerXLSX()" title="Export deadline tracker to Excel" style="align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export</span></button>
+      </div>
+    </div>
+    <div class="pc">
+      <div class="fbar">
+        <input id="trk-q" placeholder="Search projects..." oninput="renderTracker()" style="flex:1;max-width:220px;">
+        <select id="trk-filter" onchange="renderTracker()"><option value="all">All projects</option><option value="overdue">Has overdue</option><option value="upcoming">Has upcoming</option></select>
+      </div>
+      <div id="tracker-content"></div>
     </div>
   </div>
 
@@ -2704,11 +2725,11 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','weekly','leave','mgmt','holidays','rates','pending','proposals'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals'];
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.2.3)
+// WEEKLY TRACKER  (v8.4.0)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -3557,6 +3578,7 @@ function nav(p, fromPopstate){
   else if(p==='bim')setTimeout(()=>renderBIM('pc-bim'),0);
   else if(p==='team')renderTeam();
   else if(p==='proj')renderProj();
+  else if(p==='tracker')renderTracker();
   else if(p==='weekly')renderWeekly();
   else if(p==='rates')renderRates();
   else if(p==='leave')renderLeave();
@@ -5178,6 +5200,242 @@ function toggleBimPop(projId, btn){
 // Alias — renderProjList() is the stable public name; renderProj() is the internal implementation.
 const renderProjList=renderProj;
 
+// ═══════════════════════════════════════
+// MILESTONES & STATUS LOG  (Programme history / biweekly updates)
+// ═══════════════════════════════════════
+function fmtMsDate(d){
+  if(!d)return '';
+  const dt=new Date(d+'T00:00:00');
+  if(isNaN(dt))return d;
+  return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+}
+function renderMilestoneSection(p){
+  if(!p.milestones)p.milestones=[];
+  if(!p.statusLog)p.statusLog=[];
+  const canEdit=adminUnlocked||isMepLeadFor(p.id);
+  const collapsed=(window._msCollapsed&&window._msCollapsed[p.id])||false;
+  const ms=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const log=[...p.statusLog].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
+
+  const msRows=ms.map((m,i)=>{
+    const overdue=!m.done && m.date && m.date<todayISO();
+    const icon=m.done?'<span style="color:#34c759;">✔</span>':(overdue?'<span style="color:#ff3b30;">●</span>':'<span style="color:#ff9500;">○</span>');
+    const txtCol=m.done?'#86868b':(overdue?'#ff3b30':'#1d1d1f');
+    const deco=m.done?'text-decoration:line-through;':'';
+    return`<div style="display:flex;align-items:center;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f7;">
+      <span onclick="${canEdit?`toggleMsDone('${p.id}',${i})`:''}" style="font-size:13px;${canEdit?'cursor:pointer;':''}width:16px;text-align:center;flex-shrink:0;">${icon}</span>
+      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${fmtMsDate(m.date)}</span>
+      <span style="font-size:12px;color:${txtCol};${deco}flex:1;">${esc(m.label)}</span>
+      ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeMilestone('${p.id}',${i})" title="Remove">&#10005;</button>`:''}
+    </div>`;
+  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No milestones yet.</div>';
+
+  const logRows=log.map((n,i)=>{
+    const origIdx=p.statusLog.indexOf(n);
+    return`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f7;">
+      <span style="font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${n.date?fmtMsDate(n.date):'—'}</span>
+      <span style="font-size:12px;color:var(--tx2);flex:1;line-height:1.55;">${esc(n.text)}</span>
+      ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeStatusNote('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
+    </div>`;
+  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No status updates yet.</div>';
+
+  const doneCount=ms.filter(m=>m.done).length;
+
+  return`<div class="card" style="margin-top:14px;">
+    <div style="display:flex;align-items:center;gap:8px;cursor:pointer;" onclick="toggleMsSection('${p.id}')">
+      <span id="ms-arrow-${p.id}" style="font-size:11px;color:var(--tx3);">${collapsed?'▶':'▼'}</span>
+      <span style="font-size:13px;font-weight:700;color:#1e3a5f;">📋 Milestones &amp; Status</span>
+      <span class="hdr-s" style="margin-left:0;">${doneCount}/${ms.length} done</span>
+      <span class="hdr-s" style="margin-left:0;">${log.length} updates</span>
+    </div>
+    <div id="ms-body-${p.id}" style="display:${collapsed?'none':'block'};margin-top:14px;">
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="ms-grid">
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Milestones</span>
+            ${canEdit?`<button class="btn btn-g btn-xs" onclick="addMilestone('${p.id}')">+ Add</button>`:''}
+          </div>
+          ${msRows}
+        </div>
+        <div>
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Status log (biweekly)</span>
+            ${canEdit?`<button class="btn btn-g btn-xs" onclick="addStatusNote('${p.id}')">+ Update</button>`:''}
+          </div>
+          ${logRows}
+        </div>
+      </div>
+    </div>
+  </div>`;
+}
+function toggleMsSection(pid){
+  if(!window._msCollapsed)window._msCollapsed={};
+  window._msCollapsed[pid]=!window._msCollapsed[pid];
+  const b=document.getElementById('ms-body-'+pid),a=document.getElementById('ms-arrow-'+pid);
+  if(b)b.style.display=window._msCollapsed[pid]?'none':'block';
+  if(a)a.textContent=window._msCollapsed[pid]?'▶':'▼';
+}
+function addMilestone(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const label=prompt('Milestone label (e.g. "100% DD Submission"):');
+  if(!label||!label.trim())return;
+  const date=prompt('Due date (YYYY-MM-DD):',todayISO());
+  if(!date)return;
+  if(!p.milestones)p.milestones=[];
+  p.milestones.push({date:date.trim(),label:label.trim(),done:false});
+  pushProj(p);renderProjDetail(p);
+}
+function removeMilestone(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!confirm('Remove this milestone?'))return;
+  p.milestones.splice(i,1);pushProj(p);renderProjDetail(p);
+}
+function toggleMsDone(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  // i refers to the SORTED index; map back to original
+  const sorted=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+  const target=sorted[i];const orig=p.milestones.indexOf(target);
+  if(orig<0)return;
+  p.milestones[orig].done=!p.milestones[orig].done;
+  pushProj(p);renderProjDetail(p);
+}
+function addStatusNote(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const text=prompt('Status update:');
+  if(!text||!text.trim())return;
+  if(!p.statusLog)p.statusLog=[];
+  p.statusLog.push({date:todayISO(),text:text.trim()});
+  pushProj(p);renderProjDetail(p);
+}
+function removeStatusNote(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!confirm('Remove this status update?'))return;
+  p.statusLog.splice(i,1);pushProj(p);renderProjDetail(p);
+}
+
+// ═══════════════════════════════════════
+// DEADLINE TRACKER PAGE
+// ═══════════════════════════════════════
+function trackerProjStatus(p){
+  const ms=p.milestones||[];
+  const today=todayISO();
+  const overdue=ms.filter(m=>!m.done && m.date && m.date<today).length;
+  const done=ms.filter(m=>m.done).length;
+  if(overdue>0)return{label:overdue+' overdue',cls:'amb',bg:'var(--amb2)',fg:'var(--amb)'};
+  if(ms.length>0 && done===ms.length)return{label:'all done',cls:'grn',bg:'var(--grn2)',fg:'var(--grn)'};
+  if(ms.length>0)return{label:done+'/'+ms.length+' done',cls:'hi',bg:'var(--acc2)',fg:'var(--acc)'};
+  return{label:'no milestones',cls:'',bg:'var(--surf2)',fg:'var(--tx3)'};
+}
+function renderTracker(){
+  const host=document.getElementById('tracker-content');if(!host)return;
+  const q=(document.getElementById('trk-q')?.value||'').toLowerCase().trim();
+  const filter=document.getElementById('trk-filter')?.value||'all';
+  const today=todayISO();
+
+  // Build flat list of upcoming (not-done, dated) milestones across all projects
+  const upcoming=[];
+  S.projects.forEach(p=>{
+    (p.milestones||[]).forEach(m=>{
+      if(!m.done && m.date) upcoming.push({pid:p.id,pname:p.name,pno:p.no,date:m.date,label:m.label});
+    });
+  });
+  upcoming.sort((a,b)=>a.date.localeCompare(b.date));
+
+  const dayDiff=(d)=>{const a=new Date(d+'T00:00:00'),b=new Date(today+'T00:00:00');return Math.round((a-b)/86400000);};
+  const stripCards=upcoming.slice(0,12).map(u=>{
+    const dd=dayDiff(u.date);
+    const od=dd<0;
+    const when=od?('overdue '+Math.abs(dd)+'d'):(dd===0?'today':'in '+dd+' days');
+    const accent=od?'border-left:3px solid var(--red);border-radius:0;':'border-radius:var(--r);';
+    const wc=od?'color:var(--red);':'color:var(--tx3);';
+    return`<div onclick="openTrackerProj('${u.pid}')" style="flex:0 0 auto;min-width:130px;max-width:170px;cursor:pointer;background:var(--surf);border:1px solid var(--bdr);${accent}padding:9px 11px;">
+      <div style="font-size:10px;${wc}">${when}</div>
+      <div style="font-size:13px;font-weight:700;margin:2px 0;">${fmtMsDate(u.date)}</div>
+      <div style="font-size:11px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(u.pname)} · ${esc(u.label)}</div>
+    </div>`;
+  }).join('')||'<div style="font-size:12px;color:var(--tx3);padding:8px 0;">No upcoming milestones.</div>';
+
+  // Project cards — only projects that have any milestone or status data, plus filter/search
+  let projs=S.projects.filter(p=>(p.milestones&&p.milestones.length)||(p.statusLog&&p.statusLog.length));
+  if(q)projs=projs.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.no||'').toString().toLowerCase().includes(q));
+  if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>!m.done&&m.date&&m.date<today));
+  if(filter==='upcoming')projs=projs.filter(p=>(p.milestones||[]).some(m=>!m.done&&m.date&&m.date>=today));
+  // Sort: most overdue first, then by name
+  projs.sort((a,b)=>{
+    const ao=(a.milestones||[]).filter(m=>!m.done&&m.date&&m.date<today).length;
+    const bo=(b.milestones||[]).filter(m=>!m.done&&m.date&&m.date<today).length;
+    if(ao!==bo)return bo-ao;
+    return (a.name||'').localeCompare(b.name||'');
+  });
+
+  const cards=projs.map(p=>{
+    const st=trackerProjStatus(p);
+    const ms=[...(p.milestones||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+    const log=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
+    const lead=p.mepLead||(p.pm)||'';
+    const msHtml=ms.slice(0,5).map(m=>{
+      const overdue=!m.done&&m.date&&m.date<today;
+      const ic=m.done?'<span style="color:var(--grn);">✔</span>':(overdue?'<span style="color:var(--red);">●</span>':'<span style="color:var(--amb);">○</span>');
+      const tc=m.done?'color:var(--tx3);text-decoration:line-through;':(overdue?'color:var(--red);':'');
+      return`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${ic} <span style="color:var(--tx3);">${fmtMsDate(m.date)}</span> <span style="${tc}">${esc(m.label)}</span></div>`;
+    }).join('')||'<div style="color:var(--tx3);">No milestones</div>';
+    const latest=log[0];
+    const logHtml=latest?`<div style="border-top:1px solid #f2f2f7;margin-top:8px;padding-top:8px;font-size:11px;color:var(--tx2);">💬 ${esc(latest.text)} ${latest.date?`<span style="color:var(--tx3);">(${fmtMsDate(latest.date)})</span>`:''}</div>`:'';
+    return`<div onclick="openTrackerProj('${p.id}')" style="cursor:pointer;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04);">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:8px;">
+        <span style="font-size:13px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)} <span style="color:var(--tx3);font-weight:400;">· ${esc(p.no||'')}${lead?' · '+esc(lead):''}</span></span>
+        <span style="font-size:10px;background:${st.bg};color:${st.fg};padding:2px 8px;border-radius:8px;white-space:nowrap;flex-shrink:0;">${st.label}</span>
+      </div>
+      <div style="font-size:11px;line-height:1.9;">${msHtml}</div>
+      ${logHtml}
+    </div>`;
+  }).join('');
+
+  host.innerHTML=`
+    <div style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);margin:4px 0 8px;">Upcoming deadlines</div>
+    <div style="display:flex;gap:8px;overflow-x:auto;padding-bottom:6px;margin-bottom:20px;-webkit-overflow-scrolling:touch;">${stripCards}</div>
+    <div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+      <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">All projects</span>
+      <span style="font-size:11px;color:var(--tx3);">· ${projs.length} with milestones</span>
+    </div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">${cards||'<div style="font-size:12px;color:var(--tx3);padding:12px 0;">No projects match.</div>'}</div>`;
+}
+function openTrackerProj(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  nav('proj');
+  setTimeout(()=>{try{openProjDetail(pid);}catch(e){console.error(e);}},60);
+}
+function exportTrackerXLSX(){
+  try{
+    const today=todayISO();
+    const rows=[['Project No','Project','Lead','Milestone','Due','Status','Latest update']];
+    S.projects.forEach(p=>{
+      const ms=[...(p.milestones||[])].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+      const latest=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'))[0];
+      if(ms.length===0 && !(p.statusLog&&p.statusLog.length))return;
+      if(ms.length===0){
+        rows.push([p.no||'',p.name||'',p.mepLead||p.pm||'','','','',latest?latest.text:'']);
+        return;
+      }
+      ms.forEach((m,i)=>{
+        const overdue=!m.done&&m.date&&m.date<today;
+        const stat=m.done?'Done':(overdue?'Overdue':'Upcoming');
+        rows.push([i===0?(p.no||''):'',i===0?(p.name||''):'',i===0?(p.mepLead||p.pm||''):'',m.label,m.date||'',stat,i===0&&latest?latest.text:'']);
+      });
+    });
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:10},{wch:26},{wch:10},{wch:38},{wch:12},{wch:10},{wch:50}];
+    const wb=XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb,ws,'Deadline Tracker');
+    XLSX.writeFile(wb,'Deadline_Tracker_'+today+'.xlsx');
+  }catch(e){console.error('export tracker',e);toast('Export failed');}
+}
+
 function renderProjDetail(p){
   if(!p.stages)p.stages=[];
   const weeks=stageWeeks(p.start,p.end);
@@ -5379,6 +5637,8 @@ function renderProjDetail(p){
         </table>
       </div>
     </div>
+
+    ${renderMilestoneSection(p)}
 
     <!-- KPI Breakdown by Discipline -->
     ${(()=>{
@@ -6932,6 +7192,7 @@ function fN(n){return n.toLocaleString();}
 function fAED(n){if(n>=1e6)return'AED '+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'AED '+(n/1e3).toFixed(0)+'K';return'AED '+Math.round(n);}
 // HTML-escape helper — for any user-typed string about to be interpolated into HTML/attrs
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
+function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 let _tt;
 function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');clearTimeout(_tt);_tt=setTimeout(()=>t.classList.remove('show'),2800);}
 document.querySelectorAll('.ov').forEach(el=>el.addEventListener('click',e=>{if(e.target===el)el.classList.remove('open');}));
@@ -9041,7 +9302,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.2.3)
+// AI ASSISTANT (v8.4.0)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
