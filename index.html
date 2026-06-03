@@ -873,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.1.9 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.2.0 · 3 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -932,7 +932,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.1.9 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.2.0 · 3 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2692,7 +2692,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.1.9)
+// WEEKLY TRACKER  (v8.2.0)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -5186,12 +5186,13 @@ function renderProjDetail(p){
       const vEsc=v.replace(/"/g,'&quot;');
       const inStage=(stageMap.get(wi)||[]).includes(si);
       const cellBg=inStage?sc.bg:'';
+      const cls='swk-'+p.id+'-'+si;
       if(progLocked){
-        return`<td style="padding:2px;text-align:center;${cellBg?'background:'+cellBg+';':''}">
-          <span style="display:inline-block;width:44px;font-size:10px;text-align:center;padding:2px 1px;color:${v?'#374151':'var(--tx3)'};font-weight:${v?'600':'400'};">${v||'—'}</span></td>`;
+        return`<td class="${cls}" style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}">
+          <span style="display:inline-block;width:42px;font-size:10px;text-align:center;padding:2px 1px;color:${v?'#374151':'var(--tx3)'};font-weight:${v?'600':'400'};">${v||'—'}</span></td>`;
       }
-      return`<td style="padding:2px;text-align:center;${cellBg?'background:'+cellBg+';':''}"><input type="text" value="${vEsc}" placeholder="" maxlength="30"
-        style="width:44px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?sc.bdr:'#e4e6ea'};border-radius:3px;background:${v?sc.bg:'#fff'}"
+      return`<td class="${cls}" style="padding:2px;text-align:center;min-width:48px;${cellBg?'background:'+cellBg+';':''}"><input type="text" value="${vEsc}" placeholder="" maxlength="30"
+        style="width:42px;font-size:10px;text-align:center;padding:2px 1px;border:1px solid ${v?sc.bdr:'#e4e6ea'};border-radius:3px;background:${v?sc.bg:'#fff'}"
         oninput="setProjStageCell('${p.id}',${si},${wi},this)"></td>`;
     }).join('');
     const nameEsc=(st.name||'').replace(/"/g,'&quot;');
@@ -5211,9 +5212,7 @@ function renderProjDetail(p){
           </div>
           ${(st.from||st.to)?`<div style="font-size:10px;color:var(--tx3);margin-top:3px;padding-left:30px;">${st.from||'?'} → ${st.to||'?'}</div>`:''}
         </td>
-        <td id="stage-cells-${p.id}-${si}" colspan="${weeks.length}" style="padding:0;${isCollapsed?'display:none;':''}">
-          <table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr>${weekCells}</tr></table>
-        </td>
+        ${weekCells}
       </tr>`;
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
@@ -5242,9 +5241,7 @@ function renderProjDetail(p){
           <input type="date" value="${st.to||''}" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;flex:1;min-width:0;" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
         </div>
       </td>
-      <td id="stage-cells-${p.id}-${si}" colspan="${weeks.length}" style="padding:0;${isCollapsed?'display:none;':''}">
-        <table style="width:100%;border-collapse:collapse;table-layout:fixed;"><tr>${weekCells}</tr></table>
-      </td>
+      ${weekCells}
     </tr>`;
   }).join('');
 
@@ -5637,14 +5634,15 @@ function toggleStageRow(projId, si){
   if(!window._stageCollapsed) window._stageCollapsed={};
   const key=projId+'_'+si;
   window._stageCollapsed[key]=!window._stageCollapsed[key];
-  const row=document.getElementById('stage-cells-'+projId+'-'+si);
+  const collapsed=window._stageCollapsed[key];
+  // Hide/show all week cells for this stage row
+  document.querySelectorAll('.swk-'+projId+'-'+si).forEach(td=>{
+    td.style.display=collapsed?'none':'';
+  });
+  const dates=document.getElementById('stage-cells-'+projId+'-'+si+'-dates');
+  if(dates)dates.style.display=collapsed?'none':'flex';
   const arrow=document.getElementById('stage-arrow-'+projId+'-'+si);
-  if(row){
-    row.style.display=window._stageCollapsed[key]?'none':'';
-  }
-  if(arrow){
-    arrow.textContent=window._stageCollapsed[key]?'▶':'▼';
-  }
+  if(arrow)arrow.textContent=collapsed?'▶':'▼';
 }
 
 function setProjStageColor(projId,si,hex){
@@ -8994,7 +8992,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.1.9)
+// AI ASSISTANT (v8.2.0)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
