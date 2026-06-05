@@ -334,12 +334,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .weekly-sec-hdr-inner{flex-wrap:wrap!important;gap:4px!important;}
   .weekly-badges{display:flex!important;flex-wrap:wrap!important;gap:4px!important;}
 
-  /* FIX 6: Projects list — show colour strip, hide Total Hrs + Actions on mobile */
+  /* FIX 6: Projects list mobile — #, No, Name, Programme strip, Hrs; hide Actions only */
   .strip-legend{display:none!important;}
   .proj-row .strip-bar{height:14px!important;border-radius:4px!important;}
-  .proj-row,.proj-row-header{grid-template-columns:44px 1fr 80px!important;gap:5px!important;padding:8px 10px!important;}
-  .proj-row > :nth-child(4),.proj-row-header > :nth-child(4),
-  .proj-row > :nth-child(5),.proj-row-header > :nth-child(5){display:none!important;}
+  .proj-row,.proj-row-header{grid-template-columns:24px 52px 1.1fr 1.4fr 56px!important;gap:5px!important;padding:8px 8px!important;font-size:11px!important;}
+  .proj-row > :nth-child(6),.proj-row-header > :nth-child(6){display:none!important;}
 
   /* Programme table — mobile first column */
   .ms-grid{grid-template-columns:1fr!important;}
@@ -619,49 +618,49 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     box-shadow:none!important;
   }
   body.wt-printing .wt-table{
-    font-size:7px;width:100%;table-layout:fixed;
+    font-size:10px;width:100%;table-layout:fixed;
     border-collapse:collapse;
   }
   body.wt-printing .wt-table th,
   body.wt-printing .wt-table td{
     min-width:0!important;max-width:none!important;
-    padding:2px 3px!important;
+    padding:3px 4px!important;
     word-wrap:break-word;overflow:hidden;
   }
   body.wt-printing .wt-table thead .wt-h1 th{
     background:#1e3a5f!important;color:#fff!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:7.5px!important;font-weight:600;
-    white-space:normal!important;line-height:1.15;
+    font-size:10px!important;font-weight:600;
+    white-space:normal!important;line-height:1.2;
     vertical-align:middle;
   }
-  body.wt-printing .wt-c-name{width:8%!important;text-align:left!important;}
+  body.wt-printing .wt-c-name{width:9%!important;text-align:left!important;}
   body.wt-printing .wt-c-loc{width:3%!important;}
-  body.wt-printing .wt-c-tasks{width:14%!important;background:#162f52!important;text-align:left!important;}
+  body.wt-printing .wt-c-tasks{width:15%!important;background:#162f52!important;text-align:left!important;}
   body.wt-printing .wt-c-proj{width:auto!important;background:#1a3457!important;}
   body.wt-printing .wt-c-nb{width:auto!important;background:#1f4d3a!important;}
-  body.wt-printing .wt-c-total{width:4%!important;background:#0f2540!important;}
-  body.wt-printing .wt-proj-name{font-size:7px!important;}
-  body.wt-printing .wt-proj-no{font-size:6px!important;}
+  body.wt-printing .wt-c-total{width:5%!important;background:#0f2540!important;}
+  body.wt-printing .wt-proj-name{font-size:9px!important;}
+  body.wt-printing .wt-proj-no{font-size:8px!important;}
   body.wt-printing .wt-table .wt-disc td{
     background:#e8edf2!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    padding:2px 8px!important;font-size:6px!important;font-weight:700;color:#1e3a5f!important;
+    padding:3px 8px!important;font-size:8.5px!important;font-weight:700;color:#1e3a5f!important;
   }
   body.wt-printing .wt-row td{border-bottom:1px solid #e5e5e7!important;}
   body.wt-printing .wt-row:nth-child(even) td{background:#f3f5f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-row:nth-child(odd) td{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
-  body.wt-printing .wt-name{padding:2px 4px!important;font-size:7.5px!important;font-weight:600;}
-  body.wt-printing .wt-name-sub{font-size:6px!important;color:#64748b!important;margin-top:0!important;}
-  body.wt-printing .wt-loc{font-size:6px!important;color:#86868b;}
+  body.wt-printing .wt-name{padding:3px 5px!important;font-size:10px!important;font-weight:600;}
+  body.wt-printing .wt-name-sub{font-size:8px!important;color:#64748b!important;margin-top:0!important;}
+  body.wt-printing .wt-loc{font-size:8px!important;color:#86868b;}
   body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
-  body.wt-printing .wt-task-note{font-size:6.5px!important;padding:1px 3px!important;line-height:1.2!important;color:#1d1d1f;}
+  body.wt-printing .wt-task-note{font-size:9px!important;padding:2px 4px!important;line-height:1.3!important;color:#1d1d1f;}
   body.wt-printing .wt-task-note::placeholder{color:transparent!important;}
   body.wt-printing .wt-ghost{display:none!important;}
   body.wt-printing .wt-hcell{padding:0!important;}
   body.wt-printing .wt-hcell input{
     width:100%!important;height:auto!important;
-    font-size:7.5px!important;padding:2px!important;
+    font-size:10px!important;padding:3px!important;
     border:none!important;background:transparent!important;
     text-align:center;font-weight:700;color:#1d1d1f;
   }
@@ -669,7 +668,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-hcell.wt-nb input{color:#1a7a34!important;}
   body.wt-printing .wt-total{
     background:#eef1f5!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
-    font-size:7.5px!important;font-weight:700;
+    font-size:10px!important;font-weight:700;
   }
   body.wt-printing .wt-total.wt-tt-ok{background:#d1fae5!important;color:#065f46!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-total.wt-tt-mild{background:#fef3c7!important;color:#92400e!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
@@ -677,7 +676,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-totals td{
     background:#1e3a5f!important;color:#fff!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
-    padding:3px 4px!important;font-size:7.5px!important;font-weight:700;
+    padding:4px 4px!important;font-size:10px!important;font-weight:700;
   }
   /* Hide the forecast overlay so empty cells stay empty in print */
   body.wt-printing .wt-hcell > div > div:first-child{display:none!important;}
@@ -874,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.5.0 · 3 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.6.3 · 5 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -934,7 +933,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.5.0 · 3 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.6.3 · 5 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1348,6 +1347,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
 <!-- PROJECT MODAL -->
 <!-- PROJECT BACKUP MODAL -->
+<div class="ov" id="trk-edit-ov">
+<div class="modal" style="max-width:760px;">
+  <div class="modal-hd"><div class="modal-ht" id="trk-edit-title">Milestones &amp; Status</div><button class="cls" onclick="document.getElementById('trk-edit-ov').classList.remove('open')">&times;</button></div>
+  <div class="modal-bd" style="max-height:75vh;" id="trk-edit-body"></div>
+</div>
+</div>
+
 <div class="ov" id="proj-backup-ov">
   <div class="modal" style="max-width:540px;">
     <div class="modal-hd">
@@ -1391,10 +1397,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Project Type</label><select id="pw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="pw-loc"></div>
       <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;"> HVAC</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-phe" value="PH&E" style="accent-color:#166534;"> PH&amp;E</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-ele" value="ELE" style="accent-color:#854d0e;"> ELE</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="pw-disc-elv" value="ELV" style="accent-color:#9d174d;"> ELV</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;width:16px;height:16px;flex-shrink:0;margin:0;"> HVAC</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-phe" value="PH&E" style="accent-color:#166534;width:16px;height:16px;flex-shrink:0;margin:0;"> PH&amp;E</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-ele" value="ELE" style="accent-color:#854d0e;width:16px;height:16px;flex-shrink:0;margin:0;"> ELE</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-elv" value="ELV" style="accent-color:#9d174d;width:16px;height:16px;flex-shrink:0;margin:0;"> ELV</label>
       </div></div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
@@ -1420,10 +1426,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Project Type</label><select id="ppw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="ppw-loc"></div>
       <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;"> HVAC</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-phe" value="PH&E" style="accent-color:#166534;"> PH&amp;E</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-ele" value="ELE" style="accent-color:#854d0e;"> ELE</label>
-        <label style="display:flex;align-items:center;gap:5px;font-size:12px;font-weight:400;cursor:pointer;"><input type="checkbox" id="ppw-disc-elv" value="ELV" style="accent-color:#9d174d;"> ELV</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;width:16px;height:16px;flex-shrink:0;margin:0;"> HVAC</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-phe" value="PH&E" style="accent-color:#166534;width:16px;height:16px;flex-shrink:0;margin:0;"> PH&amp;E</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-ele" value="ELE" style="accent-color:#854d0e;width:16px;height:16px;flex-shrink:0;margin:0;"> ELE</label>
+        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-elv" value="ELV" style="accent-color:#9d174d;width:16px;height:16px;flex-shrink:0;margin:0;"> ELV</label>
       </div></div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="ppw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
@@ -2729,7 +2735,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.5.0)
+// WEEKLY TRACKER  (v8.6.3)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -3526,6 +3532,44 @@ function wtExportPDF(){
             // Engineer row: td[0]=name,td[1]=loc,td[2]=tasks,td[3+]=projects
             const tds=[...tr.children];
             rev.forEach(pi=>{const td=tds[projStart+pi];if(td)td.remove();});
+          }
+        });
+      }
+
+      // ── Remove empty non-billable category columns (Annual Leave, Mgmt, etc.) ──
+      // After project removal, NB columns sit right after the remaining projects.
+      const remainingProj=projects.length-emptyPI.length;
+      const nbStart=projStart+remainingProj; // first NB column index in the (modified) rows
+      const nbCount=WT_NONBILL.length;
+      const cellHasVal=(cell)=>{
+        if(!cell)return false;
+        const inp=cell.querySelector('input');
+        if(inp)return inp.value&&parseFloat(inp.value)>0;
+        const t=(cell.textContent||'').trim();
+        return t!==''&&t!=='—'&&t!=='0'&&parseFloat(t)>0;
+      };
+      const emptyNB=[];
+      for(let ni=0;ni<nbCount;ni++){
+        const rows=[...table.querySelectorAll('tbody tr.wt-row')];
+        const hasVal=rows.some(tr=>cellHasVal([...tr.children][nbStart+ni]));
+        if(!hasVal)emptyNB.push(ni);
+      }
+      if(emptyNB.length>0){
+        const revNB=[...emptyNB].reverse();
+        const ths2=[...table.querySelectorAll('thead tr th')];
+        revNB.forEach(ni=>{const th=ths2[nbStart+ni];if(th)th.remove();});
+        table.querySelectorAll('tbody tr').forEach(tr=>{
+          if(tr.classList.contains('wt-disc')){
+            const td=tr.querySelector('td');
+            if(td){td.setAttribute('colspan',parseInt(td.getAttribute('colspan')||1)-emptyNB.length);}
+          } else if(tr.classList.contains('wt-totals')){
+            // Totals row: [0]=label(colspan3), then one per remaining project, then NB, then grand
+            const tds=[...tr.children];
+            const nbTotStart=1+remainingProj;
+            revNB.forEach(ni=>{const td=tds[nbTotStart+ni];if(td)td.remove();});
+          } else {
+            const tds=[...tr.children];
+            revNB.forEach(ni=>{const td=tds[nbStart+ni];if(td)td.remove();});
           }
         });
       }
@@ -5227,7 +5271,7 @@ function msEffectiveState(m){
   if(s!=='done' && s!=='hold' && m.date && m.date<todayISO()) return 'overdue';
   return s;
 }
-function renderMilestoneSection(p){
+function renderMilestoneEditor(p){
   if(!p.milestones)p.milestones=[];
   if(!p.statusLog)p.statusLog=[];
   const canEdit=adminUnlocked||isMepLeadFor(p.id);
@@ -5258,38 +5302,22 @@ function renderMilestoneSection(p){
     </div>`;
   }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No status updates yet.</div>';
 
-  const doneCount=ms.filter(m=>msEffectiveState(m)==='done').length;
-  const open=(window._secOpen&&window._secOpen['sec-ms-'+p.id])||false;
-
-  return`<div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;">
-    <div style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-ms-${p.id}','sec-ms-arrow-${p.id}')">
-      <div style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;flex-wrap:wrap;">
-        <span id="sec-ms-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${open?'▼':'▶'}</span>
-        <span style="font-size:13px;">📋</span>
-        <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Milestones &amp; Status</strong>
-        <span class="hdr-s" style="margin-left:0;">${doneCount}/${ms.length} done</span>
-        <span class="hdr-s" style="margin-left:0;">${log.length} updates</span>
-      </div>
-    </div>
-    <div id="sec-ms-${p.id}" style="display:${open?'block':'none'};padding:14px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="ms-grid">
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Milestones</span>
-            ${canEdit?`<button class="btn btn-g btn-xs" onclick="addMilestone('${p.id}')">+ Add</button>`:''}
-          </div>
-          ${msRows}
+  return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="ms-grid">
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Milestones</span>
+          ${canEdit?`<button class="btn btn-g btn-xs" onclick="addMilestone('${p.id}')">+ Add</button>`:''}
         </div>
-        <div>
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-            <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Status log (biweekly)</span>
-            ${canEdit?`<button class="btn btn-g btn-xs" onclick="addStatusNote('${p.id}')">+ Update</button>`:''}
-          </div>
-          ${logRows}
-        </div>
+        ${msRows}
       </div>
-    </div>
-  </div>`;
+      <div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+          <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Status log (biweekly)</span>
+          ${canEdit?`<button class="btn btn-g btn-xs" onclick="addStatusNote('${p.id}')">+ Update</button>`:''}
+        </div>
+        ${logRows}
+      </div>
+    </div>`;
 }
 function addMilestone(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
@@ -5300,13 +5328,13 @@ function addMilestone(pid){
   if(!date)return;
   if(!p.milestones)p.milestones=[];
   p.milestones.push({date:date.trim(),label:label.trim(),done:false,status:'upcoming'});
-  pushProj(p);renderProjDetail(p);
+  pushProj(p);refreshMilestoneViews();
 }
 function removeMilestone(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
   if(!confirm('Remove this milestone?'))return;
-  p.milestones.splice(i,1);pushProj(p);renderProjDetail(p);
+  p.milestones.splice(i,1);pushProj(p);refreshMilestoneViews();
 }
 function cycleMsStatus(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
@@ -5319,7 +5347,7 @@ function cycleMsStatus(pid,i){
   const next=MS_CYCLE[(idx+1)%MS_CYCLE.length];
   m.status=next;
   m.done=(next==='done'); // keep legacy flag in sync
-  pushProj(p);renderProjDetail(p);
+  pushProj(p);refreshMilestoneViews();
 }
 function editMilestoneLabel(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
@@ -5327,14 +5355,14 @@ function editMilestoneLabel(pid,i){
   const v=prompt('Edit milestone label:',p.milestones[i].label||'');
   if(v===null)return;
   if(!v.trim())return toast('Label cannot be empty');
-  p.milestones[i].label=v.trim();pushProj(p);renderProjDetail(p);
+  p.milestones[i].label=v.trim();pushProj(p);refreshMilestoneViews();
 }
 function editMilestoneDate(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
   const v=prompt('Edit due date (YYYY-MM-DD):',p.milestones[i].date||todayISO());
   if(v===null)return;
-  p.milestones[i].date=v.trim();pushProj(p);renderProjDetail(p);
+  p.milestones[i].date=v.trim();pushProj(p);refreshMilestoneViews();
 }
 function addStatusNote(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
@@ -5343,7 +5371,7 @@ function addStatusNote(pid){
   if(!text||!text.trim())return;
   if(!p.statusLog)p.statusLog=[];
   p.statusLog.push({date:todayISO(),text:text.trim()});
-  pushProj(p);renderProjDetail(p);
+  pushProj(p);refreshMilestoneViews();
 }
 function editStatusNote(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
@@ -5351,20 +5379,20 @@ function editStatusNote(pid,i){
   const v=prompt('Edit status update:',p.statusLog[i].text||'');
   if(v===null)return;
   if(!v.trim())return toast('Update cannot be empty');
-  p.statusLog[i].text=v.trim();pushProj(p);renderProjDetail(p);
+  p.statusLog[i].text=v.trim();pushProj(p);refreshMilestoneViews();
 }
 function editStatusDate(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
   const v=prompt('Edit update date (YYYY-MM-DD):',p.statusLog[i].date||todayISO());
   if(v===null)return;
-  p.statusLog[i].date=v.trim();pushProj(p);renderProjDetail(p);
+  p.statusLog[i].date=v.trim();pushProj(p);refreshMilestoneViews();
 }
 function removeStatusNote(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog)return;
   if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
   if(!confirm('Remove this status update?'))return;
-  p.statusLog.splice(i,1);pushProj(p);renderProjDetail(p);
+  p.statusLog.splice(i,1);pushProj(p);refreshMilestoneViews();
 }
 
 // ═══════════════════════════════════════
@@ -5430,8 +5458,19 @@ function renderTracker(){
 }
 function openTrackerProj(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
-  nav('proj');
-  setTimeout(()=>{try{openProjDetail(pid);}catch(e){console.error(e);}},60);
+  window._trkEditPid=pid;
+  document.getElementById('trk-edit-title').innerHTML='📋 '+esc(p.name)+' <span style="color:var(--tx3);font-weight:400;">· '+esc(p.no||'')+'</span>';
+  document.getElementById('trk-edit-body').innerHTML=renderMilestoneEditor(p);
+  document.getElementById('trk-edit-ov').classList.add('open');
+}
+// Refresh whichever milestone view is currently showing (modal and/or tracker grid)
+function refreshMilestoneViews(){
+  const ov=document.getElementById('trk-edit-ov');
+  if(ov&&ov.classList.contains('open')&&window._trkEditPid){
+    const p=S.projects.find(x=>x.id===window._trkEditPid);
+    if(p)document.getElementById('trk-edit-body').innerHTML=renderMilestoneEditor(p);
+  }
+  if(CURRENT_PAGE==='tracker')renderTracker();
 }
 function exportTrackerXLSX(){
   try{
@@ -5660,8 +5699,6 @@ function renderProjDetail(p){
       </div>
     </div>
 
-    ${renderMilestoneSection(p)}
-
     <!-- KPI Breakdown by Discipline -->
     ${(()=>{
       const kpiView=(window._kpiView&&window._kpiView[p.id])||'combined';
@@ -5777,9 +5814,9 @@ function renderProjDetail(p){
           <span style="font-size:13px;">⏱</span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Engineer</strong>
           ${(()=>{
-            const assigned=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
-            const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
-            const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).length;
+            const assigned=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const totalH=projTotalHrs(p);
             const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
@@ -5848,7 +5885,7 @@ function renderProjDetail(p){
               </select>
             </div>
             <div style="display:flex;gap:14px;font-size:11px;color:#075985;background:#e0f2fe;padding:4px 12px;border-radius:20px;white-space:nowrap;">
-              <span>&#128119; <strong>${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).length}</strong> assigned</span>
+              <span>&#128119; <strong>${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
               <span>&#9200; <strong>${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
             </div>
           </div>
@@ -6171,6 +6208,14 @@ function setJseMult(projId, engId, val){
   const num=parseFloat(val);
   p.jseMultiplier[engId]=(isNaN(num)||num<=0)?1:num;
   pushProj(p);
+  // Debounced re-render so headcounts/costs refresh after the user finishes typing,
+  // without stealing focus from the number input on every keystroke.
+  clearTimeout(window._jseMultTimer);
+  window._jseMultTimer=setTimeout(()=>{
+    if(window._viewingProjId===projId){
+      try{renderProjDetail(p);}catch(e){console.error('jseMult rerender',e);}
+    }
+  },700);
 }
 function getJseTotalCost(eng, p){ return 0; } // stub — not used
 
@@ -6475,7 +6520,7 @@ function renderProjCard(p, mode){
     const discCollapsed = (window._discCollapsed && window._discCollapsed[p.id] && window._discCollapsed[p.id][disc]) || false;
     const chevSymbol = discCollapsed ? '▶' : '▼';
     const discSafeId = disc.replace(/[^A-Za-z]/g,'');
-    const mepCount=mepEngs.length, bimCount=bimEngs.length;
+    const mepCount=mepEngs.reduce((s,e)=>s+getJseMult(p,e.id),0), bimCount=bimEngs.reduce((s,e)=>s+getJseMult(p,e.id),0);
     const countLabel=`${mepCount} eng${mepEngs.length===1?'':'s'}${bimCount?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:3px;">+${bimCount} BIM</span>`:''}`;
     
     rows+=`<tr style="background:${DISC_BG};border-top:2px solid ${DISC_FG};cursor:pointer;" onclick="toggleDiscRows('${p.id}','${disc}')" title="Click to collapse/expand ${disc}">
@@ -6595,7 +6640,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(1,'padding:5px 4px;')}"></td>
         <td style="${stickyTd(2,'padding:5px 4px;')}"></td>
         <td style="${stickyTd(3,'padding:5px 4px;')}"></td>
-        <td style="${stickyTd(4,'padding:5px 10px;font-weight:700;font-size:11px;color:#0f766e;user-select:none;')}"><span id="bim-sub-chev-${p.id}-${discSafeId}" style="display:inline-block;width:14px;">${bimChev}</span> BIM <span style="font-size:9px;opacity:.7;font-weight:500;">(${bimEngs.length} member${bimEngs.length===1?'':'s'})</span></td>
+        <td style="${stickyTd(4,'padding:5px 10px;font-weight:700;font-size:11px;color:#0f766e;user-select:none;')}"><span id="bim-sub-chev-${p.id}-${discSafeId}" style="display:inline-block;width:14px;">${bimChev}</span> BIM <span style="font-size:9px;opacity:.7;font-weight:500;">(${(()=>{const h=bimEngs.reduce((s,e)=>s+getJseMult(p,e.id),0);return h+' member'+(h===1?'':'s');})()})</span></td>
         <td style="${stickyTd(5,'font-size:9px;color:#0f766e;text-align:right;padding-right:8px;')}">BIM Hrs / Cost / Fee</td>
         <td style="${stickyTd(6,'background:#0d9488;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="BIM total hours">${bimHrs>0?bimHrs.toFixed(0):'-'}</td>
         <td style="${stickyTd(7,'background:#0d9488;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="BIM total cost (K AED)">${bimCostK>0?bimCostK.toFixed(1)+'K':'-'}</td>
@@ -9324,7 +9369,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.5.0)
+// AI ASSISTANT (v8.6.3)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
