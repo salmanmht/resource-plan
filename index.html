@@ -873,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.6.3 · 5 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.6.4 · 5 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -933,7 +933,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.6.3 · 5 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.6.4 · 5 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2735,7 +2735,7 @@ const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
-// WEEKLY TRACKER  (v8.6.3)
+// WEEKLY TRACKER  (v8.6.4)
 // Forecast (project_hours) vs Actual (weekly_actuals)
 // ═══════════════════════════════════════
 const WT_NONBILL=[
@@ -3577,7 +3577,16 @@ function wtExportPDF(){
 
     document.body.classList.add('wt-printing');
     setTimeout(()=>{
+      // Set the document title so the browser's Save-as-PDF defaults to
+      // "DDMMYYYY_Weekly Resource Planner" for the viewed week.
+      const _savedTitle=document.title;
+      const wm=WT_weekMonday||wtMondayOf(new Date());
+      const dd=String(wm.getDate()).padStart(2,'0');
+      const mm=String(wm.getMonth()+1).padStart(2,'0');
+      const yyyy=wm.getFullYear();
+      document.title=`${dd}${mm}${yyyy}_Weekly Resource Planner`;
       window.print();
+      document.title=_savedTitle;
       document.body.classList.remove('wt-printing');
       // Rebuild restores everything from scratch
       WT_visibleProjects=savedProjs;
@@ -9369,7 +9378,7 @@ if('serviceWorker' in navigator){
 
 <script>
 // ═══════════════════════════════════════
-// AI ASSISTANT (v8.6.3)
+// AI ASSISTANT (v8.6.4)
 // Chat + Risk Flags — uses Claude API via Anthropic
 // ═══════════════════════════════════════
 
