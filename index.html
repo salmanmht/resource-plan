@@ -873,7 +873,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.6.4 · 5 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.7.0 · 6 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -933,7 +933,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.6.4 · 5 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.7.0 · 6 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -964,7 +964,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
     <div class="pc">
       <div id="pdf-header"></div>
-      <div id="ai-insights-container" style="margin-bottom:4px;"></div>
+
       <div class="mrow" id="mep-metrics"></div>
       <div class="card"><div class="card-t">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
       <!-- Deep Dive Section -->
@@ -2585,7 +2585,7 @@ function computeAll(){
     if(!e.name||!e.name.startsWith('JSE-'))return e.cap||45;
     const mults=S.projects.map(p=>getJseMult(p,e.id)).filter(m=>m>1);
     const maxMult=mults.length?Math.max(...mults):1;
-    return(e.cap||45)*maxMult;
+    return getJseCap()*maxMult;
   };
   S.engineers.forEach(e=>{
     const effCap=getEffCap(e);
@@ -3620,7 +3620,7 @@ function nav(p, fromPopstate){
   ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
   if(isMobile())closeMobSB();
   window.scrollTo(0,0);
-  if(p==='mep'){renderMEP();setTimeout(aiRenderInsights,200);}
+  if(p==='mep'){renderMEP();}
   else if(p==='dxb')setTimeout(()=>renderOffice('DXB','pc-dxb'),0);
   else if(p==='egy')setTimeout(()=>renderOffice('EGY','pc-egy'),0);
   else if(p==='ind')setTimeout(()=>renderOffice('IND','pc-ind'),0);
@@ -3742,7 +3742,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     h+=`<tr style="cursor:${hasProjs?'pointer':'default'}" onclick="${hasProjs?`toggleEngRow('${e.id}','${tId}')`:''}" title="${hasProjs?'Click to see project breakdown':''}">
       <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-${tId}-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
       <td style="color:var(--tx3)">${i+1}</td>
-      <td style="font-weight:600;white-space:nowrap">${e.name}</td>
+      <td style="font-weight:600;white-space:nowrap">${e.name}${(()=>{if(!e.name||!e.name.startsWith('JSE-'))return '';const ap=S.projects.filter(p=>p.status==='Active');const mx=ap.reduce((m,p)=>Math.max(m,getJseMult(p,e.id)),0);return mx>0?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;vertical-align:middle;">${mx} modeller${mx===1?'':'s'}</span>`:'';})()}</td>
       <td><span class="bdg b-${(e.disc||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc}</span></td>
       <td><span class="bdg ${e.off==='DXB'?'b-dxb':e.off==='EGY'?'b-egy':e.off==='IND'?'b-ind':'b-gry'}">${e.off}</span></td>
       ${cells}<td style="font-weight:700">${avg.toFixed(1)}%</td></tr>`;
@@ -4017,7 +4017,7 @@ function computeRangeWeekly(){
     const holMap=e.off==='EGY'?holMapEGY:holMapUAE;
     // JSE: effective cap = cap × max multiplier across all projects
     const isJSE=e.name&&e.name.startsWith('JSE-');
-    const baseCap=e.cap||45;
+    const baseCap=isJSE?getJseCap():e.cap||45;
     const effCap=isJSE?(()=>{
       const mults=S.projects.map(p=>getJseMult(p,e.id)).filter(m=>m>1);
       return mults.length?baseCap*Math.max(...mults):baseCap;
@@ -4638,7 +4638,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
     return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave — click to expand</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;font-size:11px;color:var(--tx3);text-align:center;">No annual leave booked in this period.</div>
@@ -4757,7 +4757,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
   return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave${mode==='bim'?' — BIM Team':mode==='office'?' — MEP Engineers':''} — click to expand</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave${mode==='bim'?' — BIM Team':mode==='office'?' — MEP Engineers':''}</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;">
@@ -4793,11 +4793,11 @@ function renderOffice(off,pcId){
       <div class="card"><div class="card-t">By Discipline</div><div class="cbox"><canvas id="off-l-${cid}"></canvas></div></div>
       <div class="card"><div class="card-t">Composition</div><div class="cbox"><canvas id="off-d-${cid}"></canvas></div></div>
     </div>
-    ${buildLeaveCard('office',subMEP,minMI,NMON,cid)}
+    ${subMEP.length?buildLeaveCard('office',subMEP,minMI,NMON,cid):''}
     ${subBIM.length?buildLeaveCard('bim',subBIM,minMI,NMON,cid+'bim'):''}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('off-heat-body-${cid}','off-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Heatmap — click row for project breakdown</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Heatmap</span>
         <span id="off-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="off-heat-body-${cid}" style="display:none;">
@@ -4855,7 +4855,7 @@ function renderDisc(disc,pcId){
     ${buildLeaveCard('disc',sub,minMI,NMON,cid)}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('disc-heat-body-${cid}','disc-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Team Heatmaps — DXB & EGY (click row for projects)</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Team Heatmaps — DXB & EGY</span>
         <span id="disc-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="disc-heat-body-${cid}" style="display:none;padding:14px;">
@@ -4892,6 +4892,13 @@ function renderBIM(pcId){
   const sub=S.engineers.filter(e=>e.team==='BIM');
   const dxb=sub.filter(e=>e.off==='DXB'),ind=sub.filter(e=>e.off==='IND');
   const avgU=sub.length?subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON:0;
+  // Total BIM modellers represented by JSE pool (sum of max multiplier per JSE engineer across active projects)
+  const _jseEngs=S.engineers.filter(e=>e.name&&e.name.startsWith('JSE-'));
+  const _activeProjs=S.projects.filter(p=>p.status==='Active');
+  const jseTotal=_jseEngs.reduce((s,e)=>{
+    const maxMult=_activeProjs.reduce((m,p)=>Math.max(m,getJseMult(p,e.id)),0);
+    return s+maxMult;
+  },0);
   const cid='bim';
   // Sub-discipline tally for KPI strip
   const subDiscCounts={};sub.forEach(e=>{const sd=e.subDisc||e.disc||'—';subDiscCounts[sd]=(subDiscCounts[sd]||0)+1;});
@@ -4913,7 +4920,7 @@ function renderBIM(pcId){
       <div style="font-size:11px;color:var(--tx3);">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     </div>
     <div class="mrow">
-      <div class="mc te"><div class="mc-l">BIM Members</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${ind.length} IND</div></div>
+      <div class="mc te"><div class="mc-l">BIM Members</div><div class="mc-v">${dxb.length+jseTotal}</div><div class="mc-s">${dxb.length} DXB · ${jseTotal} IND (JSE)</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div><div class="mc-s">All BIM</div></div>
       <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div><div class="mc-s">All BIM</div></div>
       <div class="mc hi" style="border-top-color:#0d9488;"><div class="mc-l">Sub-Disc Split</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;">${subDiscChips||'<span style="font-size:10px;color:var(--tx3);">—</span>'}</div></div>
@@ -4925,7 +4932,7 @@ function renderBIM(pcId){
     ${buildLeaveCard('bim',sub,minMI,NMON,cid)}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('bim-heat-body-${cid}','bim-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f0fdfa;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 BIM Team Heatmaps — DXB & IND (click row for project breakdown)</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 BIM Team Heatmaps — DXB & IND</span>
         <span id="bim-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="bim-heat-body-${cid}" style="display:none;padding:14px;">
@@ -4934,7 +4941,7 @@ function renderBIM(pcId){
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="bim-dxb-${cid}"></table></div>
         </div>
         <div class="card">
-          <div class="card-t" style="color:#92400e;">🇮🇳 IND BIM Team — JSE Pool <span style="color:var(--tx3);font-weight:500;">(${ind.length} member${ind.length===1?'':'s'})</span></div>
+          <div class="card-t" style="color:#92400e;">🇮🇳 IND BIM Team — JSE Pool <span style="color:var(--tx3);font-weight:500;">(${jseTotal} modeller${jseTotal===1?'':'s'})</span></div>
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="bim-ind-${cid}"></table></div>
         </div>
       </div>
