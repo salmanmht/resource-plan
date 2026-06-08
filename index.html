@@ -741,6 +741,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 </head>
 <body>
 
+<!-- TEST MODE BANNER -->
+<div id="test-mode-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;padding:8px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;box-shadow:0 2px 8px rgba(220,38,38,.3);">
+  🧪 TEST MODE ACTIVE — only TEST projects are visible. <button onclick="toggleTestMode(false)" style="margin-left:10px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);color:#fff;font-weight:700;padding:2px 10px;border-radius:5px;cursor:pointer;font-size:11px;">Exit Test Mode</button>
+</div>
+
 <!-- LOGIN SCREEN -->
 <div id="pin-screen">
   <div class="pin-bg-blur"><div class="orb1"></div><div class="orb2"></div></div>
@@ -873,7 +878,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.7.0 · 6 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.8.0 · 8 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -933,7 +938,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.7.0 · 6 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.8.0 · 8 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1213,6 +1218,45 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           </div>
         </div>
       </div>
+      <!-- Backup & Restore -->
+      <div style="max-width:900px;margin-top:14px;" class="card">
+        <div style="background:#1e40af;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">💾 Backup & Restore</div>
+        <div style="padding:14px 16px;">
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <button class="btn btn-p btn-sm" onclick="downloadFullBackup()" title="Download a JSON file with everything">⬇️ Download Backup (JSON)</button>
+            <label class="btn btn-g btn-sm" style="cursor:pointer;" title="Restore from a previously downloaded backup JSON file">
+              ⬆️ Restore from Backup
+              <input type="file" accept=".json,application/json" style="display:none;" onchange="restoreFullBackup(event)">
+            </label>
+            <span id="backup-status" style="font-size:11px;color:var(--tx3);"></span>
+          </div>
+          <div style="margin-top:10px;font-size:10px;color:var(--tx3);background:#eff6ff;padding:8px 12px;border-radius:6px;border:1px solid #bfdbfe;line-height:1.5;">
+            <strong>Backup</strong> downloads engineers, projects, project_hours, leave, mgmt, settings, and holidays as a JSON file. Store it safely.<br>
+            <strong>Restore</strong> will <strong style="color:#dc2626;">overwrite</strong> all current data with the file contents. Use with caution.
+          </div>
+        </div>
+      </div>
+      <!-- Test Mode -->
+      <div style="max-width:900px;margin-top:14px;" class="card">
+        <div style="background:#dc2626;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🧪 Test Mode</div>
+        <div style="padding:14px 16px;">
+          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
+            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+              <input type="checkbox" id="test-mode-toggle" onchange="toggleTestMode(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:#dc2626;">
+              <span style="font-size:13px;font-weight:700;color:var(--tx);">Enable Test Mode</span>
+            </label>
+            <span style="font-size:11px;color:var(--tx3);">When ON, only projects tagged "TEST" are visible. A red banner shows app-wide.</span>
+          </div>
+          <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #fecaca;">
+            <button class="btn btn-sm" onclick="generateTestData()" style="background:#dc2626;color:#fff;border:none;" title="Auto-create a test project with all engineers at standard hours">⚡ Generate Test Data (TEST-AUTO project)</button>
+            <button class="btn btn-sm" onclick="deleteAllTestProjects()" style="background:#7f1d1d;color:#fff;border:none;margin-left:6px;" title="Permanently delete all projects with 'TEST' in name or number">🗑️ Delete All TEST Projects</button>
+            <div style="font-size:10px;color:var(--tx3);margin-top:6px;">Generate creates 1 project, 26 weeks, all engineers @ 45h/wk (JSE @ 55h × mult 2). Delete cleans up all TEST projects from Supabase.</div>
+          </div>
+          <div style="margin-top:10px;font-size:10px;color:var(--tx3);background:#fef2f2;padding:8px 12px;border-radius:6px;border:1px solid #fecaca;line-height:1.5;">
+            <strong>How to use:</strong> Take a backup → enable Test Mode → create projects with "TEST" in the project number or name → verify formulas → disable Test Mode to see real data again. Test Mode does NOT delete or modify your real data.
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -1338,6 +1382,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label id="em-grade-label">Grade Tier (cost)</label><select id="em-grade"></select></div>
       <div class="ff"><label>Capacity hrs/wk</label><input type="number" id="em-cap" value="45" min="1" max="80"></div>
       <div class="ff"><label>Rate Override (AED/hr)</label><input type="number" id="em-rate" placeholder="Grade default" min="0" max="5000" step="1" title="Leave blank to use the grade-level rate"></div>
+      <div class="ff"><label>Joining Date <span style="font-weight:400;color:var(--tx3);font-size:10px;">(optional)</span></label><input type="date" id="em-join-date" title="If set, engineer is hidden from forecasts before this date"></div>
+      <div class="ff"><label>End Date <span style="font-weight:400;color:var(--tx3);font-size:10px;">(optional — left company)</span></label><input type="date" id="em-end-date" title="If set, engineer is hidden from forecasts after this date"></div>
       <div class="ff full"><label>Note</label><input id="em-note" placeholder="e.g. Part-time, joining Jul…"></div>
     </div>
   </div>
@@ -2400,6 +2446,7 @@ async function initApp(){
     if(!S.settings)S.settings={};
     S.settings.jseCap=rjse?rjse.value:55;
     setTimeout(()=>{ const ji=document.getElementById('jse-cap-input'); if(ji)ji.value=S.settings.jseCap||55; },200);
+    setTimeout(()=>{ try{initTestModeUI();}catch(e){console.error(e);} },300);
     // Load admin emails list
     const radmin=Array.isArray(sets)?sets.find(r=>r.key==='admin_emails'):null;
     if(radmin&&Array.isArray(radmin.value))ADMIN_EMAILS=radmin.value;
@@ -2449,7 +2496,17 @@ async function initApp(){
 function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;S.rates=p.rates||S.rates;S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){}
   S.engineers.forEach(e=>{ if(!e.team) e.team='MEP'; });
 }
-function saveLocal(){try{localStorage.setItem('mepR26',JSON.stringify(S));}catch(e){}}
+function saveLocal(){try{
+  // Never persist test mode runtime state (_allProjects) or proposal virtuals
+  const safe={
+    engineers:(S.engineers||[]).filter(e=>!e._isVirtual),
+    projects:(S._allProjects||S.projects||[]).filter(p=>!p._isProposal),
+    rates:S.rates,
+    leaveHrs:S.leaveHrs,
+    mgmtHrs:S.mgmtHrs
+  };
+  localStorage.setItem('mepR26',JSON.stringify(safe));
+}catch(e){}}
 async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
 async function pushProj(p){
   // If proposal, save to proposals table
@@ -2580,7 +2637,25 @@ function computeAll(){
 
   const util={};      // total util including leave+mgmt+holidays
   const billUtil={};  // billable util = project hours only
-  // Helper: effective capacity for JSE = cap × max multiplier across all projects
+  // For JSE engineers: build per-month effective capacity based on sum of multipliers
+  // across projects that have hours for that engineer in that month
+  const getJseEffCapByMI=(e,mi)=>{
+    if(!e.name||!e.name.startsWith('JSE-'))return null;
+    const baseCap=getJseCap();
+    // Sum multipliers across projects that have hours for this engineer in this month
+    let totalMult=0;
+    S.projects.forEach(p=>{
+      const wArr=p.weeklyHrs&&p.weeklyHrs[e.id];
+      if(!wArr||!p.start)return;
+      const hasHrsInMonth=wArr.some((h,wi)=>{
+        if(!h)return false;
+        const wk=projWeekDate(p.start,wi);
+        return dateToMI(wk)-minMI===mi;
+      });
+      if(hasHrsInMonth)totalMult+=getJseMult(p,e.id);
+    });
+    return totalMult>0?baseCap*totalMult:baseCap;
+  };
   const getEffCap=(e)=>{
     if(!e.name||!e.name.startsWith('JSE-'))return e.cap||45;
     const mults=S.projects.map(p=>getJseMult(p,e.id)).filter(m=>m>1);
@@ -2588,15 +2663,18 @@ function computeAll(){
     return getJseCap()*maxMult;
   };
   S.engineers.forEach(e=>{
-    const effCap=getEffCap(e);
+    const isJSE=e.name&&e.name.startsWith('JSE-');
+    const effCapStatic=isJSE?null:getEffCap(e);
     util[e.id]=hrs[e.id].map((h,mi)=>{
       const leave=leaveByMI[e.id][mi]||0;
       const mgmt=mgmtByMI[e.id][mi]||0;
-      const c=effCap*wpmFor(minMI+mi);
+      const effCap=isJSE?getJseEffCapByMI(e,mi):effCapStatic;
+      const c=(effCap||0)*wpmFor(minMI+mi);
       return c?(h+leave+mgmt)/c*100:0;
     });
     billUtil[e.id]=hrs[e.id].map((h,mi)=>{
-      const c=effCap*wpmFor(minMI+mi);
+      const effCap=isJSE?getJseEffCapByMI(e,mi):effCapStatic;
+      const c=(effCap||0)*wpmFor(minMI+mi);
       return c?h/c*100:0;
     });
   });
@@ -3916,15 +3994,33 @@ function computeRange(){
   const tmi=DASH_TO_MI!==null?DASH_TO_MI:full.maxMI;
   const NMON=tmi-fmi+1;
   const offset=fmi-full.minMI;  // how many months into full array our window starts
-  // Slice hrs and util arrays
+  // Slice hrs and util arrays; zero out months outside engineer's active window
   const hrs={},util={},billUtil={};
   S.engineers.forEach(e=>{
+    // Determine active MI range for engineer based on join/end dates
+    const joinMI=e.joinDate?dateToMI(new Date(e.joinDate)):null;
+    const endMI=e.endDate?dateToMI(new Date(e.endDate)):null;
     const fh=full.hrs[e.id]||[];
-    hrs[e.id]=Array.from({length:NMON},(_,i)=>fh[offset+i]||0);
+    hrs[e.id]=Array.from({length:NMON},(_,i)=>{
+      const mi=fmi+i;
+      if(joinMI!==null&&mi<joinMI)return 0;
+      if(endMI!==null&&mi>endMI)return 0;
+      return fh[offset+i]||0;
+    });
     const fu=full.util[e.id]||[];
-    util[e.id]=Array.from({length:NMON},(_,i)=>fu[offset+i]||0);
+    util[e.id]=Array.from({length:NMON},(_,i)=>{
+      const mi=fmi+i;
+      if(joinMI!==null&&mi<joinMI)return 0;
+      if(endMI!==null&&mi>endMI)return 0;
+      return fu[offset+i]||0;
+    });
     const fb=full.billUtil?full.billUtil[e.id]||[]:fu;
-    billUtil[e.id]=Array.from({length:NMON},(_,i)=>fb[offset+i]||0);
+    billUtil[e.id]=Array.from({length:NMON},(_,i)=>{
+      const mi=fmi+i;
+      if(joinMI!==null&&mi<joinMI)return 0;
+      if(endMI!==null&&mi>endMI)return 0;
+      return fb[offset+i]||0;
+    });
   });
   return{hrs,util,billUtil,minMI:fmi,maxMI:tmi,NMON};
 }
@@ -4015,14 +4111,17 @@ function computeRangeWeekly(){
     const lArr=S.leaveHrs[e.id]||[];
     const mArr=S.mgmtHrs[e.id]||[];
     const holMap=e.off==='EGY'?holMapEGY:holMapUAE;
-    // JSE: effective cap = cap × max multiplier across all projects
+    // Engineer active window (join/end dates)
+    const joinDt=e.joinDate?new Date(e.joinDate):null;
+    const endDt=e.endDate?new Date(e.endDate):null;
+    // JSE: effective cap = baseCap × sum of multipliers for projects with hours in that week
     const isJSE=e.name&&e.name.startsWith('JSE-');
     const baseCap=isJSE?getJseCap():e.cap||45;
-    const effCap=isJSE?(()=>{
-      const mults=S.projects.map(p=>getJseMult(p,e.id)).filter(m=>m>1);
-      return mults.length?baseCap*Math.max(...mults):baseCap;
-    })():baseCap;
+    const effCapStatic=isJSE?null:baseCap;
     weeks.forEach((wk,wi)=>{
+      // Zero out weeks outside engineer's active window
+      if(joinDt&&wk<joinDt){hrs[e.id][wi]=0;return;}
+      if(endDt&&wk>endDt){hrs[e.id][wi]=0;return;}
       const gwi=gWkIdx(wk);
       const lv=lArr[gwi]||0;
       const mg=mArr[gwi]||0;
@@ -4031,6 +4130,17 @@ function computeRangeWeekly(){
       const h=hrs[e.id][wi]||0;
       const totalNonBill=lv+mg+hol;
       const totalAll=h+totalNonBill;
+      let effCap=effCapStatic;
+      if(isJSE){
+        let totalMult=0;
+        S.projects.forEach(p=>{
+          const wArr=p.weeklyHrs&&p.weeklyHrs[e.id];
+          if(!wArr||!p.start)return;
+          const pwi=Math.round((wk-new Date(p.start+(p.start.length===10?'T00:00:00':'')))/(7*86400000));
+          if(pwi>=0&&pwi<wArr.length&&wArr[pwi])totalMult+=getJseMult(p,e.id);
+        });
+        effCap=totalMult>0?baseCap*totalMult:baseCap;
+      }
       util[e.id][wi]=effCap?(totalAll/effCap)*100:0;
       billUtil[e.id][wi]=effCap?(h/effCap)*100:0;
     });
@@ -6212,6 +6322,265 @@ async function saveJseCap(val){
   toast('JSE capacity saved ✓');
 }
 
+// ── Full Backup / Restore ───────────────────────────────
+async function downloadFullBackup(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const st=document.getElementById('backup-status');
+  if(st)st.textContent='Preparing backup…';
+  try{
+    const[engs,projs,projHrs,leave,mgmt,sets,hol]=await Promise.all([
+      sbGet('engineers').catch(()=>[]),
+      sbGet('projects').catch(()=>[]),
+      (typeof sbGetAll==='function'?sbGetAll('project_hours?select=*'):sbFetch('project_hours?select=*').catch(()=>[])),
+      sbGet('leave_hrs').catch(()=>[]),
+      sbGet('mgmt_hrs').catch(()=>[]),
+      sbFetch('settings?select=*').catch(()=>[]),
+      sbGet('holidays').catch(()=>[])
+    ]);
+    const payload={
+      version:'8.7.2',
+      timestamp:new Date().toISOString(),
+      engineers:engs,
+      projects:projs,
+      project_hours:projHrs,
+      leave_hrs:leave,
+      mgmt_hrs:mgmt,
+      settings:sets,
+      holidays:hol
+    };
+    const blob=new Blob([JSON.stringify(payload,null,2)],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    const dt=new Date().toISOString().slice(0,19).replace(/[:T]/g,'-');
+    a.href=url;a.download=`mep-backup-${dt}.json`;
+    document.body.appendChild(a);a.click();a.remove();
+    URL.revokeObjectURL(url);
+    if(st)st.textContent='✓ Backup downloaded';
+    toast('Backup downloaded ✓');
+    setTimeout(()=>{if(st)st.textContent='';},5000);
+  }catch(e){
+    console.error(e);
+    if(st)st.textContent='✗ Backup failed: '+e.message;
+    toast('Backup failed: '+e.message);
+  }
+}
+
+async function restoreFullBackup(ev){
+  if(!adminUnlocked){toast('Admin access required');ev.target.value='';return;}
+  const f=ev.target.files&&ev.target.files[0];
+  if(!f){ev.target.value='';return;}
+  const ok=confirm('⚠️ RESTORE WILL OVERWRITE ALL CURRENT DATA.\n\nMake sure you have a recent backup of the current state.\n\nProceed?');
+  if(!ok){ev.target.value='';return;}
+  const st=document.getElementById('backup-status');
+  if(st)st.textContent='Restoring…';
+  try{
+    const txt=await f.text();
+    const data=JSON.parse(txt);
+    if(!data.engineers||!data.projects)throw new Error('Invalid backup file — missing engineers or projects');
+    const counts=[];
+    // Helper to bulk upsert
+    const upsert=async(table,rows)=>{
+      if(!Array.isArray(rows)||rows.length===0)return 0;
+      // Send in chunks of 100 to avoid request size limits
+      let n=0;
+      for(let i=0;i<rows.length;i+=100){
+        const chunk=rows.slice(i,i+100);
+        await sbFetch(table,'POST',chunk,'resolution=merge-duplicates,return=minimal');
+        n+=chunk.length;
+      }
+      return n;
+    };
+    counts.push('engineers:'+await upsert('engineers',data.engineers));
+    counts.push('projects:'+await upsert('projects',data.projects));
+    if(data.project_hours)counts.push('project_hours:'+await upsert('project_hours',data.project_hours));
+    if(data.leave_hrs)counts.push('leave_hrs:'+await upsert('leave_hrs',data.leave_hrs));
+    if(data.mgmt_hrs)counts.push('mgmt_hrs:'+await upsert('mgmt_hrs',data.mgmt_hrs));
+    if(data.settings)counts.push('settings:'+await upsert('settings',data.settings));
+    if(data.holidays)counts.push('holidays:'+await upsert('holidays',data.holidays));
+    if(st)st.textContent='✓ Restored — reloading…';
+    toast('Restored ✓ Reloading in 2s…');
+    setTimeout(()=>location.reload(),2000);
+  }catch(e){
+    console.error(e);
+    if(st)st.textContent='✗ Restore failed: '+e.message;
+    toast('Restore failed: '+e.message);
+    ev.target.value='';
+  }
+}
+
+// ── Test Mode ───────────────────────────────────────────
+// When ON: only projects whose number or name contains "TEST" (case-insensitive) are visible.
+// Implementation: the FULL canonical list lives in S._allProjects when test mode is active.
+// S.projects becomes a filtered view. When test mode is off, S._allProjects is null and
+// S.projects is the canonical source. This avoids any risk of data loss.
+function isTestMode(){return localStorage.getItem('testMode')==='1';}
+function _isTestProject(p){return /test/i.test(p.no||'')||/test/i.test(p.name||'');}
+function applyTestModeFilter(){
+  if(!isTestMode()){
+    // Restore: if S._allProjects exists, merge it back as the canonical S.projects
+    if(S._allProjects&&Array.isArray(S._allProjects)){
+      // Merge any new projects added while in test mode into the canonical list
+      const allIds=new Set(S._allProjects.map(p=>p.id));
+      (S.projects||[]).forEach(p=>{ if(!allIds.has(p.id))S._allProjects.push(p); });
+      S.projects=S._allProjects;
+      S._allProjects=null;
+    }
+    const b=document.getElementById('test-mode-banner');if(b)b.style.display='none';
+    document.body.style.paddingTop='';
+    return;
+  }
+  // Test mode ON: stash full list in S._allProjects (if not already), then filter
+  // Guard against empty/missing stash
+  if(!S._allProjects||!Array.isArray(S._allProjects)||S._allProjects.length===0){
+    // Only stash if S.projects has data; otherwise wait for data load
+    if(S.projects&&S.projects.length>0){
+      // If we already had a stash with the same items, don't double-stash
+      S._allProjects=S.projects.slice();
+    } else {
+      // No data yet — don't filter, just show banner
+      const b=document.getElementById('test-mode-banner');if(b)b.style.display='block';
+      document.body.style.paddingTop='36px';
+      return;
+    }
+  } else {
+    // Pick up any new projects added since the last filter
+    const allIds=new Set(S._allProjects.map(p=>p.id));
+    (S.projects||[]).forEach(p=>{ if(!allIds.has(p.id))S._allProjects.push(p); });
+  }
+  S.projects=S._allProjects.filter(_isTestProject);
+  const b=document.getElementById('test-mode-banner');if(b)b.style.display='block';
+  document.body.style.paddingTop='36px';
+}
+function toggleTestMode(on){
+  if(!adminUnlocked){toast('Admin access required');const t=document.getElementById('test-mode-toggle');if(t)t.checked=false;return;}
+  localStorage.setItem('testMode',on?'1':'0');
+  const t=document.getElementById('test-mode-toggle');if(t)t.checked=on;
+  applyTestModeFilter();
+  toast(on?'🧪 Test Mode ON — only TEST projects visible':'Test Mode OFF — all projects restored');
+  // Re-render current page
+  try{
+    const active=document.querySelector('.sbi.on');
+    if(active&&active.id){const pg=active.id.replace('nav-','');nav(pg);}
+  }catch(e){}
+}
+function initTestModeUI(){
+  const t=document.getElementById('test-mode-toggle');
+  if(t)t.checked=isTestMode();
+  applyTestModeFilter();
+}
+
+// Delete all TEST projects from Supabase (admin only) — for cleanup after testing
+async function deleteAllTestProjects(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  // Search both the visible list and the stashed full list (if in test mode)
+  const searchList=S._allProjects||S.projects;
+  const testProjs=searchList.filter(_isTestProject);
+  if(testProjs.length===0){toast('No TEST projects found');return;}
+  const ok=confirm(`Delete ${testProjs.length} TEST project${testProjs.length===1?'':'s'} permanently?\n\n${testProjs.map(p=>'• '+p.no+' — '+p.name).join('\n')}\n\nThis cannot be undone.`);
+  if(!ok)return;
+  const st=document.getElementById('backup-status');
+  if(st)st.textContent='Deleting…';
+  try{
+    for(const p of testProjs){
+      await sbFetch('project_hours?project_id=eq.'+p.id,'DELETE');
+      await sbFetch('projects?id=eq.'+p.id,'DELETE');
+    }
+    const delIds=new Set(testProjs.map(p=>p.id));
+    if(S._allProjects)S._allProjects=S._allProjects.filter(p=>!delIds.has(p.id));
+    S.projects=S.projects.filter(p=>!delIds.has(p.id));
+    if(st)st.textContent='✓ Deleted '+testProjs.length+' TEST project(s)';
+    toast('Deleted '+testProjs.length+' TEST project(s) ✓');
+    try{
+      const active=document.querySelector('.sbi.on');
+      if(active&&active.id){const pg=active.id.replace('nav-','');nav(pg);}
+    }catch(e){}
+  }catch(e){
+    console.error(e);
+    if(st)st.textContent='✗ Failed: '+e.message;
+    toast('Delete failed: '+e.message);
+  }
+}
+
+// ── Generate Test Data ──────────────────────────────────
+// Creates one test project (TEST-AUTO) covering 26 weeks, with every active engineer
+// loaded at standard hours. Used to verify formula correctness on a known dataset.
+async function generateTestData(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  if(!isTestMode()){toast('Enable Test Mode first');return;}
+  const ok=confirm('This will create a new project "TEST-AUTO" with all engineers loaded for 26 weeks at standard hours:\n\n• Normal engineers: 45 h/wk (=100% util)\n• JSE engineers: 55 h/wk × 2 multiplier (=50% util)\n\nProceed?');
+  if(!ok)return;
+  const st=document.getElementById('backup-status');
+  if(st)st.textContent='Generating test project…';
+  try{
+    const start='2026-04-06';
+    const end='2026-09-30';
+    const NWK=26;
+    const projId='test-auto-'+Date.now();
+    const eligible=S.engineers.filter(e=>!e.archived);
+    if(eligible.length===0){toast('No engineers to assign');return;}
+    // Use current user email as MEP lead so RLS lets us see it back
+    const leadEmail=(SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||null;
+    // Set JSE multipliers
+    const jseMultiplier={};
+    eligible.forEach(e=>{
+      if(e.name&&e.name.startsWith('JSE-'))jseMultiplier[e.id]=2;
+    });
+    const testProj={
+      id:projId,
+      no:'TEST-AUTO',
+      name:'TEST-AUTO — Formula Verification',
+      client:'TEST CLIENT',
+      pm:'TEST',
+      mepLead:'TEST',
+      mepLeadEmail:leadEmail,
+      status:'Active',
+      start:start,
+      end:end,
+      feeFactor:2.0,
+      stages:{Concept:4,SD:4,DD:5,CD:4,Tender:9},
+      jseMultiplier:jseMultiplier,
+      weeklyHrs:{}
+    };
+    // Build weeklyHrs locally
+    eligible.forEach(e=>{
+      const isJSE=e.name&&e.name.startsWith('JSE-');
+      const hrs=isJSE?55:45;
+      testProj.weeklyHrs[e.id]=Array(NWK).fill(hrs);
+    });
+    // 1. Push project metadata via the standard path
+    await pushProj(testProj);
+    // 2. Push all project_hours rows in chunks
+    const rows=[];
+    eligible.forEach(e=>{
+      const isJSE=e.name&&e.name.startsWith('JSE-');
+      const hrs=isJSE?55:45;
+      for(let wi=0;wi<NWK;wi++){
+        rows.push({project_id:projId,engineer_id:e.id,week_index:wi,hours:hrs});
+      }
+    });
+    for(let i=0;i<rows.length;i+=200){
+      const chunk=rows.slice(i,i+200);
+      await sbFetch('project_hours','POST',chunk,'resolution=merge-duplicates,return=minimal');
+    }
+    // 3. Add to local state (project lists are derived from S.projects)
+    //    If we were filtering for test mode, the new project will pass the filter
+    S.projects.push(testProj);
+    if(st)st.textContent='✓ TEST-AUTO created with '+eligible.length+' engineers';
+    toast(`Test project created with ${eligible.length} engineers ✓`);
+    // 4. Re-render current page in place (no reload — preserves session)
+    setTimeout(()=>{
+      try{
+        const active=document.querySelector('.sbi.on');
+        if(active&&active.id){const pg=active.id.replace('nav-','');nav(pg);}
+      }catch(e){}
+    },300);
+  }catch(e){
+    console.error(e);
+    if(st)st.textContent='✗ Failed: '+e.message;
+    toast('Failed to generate test data: '+e.message);
+  }
+}
+
 // ── JSE multiplier: manual per-project per-engineer ───
 function getJseMult(p, engId){
   if(!p.jseMultiplier)return 1;
@@ -7033,7 +7402,7 @@ function openEngModal(){
   if(!adminUnlocked){toast('Admin access required');return;}
   eId=null;
   document.getElementById('eng-title').textContent='Add Engineer';
-  ['em-name','em-desig','em-empno','em-note','em-email','em-rate'].forEach(id=>document.getElementById(id).value='');
+  ['em-name','em-desig','em-empno','em-note','em-email','em-rate','em-join-date','em-end-date'].forEach(id=>document.getElementById(id).value='');
   document.getElementById('em-disc').value='HVAC';
   document.getElementById('em-off').value='DXB';
   document.getElementById('em-cap').value=45;
@@ -7054,6 +7423,8 @@ function editEng(id){
   document.getElementById('em-note').value=e.note||'';
   document.getElementById('em-email').value=e.email||'';
   document.getElementById('em-rate').value=e.rateOverride||'';
+  document.getElementById('em-join-date').value=e.joinDate||'';
+  document.getElementById('em-end-date').value=e.endDate||'';
   const isBIM=e.team==='BIM';
   document.getElementById('em-is-bim').checked=isBIM;
   document.getElementById('em-disc-label').textContent=isBIM?'Sub-Discipline *':'Discipline *';
@@ -7087,6 +7458,10 @@ async function saveEng(){
   };
   const rateVal=parseFloat(document.getElementById('em-rate').value);
   if(!isNaN(rateVal)&&rateVal>0)eng.rateOverride=rateVal;
+  const jd=document.getElementById('em-join-date').value;
+  if(jd)eng.joinDate=jd;
+  const ed=document.getElementById('em-end-date').value;
+  if(ed)eng.endDate=ed;
   if(!isBIM)delete eng.subDisc;
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();renderTeam();updSB();toast('Saved & synced ✓');
