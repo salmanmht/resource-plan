@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.11 · 21 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.13 · 21 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -940,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.11 · 21 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.13 · 21 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3819,6 +3819,30 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     return out;
   }
 
+  // ── non-project rows for drill-down (leave / holidays / management) — v8.9.12 ──
+  const _full=computeAll();
+  const _foff=base-(_full.minMI||0);
+  const _SPINE=new Date('2026-04-06');_SPINE.setHours(0,0,0,0);
+  const _WK=7*24*3600*1000;
+  const _mondayOf=(ds)=>{const d=new Date(ds);const dy=d.getDay();d.setDate(d.getDate()+(dy===0?-6:1-dy));d.setHours(0,0,0,0);return d;};
+  const _colGwi=isWeekly?cols.map(ci=>Math.round((new Date(weeks[ci]).setHours(0,0,0,0)-_SPINE)/_WK)):null;
+  const _npRows=(e)=>{
+    const hols=((e.off==='EGY')?S.holidaysEGY:S.holidaysUAE)||[];
+    const leaveA=[],holA=[],mgmtA=[];
+    if(isWeekly){
+      const lv=S.leaveHrs[e.id]||[],mg=S.mgmtHrs[e.id]||[];
+      cols.forEach((ci,k)=>{const g=_colGwi[k];leaveA[k]=(g>=0?(lv[g]||0):0);mgmtA[k]=(g>=0?(mg[g]||0):0);holA[k]=0;});
+      hols.forEach(hh=>{if(!hh||!hh.date)return;const g=Math.round((_mondayOf(hh.date)-_SPINE)/_WK);const k=_colGwi.indexOf(g);if(k>=0)holA[k]+=(hh.hours||9);});
+    }else{
+      const lb=_full.leaveByMI[e.id]||[],mb=_full.mgmtByMI[e.id]||[];
+      const hm={};hols.forEach(hh=>{if(!hh||!hh.date)return;const mi=dateToMI(_mondayOf(hh.date));hm[mi]=(hm[mi]||0)+(hh.hours||9);});
+      cols.forEach((ci,k)=>{const tot=lb[_foff+ci]||0;const hol=hm[base+ci]||0;holA[k]=hol;leaveA[k]=Math.max(0,tot-hol);mgmtA[k]=mb[_foff+ci]||0;});
+    }
+    const _sum=(a)=>a.reduce((x,y)=>x+(y||0),0);
+    const _row=(label,arr,bg,tc)=>{const tot=_sum(arr);if(tot<=0)return '';return '<tr style="background:'+bg+';border-top:1px solid #e8edf3;"><td></td><td></td><td style="padding-left:22px;font-size:11px;white-space:nowrap;color:'+tc+';"><strong>'+label+'</strong></td><td colspan="2"><span style="font-size:9px;color:var(--tx3);">non-billable</span></td>'+arr.map(v=>'<td style="text-align:center;font-size:10px;color:'+tc+';">'+(v>0?Math.round(v)+'h':'—')+'</td>').join('')+'<td style="font-weight:700;font-size:11px;color:'+tc+';">'+Math.round(tot)+'h</td></tr>';};
+    return _row('Annual leave',leaveA,'#fffaf2','#9a6a1a')+_row('Public holidays',holA,'#eef5ff','#1e5a9a')+_row('Management',mgmtA,'#f5f7fa','#475569');
+  };
+
   let h=`<thead><tr><th style="width:20px"></th><th>#</th><th>Name</th><th>Disc</th><th>Off</th>${colLabels.map(l=>'<th>'+l+'</th>').join('')}<th>Avg%</th></tr></thead><tbody>`;
   sub.forEach((e,i)=>{
     const u=util[e.id]||Array(n).fill(0);const avg=u.slice(cols[0],cols[cols.length-1]+1).reduce((a,b)=>a+b,0)/cols.length;
@@ -3858,6 +3882,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
             <td style="font-weight:700;color:var(--acc);font-size:11px">${Math.round(totH)}h</td></tr>`;
         }).join('');
       }
+      projRows += _npRows(e);
       const detailColHdrs=isWeekly
         ? cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${colLabels[ci].replace(/<br>.*$/,'')}</th>`).join('')
         : cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${miLabel(base+ci)}</th>`).join('');
@@ -5318,7 +5343,7 @@ function renderProj(){
     const totalHrs=projTotalHrs(p);
     // mobile content pass — stacked card with real status pill + engineer count
     if(typeof isMobile==='function'&&isMobile()){
-      const wh=p.weeklyHrs||{};let resCount=0;for(const _id in wh){const arr=wh[_id]||[];if(Array.isArray(arr)&&arr.some(v=>v>0))resCount++;}
+      const wh=p.weeklyHrs||{};const _hasH=(id)=>Array.isArray(wh[id])&&wh[id].some(v=>v>0);const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const memberLabel=assignedMEP>0&&assignedBIM>0?(assignedMEP+' engineer'+(assignedMEP===1?'':'s')+' · '+assignedBIM+' BIM'):assignedBIM>0?(assignedBIM+' BIM'):(assignedMEP+' engineer'+(assignedMEP===1?'':'s'));
       const sc=p.status==='Active'?'#16a34a':p.status==='On Hold'?'#d97706':'#6b7280';
       return`<div style="padding:14px 16px;border-bottom:1px solid var(--bdr);cursor:pointer;" onclick="openProjDetail('${p.id}')">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
@@ -5331,7 +5356,7 @@ function renderProj(){
         </div>
         <div style="margin-top:10px;">${buildStrip(p)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid var(--bdr);gap:10px;">
-          <div style="font-size:11px;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${resCount} engineer${resCount===1?'':'s'}${p.mepLeadEmail?` · ${getMepLeadName(p.mepLeadEmail)}`:''}</div>
+          <div style="font-size:11px;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${memberLabel}${p.mepLeadEmail?` · ${getMepLeadName(p.mepLeadEmail)}`:''}</div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
             <span style="font-size:13px;font-weight:700;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs))+' h':'—'}</span>
             ${adminUnlocked?`<button class="btn btn-g btn-xs" onclick="event.stopPropagation();editProj('${p.id}')" style="padding:3px 8px;">Edit</button>`:''}
