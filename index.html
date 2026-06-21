@@ -22,6 +22,8 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js"></script>
+<script src="capacitor.js"></script>
+<script src="capacitor-bridge.js"></script>
 <style>
 :root{
   --bg:#f5f5f7;--surf:#fff;--surf2:#f5f5f7;--bdr:#d2d2d7;
@@ -878,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.8.0 · 8 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.2 · 21 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -938,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.8.0 · 8 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.2 · 21 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1341,7 +1343,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <span style="font-weight:600;color:#111827;font-size:12px;">Team Utilisation</span>
         <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">monthly % per engineer</span>
       </label>
-      <label style="display:grid;grid-template-columns:18px auto 1fr;align-items:center;gap:12px;cursor:pointer;font-size:12px;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:#f5f5f7;direction:ltr;text-align:left;color:#111827;">
+      <label id="exp-cost-row" style="display:grid;grid-template-columns:18px auto 1fr;align-items:center;gap:12px;cursor:pointer;font-size:12px;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:#f5f5f7;direction:ltr;text-align:left;color:#111827;">
         <input type="checkbox" id="exp-incl-cost" checked style="margin:0;" onchange="updateExportSummary()">
         <span style="font-weight:600;color:#111827;font-size:12px;">Cost Summary</span>
         <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">hours · cost · fee per project</span>
@@ -4896,7 +4898,7 @@ function renderOffice(off,pcId){
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${subMEP.length}</div><div class="mc-s">MEP team</div></div>
       <div class="mc te"><div class="mc-l">BIM</div><div class="mc-v">${subBIM.length}</div><div class="mc-s">BIM team</div></div>
-      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div><div class="mc-s">All teams</div></div>
+      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div><div class="mc-s">All teams</div></div>
       <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div><div class="mc-s">All teams</div></div>
     </div>
     <div class="g2">
@@ -4955,7 +4957,7 @@ function renderDisc(disc,pcId){
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
-      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div></div>
+      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div></div>
       <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div></div>
     </div>
     <div class="g2">
@@ -5031,7 +5033,7 @@ function renderBIM(pcId){
     </div>
     <div class="mrow">
       <div class="mc te"><div class="mc-l">BIM Members</div><div class="mc-v">${dxb.length+jseTotal}</div><div class="mc-s">${dxb.length} DXB · ${jseTotal} IND (JSE)</div></div>
-      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v">${avgU.toFixed(1)}%</div><div class="mc-s">All BIM</div></div>
+      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div><div class="mc-s">All BIM</div></div>
       <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div><div class="mc-s">All BIM</div></div>
       <div class="mc hi" style="border-top-color:#0d9488;"><div class="mc-l">Sub-Disc Split</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;">${subDiscChips||'<span style="font-size:10px;color:var(--tx3);">—</span>'}</div></div>
     </div>
@@ -5116,6 +5118,11 @@ function renderTeam(){
     'BIM':{bg:'#CECBF6',color:'#3C3489',badge:'#EEEDFE',badgeTxt:'#534AB7'},
   };
 
+  // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
+  let _eu={},_euN=0;
+  try{const r=computeRange();_eu=r.util||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
+  const engAvgUtil=(e)=>{const a=_eu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
+
   const filterEng=(e)=>{
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
     if(of2!=='all'&&e.off!==of2)return false;
@@ -5136,6 +5143,7 @@ function renderTeam(){
           <span style="color:var(--tx3);">${offLabel}</span>
         </div>
       </div>
+      ${(()=>{const u=engAvgUtil(e);return u==null?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,40):''}<div style="font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:2px;text-transform:uppercase;">Util</div></div>`;})()}
       ${adminUnlocked?`<div style="display:flex;gap:4px;flex-shrink:0;">
         <button class="btn btn-g btn-xs" onclick="editEng('${e.id}')" style="padding:3px 8px;">Edit</button>
         <button class="btn btn-d btn-xs" onclick="delEng('${e.id}')" style="padding:3px 8px;">Del</button>
@@ -5299,6 +5307,29 @@ function renderProj(){
 
   const rowsHtml=list.map((p,idx)=>{
     const totalHrs=projTotalHrs(p);
+    // mobile content pass — stacked card with real status pill + engineer count
+    if(typeof isMobile==='function'&&isMobile()){
+      const wh=p.weeklyHrs||{};let resCount=0;for(const _id in wh){const arr=wh[_id]||[];if(Array.isArray(arr)&&arr.some(v=>v>0))resCount++;}
+      const sc=p.status==='Active'?'#16a34a':p.status==='On Hold'?'#d97706':'#6b7280';
+      return`<div style="padding:14px 16px;border-bottom:1px solid var(--bdr);cursor:pointer;" onclick="openProjDetail('${p.id}')">
+        <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
+          <div style="min-width:0;">
+            <div style="font-size:11px;color:var(--tx3);font-weight:600;">${p.no||'—'}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--tx);margin-top:1px;letter-spacing:-.01em;">${p.name}</div>
+            ${p.client?`<div style="font-size:11px;color:var(--tx3);margin-top:1px;">${p.client}</div>`:''}
+          </div>
+          <span class="mh-pill" style="background:${sc}1A;color:${sc};flex-shrink:0;"><i style="background:${sc}"></i>${p.status||'—'}</span>
+        </div>
+        <div style="margin-top:10px;">${buildStrip(p)}</div>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid var(--bdr);gap:10px;">
+          <div style="font-size:11px;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${resCount} engineer${resCount===1?'':'s'}${p.mepLeadEmail?` · ⚙ ${getMepLeadName(p.mepLeadEmail)}`:''}</div>
+          <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
+            <span style="font-size:13px;font-weight:700;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs))+' h':'—'}</span>
+            ${adminUnlocked?`<button class="btn btn-g btn-xs" onclick="event.stopPropagation();editProj('${p.id}')" style="padding:3px 8px;">Edit</button>`:''}
+          </div>
+        </div>
+      </div>`;
+    }
     const startStr=p.start||'—';
     const endStr=p.end||'—';
     return`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
@@ -5317,7 +5348,7 @@ function renderProj(){
 
   document.getElementById('proj-list').innerHTML=`<div style="font-size:11px;color:var(--tx3);margin-bottom:8px;padding:0 2px;"><strong style="color:var(--tx2);">${list.length}</strong> project${list.length===1?'':'s'}${(q||sf!=='all')?' shown':''} · <strong style="color:var(--tx2);">${S.projects.length}</strong> total</div>
   <div class="card" style="padding:0;overflow:hidden;">
-    ${headerRow}
+    ${(typeof isMobile==='function'&&isMobile())?'':headerRow}
     ${rowsHtml}
     ${emptyMsg}
   </div>`;
@@ -8528,6 +8559,11 @@ function openExportPicker(){
       </label>`;
     }).join('');
   }
+  // RBAC: Cost Summary (rates) is admin-only — hide + uncheck for everyone else
+  (function(){var _adm=(typeof adminUnlocked!=='undefined'&&adminUnlocked);
+    var row=document.getElementById('exp-cost-row'),cb=document.getElementById('exp-incl-cost');
+    if(row)row.style.display=_adm?'':'none';
+    if(cb&&!_adm)cb.checked=false;})();
   ov.classList.add('open');
   updateExportSummary();
 }
@@ -8556,7 +8592,7 @@ function updateExportSummary(){
 function runPickerExport(){
   const ids=Array.from(document.querySelectorAll('.exp-proj-cb:checked')).map(cb=>cb.value);
   const includeUtil=document.getElementById('exp-incl-util').checked;
-  const includeCost=document.getElementById('exp-incl-cost').checked;
+  const includeCost=(typeof adminUnlocked!=='undefined'&&adminUnlocked)&&document.getElementById('exp-incl-cost').checked;
   const includeLeave=document.getElementById('exp-incl-leave').checked;
   if(!ids.length&&!includeUtil&&!includeCost&&!includeLeave){
     toast('Nothing selected to export.');
@@ -10087,5 +10123,154 @@ function aiAnalyseRisks(){
 // Hook into dashboard render to show insights
 const _origNav=typeof nav==='function'?nav:null;
 </script>
+<!-- ════════════ MOBILE-FIRST OVERHAUL v8.9.0 (additive layer — remove this whole block to revert) ════════════ -->
+<style id="mh-overhaul">
+:root{
+  --mh-navy:#10243E; --mh-navy2:#17375E; --mh-blue:#2C6FC0; --mh-line:#E3E8EF;
+  --mh-hvac:#1d4ed8; --mh-phe:#166534; --mh-ele:#854d0e; --mh-elv:#9d174d; --mh-bim:#0f766e;
+  --mh-dxb:#5b21b6; --mh-egy:#991b1b; --mh-ind:#92400e;
+}
+
+/* ---- gauge + pill components (global, ready to use anywhere) ---- */
+.mh-gauge{position:relative;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto;}
+.mh-gauge svg{transform:rotate(-90deg);display:block;}
+.mh-gauge b{position:absolute;font-family:ui-monospace,"SF Mono",Menlo,monospace;font-weight:600;font-variant-numeric:tabular-nums;line-height:1;}
+.mh-pill{display:inline-flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;padding:3px 10px;border-radius:999px;line-height:1.4;}
+.mh-pill i{width:6px;height:6px;border-radius:50%;}
+.mc-v{font-variant-numeric:tabular-nums;}
+
+/* ════════════ UNIFIED BRAND — applies on desktop AND mobile ════════════ */
+.hdr-t{color:var(--mh-navy);}
+.sb-logo{background:var(--mh-navy);}
+.sb-logo-t{color:#fff!important;}
+.sb-logo-s{color:#9DB4D1!important;}
+.sbi.on{color:var(--mh-navy);background:#EAF0F8;box-shadow:inset 3px 0 0 var(--mh-navy);}
+.mh-scope{display:none;}
+.card{border-color:var(--mh-line);border-radius:16px;box-shadow:0 1px 2px rgba(16,36,62,.05),0 8px 20px rgba(16,36,62,.05);}
+.mc{border-color:var(--mh-line);border-radius:16px;}
+.mc.hi{border-top-color:var(--mh-navy);}
+
+/* ════════════ MOBILE (≤700px) ════════════ */
+@media(max-width:700px){
+  /* notch-safe sticky header, navy title */
+  .hdr{height:calc(var(--hh) + env(safe-area-inset-top));padding-top:env(safe-area-inset-top);
+       background:rgba(255,255,255,.9);border-bottom:1px solid var(--mh-line);}
+  .hdr-t{color:var(--mh-navy);font-size:16px;}
+
+  /* sidebar drawer gets the navy identity */
+  .sb-logo{background:var(--mh-navy);}
+  .sb-logo-t{color:#fff!important;}
+  .sb-logo-s{color:#9DB4D1!important;}
+  .sbi.on{color:var(--mh-navy);background:#EAF0F8;box-shadow:inset 3px 0 0 var(--mh-navy);}
+
+  /* ---- bottom tab bar, polished + navy active ---- */
+  .main{padding-bottom:calc(var(--bn) + env(safe-area-inset-bottom) + 8px);}
+  .bot-nav{height:auto;background:rgba(255,255,255,.94);border-top:1px solid var(--mh-line);
+           box-shadow:0 -1px 12px rgba(16,36,62,.05);padding-top:7px;}
+  .bn-item{position:relative;color:#8A98A8;font-size:9.5px;padding-top:8px;}
+  .bn-item svg{width:22px;height:22px;}
+  .bn-item.on{color:var(--mh-navy);}
+  .bn-item.on svg{stroke-width:2.3;}
+  .bn-item.on::before{content:"";position:absolute;top:0;left:50%;transform:translateX(-50%);
+                      width:26px;height:3px;border-radius:0 0 4px 4px;background:var(--mh-navy);}
+
+  /* ---- scope chip bar (offices + disciplines) — fixed under the header ---- */
+  .mh-scope{display:none;}
+  body.mh-has-scope .mh-scope{
+    display:flex;gap:7px;align-items:center;overflow-x:auto;-webkit-overflow-scrolling:touch;
+    position:fixed;left:0;right:0;top:calc(var(--hh) + env(safe-area-inset-top));z-index:90;
+    padding:9px 12px;background:rgba(244,246,250,.94);
+    backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);border-bottom:1px solid var(--mh-line);}
+  .mh-scope::-webkit-scrollbar{display:none;}
+  body.mh-has-scope .pc{padding-top:56px;}
+  .mh-chip{flex:0 0 auto;font-size:12.5px;font-weight:600;padding:6px 13px;border-radius:999px;
+           border:1px solid var(--mh-line);background:#fff;color:#5E6E83;white-space:nowrap;cursor:pointer;
+           font-family:inherit;transition:.12s;}
+  .mh-chip.on{color:#fff;border-color:transparent;}
+
+  /* card / metric polish */
+  .card,.mc{border-color:var(--mh-line);border-radius:16px;}
+  .card{box-shadow:0 1px 2px rgba(16,36,62,.05),0 8px 20px rgba(16,36,62,.05);}
+  .mc.hi{border-top-color:var(--mh-navy);}
+  .mc-v{font-size:24px;}
+}
+@media(prefers-reduced-motion:reduce){.bn-item,.mh-chip{transition:none;}}
+</style>
+
+<!-- scope chip bar (populated by JS) -->
+<nav class="mh-scope" id="mh-scope" aria-label="Scope"></nav>
+
+<script>
+(function(){
+  "use strict";
+  var SCOPE=[["mep","MEP","var(--mh-navy)"],["dxb","DXB","var(--mh-dxb)"],["egy","EGY","var(--mh-egy)"],
+    ["ind","IND","var(--mh-ind)"],["hvac","HVAC","var(--mh-hvac)"],["phe","PH&E","var(--mh-phe)"],
+    ["ele","ELE","var(--mh-ele)"],["elv","ELV","var(--mh-elv)"],["bim","BIM","var(--mh-bim)"]];
+  var SCOPE_FAM=SCOPE.map(function(s){return s[0];});
+  var PLAN_FAM=["tracker","weekly","leave"];
+
+  /* gauge helpers, exposed for the render functions to adopt later */
+  window.mhLoadColor=function(u){return u>100?"#DC2626":u>=90?"#E08A1E":u>=70?"#16A34A":"#7A8AA0";};
+  window.mhGauge=function(pct,size){
+    size=size||46;var r=size/2-4,c=2*Math.PI*r,off=c*(1-Math.min(pct,100)/100),col=window.mhLoadColor(pct);
+    return '<span class="mh-gauge" style="width:'+size+'px;height:'+size+'px">'+
+      '<svg width="'+size+'" height="'+size+'"><circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="#EAEEF4" stroke-width="5"></circle>'+
+      '<circle cx="'+(size/2)+'" cy="'+(size/2)+'" r="'+r+'" fill="none" stroke="'+col+'" stroke-width="5" stroke-linecap="round" stroke-dasharray="'+c+'" stroke-dashoffset="'+off+'"></circle></svg>'+
+      '<b style="font-size:'+(size*0.28)+'px;color:'+col+'">'+pct+'</b></span>';
+  };
+  window.mhPill=function(u){var col=window.mhLoadColor(u);
+    return '<span class="mh-pill" style="background:'+col+'1A;color:'+col+'"><i style="background:'+col+'"></i>'+u+'%</span>';};
+
+  function ready(fn){if(document.readyState!=="loading")fn();else document.addEventListener("DOMContentLoaded",fn);}
+
+  ready(function(){
+    try{
+      /* 1 — add a 5th "Plan" tab before More */
+      var botNav=document.querySelector(".bot-nav"), more=document.getElementById("bn-more");
+      if(botNav&&more&&!document.getElementById("bn-plan")){
+        var plan=document.createElement("button");
+        plan.className="bn-item";plan.id="bn-plan";plan.setAttribute("onclick","nav('tracker')");
+        plan.innerHTML='<svg aria-hidden="true" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3M5 11h14M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Plan';
+        botNav.insertBefore(plan,more);
+      }
+
+      /* 2 — build the scope chip bar */
+      var bar=document.getElementById("mh-scope");
+      if(bar){
+        bar.innerHTML=SCOPE.map(function(s){
+          return '<button class="mh-chip" data-k="'+s[0]+'" data-c="'+s[2]+'" onclick="nav(\''+s[0]+'\')">'+s[1]+'</button>';
+        }).join("");
+      }
+
+      /* 3 — wrap nav() so the new chrome stays in sync */
+      var origNav=window.nav;
+      if(typeof origNav==="function"){
+        window.nav=function(p,fromPop){ origNav(p,fromPop); try{mhSync(p);}catch(e){} };
+      }
+      mhSync((window.CURRENT_PAGE)|| (typeof CURRENT_PAGE!=="undefined"?CURRENT_PAGE:"mep"));
+    }catch(e){console.warn("mh-overhaul init",e);}
+  });
+
+  function mhSync(p){
+    /* bottom tabs */
+    function set(id,on){var el=document.getElementById(id);if(el)el.classList.toggle("on",!!on);}
+    set("bn-mep",SCOPE_FAM.indexOf(p)>-1);
+    set("bn-team",p==="team");
+    set("bn-proj",p==="proj");
+    set("bn-plan",PLAN_FAM.indexOf(p)>-1);
+
+    /* scope chip bar: visible only on scope pages, active chip tinted */
+    var isScope=SCOPE_FAM.indexOf(p)>-1;
+    document.body.classList.toggle("mh-has-scope",isScope);
+    var chips=document.querySelectorAll(".mh-chip");
+    chips.forEach(function(ch){
+      var on=ch.getAttribute("data-k")===p;
+      ch.classList.toggle("on",on);
+      ch.style.background=on?ch.getAttribute("data-c"):"";
+    });
+  }
+})();
+</script>
+
 </body>
 </html>
