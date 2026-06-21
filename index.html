@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.7 · 21 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.9 · 21 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -940,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.7 · 21 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.9 · 21 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -962,11 +962,17 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <button onclick="setGrain('month')" id="grain-btn-month" class="grain-btn on" style="font-size:11px;font-weight:600;padding:4px 11px;border:0;background:var(--acc);color:#fff;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Months</button>
           <button onclick="setGrain('week')" id="grain-btn-week" class="grain-btn" style="font-size:11px;font-weight:500;padding:4px 11px;border:0;background:transparent;color:var(--tx2);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Weeks</button>
         </div>
-        <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset to full range">All</button>
-        <button class="btn btn-g btn-sm" onclick="openExportPicker()" style="display:flex;align-items:center;gap:4px;">Export</button>
-        <button class="btn btn-g btn-sm" onclick="document.getElementById('import-file-input').click()" style="display:flex;align-items:center;gap:4px;">📥 Import</button>
+        <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset to full date range">Reset</button>
+        <div id="hdr-exp-wrap" style="position:relative;display:inline-block;">
+          <button class="btn btn-g btn-sm" onclick="event.stopPropagation();var m=document.getElementById('hdr-exp-menu');m.style.display=m.style.display==='block'?'none':'block';" style="display:flex;align-items:center;gap:4px;">Export &#9662;</button>
+          <div id="hdr-exp-menu" style="display:none;position:absolute;right:0;top:calc(100% + 5px);background:#fff;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,.16);z-index:300;min-width:160px;overflow:hidden;">
+            <button onclick="document.getElementById('hdr-exp-menu').style.display='none';openExportPicker();" style="display:block;width:100%;text-align:left;padding:9px 14px;border:none;background:none;font-size:12px;color:var(--tx);cursor:pointer;">Export to Excel</button>
+            <button onclick="document.getElementById('hdr-exp-menu').style.display='none';document.getElementById('import-file-input').click();" style="display:block;width:100%;text-align:left;padding:9px 14px;border:none;border-top:1px solid var(--bdr);background:none;font-size:12px;color:var(--tx);cursor:pointer;">Import from Excel</button>
+            <button onclick="document.getElementById('hdr-exp-menu').style.display='none';exportPDF();" style="display:block;width:100%;text-align:left;padding:9px 14px;border:none;border-top:1px solid var(--bdr);background:none;font-size:12px;color:var(--tx);cursor:pointer;">Download PDF</button>
+          </div>
+        </div>
         <input type="file" id="import-file-input" accept=".xlsx,.xls" style="display:none;" onchange="handleImportFile(this)">
-        <button class="btn btn-p btn-sm" onclick="exportPDF()" style="display:flex;align-items:center;gap:4px;">&#8681; PDF</button>
+        <script>document.addEventListener('click',function(ev){var w=document.getElementById('hdr-exp-wrap'),m=document.getElementById('hdr-exp-menu');if(w&&m&&!w.contains(ev.target))m.style.display='none';});</script>
       </div>
     </div>
     <div class="pc">
@@ -1579,6 +1585,7 @@ function miLabelL(mi){const {y,m}=miToDate(mi);return ['January','February','Mar
 // Full 12-month weeks-per-month table (Jan-Dec)
 const WPM12=[4,4,5,4,4,5,4,5,4,5,4,4];
 function wpmFor(mi){const {m}=miToDate(mi);return WPM12[m]||4;}
+function wMean(arr,minMI){if(!arr||!arr.length)return 0;let s=0,w=0;for(let i=0;i<arr.length;i++){const k=wpmFor(minMI+i);s+=(arr[i]||0)*k;w+=k;}return w?s/w:0;}
 // Convert a Date object to absolute month index
 function dateToMI(d){return(d.getFullYear()-2026)*12+(d.getMonth()-3);}
 const GRADES= ['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer','Senior Engineer','Engineer','Junior / Grad Engineer','Intern','BIM Manager','Assistant BIM Manager','BIM Coordinator','BIM Specialist','Senior BIM Modeler','BIM Modeler','BIM Technician'];
@@ -4167,9 +4174,9 @@ function renderMEP(){
   const labelsL=Array.from({length:NMON},(_,i)=>miLabelL(minMI+i));
   const all=S.engineers;
   const tu=subUtil(all,util,minMI,NMON);
-  const avgU=tu.length?tu.reduce((a,b)=>a+b,0)/NMON:0;
+  const avgU=wMean(tu,minMI);
   const tb=subUtil(all,billUtil||util,minMI,NMON);
-  const avgBill=tb.length?tb.reduce((a,b)=>a+b,0)/NMON:0;
+  const avgBill=wMean(tb,minMI);
   const totH=subHrs(all,hrs);const totC=all.reduce((a,e)=>a+engCost(e,hrs),0);
   const dxb=all.filter(e=>e.off==='DXB'),egy=all.filter(e=>e.off==='EGY');
   const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
@@ -4891,7 +4898,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
 function renderOffice(off,pcId){
   const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.off===off);
   const subMEP=sub.filter(e=>e.team!=='BIM');const subBIM=sub.filter(e=>e.team==='BIM');
-  const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=off.toLowerCase();
+  const avgU=wMean(subUtil(sub,util,minMI,NMON),minMI);const cid=off.toLowerCase();
   const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
@@ -4952,7 +4959,7 @@ function switchOffHeatTab(cid,tab){
 function renderDisc(disc,pcId){
   const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
-  const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=disc.toLowerCase().replace('&','');
+  const avgU=wMean(subUtil(sub,util,minMI,NMON),minMI);const cid=disc.toLowerCase().replace('&','');
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
@@ -5135,7 +5142,7 @@ function renderTeam(){
     const offLabel=e.off||'DXB';
     const u=engAvgUtil(e);
     const gaugeHtml=(u==null)?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,38):''}<div style="font-size:7.5px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:1px;text-transform:uppercase;">Util</div></div>`;
-    return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
+    return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;cursor:pointer;" onclick="openEngDetail('${e.id}')" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
       <div style="width:38px;height:38px;border-radius:50%;background:${st.bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${st.color};flex-shrink:0;">${initials}</div>
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
@@ -5146,8 +5153,8 @@ function renderTeam(){
           ${gaugeHtml}
         </div>
         ${adminUnlocked?`<div style="display:flex;gap:6px;margin-top:10px;">
-          <button class="btn btn-g btn-xs" onclick="editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
-          <button class="btn btn-d btn-xs" onclick="delEng('${e.id}')" style="padding:3px 10px;">Del</button>
+          <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
+          <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')" style="padding:3px 10px;">Del</button>
         </div>`:''}
       </div>
     </div>`;
@@ -10288,6 +10295,71 @@ const _origNav=typeof nav==='function'?nav:null;
       ch.style.background=on?ch.getAttribute("data-c"):"";
     });
   }
+})();
+</script>
+
+
+<!-- ENGINEER DETAIL POPUP (v8.9.8) — removable block -->
+<div id="engd-ov" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5);padding:16px;" onclick="if(event.target===this)closeEngDetail()">
+  <div id="engd-card" style="width:100%;max-width:360px;max-height:88vh;overflow:auto;background:#fff;border-radius:16px;-webkit-overflow-scrolling:touch;box-shadow:0 12px 40px rgba(15,23,42,.25);"></div>
+</div>
+<script>
+(function(){
+  var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var DC={'HVAC':{bg:'#B5D4F4',fg:'#0C447C'},'PH&E':{bg:'#C0DD97',fg:'#27500A'},'ELE':{bg:'#FAC775',fg:'#633806'},'ELV':{bg:'#F4C0D1',fg:'#72243E'},'BIM':{bg:'#CECBF6',fg:'#3C3489'}};
+  function pwd(pStart,wi){var d=new Date(pStart);var day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));d.setDate(d.getDate()+wi*7);return d;}
+  window.closeEngDetail=function(){var o=document.getElementById('engd-ov');if(o)o.style.display='none';};
+  window.openEngDetail=function(id){
+    var e=(S&&S.engineers||[]).find(function(x){return x.id===id;}); if(!e)return;
+    var r; try{r=computeRange();}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
+    var NM=r.NMON||1, uA=r.util[id]||[];
+    var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
+    var alloc=[];
+    (S.projects||[]).forEach(function(p){
+      var w=p.weeklyHrs&&p.weeklyHrs[id]; if(!w||!p.start)return;
+      var h=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)h+=hh; });
+      if(h>0)alloc.push({name:(p.no?p.no+' · ':'')+(p.name||'Project'),hrs:h});
+    });
+    alloc.sort(function(a,b){return b.hrs-a.hrs;});
+    var totH=alloc.reduce(function(a,x){return a+x.hrs;},0), top=alloc.slice(0,5);
+    var leaveH=0; try{var A=computeAll();var lb=A.leaveByMI&&A.leaveByMI[id];if(lb){var s=r.minMI-A.minMI;for(var k=0;k<NM;k++)leaveH+=(lb[s+k]||0);}}catch(_){}
+    var freeLbl=''; for(var m=0;m<NM;m++){ if((uA[m]||0)<85){ var md=miToDate(r.minMI+m); freeLbl=MN[md.m]+' '+md.y; break; } }
+    var chipTxt,chipBg,chipFg;
+    if(avg>100){chipTxt='Overloaded';chipBg='#FCEBEB';chipFg='#A32D2D';}
+    else if(avg>=85){chipTxt='Healthy';chipBg='#EAF3DE';chipFg='#3B6D11';}
+    else if(avg>=50){chipTxt='Moderate';chipBg='#FAEEDA';chipFg='#854F0B';}
+    else if(avg>0){chipTxt='Under-utilised';chipBg='#E6F1FB';chipFg='#185FA5';}
+    else{chipTxt='Idle';chipBg='#F1EFE8';chipFg='#5F5E5A';}
+    var free=100-avg, freeTxt=free>=0?free+'% free':Math.abs(free)+'% over';
+    var dc=DC[e.disc]||DC['BIM'];
+    var initials=(e.name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();
+    var ringInner=window.mhGauge?window.mhGauge(avg,64):('<b style="font-size:18px;">'+avg+'</b>');
+    var ring='<div style="text-align:center;flex:0 0 auto;">'+ringInner+'<div style="font-size:8px;font-weight:700;letter-spacing:.06em;color:#9AA7B5;text-transform:uppercase;margin-top:1px;">Util</div></div>';
+    var admin=(typeof adminUnlocked!=='undefined'&&adminUnlocked);
+    var rate=0; try{rate=Math.round(getRate(e)||0);}catch(_){}
+    var sub=[(e.desig||'—'),e.disc,(e.off||'DXB')].filter(Boolean).join(' · ');
+    var allocHtml=top.length?top.map(function(x){
+      var pct=totH?Math.round(x.hrs/totH*100):0;
+      return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+pct+'%;background:#10243E;border-radius:4px;"></div></div></div>';
+    }).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;padding:4px 0;">Not staffed in this period.</div>';
+    var html=
+      '<div style="display:flex;align-items:center;gap:12px;padding:16px 16px 14px;border-bottom:0.5px solid #EDF1F6;">'
+        +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:15px;color:#10243E;line-height:1.25;">'+(e.name||'')+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
+        +'<button onclick="closeEngDetail()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
+      +'</div>'
+      +'<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;">'+ring
+        +'<div style="flex:1;"><span style="display:inline-block;background:'+chipBg+';color:'+chipFg+';font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;">'+chipTxt+'</span><div style="font-size:12px;color:#6B7A8D;margin-top:7px;line-height:1.5;">'+freeTxt+((freeLbl&&avg>=85)?'<br>frees up '+freeLbl:'')+'</div></div>'
+      +'</div>'
+      +'<div style="padding:4px 16px 14px;"><div style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#9AA7B5;margin-bottom:9px;">Current allocation</div>'+allocHtml+'</div>'
+      +'<div style="padding:0 16px 14px;">'
+        +'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Leave in period</span><span style="margin-left:auto;font-weight:600;">'+(leaveH>0?Math.round(leaveH)+' h':'None')+'</span></div>'
+        +(admin?('<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Grade · rate</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+(e.grade||'—')+' · '+(e.cap||45)+' h/wk · AED '+rate+'/hr</span></div>'):'')
+      +'</div>'
+      +(admin?('<div style="display:flex;gap:10px;padding:12px 16px;background:#F8FAFC;border-top:0.5px solid #EDF1F6;"><button onclick="closeEngDetail();editEng(\''+id+'\')" style="flex:1;border:0.5px solid #C9D3DE;background:#fff;color:#28384A;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Edit</button><button onclick="closeEngDetail();delEng(\''+id+'\')" style="flex:1;border:0.5px solid #F0997B;background:#FCEBEB;color:#A32D2D;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button></div>'):'');
+    document.getElementById('engd-card').innerHTML=html;
+    document.getElementById('engd-ov').style.display='flex';
+  };
 })();
 </script>
 
