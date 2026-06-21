@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.2 · 21 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.6 · 21 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -940,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.2 · 21 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.6 · 21 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -959,11 +959,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <select id="dashTo" onchange="onDashRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
         </div>
         <div id="grain-toggle" style="display:inline-flex;background:var(--bg);border:1px solid var(--bdr);border-radius:var(--r);padding:2px;">
-          <button onclick="setGrain('month')" id="grain-btn-month" class="grain-btn on" style="font-size:11px;font-weight:600;padding:4px 11px;border:0;background:var(--acc);color:#fff;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">📅 Months</button>
-          <button onclick="setGrain('week')" id="grain-btn-week" class="grain-btn" style="font-size:11px;font-weight:500;padding:4px 11px;border:0;background:transparent;color:var(--tx2);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">📊 Weeks</button>
+          <button onclick="setGrain('month')" id="grain-btn-month" class="grain-btn on" style="font-size:11px;font-weight:600;padding:4px 11px;border:0;background:var(--acc);color:#fff;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Months</button>
+          <button onclick="setGrain('week')" id="grain-btn-week" class="grain-btn" style="font-size:11px;font-weight:500;padding:4px 11px;border:0;background:transparent;color:var(--tx2);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Weeks</button>
         </div>
         <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset to full range">All</button>
-        <button class="btn btn-g btn-sm" onclick="openExportPicker()" style="display:flex;align-items:center;gap:4px;">📊 Export</button>
+        <button class="btn btn-g btn-sm" onclick="openExportPicker()" style="display:flex;align-items:center;gap:4px;">Export</button>
         <button class="btn btn-g btn-sm" onclick="document.getElementById('import-file-input').click()" style="display:flex;align-items:center;gap:4px;">📥 Import</button>
         <input type="file" id="import-file-input" accept=".xlsx,.xls" style="display:none;" onchange="handleImportFile(this)">
         <button class="btn btn-p btn-sm" onclick="exportPDF()" style="display:flex;align-items:center;gap:4px;">&#8681; PDF</button>
@@ -977,7 +977,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <!-- Deep Dive Section -->
       <div class="card" style="padding:0;overflow:hidden;">
         <div id="deep-dive-hdr" onclick="toggleDeepDive()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-          <span style="font-weight:700;font-size:12px;color:#1e3a5f;">📊 Deep Dive Analytics</span>
+          <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Deep Dive Analytics</span>
           <span id="deep-dive-chevron" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
         </div>
         <div id="deep-dive-body" style="display:none;padding:14px;">
@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="card" style="padding:0;overflow:hidden;">
         <div id="hire-fire-hdr" onclick="toggleHireFire()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
           <div style="display:flex;align-items:center;gap:10px;">
-            <span style="font-weight:700;font-size:12px;color:#1e3a5f;">💓 Workforce Pulse</span>
+            <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Workforce Pulse</span>
             <div onclick="event.stopPropagation()" style="display:flex;gap:3px;background:#e5e7eb;border-radius:6px;padding:2px;">
               <button id="wf-tab-mep" onclick="switchWFTab('mep')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:#1e3a5f;color:#fff;transition:.15s;">MEP</button>
               <button id="wf-tab-bim" onclick="switchWFTab('bim')" style="padding:3px 10px;font-size:10px;font-weight:700;border:none;border-radius:4px;cursor:pointer;background:transparent;color:#6b7280;transition:.15s;">BIM</button>
@@ -1010,7 +1010,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <div class="card" style="padding:0;overflow:hidden;">
         <div onclick="toggleHeat('mep-heat-body','mep-heat-chev')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-          <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Engineer Heatmap — click any row to see project breakdown</span>
+          <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Engineer Heatmap — click any row to see project breakdown</span>
           <span id="mep-heat-chev" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
         </div>
         <div id="mep-heat-body" style="display:none;">
@@ -1110,7 +1110,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <span class="hdr-t">Weekly Tracker</span>
       </div>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-        <button class="btn btn-g btn-sm" id="wt-cols-btn" onclick="wtOpenColsModal()" title="Choose which projects show as columns">⚙ Columns</button>
+        <button class="btn btn-g btn-sm" id="wt-cols-btn" onclick="wtOpenColsModal()" title="Choose which projects show as columns">Columns</button>
         <button class="btn btn-g btn-sm" id="wt-summary-btn" onclick="wtToggleSummary()" title="Hours breakdown">📈 Summary</button>
         <button class="btn btn-g btn-sm" id="wt-snapshot-btn" onclick="wtSnapshotPrompt()" title="Save current forecast as a baseline snapshot">📸 Snapshot</button>
         <button class="btn btn-g btn-sm" id="wt-pdf-btn" onclick="wtExportPDF()" title="Export weekly report PDF">⬇ Export PDF</button>
@@ -1165,11 +1165,11 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div style="background:var(--amb2);border:1px solid #fde68a;border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--amb);margin-bottom:12px;">💡 Admin only. Separate AED/hour rates for Dubai and Egypt offices. Changes sync instantly to all cost calculations.</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:900px;">
         <div class="card" style="padding:0;overflow:hidden">
-          <div style="background:#1e3a5f;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🇦🇪 Dubai Office (DXB) — AED/hour</div>
+          <div style="background:#1e3a5f;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">Dubai Office (DXB) — AED/hour</div>
           <table class="tbl"><thead><tr><th>Grade Tier</th><th style="width:140px">AED / hour</th></tr></thead><tbody id="rates-body-dxb"></tbody></table>
         </div>
         <div class="card" style="padding:0;overflow:hidden">
-          <div style="background:#166534;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🇪🇬 Egypt Office (EGY) — AED/hour</div>
+          <div style="background:#166534;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">Egypt Office (EGY) — AED/hour</div>
           <table class="tbl"><thead><tr><th>Grade Tier</th><th style="width:140px">AED / hour</th>
           </tr></thead>
           <tbody id="rates-body-egy"></tbody></table>
@@ -1203,7 +1203,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <!-- JSE Capacity Setting -->
       <div style="max-width:900px;margin-top:14px;" class="card">
-        <div style="background:#0f766e;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">⚙️ JSE Resource Settings</div>
+        <div style="background:#0f766e;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">️ JSE Resource Settings</div>
         <div style="padding:14px 16px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
           <div>
             <label style="font-size:11px;font-weight:700;color:var(--tx2);display:block;margin-bottom:4px;">JSE Weekly Capacity (hrs/week per head)</label>
@@ -1318,7 +1318,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 <div class="ov" id="export-ov">
 <div class="modal" style="max-width:520px;">
   <div class="modal-hd">
-    <div class="modal-ht">📊 Export to Excel</div>
+    <div class="modal-ht">Export to Excel</div>
     <button class="cls" onclick="closeExportPicker()">&times;</button>
   </div>
   <div class="modal-bd">
@@ -2413,7 +2413,7 @@ async function sbUpsert(table,row){
   // merge-duplicates = UPDATE on conflict, never errors on duplicate key
   return sbFetch(table,'POST',row,'resolution=merge-duplicates,return=representation');
 }
-async function sbDel(table,id){return sbFetch(table+'?id=eq.'+id,'DELETE');}
+async function sbDel(table,id){return sbFetch(table+'?id=eq.'+encodeURIComponent(id),'DELETE');}
 function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;}
 
 async function initApp(){
@@ -3022,7 +3022,7 @@ function wtBuild(canEdit){
   html+='</div></div>';
 
   if(!projects.length){
-    html+='<div style="padding:24px;color:var(--tx3);text-align:center;">No active projects to show. Use ⚙ Columns to pick projects.</div>';
+    html+='<div style="padding:24px;color:var(--tx3);text-align:center;">No active projects to show. Use Columns to pick projects.</div>';
     c.innerHTML=html;return;
   }
 
@@ -4624,11 +4624,11 @@ function renderHireFire(){
 
     const actionGrid=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
       <div style="background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--red);border-radius:var(--rl);padding:14px 16px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">🔴 Overloaded — Top 5 by Peak</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">Overloaded — Top 5 by Peak</div>
         ${olHtml}
       </div>
       <div style="background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--amb);border-radius:var(--rl);padding:14px 16px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">🟡 Under-Utilised — Bottom 5</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">Under-Utilised — Bottom 5</div>
         ${uuHtml}
       </div>
     </div>`;
@@ -4750,7 +4750,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
     return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Annual Leave</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;font-size:11px;color:var(--tx3);text-align:center;">No annual leave booked in this period.</div>
@@ -4869,7 +4869,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
   return`
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('leave-body-${cid}','leave-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#fff7ed;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🌴 Annual Leave${mode==='bim'?' — BIM Team':mode==='office'?' — MEP Engineers':''}</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Annual Leave${mode==='bim'?' — BIM Team':mode==='office'?' — MEP Engineers':''}</span>
         <span id="leave-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="leave-body-${cid}" style="display:none;padding:14px;">
@@ -4894,7 +4894,7 @@ function renderOffice(off,pcId){
   const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=off.toLowerCase();
   const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
   document.getElementById(pcId).innerHTML=`
-    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${subMEP.length}</div><div class="mc-s">MEP team</div></div>
       <div class="mc te"><div class="mc-l">BIM</div><div class="mc-v">${subBIM.length}</div><div class="mc-s">BIM team</div></div>
@@ -4909,7 +4909,7 @@ function renderOffice(off,pcId){
     ${subBIM.length?buildLeaveCard('bim',subBIM,minMI,NMON,cid+'bim'):''}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('off-heat-body-${cid}','off-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Heatmap</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Heatmap</span>
         <span id="off-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="off-heat-body-${cid}" style="display:none;">
@@ -4954,7 +4954,7 @@ function renderDisc(disc,pcId){
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
   const avgU=subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON;const cid=disc.toLowerCase().replace('&','');
   document.getElementById(pcId).innerHTML=`
-    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
+    <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div></div>
@@ -4967,16 +4967,16 @@ function renderDisc(disc,pcId){
     ${buildLeaveCard('disc',sub,minMI,NMON,cid)}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('disc-heat-body-${cid}','disc-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 Team Heatmaps — DXB & EGY</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Team Heatmaps — DXB & EGY</span>
         <span id="disc-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="disc-heat-body-${cid}" style="display:none;padding:14px;">
         <div class="card" style="margin-bottom:14px;">
-          <div class="card-t">🇦🇪 DXB Team</div>
+          <div class="card-t">DXB Team</div>
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="di-dxb-${cid}"></table></div>
         </div>
         <div class="card">
-          <div class="card-t">🇪🇬 EGY Team</div>
+          <div class="card-t">EGY Team</div>
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="di-egy-${cid}"></table></div>
         </div>
       </div>
@@ -5029,7 +5029,7 @@ function renderBIM(pcId){
   document.getElementById(pcId).innerHTML=`
     ${emptyBanner}
     <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;margin-bottom:8px;">
-      <div style="font-size:11px;color:var(--tx3);">📅 Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
+      <div style="font-size:11px;color:var(--tx3);">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     </div>
     <div class="mrow">
       <div class="mc te"><div class="mc-l">BIM Members</div><div class="mc-v">${dxb.length+jseTotal}</div><div class="mc-s">${dxb.length} DXB · ${jseTotal} IND (JSE)</div></div>
@@ -5044,16 +5044,16 @@ function renderBIM(pcId){
     ${buildLeaveCard('bim',sub,minMI,NMON,cid)}
     <div class="card" style="padding:0;overflow:hidden;">
       <div onclick="toggleHeat('bim-heat-body-${cid}','bim-heat-chev-${cid}')" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f0fdfa;border-bottom:1px solid var(--bdr);user-select:none;">
-        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">🔥 BIM Team Heatmaps — DXB & IND</span>
+        <span style="font-weight:700;font-size:12px;color:#1e3a5f;">BIM Team Heatmaps — DXB & IND</span>
         <span id="bim-heat-chev-${cid}" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
       </div>
       <div id="bim-heat-body-${cid}" style="display:none;padding:14px;">
         <div class="card" style="margin-bottom:14px;">
-          <div class="card-t" style="color:#0f766e;">🇦🇪 DXB BIM Team <span style="color:var(--tx3);font-weight:500;">(${dxb.length} member${dxb.length===1?'':'s'})</span></div>
+          <div class="card-t" style="color:#0f766e;">DXB BIM Team <span style="color:var(--tx3);font-weight:500;">(${dxb.length} member${dxb.length===1?'':'s'})</span></div>
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="bim-dxb-${cid}"></table></div>
         </div>
         <div class="card">
-          <div class="card-t" style="color:#92400e;">🇮🇳 IND BIM Team — JSE Pool <span style="color:var(--tx3);font-weight:500;">(${jseTotal} modeller${jseTotal===1?'':'s'})</span></div>
+          <div class="card-t" style="color:#92400e;">IND BIM Team — JSE Pool <span style="color:var(--tx3);font-weight:500;">(${jseTotal} modeller${jseTotal===1?'':'s'})</span></div>
           <div class="tbl-wrap" style="overflow-x:auto;"><table class="tbl" id="bim-ind-${cid}"></table></div>
         </div>
       </div>
@@ -5132,22 +5132,24 @@ function renderTeam(){
   const makeCard=(e,disc)=>{
     const st=DISC_STYLES[disc]||DISC_STYLES['BIM'];
     const initials=e.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
-    const offLabel=e.off==='IND'?'IND 🇮🇳':e.off==='EGY'?'EGY':e.off||'DXB';
-    return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:14px 16px;display:flex;align-items:center;gap:12px;transition:border-color .15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
+    const offLabel=e.off||'DXB';
+    const u=engAvgUtil(e);
+    const gaugeHtml=(u==null)?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,38):''}<div style="font-size:7.5px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:1px;text-transform:uppercase;">Util</div></div>`;
+    return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
       <div style="width:38px;height:38px;border-radius:50%;background:${st.bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${st.color};flex-shrink:0;">${initials}</div>
       <div style="flex:1;min-width:0;">
-        <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
-        <div style="font-size:11px;color:var(--tx2);margin-top:2px;display:flex;align-items:center;gap:6px;">
-          <span>${e.desig||'—'}</span>
-          <span style="color:var(--tx3);">·</span>
-          <span style="color:var(--tx3);">${offLabel}</span>
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.25;">${e.name}</div>
+            <div style="font-size:11px;color:var(--tx2);margin-top:3px;">${e.desig||'—'} · <span style="color:var(--tx3);">${offLabel}</span></div>
+          </div>
+          ${gaugeHtml}
         </div>
+        ${adminUnlocked?`<div style="display:flex;gap:6px;margin-top:10px;">
+          <button class="btn btn-g btn-xs" onclick="editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
+          <button class="btn btn-d btn-xs" onclick="delEng('${e.id}')" style="padding:3px 10px;">Del</button>
+        </div>`:''}
       </div>
-      ${(()=>{const u=engAvgUtil(e);return u==null?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,40):''}<div style="font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:2px;text-transform:uppercase;">Util</div></div>`;})()}
-      ${adminUnlocked?`<div style="display:flex;gap:4px;flex-shrink:0;">
-        <button class="btn btn-g btn-xs" onclick="editEng('${e.id}')" style="padding:3px 8px;">Edit</button>
-        <button class="btn btn-d btn-xs" onclick="delEng('${e.id}')" style="padding:3px 8px;">Del</button>
-      </div>`:''}
     </div>`;
   };
 
@@ -5322,7 +5324,7 @@ function renderProj(){
         </div>
         <div style="margin-top:10px;">${buildStrip(p)}</div>
         <div style="display:flex;align-items:center;justify-content:space-between;margin-top:11px;padding-top:10px;border-top:1px solid var(--bdr);gap:10px;">
-          <div style="font-size:11px;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${resCount} engineer${resCount===1?'':'s'}${p.mepLeadEmail?` · ⚙ ${getMepLeadName(p.mepLeadEmail)}`:''}</div>
+          <div style="font-size:11px;color:var(--tx2);min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${resCount} engineer${resCount===1?'':'s'}${p.mepLeadEmail?` · ${getMepLeadName(p.mepLeadEmail)}`:''}</div>
           <div style="display:flex;align-items:center;gap:8px;flex-shrink:0;">
             <span style="font-size:13px;font-weight:700;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs))+' h':'—'}</span>
             ${adminUnlocked?`<button class="btn btn-g btn-xs" onclick="event.stopPropagation();editProj('${p.id}')" style="padding:3px 8px;">Edit</button>`:''}
@@ -5335,7 +5337,7 @@ function renderProj(){
     return`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
       <div style="color:var(--tx3);font-size:12px;font-weight:600;">${idx+1}</div>
       <div style="color:var(--tx3);font-size:12px;font-weight:500;">${p.no||'—'}</div>
-      <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span>${p.mepLeadEmail?`<span style="font-size:9px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 5px;border-radius:4px;white-space:nowrap;">⚙ ${getMepLeadName(p.mepLeadEmail)}</span>`:''}</div>
+      <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span>${p.mepLeadEmail?`<span style="font-size:9px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 5px;border-radius:4px;white-space:nowrap;">${getMepLeadName(p.mepLeadEmail)}</span>`:''}</div>
       <div style="min-width:0;">${buildStrip(p)}</div>
       <div style="text-align:right;font-weight:600;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs)):'—'}</div>
       <div class="row-actions" style="text-align:right;opacity:0;transition:opacity .12s;display:flex;gap:4px;justify-content:flex-end;" onclick="event.stopPropagation()">
@@ -5787,7 +5789,7 @@ function renderProjDetail(p){
             <div style="font-size:17px;font-weight:800;color:#0f172a;line-height:1.2;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(p.name)}</div>
             <div class="proj-detail-meta" style="display:flex;gap:6px;flex-wrap:wrap;margin-top:5px;align-items:center;">
               ${p.client?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>${esc(p.client)}</span>`:''}
-              ${p.mepLeadEmail?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:5px;padding:2px 8px;font-weight:600;">⚙ ${getMepLeadName(p.mepLeadEmail)}</span>`:''}
+              ${p.mepLeadEmail?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:5px;padding:2px 8px;font-weight:600;">${getMepLeadName(p.mepLeadEmail)}</span>`:''}
               ${p.pm?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>${esc(p.pm)}</span>`:''}
               ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
@@ -5809,7 +5811,7 @@ function renderProjDetail(p){
       <div class="prog-sec-hdr" style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-prog-${p.id}','sec-prog-arrow-${p.id}')">
         <div class="prog-sec-hdr-left" style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
           <span id="sec-prog-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'▼':'▶'}</span>
-          <span style="font-size:13px;">📅</span>
+          <span style="font-size:13px;"></span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Programme</strong>
           ${(()=>{
             const stgs=(p.stages||[]).filter(s=>s.from&&s.to);
@@ -5930,7 +5932,7 @@ function renderProjDetail(p){
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer;flex:1;min-width:0;" onclick="toggleSection('sec-cost-${p.id}','sec-cost-arrow-${p.id}')">
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
               <span id="sec-cost-arrow-${p.id}" style="font-size:11px;color:#64748b;">${(window._secOpen&&window._secOpen['sec-cost-'+p.id])?'▼':'▶'}</span>
-              <span style="font-size:13px;">📊</span>
+              <span style="font-size:13px;"></span>
               <span style="font-size:12px;font-weight:700;color:#1e3a5f;">Cost &amp; Fee Breakdown</span>
             </div>
             ${(()=>{
@@ -5990,7 +5992,7 @@ function renderProjDetail(p){
         <!-- Toolbar: only visible when section is expanded -->
         <div style="background:#f8fafc;border-bottom:1px solid var(--bdr);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;" onclick="event.stopPropagation()">
           <div style="display:flex;align-items:center;gap:8px;">
-            ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">📊 Export Stage Summary</button>`:''})()}
+            ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">Export Stage Summary</button>`:''})()}
             <button onclick="openWeeklyFs('${p.id}')" title="Toggle fullscreen" class="weekly-fs-hide"
               style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #6366f1;background:#eef2ff;color:#4338ca;cursor:pointer;">
               ⛶ Fullscreen
@@ -6751,7 +6753,7 @@ function renderJseDemandPanel(projectFilter){
       </table>
     </div>
     <div style="padding:6px 14px;font-size:9px;color:var(--tx3);background:#f0fdfa;border-top:1px solid #ccfbf1;">
-      🟢 Available &nbsp; 🟠 High demand &nbsp; 🔴 Peak — colour shows headcount intensity vs peak
+      Available &nbsp; High demand &nbsp; Peak — colour shows headcount intensity vs peak
     </div>
   </div>`;
 }
@@ -7592,7 +7594,24 @@ async function saveProp(){
   try{await sbUpsert('proposals',{id:p.id,data:p});}catch(e){saveLocal();}
   closePropModal();renderProposals();toast(propId?'Proposal updated ✓':'Proposal created ✓');
 }
-async function delProp(id){if(!confirm('Delete proposal?'))return;S.proposals=(S.proposals||[]).filter(p=>p.id!==id);try{await sbDel('proposals',id);}catch{saveLocal();}renderProposals();toast('Deleted');}
+async function delProp(id){
+  if(!confirm('Delete proposal?'))return;
+  let res;
+  try{
+    res=await sbDel('proposals',id);
+  }catch(e){
+    // network/offline: remove locally and let saveLocal queue it
+    S.proposals=(S.proposals||[]).filter(p=>p.id!==id);saveLocal();renderProposals();
+    toast('Deleted locally — will sync when online');return;
+  }
+  if(Array.isArray(res)&&res.length===0){
+    // server returned success but removed nothing — usually a missing DELETE policy (RLS) on the proposals table
+    toast('Could not delete on the server. Check the delete permission (RLS policy) on the proposals table.');return;
+  }
+  S.proposals=(S.proposals||[]).filter(p=>p.id!==id);
+  renderProposals();
+  toast('Deleted');
+}
 
 // ─── Proposal Detail View — reuses the Projects detail view exactly ───
 // Injects virtual "engineers" (one per discipline × grade) into S.engineers,
@@ -7793,7 +7812,7 @@ function leaveYearSwitcherHTML(){
   let btns = '';
   for(let y = minY; y <= maxY; y++){
     const on = y===cur;
-    btns += `<button onclick="setLeaveYear(${y})" style="padding:5px 14px;font-size:12px;font-weight:700;border-radius:20px;border:1px solid ${on?'#f59e0b':'var(--bdr)'};background:${on?'#f59e0b':'var(--surf)'};color:${on?'#fff':'var(--tx2)'};cursor:pointer;font-family:inherit;transition:.12s;">${y}</button>`;
+    btns += `<button onclick="setLeaveYear(${y})" style="padding:5px 14px;font-size:12px;font-weight:700;border-radius:20px;border:1px solid ${on?'#10243E':'var(--bdr)'};background:${on?'#10243E':'var(--surf)'};color:${on?'#fff':'var(--tx2)'};cursor:pointer;font-family:inherit;transition:.12s;">${y}</button>`;
   }
   return `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:11px;font-weight:700;color:var(--tx3);margin-right:4px;">YEAR</span>
@@ -7818,7 +7837,7 @@ function mgmtYearSwitcherHTML(){
   let btns = '';
   for(let y = minY; y <= maxY; y++){
     const on = y===cur;
-    btns += `<button onclick="setMgmtYear(${y})" style="padding:5px 14px;font-size:12px;font-weight:700;border-radius:20px;border:1px solid ${on?'#7c3aed':'var(--bdr)'};background:${on?'#7c3aed':'var(--surf)'};color:${on?'#fff':'var(--tx2)'};cursor:pointer;font-family:inherit;transition:.12s;">${y}</button>`;
+    btns += `<button onclick="setMgmtYear(${y})" style="padding:5px 14px;font-size:12px;font-weight:700;border-radius:20px;border:1px solid ${on?'#10243E':'var(--bdr)'};background:${on?'#10243E':'var(--surf)'};color:${on?'#fff':'var(--tx2)'};cursor:pointer;font-family:inherit;transition:.12s;">${y}</button>`;
   }
   return `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
     <span style="font-size:11px;font-weight:700;color:var(--tx3);margin-right:4px;">YEAR</span>
@@ -7845,10 +7864,10 @@ function renderLeave(){
   const bimLeaveHrs=bimEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
 
   el.innerHTML=`
-    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#fef3c7;border-left:4px solid #f59e0b;">
-      <span style="font-size:12px;color:#78350f;font-weight:600">🏖 Total Leave Hours: <strong>${totalLeaveHrs.toFixed(0)}</strong></span>
-      <span style="font-size:11px;color:#92400e">MEP: <strong>${mepLeaveHrs.toFixed(0)}</strong> · BIM: <strong>${bimLeaveHrs.toFixed(0)}</strong></span>
-      <span style="font-size:11px;color:#92400e">Full week = <span style="background:#fca5a5;padding:1px 6px;border-radius:4px">red</span> &nbsp; Partial = <span style="background:#fed7aa;padding:1px 6px;border-radius:4px">orange</span></span>
+    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#EAF0F8;border-left:4px solid #10243E;">
+      <span style="font-size:12px;color:#10243E;font-weight:600">Total Leave Hours: <strong>${totalLeaveHrs.toFixed(0)}</strong></span>
+      <span style="font-size:11px;color:#2A4A6B">MEP: <strong>${mepLeaveHrs.toFixed(0)}</strong> · BIM: <strong>${bimLeaveHrs.toFixed(0)}</strong></span>
+      <span style="font-size:11px;color:#2A4A6B">Full week = <span style="background:#fca5a5;padding:1px 6px;border-radius:4px">red</span> &nbsp; Partial = <span style="background:#fed7aa;padding:1px 6px;border-radius:4px">orange</span></span>
     </div>
     <!-- Year switcher -->
     <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
@@ -7952,9 +7971,9 @@ function renderMgmt(){
   const totalMgmtHrs=Object.values(S.mgmtHrs).reduce((a,arr)=>a+(arr||[]).reduce((b,h)=>b+(h||0),0),0);
   const mgmtWeeks=globalWeeks(window.mgmtYear);
   el.innerHTML=`
-    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#ede9fe;border-left:4px solid #7c3aed;">
-      <span style="font-size:12px;color:#4c1d95;font-weight:600">📊 Total Management Hours: <strong>${totalMgmtHrs.toFixed(0)}</strong></span>
-      <span style="font-size:11px;color:#5b21b6">Counts toward utilisation · Not billable · Associates & Managers</span>
+    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#EAF0F8;border-left:4px solid #10243E;">
+      <span style="font-size:12px;color:#10243E;font-weight:600">Total Management Hours: <strong>${totalMgmtHrs.toFixed(0)}</strong></span>
+      <span style="font-size:11px;color:#2A4A6B">Counts toward utilisation · Not billable · Associates & Managers</span>
     </div>
     <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
       ${mgmtYearSwitcherHTML()}
@@ -8151,12 +8170,12 @@ function renderHolidays(){
   if(!el)return;
   el.innerHTML=`
     <div style="background:#dbeafe;border:1px solid #93c5fd;border-radius:var(--r);padding:10px 14px;font-size:11px;color:#1e3a5f;margin-bottom:16px;">
-      🔵 <strong>Blue highlight</strong> in project cells = holiday week &nbsp;|&nbsp;
-      🟠 <strong>Orange/Red</strong> = annual leave &nbsp;|&nbsp;
+      <strong>Blue highlight</strong> in project cells = holiday week &nbsp;|&nbsp;
+      <strong>Orange/Red</strong> = annual leave &nbsp;|&nbsp;
       Holidays count toward utilisation but are <strong>not billable</strong>. Moon-sighting dates are approximate — update as needed.
     </div>
-    ${renderHolidaySection(S.holidaysUAE,'UAE','#1d4ed8','🇦🇪')}
-    ${renderHolidaySection(S.holidaysEGY,'EGY','#166534','🇪🇬')}`;
+    ${renderHolidaySection(S.holidaysUAE,'UAE','#10243E','')}
+    ${renderHolidaySection(S.holidaysEGY,'EGY','#10243E','')}`;
 }
 
 function updateHoliday(country, idx, field, val){
@@ -8441,7 +8460,7 @@ function showImportPreview(changes){
   // Leave changes
   if(changes.leave.length){
     html += '<div style="background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:12px 16px;margin-bottom:10px;">';
-    html += '<div style="font-weight:700;font-size:13px;color:#1e3a5f;margin-bottom:8px;">📅 Annual Leave</div>';
+    html += '<div style="font-weight:700;font-size:13px;color:#1e3a5f;margin-bottom:8px;">Annual Leave</div>';
     html += '<div style="display:flex;align-items:center;gap:6px;padding:4px 0;font-size:12px;color:var(--tx2);">';
     html += '<span style="font-size:14px;">✏️</span> <strong>' + changes.leave.length + '</strong> engineer' + (changes.leave.length!==1?'s':'') + ': leave updated';
     html += '<span style="font-size:10px;color:var(--tx3);margin-left:4px;">(' + changes.leave.map(l=>l.eng.name).join(', ') + ')</span>';
@@ -9337,7 +9356,7 @@ function exportExcel(opts){
       if(pStages.length){
         // Section header
         const progHdrSty={font:{bold:true,sz:11,color:{rgb:'FFFFFF'},name:'Arial'},fill:{fgColor:{rgb:'1E3A5F'}},alignment:{horizontal:'left',vertical:'center'},border:bdr};
-        pCell(R,0,'📅 Programme',progHdrSty);
+        pCell(R,0,'Programme',progHdrSty);
         pMerges.push({s:{r:R,c:0},e:{r:R,c:nc-1}});
         for(let c=1;c<nc;c++) pCell(R,c,'',progHdrSty);
         R++;
@@ -9866,7 +9885,7 @@ async function aiAsk(question){
     if(!AI_KEY){
       const loaded=await aiLoadKey();
       if(!loaded){
-        aiShowResponse('⚙️ AI not configured. An admin needs to add the Groq API key in **Cost Rates → AI Settings**. Get a free key at console.groq.com.');
+        aiShowResponse('️ AI not configured. An admin needs to add the Groq API key in **Cost Rates → AI Settings**. Get a free key at console.groq.com.');
         return;
       }
     }
@@ -10093,7 +10112,7 @@ function aiAnalyseRisks(){
     const end=new Date(p.end);
     if(end<=twoWeeks&&end>=now){
       const days=Math.ceil((end-now)/86400000);
-      risks.push({type:'info',icon:'📅',title:p.name+' ending soon',desc:'Project end date in '+days+' days ('+p.end+'). Review deliverables and close-out.'});
+      risks.push({type:'info',icon:'',title:p.name+' ending soon',desc:'Project end date in '+days+' days ('+p.end+'). Review deliverables and close-out.'});
     }
   });
 
