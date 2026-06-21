@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.9 · 21 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.10 · 21 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -940,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.9 · 21 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.10 · 21 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -10321,26 +10321,26 @@ const _origNav=typeof nav==='function'?nav:null;
       if(h>0)alloc.push({name:(p.no?p.no+' · ':'')+(p.name||'Project'),hrs:h});
     });
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
-    var totH=alloc.reduce(function(a,x){return a+x.hrs;},0), top=alloc.slice(0,5);
+    var totH=alloc.reduce(function(a,x){return a+x.hrs;},0), top=alloc.slice(0,5);var _wk=0;for(var _i=0;_i<NM;_i++)_wk+=wpmFor(r.minMI+_i);var capHrs=(e.cap||45)*_wk;
     var leaveH=0; try{var A=computeAll();var lb=A.leaveByMI&&A.leaveByMI[id];if(lb){var s=r.minMI-A.minMI;for(var k=0;k<NM;k++)leaveH+=(lb[s+k]||0);}}catch(_){}
-    var freeLbl=''; for(var m=0;m<NM;m++){ if((uA[m]||0)<85){ var md=miToDate(r.minMI+m); freeLbl=MN[md.m]+' '+md.y; break; } }
+    var nowMI=dateToMI(new Date());var startK=Math.max(0,nowMI-r.minMI);var freeLbl=''; for(var m=startK;m<NM;m++){ if((uA[m]||0)<85){ var md=miToDate(r.minMI+m); freeLbl=MN[md.m]+' '+md.y; break; } }
     var chipTxt,chipBg,chipFg;
     if(avg>100){chipTxt='Overloaded';chipBg='#FCEBEB';chipFg='#A32D2D';}
     else if(avg>=85){chipTxt='Healthy';chipBg='#EAF3DE';chipFg='#3B6D11';}
     else if(avg>=50){chipTxt='Moderate';chipBg='#FAEEDA';chipFg='#854F0B';}
     else if(avg>0){chipTxt='Under-utilised';chipBg='#E6F1FB';chipFg='#185FA5';}
     else{chipTxt='Idle';chipBg='#F1EFE8';chipFg='#5F5E5A';}
-    var free=100-avg, freeTxt=free>=0?free+'% free':Math.abs(free)+'% over';
+    var free=100-avg, freeTxt=free>=0?free+'% free':Math.abs(free)+'% over';var loadLine='';if(avg>=85){if(freeLbl){loadLine='<br>frees up '+freeLbl;}else{var _lm=miToDate(r.maxMI);loadLine='<br>booked through '+MN[_lm.m]+' '+_lm.y;}}
     var dc=DC[e.disc]||DC['BIM'];
     var initials=(e.name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();
     var ringInner=window.mhGauge?window.mhGauge(avg,64):('<b style="font-size:18px;">'+avg+'</b>');
     var ring='<div style="text-align:center;flex:0 0 auto;">'+ringInner+'<div style="font-size:8px;font-weight:700;letter-spacing:.06em;color:#9AA7B5;text-transform:uppercase;margin-top:1px;">Util</div></div>';
     var admin=(typeof adminUnlocked!=='undefined'&&adminUnlocked);
     var rate=0; try{rate=Math.round(getRate(e)||0);}catch(_){}
-    var sub=[(e.desig||'—'),e.disc,(e.off||'DXB')].filter(Boolean).join(' · ');
+    var sub=[(e.desig||'—'),(e.off||'DXB')].filter(Boolean).join(' · ');
     var allocHtml=top.length?top.map(function(x){
-      var pct=totH?Math.round(x.hrs/totH*100):0;
-      return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+pct+'%;background:#10243E;border-radius:4px;"></div></div></div>';
+      var pct=capHrs?Math.round(x.hrs/capHrs*100):0;
+      return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+Math.min(pct,100)+'%;background:#10243E;border-radius:4px;"></div></div></div>';
     }).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;padding:4px 0;">Not staffed in this period.</div>';
     var html=
       '<div style="display:flex;align-items:center;gap:12px;padding:16px 16px 14px;border-bottom:0.5px solid #EDF1F6;">'
@@ -10349,11 +10349,11 @@ const _origNav=typeof nav==='function'?nav:null;
         +'<button onclick="closeEngDetail()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
       +'</div>'
       +'<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;">'+ring
-        +'<div style="flex:1;"><span style="display:inline-block;background:'+chipBg+';color:'+chipFg+';font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;">'+chipTxt+'</span><div style="font-size:12px;color:#6B7A8D;margin-top:7px;line-height:1.5;">'+freeTxt+((freeLbl&&avg>=85)?'<br>frees up '+freeLbl:'')+'</div></div>'
+        +'<div style="flex:1;"><span style="display:inline-block;background:'+chipBg+';color:'+chipFg+';font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;">'+chipTxt+'</span><div style="font-size:12px;color:#6B7A8D;margin-top:7px;line-height:1.5;">'+freeTxt+loadLine+'</div></div>'
       +'</div>'
       +'<div style="padding:4px 16px 14px;"><div style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#9AA7B5;margin-bottom:9px;">Current allocation</div>'+allocHtml+'</div>'
       +'<div style="padding:0 16px 14px;">'
-        +'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Leave in period</span><span style="margin-left:auto;font-weight:600;">'+(leaveH>0?Math.round(leaveH)+' h':'None')+'</span></div>'
+        +'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Leave &amp; holidays</span><span style="margin-left:auto;font-weight:600;">'+(leaveH>0?(Math.round(leaveH)+' h · ~'+Math.round(leaveH/(((e.cap||45)/5)||9))+' d'):'None')+'</span></div>'
         +(admin?('<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Grade · rate</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+(e.grade||'—')+' · '+(e.cap||45)+' h/wk · AED '+rate+'/hr</span></div>'):'')
       +'</div>'
       +(admin?('<div style="display:flex;gap:10px;padding:12px 16px;background:#F8FAFC;border-top:0.5px solid #EDF1F6;"><button onclick="closeEngDetail();editEng(\''+id+'\')" style="flex:1;border:0.5px solid #C9D3DE;background:#fff;color:#28384A;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Edit</button><button onclick="closeEngDetail();delEng(\''+id+'\')" style="flex:1;border:0.5px solid #F0997B;background:#FCEBEB;color:#A32D2D;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button></div>'):'');
