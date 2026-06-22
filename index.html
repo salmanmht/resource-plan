@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.15 · 22 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.16 · 22 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -902,13 +902,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <div style="flex:1;min-width:0;">
         <div id="sb-user-name" style="font-size:13px;font-weight:700;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.02em;">—</div>
-        <div style="display:flex;align-items:center;gap:5px;margin-top:2px;">
-          <span id="sb-user-desig" style="font-size:9px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">—</span>
+        <div style="display:flex;align-items:center;gap:5px;margin-top:2px;flex-wrap:wrap;">
+          <span id="sb-user-desig" style="font-size:9px;color:var(--tx3);line-height:1.3;">—</span>
           <span id="sb-user-role" style="flex-shrink:0;font-size:8px;font-weight:700;padding:1px 5px;border-radius:6px;background:rgba(0,122,255,.1);color:var(--acc);">Team</span>
         </div>
-        <div id="sb-user-email" style="font-size:9px;color:var(--tx3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:1px;">—</div>
       </div>
-      <button id="sb-signout-icon" onclick="doLogout()" title="Sign Out" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:5px;border-radius:8px;color:#ef4444;opacity:.7;transition:.15s;" onmouseover="this.style.opacity='1';this.style.background='#fee2e2'" onmouseout="this.style.opacity='.7';this.style.background='none'">
+      <button id="sb-signout-icon" onclick="doLogout()" title="Sign Out" style="flex-shrink:0;background:none;border:none;cursor:pointer;padding:5px;border-radius:8px;color:var(--tx3);opacity:.85;transition:.15s;" onmouseover="this.style.opacity='1';this.style.background='#fee2e2';this.style.color='#ef4444'" onmouseout="this.style.opacity='.85';this.style.background='none';this.style.color='var(--tx3)'">
         <svg aria-hidden="true" focusable="false" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
       </button>
     </div>
@@ -940,7 +939,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.15 · 22 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.16 · 22 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1903,7 +1902,6 @@ function populateSidebarUser(user){
   const displayDesig=eng?(eng.desig||'Meinhardt Group'):(meta.designation||meta.title||'Meinhardt Group');
   document.getElementById('sb-user-name').textContent=displayName;
   document.getElementById('sb-user-desig').textContent=displayDesig;
-  document.getElementById('sb-user-email').textContent=email;
   document.getElementById('sb-user-initial').textContent=displayName.charAt(0).toUpperCase();
   document.getElementById('sb-user-role').textContent=isAdmin(email)?'Admin':'Team';
 }
@@ -1979,7 +1977,7 @@ async function doLogout(){
   const holidaysnav=document.getElementById('nav-holidays');if(holidaysnav)holidaysnav.style.display='none';
   const leavenav=document.getElementById('nav-leave');if(leavenav)leavenav.style.display='none';
   const weeklynav=document.getElementById('nav-weekly');if(weeklynav)weeklynav.style.display='none';
-  ['sb-user-name','sb-user-desig','sb-user-email'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
+  ['sb-user-name','sb-user-desig'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
   document.getElementById('login-pass').value='';
@@ -2488,7 +2486,7 @@ async function initApp(){
     S.holidaysUAE=holUAE?holUAE.data:getDefaultHolidays('UAE');
     S.holidaysEGY=holEGY?holEGY.data:getDefaultHolidays('EGY');
     loadBIMSeedData();  // Step 6 — inject BIM seed members + hours
-    setSyncStatus(true,'Live · '+new Date().toLocaleTimeString());
+    setSyncStatus(true,'Live · '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
   }catch(e){
     setSyncStatus(false,'Offline — local cache');
     loadLocal();
