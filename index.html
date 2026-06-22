@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.13 · 21 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.15 · 22 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -940,7 +940,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.13 · 21 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.15 · 22 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3848,16 +3848,17 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     const u=util[e.id]||Array(n).fill(0);const avg=u.slice(cols[0],cols[cols.length-1]+1).reduce((a,b)=>a+b,0)/cols.length;
     const projData=isWeekly?engProjHrsWeekly(e.id):engProjHrs(e.id,minMI,NMON);
     const hasProjs=projData.length>0;
+    const _npStr=_npRows(e);const hasExpand=hasProjs||_npStr.length>0;
     const isOpen=window.engExpanded[tId]&&window.engExpanded[tId][e.id];
     const cells=cols.map(mi=>{const v=u[mi];const bg=v>=110?'#fca5a5':v>=85?'#bbf7d0':v>=50?'#fde68a':'#fed7aa';const tc=v>=110?'#7f1d1d':v>=85?'#14532d':v>=50?'#78350f':'#7c2d12';return`<td><span class="hc" style="background:${bg};color:${tc}">${v.toFixed(0)}%</span></td>`;}).join('');
-    h+=`<tr style="cursor:${hasProjs?'pointer':'default'}" onclick="${hasProjs?`toggleEngRow('${e.id}','${tId}')`:''}" title="${hasProjs?'Click to see project breakdown':''}">
-      <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-${tId}-${e.id}">${hasProjs?(isOpen?'▼':'▶'):'—'}</td>
+    h+=`<tr style="cursor:${hasExpand?'pointer':'default'}" onclick="${hasExpand?`toggleEngRow('${e.id}','${tId}')`:''}" title="${hasExpand?'Click to see breakdown':''}">
+      <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-${tId}-${e.id}">${hasExpand?(isOpen?'▼':'▶'):'—'}</td>
       <td style="color:var(--tx3)">${i+1}</td>
       <td style="font-weight:600;white-space:nowrap">${e.name}${(()=>{if(!e.name||!e.name.startsWith('JSE-'))return '';const ap=S.projects.filter(p=>p.status==='Active');const mx=ap.reduce((m,p)=>Math.max(m,getJseMult(p,e.id)),0);return mx>0?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;vertical-align:middle;">${mx} modeller${mx===1?'':'s'}</span>`:'';})()}</td>
       <td><span class="bdg b-${(e.disc||'').toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc}</span></td>
       <td><span class="bdg ${e.off==='DXB'?'b-dxb':e.off==='EGY'?'b-egy':e.off==='IND'?'b-ind':'b-gry'}">${e.off}</span></td>
       ${cells}<td style="font-weight:700">${avg.toFixed(1)}%</td></tr>`;
-    if(hasProjs){
+    if(hasExpand){
       let projRows='';
       if(isWeekly){
         // Weekly project rows
@@ -3882,7 +3883,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
             <td style="font-weight:700;color:var(--acc);font-size:11px">${Math.round(totH)}h</td></tr>`;
         }).join('');
       }
-      projRows += _npRows(e);
+      projRows += _npStr;
       const detailColHdrs=isWeekly
         ? cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${colLabels[ci].replace(/<br>.*$/,'')}</th>`).join('')
         : cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${miLabel(base+ci)}</th>`).join('');
