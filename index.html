@@ -880,7 +880,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.23 · 22 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.24 · 22 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -939,7 +939,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.23 · 22 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.24 · 22 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -9984,7 +9984,7 @@ function aiSnapshot(){
   var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   function holMapFor(off){var m={};(((off==='EGY')?S.holidaysEGY:S.holidaysUAE)||[]).forEach(function(hh){if(!hh||!hh.date)return;var d=new Date((typeof weekStartFor==='function')?weekStartFor(hh.date):hh.date);var mi=dateToMI(d);m[mi]=(m[mi]||0)+(hh.hours||9);});return m;}
   var holDXB=holMapFor('DXB'),holEGY=holMapFor('EGY');
-  var engs=(S.engineers||[]).map(function(e){
+  var engs=(S.engineers||[]).filter(function(e){return !(e.id||'').includes('jse');}).map(function(e){
     var u=(r&&r.util[e.id])||[];
     var sum=0,peak=0,cnt=0;for(var i=0;i<u.length;i++){var v=u[i]||0;sum+=v;if(v>peak)peak=v;cnt++;}
     var avg=cnt?Math.round(sum/cnt):0;
@@ -10050,8 +10050,9 @@ function aiBuildContext(question){
   L.push('Average utilisation by discipline: '+Object.keys(s.agg.byDisc).map(function(k){return k+' '+s.agg.byDisc[k]+'%';}).join(', ')+'.');
   L.push('Average utilisation by office: '+Object.keys(s.agg.byOff).map(function(k){return k+' '+s.agg.byOff[k]+'%';}).join(', ')+'.');
   L.push('');
-  L.push('ENGINEERS — name | discipline | office | grade | capacity h/wk | avg util% | peak% | free% | status | annual-leave months:');
-  s.engs.forEach(function(e){L.push(e.name+' | '+e.disc+' | '+e.off+' | '+(e.grade||'-')+' | '+e.cap+' | '+e.avg+'% | '+e.peak+'% | '+e.free+'% | '+e.status+' | '+(e.leave.length?e.leave.join(' '):'none'));});
+  L.push('ENGINEERS — sorted by avg utilisation descending — name | discipline | office | grade | capacity h/wk | avg util% | peak% | free% | status | annual-leave months:');
+  var _se=s.engs.slice().sort(function(a,b){return b.avg-a.avg;});
+  _se.forEach(function(e){L.push(e.name+' | '+e.disc+' | '+e.off+' | '+(e.grade||'-')+' | '+e.cap+' | '+e.avg+'% | '+e.peak+'% | '+e.free+'% | '+e.status+' | '+(e.leave.length?e.leave.join(' '):'none'));});
   L.push('');
   L.push('PROJECTS — no | name | status | client | MEP lead | engineers staffed | total forecast hrs in range:');
   s.projs.forEach(function(p){L.push((p.no||'')+' | '+p.name+' | '+p.status+' | '+(p.client||'-')+' | '+(p.mepLead||'-')+' | '+p.heads+' | '+p.hrs+'h');});
