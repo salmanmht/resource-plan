@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mep-rp-v2';
+const CACHE_NAME = 'mep-rp-v3';
 const SHELL_ASSETS = [
   '/index.html',
   '/manifest.json',
