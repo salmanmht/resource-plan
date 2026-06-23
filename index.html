@@ -185,6 +185,14 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 
 /* METRICS */
 .mrow{display:grid;grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin-bottom:14px;}
+.mc-flip-wrap{position:relative;perspective:900px;}
+.mc-flip{position:relative;transform-style:preserve-3d;transition:transform .55s cubic-bezier(.4,.2,.2,1);}
+.mc-flip-wrap.flipped .mc-flip{transform:rotateY(180deg);}
+.mc-face{backface-visibility:hidden;-webkit-backface-visibility:hidden;}
+.mc-back{position:absolute;inset:0;transform:rotateY(180deg);display:flex;flex-direction:column;justify-content:center;}
+.mcb-t{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:6px;}
+.mcb-row{display:flex;justify-content:space-between;align-items:center;font-size:12px;font-weight:600;color:var(--tx);padding:2px 0;}
+.mcb-row span:last-child{color:var(--tx2);}
 .mc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:13px 15px;}
 .mc.hi{border-top:3px solid var(--acc);}
 .mc.gr{border-top:3px solid var(--grn);}
@@ -880,7 +888,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.24 · 22 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.26 · 22 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -939,7 +947,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.24 · 22 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.26 · 22 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -4253,22 +4261,39 @@ function renderMEP(){
     return`<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;${cls}">${arrow} ${sign}${d.pct.toFixed(0)}%</span>`;
   }
   
+  window.kpiFlip=function(el){if(el)el.classList.toggle('flipped');};
   document.getElementById('mep-metrics').innerHTML=`
-    <div class="mc-int hi" onclick="kpiDrillDown('engineers')" title="Click to view Team Register">
-      <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div>
-      <div class="mc-s">${dxb.filter(e=>e.team!=='BIM').length} DXB · ${egy.length} EGY</div>
+    <div class="mc-int hi mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens register">
+      <div class="mc-flip">
+        <div class="mc-face mc-front">
+          <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('engineers')">→</div></div>
+          <div class="mc-val-row"><div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div>
+          <div class="mc-s">${dxb.filter(e=>e.team!=='BIM').length} DXB · ${egy.length} EGY</div>
+        </div>
+        <div class="mc-face mc-back">
+          <div class="mcb-t">By discipline</div>
+          ${(()=>{const g={};all.filter(e=>e.team!=='BIM').forEach(e=>{const d=e.disc||'—';g[d]=(g[d]||0)+1;});return Object.keys(g).sort((a,b)=>g[b]-g[a]).map(k=>`<div class="mcb-row"><span>${k}</span><span>${g[k]}</span></div>`).join('');})()}
+        </div>
+      </div>
     </div>
     <div class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div>
       <div class="mc-s">${all.filter(e=>e.team==='BIM'&&e.off==='DXB').length} DXB · ${all.filter(e=>e.team==='BIM'&&e.off==='IND').length} IND</div>
     </div>
-    <div class="mc-int gr" onclick="kpiDrillDown('util')" title="Click to expand heatmap">
-      <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div class="mc-v">${avgU.toFixed(1)}%</div>${deltaBadge(utilDelta,'util')}</div>
-      <div class="spark-box"><canvas id="spark-util"></canvas></div>
-      <div class="mc-s">${grainLabel} · avg</div>
+    <div class="mc-int gr mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens heatmap">
+      <div class="mc-flip">
+        <div class="mc-face mc-front">
+          <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('util')">→</div></div>
+          <div class="mc-val-row"><div class="mc-v">${avgU.toFixed(1)}%</div>${deltaBadge(utilDelta,'util')}</div>
+          <div class="spark-box"><canvas id="spark-util"></canvas></div>
+          <div class="mc-s">${grainLabel} · avg</div>
+        </div>
+        <div class="mc-face mc-back">
+          <div class="mcb-t">Headcount by status</div>
+          ${(()=>{try{const rr=computeRange();let o=0,h=0,m=0,u=0,z=0;all.filter(e=>e.team!=='BIM').forEach(e=>{const a=rr.util[e.id]||[];const avg=a.length?Math.round(a.reduce((x,y)=>x+(y||0),0)/a.length):0;if(avg>100)o++;else if(avg>=85)h++;else if(avg>=50)m++;else if(avg>0)u++;else z++;});return `<div class="mcb-row"><span>Overloaded &gt;100%</span><span>${o}</span></div><div class="mcb-row"><span>Healthy 85–100%</span><span>${h}</span></div><div class="mcb-row"><span>Moderate 50–84%</span><span>${m}</span></div><div class="mcb-row"><span>Under 50%</span><span>${u}</span></div>`+(z?`<div class="mcb-row"><span>Idle</span><span>${z}</span></div>`:'');}catch(e){return '<div class="mcb-row"><span>Data loading…</span></div>';}})()}
+        </div>
+      </div>
     </div>
     <div class="mc-int" style="border-top:3px solid #0891b2;">
       <div class="mc-head"><div class="mc-l">Billable Util</div></div>
@@ -10391,7 +10416,7 @@ const _origNav=typeof nav==='function'?nav:null;
 
 <!-- MY DASHBOARD (v8.9.17) — removable block -->
 <div id="myd-ov" style="position:fixed;inset:0;z-index:1001;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5);padding:16px;" onclick="if(event.target===this)closeMyDashboard()">
-  <div id="myd-card" style="width:100%;max-width:380px;max-height:90vh;overflow:auto;background:#fff;border-radius:16px;-webkit-overflow-scrolling:touch;box-shadow:0 16px 48px rgba(15,23,42,.28);"></div>
+  <div id="myd-card" style="width:100%;max-width:560px;max-height:90vh;overflow:auto;background:#fff;border-radius:16px;-webkit-overflow-scrolling:touch;box-shadow:0 16px 48px rgba(15,23,42,.28);"></div>
 </div>
 <script>
 (function(){
