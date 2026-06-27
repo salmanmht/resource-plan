@@ -169,7 +169,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 /* MAIN */
 .main{margin-left:var(--sb);flex:1;min-width:0;}
 .hdr{background:rgba(255,255,255,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:var(--hh);display:flex;align-items:center;justify-content:space-between;padding:0 20px;position:sticky;top:0;z-index:100;}
-.hdr-t{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--tx);}
+.hdr{height:auto;min-height:var(--hh);flex-wrap:wrap;row-gap:6px;}
+.hdr>div{flex-wrap:wrap;}
+.hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
+.hdr-t{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--tx);white-space:nowrap;}
 .hdr-s{font-size:11px;color:var(--tx3);background:var(--surf2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);margin-left:8px;}
 .pc{padding:14px 16px;}
 
@@ -382,6 +385,11 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 /* ── Print / PDF ─────────────────────────────────────── */
 @media print {
   body { background: #fff !important; font-size: 11px; }
+  .mc-flip { transform: none !important; }
+  .mc-flip-wrap.flipped .mc-flip { transform: none !important; }
+  .mc-face { backface-visibility: visible !important; -webkit-backface-visibility: visible !important; }
+  .mc-back { display: none !important; }
+  .mc-front { position: relative !important; transform: none !important; }
   .sb, .mob-sb-overlay, .mob-menu-btn, .btn-p, .btn-g, .btn-d,
   #proj-hdr-back-btn, .fbar, .sort-bar, .ai-fab, .ai-panel { display: none !important; }
   select { display: none !important; }
@@ -888,7 +896,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.26 · 22 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.45 · 27 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -924,17 +932,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button></div>
 
   <div class="sb-sec">Overview</div>
-  <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Combined MEP</div>
-  <div class="sbi" id="nav-dxb" onclick="nav('dxb')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-2 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>Dubai Office<span class="sb-badge" id="sb-dxb">—</span></div>
-  <div class="sbi" id="nav-egy" onclick="nav('egy')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064"/></svg>Egypt Office<span class="sb-badge" id="sb-egy">—</span></div>
-  <div class="sbi" id="nav-ind" onclick="nav('ind')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>India Office<span class="sb-badge" id="sb-ind">—</span></div>
+    <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Overview</div>
 
-  <div class="sb-sec">Disciplines</div>
-  <div class="sbi" id="nav-hvac" onclick="nav('hvac')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17H3a2 2 0 01-2-2V5a2 2 0 012-2h14a2 2 0 012 2v10a2 2 0 01-2 2h-2"/></svg>HVAC<span class="sb-badge" id="sb-hvac">—</span></div>
-  <div class="sbi" id="nav-phe" onclick="nav('phe')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>PH &amp; Fire<span class="sb-badge" id="sb-phe">—</span></div>
-  <div class="sbi" id="nav-ele" onclick="nav('ele')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Electrical<span class="sb-badge" id="sb-ele">—</span></div>
-  <div class="sbi" id="nav-elv" onclick="nav('elv')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.111 16.404a5.5 5.5 0 017.778 0M12 20h.01m-7.08-7.071c3.904-3.905 10.236-3.905 14.141 0M1.394 9.393c5.857-5.857 15.355-5.857 21.213 0"/></svg>ELV<span class="sb-badge" id="sb-elv">—</span></div>
-  <div class="sbi" id="nav-bim" onclick="nav('bim')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"/></svg>BIM<span class="sb-badge" id="sb-bim">—</span></div>
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
@@ -947,7 +946,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.26 · 22 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.45 · 27 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -956,7 +955,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="hdr" style="flex-wrap:wrap;gap:6px;">
       <div style="display:flex;align-items:center;gap:8px;">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
-        <span class="hdr-t">Combined MEP</span><span class="hdr-s" id="dash-period-label">All Offices</span>
+        <span class="hdr-t" id="ov-title-mep">Combined MEP</span><span class="hdr-s" id="dash-period-label" style="display:none;">All Offices</span><select class="js-ovw-switch" onchange="selectOverview(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-mep-disc" onchange="setMepDisc(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-mep-status" onchange="setMepStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
         <div style="display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:3px 8px;">
@@ -986,7 +985,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div id="pdf-header"></div>
 
       <div class="mrow" id="mep-metrics"></div>
-      <div class="card"><div class="card-t">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
+      <div class="card"><div class="card-t" id="mep-bill-title">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
       <!-- Deep Dive Section -->
       <div class="card" style="padding:0;overflow:hidden;">
         <div id="deep-dive-hdr" onclick="toggleDeepDive()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
@@ -1039,14 +1038,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   </div>
 
   <!-- OFFICE PAGES -->
-  <div id="pg-dxb" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Dubai Office</span><span class="hdr-s" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd">DXB</span></div></div><div class="pc" id="pc-dxb"></div></div>
-  <div id="pg-egy" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Egypt Office</span><span class="hdr-s" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">EGY</span></div></div><div class="pc" id="pc-egy"></div></div>
-  <div id="pg-ind" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">India Office</span><span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d">IND</span></div></div><div class="pc" id="pc-ind"></div></div>
-  <div id="pg-hvac" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">HVAC</span><span class="hdr-s" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">HVAC</span></div></div><div class="pc" id="pc-hvac"></div></div>
-  <div id="pg-phe" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">PH &amp; Fire</span><span class="hdr-s" style="background:#dcfce7;color:#166534;border-color:#86efac">PH&amp;E</span></div></div><div class="pc" id="pc-phe"></div></div>
-  <div id="pg-ele" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Electrical</span><span class="hdr-s" style="background:#fef9c3;color:#854d0e;border-color:#fde047">ELE</span></div></div><div class="pc" id="pc-ele"></div></div>
-  <div id="pg-elv" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">ELV</span><span class="hdr-s" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4">ELV</span></div></div><div class="pc" id="pc-elv"></div></div>
-  <div id="pg-bim" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">BIM</span><span class="hdr-s" style="background:#f0fdfa;color:#0f766e;border-color:#5eead4">BIM</span></div></div><div class="pc" id="pc-bim"></div></div>
+  <div id="pg-dxb" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t" id="ov-title-DXB">Dubai Office</span><span class="hdr-s" style="background:#ede9fe;color:#5b21b6;border-color:#c4b5fd">DXB</span><select class="js-ovw-switch" onchange="selectOverview(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-mep-disc" onchange="setMepDisc(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-mep-status" onchange="setMepStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-dxb"></div></div>
+  <div id="pg-egy" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t" id="ov-title-EGY">Egypt Office</span><span class="hdr-s" style="background:#fee2e2;color:#991b1b;border-color:#fca5a5">EGY</span><select class="js-ovw-switch" onchange="selectOverview(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-mep-disc" onchange="setMepDisc(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-mep-status" onchange="setMepStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-egy"></div></div>
+  <div id="pg-ind" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t" id="ov-title-IND">India Office</span><span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d">IND</span><select class="js-ovw-switch" onchange="selectOverview(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-mep-disc" onchange="setMepDisc(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-mep-status" onchange="setMepStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-ind"></div></div>
+  <div id="pg-hvac" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">HVAC</span><span class="hdr-s" style="background:#dbeafe;color:#1d4ed8;border-color:#93c5fd">HVAC</span><select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC" selected>HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-hvac"></div></div>
+  <div id="pg-phe" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">PH &amp; Fire</span><span class="hdr-s" style="background:#dcfce7;color:#166534;border-color:#86efac">PH&amp;E</span><select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E" selected>PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-phe"></div></div>
+  <div id="pg-ele" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">Electrical</span><span class="hdr-s" style="background:#fef9c3;color:#854d0e;border-color:#fde047">ELE</span><select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE" selected>Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-ele"></div></div>
+  <div id="pg-elv" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">ELV</span><span class="hdr-s" style="background:#fce7f3;color:#9d174d;border-color:#f9a8d4">ELV</span><select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV" selected>ELV</option><option value="BIM">BIM</option></select><select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-elv"></div></div>
+  <div id="pg-bim" style="display:none"><div class="hdr"><div style="display:flex;align-items:center;gap:8px;"><button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button><span class="hdr-t">BIM</span><span class="hdr-s" style="background:#f0fdfa;color:#0f766e;border-color:#5eead4">BIM</span><select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM" selected>BIM</option></select><select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select></div></div><div class="pc" id="pc-bim"></div></div>
 
   <!-- TEAM -->
   <div id="pg-team" style="display:none">
@@ -2567,7 +2566,7 @@ function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/
 // ═══════════════════════════════════════
 // COMPUTATION
 // ═══════════════════════════════════════
-function computeAll(){
+function computeAll(statusFilter){
   // Build a date anchor per project: first Monday >= project start
   // Then for each weeklyHrs entry, compute actual week dates from that anchor
   // This ensures hours entered beyond declared end date are still counted
@@ -2612,6 +2611,7 @@ function computeAll(){
   S.engineers.forEach(e=>{hrs[e.id]=Array(NMON).fill(0);});
   S.projects.forEach(p=>{
     if(!p.start)return;
+    if(statusFilter&&p.status!==statusFilter)return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
       if(!wArr)return;
       if(!hrs[eid])hrs[eid]=Array(NMON).fill(0);
@@ -3710,6 +3710,16 @@ function nav(p, fromPopstate){
   // proposals nav: keep display state, only toggle 'on' class
   const propNav=document.getElementById('nav-proposals');
   if(propNav)propNav.classList.toggle('on',p==='proposals');
+  // Disciplines: highlight consolidated nav row + sync dropdown/filter when on a discipline page
+  var _discPages=['hvac','phe','ele','elv','bim'];
+  var _ndisc=document.getElementById('nav-disc'); if(_ndisc)_ndisc.classList.toggle('on',_discPages.indexOf(p)>=0);
+  var _ovwPages=['mep','dxb','egy','ind'];
+  var _nmep=document.getElementById('nav-mep'); if(_nmep)_nmep.classList.toggle('on',_ovwPages.indexOf(p)>=0);
+  if(_ovwPages.indexOf(p)>=0){var _ov={mep:'',dxb:'DXB',egy:'EGY',ind:'IND'}[p];document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value=_ov;});}
+  if(_discPages.indexOf(p)>=0){
+    var _dv={hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[p];
+    document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=_dv;});
+  }
   ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
   if(isMobile())closeMobSB();
   window.scrollTo(0,0);
@@ -3735,19 +3745,99 @@ function nav(p, fromPopstate){
 }
 function updSB(){
   const f=fn=>S.engineers.filter(fn).length;
-  document.getElementById('sb-dxb').textContent=f(e=>e.off==='DXB');
-  document.getElementById('sb-egy').textContent=f(e=>e.off==='EGY');
-  document.getElementById('sb-ind').textContent=f(e=>e.off==='IND');
+  if(typeof updateOfficeCounts==='function')updateOfficeCounts();
   // Discipline badges count MEP team only
-  document.getElementById('sb-hvac').textContent=f(e=>e.disc==='HVAC'&&e.team!=='BIM');
-  document.getElementById('sb-phe').textContent=f(e=>e.disc==='PH&E'&&e.team!=='BIM');
-  document.getElementById('sb-ele').textContent=f(e=>e.disc==='ELE'&&e.team!=='BIM');
-  document.getElementById('sb-elv').textContent=f(e=>e.disc==='ELV'&&e.team!=='BIM');
-  document.getElementById('sb-bim').textContent=f(e=>e.team==='BIM');
+  const _dc={HVAC:f(e=>e.disc==='HVAC'&&e.team!=='BIM'),'PH&E':f(e=>e.disc==='PH&E'&&e.team!=='BIM'),ELE:f(e=>e.disc==='ELE'&&e.team!=='BIM'),ELV:f(e=>e.disc==='ELV'&&e.team!=='BIM'),BIM:f(e=>e.team==='BIM')};
+  const _sbDisc=document.getElementById('sb-disc'); if(_sbDisc)_sbDisc.textContent=Object.values(_dc).reduce((a,b)=>a+b,0);
+  document.querySelectorAll('.js-disc-switch').forEach(function(sel){
+    if(sel.options.length>=6){sel.options[1].text='HVAC ('+_dc.HVAC+')';sel.options[2].text='PH & Fire ('+_dc['PH&E']+')';sel.options[3].text='Electrical ('+_dc.ELE+')';sel.options[4].text='ELV ('+_dc.ELV+')';sel.options[5].text='BIM ('+_dc.BIM+')';}
+  });
+  document.querySelectorAll('.js-mep-disc').forEach(function(sel){
+    if(sel.options.length>=6){sel.options[1].text='HVAC ('+_dc.HVAC+')';sel.options[2].text='PH & Fire ('+_dc['PH&E']+')';sel.options[3].text='Electrical ('+_dc.ELE+')';sel.options[4].text='ELV ('+_dc.ELV+')';sel.options[5].text='BIM ('+_dc.BIM+')';}
+  });
   document.getElementById('sb-team').textContent=S.engineers.length;
   const mepCount=f(e=>e.team!=='BIM');
   const bimCount=f(e=>e.team==='BIM');
   document.getElementById('sb-foot').textContent=`${mepCount} MEP · ${bimCount} BIM · ${S.projects.filter(p=>p.status==='Active').length} active`;
+}
+
+// ── Global discipline filter (consolidated Disciplines tab) ──
+window.DISC_FILTER = window.DISC_FILTER || null;
+window.DISC_OFF = window.DISC_OFF || 'all';
+window.DISC_STATUS = window.DISC_STATUS || 'all';
+function _dsf(){ return (window.DISC_STATUS&&window.DISC_STATUS!=='all')?window.DISC_STATUS:null; }
+function setDiscStatus(v){
+  window.DISC_STATUS=v||'all';
+  document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS;});
+  var m={hvac:['HVAC','pc-hvac'],phe:['PH&E','pc-phe'],ele:['ELE','pc-ele'],elv:['ELV','pc-elv']};
+  if(CURRENT_PAGE==='bim'){if(typeof renderBIM==='function')renderBIM('pc-bim');}
+  else if(m[CURRENT_PAGE]&&typeof renderDisc==='function')renderDisc(m[CURRENT_PAGE][0],m[CURRENT_PAGE][1]);
+}
+function setDiscOff(v){
+  window.DISC_OFF=v||'all';
+  document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF;});
+  var m={hvac:['HVAC','pc-hvac'],phe:['PH&E','pc-phe'],ele:['ELE','pc-ele'],elv:['ELV','pc-elv']};
+  if(CURRENT_PAGE==='bim'){if(typeof renderBIM==='function')renderBIM('pc-bim');}
+  else if(m[CURRENT_PAGE]&&typeof renderDisc==='function')renderDisc(m[CURRENT_PAGE][0],m[CURRENT_PAGE][1]);
+}
+const DISC_NAV={'HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'};
+const DISC_LABEL={'HVAC':'HVAC','PH&E':'PH & Fire','ELE':'Electrical','ELV':'ELV','BIM':'BIM'};
+function selectDiscipline(v){
+  document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=v;});
+  if(!v){ nav('mep'); return; }
+  nav(DISC_NAV[v]||'mep');
+}
+function clearDiscFilter(){
+  window.DISC_FILTER=null;
+  document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value='';});
+  var ts=document.getElementById('ts-disc'); if(ts)ts.value='all';
+  if(CURRENT_PAGE==='team')renderTeam();
+  else if(CURRENT_PAGE==='proj')renderProj();
+}
+function openDisciplines(){ var d=window.DISC_FILTER||'HVAC'; nav(DISC_NAV[d]||'hvac'); }
+function selectOverview(v){ window.MEP_OFF = v ? v : null; document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value=v;}); if(CURRENT_PAGE!=='mep') nav('mep'); else renderMEP(); }
+window.MEP_DISC = window.MEP_DISC || null;
+window.MEP_OFF = window.MEP_OFF || null;
+function setMepDisc(v){
+  window.MEP_DISC = v ? v : null;
+  document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value=window.MEP_DISC||'';});
+  if(typeof updateOfficeCounts==='function')updateOfficeCounts();
+  var pg=CURRENT_PAGE;
+  if(pg==='mep'){ if(typeof renderMEP==='function')renderMEP(); }
+  else { var m={dxb:['DXB','pc-dxb'],egy:['EGY','pc-egy'],ind:['IND','pc-ind']}; if(m[pg]&&typeof renderOffice==='function')renderOffice(m[pg][0],m[pg][1]); }
+}
+function mepDiscScope(list){ if(!window.MEP_DISC)return list; return window.MEP_DISC==='BIM'?list.filter(function(e){return e.team==='BIM';}):list.filter(function(e){return e.disc===window.MEP_DISC&&e.team!=='BIM';}); }
+function updateOfficeCounts(){
+  function cnt(off){return S.engineers.filter(function(e){if(e.off!==off)return false;if(!window.MEP_DISC)return true;return window.MEP_DISC==='BIM'?e.team==='BIM':(e.disc===window.MEP_DISC&&e.team!=='BIM');}).length;}
+  var d=cnt('DXB'),g=cnt('EGY'),i=cnt('IND');
+  document.querySelectorAll('.js-ovw-switch').forEach(function(sel){if(sel.options.length>=4){sel.options[0].text='All Offices ('+(d+g+i)+')';sel.options[1].text='DXB ('+d+')';sel.options[2].text='EGY ('+g+')';sel.options[3].text='IND ('+i+')';}});
+}
+window.MEP_STATUS = window.MEP_STATUS || 'all';
+function _msf(){ return (window.MEP_STATUS&&window.MEP_STATUS!=='all')?window.MEP_STATUS:null; }
+function setMepStatus(v){
+  window.MEP_STATUS = v||'all';
+  document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS;});
+  var pg=CURRENT_PAGE;
+  if(pg==='mep'){ if(typeof renderMEP==='function')renderMEP(); }
+  else { var m={dxb:['DXB','pc-dxb'],egy:['EGY','pc-egy'],ind:['IND','pc-ind']}; if(m[pg]&&typeof renderOffice==='function')renderOffice(m[pg][0],m[pg][1]); }
+}
+function onTeamDiscChange(v){
+  window.DISC_FILTER=(v&&v!=='all')?v:null;
+  document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=window.DISC_FILTER||'';});
+  renderTeam();
+}
+function discChipHtml(){
+  if(!window.DISC_FILTER)return '';
+  var lab=DISC_LABEL[window.DISC_FILTER]||window.DISC_FILTER;
+  return '<span style="display:inline-flex;align-items:center;gap:7px;font-size:11px;font-weight:600;padding:4px 6px 4px 11px;border-radius:20px;background:#10243E;color:#fff;">Filtered: '+lab+'<span onclick="clearDiscFilter()" title="Clear discipline filter" style="cursor:pointer;display:inline-flex;align-items:center;justify-content:center;width:16px;height:16px;border-radius:50%;background:rgba(255,255,255,.18);font-size:12px;line-height:1;">&times;</span></span>';
+}
+function projHasDisc(p,disc){
+  var wh=p.weeklyHrs||{};
+  return S.engineers.some(function(e){
+    var isBIM=e.team==='BIM';
+    if(disc==='BIM'){ if(!isBIM)return false; } else { if(isBIM||e.disc!==disc)return false; }
+    var a=wh[e.id]; return Array.isArray(a)&&a.some(function(v){return v>0;});
+  });
 }
 
 // ═══════════════════════════════════════
@@ -4028,9 +4118,9 @@ function resetDashRange(){
   renderMEP();
 }
 
-function computeRange(){
+function computeRange(statusFilter){
   // computeAll gives us the full universe; we slice to DASH range
-  const full=computeAll();
+  const full=computeAll(statusFilter);
   const fmi=DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI;
   const tmi=DASH_TO_MI!==null?DASH_TO_MI:full.maxMI;
   const NMON=tmi-fmi+1;
@@ -4076,7 +4166,7 @@ function getISOWeek(d){
 }
 // Build weekly hours/util/billUtil for engineers within the DASH range.
 // Returns arrays indexed by week (week 0 = first week in range).
-function computeRangeWeekly(){
+function computeRangeWeekly(statusFilter){
   // Determine MI range
   const full=computeAll();
   const fmi=DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI;
@@ -4135,6 +4225,7 @@ function computeRangeWeekly(){
   // Accumulate project hours per week
   S.projects.forEach(p=>{
     if(!p.start)return;
+    if(statusFilter&&p.status!==statusFilter)return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
       if(!wArr||!hrs[eid])return;
       wArr.forEach((h,wi)=>{
@@ -4191,20 +4282,31 @@ function computeRangeWeekly(){
 }
 
 // Grain-aware wrapper — returns either monthly or weekly data
-function computeRangeGrain(){
-  if(GRAIN==='week')return computeRangeWeekly();
-  return computeRange();
+function computeRangeGrain(statusFilter){
+  if(GRAIN==='week')return computeRangeWeekly(statusFilter);
+  return computeRange(statusFilter);
 }
 
 function renderMEP(){
   initDashRange();
-  const{hrs,util,billUtil,minMI,NMON}=computeRange();
+  const{hrs,util,billUtil,minMI,NMON}=computeRange(_msf());
   // Grain-aware data for KPI sparklines (weekly or monthly)
-  const grainData=computeRangeGrain();
+  const grainData=computeRangeGrain(_msf());
   const N=grainData.NMON; // number of buckets (months or weeks)
   const labels=Array.from({length:NMON},(_,i)=>miLabel(minMI+i));
   const labelsL=Array.from({length:NMON},(_,i)=>miLabelL(minMI+i));
-  const all=S.engineers;
+  let all=mepDiscScope(S.engineers);
+  if(window.MEP_OFF){all=all.filter(function(e){return e.off===window.MEP_OFF;});}
+  if(typeof updateOfficeCounts==='function')updateOfficeCounts();
+  (function(){
+    function scopeName(){var b=window.MEP_OFF?({DXB:'Dubai Office',EGY:'Egypt Office',IND:'India Office'}[window.MEP_OFF]||window.MEP_OFF):'Combined MEP';if(window.MEP_DISC)b+=' \u00b7 '+((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[window.MEP_DISC])||window.MEP_DISC);return b;}
+    var t=document.getElementById('ov-title-mep'); if(t)t.textContent=scopeName();
+    var ct=document.getElementById('mep-bill-title'); if(ct)ct.textContent='Utilisation vs Billable \u2014 '+scopeName();
+    document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value=window.MEP_OFF||'';});
+  })();
+  const _actScoped=(function(){var sp=window.MEP_DISC?S.projects.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}):S.projects;return {active:sp.filter(function(p){return p.status==='Active';}).length,total:sp.length};})();
+  document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value=window.MEP_DISC||'';});
+  document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS||'all';});
   const tu=subUtil(all,util,minMI,NMON);
   const avgU=wMean(tu,minMI);
   const tb=subUtil(all,billUtil||util,minMI,NMON);
@@ -4267,7 +4369,7 @@ function renderMEP(){
       <div class="mc-flip">
         <div class="mc-face mc-front">
           <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('engineers')">→</div></div>
-          <div class="mc-val-row"><div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div>
+          <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var m=all.filter(function(e){return e.team!=='BIM';}).length,t=all.length;return t?Math.round(m/t*100):0;})(),34):''}<div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div></div>
           <div class="mc-s">${dxb.filter(e=>e.team!=='BIM').length} DXB · ${egy.length} EGY</div>
         </div>
         <div class="mc-face mc-back">
@@ -4278,14 +4380,14 @@ function renderMEP(){
     </div>
     <div class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div></div>
       <div class="mc-s">${all.filter(e=>e.team==='BIM'&&e.off==='DXB').length} DXB · ${all.filter(e=>e.team==='BIM'&&e.off==='IND').length} IND</div>
     </div>
     <div class="mc-int gr mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens heatmap">
       <div class="mc-flip">
         <div class="mc-face mc-front">
           <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('util')">→</div></div>
-          <div class="mc-val-row"><div class="mc-v">${avgU.toFixed(1)}%</div>${deltaBadge(utilDelta,'util')}</div>
+          <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${deltaBadge(utilDelta,'util')}</div>
           <div class="spark-box"><canvas id="spark-util"></canvas></div>
           <div class="mc-s">${grainLabel} · avg</div>
         </div>
@@ -4297,7 +4399,7 @@ function renderMEP(){
     </div>
     <div class="mc-int" style="border-top:3px solid #0891b2;">
       <div class="mc-head"><div class="mc-l">Billable Util</div></div>
-      <div class="mc-val-row"><div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div>
       <div class="spark-box"><canvas id="spark-bill"></canvas></div>
       <div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div>
     </div>
@@ -4309,8 +4411,8 @@ function renderMEP(){
     </div>
     <div class="mc-int te" onclick="kpiDrillDown('projects')" title="Click to view Projects">
       <div class="mc-head"><div class="mc-l">Active Projects</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div class="mc-v">${S.projects.filter(p=>p.status==='Active').length}</div></div>
-      <div class="mc-s">of ${S.projects.length}</div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((_actScoped.total?Math.round(_actScoped.active/_actScoped.total*100):0),34):''}<div class="mc-v">${_actScoped.active}</div></div></div>
+      <div class="mc-s">of ${_actScoped.total}</div>
     </div>`;
 
   
@@ -4356,7 +4458,10 @@ function renderMEP(){
     heatTable('t-bim-heat',sortByAvgUtil(bimOnly,util,moCols),util,hrs,minMI,NMON,null,billUtil);
   }
   // Store data for deep dive rendering when expanded
-  window._mepDeepDiveData={labels,all,util,billUtil,hrs,discs,dClr,dxb,egy,minMI,NMON};
+  var _ddDiscs=window.MEP_DISC?[window.MEP_DISC]:discs;
+  var _ddClrMap={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
+  var _ddClr=_ddDiscs.map(function(d){return _ddClrMap[d]||'#6b7280';});
+  window._mepDeepDiveData={labels,all,util,billUtil,hrs,discs:_ddDiscs,dClr:_ddClr,dxb,egy,minMI,NMON};
   // Re-render deep dive if already open
   if(document.getElementById('deep-dive-body').style.display!=='none')renderDeepDive();
   if(document.getElementById('hire-fire-body')&&document.getElementById('hire-fire-body').style.display!=='none')renderHireFire();
@@ -4500,10 +4605,12 @@ function switchWFTab(tab){
 
 function renderHireFire(){
   try{
-    const c=computeRange();
+    const c=computeRange(typeof _msf==='function'?_msf():null);
     const{util,hrs,minMI,NMON}=c;
     const all=S.engineers.filter(e=>{
       if(!e.name||e.name.startsWith('JSE-'))return false;
+      if(window.MEP_OFF&&e.off!==window.MEP_OFF)return false;
+      if(window.MEP_DISC){ if(window.MEP_DISC==='BIM'){ if(e.team!=='BIM')return false; } else { if(e.team==='BIM'||e.disc!==window.MEP_DISC)return false; } }
       if(_wfTab==='mep')return e.team!=='BIM';
       if(_wfTab==='bim')return e.team==='BIM';
       return true; // 'all'
@@ -4944,18 +5051,34 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
 // ═══════════════════════════════════════
 // OFFICE / DISCIPLINE
 // ═══════════════════════════════════════
+function kpiDelta(series){var N=series.length;if(N<2)return{pct:0,dir:'flat'};var h=Math.floor(N/2);var fa=series.slice(0,h).reduce(function(a,b){return a+b;},0)/Math.max(1,h);var sa=series.slice(h).reduce(function(a,b){return a+b;},0)/Math.max(1,N-h);if(fa===0)return{pct:0,dir:'flat'};var pc=((sa-fa)/fa)*100;return{pct:pc,dir:Math.abs(pc)<3?'flat':pc>0?'up':'down'};}
+function kpiDeltaBadge(series,metric){var d=kpiDelta(series);var arrow=d.dir==='up'?'\u2197':d.dir==='down'?'\u2198':'\u2192';var sign=d.pct>0?'+':'';var cls;if(metric==='hrs'){cls='background:var(--surf2);color:var(--tx2);';}else{cls=d.dir==='up'?'background:var(--red2);color:var(--red);':d.dir==='down'?'background:var(--grn2);color:var(--grn);':'background:var(--surf2);color:var(--tx3);';}return'<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;'+cls+'">'+arrow+' '+sign+d.pct.toFixed(0)+'%</span>';}
 function renderOffice(off,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.off===off);
+  const{hrs,util,billUtil,minMI,NMON}=computeRange(_msf());let sub=mepDiscScope(S.engineers.filter(function(e){return e.off===off;}));
+  (function(){var t=document.getElementById('ov-title-'+off);if(t){var base={DXB:'Dubai Office',EGY:'Egypt Office',IND:'India Office'}[off]||off;t.textContent=base+(window.MEP_DISC?(' \u00b7 '+((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[window.MEP_DISC])||window.MEP_DISC)):'');}})();
+  document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value=window.MEP_DISC||'';});
+  document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS||'all';});
   const subMEP=sub.filter(e=>e.team!=='BIM');const subBIM=sub.filter(e=>e.team==='BIM');
   const avgU=wMean(subUtil(sub,util,minMI,NMON),minMI);const cid=off.toLowerCase();
+  const grainData=computeRangeGrain();const Nspk=grainData.NMON;
+  const grainLabel=GRAIN==='week'?(Nspk+' weeks'):(Nspk+' months');
+  const avgBill=wMean(subUtil(sub,billUtil||util,minMI,NMON),minMI);
+  const totC=sub.reduce(function(a,e){return a+engCost(e,hrs);},0);
+  const utilSeries=subUtil(sub,grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
+  const billSeries=subUtil(sub,grainData.billUtil||grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
+  const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){var eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});return Math.round(c);});
+  const offProjs=S.projects.filter(function(pp){var wh=pp.weeklyHrs||{};return sub.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});});
+  const offActive=offProjs.filter(function(pp){return pp.status==='Active';}).length;
   const discs=['HVAC','PH&E','ELE','ELV','BIM'],dClr=['#1d4ed8','#166534','#854d0e','#9d174d','#7c3aed'];
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
-    <div class="mrow">
-      <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${subMEP.length}</div><div class="mc-s">MEP team</div></div>
-      <div class="mc te"><div class="mc-l">BIM</div><div class="mc-v">${subBIM.length}</div><div class="mc-s">BIM team</div></div>
-      <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div><div class="mc-s">All teams</div></div>
-      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div><div class="mc-s">All teams</div></div>
+    <div class="mrow" id="off-metrics-${cid}">
+      <div class="mc-int hi"><div class="mc-head"><div class="mc-l">Engineers (MEP)</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subMEP.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v">${subMEP.length}</div></div></div><div class="mc-s">${subMEP.length} ${off}</div></div>
+      <div class="mc-int" style="border-top:3px solid #0d9488;"><div class="mc-head"><div class="mc-l">BIM Team</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
+      <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${kpiDeltaBadge(utilSeries,'util')}</div><div class="spark-box"><canvas id="spark-util-${cid}"></canvas></div><div class="mc-s">${grainLabel} · avg</div></div>
+      <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="spark-box"><canvas id="spark-bill-${cid}"></canvas></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
+      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
+      <div class="mc-int te"><div class="mc-head"><div class="mc-l">Active Projects</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="card-t">By Discipline</div><div class="cbox"><canvas id="off-l-${cid}"></canvas></div></div>
@@ -4978,7 +5101,12 @@ function renderOffice(off,pcId){
       </div>
     </div>`;
   setTimeout(()=>{
-    mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discs.map((d,i)=>({label:d,data:subUtil(d==='BIM'?subBIM:sub.filter(e=>e.disc===d&&e.team!=='BIM'),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i%5]||dClr[i%4],borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+    mkSparkline('spark-util-'+cid,utilSeries,'#057a55');
+    mkSparkline('spark-bill-'+cid,billSeries,'#0891b2');
+    mkSparkline('spark-cost-'+cid,costSeries,'#7e3af2');
+    var _dcolor={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
+    var discsShow=window.MEP_DISC?[window.MEP_DISC]:discs;
+    mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discsShow.map(function(d){return {label:d,data:subUtil(d==='BIM'?subBIM:sub.filter(function(e){return e.disc===d&&e.team!=='BIM';}),util,minMI,NMON).map(function(v){return +v.toFixed(1);}),borderColor:_dcolor[d]||'#6b7280',borderWidth:2.5,tension:.35,fill:false,pointRadius:4};}),{y:{ticks:{callback:v=>v+'%'},min:0}});
     const dc={HVAC:0,'PH&E':0,ELE:0,ELV:0,BIM:0};
     subMEP.forEach(e=>{if(dc[e.disc]!==undefined)dc[e.disc]++;});
     subBIM.forEach(()=>{dc['BIM']++;});
@@ -4986,7 +5114,7 @@ function renderOffice(off,pcId){
     const dcClr={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
     mkChart(`off-d-${cid}`,'doughnut',dcKeys,[{data:dcKeys.map(k=>dc[k]),backgroundColor:dcKeys.map(k=>dcClr[k]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
     if(GRAIN==='week'){
-      const wg=computeRangeWeekly();
+      const wg=computeRangeWeekly(_msf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
       heatTable(`off-t-${cid}`,subMEP,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
       heatTable(`off-t-bim-${cid}`,subBIM,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
@@ -5006,7 +5134,7 @@ function switchOffHeatTab(cid,tab){
   });
 }
 function renderDisc(disc,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange();const sub=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');
+  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());let sub=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');if(window.DISC_OFF&&window.DISC_OFF!=='all')sub=sub.filter(e=>e.off===window.DISC_OFF);document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF||'all';});document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS||'all';});
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
   const avgU=wMean(subUtil(sub,util,minMI,NMON),minMI);const cid=disc.toLowerCase().replace('&','');
   document.getElementById(pcId).innerHTML=`
@@ -5044,7 +5172,7 @@ function renderDisc(disc,pcId){
       {label:'Billable Utilisation',data:subUtil(sub,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
     if(GRAIN==='week'){
-      const wg=computeRangeWeekly();
+      const wg=computeRangeWeekly(_dsf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
       heatTable(`di-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
       heatTable(`di-egy-${cid}`,egy,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
@@ -5056,8 +5184,8 @@ function renderDisc(disc,pcId){
 }
 
 function renderBIM(pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange();
-  const sub=S.engineers.filter(e=>e.team==='BIM');
+  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());
+  let sub=S.engineers.filter(e=>e.team==='BIM');if(window.DISC_OFF&&window.DISC_OFF!=='all')sub=sub.filter(e=>e.off===window.DISC_OFF);document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF||'all';});document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS||'all';});
   const dxb=sub.filter(e=>e.off==='DXB'),ind=sub.filter(e=>e.off==='IND');
   const avgU=sub.length?subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON:0;
   // Total BIM modellers represented by JSE pool (sum of max multiplier per JSE engineer across active projects)
@@ -5125,7 +5253,7 @@ function renderBIM(pcId){
       {label:'Billable Utilisation',data:subUtil(sub,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#5eead4',backgroundColor:'#5eead415',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
     if(GRAIN==='week'){
-      const wg=computeRangeWeekly();
+      const wg=computeRangeWeekly(_dsf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
       heatTable(`bim-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
       heatTable(`bim-ind-${cid}`,ind,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
@@ -10415,8 +10543,14 @@ const _origNav=typeof nav==='function'?nav:null;
 
 
 <!-- MY DASHBOARD (v8.9.17) — removable block -->
+<style>
+@keyframes mydOvFade{from{opacity:0}to{opacity:1}}
+@keyframes mydCardPop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+#myd-ov[style*="flex"]{animation:mydOvFade .16s ease-out;}
+#myd-ov[style*="flex"] #myd-card{animation:mydCardPop .22s cubic-bezier(.2,.8,.2,1);}
+</style>
 <div id="myd-ov" style="position:fixed;inset:0;z-index:1001;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5);padding:16px;" onclick="if(event.target===this)closeMyDashboard()">
-  <div id="myd-card" style="width:100%;max-width:560px;max-height:90vh;overflow:auto;background:#fff;border-radius:16px;-webkit-overflow-scrolling:touch;box-shadow:0 16px 48px rgba(15,23,42,.28);"></div>
+  <div id="myd-card" style="width:100%;max-width:940px;max-height:88vh;overflow:auto;background:#fff;border-radius:0;-webkit-overflow-scrolling:touch;box-shadow:0 16px 48px rgba(15,23,42,.28);"></div>
 </div>
 <script>
 (function(){
@@ -10431,6 +10565,16 @@ const _origNav=typeof nav==='function'?nav:null;
     var e=(S.engineers||[]).find(function(x){return x.email&&x.email.toLowerCase()===email.toLowerCase();});
     var roleChip='<span style="flex-shrink:0;font-size:9px;font-weight:700;padding:2px 8px;border-radius:8px;background:'+(admin?'#EAF0F8':'#EEF2F6')+';color:'+(admin?'#10243E':'#5F6B7A')+';">'+(admin?'Admin':'Team')+'</span>';
     var signoutBtn='<button onclick="closeMyDashboard();if(typeof doLogout===\'function\')doLogout();" style="width:100%;border:0.5px solid #F0997B;background:#FCEBEB;color:#A32D2D;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">Sign out</button>';
+    var footerHtml='<div style="padding:0 16px 16px;">'
+      +'<button onclick="mydTogglePw()" id="myd-pw-btn" style="width:100%;border:0.5px solid #C9D3DE;background:#fff;color:#10243E;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:10px;">Change password</button>'
+      +'<div id="myd-pw" style="display:none;background:#F8FAFC;border:0.5px solid #EDF1F6;border-radius:10px;padding:12px;margin-bottom:10px;">'
+        +'<input id="myd-pw1" type="password" placeholder="New password (min 6 chars)" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0E8;border-radius:8px;font-size:13px;margin-bottom:8px;">'
+        +'<input id="myd-pw2" type="password" placeholder="Confirm new password" autocomplete="new-password" style="width:100%;box-sizing:border-box;padding:9px 10px;border:1px solid #D9E0E8;border-radius:8px;font-size:13px;margin-bottom:8px;">'
+        +'<div id="myd-pw-msg" style="font-size:11px;color:#6B7A8D;min-height:14px;margin-bottom:8px;"></div>'
+        +'<button onclick="mydSubmitPw()" style="width:100%;border:0;background:#10243E;color:#fff;border-radius:8px;padding:10px;font-size:13px;font-weight:600;cursor:pointer;">Update password</button>'
+      +'</div>'
+      +signoutBtn
+    +'</div>';
     var html;
 
     if(!e){
@@ -10442,7 +10586,7 @@ const _origNav=typeof nav==='function'?nav:null;
         +'<button onclick="closeMyDashboard()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
       +'</div>'
       +'<div style="padding:18px 16px;font-size:13px;color:#6B7A8D;line-height:1.55;">You\'re not in the engineer register, so there\'s no utilisation data to show here. Your account details are above.</div>'
-      +'<div style="padding:0 16px 16px;border-top:0.5px solid #EDF1F6;padding-top:14px;">'+signoutBtn+'</div>';
+      +footerHtml;
       document.getElementById('myd-card').innerHTML=html;
       document.getElementById('myd-ov').style.display='flex';
       return;
@@ -10509,37 +10653,51 @@ const _origNav=typeof nav==='function'?nav:null;
 
     function infoRow(label,val){return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">'+label+'</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+val+'</span></div>';}
 
-    html=
-      '<div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:0.5px solid #EDF1F6;">'
+    var headerHtml='<div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:0.5px solid #EDF1F6;">'
         +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
         +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:16px;color:#10243E;line-height:1.25;">'+(e.name||'')+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
         +roleChip
         +'<button onclick="closeMyDashboard()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
-      +'</div>'
-      // utilisation
-      +'<div style="padding:14px 16px;">'+sect('My utilisation')
+      +'</div>';
+    var utilSection='<div style="padding:14px 16px;">'+sect('My utilisation')
         +'<div style="display:flex;align-items:center;gap:14px;"><div style="flex:0 0 auto;">'+ringInner+'</div>'
         +'<div style="flex:1;"><span style="display:inline-block;background:'+chipBg+';color:'+chipFg+';font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;">'+chipTxt+'</span><div style="font-size:12px;color:#6B7A8D;margin-top:7px;line-height:1.5;">'+freeTxt+loadLine+'</div></div></div>'
-      +'</div>'
-      // trend
-      +(sp?('<div style="padding:0 16px 14px;">'+sect('Utilisation trend')+'<div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;">'+sp+'<div style="font-size:10px;color:#9AA7B5;margin-top:2px;">'+NM+' months</div></div></div>'):'')
-      +projsSection+teamSection
-      // allocation
-      +'<div style="padding:0 16px 14px;">'+sect('Current allocation')+allocHtml+'</div>'
-      // leave
-      +'<div style="padding:0 16px 14px;">'+sect('Leave')
+      +'</div>';
+    var trendSection=(sp?('<div style="padding:0 16px 14px;">'+sect('Utilisation trend')+'<div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;">'+sp+'<div style="font-size:10px;color:#9AA7B5;margin-top:2px;">'+NM+' months</div></div></div>'):'');
+    var allocSection='<div style="padding:0 16px 14px;">'+sect('Current allocation')+allocHtml+'</div>';
+    var leaveSection='<div style="padding:0 16px 14px;">'+sect('Leave')
         +infoRow('Annual leave',(leaveOnlyH>0?(Math.round(leaveOnlyH)+' h · ~'+Math.round(leaveOnlyH/(((e.cap||45)/5)||9))+' d'):'None'))
         +infoRow('Public holidays',(holH>0?Math.round(holH)+' h':'None'))
         +infoRow('Upcoming leave',upcTxt)
-      +'</div>'
-      // account
-      +'<div style="padding:0 16px 14px;">'+sect('Account')
+      +'</div>';
+    var accountSection='<div style="padding:0 16px 14px;">'+sect('Account')
         +infoRow('Email','<span style="word-break:break-all;font-weight:500;">'+(e.email||email||'—')+'</span>')
+      +'</div>';
+    html=headerHtml
+      +'<div style="display:flex;flex-wrap:wrap;align-items:stretch;">'
+        +'<div style="flex:1 1 360px;min-width:280px;border-right:0.5px solid #EDF1F6;">'+utilSection+trendSection+allocSection+leaveSection+accountSection+'</div>'
+        +'<div style="flex:1 1 360px;min-width:280px;">'+projsSection+teamSection+'</div>'
       +'</div>'
-      +'<div style="padding:0 16px 16px;">'+signoutBtn+'</div>';
+      +footerHtml;
 
     document.getElementById('myd-card').innerHTML=html;
     document.getElementById('myd-ov').style.display='flex';
+  };
+  window.mydTogglePw=function(){var d=document.getElementById('myd-pw');if(!d)return;var open=d.style.display!=='none';d.style.display=open?'none':'';var b=document.getElementById('myd-pw-btn');if(b)b.textContent=open?'Change password':'Hide';if(!open){var i=document.getElementById('myd-pw1');if(i)i.focus();}};
+  window.mydSubmitPw=function(){
+    var p1=(document.getElementById('myd-pw1')||{}).value||'';
+    var p2=(document.getElementById('myd-pw2')||{}).value||'';
+    var msg=document.getElementById('myd-pw-msg');
+    function say(t,c){if(msg){msg.style.color=c||'#6B7A8D';msg.textContent=t;}}
+    if(p1.length<6){say('Password must be at least 6 characters.','#A32D2D');return;}
+    if(p1!==p2){say('Passwords do not match.','#A32D2D');return;}
+    var tok=(typeof SB_SESSION!=='undefined'&&SB_SESSION&&SB_SESSION.access_token)||'';
+    if(!tok){say('No active session — please sign in again.','#A32D2D');return;}
+    say('Updating…');
+    fetch(SB_URL+'/auth/v1/user',{method:'PUT',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'Content-Type':'application/json'},body:JSON.stringify({password:p1})})
+      .then(function(r){return r.json().then(function(d){return {ok:r.ok,d:d};});})
+      .then(function(res){if(res.ok){say('Password updated successfully.','#3B6D11');var a=document.getElementById('myd-pw1'),b=document.getElementById('myd-pw2');if(a)a.value='';if(b)b.value='';}else{say((res.d&&(res.d.msg||res.d.error_description||res.d.message))||'Update failed.','#A32D2D');}})
+      .catch(function(){say('Network error — please try again.','#A32D2D');});
   };
 })();
 </script>
