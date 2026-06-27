@@ -172,6 +172,17 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .hdr{height:auto;min-height:var(--hh);flex-wrap:wrap;row-gap:6px;}
 .hdr>div{flex-wrap:wrap;}
 .hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
+@media(max-width:700px){
+  .hdr{padding:8px 12px !important;gap:6px !important;align-items:flex-start !important;}
+  .hdr>div{width:100%;gap:6px !important;}
+  .hdr>div:first-child{flex-wrap:wrap;}
+  .hdr .hdr-t{font-size:16px !important;white-space:nowrap;}
+  .hdr select{font-size:11px !important;padding:4px 7px !important;margin-left:0 !important;}
+  .hdr .js-ovw-switch,.hdr .js-mep-disc,.hdr .js-mep-status{margin-left:0 !important;}
+  .hdr input[type=month]{font-size:11px !important;padding:3px 5px !important;}
+  .hdr .btn-p,.hdr .btn-g,.hdr .btn-d{font-size:10px !important;padding:4px 8px !important;}
+  .hdr>div:last-child{justify-content:flex-start !important;}
+}
 .hdr-t{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--tx);white-space:nowrap;}
 .hdr-s{font-size:11px;color:var(--tx3);background:var(--surf2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);margin-left:8px;}
 .pc{padding:14px 16px;}
@@ -896,7 +907,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.45 · 27 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.48 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -946,7 +957,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.45 · 27 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.48 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -4304,7 +4315,26 @@ function renderMEP(){
     var ct=document.getElementById('mep-bill-title'); if(ct)ct.textContent='Utilisation vs Billable \u2014 '+scopeName();
     document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value=window.MEP_OFF||'';});
   })();
-  const _actScoped=(function(){var sp=window.MEP_DISC?S.projects.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}):S.projects;return {active:sp.filter(function(p){return p.status==='Active';}).length,total:sp.length};})();
+  // Context-aware: hide irrelevant cards/tabs when a discipline is selected
+  (function(){
+    var d=window.MEP_DISC, isMEP=d&&d!=='BIM', isBIM=d==='BIM';
+    var ec=document.getElementById('kpi-eng-card'), bc=document.getElementById('kpi-bim-card');
+    if(ec) ec.style.display=isBIM?'none':'';
+    if(bc) bc.style.display=isMEP?'none':'';
+    var wfm=document.getElementById('wf-tab-mep'), wfb=document.getElementById('wf-tab-bim'), wfa=document.getElementById('wf-tab-all');
+    if(wfm) wfm.style.display=isBIM?'none':'';
+    if(wfb) wfb.style.display=isMEP?'none':'';
+    if(wfa) wfa.style.display=d?'none':'';
+    var he=document.getElementById('heat-tab-engineers'), hb=document.getElementById('heat-tab-bim');
+    if(he) he.style.display=isBIM?'none':'';
+    if(hb) hb.style.display=isMEP?'none':'';
+    // auto-switch active tab if current one is hidden
+    if(isMEP&&typeof _wfTab!=='undefined'&&_wfTab==='bim'){switchWFTab('mep');}
+    if(isBIM&&typeof _wfTab!=='undefined'&&_wfTab==='mep'){switchWFTab('bim');}
+    if(isMEP&&document.getElementById('heat-tab-bim')&&document.getElementById('heat-tab-bim').style.display==='none'){switchHeatTab('engineers');}
+    if(isBIM&&document.getElementById('heat-tab-engineers')&&document.getElementById('heat-tab-engineers').style.display==='none'){switchHeatTab('bim');}
+  })();
+  const _actScoped={active:S.projects.filter(function(p){return p.status==='Active';}).length,total:S.projects.length};
   document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value=window.MEP_DISC||'';});
   document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS||'all';});
   const tu=subUtil(all,util,minMI,NMON);
@@ -4365,7 +4395,7 @@ function renderMEP(){
   
   window.kpiFlip=function(el){if(el)el.classList.toggle('flipped');};
   document.getElementById('mep-metrics').innerHTML=`
-    <div class="mc-int hi mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens register">
+    <div id="kpi-eng-card" class="mc-int hi mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens register">
       <div class="mc-flip">
         <div class="mc-face mc-front">
           <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('engineers')">→</div></div>
@@ -4378,7 +4408,7 @@ function renderMEP(){
         </div>
       </div>
     </div>
-    <div class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
+    <div id="kpi-bim-card" class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div></div>
       <div class="mc-s">${all.filter(e=>e.team==='BIM'&&e.off==='DXB').length} DXB · ${all.filter(e=>e.team==='BIM'&&e.off==='IND').length} IND</div>
