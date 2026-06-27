@@ -174,10 +174,9 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
 @media(max-width:700px){
   .app{min-height:auto !important;}
-  /* kill horizontal overflow that leaves a gap on the right edge */
-  html,body{overflow-x:hidden !important;max-width:100% !important;}
-  #app-shell,.main{max-width:100% !important;overflow-x:hidden !important;}
-  #pg-mep,#pg-team,#pg-proj,#pg-tracker{max-width:100% !important;}
+  /* contain content overflow WITHOUT breaking position:fixed (clip != hidden; never on html/body) */
+  .main{max-width:100% !important;overflow-x:clip !important;}
+  #pg-mep,#pg-team,#pg-proj,#pg-tracker{max-width:100% !important;overflow-x:clip !important;}
   .main canvas{max-width:100% !important;}
 }
 @media(max-width:700px){
@@ -920,7 +919,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.53 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.54 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -970,7 +969,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.53 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.54 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3774,10 +3773,10 @@ function updSB(){
   const _dc={HVAC:f(e=>e.disc==='HVAC'&&e.team!=='BIM'),'PH&E':f(e=>e.disc==='PH&E'&&e.team!=='BIM'),ELE:f(e=>e.disc==='ELE'&&e.team!=='BIM'),ELV:f(e=>e.disc==='ELV'&&e.team!=='BIM'),BIM:f(e=>e.team==='BIM')};
   const _sbDisc=document.getElementById('sb-disc'); if(_sbDisc)_sbDisc.textContent=Object.values(_dc).reduce((a,b)=>a+b,0);
   document.querySelectorAll('.js-disc-switch').forEach(function(sel){
-    if(sel.options.length>=6){sel.options[1].text='HVAC ('+_dc.HVAC+')';sel.options[2].text='PH & Fire ('+_dc['PH&E']+')';sel.options[3].text='Electrical ('+_dc.ELE+')';sel.options[4].text='ELV ('+_dc.ELV+')';sel.options[5].text='BIM ('+_dc.BIM+')';}
+    if(sel.options.length>=6){sel.options[1].text='HVAC';sel.options[2].text='PH & Fire';sel.options[3].text='Electrical';sel.options[4].text='ELV';sel.options[5].text='BIM';}
   });
   document.querySelectorAll('.js-mep-disc').forEach(function(sel){
-    if(sel.options.length>=6){sel.options[1].text='HVAC ('+_dc.HVAC+')';sel.options[2].text='PH & Fire ('+_dc['PH&E']+')';sel.options[3].text='Electrical ('+_dc.ELE+')';sel.options[4].text='ELV ('+_dc.ELV+')';sel.options[5].text='BIM ('+_dc.BIM+')';}
+    if(sel.options.length>=6){sel.options[1].text='HVAC';sel.options[2].text='PH & Fire';sel.options[3].text='Electrical';sel.options[4].text='ELV';sel.options[5].text='BIM';}
   });
   document.getElementById('sb-team').textContent=S.engineers.length;
   const mepCount=f(e=>e.team!=='BIM');
@@ -3834,7 +3833,7 @@ function mepDiscScope(list){ if(!window.MEP_DISC)return list; return window.MEP_
 function updateOfficeCounts(){
   function cnt(off){return S.engineers.filter(function(e){if(e.off!==off)return false;if(!window.MEP_DISC)return true;return window.MEP_DISC==='BIM'?e.team==='BIM':(e.disc===window.MEP_DISC&&e.team!=='BIM');}).length;}
   var d=cnt('DXB'),g=cnt('EGY'),i=cnt('IND');
-  document.querySelectorAll('.js-ovw-switch').forEach(function(sel){if(sel.options.length>=4){sel.options[0].text='All Offices ('+(d+g+i)+')';sel.options[1].text='DXB ('+d+')';sel.options[2].text='EGY ('+g+')';sel.options[3].text='IND ('+i+')';}});
+  document.querySelectorAll('.js-ovw-switch').forEach(function(sel){if(sel.options.length>=4){sel.options[0].text='All Offices';sel.options[1].text='DXB';sel.options[2].text='EGY';sel.options[3].text='IND';}});
 }
 window.MEP_STATUS = window.MEP_STATUS || 'all';
 function _msf(){ return (window.MEP_STATUS&&window.MEP_STATUS!=='all')?window.MEP_STATUS:null; }
