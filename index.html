@@ -173,7 +173,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .hdr>div{flex-wrap:wrap;}
 .hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
 @media(max-width:700px){
-  .app{min-height:auto !important;}
+  .hdr-daterange{width:100% !important;flex-wrap:wrap !important;box-sizing:border-box !important;justify-content:flex-start !important;}
+  .hdr-daterange select{flex:1 1 70px !important;min-width:0 !important;}
   /* contain content overflow WITHOUT breaking position:fixed (clip != hidden; never on html/body) */
   .main{max-width:100% !important;overflow-x:clip !important;}
   #pg-mep,#pg-team,#pg-proj,#pg-tracker{max-width:100% !important;overflow-x:clip !important;}
@@ -919,7 +920,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.54 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.56 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -969,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.54 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.56 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -981,7 +982,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <span class="hdr-t" id="ov-title-mep">Combined MEP</span><span class="hdr-s" id="dash-period-label" style="display:none;">All Offices</span><select class="js-ovw-switch" onchange="selectOverview(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select><select class="js-mep-disc" onchange="setMepDisc(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="">All disciplines</option><option value="HVAC">HVAC</option><option value="PH&amp;E">PH &amp; Fire</option><option value="ELE">Electrical</option><option value="ELV">ELV</option><option value="BIM">BIM</option></select><select class="js-mep-status" onchange="setMepStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select>
       </div>
       <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
-        <div style="display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:3px 8px;">
+        <div class="hdr-daterange" style="display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:3px 8px;">
           <span style="font-size:10px;color:var(--tx3);white-space:nowrap;">From</span>
           <select id="dashFrom" onchange="onDashRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
           <span style="font-size:10px;color:var(--tx3);">To</span>
