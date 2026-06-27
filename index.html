@@ -174,6 +174,11 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
 @media(max-width:700px){
   .app{min-height:auto !important;}
+  /* kill horizontal overflow that leaves a gap on the right edge */
+  html,body{overflow-x:hidden !important;max-width:100% !important;}
+  #app-shell,.main{max-width:100% !important;overflow-x:hidden !important;}
+  #pg-mep,#pg-team,#pg-proj,#pg-tracker{max-width:100% !important;}
+  .main canvas{max-width:100% !important;}
 }
 @media(max-width:700px){
   /* header sits in its own solid band, not floating over the cards */
@@ -915,7 +920,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.50 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.53 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -965,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.50 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.53 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -4342,7 +4347,12 @@ function renderMEP(){
     if(isMEP&&document.getElementById('heat-tab-bim')&&document.getElementById('heat-tab-bim').style.display==='none'){switchHeatTab('engineers');}
     if(isBIM&&document.getElementById('heat-tab-engineers')&&document.getElementById('heat-tab-engineers').style.display==='none'){switchHeatTab('bim');}
   })();
-  const _actScoped={active:S.projects.filter(function(p){return p.status==='Active';}).length,total:S.projects.length};
+  const _actScoped=(function(){
+    var total=S.projects.length; // always the global project count
+    if(!window.MEP_OFF && !window.MEP_DISC) return {used:total,total:total};
+    var used=S.projects.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}).length;
+    return {used:used,total:total};
+  })();
   document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value=window.MEP_DISC||'';});
   document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS||'all';});
   const tu=subUtil(all,util,minMI,NMON);
@@ -4449,8 +4459,8 @@ function renderMEP(){
     </div>
     <div class="mc-int te" onclick="kpiDrillDown('projects')" title="Click to view Projects">
       <div class="mc-head"><div class="mc-l">Active Projects</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((_actScoped.total?Math.round(_actScoped.active/_actScoped.total*100):0),34):''}<div class="mc-v">${_actScoped.active}</div></div></div>
-      <div class="mc-s">of ${_actScoped.total}</div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((_actScoped.total?Math.round(_actScoped.used/_actScoped.total*100):0),34):''}<div class="mc-v">${_actScoped.used}</div></div></div>
+      <div class="mc-s">of ${_actScoped.total} total</div>
     </div>`;
 
   
