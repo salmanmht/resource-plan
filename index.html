@@ -38,7 +38,7 @@
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;letter-spacing:-.01em;}
-.app{display:flex;min-height:100vh;}
+.app{display:flex;min-height:100vh;min-height:100dvh;}
 
 /* PIN */
 /* ── PIN SCREEN ─────────────────────────────────────── */
@@ -148,7 +148,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 }
 
 /* SIDEBAR */
-.sb{width:var(--sb);background:#fff;color:var(--tx);flex-shrink:0;position:fixed;top:0;left:0;height:100vh;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;z-index:200;transition:transform .25s;border-right:1px solid var(--bdr);overscroll-behavior:contain;padding-bottom:80px;}
+.sb{width:var(--sb);background:#fff;color:var(--tx);flex-shrink:0;position:fixed;top:0;left:0;height:100vh;height:100dvh;overflow-y:scroll;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;z-index:200;transition:transform .25s;border-right:1px solid var(--bdr);overscroll-behavior:contain;padding-bottom:80px;}
 .sb-logo{padding:18px 16px 14px;border-bottom:1px solid var(--bdr);}
 .sb-logo-t{font-size:12px;font-weight:700;letter-spacing:-.02em;color:var(--tx);}
 .sb-logo-s{font-size:10px;color:var(--tx3);margin-top:2px;}
@@ -173,15 +173,23 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .hdr>div{flex-wrap:wrap;}
 .hdr select.js-ovw-switch,.hdr select.js-mep-disc,.hdr select.js-mep-status,.hdr select.js-disc-switch,.hdr select.js-off-switch,.hdr select.js-status-switch{flex:0 0 auto;width:auto;}
 @media(max-width:700px){
-  .hdr{padding:8px 12px !important;gap:6px !important;align-items:flex-start !important;}
-  .hdr>div{width:100%;gap:6px !important;}
-  .hdr>div:first-child{flex-wrap:wrap;}
+  .app{min-height:auto !important;}
+}
+@media(max-width:700px){
+  /* header sits in its own solid band, not floating over the cards */
+  .hdr{position:relative !important;top:auto !important;height:auto !important;min-height:0 !important;
+       background:#fff !important;-webkit-backdrop-filter:none !important;backdrop-filter:none !important;
+       padding:10px 12px !important;gap:8px !important;align-items:stretch !important;
+       flex-direction:column !important;flex-wrap:nowrap !important;
+       border-bottom:1px solid var(--bdr) !important;box-shadow:0 1px 4px rgba(0,0,0,.04) !important;}
+  .hdr>div{width:100% !important;display:flex !important;flex-wrap:wrap !important;gap:6px !important;align-items:center !important;}
   .hdr .hdr-t{font-size:16px !important;white-space:nowrap;}
-  .hdr select{font-size:11px !important;padding:4px 7px !important;margin-left:0 !important;}
-  .hdr .js-ovw-switch,.hdr .js-mep-disc,.hdr .js-mep-status{margin-left:0 !important;}
-  .hdr input[type=month]{font-size:11px !important;padding:3px 5px !important;}
-  .hdr .btn-p,.hdr .btn-g,.hdr .btn-d{font-size:10px !important;padding:4px 8px !important;}
+  .hdr select{font-size:11px !important;padding:5px 8px !important;margin-left:0 !important;flex:0 0 auto !important;}
+  .hdr input[type=month]{font-size:11px !important;padding:4px 6px !important;}
+  .hdr .btn-p,.hdr .btn-g,.hdr .btn-d{font-size:11px !important;padding:5px 10px !important;}
   .hdr>div:last-child{justify-content:flex-start !important;}
+  /* give the scroll area a clean start below the header */
+  .main{padding-top:0 !important;}
 }
 .hdr-t{font-size:15px;font-weight:700;letter-spacing:-.02em;color:var(--tx);white-space:nowrap;}
 .hdr-s{font-size:11px;color:var(--tx3);background:var(--surf2);padding:3px 10px;border-radius:20px;border:1px solid var(--bdr);margin-left:8px;}
@@ -907,7 +915,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.48 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.50 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -957,7 +965,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.48 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.50 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
