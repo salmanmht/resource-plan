@@ -920,7 +920,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.56 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.58 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -970,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.56 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.58 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -992,7 +992,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <button onclick="setGrain('month')" id="grain-btn-month" class="grain-btn on" style="font-size:11px;font-weight:600;padding:4px 11px;border:0;background:var(--acc);color:#fff;border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Months</button>
           <button onclick="setGrain('week')" id="grain-btn-week" class="grain-btn" style="font-size:11px;font-weight:500;padding:4px 11px;border:0;background:transparent;color:var(--tx2);border-radius:6px;cursor:pointer;display:flex;align-items:center;gap:4px;">Weeks</button>
         </div>
-        <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset to full date range">Reset</button>
+        <button class="btn btn-g btn-sm" onclick="resetDashRange()" title="Reset all filters & range">Reset</button><button class="btn btn-g btn-sm" onclick="openCalcInfo()" title="How figures are calculated" aria-label="How it is calculated" style="font-weight:700;">&#9432;</button>
         <div id="hdr-exp-wrap" style="position:relative;display:inline-block;">
           <button class="btn btn-g btn-sm" onclick="event.stopPropagation();var m=document.getElementById('hdr-exp-menu');m.style.display=m.style.display==='block'?'none':'block';" style="display:flex;align-items:center;gap:4px;">Export &#9662;</button>
           <div id="hdr-exp-menu" style="display:none;position:absolute;right:0;top:calc(100% + 5px);background:#fff;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,.16);z-index:300;min-width:160px;overflow:hidden;">
@@ -1342,6 +1342,44 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 </div><!-- end main -->
 
 <!-- BOTTOM NAV -->
+<!-- HOW IT'S CALCULATED MODAL -->
+<div class="ov" id="calc-info-ov" style="display:none;" onclick="if(event.target===this)closeCalcInfo()">
+  <div class="modal" style="max-width:640px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;padding:16px 20px;border-bottom:1px solid var(--bdr);">
+      <div style="font-size:16px;font-weight:700;color:var(--tx);">How the figures are calculated</div>
+      <button class="btn btn-g btn-sm" onclick="closeCalcInfo()">Close</button>
+    </div>
+    <div class="modal-bd" style="padding:18px 20px;font-size:13px;line-height:1.6;color:var(--tx);max-height:70vh;overflow:auto;">
+      <p style="margin-bottom:12px;color:var(--tx2);">Headcount cards are live (not affected by the date range). Utilisation, cost and project counts are driven by the <b>From&ndash;To</b> range.</p>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Building blocks</div>
+      <ul style="margin:0 0 8px 18px;color:var(--tx2);">
+        <li><b>Capacity</b> = weekly capacity (default 45&nbsp;h/wk; JSE 55&nbsp;h/wk &times; project multiplier) &times; weeks in that month.</li>
+        <li>Weeks-per-month follow a fixed pattern, so 5-week months have more capacity than 4-week months.</li>
+        <li><b>Hours</b> come from each project&rsquo;s weekly entries; leave, management and public holidays are tracked separately per engineer.</li>
+        <li>If an engineer joined after / left before a month, their figures for that month are 0.</li>
+      </ul>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Avg Utilisation</div>
+      <p style="margin:0 0 4px;color:var(--tx2);">Includes project + leave + management + holiday hours (true workload).</p>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;font-family:monospace;font-size:11.5px;color:var(--tx);">monthly% = (proj + leave + mgmt + holiday) &divide; capacity &times; 100<br>team% = average across engineers in scope<br>card = average of monthly team% over the range</div>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Billable Util</div>
+      <p style="margin:0 0 4px;color:var(--tx2);">Project hours only (excludes leave, management, holidays) &mdash; always &le; Avg Utilisation.</p>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;font-family:monospace;font-size:11.5px;color:var(--tx);">monthly% = projectHours &divide; capacity &times; 100 &nbsp;(then averaged)</div>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Est. Cost &mdash; a total, not an average</div>
+      <div style="background:var(--surf);border:1px solid var(--bdr);border-radius:8px;padding:8px 10px;font-family:monospace;font-size:11.5px;color:var(--tx);">rate = per-engineer override &rarr; else BIM rate &rarr; else grade &times; office table<br>engineer cost = (sum of project hours over range) &times; rate<br>card = &Sigma; engineer cost across scope</div>
+      <p style="margin:6px 0 0;color:var(--tx3);font-size:12px;">Rates differ by office (e.g. Senior Engineer AED 200/h DXB vs 30/h EGY). Wider range &rarr; higher cost.</p>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Engineers (MEP) / BIM Team</div>
+      <p style="margin:0 0 4px;color:var(--tx2);">Live headcount of the scoped team. Not date-based. The ring shows that group&rsquo;s share of the scoped team.</p>
+
+      <div style="font-weight:700;margin:14px 0 4px;">Active Projects</div>
+      <p style="margin:0;color:var(--tx2);">Projects the scoped team booked any hours on within the range, of the global total (e.g. 14). Ring = used &divide; total.</p>
+    </div>
+  </div>
+</div>
 <nav class="bot-nav">
   <button class="bn-item on" id="bn-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Dash</button>
   <button class="bn-item" id="bn-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team</button>
@@ -4134,11 +4172,20 @@ function onDashRangeChange(){
   DASH_FROM_MI=f; DASH_TO_MI=t;
   renderMEP();
 }
+function openCalcInfo(){var o=document.getElementById('calc-info-ov');if(o)o.style.display='flex';}
+function closeCalcInfo(){var o=document.getElementById('calc-info-ov');if(o)o.style.display='none';}
 function resetDashRange(){
   const {minMI,maxMI}=computeAll();
   DASH_FROM_MI=minMI; DASH_TO_MI=maxMI;
-  document.getElementById('dashFrom').value=minMI;
-  document.getElementById('dashTo').value=maxMI;
+  var ff=document.getElementById('dashFrom'); if(ff)ff.value=minMI;
+  var tt=document.getElementById('dashTo'); if(tt)tt.value=maxMI;
+  // Clear ALL dashboard filters back to the default Combined MEP view
+  window.MEP_OFF=null; window.MEP_DISC=null; window.MEP_STATUS='all';
+  document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value='';});
+  document.querySelectorAll('.js-mep-disc').forEach(function(el){el.value='';});
+  document.querySelectorAll('.js-mep-status').forEach(function(el){el.value='all';});
+  // Reset grain back to Months
+  try{ GRAIN='month'; localStorage.setItem('mep_grain','month'); if(typeof syncGrainButtons==='function')syncGrainButtons(); }catch(e){}
   renderMEP();
 }
 
@@ -4413,37 +4460,21 @@ function renderMEP(){
   
   window.kpiFlip=function(el){if(el)el.classList.toggle('flipped');};
   document.getElementById('mep-metrics').innerHTML=`
-    <div id="kpi-eng-card" class="mc-int hi mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens register">
-      <div class="mc-flip">
-        <div class="mc-face mc-front">
-          <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('engineers')">→</div></div>
-          <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var m=all.filter(function(e){return e.team!=='BIM';}).length,t=all.length;return t?Math.round(m/t*100):0;})(),34):''}<div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div></div>
-          <div class="mc-s">${dxb.filter(e=>e.team!=='BIM').length} DXB · ${egy.length} EGY</div>
-        </div>
-        <div class="mc-face mc-back">
-          <div class="mcb-t">By discipline</div>
-          ${(()=>{const g={};all.filter(e=>e.team!=='BIM').forEach(e=>{const d=e.disc||'—';g[d]=(g[d]||0)+1;});return Object.keys(g).sort((a,b)=>g[b]-g[a]).map(k=>`<div class="mcb-row"><span>${k}</span><span>${g[k]}</span></div>`).join('');})()}
-        </div>
-      </div>
+    <div id="kpi-eng-card" class="mc-int hi" onclick="kpiDrillDown('engineers')" title="Click to view register">
+      <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow">→</div></div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var m=all.filter(function(e){return e.team!=='BIM';}).length,t=all.length;return t?Math.round(m/t*100):0;})(),34):''}<div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div></div>
+      <div class="mc-s">${dxb.filter(e=>e.team!=='BIM').length} DXB · ${egy.length} EGY</div>
     </div>
     <div id="kpi-bim-card" class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div></div>
       <div class="mc-s">${all.filter(e=>e.team==='BIM'&&e.off==='DXB').length} DXB · ${all.filter(e=>e.team==='BIM'&&e.off==='IND').length} IND</div>
     </div>
-    <div class="mc-int gr mc-flip-wrap" onclick="kpiFlip(this)" title="Tap to flip · arrow opens heatmap">
-      <div class="mc-flip">
-        <div class="mc-face mc-front">
-          <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow" onclick="event.stopPropagation();kpiDrillDown('util')">→</div></div>
-          <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${deltaBadge(utilDelta,'util')}</div>
-          <div class="spark-box"><canvas id="spark-util"></canvas></div>
-          <div class="mc-s">${grainLabel} · avg</div>
-        </div>
-        <div class="mc-face mc-back">
-          <div class="mcb-t">Headcount by status</div>
-          ${(()=>{try{const rr=computeRange();let o=0,h=0,m=0,u=0,z=0;all.filter(e=>e.team!=='BIM').forEach(e=>{const a=rr.util[e.id]||[];const avg=a.length?Math.round(a.reduce((x,y)=>x+(y||0),0)/a.length):0;if(avg>100)o++;else if(avg>=85)h++;else if(avg>=50)m++;else if(avg>0)u++;else z++;});return `<div class="mcb-row"><span>Overloaded &gt;100%</span><span>${o}</span></div><div class="mcb-row"><span>Healthy 85–100%</span><span>${h}</span></div><div class="mcb-row"><span>Moderate 50–84%</span><span>${m}</span></div><div class="mcb-row"><span>Under 50%</span><span>${u}</span></div>`+(z?`<div class="mcb-row"><span>Idle</span><span>${z}</span></div>`:'');}catch(e){return '<div class="mcb-row"><span>Data loading…</span></div>';}})()}
-        </div>
-      </div>
+    <div class="mc-int gr" onclick="kpiDrillDown('util')" title="Click to view heatmap">
+      <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow">→</div></div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${deltaBadge(utilDelta,'util')}</div>
+      <div class="spark-box"><canvas id="spark-util"></canvas></div>
+      <div class="mc-s">${grainLabel} · avg</div>
     </div>
     <div class="mc-int" style="border-top:3px solid #0891b2;">
       <div class="mc-head"><div class="mc-l">Billable Util</div></div>
