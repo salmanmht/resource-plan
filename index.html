@@ -503,6 +503,30 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .wt-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--bdr);background:var(--surf);color:var(--tx3);transition:.12s;}
 .wt-chip.on{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}
 
+.wt-mobile{display:none;}
+.wtm-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px;}
+.wtm-sum-cell{background:var(--surf);border:1px solid var(--bdr);border-radius:10px;padding:9px 8px;text-align:center;}
+.wtm-sum-v{font-size:18px;font-weight:700;color:var(--tx);line-height:1;}
+.wtm-sum-v span{font-size:11px;font-weight:600;color:var(--tx3);margin-left:1px;}
+.wtm-sum-l{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--tx3);margin-top:4px;}
+.wtm-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:14px 0 6px;}
+.wtm-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
+.wtm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.wtm-name{font-weight:600;font-size:14px;color:var(--tx);}
+.wtm-sub{font-size:11px;color:var(--tx3);margin-top:2px;}
+.wtm-tot{font-size:20px;font-weight:700;color:var(--tx);white-space:nowrap;}
+.wtm-tot span{font-size:11px;font-weight:600;color:var(--tx3);margin-left:1px;}
+.wtm-note{font-size:12px;color:var(--tx2);margin-top:8px;font-style:italic;background:var(--surf);border-radius:8px;padding:6px 9px;}
+.wtm-items{margin-top:8px;display:flex;flex-direction:column;gap:0;}
+.wtm-item{display:flex;justify-content:space-between;gap:10px;font-size:12.5px;color:var(--tx);padding:5px 0;border-top:0.5px solid var(--bdr);}
+.wtm-item span{flex:1;min-width:0;}
+.wtm-item b{font-weight:700;white-space:nowrap;}
+.wtm-item.wtm-nb span{color:var(--tx3);}
+.wtm-empty{font-size:12px;color:var(--tx3);font-style:italic;margin-top:8px;}
+@media(max-width:700px){
+  .wt-tablewrap{display:none !important;}
+  .wt-mobile{display:block !important;}
+}
 .wt-tablewrap{overflow-x:auto;border:1px solid var(--bdr);border-radius:var(--rl);background:var(--surf);box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .wt-table{width:100%;border-collapse:collapse;font-size:12px;}
 .wt-table thead .wt-h1 th{background:#1e3a5f;color:#fff;padding:8px 8px;font-weight:600;font-size:10px;white-space:nowrap;text-align:center;position:sticky;top:0;letter-spacing:.02em;text-transform:uppercase;vertical-align:middle;}
@@ -823,6 +847,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.63 · 28 Jun 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -923,7 +948,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.60 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -973,7 +997,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.60 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.63 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3245,6 +3269,35 @@ function wtBuild(canEdit){
     html+='<td id="wt-tot-grand">'+(grand||'—')+'</td></tr>';
   }
   html+='</tbody></table></div>';
+
+  // ── Mobile card view (read-only · view/review) ──
+  (function(){
+    let body=''; let mGrand=0, mActive=0, mCount=0;
+    groups.forEach(function(g){
+      body+='<div class="wtm-sec">'+esc(g.section.label)+'</div>';
+      g.engs.forEach(function(e){
+        const act=WT_actuals[e.id]||{};
+        let rt=0; const items=[];
+        projects.forEach(function(p){const a=act[p.id]!=null?Number(act[p.id]):0; if(a>0){items.push({label:(p.no?p.no+' — ':'')+(p.name||p.id),h:a,nb:false}); rt+=a;}});
+        WT_NONBILL.forEach(function(nb){const v=act[nb.key]||0; if(v>0){items.push({label:nb.label,h:v,nb:true}); rt+=v;}});
+        mCount++; mGrand+=rt; if(rt>0)mActive++;
+        const desig=[e.grade,(e.subDisc||e.disc)].filter(Boolean).join(' · ');
+        const tNote=act['task_note']||'';
+        body+='<div class="wtm-card">';
+        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(e.name)+'</div>'+((desig||'')?'<div class="wtm-sub">'+esc(desig)+' · '+wtEngOffLabel(e)+'</div>':'<div class="wtm-sub">'+wtEngOffLabel(e)+'</div>')+'</div><div class="wtm-tot">'+(rt||0)+'<span>h</span></div></div>';
+        if(tNote)body+='<div class="wtm-note">'+esc(tNote)+'</div>';
+        if(items.length)body+='<div class="wtm-items">'+items.map(function(it){return '<div class="wtm-item'+(it.nb?' wtm-nb':'')+'"><span>'+esc(it.label)+'</span><b>'+it.h+'h</b></div>';}).join('')+'</div>';
+        else body+='<div class="wtm-empty">No hours logged this week</div>';
+        body+='</div>';
+      });
+    });
+    const strip='<div class="wtm-summary">'+
+      '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+mGrand+'<span>h</span></div><div class="wtm-sum-l">Total logged</div></div>'+
+      '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+mActive+'<span>/'+mCount+'</span></div><div class="wtm-sum-l">Engineers active</div></div>'+
+      '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+WT_TARGET+'<span>h</span></div><div class="wtm-sum-l">Target / wk</div></div>'+
+      '</div>';
+    html+='<div class="wt-mobile">'+strip+body+'</div>';
+  })();
 
   // Legend — different for variance view
   html+='<div class="wt-legend">';
