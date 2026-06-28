@@ -509,6 +509,43 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .spend-h{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:10px;}
 .spend-card .tbl td.num,.spend-card .tbl th.num{text-align:right;}
 .spend-tot td{font-weight:700;border-top:2px solid var(--bdr);}
+.dh-tabs{display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--bdr);}
+.dh-tab{padding:9px 14px;font-size:13px;font-weight:600;color:var(--tx3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;}
+.dh-tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.dh-h{font-size:13px;font-weight:700;margin:0 0 3px;}
+.dh-csub{font-size:11px;color:var(--tx3);margin-bottom:12px;}
+.dh-gh{font-size:10.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:var(--tx3);margin:16px 0 2px;}
+.dh-gh:first-child{margin-top:0;}
+.dh-flag{display:flex;align-items:flex-start;gap:11px;padding:9px 0;border-top:1px solid #f0f1f3;}
+.dh-dot{flex:0 0 auto;width:9px;height:9px;border-radius:50%;margin-top:5px;}
+.dh-ft{flex:1;font-size:13px;font-weight:600;}
+.dh-fd{font-size:11.5px;color:var(--tx3);font-weight:400;margin-top:1px;}
+.dh-donutwrap{display:flex;align-items:center;gap:18px;}
+.dh-donut{flex:0 0 auto;width:118px;height:118px;border-radius:50%;position:relative;}
+.dh-donut::after{content:"";position:absolute;inset:23px;background:#fff;border-radius:50%;}
+.dh-dlbl{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:1;}
+.dh-dlbl b{font-size:14px;font-weight:800;}
+.dh-dlbl span{font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;}
+.dh-keys{flex:1;}
+.dh-key{display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;}
+.dh-key i{width:11px;height:11px;border-radius:3px;flex:0 0 auto;}
+.dh-key .kn{flex:1;font-weight:600;}
+.dh-key .kv{font-weight:700;}
+.dh-key .kd{font-size:11px;color:var(--tx3);margin-left:6px;}
+.dh-norm{background:#f7f8fa;border:1px dashed var(--bdr);border-radius:10px;padding:10px 12px;margin-top:14px;font-size:11.5px;color:var(--tx2);}
+.dh-norm b{color:var(--navy,#10243E);}
+.dh-pjt{padding:11px 0;border-top:1px solid #f0f1f3;}
+.dh-pjt:first-of-type{border-top:none;}
+.dh-ph{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:7px;}
+.dh-pn{font-size:13px;font-weight:700;}
+.dh-stack{display:flex;height:20px;border-radius:6px;overflow:hidden;background:#f0f1f3;}
+.dh-stack div{height:100%;}
+.dh-pf{font-size:11px;}
+.dh-pf.alert{color:#dc2626;font-weight:600;}
+.dh-pf.okk{color:#16a34a;font-weight:600;}
+.dh-leg{display:flex;flex-wrap:wrap;gap:14px;margin-top:12px;}
+.dh-leg span{display:inline-flex;align-items:center;gap:5px;font-size:11px;color:var(--tx3);}
+.dh-leg i{width:10px;height:10px;border-radius:3px;}
 .spend-tblwrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 .spend-tblwrap .tbl{min-width:560px;}
 @media(max-width:700px){.spend-tblwrap .tbl{font-size:11px;}.spend-tblwrap .tbl th,.spend-tblwrap .tbl td{padding:7px 8px;}#pc-spend{padding-bottom:calc(var(--bn) + 24px);}}
@@ -865,7 +902,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.67 · 28 Jun 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.69 · 28 Jun 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1007,6 +1044,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
   <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend</div>
+  <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health</div>
   <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
   <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
   <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
@@ -1016,7 +1054,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.67 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.69 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1163,6 +1201,16 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div id="proj-detail-view" style="display:none;" class="pc">
       <div id="proj-detail-content"></div>
     </div>
+  </div>
+
+  <div id="pg-health" style="display:none">
+    <div class="hdr">
+      <div style="display:flex;align-items:center;gap:8px;">
+        <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+        <span class="hdr-t">Data Health</span>
+      </div>
+    </div>
+    <div class="pc" id="pc-health"></div>
   </div>
 
   <div id="pg-spend" style="display:none">
@@ -2078,18 +2126,12 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;applyAdminNav(true);}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
-    const pinRow=await fetchUserPin();
-    if(pinRow && pinRow.pin_hash){
-      // Has PIN — go straight to app (they used email as alternative)
-      enterApp();
-    } else {
-      // No PIN — offer to set one
-      showSetPin();
-    }
+    // PIN disabled — email/password only
+    enterApp();
   }catch(e){
     err.textContent='Connection error. Please try again.';
     btn.disabled=false;btn.textContent='Sign In';
@@ -2110,13 +2152,7 @@ async function doLogout(){
   sessionStorage.removeItem('mep_session');
   const up=document.getElementById('sb-user');if(up)up.style.display='none';
   
-  const pnav=document.getElementById('nav-proposals');if(pnav)pnav.style.display='none';
-  const pendnav=document.getElementById('nav-pending');if(pendnav)pendnav.style.display='none';
-  const ratesnav=document.getElementById('nav-rates');if(ratesnav)ratesnav.style.display='none';
-  const mgmtnav=document.getElementById('nav-mgmt');if(mgmtnav)mgmtnav.style.display='none';
-  const holidaysnav=document.getElementById('nav-holidays');if(holidaysnav)holidaysnav.style.display='none';
-  const leavenav=document.getElementById('nav-leave');if(leavenav)leavenav.style.display='none';
-  const weeklynav=document.getElementById('nav-weekly');if(weeklynav)weeklynav.style.display='none';
+  applyAdminNav(false);
   ['sb-user-name','sb-user-desig'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent='—';});
   document.getElementById('sb-user-initial').textContent='?';
   document.getElementById('login-email').value='';
@@ -2157,18 +2193,11 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});}
+          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;applyAdminNav(true);}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
-          const pinRow = await fetchUserPin();
-          if(pinRow && pinRow.pin_hash){
-            const email = d.user.email||'';
-            const displayName = email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-            showPinEntry(displayName, displayName.charAt(0).toUpperCase());
-          } else {
-            // No PIN — go straight to app
-            enterApp();
-          }
+          // PIN disabled — go straight to app on valid session
+          enterApp();
           return;
         }
       }
@@ -2943,6 +2972,165 @@ function engProjHrs(engId,minMI,NMON){
 }
 
 // ═══════════════════════════════════════
+// DATA HEALTH
+// ═══════════════════════════════════════
+let DH_TAB='setup';
+const DH_MEP=['HVAC','PH&E','ELE','ELV'];
+const DH_COL={'HVAC':'#ef6c3b','PH&E':'#2563eb','ELE':'#f5a623','ELV':'#14b8a6'};
+function dhProjMepCost(p){
+  const out={'HVAC':0,'PH&E':0,'ELE':0,'ELV':0};
+  const wh=p.weeklyHrs||{};
+  Object.entries(wh).forEach(([eid,arr])=>{
+    if(!arr)return;
+    const e=S.engineers.find(x=>x.id===eid); if(!e||e.team==='BIM')return;
+    if(DH_MEP.indexOf(e.disc)<0)return;
+    const hrs=arr.reduce((a,b)=>a+(b||0),0); if(!hrs)return;
+    const rate=getProjRate(e,p);
+    const mult=(typeof getJseMult==='function'?getJseMult(p,eid):1)||1;
+    out[e.disc]+=hrs*rate*mult;
+  });
+  return out;
+}
+function dhPct(obj){
+  const tot=DH_MEP.reduce((a,d)=>a+obj[d],0);
+  const pct={}; DH_MEP.forEach(d=>pct[d]=tot?obj[d]/tot*100:0);
+  return {pct,tot};
+}
+function dhLearnNorm(){
+  const splits=[];
+  S.projects.filter(p=>p.status==='Completed').forEach(p=>{const r=dhPct(dhProjMepCost(p)); if(r.tot>0)splits.push(r.pct);});
+  if(splits.length<3)return {norm:null,n:splits.length};
+  const norm={}; DH_MEP.forEach(d=>norm[d]=splits.reduce((a,s)=>a+s[d],0)/splits.length);
+  return {norm,n:splits.length};
+}
+function dhOverAlloc(){
+  const byEngMonth={};
+  S.projects.forEach(p=>{
+    if(!p.start||p.status!=='Active')return;
+    Object.entries(p.weeklyHrs||{}).forEach(([eid,arr])=>{
+      if(!arr)return;
+      const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+      if(e.name&&e.name.startsWith('JSE-'))return;
+      const d=new Date(p.start);const day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
+      arr.forEach((h,wi)=>{
+        if(!h)return;
+        const wk=new Date(d);wk.setDate(wk.getDate()+wi*7);
+        const mi=dateToMI(wk);
+        byEngMonth[eid]=byEngMonth[eid]||{};
+        byEngMonth[eid][mi]=(byEngMonth[eid][mi]||0)+h;
+      });
+    });
+  });
+  const out=[];
+  Object.entries(byEngMonth).forEach(([eid,months])=>{
+    const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+    const cap=e.cap||45; let worst=null;
+    Object.entries(months).forEach(([mi,h])=>{
+      const monthCap=cap*wpmFor(Number(mi));
+      const u=monthCap?h/monthCap*100:0;
+      if(u>110&&(!worst||u>worst.u))worst={mi:Number(mi),u};
+    });
+    if(worst)out.push({t:(e.name||eid)+' — planned '+Math.round(worst.u)+'% in '+miLabel(worst.mi),d:'over capacity',sev:'warn'});
+  });
+  return out.slice(0,6);
+}
+function dhSetupIssues(){
+  const proj=[],eng=[],plan=[],time=[];
+  S.projects.forEach(p=>{
+    const nm=(p.no?p.no+' ':'')+(p.name||p.id);
+    if(!p.status)proj.push({t:nm+' — no status set',sev:'info'});
+    if(!p.stages||!p.stages.length)proj.push({t:nm+' — no programme stages',sev:'info'});
+    if(!p.start||!p.end)time.push({t:nm+' — missing start/end date',sev:'warn'});
+    else if(new Date(p.end)<new Date(p.start))time.push({t:nm+' — end date before start',sev:'bad'});
+    if(p.start&&p.end&&p.stages){
+      const ps=new Date(p.start),pe=new Date(p.end);
+      (p.stages||[]).forEach(st=>{
+        if(!st.from||!st.to)return;
+        if(new Date(st.from)<ps||new Date(st.to)>pe)time.push({t:nm+' — stage "'+(st.name||'?')+'" outside project dates',sev:'warn'});
+      });
+    }
+    if(p.status&&p.status!=='Active'){
+      const has=Object.values(p.weeklyHrs||{}).some(a=>a&&a.some(v=>v>0));
+      if(has)plan.push({t:nm+' — '+p.status+' but still has booked hours',sev:'warn'});
+    }
+  });
+  let noRate=0,noDisc=0,noOff=0;
+  S.engineers.forEach(e=>{
+    const r=(typeof getRate==='function')?getRate(e):0;
+    if(!r||r<=0)noRate++;
+    if(!e.disc&&e.team!=='BIM')noDisc++;
+    if(!e.off)noOff++;
+  });
+  if(noRate)eng.push({t:noRate+' engineer'+(noRate>1?'s':'')+' with no charge-rate',d:'contribute AED 0 to cost',sev:'bad'});
+  if(noDisc)eng.push({t:noDisc+' engineer'+(noDisc>1?'s':'')+' missing discipline',sev:'warn'});
+  if(noOff)eng.push({t:noOff+' engineer'+(noOff>1?'s':'')+' missing office',sev:'warn'});
+  dhOverAlloc().forEach(o=>plan.push(o));
+  return {proj,eng,plan,time};
+}
+function dhTile(l,v,sev){const col=sev==='bad'?'#dc2626':sev==='warn'?'#d97706':'#16a34a';return '<div class="mc-int"><div class="mc-head"><div class="mc-l">'+l+'</div></div><div class="mc-val-row"><div class="mc-v" style="color:'+col+'">'+v+'</div></div></div>';}
+function dhGroup(title,items){
+  if(!items.length)return '';
+  let h='<div class="dh-gh">'+title+'</div>';
+  items.forEach(it=>{
+    const dot=it.sev==='bad'?'#dc2626':it.sev==='info'?'#2563eb':'#d97706';
+    h+='<div class="dh-flag"><div class="dh-dot" style="background:'+dot+'"></div><div class="dh-ft">'+esc(it.t)+(it.d?'<div class="dh-fd">'+esc(it.d)+'</div>':'')+'</div></div>';
+  });
+  return h;
+}
+function dhRenderSetup(){
+  const r=dhSetupIssues();
+  const setup=r.proj.length+r.eng.length, total=setup+r.plan.length+r.time.length;
+  let h='<div class="mrow">';
+  h+=dhTile('Setup gaps',setup,setup?'bad':'good');
+  h+=dhTile('Plan conflicts',r.plan.length,r.plan.length?'warn':'good');
+  h+=dhTile('Timeline errors',r.time.length,r.time.length?'warn':'good');
+  h+=dhTile('Total issues',total,total?'warn':'good');
+  h+='</div><div class="spend-card">';
+  if(!total)h+='<div style="padding:22px;text-align:center;color:#16a34a;font-weight:600;">No issues found — your setup is clean.</div>';
+  else h+=dhGroup('Projects',r.proj)+dhGroup('Engineers & rates',r.eng)+dhGroup('Plan plausibility',r.plan)+dhGroup('Timeline & logic',r.time);
+  h+='</div>';
+  return h;
+}
+function dhRenderBalance(){
+  const {norm,n}=dhLearnNorm();
+  const port={'HVAC':0,'PH&E':0,'ELE':0,'ELV':0};
+  S.projects.filter(p=>p.status==='Active').forEach(p=>{const c=dhProjMepCost(p);DH_MEP.forEach(d=>port[d]+=c[d]);});
+  const {pct:portPct,tot:portTot}=dhPct(port);
+  let acc=0; const segs=[];
+  DH_MEP.forEach(d=>{const s=acc;acc+=portPct[d];segs.push(DH_COL[d]+' '+s.toFixed(1)+'% '+acc.toFixed(1)+'%');});
+  let h='<div class="spend-card"><h2 class="dh-h">MEP cost split — active projects</h2><div class="dh-csub">Share of MEP cost by discipline · excludes BIM</div>';
+  h+='<div class="dh-donutwrap"><div class="dh-donut" style="background:conic-gradient('+segs.join(',')+')"><div class="dh-dlbl"><b>'+fAED(portTot)+'</b><span>MEP cost</span></div></div><div class="dh-keys">';
+  DH_MEP.forEach(d=>{h+='<div class="dh-key"><i style="background:'+DH_COL[d]+'"></i><span class="kn">'+(d==='PH&E'?'PH &amp; Fire':d)+'</span><span class="kv">'+Math.round(portPct[d])+'%</span>'+(norm?'<span class="kd">norm '+Math.round(norm[d])+'%</span>':'')+'</div>';});
+  h+='</div></div>';
+  if(norm)h+='<div class="dh-norm">Normal mix learned from <b>'+n+' completed projects</b>: '+DH_MEP.map(d=>d+' '+Math.round(norm[d])+'%').join(' · ')+'.</div>';
+  else h+='<div class="dh-norm">Not enough completed projects yet to learn a norm ('+n+' so far). Showing the actual mix only — flags appear once you have 3+.</div>';
+  h+='</div>';
+  h+='<div class="spend-card"><h2 class="dh-h">Per-project balance</h2><div class="dh-csub">'+(norm?'Cost mix vs your learned norm — flagged where a discipline is unusually high or low':'Cost mix per active project')+'</div>';
+  let shown=0;
+  S.projects.filter(p=>p.status==='Active').forEach(p=>{
+    const c=dhProjMepCost(p);const {pct,tot}=dhPct(c); if(tot<=0)return; shown++;
+    let flag='';
+    if(norm){
+      let worst=null;DH_MEP.forEach(d=>{const dev=pct[d]-norm[d];if(!worst||Math.abs(dev)>Math.abs(worst.dev))worst={d,dev,a:pct[d],nm:norm[d]};});
+      flag=(worst&&Math.abs(worst.dev)>=12)?'<span class="dh-pf alert">'+(worst.d==='PH&E'?'PH&E':worst.d)+' '+Math.round(worst.a)+'% '+(worst.dev>0?'above':'below')+' norm '+Math.round(worst.nm)+'%</span>':'<span class="dh-pf okk">Balanced ✓</span>';
+    }
+    let bar='';DH_MEP.forEach(d=>{if(pct[d]>0)bar+='<div style="width:'+pct[d]+'%;background:'+DH_COL[d]+'"></div>';});
+    h+='<div class="dh-pjt"><div class="dh-ph"><span class="dh-pn">'+esc((p.no?p.no+' ':'')+(p.name||p.id))+'</span>'+flag+'</div><div class="dh-stack">'+bar+'</div></div>';
+  });
+  if(!shown)h+='<div style="padding:16px;text-align:center;color:var(--tx3);">No MEP cost on active projects yet.</div>';
+  h+='<div class="dh-leg">'+DH_MEP.map(d=>'<span><i style="background:'+DH_COL[d]+'"></i>'+(d==='PH&E'?'PH&E':d)+'</span>').join('')+'</div></div>';
+  return h;
+}
+function dhSetTab(t){DH_TAB=t;renderHealth();}
+function renderHealth(){
+  const c=document.getElementById('pc-health'); if(!c)return;
+  if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required.</div>';return;}
+  let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div></div>';
+  h+=(DH_TAB==='balance')?dhRenderBalance():dhRenderSetup();
+  c.innerHTML=h;
+}
+
+// ═══════════════════════════════════════
 // PROJECT SPEND
 // ═══════════════════════════════════════
 let SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:''};
@@ -3070,7 +3258,9 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals'];
+const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave'];
+function applyAdminNav(show){ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});}
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
@@ -4062,6 +4252,7 @@ function nav(p, fromPopstate){
   else if(p==='team')renderTeam();
   else if(p==='proj')renderProj();
   else if(p==='spend')renderSpend();
+  else if(p==='health')renderHealth();
   else if(p==='tracker')renderTracker();
   else if(p==='weekly')renderWeekly();
   else if(p==='rates')renderRates();
