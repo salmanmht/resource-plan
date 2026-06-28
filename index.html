@@ -415,7 +415,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .mc-back { display: none !important; }
   .mc-front { position: relative !important; transform: none !important; }
   .sb, .mob-sb-overlay, .mob-menu-btn, .btn-p, .btn-g, .btn-d,
-  #proj-hdr-back-btn, .fbar, .sort-bar, .ai-fab, .ai-panel { display: none !important; }
+  #proj-hdr-back-btn, .fbar, .sort-bar, .ai-fab, .ai-panel, .bot-nav { display: none !important; }
   select { display: none !important; }
   .main { margin-left: 0 !important; padding: 10px !important; }
   .hdr { position: static !important; box-shadow: none !important; border-bottom: 2px solid #1e3a5f; margin-bottom: 12px; padding: 8px 0; }
@@ -509,6 +509,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .wtm-sum-v{font-size:18px;font-weight:700;color:var(--tx);line-height:1;}
 .wtm-sum-v span{font-size:11px;font-weight:600;color:var(--tx3);margin-left:1px;}
 .wtm-sum-l{font-size:9.5px;font-weight:600;text-transform:uppercase;letter-spacing:.03em;color:var(--tx3);margin-top:4px;}
+.wtm-lock{color:var(--tx3);font-size:9px;font-weight:400;margin-left:5px;}
+.wtm-item input{width:64px;text-align:right;border:1px solid var(--bdr);border-radius:7px;padding:6px 7px;font-size:13px;font-family:inherit;font-weight:700;color:var(--tx);outline:none;background:#fff;-moz-appearance:textfield;}
+.wtm-item input:focus{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12);}
+.wtm-note-edit{width:100%;margin-top:8px;border:1px solid var(--bdr);border-radius:8px;padding:7px 9px;font-size:12.5px;font-family:inherit;color:var(--tx2);background:var(--surf);outline:none;resize:none;line-height:1.4;box-sizing:border-box;}
+.wtm-note-edit:focus{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12);background:#fff;}
+.wtm-addbtn{margin-top:10px;width:100%;padding:9px;border:1px dashed var(--bdr);border-radius:8px;background:transparent;color:#007aff;font-size:12.5px;font-weight:600;font-family:inherit;cursor:pointer;}
+.wtm-addbtn:active{background:var(--surf);}
+.wtm-more{margin-top:4px;}
 .wtm-sec{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:14px 0 6px;}
 .wtm-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:12px 14px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .wtm-top{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
@@ -847,7 +855,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.63 · 28 Jun 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.64 · 28 Jun 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -997,7 +1005,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.63 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.64 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3270,30 +3278,54 @@ function wtBuild(canEdit){
   }
   html+='</tbody></table></div>';
 
-  // ── Mobile card view (read-only · view/review) ──
+  // ── Mobile card view (editable · phone) ──
   (function(){
     let body=''; let mGrand=0, mActive=0, mCount=0;
     groups.forEach(function(g){
       body+='<div class="wtm-sec">'+esc(g.section.label)+'</div>';
       g.engs.forEach(function(e){
         const act=WT_actuals[e.id]||{};
-        let rt=0; const items=[];
-        projects.forEach(function(p){const a=act[p.id]!=null?Number(act[p.id]):0; if(a>0){items.push({label:(p.no?p.no+' — ':'')+(p.name||p.id),h:a,nb:false}); rt+=a;}});
-        WT_NONBILL.forEach(function(nb){const v=act[nb.key]||0; if(v>0){items.push({label:nb.label,h:v,nb:true}); rt+=v;}});
+        const editable=wtCanEditEng(e);
+        let rt=0; const inline=[]; const more=[];
+        const eitem=function(it){
+          if(editable)return '<div class="wtm-item'+(it.nb?' wtm-nb':'')+'"><span>'+esc(it.label)+'</span><input type="number" inputmode="decimal" min="0" max="999" step="0.5" value="'+(it.val||'')+'" oninput="wtEdit(\''+e.id+'\',\''+it.key+'\',this.value)"></div>';
+          return '<div class="wtm-item'+(it.nb?' wtm-nb':'')+'"><span>'+esc(it.label)+'</span><b>'+it.val+'h</b></div>';
+        };
+        projects.forEach(function(p){
+          const a=act[p.id]!=null?Number(act[p.id]):0;
+          const label=(p.no?p.no+' — ':'')+(p.name||p.id);
+          if(a>0){inline.push({label:label,key:p.id,val:a,nb:false}); rt+=a;}
+          else if(editable){more.push({label:label,key:p.id,val:0,nb:false});}
+        });
+        WT_NONBILL.forEach(function(nb){
+          const v=act[nb.key]||0;
+          if(v>0){inline.push({label:nb.label,key:nb.key,val:v,nb:true}); rt+=v;}
+          else if(editable){more.push({label:nb.label,key:nb.key,val:0,nb:true});}
+        });
         mCount++; mGrand+=rt; if(rt>0)mActive++;
         const desig=[e.grade,(e.subDisc||e.disc)].filter(Boolean).join(' · ');
         const tNote=act['task_note']||'';
+        const lock=editable?'':'<span class="wtm-lock">🔒</span>';
         body+='<div class="wtm-card">';
-        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(e.name)+'</div>'+((desig||'')?'<div class="wtm-sub">'+esc(desig)+' · '+wtEngOffLabel(e)+'</div>':'<div class="wtm-sub">'+wtEngOffLabel(e)+'</div>')+'</div><div class="wtm-tot">'+(rt||0)+'<span>h</span></div></div>';
-        if(tNote)body+='<div class="wtm-note">'+esc(tNote)+'</div>';
-        if(items.length)body+='<div class="wtm-items">'+items.map(function(it){return '<div class="wtm-item'+(it.nb?' wtm-nb':'')+'"><span>'+esc(it.label)+'</span><b>'+it.h+'h</b></div>';}).join('')+'</div>';
-        else body+='<div class="wtm-empty">No hours logged this week</div>';
+        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(e.name)+lock+'</div><div class="wtm-sub">'+(desig?esc(desig)+' · ':'')+wtEngOffLabel(e)+'</div></div><div class="wtm-tot" id="wtm-rt-'+e.id+'">'+(rt||0)+'<span>h</span></div></div>';
+        if(editable){
+          body+='<textarea class="wtm-note-edit" rows="2" placeholder="task / support description…" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';wtEdit(\''+e.id+'\',\'task_note\',this.value)">'+esc(tNote)+'</textarea>';
+        } else if(tNote){
+          body+='<div class="wtm-note">'+esc(tNote)+'</div>';
+        }
+        if(inline.length)body+='<div class="wtm-items">'+inline.map(eitem).join('')+'</div>';
+        else if(!editable)body+='<div class="wtm-empty">No hours logged this week</div>';
+        if(editable&&more.length){
+          body+='<div class="wtm-more" id="wtm-more-'+e.id+'" style="display:none;"><div class="wtm-items">'+more.map(eitem).join('')+'</div></div>';
+          body+='<button class="wtm-addbtn" onclick="wtmToggleMore(\''+e.id+'\',this)">＋ Add project / category</button>';
+        }
         body+='</div>';
       });
     });
+    const grandTot=groups.reduce(function(n,g){return n+g.engs.length;},0);
     const strip='<div class="wtm-summary">'+
-      '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+mGrand+'<span>h</span></div><div class="wtm-sum-l">Total logged</div></div>'+
-      '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+mActive+'<span>/'+mCount+'</span></div><div class="wtm-sum-l">Engineers active</div></div>'+
+      '<div class="wtm-sum-cell"><div class="wtm-sum-v" id="wtm-sum-grand">'+mGrand+'<span>h</span></div><div class="wtm-sum-l">Total logged</div></div>'+
+      '<div class="wtm-sum-cell"><div class="wtm-sum-v" id="wtm-sum-active">'+mActive+'<span>/'+mCount+'</span></div><div class="wtm-sum-l">Engineers active</div></div>'+
       '<div class="wtm-sum-cell"><div class="wtm-sum-v">'+WT_TARGET+'<span>h</span></div><div class="wtm-sum-l">Target / wk</div></div>'+
       '</div>';
     html+='<div class="wt-mobile">'+strip+body+'</div>';
@@ -3376,6 +3408,14 @@ function wtSummaryHTML(projects,projTotals,nbTot,grand){
   return h;
 }
 
+// Toggle the "add project / category" expander on a mobile card
+function wtmToggleMore(engId,btn){
+  const m=document.getElementById('wtm-more-'+engId);
+  if(!m)return;
+  const open=m.style.display!=='none';
+  m.style.display=open?'none':'block';
+  if(btn)btn.textContent=open?'＋ Add project / category':'－ Hide unused';
+}
 // ── Editing ──
 function wtEdit(engId,key,rawVal){
   if(!WT_actuals[engId])WT_actuals[engId]={};
@@ -3458,6 +3498,8 @@ function wtUpdateRowTotal(engId){
   const eng=S.engineers.find(x=>x.id===engId);
   projects.forEach(p=>{t+=act[p.id]||0; if(eng)tf+=wtForecast(p,eng.id);});
   WT_NONBILL.forEach(nb=>{t+=act[nb.key]||0;});
+  const mel=document.getElementById('wtm-rt-'+engId);
+  if(mel)mel.innerHTML=(t||0)+'<span>h</span>';
   const el=document.getElementById('wt-rt-'+engId);
   if(!el)return;
   if(WT_view==='variance'){
@@ -3499,6 +3541,11 @@ function wtUpdateAllTotals(){
     if(rowTotal>0)activeCount++;
     grand+=rowTotal;
   }));
+  // Mobile summary strip live update
+  const _sg=document.getElementById('wtm-sum-grand');
+  if(_sg)_sg.innerHTML=grand+'<span>h</span>';
+  const _sa=document.getElementById('wtm-sum-active');
+  if(_sa){const _tot=groups.reduce((n,g)=>n+g.engs.length,0);_sa.innerHTML=activeCount+'<span>/'+_tot+'</span>';}
   // Update totals row cells by ID — immune to hidden columns
   const setTot=(id,html)=>{const el=document.getElementById('wt-tot-'+id);if(el)el.innerHTML=html;};
   if(WT_view==='variance'){
