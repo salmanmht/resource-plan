@@ -502,6 +502,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .wt-offchips{margin-left:auto;display:flex;gap:4px;padding-bottom:4px;}
 .wt-chip{padding:3px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:pointer;border:1px solid var(--bdr);background:var(--surf);color:var(--tx3);transition:.12s;}
 .wt-chip.on{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}
+.wt-filters{display:flex;align-items:center;flex-wrap:wrap;gap:6px;margin:0 0 14px;padding-bottom:12px;border-bottom:1px solid var(--bdr);}
 
 .wt-mobile{display:none;}
 .wtm-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:4px 0 14px;}
@@ -855,7 +856,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.64 · 28 Jun 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.9.65 · 28 Jun 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1005,7 +1006,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.64 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.65 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2953,6 +2954,7 @@ const WT_NONBILL=[
 let WT_weekMonday=null;        // Date of currently-viewed Monday
 let WT_view='variance';        // 'clean' | 'variance' (default: variance)
 let WT_tab='all';              // discipline filter
+let WT_off='';                 // single-select office filter ('',DXB,EGY,IND) — matches Overview
 let WT_offFilter={UAE:true,EGY:true,IND:true,JSE:true};
 let WT_visibleProjects=null;   // array of project ids shown as columns (null = auto active)
 let WT_actuals={};             // {engId:{key:val}}  key = projId | 'task_hrs' | 'task_note' | nonbill key
@@ -3036,11 +3038,12 @@ function wtEngineerRows(){
     if(!tabMatch(sec.key))return;
     const engs=S.engineers.filter(e=>{
       if(!sec.match(e))return false;
+      if(!WT_off)return true; // all offices
       const off=(e.off||'').toUpperCase();
-      const isJSE=(off==='IND'||(e.id||'').includes('jse'));
-      if(isJSE)return WT_offFilter.JSE;
-      if(off==='DXB')return WT_offFilter.UAE;
-      if(off==='EGY')return WT_offFilter.EGY;
+      const isIND=(off==='IND'||(e.id||'').includes('jse'));
+      if(WT_off==='IND')return isIND;
+      if(WT_off==='DXB')return off==='DXB';
+      if(WT_off==='EGY')return off==='EGY';
       return true; // any other office — always show so nobody is hidden
     }).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
     if(engs.length)out.push({section:sec,engs});
@@ -3137,14 +3140,23 @@ function wtBuild(canEdit){
         '</div>';
   html+='</div>';
 
-  // ── Discipline tabs ──
-  const tabs=[['all','All'],['hvac','HVAC'],['phe','PH&E'],['ele','ELE'],['elv','ELV'],['bim','BIM']];
-  html+='<div class="wt-tabs">';
-  tabs.forEach(t=>{html+='<div class="wt-tab '+(WT_tab===t[0]?'on':'')+'" onclick="wtSetTab(\''+t[0]+'\')">'+t[1]+'</div>';});
-  // office filter chips
-  html+='<div class="wt-offchips">';
-  ['UAE','EGY','JSE'].forEach(o=>{html+='<span class="wt-chip '+(WT_offFilter[o]?'on':'')+'" onclick="wtToggleOff(\''+o+'\')">'+o+'</span>';});
-  html+='</div></div>';
+  // ── Filters (dropdowns · match Overview look) ──
+  const _wtDisc={all:'',hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[WT_tab]||'';
+  const _wtSel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
+  html+='<div class="wt-filters">';
+  html+='<select class="js-wt-off" onchange="wtSetOff(this.value)" style="'+_wtSel+'">'+
+        '<option value="">All Offices</option>'+
+        '<option value="DXB"'+(WT_off==='DXB'?' selected':'')+'>DXB</option>'+
+        '<option value="EGY"'+(WT_off==='EGY'?' selected':'')+'>EGY</option>'+
+        '<option value="IND"'+(WT_off==='IND'?' selected':'')+'>IND</option></select>';
+  html+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">'+
+        '<option value="">All disciplines</option>'+
+        '<option value="HVAC"'+(_wtDisc==='HVAC'?' selected':'')+'>HVAC</option>'+
+        '<option value="PH&amp;E"'+(_wtDisc==='PH&E'?' selected':'')+'>PH &amp; Fire</option>'+
+        '<option value="ELE"'+(_wtDisc==='ELE'?' selected':'')+'>Electrical</option>'+
+        '<option value="ELV"'+(_wtDisc==='ELV'?' selected':'')+'>ELV</option>'+
+        '<option value="BIM"'+(_wtDisc==='BIM'?' selected':'')+'>BIM</option></select>';
+  html+='</div>';
 
   if(!projects.length){
     html+='<div style="padding:24px;color:var(--tx3);text-align:center;">No active projects to show. Use Columns to pick projects.</div>';
@@ -3714,6 +3726,8 @@ function wtThisWeek(){WT_weekMonday=wtMondayOf(new Date());renderWeekly();}
 function wtSetView(v){WT_view=v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtSetTab(t){WT_tab=t;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleOff(o){WT_offFilter[o]=!WT_offFilter[o];const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetOff(v){WT_off=v||'';const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetDisc(v){WT_tab={'':'all','HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'}[v]||'all';const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleSummary(){WT_summaryOpen=!WT_summaryOpen;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 
 // ── Column picker modal ──
@@ -3757,9 +3771,9 @@ function wtApplyCols(){
 function wtExportPDF(){
   // Keep current tab — only force all offices and all projects so nothing is hidden
   const savedProjs=WT_visibleProjects;
-  const savedOff={...WT_offFilter};
+  const savedOff=WT_off;
   WT_visibleProjects=null; // all active projects
-  WT_offFilter={UAE:true,EGY:true,IND:true,JSE:true};
+  WT_off='';
   const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
   wtBuild(canEdit);
   setTimeout(()=>{
@@ -3863,7 +3877,7 @@ function wtExportPDF(){
       document.body.classList.remove('wt-printing');
       // Rebuild restores everything from scratch
       WT_visibleProjects=savedProjs;
-      Object.assign(WT_offFilter,savedOff);
+      WT_off=savedOff;
       wtBuild(canEdit);
     },300);
   },150);
