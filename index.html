@@ -816,7 +816,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       onmouseover="this.style.background='#0066e0'" onmouseout="this.style.background='#007aff'">
       Sign In
     </button>
-    <div style="text-align:center;margin-top:12px;font-size:12px;color:#8e8e93;">
+    <div style="text-align:center;margin-top:10px;font-size:12px;">
+      <span onclick="doForgotPassword()" style="color:#007aff;cursor:pointer;font-weight:600;">Forgot password?</span>
+    </div>
+    <div style="text-align:center;margin-top:8px;font-size:12px;color:#8e8e93;">
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
@@ -920,7 +923,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err-set" style="margin-top:8px;color:#34c759;"></div>
   </div>
 
-  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.59 · 28 Jun 2026</div>
+  <div style="position:absolute;bottom:12px;width:100%;text-align:center;font-size:9px;color:#b0b0b5;letter-spacing:.02em;z-index:1;">v8.9.60 · 28 Jun 2026</div>
 </div>
 
 <div class="sb-overlay" id="sb-overlay" onclick="closeMobSB()"></div>
@@ -970,7 +973,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.59 · 28 Jun 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.9.60 · 28 Jun 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1988,6 +1991,21 @@ function enterApp(){
 // ═══════════════════════════════════════
 // LOGIN / LOGOUT
 // ═══════════════════════════════════════
+async function doForgotPassword(){
+  const err=document.getElementById('pin-err');
+  const email=(document.getElementById('login-email').value||'').trim();
+  if(!email){ if(err){err.style.color='#c0392b';err.textContent='Enter your email above first, then tap Forgot password.';} return; }
+  try{
+    const r=await fetch(SB_URL+'/auth/v1/recover',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({email:email, redirect_to:(location.origin+location.pathname)})
+    });
+    if(err){ err.style.color='#1d7a3e'; err.textContent='If an account exists for '+email+', a password reset link has been emailed.'; }
+  }catch(e){
+    if(err){ err.style.color='#1d7a3e'; err.textContent='If an account exists for '+email+', a password reset link has been emailed.'; }
+  }
+}
 async function doLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
