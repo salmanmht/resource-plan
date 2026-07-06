@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.1 · 04 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.3 · 06 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -962,7 +962,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.1 · 04 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.3 · 06 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -4659,8 +4659,8 @@ function renderMEP(){
       <div class="spark-box"><canvas id="spark-bill"></canvas></div>
       <div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div>
     </div>
-    <div class="mc-int pu" onclick="kpiDrillDown('cost')" title="Click to view Cost Rates">
-      <div class="mc-head"><div class="mc-l">Est. Cost</div><div class="mc-arrow">→</div></div>
+    <div class="mc-int pu">
+      <div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"></button></div>
       <div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${deltaBadge(costDelta,'cost')}</div>
       <div class="spark-box"><canvas id="spark-cost"></canvas></div>
       <div class="mc-s">Period total · ${grainLabel}</div>
@@ -5333,7 +5333,7 @@ function renderOffice(off,pcId){
       <div class="mc-int" style="border-top:3px solid #0d9488;"><div class="mc-head"><div class="mc-l">BIM Team</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
       <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${kpiDeltaBadge(utilSeries,'util')}</div><div class="spark-box"><canvas id="spark-util-${cid}"></canvas></div><div class="mc-s">${grainLabel} · avg</div></div>
       <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="spark-box"><canvas id="spark-bill-${cid}"></canvas></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
-      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
+      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
       <div class="mc-int te"><div class="mc-head"><div class="mc-l">Active Projects</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
@@ -6425,8 +6425,8 @@ function renderProjDetail(p){
               return total>0
                 ?`<div class="cost-badges" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
                   <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${fN(Math.round(total))} hrs</span>
-                  <span style="font-size:10px;color:#065f46;font-weight:600;background:#dcfce7;border-radius:20px;padding:1px 8px;">AED ${fN(Math.round(cost))}</span>
-                  <span style="font-size:10px;color:#7c3aed;font-weight:600;background:#ede9fe;border-radius:20px;padding:1px 8px;">Fee AED ${fN(Math.round(cost*ff))}</span>
+                  <span style="font-size:10px;color:#065f46;font-weight:600;background:#dcfce7;border-radius:20px;padding:1px 8px;">AED ${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost))}</span>
+                  <span style="font-size:10px;color:#7c3aed;font-weight:600;background:#ede9fe;border-radius:20px;padding:1px 8px;">Fee AED ${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost*ff))}</span>
                   </div>`
                 :'<span style="font-size:10px;color:var(--tx3);">No hours assigned</span>';
             })()}
@@ -7487,7 +7487,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
         <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
-        <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${engCost>0?fN(Math.round(engCost)):'-'}</td>
+        <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${MONEY_HIDDEN?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
         <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="Fee = Cost × ${ff.toFixed(2)}">${engFee>0?fN(Math.round(engFee)):'-'}</td>
         ${showRate?`<td style="padding:2px 4px;text-align:center;background:${rateBg};" title="${rateTip}">
           <input type="number" min="0" step="1" value="${projRate}"
@@ -7511,7 +7511,7 @@ function renderProjCard(p, mode){
           const stageNames=(stageMap.get(wi)||[]).map(si=>(p.stages[si]&&p.stages[si].name)||`Stage ${si+1}`).join(' + ');
           const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:stageNames?`Stage: ${stageNames}`:'';
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
+          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -7667,6 +7667,99 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   // In-place totals — no re-render
   updateProjCardTotals(p);
 }
+
+// ── Excel-style fill-drag for week cells (v8.11.2, desktop/mouse) ──
+// Adds a fill handle to the focused week-cell input; drag left/right across the
+// SAME engineer row to copy the value into every cell dragged over. Reuses
+// setWeekHrsProj so permissions, colours, totals and saving all behave identically.
+(function(){
+  let handle=null, active=null, dragging=false, startWi=0, srcVal=0, rowInputs=[], lastRange=[];
+
+  function ensureHandle(){
+    if(handle) return handle;
+    handle=document.createElement('div');
+    handle.id='wk-fill-handle';
+    handle.style.cssText='position:absolute;width:9px;height:9px;background:#12263f;border:1px solid #fff;border-radius:1px;cursor:crosshair;z-index:60;display:none;box-shadow:0 0 0 1px rgba(0,0,0,.15);';
+    document.body.appendChild(handle);
+    handle.addEventListener('mousedown', startDrag);
+    return handle;
+  }
+  function place(input){
+    if(!input || input.readOnly){ hide(); return; }
+    if(input.tagName!=='INPUT' || !input.closest('td.week-cell')) { return; }
+    active=input; ensureHandle();
+    const r=input.getBoundingClientRect();
+    handle.style.left=(window.scrollX+r.right-5)+'px';
+    handle.style.top=(window.scrollY+r.bottom-5)+'px';
+    handle.style.display='block';
+  }
+  function hide(){ if(handle) handle.style.display='none'; active=null; }
+
+  function rowCellsOf(input){
+    const tr=input.closest('tr'); if(!tr) return [];
+    return Array.from(tr.querySelectorAll('td.week-cell input[type="number"]'));
+  }
+  function highlight(range){
+    lastRange.forEach(el=>{ el.style.outline=''; });
+    range.forEach(el=>{ el.style.outline='2px solid #12263f'; el.style.outlineOffset='-2px'; });
+    lastRange=range;
+  }
+
+  function startDrag(e){
+    if(!active) return;
+    e.preventDefault(); e.stopPropagation();
+    dragging=true;
+    srcVal=active.value;
+    rowInputs=rowCellsOf(active);
+    startWi=rowInputs.indexOf(active);
+    document.body.style.userSelect='none';
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', endDrag);
+  }
+  function onMove(e){
+    if(!dragging) return;
+    // find nearest week cell under cursor in the same row
+    let idx=startWi;
+    for(let i=0;i<rowInputs.length;i++){
+      const r=rowInputs[i].getBoundingClientRect();
+      if(e.clientX>=r.left && e.clientX<=r.right){ idx=i; break; }
+      if(e.clientX>r.right) idx=i; // past the right edge → extend
+    }
+    const lo=Math.min(startWi,idx), hi=Math.max(startWi,idx);
+    highlight(rowInputs.slice(lo,hi+1));
+  }
+  function endDrag(e){
+    window.removeEventListener('mousemove', onMove);
+    window.removeEventListener('mouseup', endDrag);
+    document.body.style.userSelect='';
+    if(!dragging){ return; }
+    dragging=false;
+    const range=lastRange.slice();
+    highlight([]);
+    range.forEach(inp=>{
+      if(inp===active || inp.readOnly) return;
+      inp.value=srcVal;
+      // route through the real setter for permissions/colour/save/totals
+      if(typeof setWeekHrsProj==='function'){
+        setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
+      }
+    });
+    if(typeof flushHourSaves==='function') flushHourSaves();
+    place(active);
+  }
+
+  // Show the handle on the currently focused week cell
+  document.addEventListener('focusin', function(e){
+    if(e.target && e.target.matches && e.target.matches('td.week-cell input[type="number"]')) place(e.target);
+  });
+  document.addEventListener('focusout', function(e){
+    // keep handle if moving onto the handle itself; hide shortly otherwise
+    setTimeout(()=>{ if(document.activeElement!==active) { /* keep for hover use */ } }, 0);
+  });
+  // Reposition on scroll/resize while a cell is active
+  window.addEventListener('scroll', function(){ if(active) place(active); }, true);
+  window.addEventListener('resize', function(){ if(active) place(active); });
+})();
 
 // ── Robust hour-save queue ──
 // Per-element debounce timers get killed on mobile when you navigate away or
@@ -8179,7 +8272,26 @@ function closePropDetail(){
 // UTILS
 // ═══════════════════════════════════════
 function fN(n){return n.toLocaleString();}
-function fAED(n){if(n>=1e6)return'AED '+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'AED '+(n/1e3).toFixed(0)+'K';return'AED '+Math.round(n);}
+let MONEY_HIDDEN=(function(){try{return localStorage.getItem('mepMoneyHidden')==='1';}catch(e){return false;}})();
+window.addEventListener('load',function(){document.body.classList.toggle('money-hidden',MONEY_HIDDEN);setTimeout(function(){if(typeof syncMoneyEyeIcons==='function')syncMoneyEyeIcons();},300);});
+function fAEDraw(n){if(n>=1e6)return'AED '+(n/1e6).toFixed(1)+'M';if(n>=1e3)return'AED '+(n/1e3).toFixed(0)+'K';return'AED '+Math.round(n);}
+function fAED(n){return MONEY_HIDDEN?'AED \u2022\u2022\u2022':fAEDraw(n);}
+function toggleMoneyHidden(){
+  MONEY_HIDDEN=!MONEY_HIDDEN;
+  try{localStorage.setItem('mepMoneyHidden',MONEY_HIDDEN?'1':'0');}catch(e){}
+  document.body.classList.toggle('money-hidden',MONEY_HIDDEN);
+  // re-render whatever view is showing so masked values recompute
+  if(typeof rerenderCurrent==='function'){try{rerenderCurrent();}catch(e){}}
+  setTimeout(syncMoneyEyeIcons,200);
+}
+function syncMoneyEyeIcons(){
+  document.querySelectorAll('.money-eye').forEach(function(b){
+    b.innerHTML=MONEY_HIDDEN
+      ? '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 10 8 10 8a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 8 10 8a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>'
+      : '<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg>';
+    b.title=MONEY_HIDDEN?'Show costs':'Hide costs';
+  });
+}
 // HTML-escape helper — for any user-typed string about to be interpolated into HTML/attrs
 function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');}
 function todayISO(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
