@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.3 · 06 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.5 · 06 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -962,7 +962,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.3 · 06 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.5 · 06 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -4321,6 +4321,7 @@ if(typeof document!=='undefined'){
 // Helper: re-trigger render of whichever page is currently active
 function rerenderCurrent(){
   if(typeof nav==='function'&&CURRENT_PAGE)nav(CURRENT_PAGE);
+  if(typeof syncMoneyEyeIcons==='function')setTimeout(syncMoneyEyeIcons,50);
 }
 
 function initDashRange(forceRebuild){
@@ -4660,7 +4661,7 @@ function renderMEP(){
       <div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div>
     </div>
     <div class="mc-int pu">
-      <div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"></button></div>
+      <div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${deltaBadge(costDelta,'cost')}</div>
       <div class="spark-box"><canvas id="spark-cost"></canvas></div>
       <div class="mc-s">Period total · ${grainLabel}</div>
@@ -5333,7 +5334,7 @@ function renderOffice(off,pcId){
       <div class="mc-int" style="border-top:3px solid #0d9488;"><div class="mc-head"><div class="mc-l">BIM Team</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
       <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${kpiDeltaBadge(utilSeries,'util')}</div><div class="spark-box"><canvas id="spark-util-${cid}"></canvas></div><div class="mc-s">${grainLabel} · avg</div></div>
       <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="spark-box"><canvas id="spark-bill-${cid}"></canvas></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
-      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
+      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
       <div class="mc-int te"><div class="mc-head"><div class="mc-l">Active Projects</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
@@ -7668,7 +7669,7 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   updateProjCardTotals(p);
 }
 
-// ── Excel-style fill-drag for week cells (v8.11.2, desktop/mouse) ──
+// ── Excel-style fill-drag for week cells (v8.11.5, mouse + touch) ──
 // Adds a fill handle to the focused week-cell input; drag left/right across the
 // SAME engineer row to copy the value into every cell dragged over. Reuses
 // setWeekHrsProj so permissions, colours, totals and saving all behave identically.
@@ -7679,9 +7680,12 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     if(handle) return handle;
     handle=document.createElement('div');
     handle.id='wk-fill-handle';
-    handle.style.cssText='position:absolute;width:9px;height:9px;background:#12263f;border:1px solid #fff;border-radius:1px;cursor:crosshair;z-index:60;display:none;box-shadow:0 0 0 1px rgba(0,0,0,.15);';
+    handle.style.cssText='position:absolute;width:22px;height:22px;background:transparent;z-index:60;display:none;cursor:crosshair;touch-action:none;display:flex;align-items:center;justify-content:center;';
+    // inner visible dot (small), larger transparent hit area around it for fingers
+    handle.innerHTML='<span style="width:11px;height:11px;background:#12263f;border:1.5px solid #fff;border-radius:2px;box-shadow:0 0 0 1px rgba(0,0,0,.2);"></span>';
     document.body.appendChild(handle);
     handle.addEventListener('mousedown', startDrag);
+    handle.addEventListener('touchstart', startDragTouch, {passive:false});
     return handle;
   }
   function place(input){
@@ -7689,9 +7693,9 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     if(input.tagName!=='INPUT' || !input.closest('td.week-cell')) { return; }
     active=input; ensureHandle();
     const r=input.getBoundingClientRect();
-    handle.style.left=(window.scrollX+r.right-5)+'px';
-    handle.style.top=(window.scrollY+r.bottom-5)+'px';
-    handle.style.display='block';
+    handle.style.left=(window.scrollX+r.right-11)+'px';
+    handle.style.top=(window.scrollY+r.bottom-11)+'px';
+    handle.style.display='flex';
   }
   function hide(){ if(handle) handle.style.display='none'; active=null; }
 
@@ -7740,6 +7744,50 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
       if(inp===active || inp.readOnly) return;
       inp.value=srcVal;
       // route through the real setter for permissions/colour/save/totals
+      if(typeof setWeekHrsProj==='function'){
+        setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
+      }
+    });
+    if(typeof flushHourSaves==='function') flushHourSaves();
+    place(active);
+  }
+
+  // ── Touch equivalents (mobile) ──
+  function startDragTouch(e){
+    if(!active) return;
+    e.preventDefault(); e.stopPropagation();   // stops the page from scrolling
+    dragging=true;
+    srcVal=active.value;
+    rowInputs=rowCellsOf(active);
+    startWi=rowInputs.indexOf(active);
+    window.addEventListener('touchmove', onMoveTouch, {passive:false});
+    window.addEventListener('touchend', endDragTouch);
+    window.addEventListener('touchcancel', endDragTouch);
+  }
+  function onMoveTouch(e){
+    if(!dragging) return;
+    e.preventDefault();
+    const t=e.touches[0]; if(!t) return;
+    let idx=startWi;
+    for(let i=0;i<rowInputs.length;i++){
+      const r=rowInputs[i].getBoundingClientRect();
+      if(t.clientX>=r.left && t.clientX<=r.right){ idx=i; break; }
+      if(t.clientX>r.right) idx=i;
+    }
+    const lo=Math.min(startWi,idx), hi=Math.max(startWi,idx);
+    highlight(rowInputs.slice(lo,hi+1));
+  }
+  function endDragTouch(e){
+    window.removeEventListener('touchmove', onMoveTouch);
+    window.removeEventListener('touchend', endDragTouch);
+    window.removeEventListener('touchcancel', endDragTouch);
+    if(!dragging) return;
+    dragging=false;
+    const range=lastRange.slice();
+    highlight([]);
+    range.forEach(inp=>{
+      if(inp===active || inp.readOnly) return;
+      inp.value=srcVal;
       if(typeof setWeekHrsProj==='function'){
         setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
       }
