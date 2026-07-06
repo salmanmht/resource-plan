@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.10.0 · 02 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.1 · 04 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -962,7 +962,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.10.0 · 02 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.1 · 04 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -5847,7 +5847,7 @@ function toggleBimPop(projId, btn){
 const renderProjList=renderProj;
 
 // ═══════════════════════════════════════
-// MILESTONES & STATUS LOG  (Programme history / biweekly updates)
+// DEADLINES & NOTES  (v8.11.1 — simplified: two panels only)
 // ═══════════════════════════════════════
 function fmtMsDate(d){
   if(!d)return '';
@@ -5855,7 +5855,12 @@ function fmtMsDate(d){
   if(isNaN(dt))return d;
   return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 }
-// Milestone status vocabulary. 'overdue' is auto-derived from date, not in the cycle.
+function fmtMsShort(d){
+  if(!d)return '';
+  const dt=new Date(d+'T00:00:00');
+  if(isNaN(dt))return d;
+  return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
 const MS_STATES={
   upcoming:{dot:'#ff9500',dotTxt:'',label:'#1d1d1f',strike:false,badge:'Upcoming',bBg:'#fff4e0',bFg:'#b06800'},
   progress:{dot:'#007aff',dotTxt:'',label:'#1d1d1f',strike:false,badge:'In progress',bBg:'#e6f1fb',bFg:'#1f5fa6'},
@@ -5864,18 +5869,98 @@ const MS_STATES={
   overdue:{dot:'#ff3b30',dotTxt:'',label:'#ff3b30',strike:false,badge:'Overdue',bBg:'#fff0ee',bFg:'#c0271d'}
 };
 const MS_CYCLE=['upcoming','progress','done','hold'];
-// Resolve a milestone's effective status: explicit status, with auto-overdue overlay
 function msEffectiveState(m){
   let s=m.status||(m.done?'done':'upcoming');
   if(s!=='done' && s!=='hold' && m.date && m.date<todayISO()) return 'overdue';
   return s;
 }
+// Can the current user add meeting notes? (any lead role, or admin/MEP lead)
+function canAddTrkNotes(pid){
+  if(adminUnlocked||isMepLeadFor(pid))return true;
+  return myRoles().some(r=>['mep_lead','disc_lead','bim_lead'].includes(r.role));
+}
+// ── Deadlines ──
+function trkAddMilestone(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const tEl=document.getElementById('trk-new-ms-t'),dEl=document.getElementById('trk-new-ms-d');
+  const label=(tEl&&tEl.value||'').trim();
+  if(!label){if(tEl)tEl.focus();return;}
+  const date=(dEl&&dEl.value)||todayISO();
+  if(!p.milestones)p.milestones=[];
+  p.milestones.push({date:date,label:label,done:false,status:'upcoming'});
+  pushProj(p);refreshMilestoneViews();
+  setTimeout(()=>{const t=document.getElementById('trk-new-ms-t');if(t)t.focus();},50);
+}
+function trkEditMsLabel(pid,i,el){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
+  const v=(el.textContent||'').trim();
+  if(!v){el.textContent=p.milestones[i].label;return;}
+  if(v===p.milestones[i].label)return;
+  p.milestones[i].label=v;pushProj(p);refreshMilestoneViews();
+}
+function trkEditMsDate(pid,i,val){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
+  if(p.milestones[i].date===val)return;
+  p.milestones[i].date=val;pushProj(p);refreshMilestoneViews();
+}
+function cycleMsStatus(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  const m=p.milestones[i];
+  const cur=m.status||(m.done?'done':'upcoming');
+  let idx=MS_CYCLE.indexOf(cur);
+  if(idx<0)idx=0;
+  const next=MS_CYCLE[(idx+1)%MS_CYCLE.length];
+  m.status=next;
+  m.done=(next==='done');
+  pushProj(p);refreshMilestoneViews();
+}
+function removeMilestone(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!confirm('Remove this deadline?'))return;
+  p.milestones.splice(i,1);pushProj(p);refreshMilestoneViews();
+}
+// ── Notes ──
+function trkAddNote(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  if(!canAddTrkNotes(pid))return toast('⛔ Only leads or admin can add notes.');
+  const tEl=document.getElementById('trk-new-note');
+  const text=(tEl&&tEl.value||'').trim();
+  if(!text){if(tEl)tEl.focus();return;}
+  if(!p.statusLog)p.statusLog=[];
+  p.statusLog.push({date:todayISO(),text:text});
+  pushProj(p);refreshMilestoneViews();
+  setTimeout(()=>{const t=document.getElementById('trk-new-note');if(t)t.focus();},50);
+}
+function trkEditNoteText(pid,i,el){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
+  const v=(el.textContent||'').trim();
+  if(!v){el.textContent=p.statusLog[i].text;return;}
+  if(v===p.statusLog[i].text)return;
+  p.statusLog[i].text=v;pushProj(p);
+}
+function editStatusDate(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
+  if(!canAddTrkNotes(pid))return toast('⛔ Only leads or admin can edit notes.');
+  const v=prompt('Edit note date (YYYY-MM-DD):',p.statusLog[i].date||todayISO());
+  if(v===null)return;
+  p.statusLog[i].date=v.trim();pushProj(p);refreshMilestoneViews();
+}
+function removeStatusNote(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog)return;
+  if(!canAddTrkNotes(pid))return toast('⛔ Only leads or admin can edit notes.');
+  if(!confirm('Remove this note?'))return;
+  p.statusLog.splice(i,1);pushProj(p);refreshMilestoneViews();
+}
+// ── Editor: two panels only ──
 function renderMilestoneEditor(p){
   if(!p.milestones)p.milestones=[];
   if(!p.statusLog)p.statusLog=[];
   const canEdit=adminUnlocked||isMepLeadFor(p.id);
+  const canNote=canAddTrkNotes(p.id);
   const ms=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
-  const log=[...p.statusLog].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
 
   const msRows=ms.map((m)=>{
     const origIdx=p.milestones.indexOf(m);
@@ -5883,115 +5968,72 @@ function renderMilestoneEditor(p){
     const st=MS_STATES[stKey];
     const deco=st.strike?'text-decoration:line-through;':'';
     const dotStyle=`width:18px;height:18px;border-radius:50%;border:none;background:${st.dot};color:#fff;font-size:11px;display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;${canEdit?'cursor:pointer;':''}`;
-    return`<div style="display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f2f2f7;">
+    const dateCell=canEdit
+      ?`<input type="date" value="${m.date||''}" onchange="trkEditMsDate('${p.id}',${origIdx},this.value)" style="font-size:10px;padding:1px 3px;border:1px solid var(--bdr);border-radius:4px;width:104px;flex-shrink:0;color:var(--tx3);">`
+      :`<span style="font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${fmtMsDate(m.date)}</span>`;
+    const labelCell=canEdit
+      ?`<span contenteditable spellcheck="false" onblur="trkEditMsLabel('${p.id}',${origIdx},this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Tap text to edit" style="font-size:12px;color:${st.label};${deco}flex:1;min-width:0;outline:none;border-radius:4px;padding:1px 3px;">${esc(m.label)}</span>`
+      :`<span style="font-size:12px;color:${st.label};${deco}flex:1;">${esc(m.label)}</span>`;
+    return`<div style="display:flex;align-items:center;gap:8px;padding:7px 2px;border-bottom:1px solid #f2f2f7;">
       <span onclick="${canEdit?`cycleMsStatus('${p.id}',${origIdx})`:''}" title="${canEdit?'Tap to change status':st.badge}" style="${dotStyle}">${st.dotTxt}</span>
-      <span ${canEdit?`onclick="editMilestoneDate('${p.id}',${origIdx})" title="Click to change date" style="cursor:pointer;`:'style="'}font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${fmtMsDate(m.date)}</span>
-      <span ${canEdit?`onclick="editMilestoneLabel('${p.id}',${origIdx})" title="Click to edit" style="cursor:pointer;`:'style="'}font-size:12px;color:${st.label};${deco}flex:1;">${esc(m.label)}</span>
+      ${dateCell}
+      ${labelCell}
       <span style="font-size:9px;font-weight:600;padding:2px 7px;border-radius:9px;background:${st.bBg};color:${st.bFg};white-space:nowrap;flex-shrink:0;">${st.badge}</span>
       ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeMilestone('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
     </div>`;
-  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No milestones yet.</div>';
+  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No deadlines yet.</div>';
 
-  const logRows=log.map((n)=>{
-    const origIdx=p.statusLog.indexOf(n);
-    return`<div style="display:flex;gap:10px;padding:7px 0;border-bottom:1px solid #f2f2f7;">
-      <span ${canEdit?`onclick="editStatusDate('${p.id}',${origIdx})" title="Click to change date" style="cursor:pointer;`:'style="'}font-size:11px;color:var(--tx3);white-space:nowrap;min-width:74px;flex-shrink:0;">${n.date?fmtMsDate(n.date):'—'}</span>
-      <span ${canEdit?`onclick="editStatusNote('${p.id}',${origIdx})" title="Click to edit" style="cursor:pointer;`:'style="'}font-size:12px;color:var(--tx2);flex:1;line-height:1.55;">${esc(n.text)}</span>
-      ${canEdit?`<button class="btn btn-d btn-xs" onclick="removeStatusNote('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
+  const msAddBar=canEdit?`<div style="display:flex;align-items:center;gap:6px;border:1.5px dashed var(--bdr);border-radius:8px;padding:4px 8px;margin-bottom:8px;">
+      <span style="color:var(--tx3);font-size:14px;">＋</span>
+      <input type="text" id="trk-new-ms-t" placeholder="New deadline… Enter" onkeydown="if(event.key==='Enter')trkAddMilestone('${p.id}')" style="flex:1;min-width:0;border:none;background:transparent;font-size:12px;padding:5px 0;outline:none;">
+      <input type="date" id="trk-new-ms-d" style="font-size:10px;padding:1px 3px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx3);">
+    </div>`:'';
+
+  const logSorted=p.statusLog.map((n,i)=>({n:n,i:i}))
+    .sort((a,b)=>((b.n.date||'0').localeCompare(a.n.date||'0'))||(b.i-a.i));
+  const thisWk=wkNum(new Date()), thisYr=new Date().getFullYear();
+  let lastKey=null;
+  const logRows=logSorted.map(({n,i})=>{
+    const origIdx=i;
+    let band='';
+    const d=n.date?new Date(n.date+'T00:00:00'):null;
+    const key=d?(d.getFullYear()+'-W'+wkNum(d)):'undated';
+    if(key!==lastKey){
+      lastKey=key;
+      const isThis=d&&wkNum(d)===thisWk&&d.getFullYear()===thisYr;
+      const lbl=d?((isThis?'This week · ':'')+'W'+wkNum(d)+' — '+fmtMsShort(n.date)):'Earlier';
+      band=`<div style="display:flex;align-items:center;gap:8px;margin:12px 0 2px;">
+        <span style="font-size:10px;font-weight:600;${isThis?'color:#fff;background:var(--acc);padding:2px 9px;border-radius:9px;':'color:var(--acc);'}white-space:nowrap;">${lbl}</span>
+        <span style="flex:1;height:1px;background:#f2f2f7;"></span>
+      </div>`;
+    }
+    const textCell=canNote
+      ?`<span contenteditable spellcheck="false" onblur="trkEditNoteText('${p.id}',${origIdx},this)" onkeydown="if(event.key==='Enter'){event.preventDefault();this.blur();}" title="Tap to edit" style="font-size:12px;color:var(--tx2);flex:1;min-width:0;line-height:1.5;outline:none;border-radius:4px;padding:1px 3px;">${esc(n.text)}</span>`
+      :`<span style="font-size:12px;color:var(--tx2);flex:1;line-height:1.5;">${esc(n.text)}</span>`;
+    return band+`<div style="display:flex;gap:8px;padding:5px 2px;align-items:baseline;">
+      <span onclick="${canNote?`editStatusDate('${p.id}',${origIdx})`:''}" title="${n.date?fmtMsDate(n.date):''}" style="font-size:10px;color:var(--tx3);white-space:nowrap;flex-shrink:0;${canNote?'cursor:pointer;':''}">${n.date?fmtMsShort(n.date):'—'}</span>
+      ${textCell}
+      ${canNote?`<button class="btn btn-d btn-xs" onclick="removeStatusNote('${p.id}',${origIdx})" title="Remove">&#10005;</button>`:''}
     </div>`;
-  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No status updates yet.</div>';
+  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 0;">No notes yet.</div>';
+
+  const noteAddBar=canNote?`<div style="display:flex;align-items:center;gap:6px;border:1.5px dashed var(--bdr);border-radius:8px;padding:4px 8px;margin-bottom:6px;">
+      <span style="color:var(--tx3);font-size:14px;">＋</span>
+      <input type="text" id="trk-new-note" placeholder="Type a note… Enter (dated today)" onkeydown="if(event.key==='Enter')trkAddNote('${p.id}')" style="flex:1;min-width:0;border:none;background:transparent;font-size:12px;padding:5px 0;outline:none;">
+    </div>`:'';
 
   return`<div style="display:grid;grid-template-columns:1fr 1fr;gap:18px;" class="ms-grid">
       <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Milestones</span>
-          ${canEdit?`<button class="btn btn-g btn-xs" onclick="addMilestone('${p.id}')">+ Add</button>`:''}
-        </div>
+        <div style="margin-bottom:6px;"><span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Deadlines</span></div>
+        ${msAddBar}
         ${msRows}
       </div>
       <div>
-        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
-          <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Status log (biweekly)</span>
-          ${canEdit?`<button class="btn btn-g btn-xs" onclick="addStatusNote('${p.id}')">+ Update</button>`:''}
-        </div>
+        <div style="margin-bottom:6px;"><span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">Notes</span></div>
+        ${noteAddBar}
         ${logRows}
       </div>
     </div>`;
-}
-function addMilestone(pid){
-  const p=S.projects.find(x=>x.id===pid);if(!p)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const label=prompt('Milestone label (e.g. "100% DD Submission"):');
-  if(!label||!label.trim())return;
-  const date=prompt('Due date (YYYY-MM-DD):',todayISO());
-  if(!date)return;
-  if(!p.milestones)p.milestones=[];
-  p.milestones.push({date:date.trim(),label:label.trim(),done:false,status:'upcoming'});
-  pushProj(p);refreshMilestoneViews();
-}
-function removeMilestone(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  if(!confirm('Remove this milestone?'))return;
-  p.milestones.splice(i,1);pushProj(p);refreshMilestoneViews();
-}
-function cycleMsStatus(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const m=p.milestones[i];
-  const cur=m.status||(m.done?'done':'upcoming');
-  // find position in cycle (overdue isn't a manual state — treat as upcoming for cycling)
-  let idx=MS_CYCLE.indexOf(cur);
-  if(idx<0)idx=0;
-  const next=MS_CYCLE[(idx+1)%MS_CYCLE.length];
-  m.status=next;
-  m.done=(next==='done'); // keep legacy flag in sync
-  pushProj(p);refreshMilestoneViews();
-}
-function editMilestoneLabel(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const v=prompt('Edit milestone label:',p.milestones[i].label||'');
-  if(v===null)return;
-  if(!v.trim())return toast('Label cannot be empty');
-  p.milestones[i].label=v.trim();pushProj(p);refreshMilestoneViews();
-}
-function editMilestoneDate(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const v=prompt('Edit due date (YYYY-MM-DD):',p.milestones[i].date||todayISO());
-  if(v===null)return;
-  p.milestones[i].date=v.trim();pushProj(p);refreshMilestoneViews();
-}
-function addStatusNote(pid){
-  const p=S.projects.find(x=>x.id===pid);if(!p)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const text=prompt('Status update:');
-  if(!text||!text.trim())return;
-  if(!p.statusLog)p.statusLog=[];
-  p.statusLog.push({date:todayISO(),text:text.trim()});
-  pushProj(p);refreshMilestoneViews();
-}
-function editStatusNote(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const v=prompt('Edit status update:',p.statusLog[i].text||'');
-  if(v===null)return;
-  if(!v.trim())return toast('Update cannot be empty');
-  p.statusLog[i].text=v.trim();pushProj(p);refreshMilestoneViews();
-}
-function editStatusDate(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog||!p.statusLog[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  const v=prompt('Edit update date (YYYY-MM-DD):',p.statusLog[i].date||todayISO());
-  if(v===null)return;
-  p.statusLog[i].date=v.trim();pushProj(p);refreshMilestoneViews();
-}
-function removeStatusNote(pid,i){
-  const p=S.projects.find(x=>x.id===pid);if(!p||!p.statusLog)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
-  if(!confirm('Remove this status update?'))return;
-  p.statusLog.splice(i,1);pushProj(p);refreshMilestoneViews();
 }
 
 // ═══════════════════════════════════════
