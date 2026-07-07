@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.6 · 06 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.11.7 · 06 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -962,7 +962,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.6 · 06 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.11.7 · 06 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -5956,6 +5956,113 @@ function removeStatusNote(pid,i){
   p.statusLog.splice(i,1);pushProj(p);refreshMilestoneViews();
 }
 // ── Editor: two panels only ──
+// ═══════════════════════════════════════
+// PROGRAMME NOTES  (v8.11.7 — team heads-up for the MEP Lead to review)
+// ═══════════════════════════════════════
+function canPostProgNote(pid){
+  if(adminUnlocked||isMepLeadFor(pid))return true;
+  return myRoles().some(r=>['mep_lead','disc_lead','bim_lead'].includes(r.role));
+}
+function progNoteAuthor(){
+  try{ if(typeof currentUserEmail==='function') return currentUserEmail()||'someone'; }catch(e){}
+  try{ return (S.me&&S.me.email)||'someone'; }catch(e){}
+  return 'someone';
+}
+function addProgNote(pid){
+  const p=S.projects.find(x=>x.id===pid);if(!p)return;
+  if(!canPostProgNote(pid))return toast('\u26d4 Only team leads can post programme notes.');
+  const tEl=document.getElementById('prognote-new-'+pid);
+  const stEl=document.getElementById('prognote-stage-'+pid);
+  const text=(tEl&&tEl.value||'').trim();
+  if(!text){if(tEl)tEl.focus();return;}
+  if(!p.progNotes)p.progNotes=[];
+  p.progNotes.push({date:todayISO(),text:text,by:progNoteAuthor(),stage:(stEl&&stEl.value)||'',reviewed:false});
+  pushProj(p);
+  if(typeof rerenderCurrent==='function')rerenderCurrent();
+  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+}
+function toggleProgNoteReviewed(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes||!p.progNotes[i])return;
+  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('\u26d4 Only the MEP Lead or admin can mark a note reviewed.');
+  const n=p.progNotes[i];
+  n.reviewed=!n.reviewed;
+  if(n.reviewed){n.reviewedBy=progNoteAuthor();n.reviewedOn=todayISO();}else{delete n.reviewedBy;delete n.reviewedOn;}
+  pushProj(p);
+  if(typeof rerenderCurrent==='function')rerenderCurrent();
+  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+}
+function removeProgNote(pid,i){
+  const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes)return;
+  const n=p.progNotes[i];
+  const mine=(n&&n.by===progNoteAuthor());
+  if(!(adminUnlocked||isMepLeadFor(pid)||mine))return toast('\u26d4 You can only remove your own note.');
+  if(!confirm('Remove this programme note?'))return;
+  p.progNotes.splice(i,1);pushProj(p);
+  if(typeof rerenderCurrent==='function')rerenderCurrent();
+  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+}
+function progNotePending(p){return ((p.progNotes||[]).filter(n=>!n.reviewed)).length;}
+function fmtProgDate(d){
+  if(!d)return '';
+  const dt=new Date(d+'T00:00:00'); if(isNaN(dt))return d;
+  return dt.toLocaleDateString('en-GB',{day:'numeric',month:'short'});
+}
+function renderProgNotes(p){
+  if(!p.progNotes)p.progNotes=[];
+  const canPost=canPostProgNote(p.id);
+  const canReview=adminUnlocked||isMepLeadFor(p.id);
+  const me=progNoteAuthor();
+  const idx=p.progNotes.map((n,i)=>i);
+  idx.sort((a,b)=>{
+    const na=p.progNotes[a], nb=p.progNotes[b];
+    if(!!na.reviewed!==!!nb.reviewed) return na.reviewed?1:-1;
+    return (nb.date||'').localeCompare(na.date||'');
+  });
+  const pending=progNotePending(p);
+  const stageOpts=['<option value="">(general \u2014 no specific stage)</option>']
+    .concat((p.stages||[]).filter(s=>s.name).map(s=>`<option value="${esc(s.name)}">${esc(s.name)}</option>`)).join('');
+  const rows=idx.map(i=>{
+    const n=p.progNotes[i];
+    const mine=(n.by===me);
+    const canDel=canReview||mine;
+    const stageChip=n.stage?`<span style="font-size:9px;color:var(--acc);background:var(--acc2);padding:1px 7px;border-radius:8px;white-space:nowrap;">\ud83d\udd17 ${esc(n.stage)}</span>`:'';
+    const reviewedTag=n.reviewed
+      ?`<span style="font-size:9px;color:#0c7a55;background:#e1f5ee;padding:1px 7px;border-radius:8px;white-space:nowrap;">\u2713 Reviewed${n.reviewedBy?' \u00b7 '+esc(String(n.reviewedBy).split('@')[0]):''}</span>`
+      :`<span style="font-size:9px;color:#b06800;background:#fff4e0;padding:1px 7px;border-radius:8px;white-space:nowrap;">Awaiting review</span>`;
+    return`<div style="display:flex;gap:8px;padding:8px 4px;border-bottom:1px solid #f2f2f7;align-items:flex-start;${n.reviewed?'opacity:.6;':''}">
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:12px;color:var(--tx1);line-height:1.5;${n.reviewed?'text-decoration:line-through;':''}">${esc(n.text)}</div>
+        <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-top:3px;">
+          <span style="font-size:9px;color:var(--tx3);">${esc(String(n.by).split('@')[0])} \u00b7 ${fmtProgDate(n.date)}</span>
+          ${stageChip}${reviewedTag}
+        </div>
+      </div>
+      ${canReview?`<button class="btn btn-g btn-xs" onclick="toggleProgNoteReviewed('${p.id}',${i})" title="${n.reviewed?'Mark as not reviewed':'Mark reviewed'}">${n.reviewed?'\u21a9\ufe0e':'\u2713'}</button>`:''}
+      ${canDel?`<button class="btn btn-d btn-xs" onclick="removeProgNote('${p.id}',${i})" title="Remove">&#10005;</button>`:''}
+    </div>`;
+  }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 4px;">No programme notes yet.</div>';
+  const addBar=canPost?`<div style="display:flex;flex-direction:column;gap:6px;border:1.5px dashed var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:8px;">
+      <div style="display:flex;align-items:center;gap:6px;">
+        <span style="color:var(--tx3);font-size:14px;">\uff0b</span>
+        <input type="text" id="prognote-new-${p.id}" placeholder="Heads-up for the MEP Lead\u2026 e.g. 'Heard DD moved to mid-Aug, please confirm' \u2014 Enter" onkeydown="if(event.key==='Enter')addProgNote('${p.id}')" style="flex:1;min-width:0;border:none;background:transparent;font-size:12px;padding:4px 0;outline:none;">
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;padding-left:20px;">
+        <span style="font-size:9px;color:var(--tx3);">about stage:</span>
+        <select id="prognote-stage-${p.id}" style="font-size:10px;padding:1px 4px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx3);max-width:220px;">${stageOpts}</select>
+        <button class="btn btn-g btn-xs" onclick="addProgNote('${p.id}')" style="margin-left:auto;">Post note</button>
+      </div>
+    </div>`:'<div style="font-size:11px;color:var(--tx3);padding:6px 4px;">Only team leads can post programme notes.</div>';
+  return`<div style="margin:10px 0 4px;background:#fbfbfd;border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+      <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1e3a5f;">\ud83d\udccc Programme Notes</span>
+      ${pending>0?`<span style="font-size:10px;font-weight:700;color:#fff;background:#ff9500;border-radius:9px;padding:1px 8px;">${pending} to review</span>`:''}
+      <span style="flex:1;"></span>
+      <span style="font-size:9px;color:var(--tx3);">team heads-ups for the MEP Lead</span>
+    </div>
+    ${addBar}
+    ${rows}
+  </div>`;
+}
 function renderMilestoneEditor(p){
   if(!p.milestones)p.milestones=[];
   if(!p.statusLog)p.statusLog=[];
@@ -6339,6 +6446,7 @@ function renderProjDetail(p){
           </tbody>
         </table>
       </div>
+      ${renderProgNotes(p)}
     </div>
 
     <!-- KPI Breakdown by Discipline -->
