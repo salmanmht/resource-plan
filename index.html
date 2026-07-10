@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.15.0 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.21.0 · 10 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.15.0 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.21.0 · 10 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1213,6 +1213,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="hdr"><span class="hdr-t">Cost Rates 🔒</span><button class="btn btn-g btn-sm" onclick="addGradeTier()" style="margin-left:8px;">➕ Add Tier</button><button class="btn btn-p btn-sm" onclick="saveRates()">💾 Save All Rates</button></div>
     <div class="pc">
       <div style="background:var(--amb2);border:1px solid #fde68a;border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--amb);margin-bottom:12px;">💡 Admin only. Separate AED/hour rates for Dubai and Egypt offices. Changes sync instantly to all cost calculations.</div>
+      <div id="rates-view-toggle" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;margin-bottom:12px;"></div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:900px;">
         <div class="card" style="padding:0;overflow:hidden">
           <div style="background:#1e3a5f;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">Dubai Office (DXB) — AED/hour</div>
@@ -1458,8 +1459,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="modal-bd" style="max-height:none">
     <div class="fg">
       <div class="ff full"><label>Full Name *</label><input id="em-name"></div>
-      <div class="ff full"><label>Designation</label><input id="em-desig" placeholder="e.g. Senior Electrical Engineer"></div>
-      <div class="ff"><label>Employee No.</label><input id="em-empno" placeholder="e.g. EMEP001"></div>
+      <div class="ff full"><label>Designation <span style="font-weight:400;color:var(--tx3);font-size:10px;">(auto — Grade Tier + Discipline)</span></label><input id="em-desig" readonly style="background:#f1f5f9;color:var(--tx2);cursor:not-allowed;"></div>
       <div class="ff full"><label>Work Email</label><input type="email" id="em-email" placeholder="e.g. name@meinhardtgroup.com"></div>
       <div class="ff full" style="display:flex;align-items:center;gap:10px;padding:6px 0;">
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:12px;">
@@ -1467,9 +1467,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <span style="color:#0f766e;">BIM Team member</span>
         </label>
       </div>
-      <div class="ff"><label id="em-disc-label">Discipline *</label><select id="em-disc"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
+      <div class="ff"><label id="em-disc-label">Discipline *</label><select id="em-disc" onchange="updateDesigPreview()"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
       <div class="ff"><label>Office *</label><select id="em-off"><option>DXB</option><option>EGY</option><option>IND</option></select></div>
-      <div class="ff"><label id="em-grade-label">Grade Tier (cost)</label><select id="em-grade"></select></div>
+      <div class="ff"><label id="em-grade-label">Grade Tier (cost)</label><select id="em-grade" onchange="updateDesigPreview()"></select></div>
       <div class="ff"><label>Capacity hrs/wk</label><input type="number" id="em-cap" value="45" min="1" max="80"></div>
       <div class="ff"><label>Rate Override (AED/hr)</label><input type="number" id="em-rate" placeholder="Grade default" min="0" max="5000" step="1" title="Leave blank to use the grade-level rate"></div>
       <div class="ff"><label>Joining Date <span style="font-weight:400;color:var(--tx3);font-size:10px;">(optional)</span></label><input type="date" id="em-join-date" title="If set, engineer is hidden from forecasts before this date"></div>
@@ -1532,12 +1532,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Status</label><select id="pw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
       <div class="ff"><label>Project Type</label><select id="pw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="pw-loc"></div>
-      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;width:16px;height:16px;flex-shrink:0;margin:0;"> HVAC</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-phe" value="PH&E" style="accent-color:#166534;width:16px;height:16px;flex-shrink:0;margin:0;"> PH&amp;E</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-ele" value="ELE" style="accent-color:#854d0e;width:16px;height:16px;flex-shrink:0;margin:0;"> ELE</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="pw-disc-elv" value="ELV" style="accent-color:#9d174d;width:16px;height:16px;flex-shrink:0;margin:0;"> ELV</label>
-      </div></div>
+      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div id="pw-disc-checks" style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;"></div></div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
   </div>
@@ -1561,12 +1556,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Status</label><select id="ppw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
       <div class="ff"><label>Project Type</label><select id="ppw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="ppw-loc"></div>
-      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;">
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-hvac" value="HVAC" style="accent-color:#1d4ed8;width:16px;height:16px;flex-shrink:0;margin:0;"> HVAC</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-phe" value="PH&E" style="accent-color:#166534;width:16px;height:16px;flex-shrink:0;margin:0;"> PH&amp;E</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-ele" value="ELE" style="accent-color:#854d0e;width:16px;height:16px;flex-shrink:0;margin:0;"> ELE</label>
-        <label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" id="ppw-disc-elv" value="ELV" style="accent-color:#9d174d;width:16px;height:16px;flex-shrink:0;margin:0;"> ELV</label>
-      </div></div>
+      <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div id="ppw-disc-checks" style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;"></div></div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="ppw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
   </div>
@@ -2168,10 +2158,7 @@ async function renderPendingUsers(){
           <div>
             <div style="font-size:10px;color:var(--tx3);margin-bottom:4px;">Scope</div>
             <select id="role-scope-sel" style="width:100%;font-size:12px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;">
-              <option value="HVAC">HVAC</option>
-              <option value="PH&E">PH&E</option>
-              <option value="ELE">ELE</option>
-              <option value="ELV">ELV</option>
+              ${MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')}
             </select>
           </div>
           <button class="btn btn-p btn-sm" onclick="addRole()" style="white-space:nowrap;">+ Add</button>
@@ -2253,7 +2240,7 @@ function updateScopeOptions(){
   const scopeSel=document.getElementById('role-scope-sel');
   if(!scopeSel)return;
   if(role==='disc_lead'){
-    scopeSel.innerHTML='<option value="HVAC">HVAC</option><option value="PH&E">PH&amp;E</option><option value="ELE">ELE</option><option value="ELV">ELV</option><option value="BIM">BIM</option>';
+    scopeSel.innerHTML=MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="BIM">BIM</option>';
     scopeSel.disabled=false;
   } else if(role==='mep_lead'){
     scopeSel.innerHTML=S.projects.map(p=>`<option value="${p.id}">${p.no||p.id} — ${p.name}</option>`).join('');
@@ -2303,7 +2290,7 @@ async function approvePendingUser(email){
     // Add to engineers table as a placeholder
     const id='e'+Date.now();
     const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    await sbUpsert('engineers',{id,data:{id,name,email:email.toLowerCase(),disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup',empno:''}});
+    await sbUpsert('engineers',{id,data:{id,name,email:email.toLowerCase(),disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup'}});
     // Mark as approved in pending_users
     await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
     toast(`✓ ${name} approved — profile created, please update their details in Team`);
@@ -2439,6 +2426,11 @@ async function initApp(){
     if(adminUnlocked||isDiscLead2){const ln=document.getElementById('nav-leave');if(ln)ln.style.display='';const wn=document.getElementById('nav-weekly');if(wn)wn.style.display='';}
     // Re-render current page in case permissions changed after roles loaded
     if(CURRENT_PAGE==='proj'){const dv=document.getElementById('proj-detail-view');if(dv&&dv.style.display!=='none'){const pdet=S.projects.find(p=>p.id===window._viewingProjId);if(pdet)renderProjDetail(pdet);}}
+    // One-time backfill: bring every engineer's designation in line with the new
+    // "Grade Tier - Discipline" auto-format. Admin-only so non-admin sessions
+    // don't attempt writes that RLS would reject anyway; self-heals next admin login.
+    if(adminUnlocked){ try{ normalizeAllDesignations(true); }catch(e){ console.error('normalizeAllDesignations (auto) failed:',e); } }
+    if(adminUnlocked){ try{ wipeEmployeeNumbers(true); }catch(e){ console.error('wipeEmployeeNumbers (auto) failed:',e); } }
 
     // Legacy rates fallback
     const rrOld=Array.isArray(sets)?sets.find(r=>r.key==='rates'):null;
@@ -2694,28 +2686,30 @@ function setProjRateOverride(projId,engId,val){
   renderProjDetail(p);
 }
 // Re-derive grade from designation for every engineer (fixes stale records)
-function refreshAllGrades(){
-  const changed=[];
+// Regenerates every engineer's Designation from their current Grade Tier + Discipline
+// (e.g. "Principal Engineer - HVAC"). This replaces the old refreshAllGrades(), which
+// tried to reverse-parse a grade back out of free-typed designation text via an
+// undefined d2g() helper — that always threw. Designation is now a derived field,
+// never typed, so this is a one-time correction/backfill utility, and it's also run
+// automatically once after data loads (see loadAll's initial pass).
+function normalizeAllDesignations(silent){
+  const changedIds=[];
   S.engineers.forEach(e=>{
-    const newGrade=d2g(e.desig||'');
-    if(e.grade!==newGrade){
-      const oldGrade=e.grade;
-      e.grade=newGrade;
-      changed.push({name:e.name,from:oldGrade,to:newGrade});
+    const newDesig=computeDesig(e.grade,e.team==='BIM'?(e.subDisc||e.disc):e.disc);
+    if(e.desig!==newDesig){
+      changedIds.push(e.id);
+      e.desig=newDesig;
     }
   });
-  if(changed.length===0){
-    toast('All grades already correct');
-    return;
+  if(changedIds.length===0){
+    if(!silent)toast('All designations already correct');
+    return changedIds;
   }
-  // Push only the engineers whose grade actually changed
-  const changedNames=new Set(changed.map(c=>c.name));
-  S.engineers.forEach(e=>{ if(changedNames.has(e.name)){ try{pushEng&&pushEng(e);}catch(err){} } });
+  const idSet=new Set(changedIds);
+  S.engineers.forEach(e=>{ if(idSet.has(e.id)){ try{pushEng&&pushEng(e);}catch(err){console.error('normalizeAllDesignations: pushEng failed',err);} } });
   saveLocal();
-  toast(`Refreshed ${changed.length} engineer grade${changed.length===1?'':'s'}`);
-  // Re-render whatever's visible
+  if(!silent)toast(`Normalized ${changedIds.length} designation${changedIds.length===1?'':'s'}`);
   if(typeof renderTeam==='function'){try{renderTeam();}catch(e){}}
-  // If a project detail is open, re-render so rates update visually
   const dv=document.getElementById('proj-detail-view');
   if(dv&&dv.style.display!=='none'){
     const titleEl=document.getElementById('proj-hdr-title');
@@ -2725,7 +2719,33 @@ function refreshAllGrades(){
       if(p)renderProjDetail(p);
     }
   }
-  console.log('Grade refresh details:',changed);
+  console.log('Designation normalization: updated',changedIds.length,'engineer(s)');
+  return changedIds;
+}
+// One-time cleanup: Employee No. has been removed as a tracked field. This clears
+// it from every existing engineer record (it's just a key inside their JSON blob —
+// there's no separate Supabase column to drop). Note: this also means the bulk
+// Excel import feature that matched rows by Employee No. (Weekly Tracker / Annual
+// Leave imports) will no longer match anything, since there's nothing left to key on.
+function wipeEmployeeNumbers(silent){
+  const changedIds=[];
+  S.engineers.forEach(e=>{
+    if(e.empno!==undefined){
+      changedIds.push(e.id);
+      delete e.empno;
+    }
+  });
+  if(changedIds.length===0){
+    if(!silent)toast('No Employee No. data found');
+    return changedIds;
+  }
+  const idSet=new Set(changedIds);
+  S.engineers.forEach(e=>{ if(idSet.has(e.id)){ try{pushEng&&pushEng(e);}catch(err){console.error('wipeEmployeeNumbers: pushEng failed',err);} } });
+  saveLocal();
+  if(!silent)toast(`Cleared Employee No. from ${changedIds.length} engineer${changedIds.length===1?'':'s'}`);
+  if(typeof renderTeam==='function'){try{renderTeam();}catch(e){}}
+  console.log('Employee No. wipe: cleared',changedIds.length,'engineer(s)');
+  return changedIds;
 }
 function engCost(e,hrs){return(hrs[e.id]||[]).reduce((a,b)=>a+b,0)*getRate(e);}
 // Sum every stored hour — not bounded by declared end date — so beyond-end hours don't vanish
@@ -2775,6 +2795,8 @@ function engProjHrs(engId,minMI,NMON){
 // DATA HEALTH
 // ═══════════════════════════════════════
 let DH_TAB='setup';
+let RATES_VIEW='all'; // 'all' | 'mep' | 'bim' — which tiers show on the Cost Rates page
+function setRatesView(v){RATES_VIEW=v;renderRates();}
 const DH_MEP=MEP_DISCS.slice();
 const DH_COL={'HVAC':'#ef6c3b','PH&E':'#2563eb','ELE':'#f5a623','ELV':'#14b8a6'};
 function dhProjMepCost(p){
@@ -5391,7 +5413,7 @@ function renderHireFire(){
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);">
         <div>
           <div style="font-weight:600;font-size:12px;">${o.e.name}</div>
-          <div style="font-size:10px;color:var(--tx3);">${o.e.desig||o.e.grade} · ${o.e.disc} · ${o.e.off}</div>
+          <div style="font-size:10px;color:var(--tx3);">${o.e.desig||o.e.grade} · ${o.e.off}</div>
         </div>
         <div style="font-weight:700;font-size:13px;color:var(--red);">${o.peak.toFixed(0)}%</div>
       </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No engineers above 100%</div>';
@@ -5400,7 +5422,7 @@ function renderHireFire(){
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);">
         <div>
           <div style="font-weight:600;font-size:12px;">${u.e.name}</div>
-          <div style="font-size:10px;color:var(--tx3);">${u.e.desig||u.e.grade} · ${u.e.disc} · ${u.e.off}</div>
+          <div style="font-size:10px;color:var(--tx3);">${u.e.desig||u.e.grade} · ${u.e.off}</div>
         </div>
         <div style="font-weight:700;font-size:13px;color:var(--amb);">${u.avg.toFixed(0)}%</div>
       </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No engineers below 50%</div>';
@@ -5908,13 +5930,30 @@ function switchTeamTab(tab){
 }
 
 
+// Rebuilds the Team page's discipline filter from the live discipline config
+// (was previously a hardcoded <option> list in the HTML, so custom disciplines
+// added via Settings could never appear here). Preserves the current selection
+// across re-renders so typing in the search box doesn't reset the filter.
+function refreshTeamDiscFilterOptions(){
+  const sel=document.getElementById('ts-disc'); if(!sel)return;
+  const current=sel.value;
+  const opts=['<option value="all">All Disciplines</option>']
+    .concat(MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`))
+    .concat(['<option value="BIM">BIM</option>']);
+  sel.innerHTML=opts.join('');
+  sel.value=Array.prototype.some.call(sel.options,o=>o.value===current)?current:'all';
+}
 function renderTeam(){
+  refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
-  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="refreshAllGrades()" style="background:#0c4a6e;color:#fff;">&#8635; Refresh Grades</button><button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>`:'';
+  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>`:'';
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   const df=document.getElementById('ts-disc').value;
   const of2=document.getElementById('ts-off').value;
-  const GO={'Technical Manager':0,'Associate Engineer':1,'Principal Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14};
+  // Grade order for sorting engineers within a discipline/BIM section — derived
+  // live from GRADES, so it always matches whatever order the Cost Rates page
+  // currently has (including the cost-based auto-sort applied on Save).
+  const GO={}; GRADES.forEach((g,i)=>{GO[g]=i;});
 
   const DISC_STYLES={
     'HVAC':{bg:'#B5D4F4',color:'#0C447C',badge:'#E6F1FB',badgeTxt:'#185FA5'},
@@ -6962,7 +7001,7 @@ function renderProjDetail(p){
                 ${(function(){
                   const wh=p.weeklyHrs||{};
                   const assignedIds=new Set(Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)));
-                  const discOrder={'HVAC':1,'PH&E':2,'ELE':3,'ELV':4};
+                  const discOrder={}; MEP_DISCS.forEach((c,i)=>{discOrder[c]=i;});
                   // PROPOSAL MODE: only show virtual engineers (grades), grouped by discipline
                   if(window._propViewing){
                     const virts=S.engineers.filter(e=>e._isVirtual&&!assignedIds.has(e.id));
@@ -6979,7 +7018,7 @@ function renderProjDetail(p){
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
                   const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(adminUnlocked||userIsBimLead)?S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name)):[];
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='',lastDisc='';
                   mepAvail.forEach(e=>{
                     if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
@@ -7731,8 +7770,12 @@ function renderJseDemandPanel(projectFilter){
 
 function populateMepLeadDropdown(selId, currentEmail){
   const sel=document.getElementById(selId);if(!sel)return;
-  const MEP_LEAD_GRADES=['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer'];
-  const leads=S.engineers.filter(e=>MEP_LEAD_GRADES.includes(e.grade)&&!e._isVirtual);
+  // Eligible grades = everything at or above "Senior Associate" in the cost-based
+  // tier ranking (GRADES is sorted by cost, highest first — see saveRates()).
+  // Falls back to the old fixed list if that tier's been renamed/removed.
+  const cutoffIdx=GRADES.indexOf('Senior Associate');
+  const eligibleGrades=cutoffIdx>=0?GRADES.slice(0,cutoffIdx+1):['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer'];
+  const leads=S.engineers.filter(e=>eligibleGrades.includes(e.grade)&&!e._isVirtual&&(e.off||'DXB')==='DXB');
   leads.sort((a,b)=>a.name.localeCompare(b.name));
   sel.innerHTML=`<option value="">— None —</option>`+leads.map(e=>{
     const val=e.email||'';
@@ -7872,8 +7915,8 @@ function renderProjCard(p, mode){
   // ── Body rows
   let rows='';
   discs.forEach(disc=>{
-    // Grade seniority order — Technical Manager first, Intern last
-    const GRADE_ORDER={'Technical Manager':0,'Associate Engineer':1,'Principal Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14};
+    // Grade seniority order — derived live from GRADES so custom/renamed tiers sort correctly
+    const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
     const mepEngs=S.engineers
       .filter(e=>e.disc===disc&&e.team!=='BIM')
       .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
@@ -8558,11 +8601,25 @@ function renderRates(){
           <button onclick="renameGradeTier('${g.replace(/'/g,"\\'")}')" title="Rename this tier" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:11px;padding:0 2px;line-height:1;flex-shrink:0;">✎</button>
         </div>
       </td>
-      <td><input type="number" id="${prefix}-${g.replace(/[^\w]/g,'_')}" value="${val||0}" min="0" max="5000"
+      <td><input type="number" class="rate-in-${prefix}" id="${prefix}-${GRADES.indexOf(g)}" data-grade="${esc(g)}" value="${val||0}" min="0" max="5000"
         style="width:120px;text-align:right;font-weight:700;font-size:13px;padding:4px 8px;border:1px solid var(--bdr);border-radius:5px;"></td>
     </tr>`;
-  dxbBody.innerHTML=GRADES.map(g=>mkRow(g,S.ratesDXB[g]||DEF_RATES_DXB[g]||0,'dxb')).join('');
-  egyBody.innerHTML=GRADES.map(g=>mkRow(g,S.ratesEGY[g]||DEF_RATES_EGY[g]||0,'egy')).join('');
+  // Filter which tiers show — mirrors the Team page's Engineers/BIM split, since
+  // sorting all tiers by cost (v8.16.0) interleaves MEP and BIM together.
+  const visibleGrades=RATES_VIEW==='mep'?GRADES.filter(g=>!BIM_GRADES.includes(g))
+    :RATES_VIEW==='bim'?GRADES.filter(g=>BIM_GRADES.includes(g))
+    :GRADES;
+  dxbBody.innerHTML=visibleGrades.map(g=>mkRow(g,S.ratesDXB[g]||DEF_RATES_DXB[g]||0,'dxb')).join('');
+  egyBody.innerHTML=visibleGrades.map(g=>mkRow(g,S.ratesEGY[g]||DEF_RATES_EGY[g]||0,'egy')).join('');
+  const viewBtns=document.getElementById('rates-view-toggle');
+  if(viewBtns){
+    const tabBtn=(val,label)=>{
+      const on=RATES_VIEW===val;
+      const clr=val==='bim'?'#0d9488':val==='mep'?'#1d4ed8':'#475569';
+      return`<button onclick="setRatesView('${val}')" style="padding:3px 10px;font-size:10px;font-weight:700;border:1px solid ${on?clr:clr+'44'};border-radius:20px;cursor:pointer;background:${on?clr:'transparent'};color:${on?'#fff':clr};transition:.12s;">${label}</button>`;
+    };
+    viewBtns.innerHTML=`<span style="font-size:9px;color:var(--tx3);font-weight:600;">View:</span>${tabBtn('all','Combined')}${tabBtn('mep','Engineers only')}${tabBtn('bim','BIM only')}`;
+  }
   // Per-engineer overrides panel
   const ovBody=document.getElementById('rate-overrides-body');
   if(ovBody){
@@ -8583,14 +8640,30 @@ function renderRates(){
   }
 }
 function saveRates(){
-  GRADES.forEach(g=>{
-    const dEl=document.getElementById('dxb-'+g.replace(/[^\w]/g,'_'));
-    const eEl=document.getElementById('egy-'+g.replace(/[^\w]/g,'_'));
-    if(dEl)S.ratesDXB[g]=parseFloat(dEl.value)||0;
-    if(eEl)S.ratesEGY[g]=parseFloat(eEl.value)||0;
+  // Read directly off each rendered input's own data-grade attribute, rather than
+  // reconstructing a lookup id from the grade name — guarantees we're reading
+  // exactly the tier the box belongs to, with zero chance of an id collision
+  // between two similarly-named tiers silently reading/writing the wrong one.
+  document.querySelectorAll('.rate-in-dxb').forEach(el=>{
+    const g=el.getAttribute('data-grade'); if(g)S.ratesDXB[g]=parseFloat(el.value)||0;
+  });
+  document.querySelectorAll('.rate-in-egy').forEach(el=>{
+    const g=el.getAttribute('data-grade'); if(g)S.ratesEGY[g]=parseFloat(el.value)||0;
   });
   S.rates=S.ratesDXB; // keep backward compat
-  pushRates();toast('Rates saved & synced ✓');
+
+  // Sort tiers by cost (DXB rate, falling back to EGY if a tier has no DXB rate),
+  // highest first — this drives both the rates table order and, since Team's
+  // grade order is derived live from GRADES, the Team register's sort too.
+  const rateOf=g=>(S.ratesDXB[g]||S.ratesEGY[g]||0);
+  GRADES.sort((a,b)=>rateOf(b)-rateOf(a));
+  BIM_GRADES.sort((a,b)=>rateOf(b)-rateOf(a));
+
+  pushRates();
+  pushGradeTiers();
+  renderRates();
+  if(document.getElementById('team-grid'))renderTeam();
+  toast('Rates saved, sorted by cost & synced ✓');
 }
 
 // Add a brand-new grade tier — appends to GRADES (and BIM_GRADES if flagged),
@@ -8653,15 +8726,73 @@ function onBimToggle(){
   document.getElementById('em-grade-label').textContent=isBIM?'BIM Grade':'Grade Tier (cost)';
   fillGrade(isBIM);
 }
+// Rebuilds the Discipline dropdown in the Add/Edit Engineer modal from the live
+// discipline config — was previously a hardcoded <option> list, so a custom
+// discipline added via Settings could never actually be assigned to anyone.
+// Renders a set of discipline checkboxes dynamically from the live discipline
+// config (was previously 4 hardcoded checkboxes per modal, so a custom
+// discipline could never be scoped into any project or proposal). One shared
+// helper for both the Project and Proposal modals, distinguished by prefix.
+function renderDiscCheckboxes(containerId,prefix){
+  const el=document.getElementById(containerId); if(!el)return;
+  const discBoxes=MEP_DISCS.map(code=>{
+    const safeId=prefix+'-disc-'+code.replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
+    const cfg=DISCIPLINE_CONFIG.find(d=>d.code===code);
+    const color=(cfg&&cfg.color)||'#64748b';
+    return `<label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" class="disc-check-${prefix}" id="${safeId}" value="${esc(code)}" style="accent-color:${color};width:16px;height:16px;flex-shrink:0;margin:0;"> ${esc(code)}</label>`;
+  }).join('');
+  // BIM sits in the same row but is NOT part of the disciplines array — it's
+  // backed by its own field (bimExcluded) and defaults to checked/allowed so
+  // existing projects (saved before this checkbox existed) are never silently
+  // restricted. Only an explicit uncheck-and-save turns BIM off for a project.
+  const bimBox=`<label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" class="bim-toggle-${prefix}" id="${prefix}-bim-toggle" checked style="accent-color:${BIM_COLOR};width:16px;height:16px;flex-shrink:0;margin:0;"> BIM</label>`;
+  el.innerHTML=discBoxes+bimBox;
+}
+function setCheckedDiscs(prefix,discs){
+  document.querySelectorAll('.disc-check-'+prefix).forEach(cb=>{ cb.checked=(discs||[]).includes(cb.value); });
+}
+function getCheckedDiscs(prefix){
+  return Array.prototype.filter.call(document.querySelectorAll('.disc-check-'+prefix),cb=>cb.checked).map(cb=>cb.value);
+}
+// bimExcluded is only ever explicitly true once someone has actually unchecked
+// and saved — undefined/false always means allowed, so old projects are safe.
+function setBimAllowed(prefix,allowed){
+  const cb=document.getElementById(prefix+'-bim-toggle'); if(cb)cb.checked=(allowed!==false);
+}
+function isBimAllowed(prefix){
+  const cb=document.getElementById(prefix+'-bim-toggle'); return cb?cb.checked:true;
+}
+function fillDisc(){
+  const sel=document.getElementById('em-disc'); if(!sel)return;
+  sel.innerHTML=MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+}
 function fillGrade(isBIM){
   const list=isBIM?BIM_GRADES:GRADES;
   document.getElementById('em-grade').innerHTML=list.map(g=>`<option>${g}</option>`).join('');
+  updateDesigPreview();
+}
+// Designation is always derived from Grade Tier + Discipline — never free-typed —
+// so the two can never drift out of sync (this replaces the old reverse-parse
+// approach, which tried to guess the grade back out of typed text).
+function computeDesig(grade,disc){
+  grade=(grade||'').trim(); disc=(disc||'').trim();
+  if(!grade&&!disc)return'';
+  if(!disc)return grade;
+  if(!grade)return disc;
+  return grade+' - '+disc;
+}
+function updateDesigPreview(){
+  const el=document.getElementById('em-desig'); if(!el)return;
+  const grade=document.getElementById('em-grade').value;
+  const disc=document.getElementById('em-disc').value;
+  el.value=computeDesig(grade,disc);
 }
 function openEngModal(){
   if(!adminUnlocked){toast('Admin access required');return;}
   eId=null;
   document.getElementById('eng-title').textContent='Add Engineer';
-  ['em-name','em-desig','em-empno','em-note','em-email','em-rate','em-join-date','em-end-date'].forEach(id=>document.getElementById(id).value='');
+  ['em-name','em-desig','em-note','em-email','em-rate','em-join-date','em-end-date'].forEach(id=>document.getElementById(id).value='');
+  fillDisc();
   document.getElementById('em-disc').value='HVAC';
   document.getElementById('em-off').value='DXB';
   document.getElementById('em-cap').value=45;
@@ -8678,7 +8809,6 @@ function editEng(id){
   document.getElementById('eng-title').textContent='Edit Engineer';
   document.getElementById('em-name').value=e.name;
   document.getElementById('em-desig').value=e.desig||'';
-  document.getElementById('em-empno').value=e.empno||'';
   document.getElementById('em-note').value=e.note||'';
   document.getElementById('em-email').value=e.email||'';
   document.getElementById('em-rate').value=e.rateOverride||'';
@@ -8688,10 +8818,12 @@ function editEng(id){
   document.getElementById('em-is-bim').checked=isBIM;
   document.getElementById('em-disc-label').textContent=isBIM?'Sub-Discipline *':'Discipline *';
   document.getElementById('em-grade-label').textContent=isBIM?'BIM Grade':'Grade Tier (cost)';
+  fillDisc();
   document.getElementById('em-disc').value=isBIM?(e.subDisc||e.disc):e.disc;
   document.getElementById('em-off').value=e.off||'DXB';
   fillGrade(isBIM);
   document.getElementById('em-grade').value=e.grade||(isBIM?'BIM Modeler':'Engineer');
+  updateDesigPreview();
   document.getElementById('eng-ov').classList.add('open');
 }
 function closeEngModal(){document.getElementById('eng-ov').classList.remove('open');}
@@ -8702,8 +8834,8 @@ async function saveEng(){
   const eng={
     id:eId||'e'+Date.now(),
     name,
-    desig:document.getElementById('em-desig').value.trim(),
-    empno:document.getElementById('em-empno').value.trim(),
+    desig:computeDesig(document.getElementById('em-grade').value,discVal),
+    // Employee No. removed — no longer a tracked field
     // FIELD NAMES: always use shorthand 'disc' and 'off' internally.
     // Any code reading engineer objects must use e.disc / e.off (not e.discipline / e.office).
     disc:discVal,   // for BIM, disc = subDisc (what discipline they support)
@@ -8750,9 +8882,9 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';renderDiscCheckboxes('pw-disc-checks','pw');populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){if(!adminUnlocked){toast('Admin access required');return;}const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';const discs=p.disciplines||[];['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';renderDiscCheckboxes('pw-disc-checks','pw');setCheckedDiscs('pw',p.disciplines||[]);setBimAllowed('pw',p.bimExcluded!==true);populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
@@ -8773,9 +8905,10 @@ async function saveProj(){
       if(newArr.some(v=>v>0))weeklyHrs[eid]=newArr;
     });
   }
-  const disciplines=['pw-disc-hvac','pw-disc-phe','pw-disc-ele','pw-disc-elv'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value);
+  const disciplines=getCheckedDiscs('pw');
+  const bimExcluded=!isBimAllowed('pw');
   const mepLeadEmail=document.getElementById('pw-meplead').value||'';
-  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,mepLeadEmail,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
+  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,bimExcluded,mepLeadEmail,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
   if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
   await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
   // If detail view is open for this project, re-render it with new dates
@@ -8819,14 +8952,15 @@ function renderProposals(){
   document.getElementById('prop-list').innerHTML=`<div class="card" style="padding:0;overflow:hidden;">${headerRow}${rowsHtml}${emptyMsg}</div>`;
 }
 
-function openPropModal(){propId=null;document.getElementById('prop-title').textContent='New Proposal';['ppw-no','ppw-name','ppw-client','ppw-pm','ppw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('ppw-start').value='2026-04-06';document.getElementById('ppw-end').value='2026-12-31';document.getElementById('ppw-fend').value='';document.getElementById('ppw-st').value='Active';document.getElementById('ppw-ptype').value='';['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].forEach(id=>{document.getElementById(id).checked=false;});document.getElementById('ppw-fee').value='';document.getElementById('prop-ov').classList.add('open');}
+function openPropModal(){propId=null;document.getElementById('prop-title').textContent='New Proposal';['ppw-no','ppw-name','ppw-client','ppw-pm','ppw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('ppw-start').value='2026-04-06';document.getElementById('ppw-end').value='2026-12-31';document.getElementById('ppw-fend').value='';document.getElementById('ppw-st').value='Active';document.getElementById('ppw-ptype').value='';renderDiscCheckboxes('ppw-disc-checks','ppw');document.getElementById('ppw-fee').value='';document.getElementById('prop-ov').classList.add('open');}
 function closePropModal(){document.getElementById('prop-ov').classList.remove('open');}
-function editProp(id){const p=(S.proposals||[]).find(x=>x.id===id);if(!p)return;propId=id;document.getElementById('prop-title').textContent='Edit: '+p.name;document.getElementById('ppw-no').value=p.no||'';document.getElementById('ppw-name').value=p.name;document.getElementById('ppw-client').value=p.client||'';document.getElementById('ppw-pm').value=p.pm||'';document.getElementById('ppw-fee').value=p.feeFactor||1.0;document.getElementById('ppw-loc').value=p.location||'';document.getElementById('ppw-start').value=p.start||'2026-04-06';document.getElementById('ppw-end').value=p.end||'2026-12-31';document.getElementById('ppw-fend').value=p.forecastEnd||'';document.getElementById('ppw-st').value=p.status;document.getElementById('ppw-ptype').value=p.projType||'';const discs=p.disciplines||[];['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].forEach(id=>{const el=document.getElementById(id);if(el)el.checked=discs.includes(el.value);});document.getElementById('prop-ov').classList.add('open');}
+function editProp(id){const p=(S.proposals||[]).find(x=>x.id===id);if(!p)return;propId=id;document.getElementById('prop-title').textContent='Edit: '+p.name;document.getElementById('ppw-no').value=p.no||'';document.getElementById('ppw-name').value=p.name;document.getElementById('ppw-client').value=p.client||'';document.getElementById('ppw-pm').value=p.pm||'';document.getElementById('ppw-fee').value=p.feeFactor||1.0;document.getElementById('ppw-loc').value=p.location||'';document.getElementById('ppw-start').value=p.start||'2026-04-06';document.getElementById('ppw-end').value=p.end||'2026-12-31';document.getElementById('ppw-fend').value=p.forecastEnd||'';document.getElementById('ppw-st').value=p.status;document.getElementById('ppw-ptype').value=p.projType||'';renderDiscCheckboxes('ppw-disc-checks','ppw');setCheckedDiscs('ppw',p.disciplines||[]);setBimAllowed('ppw',p.bimExcluded!==true);document.getElementById('prop-ov').classList.add('open');}
 async function saveProp(){
   if(!adminUnlocked){toast('Admin access required');return;}
   const name=document.getElementById('ppw-name').value.trim();if(!name){toast('Name required');return;}
-  const disciplines=['ppw-disc-hvac','ppw-disc-phe','ppw-disc-ele','ppw-disc-elv'].filter(id=>document.getElementById(id).checked).map(id=>document.getElementById(id).value);
-  const p={id:propId||'prp'+Date.now(),no:document.getElementById('ppw-no').value.trim(),name,client:document.getElementById('ppw-client').value.trim(),pm:document.getElementById('ppw-pm').value.trim(),location:document.getElementById('ppw-loc').value.trim(),start:document.getElementById('ppw-start').value,end:document.getElementById('ppw-end').value,forecastEnd:document.getElementById('ppw-fend').value||'',projType:document.getElementById('ppw-ptype').value||'',disciplines,status:document.getElementById('ppw-st').value,feeFactor:parseFloat(document.getElementById('ppw-fee').value)||1.0};
+  const disciplines=getCheckedDiscs('ppw');
+  const bimExcluded=!isBimAllowed('ppw');
+  const p={id:propId||'prp'+Date.now(),no:document.getElementById('ppw-no').value.trim(),name,client:document.getElementById('ppw-client').value.trim(),pm:document.getElementById('ppw-pm').value.trim(),location:document.getElementById('ppw-loc').value.trim(),start:document.getElementById('ppw-start').value,end:document.getElementById('ppw-end').value,forecastEnd:document.getElementById('ppw-fend').value||'',projType:document.getElementById('ppw-ptype').value||'',disciplines,bimExcluded,status:document.getElementById('ppw-st').value,feeFactor:parseFloat(document.getElementById('ppw-fee').value)||1.0};
   if(!S.proposals)S.proposals=[];
   if(propId){const i=S.proposals.findIndex(x=>x.id===propId);S.proposals[i]=p;}else S.proposals.push(p);
   try{await sbUpsert('proposals',{id:p.id,data:p});}catch(e){saveLocal();}
@@ -8879,7 +9013,7 @@ function openPropDetail(id){
       // BIM grades only make sense for "real" disciplines, not separate BIM tracks
       const vid='grd_'+id+'_'+disc.replace(/[^a-zA-Z0-9]/g,'_')+'_'+grade.replace(/[^a-zA-Z0-9]/g,'_');
       virtuals.push({
-        id:vid,name:grade,empno:'',desig:grade,
+        id:vid,name:grade,desig:grade,
         disc:isBim?undefined:disc,
         subDisc:isBim?disc:undefined,
         grade:grade,off:'DXB',
@@ -10194,7 +10328,7 @@ function exportStageSummary(projId){
   const DISCS=MEP_DISCS_BIM.slice();
   const DISC_COLS={HVAC:'DBEAFE',['PH&E']:'DCFCE7',ELE:'FEF9C3',ELV:'FCE7F3',BIM:'CCFBF1'};
   const DISC_FONT={HVAC:'1D4ED8',['PH&E']:'166534',ELE:'854D0E',ELV:'9D174D',BIM:'0F766E'};
-  const GO2={'Technical Manager':0,'Associate Engineer':1,'Principal Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14};
+  const GO2={}; GRADES.forEach((g,i)=>{GO2[g]=i;}); // derived live so custom/renamed tiers sort correctly
 
   // Build list of assigned engineers per disc (one row per engineer)
   const discData=DISCS.map(disc=>{
@@ -10540,7 +10674,7 @@ function exportExcel(opts){
     const comp=computeRange();
     const{hrs,util,billUtil,minMI,NMON}=comp;
     const all=S.engineers;
-    const GO={'Technical Manager':0,'Associate Engineer':1,'Principal Engineer':2,'Lead Engineer':3,'Senior Engineer':4,'Engineer':5,'Junior / Grad Engineer':6,'Intern':7,'BIM Manager':8,'Assistant BIM Manager':9,'BIM Coordinator':10,'BIM Specialist':11,'Senior BIM Modeler':12,'BIM Modeler':13,'BIM Technician':14};
+    const GO={}; GRADES.forEach((g,i)=>{GO[g]=i;}); // matches the Team register's live cost-based order
     const DISCS=MEP_DISCS.slice();
     const projectsToExport=selectedProjectIds?S.projects.filter(p=>selectedProjectIds.includes(p.id)):S.projects;
 
@@ -11731,7 +11865,7 @@ const _origNav=typeof nav==='function'?nav:null;
     var dc=DC[e.disc]||DC['BIM'];
     var initials=(e.name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();
     var ringInner=window.mhGauge?window.mhGauge(avg,68):('<b style="font-size:20px;">'+avg+'</b>');
-    var sub=[(e.desig||'—'),e.disc,(e.off||'DXB')].filter(Boolean).join(' · ');
+    var sub=[(e.desig||'—'),(e.off||'DXB')].filter(Boolean).join(' · ');
     var rate=0; try{rate=Math.round(getRate(e)||0);}catch(_){}
 
     var allocHtml=top.length?top.map(function(x){var pct=capHrs?Math.round(x.hrs/capHrs*100):0;return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+Math.min(pct,100)+'%;background:#10243E;border-radius:4px;"></div></div></div>';}).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;">Not staffed in this period.</div>';
