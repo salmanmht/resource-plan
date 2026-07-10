@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.14.3 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.15.0 · 10 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.14.3 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.15.0 · 10 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1210,7 +1210,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
   <!-- COST RATES -->
   <div id="pg-rates" style="display:none">
-    <div class="hdr"><span class="hdr-t">Cost Rates 🔒</span><button class="btn btn-p btn-sm" onclick="saveRates()">💾 Save All Rates</button></div>
+    <div class="hdr"><span class="hdr-t">Cost Rates 🔒</span><button class="btn btn-g btn-sm" onclick="addGradeTier()" style="margin-left:8px;">➕ Add Tier</button><button class="btn btn-p btn-sm" onclick="saveRates()">💾 Save All Rates</button></div>
     <div class="pc">
       <div style="background:var(--amb2);border:1px solid #fde68a;border-radius:var(--r);padding:10px 14px;font-size:11px;color:var(--amb);margin-bottom:12px;">💡 Admin only. Separate AED/hour rates for Dubai and Egypt offices. Changes sync instantly to all cost calculations.</div>
       <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;max-width:900px;">
@@ -1226,7 +1226,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
       </div>
       <div style="max-width:900px;margin-top:10px;padding:10px 14px;background:#f0fdf4;border-radius:var(--r);border:1px solid #86efac;font-size:11px;color:#166534;">
-        ℹ️ Rates are automatically applied based on each engineer's office. DXB engineers use Dubai rates, EGY engineers use Egypt rates. <strong>Per-engineer overrides</strong> (set in the engineer edit modal) take priority over grade-level rates.
+        ℹ️ Rates are automatically applied based on each engineer's office. DXB engineers use Dubai rates, EGY engineers use Egypt rates. <strong>Per-engineer overrides</strong> (set in the engineer edit modal) take priority over grade-level rates. Use <strong>+ Add Tier</strong> above to create a new grade, or the ✎ next to any tier name to rename it — renaming automatically updates every engineer already on that tier.
       </div>
       <!-- Per-Engineer Overrides -->
       <div style="max-width:900px;margin-top:14px;" class="card" id="rate-overrides-card">
@@ -2417,6 +2417,14 @@ async function initApp(){
     // Load custom disciplines (falls back to defaults if absent/invalid)
     const rdisc=Array.isArray(sets)?sets.find(r=>r.key==='disciplines'):null;
     if(rdisc&&Array.isArray(rdisc.value)&&rdisc.value.length){ try{ applyDisciplineConfig(rdisc.value); }catch(e){ console.warn('discipline config load failed, using defaults',e); } }
+    // Load custom grade tiers (falls back to the hardcoded defaults if absent/invalid)
+    const rgrades=Array.isArray(sets)?sets.find(r=>r.key==='gradeTiers'):null;
+    if(rgrades&&rgrades.value&&Array.isArray(rgrades.value.order)&&rgrades.value.order.length){
+      try{
+        GRADES.length=0; GRADES.push(...rgrades.value.order);
+        BIM_GRADES.length=0; BIM_GRADES.push(...(Array.isArray(rgrades.value.bim)?rgrades.value.bim:[]));
+      }catch(e){ console.warn('grade tiers load failed, using defaults',e); }
+    }
     // Re-check admin status now that roles are loaded
     if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
       adminUnlocked=true;
@@ -2505,6 +2513,10 @@ async function pushRates(){try{
     sbFetch('settings','POST',{key:'ratesEGY',value:S.ratesEGY},'resolution=merge-duplicates,return=representation'),
   ]);
   setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
+
+async function pushGradeTiers(){try{
+  await sbFetch('settings','POST',{key:'gradeTiers',value:{order:GRADES.slice(),bim:BIM_GRADES.slice()}},'resolution=merge-duplicates,return=representation');
+  setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch(e){setSyncStatus(false,'Sync failed');console.error('pushGradeTiers failed:',e);}}
 
 // ═══════════════════════════════════════
 // SEED DATA
@@ -4921,11 +4933,14 @@ function renderMEP(){
 
   })();
   const _actScoped=(function(){
-    var total=S.projects.length; // always the global project count
-    if(!window.MEP_OFF && !mepDiscActive()) return {used:total,total:total};
-    var used=S.projects.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}).length;
+    var statusF=_msf(); // null when 'All status' explicitly selected — means don't filter by status at all
+    var base=statusF?S.projects.filter(function(p){return p.status===statusF;}):S.projects.slice();
+    var total=S.projects.length; // denominator stays the whole company, so the ratio ring stays meaningful
+    if(!window.MEP_OFF && !mepDiscActive()) return {used:base.length,total:total};
+    var used=base.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}).length;
     return {used:used,total:total};
   })();
+  const _actLabel=(function(){var sf=_msf();return sf?(sf+' Projects'):'All Projects';})();
   if(typeof syncDiscChips==='function')syncDiscChips();
   document.querySelectorAll('.js-mep-status').forEach(function(el){el.value=window.MEP_STATUS||'all';});
   const tu=subUtil(all,util,minMI,NMON);
@@ -5015,7 +5030,7 @@ function renderMEP(){
       <div class="mc-s">Period total · ${grainLabel}</div>
     </div>
     <div class="mc-int te" onclick="kpiDrillDown('projects')" title="Click to view Projects">
-      <div class="mc-head"><div class="mc-l">Active Projects</div><div class="mc-arrow">→</div></div>
+      <div class="mc-head"><div class="mc-l">${_actLabel}</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((_actScoped.total?Math.round(_actScoped.used/_actScoped.total*100):0),34):''}<div class="mc-v">${_actScoped.used}</div></div></div>
       <div class="mc-s">of ${_actScoped.total} total</div>
     </div>`;
@@ -5673,7 +5688,9 @@ function renderOffice(off,pcId){
   const billSeries=subUtil(sub,grainData.billUtil||grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
   const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){var eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});return Math.round(c);});
   const offProjs=S.projects.filter(function(pp){var wh=pp.weeklyHrs||{};return sub.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});});
-  const offActive=offProjs.filter(function(pp){return pp.status==='Active';}).length;
+  const _offStatusF=_msf();
+  const offActive=offProjs.filter(function(pp){return _offStatusF?pp.status===_offStatusF:true;}).length;
+  const _offActLabel=_offStatusF?(_offStatusF+' Projects'):'All Projects';
   const discs=MEP_DISCS_BIM.slice(),dClr=MEP_DISC_COLORS_BIM.slice();
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
@@ -5683,7 +5700,7 @@ function renderOffice(off,pcId){
       <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${kpiDeltaBadge(utilSeries,'util')}</div><div class="spark-box"><canvas id="spark-util-${cid}"></canvas></div><div class="mc-s">${grainLabel} · avg</div></div>
       <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="spark-box"><canvas id="spark-bill-${cid}"></canvas></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
       <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
-      <div class="mc-int te"><div class="mc-head"><div class="mc-l">Active Projects</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
+      <div class="mc-int te"><div class="mc-head"><div class="mc-l">${_offActLabel}</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="card-t">By Discipline</div><div class="cbox"><canvas id="off-l-${cid}"></canvas></div></div>
@@ -8535,7 +8552,12 @@ function renderRates(){
   else aiLoadKey().then(()=>{const kInput=document.getElementById('ai-key-input');if(kInput&&AI_KEY)kInput.value=AI_KEY;});
   const mkRow=(g,val,prefix)=>`
     <tr>
-      <td style="font-weight:500;font-size:12px">${g}</td>
+      <td style="font-weight:500;font-size:12px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <span>${esc(g)}</span>
+          <button onclick="renameGradeTier('${g.replace(/'/g,"\\'")}')" title="Rename this tier" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:11px;padding:0 2px;line-height:1;flex-shrink:0;">✎</button>
+        </div>
+      </td>
       <td><input type="number" id="${prefix}-${g.replace(/[^\w]/g,'_')}" value="${val||0}" min="0" max="5000"
         style="width:120px;text-align:right;font-weight:700;font-size:13px;padding:4px 8px;border:1px solid var(--bdr);border-radius:5px;"></td>
     </tr>`;
@@ -8569,6 +8591,57 @@ function saveRates(){
   });
   S.rates=S.ratesDXB; // keep backward compat
   pushRates();toast('Rates saved & synced ✓');
+}
+
+// Add a brand-new grade tier — appends to GRADES (and BIM_GRADES if flagged),
+// seeds both rate tables at 0, and persists the tier list itself so it survives reload.
+function addGradeTier(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const raw=prompt('New grade tier name (e.g. "Graduate Engineer II"):');
+  if(raw===null)return;
+  const name=raw.trim();
+  if(!name){toast('Tier name cannot be empty');return;}
+  if(GRADES.includes(name)){toast('⛔ A tier with that name already exists');return;}
+  const isBim=confirm('Is this a BIM grade tier?\n\nOK = BIM grade (shows in BIM engineer dropdown)\nCancel = MEP engineer grade');
+  GRADES.push(name);
+  if(isBim)BIM_GRADES.push(name);
+  S.ratesDXB[name]=0;
+  S.ratesEGY[name]=0;
+  pushGradeTiers();
+  pushRates();
+  renderRates();
+  toast(`Added "${name}" — set its rate below, then Save All Rates`);
+}
+
+// Rename an existing grade tier in place. Cascades to: the rate tables (moves the
+// value across to the new key) and every engineer currently on that tier (their
+// e.grade is updated and re-synced), so nobody silently drops to a 0 rate.
+async function renameGradeTier(oldName){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const raw=prompt('Rename grade tier:',oldName);
+  if(raw===null)return;
+  const newName=raw.trim();
+  if(!newName){toast('Tier name cannot be empty');return;}
+  if(newName===oldName)return;
+  if(GRADES.includes(newName)){toast('⛔ A tier with that name already exists');return;}
+  const affected=S.engineers.filter(e=>e.grade===oldName);
+  if(affected.length){
+    const ok=confirm(`Rename "${oldName}" to "${newName}"?\n\nThis will update ${affected.length} engineer${affected.length===1?'':'s'} currently on this tier.`);
+    if(!ok)return;
+  }
+  const gi=GRADES.indexOf(oldName); if(gi>=0)GRADES[gi]=newName;
+  const bi=BIM_GRADES.indexOf(oldName); if(bi>=0)BIM_GRADES[bi]=newName;
+  if(Object.prototype.hasOwnProperty.call(S.ratesDXB,oldName)){S.ratesDXB[newName]=S.ratesDXB[oldName];delete S.ratesDXB[oldName];}
+  if(Object.prototype.hasOwnProperty.call(S.ratesEGY,oldName)){S.ratesEGY[newName]=S.ratesEGY[oldName];delete S.ratesEGY[oldName];}
+  for(const e of affected){
+    e.grade=newName;
+    try{await pushEng(e);}catch(err){console.error('renameGradeTier: pushEng failed for',e.id,err);}
+  }
+  await pushGradeTiers();
+  await pushRates();
+  renderRates();
+  if(typeof renderTeam==='function'){const tc=document.getElementById('pc-team');if(tc)renderTeam();}
+  toast(`Renamed to "${newName}"`+(affected.length?` — updated ${affected.length} engineer${affected.length===1?'':'s'}`:''));
 }
 
 // ═══════════════════════════════════════
