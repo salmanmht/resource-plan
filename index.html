@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.13.5 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.14.3 · 10 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.13.5 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.14.3 · 10 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2910,6 +2910,76 @@ function dhRenderBalance(){
   return h;
 }
 function dhSetTab(t){DH_TAB=t;renderHealth();}
+
+// ═══════════════════════════════════════
+// GHOST HOURS — orphaned project_hours entries
+// ═══════════════════════════════════════
+// "Ghost" hours are weeklyHrs entries keyed to an engineer_id that no longer
+// exists in S.engineers. They accumulate whenever an engineer is removed from
+// Team without first being taken off every project (historically delEng() did
+// not cascade-delete project_hours). Because projTotalHrs() sums weeklyHrs raw,
+// ghosts inflate the hrs/cost/fee badges even though no visible row shows them.
+function dhFindGhosts(){
+  const liveIds=new Set(S.engineers.map(e=>e.id));
+  const allProjects=(S._allProjects||S.projects||[]).filter(p=>!p.id.toString().startsWith('prp'));
+  const ghosts=[];
+  allProjects.forEach(p=>{
+    const wh=p.weeklyHrs||{};
+    Object.keys(wh).forEach(eid=>{
+      if(!liveIds.has(eid)){
+        const hrs=(wh[eid]||[]).reduce((a,v)=>a+(v||0),0);
+        ghosts.push({projId:p.id,projName:(p.no?p.no+' — ':'')+(p.name||p.id),engId:eid,hrs});
+      }
+    });
+  });
+  return ghosts;
+}
+function dhRenderGhosts(){
+  const ghosts=dhFindGhosts();
+  const totalHrs=ghosts.reduce((a,g)=>a+g.hrs,0);
+  const projSet=new Set(ghosts.map(g=>g.projId));
+  let h='<div class="mrow">';
+  h+=dhTile('Ghost records',ghosts.length,ghosts.length?'bad':'good');
+  h+=dhTile('Ghost hours',fN(Math.round(totalHrs)),totalHrs?'warn':'good');
+  h+=dhTile('Projects affected',projSet.size,projSet.size?'warn':'good');
+  h+='</div><div class="spend-card">';
+  if(!ghosts.length){
+    h+='<div style="padding:22px;text-align:center;color:#16a34a;font-weight:600;">No ghost hours found — every weeklyHrs entry matches a current engineer.</div>';
+  }else{
+    h+='<div class="dh-csub" style="padding:0 0 10px;">These entries reference an engineer ID no longer in your Team list. They\'re invisible in project tables but still counted in hrs/cost/fee totals. Deleting them is permanent.</div>';
+    h+='<div class="dh-gh">Orphaned entries</div>';
+    ghosts.forEach(g=>{
+      h+='<div class="dh-flag"><div class="dh-dot" style="background:#dc2626"></div><div class="dh-ft">'+esc(g.projName)+' — engineer id <code>'+esc(g.engId)+'</code><div class="dh-fd">'+fN(Math.round(g.hrs))+' hrs orphaned</div></div></div>';
+    });
+    h+='<div style="padding-top:14px;"><button class="btn btn-d btn-sm" onclick="cleanupGhostHours()">Delete all ghost hours ('+ghosts.length+')</button> <span id="ghost-cleanup-status" style="font-size:11px;color:var(--tx3);margin-left:8px;"></span></div>';
+  }
+  h+='</div>';
+  return h;
+}
+async function cleanupGhostHours(){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const ghosts=dhFindGhosts();
+  if(!ghosts.length){toast('No ghost hours found ✓');return;}
+  const totalHrs=ghosts.reduce((a,g)=>a+g.hrs,0);
+  const projSet=new Set(ghosts.map(g=>g.projId));
+  const ok=confirm(`Delete ${ghosts.length} orphaned engineer-hour record(s) across ${projSet.size} project(s), totalling ${Math.round(totalHrs)} hrs?\n\nThis cannot be undone.`);
+  if(!ok)return;
+  const st=document.getElementById('ghost-cleanup-status');
+  if(st)st.textContent='Cleaning up…';
+  const allProjects=(S._allProjects||S.projects||[]);
+  let done=0,failed=0;
+  for(const g of ghosts){
+    try{
+      await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(g.projId)+'&engineer_id=eq.'+encodeURIComponent(g.engId),'DELETE');
+      const p=allProjects.find(x=>x.id===g.projId);
+      if(p&&p.weeklyHrs)delete p.weeklyHrs[g.engId];
+      done++;
+    }catch(e){console.error('cleanupGhostHours failed for',g,e);failed++;}
+  }
+  if(st)st.textContent='';
+  toast('Cleaned up '+done+' ghost record(s)'+(failed?', '+failed+' failed':''));
+  renderHealth();
+}
 // ═══════════════════════════════════════
 // SETTINGS PAGE — Manage Disciplines (admin only)
 // ═══════════════════════════════════════
@@ -3012,8 +3082,8 @@ async function discDelete(i){
 function renderHealth(){
   const c=document.getElementById('pc-health'); if(!c)return;
   if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required.</div>';return;}
-  let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div></div>';
-  h+=(DH_TAB==='balance')?dhRenderBalance():dhRenderSetup();
+  let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div><div class="dh-tab '+(DH_TAB==='ghosts'?'on':'')+'" onclick="dhSetTab(\'ghosts\')">Ghost Hours'+(function(){const n=dhFindGhosts().length;return n?' ('+n+')':'';})()+'</div></div>';
+  h+=(DH_TAB==='balance')?dhRenderBalance():(DH_TAB==='ghosts')?dhRenderGhosts():dhRenderSetup();
   c.innerHTML=h;
 }
 
@@ -6810,10 +6880,10 @@ function renderProjDetail(p){
               const engs=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0));
               const cost=engs.reduce((a,e)=>{const r=getProjRate(e,p);return a+(p.weeklyHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0)*r;},0);
               return total>0
-                ?`<div class="cost-badges" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
-                  <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${fN(Math.round(total))} hrs</span>
-                  <span style="font-size:10px;color:#065f46;font-weight:600;background:#dcfce7;border-radius:20px;padding:1px 8px;">AED ${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost))}</span>
-                  <span style="font-size:10px;color:#7c3aed;font-weight:600;background:#ede9fe;border-radius:20px;padding:1px 8px;">Fee AED ${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost*ff))}</span>
+                ?`<div class="cost-badges" id="cfb-badges-${p.id}" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
+                  <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;"><span id="cfb-hrs-${p.id}">${fN(Math.round(total))}</span> hrs</span>
+                  <span style="font-size:10px;color:#065f46;font-weight:600;background:#dcfce7;border-radius:20px;padding:1px 8px;">AED <span id="cfb-cost-${p.id}">${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost))}</span></span>
+                  <span style="font-size:10px;color:#7c3aed;font-weight:600;background:#ede9fe;border-radius:20px;padding:1px 8px;">Fee AED <span id="cfb-fee-${p.id}">${MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cost*ff))}</span></span>
                   </div>`
                 :'<span style="font-size:10px;color:var(--tx3);">No hours assigned</span>';
             })()}
@@ -6849,10 +6919,10 @@ function renderProjDetail(p){
             const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
             return assigned>0
-              ?`<div class="weekly-badges" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
-                <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${memberLabel}</span>
-                <span style="font-size:10px;color:#0f766e;font-weight:600;background:#ccfbf1;border-radius:20px;padding:1px 8px;">${fN(Math.round(totalH))} hrs total</span>
-                <span style="font-size:10px;color:#374151;font-weight:500;background:#f1f5f9;border-radius:20px;padding:1px 8px;">${discs.join(' · ')}</span></div>`
+              ?`<div class="weekly-badges" id="wb-badges-${p.id}" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
+                <span id="wb-members-${p.id}" style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${memberLabel}</span>
+                <span style="font-size:10px;color:#0f766e;font-weight:600;background:#ccfbf1;border-radius:20px;padding:1px 8px;"><span id="wb-hrs-${p.id}">${fN(Math.round(totalH))}</span> hrs total</span>
+                <span id="wb-discs-${p.id}" style="font-size:10px;color:#374151;font-weight:500;background:#f1f5f9;border-radius:20px;padding:1px 8px;">${discs.join(' · ')}</span></div>`
               :'<span style="font-size:10px;color:var(--tx3);">No engineers assigned</span>';
           })()}
         </div>
@@ -6913,8 +6983,8 @@ function renderProjDetail(p){
               </select>
             </div>
             <div style="display:flex;gap:14px;font-size:11px;color:#075985;background:#e0f2fe;padding:4px 12px;border-radius:20px;white-space:nowrap;">
-              <span>&#128119; <strong>${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
-              <span>&#9200; <strong>${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
+              <span>&#128119; <strong id="tb-assigned-${p.id}">${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
+              <span>&#9200; <strong id="tb-hrs-${p.id}">${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
             </div>
           </div>
         </div>
@@ -7108,7 +7178,7 @@ function addEngineerToProject(projId,engId){
 }
 
 // Remove an engineer from the project (clears their hours so they no longer show as assigned)
-function removeEngineerFromProject(projId,engId){
+async function removeEngineerFromProject(projId,engId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   const eng=S.engineers.find(e=>e.id===engId);
   const shortName=eng?eng.name.split(' ').slice(0,2).join(' '):'engineer';
@@ -7122,9 +7192,24 @@ function removeEngineerFromProject(projId,engId){
   if(p.weeklyHrs&&p.weeklyHrs[engId]){
     delete p.weeklyHrs[engId];
   }
-  pushProj(p);
-  renderProjDetail(p);
-  toast(`Removed ${shortName}`);
+  renderProjDetail(p); // reflect the removal immediately
+  const isProp=projId.toString().startsWith('prp');
+  try{
+    if(!isProp){
+      // Real projects store hours in project_hours, NOT in the projects row —
+      // pushProj() strips weeklyHrs before saving, so it can never persist this
+      // removal. The rows must be deleted here directly or they resurface on reload.
+      await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&engineer_id=eq.'+encodeURIComponent(engId),'DELETE');
+      setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+    }else{
+      await pushProj(p); // proposals store weeklyHrs inline in the proposals table — this path is fine
+    }
+    toast(`Removed ${shortName}`);
+  }catch(e){
+    console.error('removeEngineerFromProject: sync failed',e);
+    setSyncStatus(false,'Sync failed');
+    toast(`⚠️ Removed locally but sync failed — ${shortName} may reappear on refresh. Check connection and try again.`);
+  }
 }
 // Distinct visible colours for programme stages — soft tinted backgrounds + darker borders
 const STAGE_COLORS=[
@@ -7967,7 +8052,7 @@ function renderProjCard(p, mode){
     <td style="${stickyTd(7,'background:#e0f2fe;color:var(--tx3);text-align:center;')}">—</td>
     <td style="${stickyTd(8,'background:#e0f2fe;color:var(--tx3);text-align:center;')}">—</td>
     ${showRate?'<td style="background:#e0f2fe;color:var(--tx3);text-align:center;">—</td>':''}
-    ${wkTots.map((t,wi)=>`<td data-wk-total="${p.id}-${wi}" style="${wkIsProg[wi]?wkProgBg[wi]+'color:#78350f;':'background:#e0f2fe;color:#075985;'}font-weight:700;text-align:center;font-size:11px;padding:3px;">${t>0?t.toFixed(0):'-'}</td>`).join('')}
+    ${wkTots.map((t,wi)=>`<td data-wk-total="${p.id}-${wi}" style="${wkIsProg[wi]?wkProgBg[wi]+'color:#78350f;':'background:#e0f2fe;color:#075985;'}font-weight:700;text-align:center;font-size:11px;padding:3px;">${t>0?t.toFixed(0)+'h':'-'}</td>`).join('')}
   </tr>`;
 
   // TOTAL COST+FEES row (includes BIM + JSE multipliers)
@@ -7990,7 +8075,7 @@ function renderProjCard(p, mode){
     <td data-grand-cost="${p.id}" style="${stickyTd(7,'background:#022c22;color:#86efac;font-weight:800;font-size:11px;text-align:center;')}" title="Total Cost (no fee factor)">${fN(Math.round(grandTotalCost))}</td>
     <td data-grand-fee="${p.id}" style="${stickyTd(8,'background:#022c22;color:#86efac;font-weight:800;font-size:11px;text-align:center;')}" title="Total Fee = Cost × ×${ff.toFixed(2)}">${fN(Math.round(grandTotalFee))}</td>
     ${showRate?'<td style="background:#064e3b;color:#fff;text-align:center;">—</td>':''}
-    ${wkFees.map((v,wi)=>`<td style="background:${wkIsProg[wi]?'#065f46':'#064e3b'};color:#fff;font-weight:700;font-size:10px;text-align:center;padding:3px;">${v>0?fN(Math.round(v)):'-'}</td>`).join('')}
+    ${wkFees.map((v,wi)=>`<td data-wk-fee="${p.id}-${wi}" title="Fee (AED) — not hours" style="background:${wkIsProg[wi]?'#065f46':'#064e3b'};color:#fff;font-weight:700;font-size:10px;text-align:center;padding:3px;">${v>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(v)):'-'}</td>`).join('')}
   </tr>`;
 
   if(mode==='inner'){
@@ -8363,13 +8448,21 @@ function updateProjCardTotals(p){
     if(feeCell) feeCell.textContent=engFee>0?fN(Math.round(engFee)):'-';
   });
 
-  // Update weekly column totals
+  // Update weekly column totals (both hours row and fee row)
   let grandHrs=0;
   weeks.forEach((_,wi)=>{
     const wkSum=Object.values(wh).reduce((a,arr)=>a+(arr[wi]||0),0);
     grandHrs+=wkSum;
     const wkCell=document.querySelector(`td[data-wk-total="${p.id}-${wi}"]`);
-    if(wkCell) wkCell.textContent=wkSum>0?wkSum.toFixed(0):'-';
+    if(wkCell) wkCell.textContent=wkSum>0?wkSum.toFixed(0)+'h':'-';
+    // Fee row per week — mirrors the same formula used in the full render
+    const wkCost=S.engineers.reduce((a,e)=>{
+      const h=wh[e.id]&&wh[e.id][wi]?wh[e.id][wi]:0;
+      return a+h*getProjRate(e,p)*getJseMult(p,e.id);
+    },0);
+    const wkFee=wkCost*ff;
+    const feeCell=document.querySelector(`td[data-wk-fee="${p.id}-${wi}"]`);
+    if(feeCell) feeCell.innerHTML=wkFee>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(wkFee)):'-';
   });
 
   // Update grand hours
@@ -8388,6 +8481,46 @@ function updateProjCardTotals(p){
   const gfCell=document.querySelector(`td[data-grand-fee="${p.id}"]`);
   if(gcCell) gcCell.textContent=fN(Math.round(grandCost));
   if(gfCell) gfCell.textContent=fN(Math.round(grandFee));
+
+  // ── Live-patch the summary badges above the table ──
+  // These are only rebuilt by a full renderProjDetail() otherwise, which meant
+  // inline hour edits left "Cost & Fee Breakdown", the "Weekly Hours by Engineer"
+  // pill, and the toolbar "assigned/hrs total" badges stale until navigating
+  // away and back. Recompute the same figures the full render uses and patch
+  // the specific spans directly so every edit updates everything instantly.
+  const totalH=projTotalHrs(p);
+  const assignedIdsWithHrs=S.engineers.filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0));
+
+  // Cost & Fee Breakdown widget
+  const cfbHrs=document.getElementById(`cfb-hrs-${p.id}`);
+  if(cfbHrs){
+    const cfbCost=assignedIdsWithHrs.reduce((a,e)=>{const r=getProjRate(e,p);return a+(wh[e.id]||[]).reduce((b,h)=>b+(h||0),0)*r;},0);
+    cfbHrs.textContent=fN(Math.round(totalH));
+    const cfbCostEl=document.getElementById(`cfb-cost-${p.id}`);
+    const cfbFeeEl=document.getElementById(`cfb-fee-${p.id}`);
+    if(cfbCostEl) cfbCostEl.textContent=MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cfbCost));
+    if(cfbFeeEl) cfbFeeEl.textContent=MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(cfbCost*ff));
+  }
+
+  // Weekly Hours by Engineer header pill
+  const wbHrs=document.getElementById(`wb-hrs-${p.id}`);
+  if(wbHrs){
+    wbHrs.textContent=fN(Math.round(totalH));
+    const assignedMEP=assignedIdsWithHrs.filter(e=>e.team!=='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
+    const assignedBIM=assignedIdsWithHrs.filter(e=>e.team==='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
+    const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
+    const wbMembers=document.getElementById(`wb-members-${p.id}`);
+    if(wbMembers) wbMembers.textContent=memberLabel;
+    const discs=[...new Set(assignedIdsWithHrs.map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
+    const wbDiscs=document.getElementById(`wb-discs-${p.id}`);
+    if(wbDiscs) wbDiscs.textContent=discs.join(' · ');
+  }
+
+  // Toolbar assigned / hrs total
+  const tbAssigned=document.getElementById(`tb-assigned-${p.id}`);
+  if(tbAssigned) tbAssigned.textContent=assignedIdsWithHrs.reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+  const tbHrs=document.getElementById(`tb-hrs-${p.id}`);
+  if(tbHrs) tbHrs.textContent=fN(Math.round(totalH));
 }
 
 // ═══════════════════════════════════════
@@ -8519,7 +8652,19 @@ async function saveEng(){
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();renderTeam();updSB();toast('Saved & synced ✓');
 }
-async function delEng(id){if(!adminUnlocked){toast('Admin access required');return;}if(!confirm('Remove engineer?'))return;S.engineers=S.engineers.filter(e=>e.id!==id);try{await sbDel('engineers',id);}catch{saveLocal();}renderTeam();updSB();toast('Removed');}
+async function delEng(id){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  if(!confirm('Remove engineer? This will also clear their hours from every project.'))return;
+  S.engineers=S.engineers.filter(e=>e.id!==id);
+  try{
+    await sbDel('engineers',id);
+    // Cascade: delete this engineer's hours everywhere, so they don't linger
+    // as invisible "ghost" hours that still count toward project totals.
+    await sbFetch('project_hours?engineer_id=eq.'+encodeURIComponent(id),'DELETE');
+  }catch(e){console.error('delEng cascade failed:',e);saveLocal();}
+  (S._allProjects||S.projects||[]).forEach(p=>{if(p.weeklyHrs&&p.weeklyHrs[id])delete p.weeklyHrs[id];});
+  renderTeam();updSB();toast('Removed');
+}
 
 // Normalise any engineer object that may use longform field names (e.g. from external imports).
 // Ensures 'disc' and 'off' are always set, regardless of source.
