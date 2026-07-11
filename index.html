@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.25.0 · 11 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.26.0 · 12 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.25.0 · 11 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.26.0 · 12 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1371,7 +1371,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <ul style="margin:0 0 8px 18px;color:var(--tx2);">
         <li><b>Capacity</b> = weekly capacity (default 45&nbsp;h/wk; JSE 55&nbsp;h/wk &times; project multiplier) &times; weeks in that month.</li>
         <li>Weeks-per-month follow a fixed pattern, so 5-week months have more capacity than 4-week months.</li>
-        <li><b>Hours</b> come from each project&rsquo;s weekly entries; leave, management and public holidays are tracked separately per engineer.</li>
+        <li><b>Hours</b> come from each project&rsquo;s weekly entries; leave, management and public holidays are tracked separately per person.</li>
         <li>If an engineer joined after / left before a month, their figures for that month are 0.</li>
       </ul>
 
@@ -1430,7 +1430,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <label style="display:grid;grid-template-columns:18px auto 1fr;align-items:center;gap:12px;cursor:pointer;font-size:12px;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:#f5f5f7;direction:ltr;text-align:left;color:#111827;">
         <input type="checkbox" id="exp-incl-util" checked style="margin:0;" onchange="updateExportSummary()">
         <span style="font-weight:600;color:#111827;font-size:12px;">Team Utilisation</span>
-        <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">monthly % per engineer</span>
+        <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">monthly % per person</span>
       </label>
       <label id="exp-cost-row" style="display:grid;grid-template-columns:18px auto 1fr;align-items:center;gap:12px;cursor:pointer;font-size:12px;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:#f5f5f7;direction:ltr;text-align:left;color:#111827;">
         <input type="checkbox" id="exp-incl-cost" checked style="margin:0;" onchange="updateExportSummary()">
@@ -1440,7 +1440,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <label style="display:grid;grid-template-columns:18px auto 1fr;align-items:center;gap:12px;cursor:pointer;font-size:12px;padding:9px 12px;border:1px solid var(--bdr);border-radius:6px;background:#f5f5f7;direction:ltr;text-align:left;color:#111827;">
         <input type="checkbox" id="exp-incl-leave" checked style="margin:0;" onchange="updateExportSummary()">
         <span style="font-weight:600;color:#111827;font-size:12px;">Annual Leave</span>
-        <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">weekly leave hrs per engineer</span>
+        <span style="font-size:10px;color:#6b7280;text-align:right;font-weight:400;">weekly leave hrs per person</span>
       </label>
     </div>
   </div>
@@ -1455,7 +1455,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 <!-- ENGINEER MODAL -->
 <div class="ov" id="eng-ov">
 <div class="modal" style="max-width:480px;">
-  <div class="modal-hd"><div class="modal-ht" id="eng-title">Add Engineer</div><button class="cls" onclick="closeEngModal()">&times;</button></div>
+  <div class="modal-hd"><div class="modal-ht" id="eng-title">Add Team Member</div><button class="cls" onclick="closeEngModal()">&times;</button></div>
   <div class="modal-bd" style="max-height:none">
     <div class="fg">
       <div class="ff full"><label>Full Name *</label><input id="em-name"></div>
@@ -3733,12 +3733,12 @@ function wtBuild(canEdit){
     html+=wtStatCardVar('Total Hours',grand,grandForecast);
     html+=wtStatCardVar('Billable',billable,billableForecast);
     html+=wtStatCardVar('Non-Billable',nonBill,null,'leave · comp · hol · training · admin');
-    html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+    html+=wtStatCard('Active Team',activeCount,'logged hours');
   } else {
     html+=wtStatCard('Total Hours',grand,'this week');
     html+=wtStatCard('Billable',billable,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
     html+=wtStatCard('Non-Billable',nonBill,'leave · comp · hol · training · admin');
-    html+=wtStatCard('Active Engineers',activeCount,'logged hours');
+    html+=wtStatCard('Active Team',activeCount,'logged hours');
   }
   html+='</div>';
 
@@ -5701,8 +5701,8 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
       return`<div style="display:flex;align-items:center;padding-right:8px;"><span style="font-size:10px;font-weight:700;color:${txt};background:${bg};padding:3px 8px;border-radius:6px;">${disc}</span></div>${cells}`;
     }).join('');
     legendHtml = useWeeklyCols
-      ? '<span style="font-size:10px;color:var(--tx3);">number = avg days off / engineer that week · hover cell for names</span>'
-      : '<span style="font-size:10px;color:var(--tx3);">number = avg days off / engineer · hover cell for names</span>';
+      ? '<span style="font-size:10px;color:var(--tx3);">number = avg days off / person that week · hover cell for names</span>'
+      : '<span style="font-size:10px;color:var(--tx3);">number = avg days off / person · hover cell for names</span>';
   } else {
     const engsWithLeave=engs.filter(e=>leaveHrsByMI(e).some(v=>v>0));
     engsWithLeave.sort((a,b)=>{
@@ -6047,7 +6047,7 @@ function refreshTeamDiscFilterOptions(){
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
-  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Engineer</button>`:'';
+  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Team Member</button>`:'';
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   const df=document.getElementById('ts-disc').value;
   const of2=document.getElementById('ts-off').value;
@@ -7067,7 +7067,7 @@ function renderProjDetail(p){
         <div class="weekly-sec-hdr-inner" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span id="sec-weekly-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-weekly-'+p.id])?'▼':'▶'}</span>
           <span style="font-size:13px;">⏱</span>
-          <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Engineer</strong>
+          <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Team</strong>
           ${(()=>{
             const assigned=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
@@ -7080,7 +7080,7 @@ function renderProjDetail(p){
                 <span id="wb-members-${p.id}" style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;">${memberLabel}</span>
                 <span style="font-size:10px;color:#0f766e;font-weight:600;background:#ccfbf1;border-radius:20px;padding:1px 8px;"><span id="wb-hrs-${p.id}">${fN(Math.round(totalH))}</span> hrs total</span>
                 <span id="wb-discs-${p.id}" style="font-size:10px;color:#374151;font-weight:500;background:#f1f5f9;border-radius:20px;padding:1px 8px;">${discs.join(' · ')}</span></div>`
-              :'<span style="font-size:10px;color:var(--tx3);">No engineers assigned</span>';
+              :'<span style="font-size:10px;color:var(--tx3);">No team assigned</span>';
           })()}
         </div>
       </div>
@@ -7096,7 +7096,7 @@ function renderProjDetail(p){
           </div>
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
             <div style="display:flex;gap:6px;align-items:center;">
-              <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">${window._propViewing?'Add grade:':'Add engineer:'}</span>
+              <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">${window._propViewing?'Add grade:':'Add team member:'}</span>
               <select id="add-eng-${p.id}" onchange="addEngineerToProject('${p.id}',this.value);this.value='';" style="font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:#fff;min-width:240px;">
                 <option value="">— select to add —</option>
                 ${(function(){
@@ -7135,7 +7135,7 @@ function renderProjDetail(p){
                     });
                     if(lastBimDisc)html+='</optgroup>';
                   }
-                  return html||'<option disabled>All engineers already assigned</option>';
+                  return html||'<option disabled>All team members assigned</option>';
                 })()}
               </select>
             </div>
@@ -8196,7 +8196,7 @@ function renderProjCard(p, mode){
   const totalAssigned=Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)).length;
   if(totalAssigned===0){
     const colspan=FROZEN_WIDTHS.length + (showRate?1:0) + weeks.length;
-    rows=`<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--tx3);font-size:12px;font-style:italic;background:#fff;">No engineers assigned yet — use the dropdown above to add one.</td></tr>`;
+    rows=`<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--tx3);font-size:12px;font-style:italic;background:#fff;">No team members assigned yet — use the dropdown above to add one.</td></tr>`;
   }
 
   // TOTAL HOURS row (all engineers including BIM)
@@ -8909,7 +8909,7 @@ function updateDesigPreview(){
 function openEngModal(){
   if(!adminUnlocked){toast('Admin access required');return;}
   eId=null;
-  document.getElementById('eng-title').textContent='Add Engineer';
+  document.getElementById('eng-title').textContent='Add Team Member';
   ['em-name','em-desig','em-note','em-email','em-rate','em-join-date','em-end-date'].forEach(id=>document.getElementById(id).value='');
   fillDisc();
   document.getElementById('em-disc').value='HVAC';
@@ -8925,7 +8925,7 @@ function editEng(id){
   if(!adminUnlocked){toast('Admin access required');return;}
   const e=S.engineers.find(x=>x.id===id);if(!e)return;
   eId=id;
-  document.getElementById('eng-title').textContent='Edit Engineer';
+  document.getElementById('eng-title').textContent='Edit Team Member';
   document.getElementById('em-name').value=e.name;
   document.getElementById('em-desig').value=e.desig||'';
   document.getElementById('em-note').value=e.note||'';
@@ -9517,7 +9517,7 @@ function renderMgmt(){
     </div>
     <div id="mgmt-grid"></div>
     <div class="card" style="margin-top:12px;padding:12px 16px;">
-      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;">+ Add engineer to management hours</div>
+      <div style="font-size:11px;font-weight:700;color:var(--tx2);margin-bottom:8px;">+ Add team member to management hours</div>
       <div id="mgmt-extra-rows"></div>
       <button class="btn btn-g btn-sm" style="margin-top:8px;" onclick="addMgmtExtraRow()">+ Add Row</button>
     </div>`;
@@ -10483,7 +10483,7 @@ function exportStageSummary(projId){
     return{disc,engs};
   }).filter(Boolean);
 
-  if(!discData.length){toast('No engineers assigned to this project.');return;}
+  if(!discData.length){toast('No team members assigned to this project.');return;}
 
   // ── Column layout ──
   // Fixed cols: EmpNo(0), Name(1), Position(2), Disc(3), Rate(4)
@@ -10884,7 +10884,7 @@ function exportExcel(opts){
       }
 
       // Row 0: Title
-      pCell(R,0,p.name+' \u2014 Weekly Hours by Engineer',STY.title);
+      pCell(R,0,p.name+' \u2014 Weekly Hours by Team',STY.title);
       pMerges.push({s:{r:R,c:0},e:{r:R,c:Math.min(nc-1,15)}});
       R++;
       // Row 1: Info
