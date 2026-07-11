@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.21.0 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.24.0 · 10 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.21.0 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.24.0 · 10 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2339,6 +2339,7 @@ async function saveDisciplines(){
   if(!(adminUnlocked)){ toast('⛔ Admin only.'); return false; }
   try{
     await sbFetch('settings','POST',{key:'disciplines',value:DISCIPLINE_CONFIG},'resolution=merge-duplicates,return=representation');
+    try{ buildCustomDiscPages(); }catch(e){ console.error('buildCustomDiscPages after save failed:',e); }
     return true;
   }catch(e){ console.error('saveDisciplines failed',e); toast('Save failed — check connection.'); return false; }
 }
@@ -2404,6 +2405,7 @@ async function initApp(){
     // Load custom disciplines (falls back to defaults if absent/invalid)
     const rdisc=Array.isArray(sets)?sets.find(r=>r.key==='disciplines'):null;
     if(rdisc&&Array.isArray(rdisc.value)&&rdisc.value.length){ try{ applyDisciplineConfig(rdisc.value); }catch(e){ console.warn('discipline config load failed, using defaults',e); } }
+    try{ buildCustomDiscPages(); }catch(e){ console.error('buildCustomDiscPages failed:',e); }
     // Load custom grade tiers (falls back to the hardcoded defaults if absent/invalid)
     const rgrades=Array.isArray(sets)?sets.find(r=>r.key==='gradeTiers'):null;
     if(rgrades&&rgrades.value&&Array.isArray(rgrades.value.order)&&rgrades.value.order.length){
@@ -2797,10 +2799,15 @@ function engProjHrs(engId,minMI,NMON){
 let DH_TAB='setup';
 let RATES_VIEW='all'; // 'all' | 'mep' | 'bim' — which tiers show on the Cost Rates page
 function setRatesView(v){RATES_VIEW=v;renderRates();}
-const DH_MEP=MEP_DISCS.slice();
+// (DH_MEP frozen snapshot removed — use dhMep() for the live list)
 const DH_COL={'HVAC':'#ef6c3b','PH&E':'#2563eb','ELE':'#f5a623','ELV':'#14b8a6'};
+// Live at call time, NOT frozen at parse time — custom disciplines load from
+// Supabase after this script parses, so a top-level snapshot would miss them.
+function dhMep(){return MEP_DISCS.slice();}
+function dhCol(d){return DH_COL[d]||(DISCIPLINE_CONFIG.find(x=>x.code===d)||{}).color||'#6b7280';}
 function dhProjMepCost(p){
-  const out={'HVAC':0,'PH&E':0,'ELE':0,'ELV':0};
+  const DH_MEP=dhMep();
+  const out={}; DH_MEP.forEach(d=>{out[d]=0;});
   const wh=p.weeklyHrs||{};
   Object.entries(wh).forEach(([eid,arr])=>{
     if(!arr)return;
@@ -2814,15 +2821,17 @@ function dhProjMepCost(p){
   return out;
 }
 function dhPct(obj){
-  const tot=DH_MEP.reduce((a,d)=>a+obj[d],0);
-  const pct={}; DH_MEP.forEach(d=>pct[d]=tot?obj[d]/tot*100:0);
+  const DH_MEP=dhMep();
+  const tot=DH_MEP.reduce((a,d)=>a+(obj[d]||0),0);
+  const pct={}; DH_MEP.forEach(d=>pct[d]=tot?(obj[d]||0)/tot*100:0);
   return {pct,tot};
 }
 function dhLearnNorm(){
   const splits=[];
   S.projects.filter(p=>p.status==='Completed').forEach(p=>{const r=dhPct(dhProjMepCost(p)); if(r.tot>0)splits.push(r.pct);});
   if(splits.length<3)return {norm:null,n:splits.length};
-  const norm={}; DH_MEP.forEach(d=>norm[d]=splits.reduce((a,s)=>a+s[d],0)/splits.length);
+  const DH_MEP=dhMep();
+  const norm={}; DH_MEP.forEach(d=>norm[d]=splits.reduce((a,s)=>a+(s[d]||0),0)/splits.length);
   return {norm,n:splits.length};
 }
 function dhOverAlloc(){
@@ -2915,14 +2924,15 @@ function dhRenderSetup(){
 }
 function dhRenderBalance(){
   const {norm,n}=dhLearnNorm();
-  const port={'HVAC':0,'PH&E':0,'ELE':0,'ELV':0};
-  S.projects.filter(p=>p.status==='Active').forEach(p=>{const c=dhProjMepCost(p);DH_MEP.forEach(d=>port[d]+=c[d]);});
+  const DH_MEP=dhMep();
+  const port={}; DH_MEP.forEach(d=>{port[d]=0;});
+  S.projects.filter(p=>p.status==='Active').forEach(p=>{const c=dhProjMepCost(p);DH_MEP.forEach(d=>port[d]+=(c[d]||0));});
   const {pct:portPct,tot:portTot}=dhPct(port);
   let acc=0; const segs=[];
-  DH_MEP.forEach(d=>{const s=acc;acc+=portPct[d];segs.push(DH_COL[d]+' '+s.toFixed(1)+'% '+acc.toFixed(1)+'%');});
+  DH_MEP.forEach(d=>{const s=acc;acc+=portPct[d];segs.push(dhCol(d)+' '+s.toFixed(1)+'% '+acc.toFixed(1)+'%');});
   let h='<div class="spend-card"><h2 class="dh-h">MEP cost split — active projects</h2><div class="dh-csub">Share of MEP cost by discipline · excludes BIM</div>';
   h+='<div class="dh-donutwrap"><div class="dh-donut" style="background:conic-gradient('+segs.join(',')+')"><div class="dh-dlbl"><b>'+fAED(portTot)+'</b><span>MEP cost</span></div></div><div class="dh-keys">';
-  DH_MEP.forEach(d=>{h+='<div class="dh-key"><i style="background:'+DH_COL[d]+'"></i><span class="kn">'+(d==='PH&E'?'PH &amp; Fire':d)+'</span><span class="kv">'+Math.round(portPct[d])+'%</span>'+(norm?'<span class="kd">norm '+Math.round(norm[d])+'%</span>':'')+'</div>';});
+  DH_MEP.forEach(d=>{h+='<div class="dh-key"><i style="background:'+dhCol(d)+'"></i><span class="kn">'+(d==='PH&E'?'PH &amp; Fire':d)+'</span><span class="kv">'+Math.round(portPct[d])+'%</span>'+(norm?'<span class="kd">norm '+Math.round(norm[d])+'%</span>':'')+'</div>';});
   h+='</div></div>';
   if(norm)h+='<div class="dh-norm">Normal mix learned from <b>'+n+' completed projects</b>: '+DH_MEP.map(d=>d+' '+Math.round(norm[d])+'%').join(' · ')+'.</div>';
   else h+='<div class="dh-norm">Not enough completed projects yet to learn a norm ('+n+' so far). Showing the actual mix only — flags appear once you have 3+.</div>';
@@ -2936,11 +2946,11 @@ function dhRenderBalance(){
       let worst=null;DH_MEP.forEach(d=>{const dev=pct[d]-norm[d];if(!worst||Math.abs(dev)>Math.abs(worst.dev))worst={d,dev,a:pct[d],nm:norm[d]};});
       flag=(worst&&Math.abs(worst.dev)>=12)?'<span class="dh-pf alert">'+(worst.d==='PH&E'?'PH&E':worst.d)+' '+Math.round(worst.a)+'% '+(worst.dev>0?'above':'below')+' norm '+Math.round(worst.nm)+'%</span>':'<span class="dh-pf okk">Balanced ✓</span>';
     }
-    let bar='';DH_MEP.forEach(d=>{if(pct[d]>0)bar+='<div style="width:'+pct[d]+'%;background:'+DH_COL[d]+'"></div>';});
+    let bar='';DH_MEP.forEach(d=>{if(pct[d]>0)bar+='<div style="width:'+pct[d]+'%;background:'+dhCol(d)+'"></div>';});
     h+='<div class="dh-pjt"><div class="dh-ph"><span class="dh-pn">'+esc((p.no?p.no+' ':'')+(p.name||p.id))+'</span>'+flag+'</div><div class="dh-stack">'+bar+'</div></div>';
   });
   if(!shown)h+='<div style="padding:16px;text-align:center;color:var(--tx3);">No MEP cost on active projects yet.</div>';
-  h+='<div class="dh-leg">'+DH_MEP.map(d=>'<span><i style="background:'+DH_COL[d]+'"></i>'+(d==='PH&E'?'PH&E':d)+'</span>').join('')+'</div></div>';
+  h+='<div class="dh-leg">'+DH_MEP.map(d=>'<span><i style="background:'+dhCol(d)+'"></i>'+(d==='PH&E'?'PH&E':d)+'</span>').join('')+'</div></div>';
   return h;
 }
 function dhSetTab(t){DH_TAB=t;renderHealth();}
@@ -3193,7 +3203,7 @@ function renderSpend(){
   h+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
   h+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
   h+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
-     [['HVAC','HVAC'],['PH&E','PH & Fire'],['ELE','Electrical'],['ELV','ELV'],['BIM','BIM']].map(d=>'<option value="'+d[0]+'"'+(SPEND.disc===d[0]?' selected':'')+'>'+d[1]+'</option>').join('')+'</select>';
+     MEP_DISCS.map(c=>{const cfg=DISCIPLINE_CONFIG.find(d=>d.code===c);return '<option value="'+esc(c)+'"'+(SPEND.disc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+'<option value="BIM"'+(SPEND.disc==='BIM'?' selected':'')+'>BIM</option></select>';
   h+='<select style="'+sel+'" onchange="spendSet(\'off\',this.value)"><option value="">All Offices</option>'+
      ['DXB','EGY','IND'].map(o=>'<option value="'+o+'"'+(SPEND.off===o?' selected':'')+'>'+o+'</option>').join('')+'</select>';
   const stNames=spendStageNames();
@@ -3329,23 +3339,26 @@ function wtColumnProjects(){
 // Engineers grouped by discipline section, respecting tab + office filters
 function wtEngineerRows(){
   const out=[];
-  // Discipline section definitions in display order
-  const sections=[
-    {key:'HVAC',  label:'HVAC',  match:e=>e.disc==='HVAC'&&e.team!=='BIM'},
-    {key:'PH&E',  label:'PH & Fire', match:e=>e.disc==='PH&E'&&e.team!=='BIM'},
-    {key:'ELE',   label:'Electrical', match:e=>e.disc==='ELE'&&e.team!=='BIM'},
-    {key:'ELV',   label:'ELV', match:e=>e.disc==='ELV'&&e.team!=='BIM'},
+  // Discipline section definitions in display order — MEP sections are built
+  // live from the discipline config so custom disciplines get their own section
+  // (previously hardcoded to 4, which made custom-discipline engineers invisible
+  // here: they matched no section, and 'OTHER' excludes anything in MEP_DISCS).
+  const sections=MEP_DISCS.map(c=>{
+    const cfg=DISCIPLINE_CONFIG.find(d=>d.code===c);
+    return {key:c, label:(cfg&&cfg.label)||c, match:e=>e.disc===c&&e.team!=='BIM'};
+  }).concat([
     {key:'BIM-MEC',label:'BIM — Mechanical', match:e=>e.team==='BIM'&&(e.subDisc==='HVAC'||e.subDisc==='MEC'||e.subDisc==='Mechanical')},
     {key:'BIM-ELE',label:'BIM — Electrical', match:e=>e.team==='BIM'&&(e.subDisc==='ELE')},
     {key:'BIM-PH', label:'BIM — Plumbing & Fire', match:e=>e.team==='BIM'&&(e.subDisc==='PH&E'||e.subDisc==='PH')},
     {key:'BIM-ELV',label:'BIM — ELV', match:e=>e.team==='BIM'&&(e.subDisc==='ELV')},
     {key:'BIM-OTH',label:'BIM — Other', match:e=>e.team==='BIM'&&!['HVAC','MEC','Mechanical','ELE','PH&E','PH','ELV'].includes(e.subDisc)},
     {key:'OTHER', label:'Other / Unassigned', match:e=>e.team!=='BIM'&&!MEP_DISCS.includes(e.disc)}
-  ];
+  ]);
   const TAB_TO_SEC={hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV'};
   const tabMatch=(secKey)=>{
     if(WT_tab==='all')return true;
     if(WT_tab==='bim')return secKey.startsWith('BIM');
+    if(WT_tab.startsWith('disc:'))return secKey===WT_tab.slice(5); // custom disciplines pass their raw code
     return secKey===TAB_TO_SEC[WT_tab];
   };
   sections.forEach(sec=>{
@@ -3455,7 +3468,7 @@ function wtBuild(canEdit){
   html+='</div>';
 
   // ── Filters (dropdowns · match Overview look) ──
-  const _wtDisc={all:'',hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[WT_tab]||'';
+  const _wtDisc=WT_tab.startsWith('disc:')?WT_tab.slice(5):({all:'',hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[WT_tab]||'');
   const _wtSel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
   html+='<div class="wt-filters">';
   html+='<select class="js-wt-off" onchange="wtSetOff(this.value)" style="'+_wtSel+'">'+
@@ -3465,10 +3478,7 @@ function wtBuild(canEdit){
         '<option value="IND"'+(WT_off==='IND'?' selected':'')+'>IND</option></select>';
   html+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">'+
         '<option value="">All disciplines</option>'+
-        '<option value="HVAC"'+(_wtDisc==='HVAC'?' selected':'')+'>HVAC</option>'+
-        '<option value="PH&amp;E"'+(_wtDisc==='PH&E'?' selected':'')+'>PH &amp; Fire</option>'+
-        '<option value="ELE"'+(_wtDisc==='ELE'?' selected':'')+'>Electrical</option>'+
-        '<option value="ELV"'+(_wtDisc==='ELV'?' selected':'')+'>ELV</option>'+
+        MEP_DISCS.map(function(c){var cfg=DISCIPLINE_CONFIG.find(function(d){return d.code===c;});return '<option value="'+esc(c)+'"'+(_wtDisc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+
         '<option value="BIM"'+(_wtDisc==='BIM'?' selected':'')+'>BIM</option></select>';
   html+='</div>';
 
@@ -3531,7 +3541,7 @@ function wtBuild(canEdit){
           }
           // Top: actual input (editable). Bottom: forecast + diff
           cell='<div class="wt-vcell'+bgClass+'">';
-          cell+='<input class="wt-vact-in" type="number" min="0" max="999" step="0.5" placeholder="—" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Click to enter actual hours">';
+          cell+='<input class="wt-vact-in fill-cell" data-fillfn="wtFillCell" data-eng="'+e.id+'" data-key="'+p.id+'" type="number" min="0" max="999" step="0.5" placeholder="—" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Click to enter actual hours">';
           if(fc>0||actual!=null){
             const a=actual!=null?actual:0;
             const diff=a-fc;
@@ -3546,7 +3556,7 @@ function wtBuild(canEdit){
           cell+='</div>';
         } else {
           // Clean view: just the input, no forecast clutter
-          cell='<input type="number" min="0" max="999" step="0.5" placeholder="" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Forecast: '+fc+'h" style="background:transparent;width:100%;height:34px;border:none;text-align:center;outline:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx);cursor:pointer;">';
+          cell='<input class="fill-cell" data-fillfn="wtFillCell" data-eng="'+e.id+'" data-key="'+p.id+'" type="number" min="0" max="999" step="0.5" placeholder="" value="'+shown+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+p.id+'\',this.value)" title="Forecast: '+fc+'h" style="background:transparent;width:100%;height:34px;border:none;text-align:center;outline:none;font-family:inherit;font-size:12px;font-weight:600;color:var(--tx);cursor:pointer;">';
         }
         html+='<td class="wt-hcell">'+cell+'</td>';
         const v=actual!=null?actual:0;
@@ -3559,7 +3569,7 @@ function wtBuild(canEdit){
       // Non-billable
       WT_NONBILL.forEach(nb=>{
         const v=act[nb.key]||0;
-        html+='<td class="wt-hcell wt-nb"><input type="number" min="0" max="99" step="0.5" placeholder="" value="'+(v||'')+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+nb.key+'\',this.value)"></td>';
+        html+='<td class="wt-hcell wt-nb"><input class="fill-cell" data-fillfn="wtFillCell" data-eng="'+e.id+'" data-key="'+nb.key+'" type="number" min="0" max="99" step="0.5" placeholder="" value="'+(v||'')+'" '+(canEditRow?'':'disabled')+' oninput="wtEdit(\''+e.id+'\',\''+nb.key+'\',this.value)"></td>';
         rowTotal+=v;nbTot[nb.key]+=v;
       });
 
@@ -3743,6 +3753,10 @@ function wtmToggleMore(engId,btn){
   if(btn)btn.textContent=open?'＋ Add project / category':'－ Hide unused';
 }
 // ── Editing ──
+// Fill-drag adapter: the drag engine passes (engId, key, inputElement); wtEdit
+// expects (engId, key, rawValue). Bridges the two so dragged cells save
+// identically to typed ones.
+function wtFillCell(engId,key,el){ wtEdit(engId,key,el.value); }
 function wtEdit(engId,key,rawVal){
   if(!WT_actuals[engId])WT_actuals[engId]={};
   if(key==='task_note'){
@@ -4041,7 +4055,7 @@ function wtSetView(v){WT_view=v;const canEdit=adminUnlocked||(myRoles().some(r=>
 function wtSetTab(t){WT_tab=t;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleOff(o){WT_offFilter[o]=!WT_offFilter[o];const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtSetOff(v){WT_off=v||'';const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
-function wtSetDisc(v){WT_tab={'':'all','HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'}[v]||'all';const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetDisc(v){const known={'':'all','HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'};WT_tab=known[v]!==undefined?known[v]:'disc:'+v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleSummary(){WT_summaryOpen=!WT_summaryOpen;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 
 // ── Column picker modal ──
@@ -4219,13 +4233,13 @@ function nav(p, fromPopstate){
   const propNav=document.getElementById('nav-proposals');
   if(propNav)propNav.classList.toggle('on',p==='proposals');
   // Disciplines: highlight consolidated nav row + sync dropdown/filter when on a discipline page
-  var _discPages=['hvac','phe','ele','elv','bim'];
+  var _discPages=Object.values(DISC_NAV); // includes dynamically-added custom discipline slugs
   var _ndisc=document.getElementById('nav-disc'); if(_ndisc)_ndisc.classList.toggle('on',_discPages.indexOf(p)>=0);
   var _ovwPages=['mep','dxb','egy','ind'];
   var _nmep=document.getElementById('nav-mep'); if(_nmep)_nmep.classList.toggle('on',_ovwPages.indexOf(p)>=0);
   if(_ovwPages.indexOf(p)>=0){var _ov={mep:'',dxb:'DXB',egy:'EGY',ind:'IND'}[p];document.querySelectorAll('.js-ovw-switch').forEach(function(el){el.value=_ov;});}
   if(_discPages.indexOf(p)>=0){
-    var _dv={hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[p];
+    var _dv=Object.keys(DISC_NAV).find(function(k){return DISC_NAV[k]===p;})||'';
     document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=_dv;});
   }
   ['mep','team','proj'].forEach(x=>{const b=document.getElementById('bn-'+x);if(b)b.classList.toggle('on',x===p);});
@@ -4239,6 +4253,7 @@ function nav(p, fromPopstate){
   else if(p==='phe')setTimeout(()=>renderDisc('PH&E','pc-phe'),0);
   else if(p==='ele')setTimeout(()=>renderDisc('ELE','pc-ele'),0);
   else if(p==='elv')setTimeout(()=>renderDisc('ELV','pc-elv'),0);
+  else if(p.startsWith('cd')&&Object.values(DISC_NAV).includes(p)){const code=Object.keys(DISC_NAV).find(k=>DISC_NAV[k]===p);if(code)setTimeout(()=>renderDisc(code,'pc-'+p),0);}
   else if(p==='bim')setTimeout(()=>renderBIM('pc-bim'),0);
   else if(p==='team')renderTeam();
   else if(p==='proj')renderProj();
@@ -4292,6 +4307,49 @@ function setDiscOff(v){
   else if(m[CURRENT_PAGE]&&typeof renderDisc==='function')renderDisc(m[CURRENT_PAGE][0],m[CURRENT_PAGE][1]);
 }
 const DISC_NAV={'HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'};
+// ── Dynamic discipline pages ─────────────────────────────────────────
+// The four built-in disciplines + BIM have hardcoded page divs (pg-hvac etc.).
+// Any additional discipline in DISCIPLINE_CONFIG gets its page generated here,
+// wired into PAGES + DISC_NAV, and added to every discipline-switch dropdown —
+// so a discipline added in Settings is a first-class page with zero code edits.
+const BUILTIN_DISCS=['HVAC','PH&E','ELE','ELV'];
+function discSlug(code){ return 'cd'+String(code).replace(/[^a-zA-Z0-9]/g,'').toLowerCase(); }
+function buildCustomDiscPages(){
+  const anchor=document.getElementById('pg-elv'); if(!anchor)return;
+  DISCIPLINE_CONFIG.forEach(d=>{
+    if(BUILTIN_DISCS.includes(d.code))return;
+    const slug=discSlug(d.code);
+    DISC_NAV[d.code]=slug;
+    if(PAGES.indexOf(slug)<0)PAGES.push(slug);
+    if(document.getElementById('pg-'+slug))return; // already built
+    const div=document.createElement('div');
+    div.id='pg-'+slug; div.style.display='none';
+    const color=d.color||'#64748b';
+    div.innerHTML='<div class="hdr"><div style="display:flex;align-items:center;gap:8px;">'
+      +'<button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>'
+      +'<span class="hdr-t">'+esc(d.label||d.code)+'</span>'
+      +'<span class="hdr-s" style="background:'+color+'22;color:'+color+';border-color:'+color+'66">'+esc(d.code)+'</span>'
+      +'<select class="js-disc-switch" onchange="selectDiscipline(this.value)" style="margin-left:8px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"></select>'
+      +'<select class="js-off-switch" onchange="setDiscOff(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All Offices</option><option value="DXB">DXB</option><option value="EGY">EGY</option><option value="IND">IND</option></select>'
+      +'<select class="js-status-switch" onchange="setDiscStatus(this.value)" style="margin-left:6px;background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;"><option value="all">All status</option><option value="Active">Active</option><option value="On Hold">On Hold</option><option value="Completed">Completed</option></select>'
+      +'</div></div><div class="pc" id="pc-'+slug+'"></div>';
+    anchor.parentNode.insertBefore(div,anchor.nextSibling);
+  });
+  refreshDiscSwitchers();
+}
+// Rebuild every .js-disc-switch's options from the live discipline config, so
+// custom disciplines are selectable from any page header (the five hardcoded
+// switchers ship with only the built-in options baked in).
+function refreshDiscSwitchers(){
+  const opts='<option value="">All disciplines</option>'
+    +MEP_DISCS.map(c=>{const cfg=DISCIPLINE_CONFIG.find(x=>x.code===c);return '<option value="'+esc(c)+'">'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')
+    +'<option value="BIM">BIM</option>';
+  document.querySelectorAll('.js-disc-switch').forEach(sel=>{
+    const cur=sel.value;
+    sel.innerHTML=opts;
+    sel.value=Array.prototype.some.call(sel.options,o=>o.value===cur)?cur:'';
+  });
+}
 
 function selectDiscipline(v){
   document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=v;});
@@ -5751,12 +5809,13 @@ function renderOffice(off,pcId){
     var _dcolor={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
     var discsShow=mepDiscActive()?window.MEP_DISC.slice():discs;
     mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discsShow.map(function(d){return {label:d,data:subUtil(d==='BIM'?subBIM:sub.filter(function(e){return e.disc===d&&e.team!=='BIM';}),util,minMI,NMON).map(function(v){return +v.toFixed(1);}),borderColor:_dcolor[d]||'#6b7280',borderWidth:2.5,tension:.35,fill:false,pointRadius:4};}),{y:{ticks:{callback:v=>v+'%'},min:0}});
-    const dc={HVAC:0,'PH&E':0,ELE:0,ELV:0,BIM:0};
+    const dc={}; MEP_DISCS.forEach(d=>{dc[d]=0;}); dc['BIM']=0;
     subMEP.forEach(e=>{if(dc[e.disc]!==undefined)dc[e.disc]++;});
     subBIM.forEach(()=>{dc['BIM']++;});
     const dcKeys=Object.keys(dc).filter(k=>dc[k]>0);
     const dcClr={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
-    mkChart(`off-d-${cid}`,'doughnut',dcKeys,[{data:dcKeys.map(k=>dc[k]),backgroundColor:dcKeys.map(k=>dcClr[k]||'#6b7280'),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+    const dcColOf=k=>dcClr[k]||(DISCIPLINE_CONFIG.find(x=>x.code===k)||{}).color||'#6b7280';
+    mkChart(`off-d-${cid}`,'doughnut',dcKeys,[{data:dcKeys.map(k=>dc[k]),backgroundColor:dcKeys.map(dcColOf),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_msf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
@@ -8015,7 +8074,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
         <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
-        <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${eng.empno||ei+1}</td>
+        <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
         <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
@@ -8220,8 +8279,12 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     return handle;
   }
   function place(input){
-    if(!input || input.readOnly){ hide(); return; }
-    if(input.tagName!=='INPUT' || !input.closest('td.week-cell')) { return; }
+    if(!input || input.readOnly || input.disabled){ hide(); return; }
+    // Two families: project week cells (legacy path) and any input tagged .fill-cell
+    // (leave/mgmt grids, weekly tracker) — same handle, same drag, different setter.
+    const isWeekCell=input.tagName==='INPUT' && input.closest('td.week-cell');
+    const isFillCell=input.classList && input.classList.contains('fill-cell');
+    if(!isWeekCell && !isFillCell) return;
     active=input; ensureHandle();
     const r=input.getBoundingClientRect();
     handle.style.left=(window.scrollX+r.right-11)+'px';
@@ -8232,7 +8295,25 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
 
   function rowCellsOf(input){
     const tr=input.closest('tr'); if(!tr) return [];
+    if(input.classList && input.classList.contains('fill-cell')){
+      return Array.from(tr.querySelectorAll('input.fill-cell'));
+    }
     return Array.from(tr.querySelectorAll('td.week-cell input[type="number"]'));
+  }
+  // Route a filled cell through the right setter so colours, totals, permissions
+  // and debounced saving behave exactly as if the value had been typed.
+  function applyFill(inp){
+    if(inp.dataset.fillfn){
+      const fn=window[inp.dataset.fillfn];
+      if(typeof fn==='function'){
+        if(inp.dataset.key!==undefined) fn(inp.dataset.eng, inp.dataset.key, inp);
+        else fn(inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
+      }
+      return;
+    }
+    if(typeof setWeekHrsProj==='function'){
+      setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
+    }
   }
   function highlight(range){
     lastRange.forEach(el=>{ el.style.outline=''; });
@@ -8272,12 +8353,9 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     const range=lastRange.slice();
     highlight([]);
     range.forEach(inp=>{
-      if(inp===active || inp.readOnly) return;
+      if(inp===active || inp.readOnly || inp.disabled) return;
       inp.value=srcVal;
-      // route through the real setter for permissions/colour/save/totals
-      if(typeof setWeekHrsProj==='function'){
-        setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
-      }
+      applyFill(inp); // routes to the right setter per grid type
     });
     if(typeof flushHourSaves==='function') flushHourSaves();
     place(active);
@@ -8317,11 +8395,9 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     const range=lastRange.slice();
     highlight([]);
     range.forEach(inp=>{
-      if(inp===active || inp.readOnly) return;
+      if(inp===active || inp.readOnly || inp.disabled) return;
       inp.value=srcVal;
-      if(typeof setWeekHrsProj==='function'){
-        setWeekHrsProj(inp.dataset.pid, inp.dataset.eng, parseInt(inp.dataset.wi,10), inp);
-      }
+      applyFill(inp);
     });
     if(typeof flushHourSaves==='function') flushHourSaves();
     place(active);
@@ -8329,7 +8405,8 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
 
   // Show the handle on the currently focused week cell
   document.addEventListener('focusin', function(e){
-    if(e.target && e.target.matches && e.target.matches('td.week-cell input[type="number"]')) place(e.target);
+    if(!e.target || !e.target.matches) return;
+    if(e.target.matches('td.week-cell input[type="number"]') || e.target.matches('input.fill-cell')) place(e.target);
   });
   document.addEventListener('focusout', function(e){
     // keep handle if moving onto the handle itself; hide shortly otherwise
@@ -8960,7 +9037,11 @@ async function saveProp(){
   const name=document.getElementById('ppw-name').value.trim();if(!name){toast('Name required');return;}
   const disciplines=getCheckedDiscs('ppw');
   const bimExcluded=!isBimAllowed('ppw');
-  const p={id:propId||'prp'+Date.now(),no:document.getElementById('ppw-no').value.trim(),name,client:document.getElementById('ppw-client').value.trim(),pm:document.getElementById('ppw-pm').value.trim(),location:document.getElementById('ppw-loc').value.trim(),start:document.getElementById('ppw-start').value,end:document.getElementById('ppw-end').value,forecastEnd:document.getElementById('ppw-fend').value||'',projType:document.getElementById('ppw-ptype').value||'',disciplines,bimExcluded,status:document.getElementById('ppw-st').value,feeFactor:parseFloat(document.getElementById('ppw-fee').value)||1.0};
+  // Preserve everything the modal doesn't edit (weeklyHrs especially — proposals
+  // store hours inline, so rebuilding the object from scratch used to wipe all
+  // allocated hours on any metadata edit).
+  const existing=propId?(S.proposals||[]).find(x=>x.id===propId):null;
+  const p={...(existing||{}),id:propId||'prp'+Date.now(),no:document.getElementById('ppw-no').value.trim(),name,client:document.getElementById('ppw-client').value.trim(),pm:document.getElementById('ppw-pm').value.trim(),location:document.getElementById('ppw-loc').value.trim(),start:document.getElementById('ppw-start').value,end:document.getElementById('ppw-end').value,forecastEnd:document.getElementById('ppw-fend').value||'',projType:document.getElementById('ppw-ptype').value||'',disciplines,bimExcluded,status:document.getElementById('ppw-st').value,feeFactor:parseFloat(document.getElementById('ppw-fee').value)||1.0};
   if(!S.proposals)S.proposals=[];
   if(propId){const i=S.proposals.findIndex(x=>x.id===propId);S.proposals[i]=p;}else S.proposals.push(p);
   try{await sbUpsert('proposals',{id:p.id,data:p});}catch(e){saveLocal();}
@@ -9190,6 +9271,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
+              class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
               style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
@@ -9337,6 +9419,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const editable=adminUnlocked||canEditDisc('BIM');
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
+              class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
               style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
@@ -9652,9 +9735,16 @@ function parseImportData(workbook){
   const changes = {projects:[], leave:[], errors:[], stats:{updated:0,added:0,removed:0,leaveUpdated:0}};
   const sheetNames = workbook.SheetNames;
 
-  // Build lookup maps
+  // Build lookup maps.
+  // empno was retired as a field (v8.18.0) and wiped from all records, so the
+  // empno map is normally empty now — the normalized-name map is the real
+  // matching path. empno is kept first for any legacy sheet + un-wiped record.
   const engByEmpno = {};
   S.engineers.forEach(e => { if(e.empno) engByEmpno[e.empno] = e; });
+  const normName = s => String(s||'').toLowerCase().replace(/[^a-z0-9]/g,'');
+  const engByName = {};
+  S.engineers.forEach(e => { const k=normName(e.name); if(k) engByName[k] = e; });
+  const findEng = (empno,name) => engByEmpno[empno] || engByName[normName(name)] || null;
 
   // ─── Parse Project Sheets ────────────────────────
   S.projects.forEach(proj => {
@@ -9698,11 +9788,12 @@ function parseImportData(workbook){
     for(let r = hdrIdx + 1; r < rows.length; r++){
       const row = rows[r];
       const empno = String(row[0]||'').trim();
-      if(!empno || empno.startsWith('MEP-') || empno === 'TOTAL' || empno === '') continue;
+      const rowName = String(row[1]||'').trim();
+      if((!empno && !rowName) || empno.startsWith('MEP-') || empno === 'TOTAL' || rowName === 'TOTAL') continue;
 
-      const eng = engByEmpno[empno];
+      const eng = findEng(empno, rowName);
       if(!eng){
-        // Unknown empno — skip silently (not in Team Register)
+        // Not matched by empno or name — skip silently (not in Team Register)
         continue;
       }
 
@@ -9779,9 +9870,10 @@ function parseImportData(workbook){
       for(let r = hdrIdx + 1; r < rows.length; r++){
         const row = rows[r];
         const empno = String(row[0]||'').trim();
-        if(!empno) continue;
+        const rowName = String(row[1]||'').trim();
+        if(!empno && !rowName) continue;
 
-        const eng = engByEmpno[empno];
+        const eng = findEng(empno, rowName);
         if(!eng) continue;
 
         const currentLeave = S.leaveHrs[eng.id] || [];
