@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.24.0 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.24.1 · 10 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.24.0 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.24.1 · 10 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1698,8 +1698,20 @@ function miLabel(mi){const {y,m}=miToDate(mi);return ['Jan','Feb','Mar','Apr','M
 function miLabelL(mi){const {y,m}=miToDate(mi);return ['January','February','March','April','May','June','July','August','September','October','November','December'][m]+' '+y;}
 // Weeks per month for any absolute month index
 // Full 12-month weeks-per-month table (Jan-Dec)
-const WPM12=[4,4,5,4,4,5,4,5,4,5,4,4];
-function wpmFor(mi){const {m}=miToDate(mi);return WPM12[m]||4;}
+// Weeks-per-month = the number of Mondays in that calendar month, computed from
+// the actual calendar (memoized). This replaced a hardcoded 12-entry table that
+// had Oct/Nov 2026 swapped (claimed Oct=5wk/Nov=4wk; reality is Oct=4/Nov=5),
+// which inflated October capacity — a fully-allocated month showed 80% — and
+// deflated November's, showing >130%. A static month-of-year table can never be
+// right anyway, since Monday counts shift every year.
+const _WPM_CACHE={};
+function wpmFor(mi){
+  if(_WPM_CACHE[mi]!==undefined)return _WPM_CACHE[mi];
+  const {y,m}=miToDate(mi);
+  let c=0;const d=new Date(y,m,1);
+  while(d.getMonth()===m){ if(d.getDay()===1)c++; d.setDate(d.getDate()+1); }
+  return _WPM_CACHE[mi]=c;
+}
 function wMean(arr,minMI){if(!arr||!arr.length)return 0;let s=0,w=0;for(let i=0;i<arr.length;i++){const k=wpmFor(minMI+i);s+=(arr[i]||0)*k;w+=k;}return w?s/w:0;}
 // Convert a Date object to absolute month index
 function dateToMI(d){return(d.getFullYear()-2026)*12+(d.getMonth()-3);}
