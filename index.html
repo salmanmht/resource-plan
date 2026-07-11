@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.26.0 · 12 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.28.0 · 12 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.26.0 · 12 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.28.0 · 12 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1940,6 +1940,7 @@ async function doLogout(){
   }catch(e){}
   SB_SESSION=null;adminUnlocked=false;
   sessionStorage.removeItem('mep_session');
+  try{sessionStorage.removeItem('lastPage');}catch(e){}
   try{localStorage.removeItem('mepR26');}catch(e){}
   const up=document.getElementById('sb-user');if(up)up.style.display='none';
   
@@ -5381,8 +5382,8 @@ function renderHireFire(){
     const band80to100=engAvgs.filter(x=>x.avg>=80&&x.avg<=100);
     const below80=engAvgs.filter(x=>x.avg<80);
 
-    // Overloaded list (by peak month, for the engineer cards)
-    const overloaded=engAvgs.filter(x=>x.peak>100).sort((a,b)=>b.peak-a.peak);
+    // Overloaded list (by average over the selected period)
+    const overloaded=engAvgs.filter(x=>x.avg>100).sort((a,b)=>b.avg-a.avg);
     const underused=engAvgs.filter(x=>x.avg<50).sort((a,b)=>a.avg-b.avg);
 
     // === DETERMINE STATUS ===
@@ -5515,7 +5516,7 @@ function renderHireFire(){
           <div style="font-weight:600;font-size:12px;">${o.e.name}</div>
           <div style="font-size:10px;color:var(--tx3);">${o.e.desig||o.e.grade} · ${o.e.off}</div>
         </div>
-        <div style="font-weight:700;font-size:13px;color:var(--red);">${o.peak.toFixed(0)}%</div>
+        <div style="font-weight:700;font-size:13px;color:var(--red);">${o.avg.toFixed(0)}%</div>
       </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No engineers above 100%</div>';
 
     const uuHtml=underused.slice(0,5).map(u=>`
@@ -5529,7 +5530,7 @@ function renderHireFire(){
 
     const actionGrid=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
       <div style="background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--red);border-radius:var(--rl);padding:14px 16px;">
-        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">Overloaded — Top 5 by Peak</div>
+        <div style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);margin-bottom:10px;">Overloaded — Top 5 by Average</div>
         ${olHtml}
       </div>
       <div style="background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--amb);border-radius:var(--rl);padding:14px 16px;">
