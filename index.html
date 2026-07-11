@@ -864,7 +864,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.24.1 · 10 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.25.0 · 11 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.24.1 · 10 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.25.0 · 11 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1715,6 +1715,15 @@ function wpmFor(mi){
 function wMean(arr,minMI){if(!arr||!arr.length)return 0;let s=0,w=0;for(let i=0;i<arr.length;i++){const k=wpmFor(minMI+i);s+=(arr[i]||0)*k;w+=k;}return w?s/w:0;}
 // Convert a Date object to absolute month index
 function dateToMI(d){return(d.getFullYear()-2026)*12+(d.getMonth()-3);}
+// ── Global week-index storage anchor ──
+// gwi 0 = the week of Mon 5 Jan 2026 (first Monday of 2026). Was previously
+// Mon 6 Apr 2026, which made every week before W15 a NEGATIVE index — those
+// cells accepted input but negative array indices are dropped by JSON on save,
+// so Jan–Mar entries silently vanished on reload. Existing data (anchored
+// Apr 6) is migrated by shifting arrays right by G_ANCHOR_SHIFT on first load.
+const G_ANCHOR_STR='2026-01-05';
+const G_ANCHOR_SHIFT=13; // weeks from 2026-01-05 to 2026-04-06
+function gwEnd(){const d=new Date();d.setFullYear(d.getFullYear()+3);return d;} // rolling horizon — no hardcoded cliff
 const GRADES= ['Technical Manager','Associate Engineer','Principal Engineer','Lead Engineer','Senior Engineer','Engineer','Junior / Grad Engineer','Intern','BIM Manager','Assistant BIM Manager','BIM Coordinator','BIM Specialist','Senior BIM Modeler','BIM Modeler','BIM Technician'];
 const BIM_GRADES= ['BIM Manager','Assistant BIM Manager','BIM Coordinator','BIM Specialist','Senior BIM Modeler','BIM Modeler','BIM Technician']; // also appended to GRADES above
 const DEF_RATES_DXB={'Technical Manager':350,'Associate Engineer':280,'Principal Engineer':260,'Lead Engineer':240,'Senior Engineer':200,'Engineer':150,'Junior / Grad Engineer':120,'BIM / Technician':110,'Intern':80,'BIM Manager':260,'Assistant BIM Manager':220,'BIM Coordinator':180,'BIM Specialist':150,'Senior BIM Modeler':130,'BIM Modeler':110,'BIM Technician':95};
@@ -2443,6 +2452,27 @@ async function initApp(){
     // One-time backfill: bring every engineer's designation in line with the new
     // "Grade Tier - Discipline" auto-format. Admin-only so non-admin sessions
     // don't attempt writes that RLS would reject anyway; self-heals next admin login.
+    // ── One-time anchor migration (v8.25.0) ──
+    // Legacy leave/mgmt arrays were anchored to Mon 6 Apr 2026 (index 0 = W15).
+    // The anchor moved to Mon 5 Jan 2026 so pre-W15 weeks are storable, which
+    // requires shifting every legacy array right by G_ANCHOR_SHIFT (13 weeks).
+    // Shift happens in memory for every session; the first admin session also
+    // persists the shifted arrays plus a settings flag so it never re-runs.
+    const _rgAnchor=Array.isArray(sets)?sets.find(r=>r.key==='gAnchor'):null;
+    if(!(_rgAnchor&&_rgAnchor.value==='jan2026')){
+      const _shift=a=>Array(G_ANCHOR_SHIFT).fill(0).concat(Array.isArray(a)?a:[]);
+      Object.keys(S.leaveHrs||{}).forEach(k=>{S.leaveHrs[k]=_shift(S.leaveHrs[k]);});
+      Object.keys(S.mgmtHrs||{}).forEach(k=>{S.mgmtHrs[k]=_shift(S.mgmtHrs[k]);});
+      if(adminUnlocked){
+        (async()=>{try{
+          // Flag FIRST, so a concurrent session can't double-shift
+          await sbFetch('settings','POST',{key:'gAnchor',value:'jan2026'},'resolution=merge-duplicates,return=representation');
+          for(const k of Object.keys(S.leaveHrs)){ if((S.leaveHrs[k]||[]).some(v=>v>0)) await sbFetch('leave_hrs','POST',{id:k,data:S.leaveHrs[k]},'resolution=merge-duplicates,return=representation'); }
+          for(const k of Object.keys(S.mgmtHrs)){ if((S.mgmtHrs[k]||[]).some(v=>v>0)) await sbFetch('mgmt_hrs','POST',{id:k,data:S.mgmtHrs[k]},'resolution=merge-duplicates,return=representation'); }
+          console.log('gAnchor migration: shifted + persisted');
+        }catch(e){console.error('gAnchor migration persist failed:',e);}})();
+      }
+    }
     if(adminUnlocked){ try{ normalizeAllDesignations(true); }catch(e){ console.error('normalizeAllDesignations (auto) failed:',e); } }
     if(adminUnlocked){ try{ wipeEmployeeNumbers(true); }catch(e){ console.error('wipeEmployeeNumbers (auto) failed:',e); } }
 
@@ -2594,7 +2624,7 @@ function computeAll(statusFilter){
   // Add leave + mgmt hours into total utilisation
   // leaveHrs/mgmtHrs are indexed by global week index (from Apr 2026)
   // We need to map them to the same MI buckets
-  const gWeeks=[];{const d=new Date('2026-04-06');while(d<=new Date('2027-12-31')){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
+  const gWeeks=[];{const d=new Date(G_ANCHOR_STR),_e=gwEnd();while(d<=_e){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
 
   const leaveByMI={};  // {engId: [hrs per MI]}
   const mgmtByMI={};
@@ -4604,7 +4634,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
   // ── non-project rows for drill-down (leave / holidays / management) — v8.9.12 ──
   const _full=computeAll();
   const _foff=base-(_full.minMI||0);
-  const _SPINE=new Date('2026-04-06');_SPINE.setHours(0,0,0,0);
+  const _SPINE=new Date(G_ANCHOR_STR);_SPINE.setHours(0,0,0,0);
   const _WK=7*24*3600*1000;
   const _mondayOf=(ds)=>{const d=new Date(ds);const dy=d.getDay();d.setDate(d.getDate()+(dy===0?-6:1-dy));d.setHours(0,0,0,0);return d;};
   const _colGwi=isWeekly?cols.map(ci=>Math.round((new Date(weeks[ci]).setHours(0,0,0,0)-_SPINE)/_WK)):null;
@@ -4901,7 +4931,7 @@ function computeRangeWeekly(statusFilter){
 
   // Helper: project week-date function (same logic as computeAll)
   // Global weeks anchor for leave/mgmt (same as computeAll)
-  const G_ANCHOR=new Date('2026-04-06');
+  const G_ANCHOR=new Date(G_ANCHOR_STR);
   function gWkIdx(d){return Math.round((d-G_ANCHOR)/6048e5);}
 
   // Build holiday week maps for UAE and EGY
@@ -5522,8 +5552,8 @@ function renderHireFire(){
 // mode='disc'   → rows are individual engineers
 function buildLeaveCard(mode, engs, minMI, NMON, cid){
   const DAY_HRS=9;
-  const G_ANCHOR=new Date('2026-04-06');
-  const gWeeks=[];{const d=new Date('2026-04-06');while(d<=new Date('2027-12-31')){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
+  const G_ANCHOR=new Date(G_ANCHOR_STR);
+  const gWeeks=[];{const d=new Date(G_ANCHOR_STR),_e=gwEnd();while(d<=_e){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
   const useWeeklyCols = GRAIN==='week';
   // Get week list for weekly cols, mirroring computeRangeWeekly's logic
   let rangeWeeks=[];
@@ -8100,7 +8130,7 @@ function renderProjCard(p, mode){
           ${isOverridden?`<button onclick="setProjRateOverride('${p.id}','${eng.id}','')" title="Reset to default (${defaultRate})" style="background:none;border:none;color:#9a3412;cursor:pointer;font-size:10px;padding:0 2px;margin-left:2px;">&#8634;</button>`:''}
         </td>`:''}
         ${weeks.map((wk,wi)=>{const v=engHrs[wi]||'';
-          const gWI=Math.round((wk-new Date('2026-04-06'))/(7*24*3600*1000));
+          const gWI=Math.round((wk-new Date(G_ANCHOR_STR))/(7*24*3600*1000));
           const lv=(S.leaveHrs[eng.id]&&gWI>=0)?S.leaveHrs[eng.id][gWI]||0:0;
           const cap=eng.cap||45;
           const wkStr=wk.toISOString().slice(0,10);
@@ -9212,7 +9242,7 @@ showMobMenuBtns();
 
 // Global week spine: Apr 2026 → Dec 2027 (92 weeks covers 2 years comfortably)
 // ── Global week anchor ────────────────────────────────
-const G_ANCHOR_DATE = new Date('2026-04-06');
+const G_ANCHOR_DATE = new Date(G_ANCHOR_STR);
 function allGlobalWeeks(upToYear){
   const end = new Date((upToYear||2030)+'-12-31');
   const wks=[];let d=new Date(G_ANCHOR_DATE);
@@ -9284,8 +9314,8 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
-              ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
+              ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
         <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
@@ -9432,8 +9462,8 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
-              ${editable?`oninput="${setFn}('${eng.id}',${gwi},this)"`:'readonly'}
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${editable?'':'opacity:.5;cursor:not-allowed;'}">
+              ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
         <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
@@ -9446,12 +9476,20 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
 }
 
 function getMgmtEngineers(){
-  // Associates + Technical Managers + any custom additions saved in S.mgmtExtra
+  // Management-eligible = every tier at/above 'Senior Associate' in the
+  // cost-sorted hierarchy (Director, Technical Director, Associate Director,
+  // Technical Manager, Senior Associate…), plus the legacy name matches, plus
+  // manual extras. The old check was a hardcoded pair of grade names — one of
+  // which ('Technical Manager / Director') no longer even exists — so the new
+  // senior tiers (e.g. Imran's 'Director') never qualified.
+  const cutoffIdx=GRADES.indexOf('Senior Associate');
+  const seniorGrades=cutoffIdx>=0?new Set(GRADES.slice(0,cutoffIdx+1)):null;
   const base=S.engineers.filter(e=>{
     const grade=e.grade||'';
     const desig=(e.desig||'').toLowerCase();
+    if(seniorGrades&&seniorGrades.has(grade))return true;
     return grade==='Associate Engineer'||grade==='Technical Manager / Director'||
-           desig.includes('associate')||desig.includes('technical manager');
+           desig.includes('associate')||desig.includes('technical manager')||desig.includes('director');
   });
   // Add custom extra engineers from S.mgmtExtra (array of engIds)
   const extra=(S.mgmtExtra||[]).map(id=>S.engineers.find(e=>e.id===id)).filter(Boolean);
@@ -11139,7 +11177,7 @@ function exportExcel(opts){
       rows.push(['Edit leave values and re-import to update the system']);
       rows.push([]);
 
-      const gWeeks=[];{const d=new Date('2026-04-06');while(d<=new Date('2027-12-31')){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
+      const gWeeks=[];{const d=new Date(G_ANCHOR_STR),_e=gwEnd();while(d<=_e){gWeeks.push(new Date(d));d.setDate(d.getDate()+7);}}
       const wkLabels=gWeeks.map((w,i)=>{const d=new Date(w);return 'W'+(i+1);});
 
       rows.push(['Emp No.','Name','Discipline','Office'].concat(wkLabels));
