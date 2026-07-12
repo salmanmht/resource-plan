@@ -868,7 +868,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.37.0 · 12 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.40.0 · 12 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -967,7 +967,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.37.0 · 12 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.40.0 · 12 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2858,19 +2858,24 @@ const DH_COL={'HVAC':'#ef6c3b','PH&E':'#2563eb','ELE':'#f5a623','ELV':'#14b8a6'}
 // Live at call time, NOT frozen at parse time — custom disciplines load from
 // Supabase after this script parses, so a top-level snapshot would miss them.
 function dhMep(){return MEP_DISCS.slice();}
-function dhCol(d){return DH_COL[d]||(DISCIPLINE_CONFIG.find(x=>x.code===d)||{}).color||'#6b7280';}
+function dhCol(d){return (DISCIPLINE_CONFIG.find(x=>x.code===d)||{}).color||DH_COL[d]||'#6b7280';}
+// Map a BIM modeller's sub-discipline to a config discipline code (via bimSub aliases).
+function bimDiscCode(subDisc){ const d=DISCIPLINE_CONFIG.find(x=>(x.bimSub||[]).indexOf(subDisc)>=0); return d?d.code:null; }
 function dhProjMepCost(p){
   const DH_MEP=dhMep();
   const out={}; DH_MEP.forEach(d=>{out[d]=0;});
   const wh=p.weeklyHrs||{};
   Object.entries(wh).forEach(([eid,arr])=>{
     if(!arr)return;
-    const e=S.engineers.find(x=>x.id===eid); if(!e||e.team==='BIM')return;
-    if(DH_MEP.indexOf(e.disc)<0)return;
+    const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+    // BIM modellers fold into their trade discipline (HVAC + HVAC-BIM, etc);
+    // MEP engineers use their booked discipline (per-project override wins).
+    const d = e.team==='BIM' ? bimDiscCode(e.subDisc) : effDisc(e,p);
+    if(!d||DH_MEP.indexOf(d)<0)return;
     const hrs=arr.reduce((a,b)=>a+(b||0),0); if(!hrs)return;
     const rate=getProjRate(e,p);
     const mult=(typeof getJseMult==='function'?getJseMult(p,eid):1)||1;
-    out[e.disc]+=hrs*rate*mult;
+    out[d]+=hrs*rate*mult;
   });
   return out;
 }
@@ -2984,8 +2989,8 @@ function dhRenderBalance(){
   const {pct:portPct,tot:portTot}=dhPct(port);
   let acc=0; const segs=[];
   DH_MEP.forEach(d=>{const s=acc;acc+=portPct[d];segs.push(dhCol(d)+' '+s.toFixed(1)+'% '+acc.toFixed(1)+'%');});
-  let h='<div class="spend-card"><h2 class="dh-h">MEP cost split — active projects</h2><div class="dh-csub">Share of MEP cost by discipline · excludes BIM</div>';
-  h+='<div class="dh-donutwrap"><div class="dh-donut" style="background:conic-gradient('+segs.join(',')+')"><div class="dh-dlbl"><b>'+fAED(portTot)+'</b><span>MEP cost</span></div></div><div class="dh-keys">';
+  let h='<div class="spend-card"><h2 class="dh-h">Discipline cost split — active projects</h2><div class="dh-csub">Share of cost by discipline · BIM folded into its trade</div>';
+  h+='<div class="dh-donutwrap"><div class="dh-donut" style="background:conic-gradient('+segs.join(',')+')"><div class="dh-dlbl"><b>'+fAED(portTot)+'</b><span>Total cost</span></div></div><div class="dh-keys">';
   DH_MEP.forEach(d=>{h+='<div class="dh-key"><i style="background:'+dhCol(d)+'"></i><span class="kn">'+(d==='PH&E'?'PH &amp; Fire':d)+'</span><span class="kv">'+Math.round(portPct[d])+'%</span>'+(norm?'<span class="kd">norm '+Math.round(norm[d])+'%</span>':'')+'</div>';});
   h+='</div></div>';
   if(norm)h+='<div class="dh-norm">Normal mix learned from <b>'+n+' completed projects</b>: '+DH_MEP.map(d=>d+' '+Math.round(norm[d])+'%').join(' · ')+'.</div>';
