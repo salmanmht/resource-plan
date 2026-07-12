@@ -469,6 +469,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .spend-lbl{font-size:11px;font-weight:600;color:var(--tx3);}
 .spend-card{background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:14px 16px;margin-bottom:16px;}
 .spend-h{font-size:13px;font-weight:700;color:var(--tx);margin-bottom:10px;}
+.spend-filters select,.spend-filters input[type="date"]{flex:1 1 150px;width:auto;min-width:130px;max-width:230px;}
+.spend-card .tbl th,.spend-card .tbl td{padding:10px 12px;}
+.spend-card .tbl tbody tr:nth-child(even):not(.spend-tot) td{background:#fafafb;}
+.spend-card .tbl tbody tr:hover td{background:#f0f1f4;}
 .spend-card .tbl td.num,.spend-card .tbl th.num{text-align:right;}
 .spend-tot td{font-weight:700;border-top:2px solid var(--bdr);}
 .dh-tabs{display:flex;gap:2px;margin-bottom:14px;border-bottom:1px solid var(--bdr);}
@@ -864,7 +868,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.28.0 · 12 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.37.0 · 12 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -963,7 +967,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.28.0 · 12 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.37.0 · 12 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1075,9 +1079,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
     <div class="pc">
       <div class="fbar" style="flex-direction:row;flex-wrap:wrap;">
-        <input id="ts-q" placeholder="Search…" oninput="renderTeam()" style="flex:1;min-width:120px;max-width:220px;">
-        <select id="ts-disc" onchange="renderTeam()" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
-        <select id="ts-off" onchange="renderTeam()" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
+        <input id="ts-q" placeholder="Search…" oninput="invalidate('team')" style="flex:1;min-width:120px;max-width:220px;">
+        <select id="ts-disc" onchange="invalidate('team')" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
+        <select id="ts-off" onchange="invalidate('team')" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
       </div>
       <div id="team-grid"></div>
     </div>
@@ -1465,6 +1469,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:12px;">
           <input type="checkbox" id="em-is-bim" onchange="onBimToggle()" style="width:15px;height:15px;accent-color:#0d9488;">
           <span style="color:#0f766e;">BIM Team member</span>
+        </label>
+      </div>
+      <div class="ff full" style="display:flex;align-items:center;gap:10px;padding:6px 0;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:12px;">
+          <input type="checkbox" id="em-crossdisc" style="width:15px;height:15px;accent-color:#1e3a5f;">
+          <span style="color:#1e3a5f;">Books across disciplines</span>
+          <span style="font-weight:400;color:var(--tx3);font-size:10px;">(Director / Technical Director)</span>
         </label>
       </div>
       <div class="ff"><label id="em-disc-label">Discipline *</label><select id="em-disc" onchange="updateDesigPreview()"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
@@ -2754,7 +2765,7 @@ function normalizeAllDesignations(silent){
   S.engineers.forEach(e=>{ if(idSet.has(e.id)){ try{pushEng&&pushEng(e);}catch(err){console.error('normalizeAllDesignations: pushEng failed',err);} } });
   saveLocal();
   if(!silent)toast(`Normalized ${changedIds.length} designation${changedIds.length===1?'':'s'}`);
-  if(typeof renderTeam==='function'){try{renderTeam();}catch(e){}}
+  invalidate('team');
   const dv=document.getElementById('proj-detail-view');
   if(dv&&dv.style.display!=='none'){
     const titleEl=document.getElementById('proj-hdr-title');
@@ -2788,7 +2799,7 @@ function wipeEmployeeNumbers(silent){
   S.engineers.forEach(e=>{ if(idSet.has(e.id)){ try{pushEng&&pushEng(e);}catch(err){console.error('wipeEmployeeNumbers: pushEng failed',err);} } });
   saveLocal();
   if(!silent)toast(`Cleared Employee No. from ${changedIds.length} engineer${changedIds.length===1?'':'s'}`);
-  if(typeof renderTeam==='function'){try{renderTeam();}catch(e){}}
+  invalidate('team');
   console.log('Employee No. wipe: cleared',changedIds.length,'engineer(s)');
   return changedIds;
 }
@@ -3185,10 +3196,15 @@ function spendOffMatch(e){
   if(SPEND.off==='IND')return isIND;
   return off===SPEND.off&&!isIND;
 }
-function spendDiscMatch(e){
+// Effective discipline for a person on a given project: a per-project
+// override (p.bookDisc[id]) wins over the person's home discipline. Used
+// from Step 1b onward for cross-discipline roles (Director MEP, Tech Directors).
+// Falls back to home disc, so people without an override are unaffected.
+function effDisc(e,p){ return (p&&p.bookDisc&&e&&p.bookDisc[e.id])||(e&&e.disc)||''; }
+function spendDiscMatch(e,p){
   if(!SPEND.disc)return true;
   if(SPEND.disc==='BIM')return e.team==='BIM';
-  return e.disc===SPEND.disc&&e.team!=='BIM';
+  return effDisc(e,p)===SPEND.disc&&e.team!=='BIM';
 }
 function spendWeekDate(pStart,wi){const d=new Date(pStart);const day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));d.setDate(d.getDate()+wi*7);return d;}
 function spendStageNames(){
@@ -3209,7 +3225,7 @@ function spendCompute(){
     Object.entries(wh).forEach(([eid,arr])=>{
       if(!arr)return;
       const eng=S.engineers.find(e=>e.id===eid); if(!eng)return;
-      if(!spendDiscMatch(eng)||!spendOffMatch(eng))return;
+      if(!spendDiscMatch(eng,p)||!spendOffMatch(eng))return;
       const rate=getProjRate(eng,p);
       const mult=(typeof getJseMult==='function'?getJseMult(p,eid):1)||1;
       arr.forEach((h,wi)=>{
@@ -3222,8 +3238,9 @@ function spendCompute(){
         if(SPEND.stage&&stageName!==SPEND.stage)return;
         const cost=h*rate*mult;
         totalCost+=cost; totalHrs+=h; projSet.add(p.id);
-        if(!perEng[eid])perEng[eid]={eng,hrs:0,cost:0};
+        if(!perEng[eid])perEng[eid]={eng,hrs:0,cost:0,discSet:new Set()};
         perEng[eid].hrs+=h; perEng[eid].cost+=cost;
+        perEng[eid].discSet.add(eng.team==='BIM'?'BIM':effDisc(eng,p));
         if(!perStage[stageName])perStage[stageName]={hrs:0,cost:0};
         perStage[stageName].hrs+=h; perStage[stageName].cost+=cost;
         const mi=dateToMI(wd); perMonth[mi]=(perMonth[mi]||0)+cost;
@@ -3234,7 +3251,7 @@ function spendCompute(){
 }
 function spendSet(k,v){SPEND[k]=v;if(k==='proj')SPEND.stage='';renderSpend();}
 function spendReset(){SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:''};renderSpend();}
-function spendKpi(label,val){return '<div class="mc-int"><div class="mc-head"><div class="mc-l">'+label+'</div></div><div class="mc-val-row"><div class="mc-v">'+val+'</div></div></div>';}
+function spendKpi(label,val,sub,cls){return '<div class="mc '+(cls||'')+'"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+val+'</div>'+(sub?'<div class="mc-s">'+sub+'</div>':'')+'</div>';}
 function renderSpend(){
   const c=document.getElementById('pc-spend'); if(!c)return;
   if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required to view expenditure.</div>';return;}
@@ -3259,11 +3276,11 @@ function renderSpend(){
   const r=spendCompute();
   const blended=r.totalHrs?r.totalCost/r.totalHrs:0;
   h+='<div class="mrow">';
-  h+=spendKpi('Total Expenditure',fAED(r.totalCost));
-  h+=spendKpi('Total Hours',fN(Math.round(r.totalHrs)));
-  h+=spendKpi('Engineers',String(r.engCount));
-  h+=spendKpi('Projects',String(r.projCount));
-  h+=spendKpi('Blended Rate',fAED(blended)+'/h');
+  h+=spendKpi('Total Expenditure',fAED(r.totalCost),'across '+r.projCount+' project'+(r.projCount===1?'':'s'),'hi');
+  h+=spendKpi('Total Hours',fN(Math.round(r.totalHrs)),'logged in selection','');
+  h+=spendKpi('Team',String(r.engCount),'with logged spend','');
+  h+=spendKpi('Projects',String(r.projCount),'in selection','');
+  h+=spendKpi('Blended Rate',fAED(blended)+'/h','cost per hour','gr');
   h+='</div>';
   const stageRows=Object.entries(r.perStage).sort((a,b)=>b[1].cost-a[1].cost);
   if(stageRows.length){
@@ -3272,9 +3289,9 @@ function renderSpend(){
     h+='</tbody></table></div></div>';
   }
   const engRows=Object.values(r.perEng).sort((a,b)=>b.cost-a.cost);
-  h+='<div class="spend-card"><div class="spend-h">By engineer</div><div class="spend-tblwrap"><table class="tbl"><thead><tr><th>Name</th><th>Office</th><th>Discipline</th><th>Grade</th><th class="num">Hours</th><th class="num">Avg Rate</th><th class="num">Cost</th></tr></thead><tbody>';
+  h+='<div class="spend-card"><div class="spend-h">By team</div><div class="spend-tblwrap"><table class="tbl"><thead><tr><th>Name</th><th>Office</th><th>Discipline</th><th>Grade</th><th class="num">Hours</th><th class="num">Avg Rate</th><th class="num">Cost</th></tr></thead><tbody>';
   if(!engRows.length)h+='<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:18px;">No expenditure in this selection.</td></tr>';
-  engRows.forEach(row=>{const e=row.eng;const ar=row.hrs?row.cost/row.hrs:0;h+='<tr><td>'+esc(e.name||'')+'</td><td>'+esc(e.off||'')+'</td><td>'+esc(e.team==='BIM'?'BIM':(e.disc||''))+'</td><td>'+esc(e.grade||e.desig||'')+'</td><td class="num">'+fN(Math.round(row.hrs))+'</td><td class="num">'+fAED(ar)+'</td><td class="num">'+fAED(row.cost)+'</td></tr>';});
+  engRows.forEach(row=>{const e=row.eng;const ar=row.hrs?row.cost/row.hrs:0;const ds=row.discSet?[...row.discSet]:[];const dLbl=e.team==='BIM'?'BIM':(ds.length===0?(e.disc||''):ds.length===1?ds[0]:'Mixed ('+ds.join('/')+')');h+='<tr><td>'+esc(e.name||'')+'</td><td>'+esc(e.off||'')+'</td><td>'+esc(dLbl)+'</td><td>'+esc(e.grade||e.desig||'')+'</td><td class="num">'+fN(Math.round(row.hrs))+'</td><td class="num">'+fAED(ar)+'</td><td class="num">'+fAED(row.cost)+'</td></tr>';});
   h+='<tr class="spend-tot"><td colspan="4">Total</td><td class="num">'+fN(Math.round(r.totalHrs))+'</td><td class="num"></td><td class="num">'+fAED(r.totalCost)+'</td></tr>';
   h+='</tbody></table></div></div>';
   h+='<div class="spend-card"><div class="spend-h">Spend by month</div><div style="height:240px;"><canvas id="spend-month-chart"></canvas></div></div>';
@@ -4298,7 +4315,7 @@ function nav(p, fromPopstate){
   else if(p==='elv')setTimeout(()=>renderDisc('ELV','pc-elv'),0);
   else if(p.startsWith('cd')&&Object.values(DISC_NAV).includes(p)){const code=Object.keys(DISC_NAV).find(k=>DISC_NAV[k]===p);if(code)setTimeout(()=>renderDisc(code,'pc-'+p),0);}
   else if(p==='bim')setTimeout(()=>renderBIM('pc-bim'),0);
-  else if(p==='team')renderTeam();
+  else if(p==='team')invalidate('team');
   else if(p==='proj')renderProj();
   else if(p==='spend')renderSpend();
   else if(p==='health')renderHealth();
@@ -4403,7 +4420,7 @@ function clearDiscFilter(){
   window.DISC_FILTER=null;
   document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value='';});
   var ts=document.getElementById('ts-disc'); if(ts)ts.value='all';
-  if(CURRENT_PAGE==='team')renderTeam();
+  if(CURRENT_PAGE==='team')invalidate('team');
   else if(CURRENT_PAGE==='proj')renderProj();
 }
 function openDisciplines(){ var d=window.DISC_FILTER||'HVAC'; nav(DISC_NAV[d]||'hvac'); }
@@ -4547,7 +4564,7 @@ function setMepStatus(v){
 function onTeamDiscChange(v){
   window.DISC_FILTER=(v&&v!=='all')?v:null;
   document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value=window.DISC_FILTER||'';});
-  renderTeam();
+  invalidate('team');
 }
 function discChipHtml(){
   if(!window.DISC_FILTER)return '';
@@ -6021,14 +6038,14 @@ function setSort(col){
     b.classList.toggle('on',isOn);b.classList.remove('asc','desc');
     if(isOn)b.classList.add(window.teamSort.dir);
   });
-  renderTeam();
+  invalidate('team');
 }
 
 function switchTeamTab(tab){
   const sel=document.getElementById('ts-disc');
   if(sel&&tab==='bim')sel.value='BIM';
   else if(sel&&tab==='engineers')sel.value='all';
-  renderTeam();
+  invalidate('team');
 }
 
 
@@ -6045,6 +6062,32 @@ function refreshTeamDiscFilterOptions(){
   sel.innerHTML=opts.join('');
   sel.value=Array.prototype.some.call(sel.options,o=>o.value===current)?current:'all';
 }
+/* ---- Render dispatcher (v8.29.0) --------------------------------------
+   invalidate('team',...) marks views dirty; one batched flush per frame
+   re-renders only what changed, so multiple invalidations in a single
+   handler collapse to one render. Direct render*() calls still work, so
+   remaining views can migrate incrementally. renderTeam is the first. */
+const _dirtyViews = new Set();
+let _flushQueued = false;
+const RENDERERS = {
+  team: function(){ if (typeof renderTeam === 'function') renderTeam(); }
+};
+function invalidate(){
+  for (let i = 0; i < arguments.length; i++) _dirtyViews.add(arguments[i]);
+  if (_flushQueued) return;
+  _flushQueued = true;
+  var run = function(){ flushViews(); };
+  if (window.requestAnimationFrame) window.requestAnimationFrame(run); else setTimeout(run, 0);
+}
+function flushViews(){
+  _flushQueued = false;
+  var views = Array.from(_dirtyViews); _dirtyViews.clear();
+  views.forEach(function(v){
+    var fn = RENDERERS[v];
+    if (typeof fn === 'function'){ try { fn(); } catch(e){ console.error('render "'+v+'" failed:', e); } }
+  });
+}
+
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
@@ -6969,7 +7012,7 @@ function renderProjDetail(p){
         return a+hrs*getProjRate(e,p)*mult;
       },0);
       const discStats=discs.map(d=>{
-        const mepE=S.engineers.filter(e=>e.disc===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
+        const mepE=S.engineers.filter(e=>effDisc(e,p)===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
         const bimE=S.engineers.filter(e=>e.subDisc===d&&e.team==='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
         const mepCost=calcCost(mepE),bimCost=calcCost(bimE);
         return{d,mepCost,bimCost,totalCost:mepCost+bimCost};
@@ -7074,7 +7117,7 @@ function renderProjDetail(p){
             const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const totalH=projTotalHrs(p);
-            const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
+            const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))];
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
             return assigned>0
               ?`<div class="weekly-badges" id="wb-badges-${p.id}" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -7315,7 +7358,7 @@ async function cycleStatus(projId){
 // Access control: can the current user edit hours/engineers for a given discipline?
 // Admin → always yes. BIM grades → only BIM disc. Others → only their own disc.
 
-function addEngineerToProject(projId,engId){
+async function addEngineerToProject(projId,engId){
   if(!engId)return;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   const eng=S.engineers.find(e=>e.id===engId);if(!eng)return;
@@ -7330,9 +7373,32 @@ function addEngineerToProject(projId,engId){
   // (since "assigned" is defined as having at least one non-zero week)
   p.weeklyHrs[engId]=new Array(weeks.length).fill(0);
   p.weeklyHrs[engId][0]=1;
-  pushProj(p);
   renderProjDetail(p);
   toast(`Added ${eng.name.split(' ').slice(0,2).join(' ')} — set hours per week`);
+  // Persist membership immediately. Hours live in the project_hours table, and
+  // pushProj() strips weeklyHrs before saving the project row — so relying on it
+  // here writes the placeholder to nothing and the row vanishes on reload. Write
+  // the placeholder straight to project_hours, the same path hour edits use.
+  if(!projId.toString().startsWith('prp')){
+    try{ await pushHourRow(projId,engId,0,1); }
+    catch(e){ console.error('addEngineerToProject: placeholder save failed',e); setSyncStatus(false,'Sync failed'); }
+  } else {
+    pushProj(p); // proposals store weeklyHrs inline
+  }
+}
+
+// Set a cross-discipline person's booked discipline for THIS project only.
+// Stored on p.bookDisc; clearing (or choosing home discipline) removes the override.
+async function setBookDisc(projId,engId,val){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p)return;
+  const eng=S.engineers.find(e=>e.id===engId);
+  const home=eng&&eng.disc;
+  if(!p.bookDisc)p.bookDisc={};
+  if(!val||val===home){ delete p.bookDisc[engId]; }
+  else { p.bookDisc[engId]=val; }
+  try{ await pushProj(p); }catch(e){ console.error('setBookDisc push failed',e); saveLocal(); }
+  renderProjDetail(p);
 }
 
 // Remove an engineer from the project (clears their hours so they no longer show as assigned)
@@ -7940,9 +8006,16 @@ function renderProjCard(p, mode){
   // Order: ProjNo, Disc, Rmv, EmpNo, Name, Position, Total Hrs, Cost, Fee
   // D: On mobile, hide ProjNo/Disc/Rmv/EmpNo/Position/Cost/Fee → keep only Name + Total Hrs
   const IS_MOBILE = (typeof window!=='undefined') && window.innerWidth<=700;
-  // Hide redundant columns: Proj No., Disc, Emp No. always hidden on desktop
-  const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : new Set([0,1,3]);
-  const FROZEN_WIDTHS_FULL=[68,52,32,68,140,150,60,78,78];
+  // Hide redundant columns: Proj No., Disc, Emp No. always hidden on desktop —
+  // EXCEPT reveal the Disc column when the project has a cross-discipline member
+  // (Director / Technical Director), because that column holds their per-project
+  // booked-discipline picker. Normal projects are unchanged.
+  const hasCrossDisc = Object.keys(wh).some(id=>{
+    const e=S.engineers.find(x=>x.id===id);
+    return e && e.crossDisc && e.team!=='BIM' && (wh[id]||[]).some(v=>v>0);
+  });
+  const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : new Set(hasCrossDisc?[0,3]:[0,1,3]);
+  const FROZEN_WIDTHS_FULL=[68,72,32,68,140,150,60,78,78];
   const FROZEN_WIDTHS=FROZEN_WIDTHS_FULL.map((w,i)=>HIDDEN_IDX.has(i)?0:w);
   const FROZEN_LEFTS=[]; let acc=0;
   for(const w of FROZEN_WIDTHS){FROZEN_LEFTS.push(acc); acc+=w;}
@@ -8020,7 +8093,7 @@ function renderProjCard(p, mode){
     // Grade seniority order — derived live from GRADES so custom/renamed tiers sort correctly
     const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
     const mepEngs=S.engineers
-      .filter(e=>e.disc===disc&&e.team!=='BIM')
+      .filter(e=>e.team!=='BIM'&&effDisc(e,p)===disc)
       .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
       .sort((a,b)=>{
         const ga=GRADE_ORDER[a.grade]??99;
@@ -8108,7 +8181,9 @@ function renderProjCard(p, mode){
       const nameBg=isBIM?'background:#f0fdfa;':'';
       const discBadge=isBIM
         ? `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`
-        : `<span class="bdg b-${discCls}">${disc}</span>`;
+        : (eng.crossDisc
+            ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
+            : `<span class="bdg b-${discCls}">${disc}</span>`);
       const jseMult_html=isJSE
         ? `<span style="font-size:9px;color:#0f766e;font-weight:600;margin-left:4px;">×<input type="number" min="1" max="50" step="1" value="${jseMult}" title="JSE multiplier — number of JSE heads assigned" oninput="setJseMult('${p.id}','${eng.id}',this.value)" style="width:28px;text-align:center;font-size:11px;padding:1px 2px;border:1px solid #5eead4;border-radius:3px;background:#f0fdfa;color:#0f766e;font-weight:700;"></span>`
         : '';
@@ -8782,7 +8857,7 @@ function saveRates(){
   pushRates();
   pushGradeTiers();
   renderRates();
-  if(document.getElementById('team-grid'))renderTeam();
+  if(document.getElementById('team-grid'))invalidate('team');
   toast('Rates saved, sorted by cost & synced ✓');
 }
 
@@ -8833,7 +8908,7 @@ async function renameGradeTier(oldName){
   await pushGradeTiers();
   await pushRates();
   renderRates();
-  if(typeof renderTeam==='function'){const tc=document.getElementById('pc-team');if(tc)renderTeam();}
+  {const tc=document.getElementById('pc-team');if(tc)invalidate('team');}
   toast(`Renamed to "${newName}"`+(affected.length?` — updated ${affected.length} engineer${affected.length===1?'':'s'}`:''));
 }
 
@@ -8917,6 +8992,7 @@ function openEngModal(){
   document.getElementById('em-off').value='DXB';
   document.getElementById('em-cap').value=45;
   document.getElementById('em-is-bim').checked=false;
+  document.getElementById('em-crossdisc').checked=false;
   document.getElementById('em-disc-label').textContent='Discipline *';
   document.getElementById('em-grade-label').textContent='Grade Tier (cost)';
   fillGrade(false);
@@ -8936,6 +9012,7 @@ function editEng(id){
   document.getElementById('em-end-date').value=e.endDate||'';
   const isBIM=e.team==='BIM';
   document.getElementById('em-is-bim').checked=isBIM;
+  document.getElementById('em-crossdisc').checked=!!e.crossDisc;
   document.getElementById('em-disc-label').textContent=isBIM?'Sub-Discipline *':'Discipline *';
   document.getElementById('em-grade-label').textContent=isBIM?'BIM Grade':'Grade Tier (cost)';
   fillDisc();
@@ -8973,9 +9050,10 @@ async function saveEng(){
   if(jd)eng.joinDate=jd;
   const ed=document.getElementById('em-end-date').value;
   if(ed)eng.endDate=ed;
+  if(document.getElementById('em-crossdisc').checked)eng.crossDisc=true;
   if(!isBIM)delete eng.subDisc;
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
-  await pushEng(eng);closeEngModal();renderTeam();updSB();toast('Saved & synced ✓');
+  await pushEng(eng);closeEngModal();invalidate('team');updSB();toast('Saved & synced ✓');
 }
 async function delEng(id){
   if(!adminUnlocked){toast('Admin access required');return;}
@@ -8988,7 +9066,7 @@ async function delEng(id){
     await sbFetch('project_hours?engineer_id=eq.'+encodeURIComponent(id),'DELETE');
   }catch(e){console.error('delEng cascade failed:',e);saveLocal();}
   (S._allProjects||S.projects||[]).forEach(p=>{if(p.weeklyHrs&&p.weeklyHrs[id])delete p.weeklyHrs[id];});
-  renderTeam();updSB();toast('Removed');
+  invalidate('team');updSB();toast('Removed');
 }
 
 // Normalise any engineer object that may use longform field names (e.g. from external imports).
