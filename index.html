@@ -868,7 +868,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v8.40.0 · 12 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.1.0 · 12 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -967,7 +967,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v8.40.0 · 12 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.1.0 · 12 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1015,8 +1015,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
         <div id="deep-dive-body" style="display:none;padding:14px;">
           <div class="g2">
-            <div class="card"><div class="card-t">Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
-            <div class="card"><div class="card-t">Hours by Discipline</div><div class="cbox"><canvas id="c-mep-donut"></canvas></div></div>
+            <div class="card"><div class="card-t">Total Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
+            <div class="card"><div class="card-t">Billable Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-bill-line"></canvas></div></div>
           </div>
           <div class="g2" style="margin-top:12px;">
             <div class="card"><div class="card-t">Dubai vs Egypt</div><div class="cbox"><canvas id="c-mep-office"></canvas></div></div>
@@ -2704,6 +2704,65 @@ function computeAll(statusFilter){
     });
   });
   return{hrs,util,billUtil,leaveByMI,mgmtByMI,minMI,maxMI,NMON};
+}
+// ── Cross-discipline aware attribution (Overview deep-dive only) ──────────────
+// Splits each engineer's project hours across the discipline they were BOOKED to
+// per project (effDisc), so Directors/Tech Directors booked to a trade show under
+// that trade instead of their home "MEP". Mirrors computeRange scope exactly —
+// same status filter, DASH month window and join/end zeroing — so pure-discipline
+// figures stay identical to before; only cross-disc people redistribute.
+function discHoursSplit(engSet,minMI,NMON,statusFilter){
+  const ids=new Set(engSet.map(e=>e.id));
+  const total={},perEng={};
+  S.projects.forEach(p=>{
+    if(!p.start)return;
+    if(statusFilter&&p.status!==statusFilter)return;
+    const wh=p.weeklyHrs||{};
+    Object.keys(wh).forEach(eid=>{
+      if(!ids.has(eid))return;
+      const arr=wh[eid]; if(!arr)return;
+      const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+      const joinMI=e.joinDate?dateToMI(new Date(e.joinDate)):null;
+      const endMI=e.endDate?dateToMI(new Date(e.endDate)):null;
+      const d=e.team==='BIM'?'BIM':effDisc(e,p);
+      arr.forEach((h,wi)=>{
+        if(!h)return;
+        const mi=dateToMI(projWeekDate(p.start,wi));
+        if(joinMI!==null&&mi<joinMI)return;
+        if(endMI!==null&&mi>endMI)return;
+        const rel=mi-minMI;
+        if(rel<0||rel>=NMON)return;
+        total[d]=(total[d]||0)+h;
+        if(!perEng[eid])perEng[eid]=Array.from({length:NMON},()=>({}));
+        perEng[eid][rel][d]=(perEng[eid][rel][d]||0)+h;
+      });
+    });
+  });
+  return {total,perEng};
+}
+// Per-discipline monthly utilisation as a weighted average. A pure-discipline
+// engineer contributes weight 1 to their home discipline (so their line is
+// unchanged); a cross-disc engineer contributes to each discipline in proportion
+// to the hours they booked there that month (falling back to home disc in months
+// with no booked project hours, e.g. pure leave/mgmt). BIM stays whole in BIM.
+function discUtilWeighted(engSet,disc,util,minMI,NMON,split){
+  const out=Array(NMON).fill(0);
+  for(let m=0;m<NMON;m++){
+    let num=0,den=0;
+    engSet.forEach(e=>{
+      let w;
+      if(e.team==='BIM'){ w=(disc==='BIM')?1:0; }
+      else if(!e.crossDisc){ w=(e.disc===disc)?1:0; }
+      else {
+        const md=(split.perEng[e.id]&&split.perEng[e.id][m])||{};
+        let tot=0; for(const k in md) tot+=md[k];
+        w = tot>0 ? (md[disc]||0)/tot : ((e.disc===disc)?1:0);
+      }
+      if(w>0){ const u=(util[e.id]&&util[e.id][m])||0; num+=u*w; den+=w; }
+    });
+    out[m]=den?+(num/den).toFixed(1):0;
+  }
+  return out;
 }
 function subUtil(sub,util,minMI,NMON){
   const n=NMON||9;
@@ -5235,10 +5294,12 @@ function renderMEP(){
 function renderDeepDive(){
   const d=window._mepDeepDiveData;
   if(!d)return;
-  const {labels,all,util,hrs,discs,dClr,dxb,egy,minMI,NMON}=d;
-  mkChart('c-mep-line','line',labels,discs.map((disc,i)=>({label:disc,data:subUtil(disc==='BIM'?all.filter(e=>e.team==='BIM'):all.filter(e=>e.disc===disc&&e.team!=='BIM'),util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
-  const dH=discs.map(disc=>Math.round(subHrs(disc==='BIM'?all.filter(e=>e.team==='BIM'):all.filter(e=>e.disc===disc&&e.team!=='BIM'),hrs)));
-  mkChart('c-mep-donut','doughnut',discs,[{data:dH,backgroundColor:dClr,borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
+  const {labels,all,util,billUtil,hrs,discs,dClr,dxb,egy,minMI,NMON}=d;
+  const _dSplit=discHoursSplit(all,minMI,NMON,_msf());
+  // Total utilisation by discipline (project + leave + mgmt + holiday), cross-disc weighted
+  mkChart('c-mep-line','line',labels,discs.map((disc,i)=>({label:disc,data:discUtilWeighted(all,disc,util,minMI,NMON,_dSplit),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
+  // Billable utilisation by discipline (project hours only), cross-disc weighted
+  mkChart('c-mep-bill-line','line',labels,discs.map((disc,i)=>({label:disc,data:discUtilWeighted(all,disc,billUtil||util,minMI,NMON,_dSplit),borderColor:dClr[i],backgroundColor:dClr[i]+'15',borderWidth:2.5,tension:.35,fill:false,pointRadius:4})),{y:{ticks:{callback:v=>v+'%'},min:0}});
   mkChart('c-mep-office','bar',labels,[{label:'Dubai',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'Egypt',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
   const actP=S.projects.filter(p=>p.status==='Active').slice(0,12);
   mkChart('c-mep-proj','bar',actP.map(p=>p.name.length>16?p.name.slice(0,15)+'…':p.name),[{label:'Hrs',data:actP.map(p=>Math.round(projTotalHrs(p))),backgroundColor:actP.map((_,i)=>dClr[i%4]),borderRadius:3,borderSkipped:false}],{extra:{indexAxis:'y'},y:{ticks:{font:{size:9}}},x:{grid:{display:false}}});
@@ -5381,7 +5442,7 @@ function renderHireFire(){
       return true; // 'all'
     });
     if(!all.length){
-      document.getElementById('hire-fire-content').innerHTML='<div style="padding:20px;text-align:center;color:var(--tx3);">No engineer data available.</div>';
+      document.getElementById('hire-fire-content').innerHTML='<div style="padding:20px;text-align:center;color:var(--tx3);">No employee data available.</div>';
       return;
     }
 
@@ -5419,25 +5480,25 @@ function renderHireFire(){
     if(above120.length>=3){
       status='pressure';
       statusLabel='Under Pressure';
-      statusDetail=`${above120.length} engineers averaging above 120%. Team running hot — capacity is tight and at-risk engineers may burn out.`;
+      statusDetail=`${above120.length} employees averaging above 120%. Team running hot — capacity is tight and at-risk employees may burn out.`;
       statusBg='linear-gradient(135deg,#dc2626 0%,#b91c1c 100%)';
       statusIcon='🔴';
     } else if(above100.length>=3){
       status='approaching';
       statusLabel='Approaching Limit';
-      statusDetail=`${above100.length} engineers averaging above 100%. Headroom is shrinking — monitor trends and watch overloaded engineers closely.`;
+      statusDetail=`${above100.length} employees averaging above 100%. Headroom is shrinking — monitor trends and watch overloaded employees closely.`;
       statusBg='linear-gradient(135deg,#d97706 0%,#b45309 100%)';
       statusIcon='🟠';
     } else if(band80to100.length>=total/2){
       status='healthy';
       statusLabel='Healthy';
-      statusDetail=`Most engineers between 80–100% utilisation. Team balanced and workload sustainable across disciplines.`;
+      statusDetail=`Most employees between 80–100% utilisation. Team balanced and workload sustainable across disciplines.`;
       statusBg='linear-gradient(135deg,#059669 0%,#047857 100%)';
       statusIcon='🟢';
     } else if(below80.length>total/2){
       status='underused';
       statusLabel='Under-Utilised';
-      statusDetail=`${below80.length} engineers averaging below 80%. Significant idle capacity — consider redistributing work or pursuing new projects.`;
+      statusDetail=`${below80.length} employees averaging below 80%. Significant idle capacity — consider redistributing work or pursuing new projects.`;
       statusBg='linear-gradient(135deg,#0284c7 0%,#0369a1 100%)';
       statusIcon='🔵';
     } else {
@@ -5539,7 +5600,7 @@ function renderHireFire(){
           <div style="font-size:10px;color:var(--tx3);">${o.e.desig||o.e.grade} · ${o.e.off}</div>
         </div>
         <div style="font-weight:700;font-size:13px;color:var(--red);">${o.avg.toFixed(0)}%</div>
-      </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No engineers above 100%</div>';
+      </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No employees above 100%</div>';
 
     const uuHtml=underused.slice(0,5).map(u=>`
       <div style="display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--bdr);">
@@ -5548,7 +5609,7 @@ function renderHireFire(){
           <div style="font-size:10px;color:var(--tx3);">${u.e.desig||u.e.grade} · ${u.e.off}</div>
         </div>
         <div style="font-weight:700;font-size:13px;color:var(--amb);">${u.avg.toFixed(0)}%</div>
-      </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No engineers below 50%</div>';
+      </div>`).join('')||'<div style="padding:10px;color:var(--tx3);font-size:11px;">No employees below 50%</div>';
 
     const actionGrid=`<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px;">
       <div style="background:var(--surf);border:1px solid var(--bdr);border-left:4px solid var(--red);border-radius:var(--rl);padding:14px 16px;">
@@ -6114,9 +6175,10 @@ function renderTeam(){
   };
 
   // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
-  let _eu={},_euN=0;
-  try{const r=computeRange();_eu=r.util||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
+  let _eu={},_bu={},_euN=0;
+  try{const r=computeRange();_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
   const engAvgUtil=(e)=>{const a=_eu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
+  const engAvgBill=(e)=>{const a=_bu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
 
   const filterEng=(e)=>{
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
@@ -6129,6 +6191,8 @@ function renderTeam(){
     const initials=e.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
     const offLabel=e.off||'DXB';
     const u=engAvgUtil(e);
+    const b=engAvgBill(e);
+    const billBar=(b==null)?'':`<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;"><span style="font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;">Billable</span><span style="font-size:10px;font-weight:700;color:#0891b2;">${b}%</span></div><div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.min(100,Math.max(0,b))}%;background:#0891b2;border-radius:3px;"></div></div></div>`;
     const gaugeHtml=(u==null)?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,38):''}<div style="font-size:7.5px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:1px;text-transform:uppercase;">Util</div></div>`;
     return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;cursor:pointer;" onclick="openEngDetail('${e.id}')" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
       <div style="width:38px;height:38px;border-radius:50%;background:${st.bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${st.color};flex-shrink:0;">${initials}</div>
@@ -6140,6 +6204,7 @@ function renderTeam(){
           </div>
           ${gaugeHtml}
         </div>
+        ${billBar}
         ${adminUnlocked?`<div style="display:flex;gap:6px;margin-top:10px;">
           <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
           <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')" style="padding:3px 10px;">Del</button>
@@ -6532,8 +6597,8 @@ function addProgNote(pid){
   if(!p.progNotes)p.progNotes=[];
   p.progNotes.push({date:todayISO(),text:text,by:progNoteAuthor(),stage:(stEl&&stEl.value)||'',reviewed:false});
   pushProj(p);
-  if(typeof rerenderCurrent==='function')rerenderCurrent();
-  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+  if(window._viewingProjId===pid && typeof renderProjDetail==='function')renderProjDetail(p);
+  else if(typeof rerenderCurrent==='function')rerenderCurrent();
 }
 function toggleProgNoteReviewed(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes||!p.progNotes[i])return;
@@ -6542,8 +6607,8 @@ function toggleProgNoteReviewed(pid,i){
   n.reviewed=!n.reviewed;
   if(n.reviewed){n.reviewedBy=progNoteAuthor();n.reviewedOn=todayISO();}else{delete n.reviewedBy;delete n.reviewedOn;}
   pushProj(p);
-  if(typeof rerenderCurrent==='function')rerenderCurrent();
-  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+  if(window._viewingProjId===pid && typeof renderProjDetail==='function')renderProjDetail(p);
+  else if(typeof rerenderCurrent==='function')rerenderCurrent();
 }
 function removeProgNote(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes)return;
@@ -6552,8 +6617,8 @@ function removeProgNote(pid,i){
   if(!(adminUnlocked||isMepLeadFor(pid)||mine))return toast('\u26d4 You can only remove your own note.');
   if(!confirm('Remove this programme note?'))return;
   p.progNotes.splice(i,1);pushProj(p);
-  if(typeof rerenderCurrent==='function')rerenderCurrent();
-  else if(typeof renderProjDetail==='function')renderProjDetail(p);
+  if(window._viewingProjId===pid && typeof renderProjDetail==='function')renderProjDetail(p);
+  else if(typeof rerenderCurrent==='function')rerenderCurrent();
 }
 function progNotePending(p){return ((p.progNotes||[]).filter(n=>!n.reviewed)).length;}
 function fmtProgDate(d){
@@ -6595,23 +6660,15 @@ function renderProgNotes(p){
       ${canDel?`<button class="btn btn-d btn-xs" onclick="removeProgNote('${p.id}',${i})" title="Remove">&#10005;</button>`:''}
     </div>`;
   }).join('')||'<div style="font-size:11px;color:var(--tx3);padding:8px 4px;">No programme notes yet.</div>';
-  const addBar=canPost?`<div style="display:flex;flex-direction:column;gap:6px;border:1.5px dashed var(--bdr);border-radius:8px;padding:8px 10px;margin-bottom:8px;">
-      <div style="display:flex;align-items:center;gap:6px;">
-        <span style="color:var(--tx3);font-size:14px;">\uff0b</span>
-        <input type="text" id="prognote-new-${p.id}" placeholder="Heads-up for the MEP Lead\u2026 e.g. 'Heard DD moved to mid-Aug, please confirm' \u2014 Enter" onkeydown="if(event.key==='Enter')addProgNote('${p.id}')" style="flex:1;min-width:0;border:none;background:transparent;font-size:12px;padding:4px 0;outline:none;">
-      </div>
-      <div style="display:flex;align-items:center;gap:6px;padding-left:20px;">
-        <span style="font-size:9px;color:var(--tx3);">about stage:</span>
-        <select id="prognote-stage-${p.id}" style="font-size:10px;padding:1px 4px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx3);max-width:220px;">${stageOpts}</select>
-        <button class="btn btn-g btn-xs" onclick="addProgNote('${p.id}')" style="margin-left:auto;">Post note</button>
-      </div>
+  const addBar=canPost?`<div style="display:flex;align-items:center;gap:6px;margin-bottom:8px;">
+      <input type="text" id="prognote-new-${p.id}" placeholder="Add a note for the MEP Lead\u2026" onkeydown="if(event.key==='Enter')addProgNote('${p.id}')" style="flex:1;min-width:0;border:1px solid var(--bdr);background:#fff;border-radius:8px;font-size:12px;padding:7px 10px;outline:none;">
+      <select id="prognote-stage-${p.id}" title="Link to a stage (optional)" style="flex:0 0 auto;font-size:10px;padding:6px 6px;border:1px solid var(--bdr);border-radius:8px;color:var(--tx3);max-width:150px;">${stageOpts}</select>
+      <button class="btn btn-p btn-xs" onclick="addProgNote('${p.id}')" style="flex-shrink:0;">Post</button>
     </div>`:'<div style="font-size:11px;color:var(--tx3);padding:6px 4px;">Only team leads can post programme notes.</div>';
   return`<div style="margin:10px 0 4px;background:#fbfbfd;border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
       <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1e3a5f;">\ud83d\udccc Programme Notes</span>
       ${pending>0?`<span style="font-size:10px;font-weight:700;color:#fff;background:#ff9500;border-radius:9px;padding:1px 8px;">${pending} to review</span>`:''}
-      <span style="flex:1;"></span>
-      <span style="font-size:9px;color:var(--tx3);">team heads-ups for the MEP Lead</span>
     </div>
     ${addBar}
     ${rows}
@@ -6839,7 +6896,7 @@ function renderProjDetail(p){
     if(progLocked){
       const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
       return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-        <td style="padding:6px 10px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
+        <td style="padding:6px 10px;min-width:450px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
           <div style="display:flex;align-items:center;gap:6px;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
@@ -6852,28 +6909,25 @@ function renderProjDetail(p){
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
     return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-      <td style="padding:4px 6px;min-width:260px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
-        <div style="display:flex;align-items:center;gap:4px;">
-
+      <td style="padding:4px 6px;min-width:450px;width:450px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
+        <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;">
           <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour" 
             style="width:22px;height:22px;border:1px solid var(--bdr);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0;background:none;"
             onchange="setProjStageColor('${p.id}',${si},this.value)">
-          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1;min-width:0;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;"
+          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;"
             onchange="handleStageSelect('${p.id}',${si},this)">
             ${stageOptions}
-            <option value="__custom__">Custom (type below)…</option>
+            <option value="__custom__">Custom…</option>
           </select>
-          <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Type stage name…"
-            style="${isCustom?'':'display:none;'}flex:1;min-width:0;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
+          <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Stage name…"
+            style="${isCustom?'':'display:none;'}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
             onchange="setProjStageNameCustom('${p.id}',${si},this.value)"
             onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
+          <input type="date" value="${st.from||''}" title="Stage start" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
+          <span style="font-size:10px;color:var(--tx3);flex-shrink:0;">to</span>
+          <input type="date" value="${st.to||''}" title="Stage end" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
           ${wkBadge}
-          <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage">&#10005;</button>
-        </div>
-        <div id="stage-cells-${p.id}-${si}-dates" style="display:${isCollapsed?'none':'flex'};gap:4px;margin-top:4px;align-items:center;">
-          <input type="date" value="${st.from||''}" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;flex:1;min-width:0;" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
-          <span style="font-size:10px;color:var(--tx3)">to</span>
-          <input type="date" value="${st.to||''}" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;flex:1;min-width:0;" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
+          <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage" style="flex-shrink:0;">&#10005;</button>
         </div>
       </td>
       ${weekCells}
@@ -6897,14 +6951,14 @@ function renderProjDetail(p){
     }).join('');
     if(progLocked){
       return`<tr style="background:#fdfaff;">
-        <td style="padding:6px 10px;min-width:260px;width:260px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+        <td style="padding:6px 10px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
           <span style="font-size:11px;font-weight:600;color:#4c1d95;">${esc(nr.label||'—')}</span>
         </td>
         ${weekCells}
       </tr>`;
     }
     return`<tr style="background:#fdfaff;">
-      <td style="padding:4px 6px;min-width:260px;width:260px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+      <td style="padding:4px 6px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
         <div style="display:flex;align-items:center;gap:4px;">
           <input type="text" value="${esc(nr.label||'')}" placeholder="Row label…" style="flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
             onchange="setProjNoteLabel('${p.id}',${ni},this.value)">
@@ -6951,8 +7005,8 @@ function renderProjDetail(p){
     </div>
 
     <!-- Programme table -->
-    <div class="card" style="padding:0;overflow:hidden;margin-bottom:10px;">
-      <div class="prog-sec-hdr" style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;" onclick="toggleSection('sec-prog-${p.id}','sec-prog-arrow-${p.id}')">
+    <div style="margin-bottom:12px;background:#f5f5f7;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;">
+      <div class="prog-sec-hdr" style="background:#f5f5f7;padding:10px 14px;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;border-radius:${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'9px 9px 0 0':'9px'};" onclick="toggleSection('sec-prog-${p.id}','sec-prog-arrow-${p.id}')">
         <div class="prog-sec-hdr-left" style="display:flex;align-items:center;gap:10px;min-width:0;flex:1;">
           <span id="sec-prog-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'▼':'▶'}</span>
           <span style="font-size:13px;"></span>
@@ -6989,7 +7043,7 @@ function renderProjDetail(p){
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
             <tr>
-              <th style="min-width:260px;width:260px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
+              <th style="min-width:450px;width:450px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
               ${wkHdrs}
             </tr>
           </thead>
@@ -7261,6 +7315,12 @@ function toggleSection(id, arrowId){
     el.style.display='none';
   }
   if(arrow) arrow.textContent=collapsed?'▼':'▶';
+  // Keep section-header corners correct without relying on wrapper clipping:
+  // rounded all corners when closed, top-only when open.
+  const hdr=el.previousElementSibling;
+  if(hdr&&hdr.classList&&hdr.classList.contains('prog-sec-hdr')){
+    hdr.style.borderRadius=collapsed?'9px 9px 0 0':'9px';
+  }
   // Persist open state so re-renders don't collapse it
   if(!window._secOpen)window._secOpen={};
   window._secOpen[id]=collapsed; // collapsed===true means we just OPENED it
@@ -7398,6 +7458,13 @@ async function setBookDisc(projId,engId,val){
   const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
   if(!p)return;
   const eng=S.engineers.find(e=>e.id===engId);
+  // Permission backstop: same gate as the rest of the row — only admin or the
+  // lead of this person's home discipline may re-book them.
+  if(!eng||!(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))){
+    if(typeof toast==='function')toast('Only their discipline lead or admin can change this booking','error');
+    renderProjDetail(p);
+    return;
+  }
   const home=eng&&eng.disc;
   if(!p.bookDisc)p.bookDisc={};
   if(!val||val===home){ delete p.bookDisc[engId]; }
@@ -8187,7 +8254,9 @@ function renderProjCard(p, mode){
       const discBadge=isBIM
         ? `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`
         : (eng.crossDisc
-            ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
+            ? (canEditDisc(eng.disc)
+                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
+                : `<span class="bdg b-${effDisc(eng,p).replace(/[^A-Za-z]/g,'')}" title="Booked discipline on this project — only their discipline lead or admin can change it">${effDisc(eng,p)}</span>`)
             : `<span class="bdg b-${discCls}">${disc}</span>`);
       const jseMult_html=isJSE
         ? `<span style="font-size:9px;color:#0f766e;font-weight:600;margin-left:4px;">×<input type="number" min="1" max="50" step="1" value="${jseMult}" title="JSE multiplier — number of JSE heads assigned" oninput="setJseMult('${p.id}','${eng.id}',this.value)" style="width:28px;text-align:center;font-size:11px;padding:1px 2px;border:1px solid #5eead4;border-radius:3px;background:#f0fdfa;color:#0f766e;font-weight:700;"></span>`
