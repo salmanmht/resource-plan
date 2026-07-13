@@ -222,6 +222,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .proj-tbl tr.eng-row td{background:#fff;}
 .proj-tbl tr.eng-row:hover td{background:#f5f5f7;}
 .proj-tbl td.week-cell{text-align:center;min-width:38px;padding:2px;}
+input.cell-unsaved{border-color:#dc2626!important;box-shadow:0 0 0 1.5px #dc262699!important;background:#fef2f2!important;}
 .proj-tbl td.week-cell input{width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid transparent;border-radius:4px;background:transparent;}
 .proj-tbl td.week-cell input:focus{border-color:var(--acc);background:#fff;outline:none;}
 .proj-tbl .wk-total{background:#e0f2fe;font-weight:700;text-align:center;}
@@ -868,7 +869,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.1.0 · 12 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.0 · 13 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -967,7 +968,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.1.0 · 12 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.0 · 13 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2348,23 +2349,60 @@ async function rejectPendingUser(email){
 // ═══════════════════════════════════════
 // SUPABASE
 // ═══════════════════════════════════════
+// ── Auth token auto-refresh (v9.1.1) ──────────────────────────────────────────
+// Supabase access tokens expire (~1h). Previously the token was refreshed only
+// once at page load, so long-lived tabs silently failed every write. Now any
+// 401 triggers a refresh+retry, plus a proactive refresh every 45 minutes.
+async function refreshAuthToken(){
+  if(window._authRefreshing) return window._authRefreshing;
+  window._authRefreshing=(async()=>{
+    try{
+      let rt=SB_SESSION&&SB_SESSION.refresh_token;
+      if(!rt){try{const st=sessionStorage.getItem('mep_session');if(st)rt=JSON.parse(st).refresh_token;}catch(e){}}
+      if(!rt) return false;
+      const r=await fetch(SB_URL+'/auth/v1/token?grant_type=refresh_token',{
+        method:'POST',
+        headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({refresh_token:rt})
+      });
+      if(!r.ok) return false;
+      const d=await r.json();
+      if(!d.access_token) return false;
+      SB_SESSION=d;
+      try{sessionStorage.setItem('mep_session',JSON.stringify(d));}catch(e){}
+      return true;
+    }catch(e){ console.warn('token refresh failed:',e); return false; }
+  })();
+  const p=window._authRefreshing;
+  p.finally(()=>{ if(window._authRefreshing===p) window._authRefreshing=null; });
+  return p;
+}
+setInterval(()=>{ if(SB_SESSION&&SB_SESSION.refresh_token) refreshAuthToken(); }, 45*60*1000);
+
 async function sbFetch(path,method='GET',body=null,prefer='return=representation'){
-  const token=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
-  const opts={
-    method,
-    cache:'no-store', // bypass service worker cache
-    headers:{
-      'apikey':SB_KEY,
-      'Authorization':'Bearer '+token,
-      'Content-Type':'application/json',
-      'Prefer':prefer,
-      'X-Bypass-SW':'1' // marker so sw.js can skip
+  for(let attempt=0;attempt<2;attempt++){
+    const token=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
+    const opts={
+      method,
+      cache:'no-store', // bypass service worker cache
+      headers:{
+        'apikey':SB_KEY,
+        'Authorization':'Bearer '+token,
+        'Content-Type':'application/json',
+        'Prefer':prefer,
+        'X-Bypass-SW':'1' // marker so sw.js can skip
+      }
+    };
+    if(body)opts.body=JSON.stringify(body);
+    const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
+    // Expired/invalid token → refresh once and retry the same request
+    if(r.status===401&&attempt===0){
+      const ok=await refreshAuthToken();
+      if(ok) continue;
     }
-  };
-  if(body)opts.body=JSON.stringify(body);
-  const r=await fetch(SB_URL+'/rest/v1/'+path,opts);
-  if(!r.ok)throw new Error(await r.text());
-  const t=await r.text();return t?JSON.parse(t):[];
+    if(!r.ok)throw new Error(await r.text());
+    const t=await r.text();return t?JSON.parse(t):[];
+  }
 }
 async function sbGet(t){return sbFetch(t+'?select=*');}
 async function saveDisciplines(){
@@ -2403,7 +2441,18 @@ async function initApp(){
   setSyncStatus(false,'Connecting…');
   try{
     const safeGet=async(t)=>{try{return await sbGet(t);}catch(e){console.warn('Table load failed:',t,e.message);return[];}};
-    const[engs,projs,sets,leaveRows,mgmtRows,holRows,projHrsRows,propRows,rolesRows]=await Promise.all([sbGet('engineers'),sbGet('projects'),sbFetch('settings?select=*'),sbGet('leave_hrs'),sbGet('mgmt_hrs'),sbGet('holidays'),sbGetAll('project_hours?select=*'),safeGet('proposals'),safeGet('engineer_roles')]);
+    // Per-table resilience (v9.1.1): previously ONE flaky request aborted the
+    // whole load and silently fell back to a stale local cache. Now each table
+    // loads independently; only failure of CORE data (engineers/projects/hours)
+    // engages the fallback. Non-core tables degrade gracefully with a warning.
+    const wrap=(pr,label)=>pr.then(d=>({ok:true,d})).catch(e=>{console.warn('load failed:',label,e&&e.message);return{ok:false,d:[],label};});
+    const[engsR,projsR,setsR,leaveR,mgmtR,holR,projHrsR,propRows,rolesRows]=await Promise.all([wrap(sbGet('engineers'),'engineers'),wrap(sbGet('projects'),'projects'),wrap(sbFetch('settings?select=*'),'settings'),wrap(sbGet('leave_hrs'),'leave'),wrap(sbGet('mgmt_hrs'),'mgmt'),wrap(sbGet('holidays'),'holidays'),wrap(sbGetAll('project_hours?select=*'),'project_hours'),safeGet('proposals'),safeGet('engineer_roles')]);
+    const coreFail=[engsR,projsR,projHrsR].filter(x=>!x.ok).map(x=>x.label);
+    if(coreFail.length)throw new Error('Core data failed to load: '+coreFail.join(', '));
+    const softFail=[setsR,leaveR,mgmtR,holR].filter(x=>!x.ok).map(x=>x.label);
+    if(softFail.length)toast('⚠ Some data failed to load ('+softFail.join(', ')+') — refresh to retry.');
+    const engs=engsR.d,projs=projsR.d,sets=setsR.d,leaveRows=leaveR.d,mgmtRows=mgmtR.d,holRows=holR.d,projHrsRows=projHrsR.d;
+    // (loaded above with per-table resilience)
     S.engineers=engs.map(r=>normaliseEng(r.data));
     // Re-populate sidebar now that engineers (with emails) are loaded
     if(SB_SESSION&&SB_SESSION.user)populateSidebarUser(SB_SESSION.user);
@@ -2506,6 +2555,7 @@ async function initApp(){
   }catch(e){
     setSyncStatus(false,'Offline — local cache');
     loadLocal();
+    showStaleBanner();
     console.error('Supabase connection failed:',e);
     // Show toast with actual error
     toast('DB Error: '+((e&&e.message)||String(e)).slice(0,80));
@@ -2532,8 +2582,27 @@ function saveLocal(){try{
     mgmtHrs:S.mgmtHrs
   };
   if(_isAdmin) safe.rates=S.rates;
+  safe._savedAt=Date.now();
   localStorage.setItem('mepR26',JSON.stringify(safe));
 }catch(e){}}
+// Unmissable warning whenever the app is showing cached (possibly stale) data
+// instead of live database data. Tapping it reloads.
+function showStaleBanner(){
+  try{
+    let ts=null;
+    try{const d=JSON.parse(localStorage.getItem('mepR26')||'{}');ts=d._savedAt||null;}catch(e){}
+    const when=ts?new Date(ts).toLocaleString([],{day:'2-digit',month:'short',hour:'numeric',minute:'2-digit'}):'an earlier session';
+    let b=document.getElementById('stale-banner');
+    if(!b){
+      b=document.createElement('div');
+      b.id='stale-banner';
+      b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99999;background:#dc2626;color:#fff;font-size:13px;font-weight:700;text-align:center;padding:10px 14px;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.25);';
+      b.onclick=()=>location.reload();
+      document.body.appendChild(b);
+    }
+    b.textContent='⚠ OFFLINE — showing cached data from '+when+'. Changes may be missing. Tap to retry.';
+  }catch(e){}
+}
 async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
 async function pushProj(p){
   // If proposal, save to proposals table
@@ -7191,7 +7260,8 @@ function renderProjDetail(p){
         <!-- Toolbar: only visible when section is expanded -->
         <div style="background:#f8fafc;border-bottom:1px solid var(--bdr);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;" onclick="event.stopPropagation()">
           <div style="display:flex;align-items:center;gap:8px;">
-            ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">Export Stage Summary</button>`:''})()}
+            ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">Export Stage Summary</button>
+              <button onclick="openProjImport('${p.id}')" title="Import stages + weekly hours from Excel — preview changes before applying" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #1e3a5f;background:#eef2f7;color:#1e3a5f;cursor:pointer;">⬆ Import</button>`:''})()}
             <button onclick="openWeeklyFs('${p.id}')" title="Toggle fullscreen" class="weekly-fs-hide"
               style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #6366f1;background:#eef2ff;color:#4338ca;cursor:pointer;">
               ⛶ Fullscreen
@@ -8645,6 +8715,29 @@ async function flushHourSaves(){
       console.error('flushHourSaves failed, re-queued:',key,e);
     }
   }
+  markUnsavedCells();
+  if(window._pendingHourSaves.size>0){
+    // Keep retrying automatically until everything lands
+    if(!window._hourRetryTimer){
+      window._hourRetryTimer=setInterval(()=>{
+        if(window._pendingHourSaves&&window._pendingHourSaves.size>0)flushHourSaves();
+        else{clearInterval(window._hourRetryTimer);window._hourRetryTimer=null;}
+      },30000);
+    }
+    toast('⚠ '+window._pendingHourSaves.size+' hour save(s) failed — retrying automatically. Don\'t close the tab.');
+  } else if(window._hourRetryTimer){
+    clearInterval(window._hourRetryTimer);window._hourRetryTimer=null;
+    toast('✓ All pending hour saves recovered');
+  }
+}
+// Outline any week-cell whose save hasn't reached the database yet.
+function markUnsavedCells(){
+  document.querySelectorAll('.cell-unsaved').forEach(el=>el.classList.remove('cell-unsaved'));
+  if(!window._pendingHourSaves)return;
+  window._pendingHourSaves.forEach(item=>{
+    const el=document.querySelector(`input[data-pid="${item.projId}"][data-eng="${item.engId}"][data-wi="${item.wkIdx}"]`);
+    if(el)el.classList.add('cell-unsaved');
+  });
 }
 // Flush whenever the app loses focus / is backgrounded / closed — the moments
 // when mobile would otherwise drop the pending save.
@@ -8686,6 +8779,7 @@ async function pushHourRow(projId,engId,wkIdx,hours){
   }catch(e){
     setSyncStatus(false,'Sync failed');
     console.error('pushHourRow error:',e);
+    throw e; // callers re-queue/handle — swallowing this silently loses data
   }
 }
 
@@ -10486,6 +10580,12 @@ function importProjXLSX(input){
     // Normalise any cell value to a clean YYYY-MM-DD string
     function cleanStr(v){
       if(v===undefined||v===null) return '';
+      // Raw JS Date (SheetJS with cellDates) — extract UTC parts directly;
+      // stringifying varies by locale/timezone and can shift dates by a day.
+      if(v instanceof Date){
+        if(isNaN(v.getTime())) return '';
+        return v.getUTCFullYear()+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+String(v.getUTCDate()).padStart(2,'0');
+      }
       var s=String(v).trim();
       if(!s) return '';
       // Excel serial number (number-only string like "46024")
@@ -10597,6 +10697,202 @@ function importProjXLSX(input){
 // ═══════════════════════════════════════════════════════════════
 // EXPORT STAGE SUMMARY — formulated Excel sheet
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════════
+// PROJECT IMPORT (v9.2.0) — round-trip Excel template for stages + weekly hours
+// Pattern: download prefilled template → edit in Excel → import → diff preview
+// (green add / amber change / red clear) → Apply. Nothing writes until Apply.
+// Imports only ADD and CHANGE — a stage/member missing from the file is never
+// treated as a deletion.
+// ═══════════════════════════════════════════════════════════════════════════
+function _impIso(d){return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+// Normalise any Excel cell that should be a date → 'yyyy-mm-dd' (or '').
+// Handles: JS Date (cellDates), Excel serial numbers, ISO strings, other strings.
+function impDate(v){
+  if(v==null||v==='')return '';
+  if(v instanceof Date){ if(isNaN(v.getTime()))return ''; return v.getUTCFullYear()+'-'+String(v.getUTCMonth()+1).padStart(2,'0')+'-'+String(v.getUTCDate()).padStart(2,'0'); }
+  if(typeof v==='number'&&isFinite(v)&&v>20000&&v<80000){ const d=new Date(Math.round((v-25569)*86400*1000)); if(isNaN(d.getTime()))return ''; return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0'); }
+  const str=String(v).trim();
+  let m=str.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+  if(m)return m[1]+'-'+m[2].padStart(2,'0')+'-'+m[3].padStart(2,'0');
+  // Generic parse only for strings that plausibly look like dates (contain a
+  // separator or month name) — bare numbers like "40" must not become years.
+  if(str.length>=6&&/[-\/]|[A-Za-z]{3}/.test(str)){
+    const d2=new Date(str);
+    if(!isNaN(d2.getTime()))return _impIso(d2);
+  }
+  return '';
+}
+function openProjImport(projId){
+  const p=S.projects.find(x=>x.id===projId);
+  if(!p){toast('Project not found.');return;}
+  if(!(adminUnlocked||isMepLeadFor(projId))){toast('⛔ Import is for admins / the MEP Lead of this project.');return;}
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded. Please refresh.');return;}
+  closeProjImport();
+  const ov=document.createElement('div');
+  ov.id='imp-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9998;display:flex;align-items:center;justify-content:center;padding:16px;';
+  ov.innerHTML=`<div style="background:#fff;border-radius:12px;max-width:780px;width:96%;max-height:88vh;overflow:auto;padding:20px;box-shadow:0 10px 40px rgba(0,0,0,.3);">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px;">
+      <strong style="font-size:14px;color:#1e3a5f;">Import — ${esc(p.name||p.id)}</strong>
+      <button class="btn btn-g btn-xs" onclick="closeProjImport()">✕ Close</button>
+    </div>
+    <div id="imp-body">
+      <p style="font-size:12px;color:var(--tx2);margin:8px 0 14px;">Download the prefilled template (current stages + hours), edit it in Excel, then choose the file. You'll see a preview of every change before anything is saved. Rows or stages missing from the file are <strong>not</strong> deleted.</p>
+      <div style="display:flex;gap:10px;flex-wrap:wrap;">
+        <button class="btn btn-g btn-sm" onclick="downloadImportTemplate('${p.id}')">⬇ Download prefilled template</button>
+        <button class="btn btn-p btn-sm" onclick="document.getElementById('imp-file').click()">📄 Choose file…</button>
+        <input type="file" id="imp-file" accept=".xlsx,.xls" style="display:none;" onchange="handleProjImportFile('${p.id}',this)">
+      </div>
+      <div id="imp-status" style="font-size:11px;color:var(--tx3);margin-top:10px;"></div>
+    </div>
+  </div>`;
+  ov.addEventListener('click',e=>{if(e.target===ov)closeProjImport();});
+  document.body.appendChild(ov);
+}
+function closeProjImport(){const ov=document.getElementById('imp-ov');if(ov)ov.remove();window._projImport=null;}
+function downloadImportTemplate(projId){
+  const p=S.projects.find(x=>x.id===projId); if(!p)return;
+  const weeks=stageWeeks(p.start,p.end);
+  if(!weeks.length){toast('No weeks in project range.');return;}
+  const wb=XLSX.utils.book_new();
+  const stRows=[['Stage','From','To']];
+  (p.stages||[]).forEach(st=>stRows.push([st.name||'',st.from||'',st.to||'']));
+  const ws1=XLSX.utils.aoa_to_sheet(stRows);
+  ws1['!cols']=[{wch:32},{wch:12},{wch:12}];
+  XLSX.utils.book_append_sheet(wb,ws1,'Stages');
+  const wh=p.weeklyHrs||{};
+  const hdr=['Employee'].concat(weeks.map(w=>_impIso(w)));
+  const hrRows=[hdr];
+  Object.keys(wh).forEach(engId=>{
+    const e=S.engineers.find(x=>x.id===engId); if(!e)return;
+    const arr=wh[engId]||[];
+    hrRows.push([e.name].concat(weeks.map((w,wi)=>{const v=arr[wi]||0;return v||'';})));
+  });
+  const ws2=XLSX.utils.aoa_to_sheet(hrRows);
+  ws2['!cols']=[{wch:28}].concat(weeks.map(()=>({wch:11})));
+  XLSX.utils.book_append_sheet(wb,ws2,'Hours');
+  XLSX.writeFile(wb,(p.no?p.no+'_':'')+String(p.name||p.id).replace(/[^A-Za-z0-9]+/g,'_').slice(0,40)+'_import.xlsx');
+}
+async function handleProjImportFile(projId,input){
+  const f=input.files&&input.files[0]; if(!f)return;
+  input.value='';
+  const p=S.projects.find(x=>x.id===projId); if(!p)return;
+  const statusEl=document.getElementById('imp-status');
+  if(statusEl)statusEl.textContent='Reading '+f.name+'…';
+  let wb;
+  try{
+    const buf=await f.arrayBuffer();
+    wb=XLSX.read(new Uint8Array(buf),{type:'array'});
+  }catch(e){ if(statusEl)statusEl.textContent='⚠ Could not read the file: '+((e&&e.message)||e); return; }
+  const findSheet=(name)=>{const k=wb.SheetNames.find(n=>n.trim().toLowerCase()===name);return k?wb.Sheets[k]:null;};
+  const wsSt=findSheet('stages'), wsHr=findSheet('hours');
+  const weeks=stageWeeks(p.start,p.end);
+  const weekIso=weeks.map(w=>_impIso(w));
+  const wh=p.weeklyHrs||{};
+  const issues=[];
+  // ── Stage diff ─────────────────────────────────────────────────────────────
+  const stAdd=[],stChange=[];
+  if(wsSt){
+    const rows=XLSX.utils.sheet_to_json(wsSt,{header:1,raw:true,defval:''});
+    for(let i=1;i<rows.length;i++){
+      const name=String(rows[i][0]||'').trim(); if(!name)continue;
+      const from=impDate(rows[i][1]), to=impDate(rows[i][2]);
+      const cur=(p.stages||[]).find(st=>(st.name||'').trim().toLowerCase()===name.toLowerCase());
+      if(!from||!to){ if(!cur)issues.push('Stage "'+name+'" skipped — missing/invalid dates'); continue; }
+      if(from>to){ issues.push('Stage "'+name+'" skipped — From is after To'); continue; }
+      if(!cur){ stAdd.push({name,from,to}); }
+      else if((cur.from||'')!==from||(cur.to||'')!==to){ stChange.push({si:(p.stages||[]).indexOf(cur),name,oldFrom:cur.from||'',oldTo:cur.to||'',from,to}); }
+    }
+  }
+  // ── Hours diff ─────────────────────────────────────────────────────────────
+  const hrChanges=[],unknown=[],newMembers=new Set();
+  if(wsHr){
+    const rows=XLSX.utils.sheet_to_json(wsHr,{header:1,raw:true,defval:''});
+    const hdr=rows[0]||[];
+    const colWk={}; // column index -> week index
+    for(let c=1;c<hdr.length;c++){ const iso=impDate(hdr[c]); const wi=weekIso.indexOf(iso); if(wi>=0)colWk[c]=wi; }
+    if(Object.keys(colWk).length===0&&rows.length>1)issues.push('Hours sheet: no week columns matched the project weeks — headers must be the template dates.');
+    for(let i=1;i<rows.length;i++){
+      const nm=String(rows[i][0]||'').trim(); if(!nm)continue;
+      const eng=S.engineers.find(e=>(e.name||'').trim().toLowerCase()===nm.toLowerCase());
+      if(!eng){ unknown.push(nm); continue; }
+      const cur=wh[eng.id]||[];
+      const isNew=!wh[eng.id]||!cur.some(v=>v>0);
+      for(const c in colWk){
+        const wi=colWk[c];
+        const raw=rows[i][c];
+        let nv=(raw===''||raw==null)?0:parseFloat(raw);
+        if(isNaN(nv)||nv<0)nv=0; if(nv>70)nv=70;
+        nv=Math.round(nv*10)/10;
+        const ov=cur[wi]||0;
+        if(Math.abs(nv-ov)>0.001){
+          hrChanges.push({engId:eng.id,name:eng.name,wi,week:weekIso[wi],oldV:ov,newV:nv});
+          if(isNew&&nv>0)newMembers.add(eng.name);
+        }
+      }
+    }
+  }
+  if(!wsSt&&!wsHr){ if(statusEl)statusEl.textContent='⚠ File has no "Stages" or "Hours" sheet — download the template to get the right format.'; return; }
+  window._projImport={projId,stAdd,stChange,hrChanges,unknown,issues,newMembers:[...newMembers]};
+  renderImportPreview(p);
+}
+function renderImportPreview(p){
+  const d=window._projImport; if(!d)return;
+  const body=document.getElementById('imp-body'); if(!body)return;
+  const total=d.stAdd.length+d.stChange.length+d.hrChanges.length;
+  const CH_CAP=80;
+  const chip=(txt,bg,fg)=>'<span style="display:inline-block;background:'+bg+';color:'+fg+';border-radius:4px;padding:0 5px;font-weight:700;">'+txt+'</span>';
+  const rowsHtml=[];
+  d.stAdd.forEach(st=>rowsHtml.push('<tr><td>'+chip('ADD','#dcfce7','#166534')+'</td><td>Stage</td><td>'+esc(st.name)+'</td><td colspan="2">'+st.from+' → '+st.to+'</td></tr>'));
+  d.stChange.forEach(st=>rowsHtml.push('<tr><td>'+chip('CHANGE','#fef3c7','#92400e')+'</td><td>Stage</td><td>'+esc(st.name)+'</td><td>'+st.oldFrom+' → '+st.oldTo+'</td><td><strong>'+st.from+' → '+st.to+'</strong></td></tr>'));
+  d.hrChanges.slice(0,CH_CAP).forEach(h=>{
+    const kind=h.oldV===0?chip('ADD','#dcfce7','#166534'):(h.newV===0?chip('CLEAR','#fee2e2','#991b1b'):chip('CHANGE','#fef3c7','#92400e'));
+    rowsHtml.push('<tr><td>'+kind+'</td><td>Hours</td><td>'+esc(h.name)+'</td><td>'+h.week+'</td><td>'+(h.oldV||'—')+' → <strong>'+(h.newV||'—')+'</strong></td></tr>');
+  });
+  const more=d.hrChanges.length>CH_CAP?'<div style="font-size:11px;color:var(--tx3);margin-top:4px;">…and '+(d.hrChanges.length-CH_CAP)+' more hour changes (all will be applied).</div>':'';
+  const summary=[
+    d.stAdd.length?d.stAdd.length+' stage(s) added':'',
+    d.stChange.length?d.stChange.length+' stage(s) re-dated':'',
+    d.hrChanges.length?d.hrChanges.length+' hour cell(s) changed':'',
+    d.newMembers.length?d.newMembers.length+' member(s) newly assigned':''
+  ].filter(Boolean).join(' · ')||'No differences found — the file matches the current project.';
+  const warn=(d.unknown.length?'<div style="font-size:11px;color:#991b1b;background:#fee2e2;border-radius:6px;padding:6px 10px;margin-bottom:8px;">Unknown employee name(s) skipped: '+d.unknown.map(esc).join(', ')+' — names must match the Team register exactly.</div>':'')
+    +(d.issues.length?'<div style="font-size:11px;color:#92400e;background:#fef3c7;border-radius:6px;padding:6px 10px;margin-bottom:8px;">'+d.issues.map(esc).join('<br>')+'</div>':'');
+  body.innerHTML=warn
+    +'<div style="font-size:12px;font-weight:700;color:#1e3a5f;margin-bottom:8px;">'+summary+'</div>'
+    +(total?'<div style="max-height:46vh;overflow:auto;border:1px solid var(--bdr);border-radius:8px;"><table style="border-collapse:collapse;width:100%;font-size:11px;"><thead><tr style="background:#f5f5f7;position:sticky;top:0;"><th style="padding:5px 8px;text-align:left;">Type</th><th style="padding:5px 8px;text-align:left;">What</th><th style="padding:5px 8px;text-align:left;">Item</th><th style="padding:5px 8px;text-align:left;">Current</th><th style="padding:5px 8px;text-align:left;">New</th></tr></thead><tbody>'+rowsHtml.map(r=>r.replace(/<td>/g,'<td style="padding:4px 8px;border-top:1px solid var(--bdr);vertical-align:middle;">')).join('')+'</tbody></table></div>'+more:'')
+    +'<div style="display:flex;gap:10px;justify-content:flex-end;margin-top:14px;">'
+    +'<button class="btn btn-g btn-sm" onclick="closeProjImport()">Cancel</button>'
+    +(total?'<button class="btn btn-p btn-sm" onclick="applyProjImport()">Apply '+total+' change(s)</button>':'')
+    +'</div>';
+}
+async function applyProjImport(){
+  const d=window._projImport; if(!d)return;
+  const p=S.projects.find(x=>x.id===d.projId); if(!p){closeProjImport();return;}
+  if(!(adminUnlocked||isMepLeadFor(p.id))){toast('⛔ Not permitted.');closeProjImport();return;}
+  const weeks=stageWeeks(p.start,p.end);
+  // Stages
+  if(d.stAdd.length||d.stChange.length){
+    if(!p.stages)p.stages=[];
+    d.stChange.forEach(st=>{ if(p.stages[st.si]){p.stages[st.si].from=st.from;p.stages[st.si].to=st.to;} });
+    d.stAdd.forEach(st=>p.stages.push({name:st.name,from:st.from,to:st.to}));
+    try{ await pushProj(p); }catch(e){ console.error('import stage save:',e); }
+  }
+  // Hours — through the queued, retry-protected save path
+  if(d.hrChanges.length){
+    if(!p.weeklyHrs)p.weeklyHrs={};
+    d.hrChanges.forEach(h=>{
+      if(!p.weeklyHrs[h.engId])p.weeklyHrs[h.engId]=new Array(weeks.length).fill(0);
+      p.weeklyHrs[h.engId][h.wi]=h.newV;
+      queueHourSave(p.id,h.engId,h.wi,h.newV);
+    });
+    flushHourSaves();
+  }
+  const n=d.stAdd.length+d.stChange.length+d.hrChanges.length;
+  closeProjImport();
+  renderProjDetail(p);
+  toast('✓ Imported '+n+' change(s)'+(d.hrChanges.length?' — hour saves syncing':''));
+}
 function exportStageSummary(projId){
   if(typeof XLSX==='undefined'){toast('Excel library not loaded. Please refresh.');return;}
   const p=S.projects.find(x=>x.id===projId);
