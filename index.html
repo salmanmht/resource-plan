@@ -869,7 +869,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.1 · 13 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.2 · 13 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -968,7 +968,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.1 · 13 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.2 · 13 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2999,7 +2999,7 @@ function dhProjMepCost(p){
     const e=S.engineers.find(x=>x.id===eid); if(!e)return;
     // BIM modellers fold into their trade discipline (HVAC + HVAC-BIM, etc);
     // MEP engineers use their booked discipline (per-project override wins).
-    const d = e.team==='BIM' ? bimDiscCode(e.subDisc) : effDisc(e,p);
+    const d = e.team==='BIM' ? ((p.bookDisc&&p.bookDisc[e.id])||bimDiscCode(e.subDisc)) : effDisc(e,p);
     if(!d||DH_MEP.indexOf(d)<0)return;
     const hrs=arr.reduce((a,b)=>a+(b||0),0); if(!hrs)return;
     const rate=getProjRate(e,p);
@@ -3338,7 +3338,8 @@ function effDisc(e,p){ return (p&&p.bookDisc&&e&&p.bookDisc[e.id])||(e&&e.disc)|
 function spendDiscMatch(e,p){
   if(!SPEND.disc)return true;
   if(SPEND.disc==='BIM')return e.team==='BIM';
-  return effDisc(e,p)===SPEND.disc&&e.team!=='BIM';
+  if(e.team==='BIM')return !!(e.crossDisc&&p&&p.bookDisc&&p.bookDisc[e.id]===SPEND.disc); // booked BIM shows under that trade too
+  return effDisc(e,p)===SPEND.disc;
 }
 function spendWeekDate(pStart,wi){const d=new Date(pStart);const day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));d.setDate(d.getDate()+wi*7);return d;}
 function spendStageNames(){
@@ -7595,7 +7596,7 @@ async function setBookDisc(projId,engId,val){
     renderProjDetail(p);
     return;
   }
-  const home=eng&&eng.disc;
+  const home=eng.team==='BIM'?(bimDiscCode(eng.subDisc)||eng.subDisc||eng.disc):(eng&&eng.disc);
   if(!p.bookDisc)p.bookDisc={};
   if(!val||val===home){ delete p.bookDisc[engId]; }
   else { p.bookDisc[engId]=val; }
@@ -8305,7 +8306,7 @@ function renderProjCard(p, mode){
         return a.name.localeCompare(b.name);
       });
     const bimEngs=S.engineers
-      .filter(e=>e.subDisc===disc&&e.team==='BIM')
+      .filter(e=>(((p.bookDisc&&p.bookDisc[e.id])||e.subDisc)===disc)&&e.team==='BIM')
       .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
       .sort((a,b)=>a.name.localeCompare(b.name));
     const discEngs=[...mepEngs,...bimEngs];
@@ -8381,8 +8382,13 @@ function renderProjCard(p, mode){
       const rateTip=isOverridden?`Override: ${projRate} AED/hr (default: ${defaultRate}). Clear to reset.`:`Default for ${eng.off||'DXB'} ${isBIM?'BIM':''}${eng.grade||''}: ${defaultRate} AED/hr.`;
       const rowBg=isBIM?'background:#f0fdfa;':'';
       const nameBg=isBIM?'background:#f0fdfa;':'';
+      const _bimCur=isBIM?((p.bookDisc&&p.bookDisc[eng.id])||bimDiscCode(eng.subDisc)||eng.subDisc||'BIM'):'';
       const discBadge=isBIM
-        ? `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`
+        ? (eng.crossDisc
+            ? (isBimLead()
+                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this BIM member's hours under the chosen trade on this project (they stay BIM everywhere BIM is shown)" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #0d9488;border-radius:4px;background:#f0fdfa;color:#0d9488;font-weight:700;cursor:pointer;">${MEP_DISCS.map(dd=>`<option value="${dd}"${_bimCur===dd?' selected':''}>${dd}</option>`).join('')}</select>`
+                : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;" title="Booked trade for this BIM member on this project — only the BIM Lead or admin can change it">${esc(_bimCur)}</span>`)
+            : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`)
         : (eng.crossDisc
             ? (canEditDisc(eng.disc)
                 ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
