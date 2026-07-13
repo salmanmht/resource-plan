@@ -869,7 +869,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.0 · 13 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.1 · 13 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -968,7 +968,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.0 · 13 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.1 · 13 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1097,6 +1097,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" id="proj-hdr-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
+        <button class="btn btn-g btn-sm" id="proj-hdr-refresh-btn" onclick="refreshProjData(window._viewingProjId,{manual:true})" title="Reload this project from the database — pulls in teammates' latest changes" style="display:none;">&#8635; Refresh</button>
         <button class="btn btn-g btn-sm proj-hdr-export-btn" id="proj-hdr-export-btn" onclick="exportProjXLSX()" title="Export project info &amp; programme stages to Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export Programme</span></button>
         <button class="btn btn-g btn-sm proj-hdr-import-btn" id="proj-hdr-import-btn" onclick="document.getElementById('proj-xlsx-import-input').click()" title="Import project info &amp; programme stages from Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">📂</span><span class="proj-btn-label"> Import Programme</span></button>
         <input type="file" id="proj-xlsx-import-input" accept=".xlsx,.xls" style="display:none;" onchange="importProjXLSX(this)">
@@ -6485,12 +6486,70 @@ function renderProj(){
   </div>`;
 }
 
+// ── Pull-based sync (v9.2.1) ───────────────────────────────────────────────
+// Reloads ONE project (row + hours) from Supabase so teammates' changes appear
+// without a full page reload. Manual via the ↻ Refresh header button; automatic
+// every 60s while the project detail is visible. Local unsaved edits always win:
+// pending saves are flushed first, and the cycle is skipped while typing.
+async function refreshProjData(projId,opts){
+  opts=opts||{};
+  if(!projId||String(projId).startsWith('prp'))return; // proposals are a local editing session
+  const idx=S.projects.findIndex(x=>x.id===projId);
+  if(idx<0)return;
+  // Never clobber the user's own edits
+  try{ await flushHourSaves(); }catch(e){}
+  if(window._pendingHourSaves&&window._pendingHourSaves.size>0){
+    if(opts.manual)toast('⚠ Your edits are still syncing — refresh paused until they save.');
+    return;
+  }
+  const ae=document.activeElement;
+  if(!opts.manual&&ae&&ae.dataset&&ae.dataset.pid)return; // mid-typing — skip this cycle
+  let rows,hrRows;
+  try{
+    [rows,hrRows]=await Promise.all([
+      sbFetch('projects?id=eq.'+encodeURIComponent(projId)+'&select=*'),
+      sbGetAll('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&select=*')
+    ]);
+  }catch(e){ if(opts.manual)toast('⚠ Refresh failed — check connection.'); console.warn('refreshProjData:',e); return; }
+  if(!rows||!rows[0]||!rows[0].data){ if(opts.manual)toast('⚠ Project not found on server.'); return; }
+  const before=JSON.stringify(S.projects[idx]);
+  const d=rows[0].data;
+  if(rows[0].mep_lead_email)d.mepLeadEmail=rows[0].mep_lead_email;
+  d.weeklyHrs={};
+  (hrRows||[]).forEach(r=>{ if(!d.weeklyHrs[r.engineer_id])d.weeklyHrs[r.engineer_id]=[]; d.weeklyHrs[r.engineer_id][r.week_index]=Number(r.hours)||0; });
+  S.projects[idx]=d;
+  if(S._allProjects){ const ai=S._allProjects.findIndex(x=>x.id===projId); if(ai>=0)S._allProjects[ai]=d; }
+  const dv=document.getElementById('proj-detail-view');
+  const viewing=window._viewingProjId===projId&&dv&&dv.style.display!=='none';
+  if(!viewing)return;
+  const stamp=new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+  if(opts.manual){
+    renderProjDetail(d);
+    toast('✓ Updated · '+stamp);
+  } else if(JSON.stringify(d)!==before){
+    renderProjDetail(d);
+    setSyncStatus(true,'Updated · '+stamp);
+  }
+}
+if(!window._projPollTimer){
+  window._projPollTimer=setInterval(function(){
+    try{
+      if(document.visibilityState!=='visible')return;
+      if(typeof SB_SESSION==='undefined'||!SB_SESSION)return;
+      const dv=document.getElementById('proj-detail-view');
+      if(!dv||dv.style.display==='none')return;
+      if(!window._viewingProjId)return;
+      refreshProjData(window._viewingProjId,{manual:false});
+    }catch(e){}
+  },60000);
+}
 function openProjDetail(id){
   window._viewingProjId=id;
   const p=S.projects.find(x=>x.id===id);if(!p)return;
   document.getElementById('proj-list-view').style.display='none';
   document.getElementById('proj-detail-view').style.display='';
   document.getElementById('proj-hdr-back-btn').style.display='';
+  var _rb=document.getElementById('proj-hdr-refresh-btn'); if(_rb)_rb.style.display='';
   document.getElementById('proj-hdr-title').textContent=p.no+' — '+p.name;
   // Hide list-only header buttons
   document.getElementById('proj-hdr-export-btn').style.display='none';
@@ -6503,6 +6562,7 @@ function closeProjDetail(){
   document.getElementById('proj-list-view').style.display='';
   document.getElementById('proj-detail-view').style.display='none';
   document.getElementById('proj-hdr-back-btn').style.display='none';
+  var _rb2=document.getElementById('proj-hdr-refresh-btn'); if(_rb2)_rb2.style.display='none';
   document.getElementById('proj-hdr-title').textContent='Projects';
   // Restore list-only header buttons (admin only)
   if(adminUnlocked){
@@ -9406,6 +9466,7 @@ function openPropDetail(id){
   const backBtn=document.getElementById('proj-hdr-back-btn');
   backBtn.style.display='';
   backBtn.setAttribute('onclick','closePropDetail()');
+  var _rb3=document.getElementById('proj-hdr-refresh-btn'); if(_rb3)_rb3.style.display='none';
   document.getElementById('proj-hdr-export-btn').style.display='none';
   document.getElementById('proj-hdr-import-btn').style.display='none';
   document.getElementById('proj-hdr-new-btn').style.display='none';
