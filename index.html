@@ -869,7 +869,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.3 · 13 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.5 · 14 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -968,7 +968,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.3 · 13 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.5 · 14 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2561,7 +2561,13 @@ async function initApp(){
     // Show toast with actual error
     toast('DB Error: '+((e&&e.message)||String(e)).slice(0,80));
   }
-  updSB();DASH_FROM_MI=null;DASH_TO_MI=null;
+  updSB();
+  // Restore the saved dashboard range if the user set one; else default (full range)
+  DASH_FROM_MI=null;DASH_TO_MI=null;
+  try{
+    const _sr=JSON.parse(localStorage.getItem('mep_dash_range')||'null');
+    if(_sr&&Number.isFinite(_sr.f)&&Number.isFinite(_sr.t)&&_sr.t>=_sr.f){DASH_FROM_MI=_sr.f;DASH_TO_MI=_sr.t;}
+  }catch(e){}
   // Sync grain toggle visual state from saved GRAIN
   setTimeout(syncGrainButtons,50);
   const savedPage=sessionStorage.getItem('lastPage');
@@ -4978,11 +4984,14 @@ function onDashRangeChange(){
   let t=parseInt(document.getElementById('dashTo').value);
   if(t<f){t=f;document.getElementById('dashTo').value=f;}
   DASH_FROM_MI=f; DASH_TO_MI=t;
+  // Persist the chosen range (per browser) so it survives reloads until changed
+  try{localStorage.setItem('mep_dash_range',JSON.stringify({f:f,t:t}));}catch(e){}
   renderMEP();
 }
 function openCalcInfo(){var o=document.getElementById('calc-info-ov');if(o)o.style.display='flex';}
 function closeCalcInfo(){var o=document.getElementById('calc-info-ov');if(o)o.style.display='none';}
 function resetDashRange(){
+  try{localStorage.removeItem('mep_dash_range');}catch(e){}
   const {minMI,maxMI}=computeAll();
   DASH_FROM_MI=minMI; DASH_TO_MI=maxMI;
   var ff=document.getElementById('dashFrom'); if(ff)ff.value=minMI;
@@ -12369,14 +12378,17 @@ const _origNav=typeof nav==='function'?nav:null;
     var r; try{r=computeRange();}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
     var NM=r.NMON||1, uA=r.util[id]||[];
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
-    var alloc=[];
+    var alloc=[],allocOut=[];
     (S.projects||[]).forEach(function(p){
       var w=p.weeklyHrs&&p.weeklyHrs[id]; if(!w||!p.start)return;
-      var h=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)h+=hh; });
-      if(h>0)alloc.push({name:(p.no?p.no+' · ':'')+(p.name||'Project'),hrs:h});
+      var h=0,hOut=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)h+=hh; else hOut+=hh; });
+      var nm=(p.no?p.no+' · ':'')+(p.name||'Project');
+      if(h>0)alloc.push({name:nm,hrs:h});
+      else if(hOut>0)allocOut.push({name:nm,hrs:hOut}); // allocated, but not in the selected range
     });
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
-    var totH=alloc.reduce(function(a,x){return a+x.hrs;},0), top=alloc.slice(0,5);var _wk=0;for(var _i=0;_i<NM;_i++)_wk+=wpmFor(r.minMI+_i);var capHrs=(e.cap||45)*_wk;
+    allocOut.sort(function(a,b){return b.hrs-a.hrs;});
+    var totH=alloc.reduce(function(a,x){return a+x.hrs;},0), top=alloc;var _wk=0;for(var _i=0;_i<NM;_i++)_wk+=wpmFor(r.minMI+_i);var capHrs=(e.cap||45)*_wk;
     var leaveH=0; try{var A=computeAll();var lb=A.leaveByMI&&A.leaveByMI[id];if(lb){var s=r.minMI-A.minMI;for(var k=0;k<NM;k++)leaveH+=(lb[s+k]||0);}}catch(_){}var holH=0;try{var _hl=(e.off==='EGY'?S.holidaysEGY:S.holidaysUAE)||[];_hl.forEach(function(hh){if(!hh||!hh.date)return;var _d=new Date((typeof weekStartFor==='function')?weekStartFor(hh.date):hh.date);var _mi=dateToMI(_d);if(_mi>=r.minMI&&_mi<=r.maxMI)holH+=(hh.hours||9);});}catch(_){}var leaveOnlyH=Math.max(0,leaveH-holH);var lvMonths=[];try{var _A2=(typeof A!=='undefined'&&A)?A:computeAll();var _lb2=_A2.leaveByMI&&_A2.leaveByMI[id];var _hm2={};(((e.off==='EGY')?S.holidaysEGY:S.holidaysUAE)||[]).forEach(function(hh){if(!hh||!hh.date)return;var _d2=new Date((typeof weekStartFor==='function')?weekStartFor(hh.date):hh.date);var _mi2=dateToMI(_d2);_hm2[_mi2]=(_hm2[_mi2]||0)+(hh.hours||9);});if(_lb2){for(var _mm=r.minMI;_mm<=r.maxMI;_mm++){var _tot2=_lb2[_mm-_A2.minMI]||0;var _lv2=Math.max(0,_tot2-(_hm2[_mm]||0));if(_lv2>0.5){var _md2=miToDate(_mm);lvMonths.push(MN[_md2.m]);}}}}catch(_){}var lvMonTxt=lvMonths.length?lvMonths.join(', '):'—';
     var nowMI=dateToMI(new Date());var startK=Math.max(0,nowMI-r.minMI);var freeLbl=''; for(var m=startK;m<NM;m++){ if((uA[m]||0)<85){ var md=miToDate(r.minMI+m); freeLbl=MN[md.m]+' '+md.y; break; } }
     var chipTxt,chipBg,chipFg;
@@ -12397,6 +12409,8 @@ const _origNav=typeof nav==='function'?nav:null;
       var pct=capHrs?Math.round(x.hrs/capHrs*100):0;
       return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+Math.min(pct,100)+'%;background:#10243E;border-radius:4px;"></div></div></div>';
     }).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;padding:4px 0;">Not staffed in this period.</div>';
+    var outHtml=allocOut.length?'<div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9AA7B5;margin:10px 0 4px;border-top:0.5px solid #EDF1F6;padding-top:10px;">Also allocated (outside selected range)</div>'+allocOut.map(function(x){return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6B7A8D;padding:3px 0;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="flex:0 0 auto;font-weight:600;">'+Math.round(x.hrs)+' h</span></div>';}).join(''):'';
+    allocHtml+=outHtml;
     var html=
       '<div style="display:flex;align-items:center;gap:12px;padding:16px 16px 14px;border-bottom:0.5px solid #EDF1F6;">'
         +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
@@ -12473,11 +12487,12 @@ const _origNav=typeof nav==='function'?nav:null;
     var NM=r.NMON||1, uA=r.util[e.id]||[];
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
 
-    var alloc=[];
-    (S.projects||[]).forEach(function(p){var w=p.weeklyHrs&&p.weeklyHrs[e.id];if(!w||!p.start)return;var hh=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;});if(hh>0)alloc.push({name:(p.no?p.no+' · ':'')+(p.name||'Project'),hrs:hh});});
+    var alloc=[],allocOut=[];
+    (S.projects||[]).forEach(function(p){var w=p.weeklyHrs&&p.weeklyHrs[e.id];if(!w||!p.start)return;var hh=0,ho=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;else ho+=v;});var nm=(p.no?p.no+' · ':'')+(p.name||'Project');if(hh>0)alloc.push({name:nm,hrs:hh});else if(ho>0)allocOut.push({name:nm,hrs:ho});});
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
+    allocOut.sort(function(a,b){return b.hrs-a.hrs;});
     var _wk=0;for(var i=0;i<NM;i++)_wk+=wpmFor(r.minMI+i);var capHrs=(e.cap||45)*_wk;
-    var top=alloc.slice(0,6);
+    var top=alloc;
 
     var leaveH=0,_full=null; try{_full=computeAll();var lb=_full.leaveByMI&&_full.leaveByMI[e.id];if(lb){var s=r.minMI-_full.minMI;for(var k=0;k<NM;k++)leaveH+=(lb[s+k]||0);}}catch(_){}
     var hm={}; try{((e.off==='EGY')?S.holidaysEGY:S.holidaysUAE||[]).forEach(function(hh){if(!hh||!hh.date)return;var d=new Date((typeof weekStartFor==='function')?weekStartFor(hh.date):hh.date);var mi=dateToMI(d);hm[mi]=(hm[mi]||0)+(hh.hours||9);});}catch(_){}
@@ -12527,6 +12542,8 @@ const _origNav=typeof nav==='function'?nav:null;
     var rate=0; try{rate=Math.round(getRate(e)||0);}catch(_){}
 
     var allocHtml=top.length?top.map(function(x){var pct=capHrs?Math.round(x.hrs/capHrs*100):0;return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12.5px;color:#28384A;margin-bottom:4px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="font-weight:600;flex:0 0 auto;">'+pct+'%</span></div><div style="height:6px;background:#EDF1F6;border-radius:4px;"><div style="height:6px;width:'+Math.min(pct,100)+'%;background:#10243E;border-radius:4px;"></div></div></div>';}).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;">Not staffed in this period.</div>';
+    var outHtml=allocOut.length?'<div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9AA7B5;margin:10px 0 4px;border-top:0.5px solid #EDF1F6;padding-top:10px;">Also allocated (outside selected range)</div>'+allocOut.map(function(x){return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6B7A8D;padding:3px 0;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="flex:0 0 auto;font-weight:600;">'+Math.round(x.hrs)+' h</span></div>';}).join(''):'';
+    allocHtml+=outHtml;
 
     function infoRow(label,val){return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">'+label+'</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+val+'</span></div>';}
 
