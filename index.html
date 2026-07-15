@@ -869,7 +869,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.2.7 · 14 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.4.1 · 15 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -948,7 +948,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
   </div>
 
-  <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button></div>
+  <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button><span style="margin-left:auto;display:flex;gap:4px;"><button id="sb-refresh-btn" onclick="refreshCurrentPage()" title="Refresh — pull the latest data from the database for the page you're on (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">↻</button><button id="sb-save-btn" onclick="saveAllNow()" title="Save — push any pending/debounced edits to the database right now (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">💾</button></span></div>
 
   <div class="sb-sec">Overview</div>
     <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Overview</div>
@@ -968,7 +968,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.2.7 · 14 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.4.1 · 15 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1606,6 +1606,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 // ═══════════════════════════════════════
 const SB_URL      = 'https://wgmkqrxivesphvutychm.supabase.co';
 const SB_KEY      = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
+// v9.3.0 — single version constant. The deployed file is polled and this value
+// compared against the running copy to drive the "new version" toast (Item 4).
+// BUMP THIS on every deploy, together with the two visible version strings.
+const APP_VER     = '9.4.1';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG  (v8.12.5)
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -2438,7 +2442,10 @@ async function sbUpsert(table,row){
 async function sbDel(table,id){return sbFetch(table+'?id=eq.'+encodeURIComponent(id),'DELETE');}
 function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;}
 
-async function initApp(){
+async function initApp(opts){
+  // v9.3.0: initApp doubles as the "pull fresh data" path for the per-page ↻
+  // button — opts.skipNav re-loads everything but leaves navigation alone so the
+  // caller can re-render the page the user is already on.
   setSyncStatus(false,'Connecting…');
   try{
     const safeGet=async(t)=>{try{return await sbGet(t);}catch(e){console.warn('Table load failed:',t,e.message);return[];}};
@@ -2460,7 +2467,7 @@ async function initApp(){
     S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
   // Load pending users badge for admins
   if(adminUnlocked)setTimeout(loadPendingBadge,2000);
-    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; return d; });
+    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; delete d._t; return d; }); // _t = legacy debounce-timer ids that leaked into saved data — strip so saveAllNow() can trust it
     S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
     if(Array.isArray(projHrsRows)){
@@ -2553,6 +2560,7 @@ async function initApp(){
     S.holidaysEGY=holEGY?holEGY.data:getDefaultHolidays('EGY');
     loadBIMSeedData();  // Step 6 — inject BIM seed members + hours
     setSyncStatus(true,'Live · '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
+    try{ checkMissingEngineerRow(); }catch(e){ console.error('checkMissingEngineerRow',e); } // v9.3.0 — Item 2 safeguard
   }catch(e){
     setSyncStatus(false,'Offline — local cache');
     loadLocal();
@@ -2570,8 +2578,115 @@ async function initApp(){
   }catch(e){}
   // Sync grain toggle visual state from saved GRAIN
   setTimeout(syncGrainButtons,50);
-  const savedPage=sessionStorage.getItem('lastPage');
-  nav(savedPage&&PAGES.includes(savedPage)?savedPage:'mep');
+  if(!(opts&&opts.skipNav)){
+    const savedPage=sessionStorage.getItem('lastPage');
+    nav(savedPage&&PAGES.includes(savedPage)?savedPage:'mep');
+  }
+}
+
+// ═══════════════════════════════════════
+// v9.3.0 — Item 5: per-page Refresh. Re-pulls every table from Supabase (same
+// resilient path as app boot) and re-renders whichever page is currently open —
+// the global twin of the project-detail ↻ from v9.2.1.
+// ═══════════════════════════════════════
+async function refreshCurrentPage(){
+  if(window._pageRefreshing)return;
+  window._pageRefreshing=true;
+  const btn=document.getElementById('sb-refresh-btn');
+  if(btn){btn.style.opacity='.4';btn.style.pointerEvents='none';}
+  try{
+    // Push pending edits FIRST so the re-pull can't overwrite them
+    try{ await flushHourSaves(); }catch(e){}
+    await initApp({skipNav:true});
+    const dv=document.getElementById('proj-detail-view');
+    if(CURRENT_PAGE==='proj'&&dv&&dv.style.display!=='none'&&window._viewingProjId){
+      const p=S.projects.find(x=>x.id===window._viewingProjId);
+      if(p)renderProjDetail(p); else nav('proj',true);
+    } else {
+      nav(CURRENT_PAGE,true); // re-render in place, no history push
+    }
+    toast('✓ Refreshed — latest data loaded');
+  }catch(e){
+    console.error('refreshCurrentPage failed',e);
+    toast('Refresh failed — check connection.');
+  }
+  window._pageRefreshing=false;
+  if(btn){btn.style.opacity='';btn.style.pointerEvents='';}
+}
+
+// ═══════════════════════════════════════
+// v9.3.0 — Item 6: explicit Save. Flushes every pending/debounced write NOW:
+// queued week-cell hour saves (incl. the failed-save retry queue), a pending
+// debounced proposal save, and any stage/name edits sitting on project debounce
+// timers (p._t). Auto-save still runs as before — this is the manual override.
+// ═══════════════════════════════════════
+async function saveAllNow(){
+  let acted=false;
+  try{
+    if(window._pendingHourSaves&&window._pendingHourSaves.size>0){ acted=true; await flushHourSaves(); }
+    if(window._propSaveTimer){
+      acted=true;
+      clearTimeout(window._propSaveTimer); window._propSaveTimer=null;
+      const prop=window._propPendingId?(S.proposals||[]).find(x=>x.id===window._propPendingId):null;
+      if(prop){
+        try{
+          const cleanProp=JSON.parse(JSON.stringify(prop)); delete cleanProp._isProposal;
+          await sbUpsert('proposals',{id:prop.id,data:cleanProp});
+          setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+        }catch(e){ setSyncStatus(false,'Sync failed'); console.error('saveAllNow proposal:',e); }
+      }
+      window._propPendingId=null;
+    }
+    (S.projects||[]).forEach(p=>{
+      if(p._t){ acted=true; clearTimeout(p._t); p._t=null; pushProj(p); }
+    });
+    const failed=window._pendingHourSaves?window._pendingHourSaves.size:0;
+    if(failed>0) toast('⚠ '+failed+' hour save(s) still failing — kept in the retry queue.');
+    else toast(acted?'✓ All pending changes saved':'✓ Nothing pending — everything already saved');
+  }catch(e){
+    console.error('saveAllNow failed',e);
+    toast('Save failed — check connection.');
+  }
+}
+
+// ═══════════════════════════════════════
+// v9.3.0 — Item 2 safeguard: a signed-in email that holds a role in
+// engineer_roles (or is an admin) but has NO engineers row — e.g. the row was
+// deleted by mistake — gets a banner with one-click self-recovery instead of a
+// silently broken account.
+// ═══════════════════════════════════════
+function checkMissingEngineerRow(){
+  const em=((SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'').toLowerCase();
+  if(!em)return;
+  const hasRole=(S.roles||[]).some(r=>r.email&&r.email.toLowerCase()===em)||((typeof isAdmin==='function')&&isAdmin(em));
+  const hasEng=(S.engineers||[]).some(e=>e.email&&e.email.toLowerCase()===em);
+  const old=document.getElementById('missing-eng-banner');
+  if(!hasRole||hasEng){ if(old)old.remove(); return; }
+  if(old)return;
+  const b=document.createElement('div');
+  b.id='missing-eng-banner';
+  b.style.cssText='position:fixed;top:0;left:0;right:0;z-index:99998;background:#b45309;color:#fff;font-size:12px;font-weight:700;text-align:center;padding:9px 14px;box-shadow:0 2px 8px rgba(0,0,0,.25);display:flex;align-items:center;justify-content:center;gap:10px;flex-wrap:wrap;';
+  b.innerHTML='⚠ Your account has a role but no Team Register profile — it may have been deleted. Hours, leave and utilisation need one.'
+    +'<button onclick="selfRestoreEngineerRow()" style="font-size:11px;font-weight:700;padding:3px 12px;border-radius:14px;border:1px solid #fff;background:#fff;color:#92400e;cursor:pointer;font-family:inherit;">Re-create my profile</button>'
+    +'<button onclick="document.getElementById(\'missing-eng-banner\').remove()" style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.6);background:transparent;color:#fff;cursor:pointer;font-family:inherit;">Later</button>';
+  document.body.appendChild(b);
+}
+async function selfRestoreEngineerRow(){
+  const em=((SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'');
+  if(!em)return;
+  const nice=em.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
+  const e={id:'eng'+Date.now(),name:nice,email:em,disc:(typeof MEP_DISCS!=='undefined'&&MEP_DISCS[0])||'HVAC',off:'DXB',grade:(typeof GRADES!=='undefined'&&GRADES[0])||'',team:'MEP',desig:''};
+  try{
+    await sbUpsert('engineers',{id:e.id,data:e});
+    S.engineers.push(normaliseEng(e));
+    const b=document.getElementById('missing-eng-banner'); if(b)b.remove();
+    try{ updSB(); }catch(err){}
+    toast('✓ Profile re-created — open Team Register to set your discipline, grade and office.');
+    if(CURRENT_PAGE==='team'){ try{ invalidate('team'); }catch(err){} }
+  }catch(err){
+    console.error('selfRestoreEngineerRow failed:',err);
+    toast('Could not create the profile — check connection/permissions (RLS).');
+  }
 }
 function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;const _em=(SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'';if((typeof isAdmin==='function')&&isAdmin(_em)&&p.rates)S.rates=p.rates;S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){console.warn('loadLocal failed',e);}
   S.engineers.forEach(e=>{ if(!e.team) e.team='MEP'; });
@@ -2625,7 +2740,8 @@ async function pushProj(p){
   try{
     // Save metadata only — weeklyHrs stored separately in project_hours table
     // mep_lead_email saved as top-level column for RLS enforcement
-    const {weeklyHrs,...meta}=p;
+    // _t = session-local debounce timer id — never persist it (v9.3.0)
+    const {weeklyHrs,_t,...meta}=p;
     await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
   }catch{setSyncStatus(false,'Sync failed');saveLocal();}
@@ -2700,6 +2816,7 @@ function computeAll(statusFilter){
     if(statusFilter&&p.status!==statusFilter)return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
       if(!wArr)return;
+      eid=slotBase(eid); // v9.3.0 — duplicate-slot hours roll up to the person
       if(!hrs[eid])hrs[eid]=Array(NMON).fill(0);
       wArr.forEach((h,wi)=>{
         if(!h)return;
@@ -2746,14 +2863,17 @@ function computeAll(statusFilter){
     // Sum multipliers across projects that have hours for this engineer in this month
     let totalMult=0;
     S.projects.forEach(p=>{
-      const wArr=p.weeklyHrs&&p.weeklyHrs[e.id];
-      if(!wArr||!p.start)return;
-      const hasHrsInMonth=wArr.some((h,wi)=>{
-        if(!h)return false;
-        const wk=projWeekDate(p.start,wi);
-        return dateToMI(wk)-minMI===mi;
+      if(!p.start)return;
+      Object.keys(p.weeklyHrs||{}).forEach(k=>{ // v9.3.0 — each duplicate slot adds its own multiplier
+        if(k!==e.id&&slotBase(k)!==e.id)return;
+        const wArr=p.weeklyHrs[k]; if(!wArr)return;
+        const hasHrsInMonth=wArr.some((h,wi)=>{
+          if(!h)return false;
+          const wk=projWeekDate(p.start,wi);
+          return dateToMI(wk)-minMI===mi;
+        });
+        if(hasHrsInMonth)totalMult+=getJseMult(p,k);
       });
-      if(hasHrsInMonth)totalMult+=getJseMult(p,e.id);
     });
     return totalMult>0?baseCap*totalMult:baseCap;
   };
@@ -2794,9 +2914,10 @@ function discHoursSplit(engSet,minMI,NMON,statusFilter){
     if(!p.start)return;
     if(statusFilter&&p.status!==statusFilter)return;
     const wh=p.weeklyHrs||{};
-    Object.keys(wh).forEach(eid=>{
+    Object.keys(wh).forEach(whKey=>{
+      const eid=slotBase(whKey); // v9.3.0 — slot hours count toward the person
       if(!ids.has(eid))return;
-      const arr=wh[eid]; if(!arr)return;
+      const arr=wh[whKey]; if(!arr)return;
       const e=S.engineers.find(x=>x.id===eid); if(!e)return;
       const joinMI=e.joinDate?dateToMI(new Date(e.joinDate)):null;
       const endMI=e.endDate?dateToMI(new Date(e.endDate)):null;
@@ -2945,11 +3066,74 @@ function projTotalHrs(p){
   Object.values(p.weeklyHrs||{}).forEach(a=>{ if(!a)return; a.forEach(v=>h+=v||0); });
   return h;
 }
+
+// ═══════════════════════════════════════
+// v9.3.0 — Item 1: DUPLICATE BOOKINGS ("slots").
+// The same BIM/JSE person can be added to a project more than once. Extra
+// entries use slot keys — '<engId>#2', '<engId>#3' — as the weeklyHrs key and
+// project_hours.engineer_id. Aggregations resolve the key back to the person
+// (both bookings count toward utilisation/cost); the project team grid keeps
+// each booking as its own row with an editable scope tag (p.slotTags).
+// ═══════════════════════════════════════
+function isSlotKey(k){ return String(k).indexOf('#')>=0; }
+function slotBase(k){ k=String(k); const i=k.indexOf('#'); return i<0?k:k.slice(0,i); }
+function slotNo(k){ k=String(k); const i=k.indexOf('#'); if(i<0)return 1; const n=parseInt(k.slice(i+1),10); return isNaN(n)?2:n; }
+// Resolve any key (base id or slot key) to an engineer object. Slot keys return
+// a lightweight clone whose id IS the slot key, so existing per-row code
+// (rates, hours, removal, bookDisc) works unchanged.
+function slotEng(id){
+  const base=slotBase(id);
+  const e=S.engineers.find(x=>x.id===base);
+  if(!e)return null;
+  if(!isSlotKey(id))return e;
+  const c=Object.assign({},e);
+  c.id=String(id); c._slotOf=base; c._slotNo=slotNo(id);
+  c.name=e.name+' ('+c._slotNo+')';
+  return c;
+}
+// S.engineers plus a clone per duplicate-slot key present on this project.
+function projEngineers(p){
+  const wh=(p&&p.weeklyHrs)||{};
+  const out=S.engineers.slice();
+  Object.keys(wh).forEach(k=>{ if(isSlotKey(k)){ const c=slotEng(k); if(c)out.push(c); } });
+  return out;
+}
+// Merged hours array for a PERSON on a project — base row + every duplicate slot.
+function whArrFor(p,engId){
+  const wh=(p&&p.weeklyHrs)||{};
+  let out=null;
+  Object.keys(wh).forEach(k=>{
+    if(k!==engId&&slotBase(k)!==engId)return;
+    const a=wh[k]||[];
+    if(!out)out=a.slice();
+    else{ for(let i=0;i<Math.max(out.length,a.length);i++) out[i]=(out[i]||0)+(a[i]||0); }
+  });
+  return out||[];
+}
+function whHasFor(p,engId){ return whArrFor(p,engId).some(v=>v>0); }
+function slotTag(p,k){ return (p&&p.slotTags&&p.slotTags[k])||''; }
+function setSlotTag(projId,key,val){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p)return;
+  if(!p.slotTags)p.slotTags={};
+  val=(val||'').trim();
+  if(val)p.slotTags[key]=val; else delete p.slotTags[key];
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+}
+// First unused slot key for adding this person again to this project.
+function nextSlotKey(p,engId){
+  const wh=(p&&p.weeklyHrs)||{};
+  if(!(engId in wh))return engId;
+  let n=2; while((engId+'#'+n) in wh)n++;
+  return engId+'#'+n;
+}
+// Duplicate bookings are limited to BIM members and JSE crews (the .md scope).
+function canDupBook(e){ return !!e&&(e.team==='BIM'||(e.name&&String(e.name).replace(/\s*\(\d+\)$/,'').startsWith('JSE-'))); }
 function projCost(p){
   let c=0;
   Object.entries(p.weeklyHrs||{}).forEach(([eid,a])=>{
     if(!a)return;
-    const eng=S.engineers.find(e=>e.id===eid); if(!eng)return;
+    const eng=slotEng(eid); if(!eng)return; // v9.3.0 — resolves duplicate-slot keys
     const rate=getProjRate(eng,p);
     const mult=getJseMult(p,eid);
     a.forEach(v=>c+=(v||0)*rate*mult);
@@ -2967,8 +3151,11 @@ function engProjHrs(engId,minMI,NMON){
     return d;
   };
   S.projects.forEach(p=>{
-    const wh=p.weeklyHrs||{};if(!wh[engId])return;
-    const arr=wh[engId];
+    const wh=p.weeklyHrs||{};
+    // v9.3.0 — merge duplicate-slot rows into the person's project hours
+    const _ks=Object.keys(wh).filter(k=>k===engId||slotBase(k)===engId);
+    if(!_ks.length)return;
+    const arr=[];_ks.forEach(k=>{(wh[k]||[]).forEach((v,i)=>{arr[i]=(arr[i]||0)+(v||0);});});
     const mHrs=Array(n).fill(0);
     // Iterate over the full stored array, not stageWeeks — picks up beyond-end hours
     arr.forEach((h,wi)=>{
@@ -3002,7 +3189,7 @@ function dhProjMepCost(p){
   const wh=p.weeklyHrs||{};
   Object.entries(wh).forEach(([eid,arr])=>{
     if(!arr)return;
-    const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+    const e=slotEng(eid); if(!e)return; // v9.3.0 — duplicate slots resolve to the person
     // BIM modellers fold into their trade discipline (HVAC + HVAC-BIM, etc);
     // MEP engineers use their booked discipline (per-project override wins).
     const d = e.team==='BIM' ? ((p.bookDisc&&p.bookDisc[e.id])||bimDiscCode(e.subDisc)) : effDisc(e,p);
@@ -3034,7 +3221,8 @@ function dhOverAlloc(){
     if(!p.start||p.status!=='Active')return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,arr])=>{
       if(!arr)return;
-      const e=S.engineers.find(x=>x.id===eid); if(!e)return;
+      const e=slotEng(eid); if(!e)return;
+      eid=slotBase(eid); // v9.3.0 — over-allocation is judged per person, slots combined
       if(e.name&&e.name.startsWith('JSE-'))return;
       const d=new Date(p.start);const day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));
       arr.forEach((h,wi)=>{
@@ -3164,7 +3352,7 @@ function dhFindGhosts(){
   allProjects.forEach(p=>{
     const wh=p.weeklyHrs||{};
     Object.keys(wh).forEach(eid=>{
-      if(!liveIds.has(eid)){
+      if(!liveIds.has(slotBase(eid))){ // v9.3.0 — slot keys are not ghosts while the person exists
         const hrs=(wh[eid]||[]).reduce((a,v)=>a+(v||0),0);
         ghosts.push({projId:p.id,projName:(p.no?p.no+' — ':'')+(p.name||p.id),engId:eid,hrs});
       }
@@ -3365,7 +3553,7 @@ function spendCompute(){
     const sm=getStageWeekMap(p);
     Object.entries(wh).forEach(([eid,arr])=>{
       if(!arr)return;
-      const eng=S.engineers.find(e=>e.id===eid); if(!eng)return;
+      const eng=slotEng(eid); if(!eng)return; // v9.3.0
       if(!spendDiscMatch(eng,p)||!spendOffMatch(eng))return;
       const rate=getProjRate(eng,p);
       const mult=(typeof getJseMult==='function'?getJseMult(p,eid):1)||1;
@@ -3448,6 +3636,74 @@ function renderSpend(){
 // ═══════════════════════════════════════
 // CHARTS
 // ═══════════════════════════════════════
+// ═══════════════════════════════════════
+// v9.4.0 — Excel-style chart data tables.
+// Every chart built through mkChart() gets a bordered data table directly
+// under its plot box (like Excel's "Data Table" chart element): first column
+// carries the series name + colour key, one column per period, values match
+// the plotted datasets exactly — so the table re-renders with every filter,
+// range and grain change for free. KPI sparklines (mkSparkline) are excluded.
+//   • line / vertical bar  → columns = periods, one row per series
+//   • horizontal bar       → transposed: one row per category
+//   • doughnut / pie       → one row per slice, with value + share %
+// Formats: pct (2 dp in month grain, 0 dp in week grain), hrs, AED
+// (respects the money-hidden toggle), plain numbers.
+function dtblFmtFor(id){
+  if(id==='spend-month-chart')return 'aed';
+  if(id==='c-mep-proj')return 'hrs';
+  if(String(id).indexOf('off-d-')===0)return 'num';
+  return 'pct';
+}
+function dtblFmtVal(fmt,v){
+  if(v==null||isNaN(Number(v)))return '\u2014';
+  v=Number(v);
+  if(fmt==='pct'){const d=(typeof GRAIN!=='undefined'&&GRAIN==='week')?0:2;return v.toFixed(d)+'%';}
+  if(fmt==='hrs')return fN(Math.round(v))+'h';
+  if(fmt==='aed')return (typeof MONEY_HIDDEN!=='undefined'&&MONEY_HIDDEN)?'\u2022\u2022\u2022':fN(Math.round(v));
+  return fN(Math.round(v));
+}
+function renderChartTable(id,type,labels,datasets,opts){
+  const cv=document.getElementById(id); if(!cv)return;
+  if(opts&&opts.noTable){const old=document.getElementById('dtbl-'+id);if(old)old.remove();return;}
+  labels=labels||[]; datasets=datasets||[];
+  const fmt=dtblFmtFor(id);
+  const horiz=!!(opts&&opts.extra&&opts.extra.indexAxis==='y');
+  const B='border:1px solid #cbd5e1;';
+  const thS=B+'background:#f8fafc;padding:3px 8px;font-size:9.5px;font-weight:700;color:#475569;text-align:center;white-space:nowrap;';
+  const nameS=B+'padding:3px 8px;font-size:10px;font-weight:600;color:#1e293b;text-align:left;white-space:nowrap;position:sticky;left:0;background:#fff;z-index:1;';
+  const valS=B+'padding:3px 6px;font-size:10px;font-weight:700;color:#334155;text-align:center;white-space:nowrap;'; // v9.4.1 — numbers bold
+  const sw=(c)=>'<span style="display:inline-block;width:14px;height:3px;background:'+(c||'#64748b')+';border-radius:2px;vertical-align:middle;margin-right:6px;"></span>';
+  const dsColor=(ds,i)=>{
+    if(typeof ds.borderColor==='string')return ds.borderColor;
+    if(typeof ds.backgroundColor==='string')return ds.backgroundColor;
+    if(Array.isArray(ds.backgroundColor))return ds.backgroundColor[i!=null?i:0];
+    return '#64748b';
+  };
+  let inner='';
+  if(type==='doughnut'||type==='pie'){
+    const ds=datasets[0]||{data:[]};
+    const tot=(ds.data||[]).reduce((a,b)=>a+(Number(b)||0),0);
+    inner='<tr><th style="'+thS+'"></th><th style="'+thS+'">Value</th><th style="'+thS+'">Share</th></tr>'
+      +labels.map((l,i)=>'<tr><td style="'+nameS+'">'+sw(dsColor(ds,i))+esc(String(l))+'</td><td style="'+valS+'">'+dtblFmtVal(fmt,(ds.data||[])[i])+'</td><td style="'+valS+'">'+(tot>0?((Number((ds.data||[])[i])||0)/tot*100).toFixed(1)+'%':'\u2014')+'</td></tr>').join('');
+  } else if(horiz){
+    inner='<tr><th style="'+thS+'"></th>'+datasets.map(ds=>'<th style="'+thS+'">'+esc(String(ds.label||''))+'</th>').join('')+'</tr>'
+      +labels.map((l,i)=>'<tr><td style="'+nameS+'">'+sw(dsColor(datasets[0]||{},i))+esc(String(l))+'</td>'+datasets.map(ds=>'<td style="'+valS+'">'+dtblFmtVal(fmt,(ds.data||[])[i])+'</td>').join('')+'</tr>').join('');
+  } else {
+    const lab=(x)=>String(x==null?'':x).replace(/<br\s*\/?>/gi,' ');
+    inner='<tr><th style="'+thS+'text-align:left;position:sticky;left:0;z-index:2;"></th>'+labels.map(l=>'<th style="'+thS+'">'+esc(lab(l))+'</th>').join('')+'</tr>'
+      +datasets.map(ds=>'<tr><td style="'+nameS+'">'+sw(dsColor(ds))+esc(String(ds.label||''))+'</td>'+labels.map((_,i)=>'<td style="'+valS+'">'+dtblFmtVal(fmt,(ds.data||[])[i])+'</td>').join('')+'</tr>').join('');
+  }
+  let host=document.getElementById('dtbl-'+id);
+  if(!host){
+    host=document.createElement('div');
+    host.id='dtbl-'+id;
+    const par=cv.parentElement;
+    const anchor=(par&&par.children.length===1&&par.tagName!=='BODY')?par:cv;
+    anchor.insertAdjacentElement('afterend',host);
+  }
+  host.style.cssText='overflow-x:auto;margin-top:8px;';
+  host.innerHTML='<table style="border-collapse:collapse;width:max-content;min-width:100%;">'+inner+'</table>';
+}
 function mkChart(id,type,labels,datasets,opts){
   const el=document.getElementById(id);if(!el)return;
   if(CH[id]){try{CH[id].destroy();}catch(e){}}
@@ -3455,6 +3711,7 @@ function mkChart(id,type,labels,datasets,opts){
     plugins:{legend:{labels:{font:{size:10},boxWidth:10,padding:8}},...(opts&&opts.plugins||{})},
     scales:type==='doughnut'||type==='pie'?undefined:{y:{ticks:{font:{size:10}},...(opts&&opts.y||{})},x:{ticks:{font:{size:10},maxRotation:0},grid:{display:false},...(opts&&opts.x||{})}},...(opts&&opts.extra||{})
   }});}catch(e){}
+  try{renderChartTable(id,type,labels,datasets,opts);}catch(e){console.error('chart data table failed:',id,e);}
 }
 
 // ═══════════════════════════════════════
@@ -3520,8 +3777,8 @@ function wtWeekIndexFor(p,targetMonday){
 function wtForecast(p,engId){
   const wi=wtWeekIndexFor(p,WT_weekMonday);
   if(wi<0)return 0;
-  const arr=p.weeklyHrs&&p.weeklyHrs[engId];
-  if(!arr)return 0;
+  const arr=whArrFor(p,engId); // v9.3.0 — includes duplicate-slot bookings
+  if(!arr.length)return 0;
   return Number(arr[wi])||0;
 }
 
@@ -4717,7 +4974,7 @@ function projHasDisc(p,disc){
   return S.engineers.some(function(e){
     var isBIM=e.team==='BIM';
     if(disc==='BIM'){ if(!isBIM)return false; } else { if(isBIM||e.disc!==disc)return false; }
-    var a=wh[e.id]; return Array.isArray(a)&&a.some(function(v){return v>0;});
+    return whHasFor(p,e.id); // v9.3.0 — slot rows count
   });
 }
 
@@ -4753,12 +5010,14 @@ window.addEventListener('popstate',function(e){
 function toggleEngRow(engId,tableId){
   window.engExpanded[tableId]=window.engExpanded[tableId]||{};
   window.engExpanded[tableId][engId]=!window.engExpanded[tableId][engId];
-  const detailRow=document.getElementById(`eng-detail-${tableId}-${engId}`);
-  const chevron=document.getElementById(`eng-chev-${tableId}-${engId}`);
-  if(!detailRow||!chevron)return;
   const isOpen=window.engExpanded[tableId][engId];
-  chevron.textContent=isOpen?'▼':'▶';
-  detailRow.style.display=isOpen?'':'none';
+  const chevron=document.getElementById(`eng-chev-${tableId}-${engId}`);
+  if(chevron)chevron.textContent=isOpen?'▼':'▶';
+  // v9.3.1 — breakdown is now a set of inline rows tagged data-engdet (aligned
+  // with the parent grid), toggled together. Legacy single-row id kept as fallback.
+  document.querySelectorAll(`tr[data-engdet="${tableId}-${engId}"]`).forEach(r=>{r.style.display=isOpen?'':'none';});
+  const legacy=document.getElementById(`eng-detail-${tableId}-${engId}`);
+  if(legacy)legacy.style.display=isOpen?'':'none';
 }
 
 function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,weeks){
@@ -4775,8 +5034,9 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     const out=[];
     S.projects.forEach(p=>{
       const wh=p.weeklyHrs||{};
-      const arr=wh[engId];
-      if(!arr||!arr.some(v=>v>0))return;
+      const _ks=Object.keys(wh).filter(k=>k===engId||slotBase(k)===engId); // v9.3.0
+      const arr=[];_ks.forEach(k=>{(wh[k]||[]).forEach((v,i)=>{arr[i]=(arr[i]||0)+(v||0);});});
+      if(!arr.some(v=>v>0))return;
       const wHrs=Array(weeks.length).fill(0);
       let hasInRange=false;
       arr.forEach((h,wi)=>{
@@ -4810,7 +5070,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
       cols.forEach((ci,k)=>{const tot=lb[_foff+ci]||0;const hol=hm[base+ci]||0;holA[k]=hol;leaveA[k]=Math.max(0,tot-hol);mgmtA[k]=mb[_foff+ci]||0;});
     }
     const _sum=(a)=>a.reduce((x,y)=>x+(y||0),0);
-    const _row=(label,arr,bg,tc)=>{const tot=_sum(arr);if(tot<=0)return '';return '<tr style="background:'+bg+';border-top:1px solid #e8edf3;"><td></td><td></td><td style="padding-left:22px;font-size:11px;white-space:nowrap;color:'+tc+';"><strong>'+label+'</strong></td><td colspan="2"><span style="font-size:9px;color:var(--tx3);">non-billable</span></td>'+arr.map(v=>'<td style="text-align:center;font-size:10px;color:'+tc+';">'+(v>0?Math.round(v)+'h':'—')+'</td>').join('')+'<td style="font-weight:700;font-size:11px;color:'+tc+';">'+Math.round(tot)+'h</td></tr>';};
+    const _row=(label,arr,bg,tc)=>{const tot=_sum(arr);if(tot<=0)return '';return '<tr style="background:'+bg+';border-top:1px solid #e8edf3;"><td></td><td></td><td style="padding-left:22px;font-size:11px;white-space:nowrap;color:'+tc+';"><strong>'+label+'</strong></td><td colspan="2"><span style="font-size:9px;color:var(--tx3);">non-billable</span></td>'+arr.map(v=>'<td style="text-align:left;font-size:10px;color:'+tc+';">'+(v>0?Math.round(v)+'h':'—')+'</td>').join('')+'<td style="font-weight:700;font-size:11px;color:'+tc+';">'+Math.round(tot)+'h</td></tr>';};
     return _row('Annual leave',leaveA,'#fffaf2','#9a6a1a')+_row('Public holidays',holA,'#eef5ff','#1e5a9a')+_row('Management',mgmtA,'#f5f7fa','#475569');
   };
 
@@ -4839,7 +5099,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
             <td></td><td></td>
             <td style="padding-left:22px;font-size:11px;white-space:nowrap"><span style="color:var(--acc);margin-right:4px">↳</span><strong>${proj.no}</strong><span style="color:var(--tx3);margin-left:4px">${proj.name.length>20?proj.name.slice(0,19)+'…':proj.name}</span></td>
             <td colspan="2">${proj.status==='Active'?'<span class="bdg b-grn">Active</span>':'<span class="bdg b-amb">'+proj.status+'</span>'}</td>
-            ${cols.map(ci=>`<td style="text-align:center;font-size:10px;font-weight:${wHrs[ci]>0?'600':'400'};color:${wHrs[ci]>0?'var(--acc)':'var(--tx3)'}">${wHrs[ci]>0?Math.round(wHrs[ci])+'h':'—'}</td>`).join('')}
+            ${cols.map(ci=>`<td style="text-align:left;font-size:10px;font-weight:${wHrs[ci]>0?'600':'400'};color:${wHrs[ci]>0?'var(--acc)':'var(--tx3)'}">${wHrs[ci]>0?Math.round(wHrs[ci])+'h':'—'}</td>`).join('')}
             <td style="font-weight:700;color:var(--acc);font-size:11px">${Math.round(totH)}h</td></tr>`;
         }).join('');
       } else {
@@ -4850,27 +5110,31 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
             <td></td><td></td>
             <td style="padding-left:22px;font-size:11px;white-space:nowrap"><span style="color:var(--acc);margin-right:4px">↳</span><strong>${proj.no}</strong><span style="color:var(--tx3);margin-left:4px">${proj.name.length>20?proj.name.slice(0,19)+'…':proj.name}</span></td>
             <td colspan="2">${proj.status==='Active'?'<span class="bdg b-grn">Active</span>':'<span class="bdg b-amb">'+proj.status+'</span>'}</td>
-            ${cols.map(mi=>`<td style="text-align:center;font-size:10px;font-weight:${mHrs[mi]>0?'600':'400'};color:${mHrs[mi]>0?'var(--acc)':'var(--tx3)'}">${mHrs[mi]>0?Math.round(mHrs[mi])+'h':'—'}</td>`).join('')}
+            ${cols.map(mi=>`<td style="text-align:left;font-size:10px;font-weight:${mHrs[mi]>0?'600':'400'};color:${mHrs[mi]>0?'var(--acc)':'var(--tx3)'}">${mHrs[mi]>0?Math.round(mHrs[mi])+'h':'—'}</td>`).join('')}
             <td style="font-weight:700;color:var(--acc);font-size:11px">${Math.round(totH)}h</td></tr>`;
         }).join('');
       }
       projRows += _npStr;
-      const detailColHdrs=isWeekly
-        ? cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${colLabels[ci].replace(/<br>.*$/,'')}</th>`).join('')
-        : cols.map(ci=>`<th style="text-align:center;font-size:9px;color:var(--tx3);padding:5px 4px">${miLabel(base+ci)}</th>`).join('');
-      h+=`<tr id="eng-detail-${tId}-${e.id}" style="display:${isOpen?'':'none'}">
-        <td colspan="${5+cols.length+1}" style="padding:0;background:#f8fbff;border-bottom:2px solid #dbeafe;">
-          <table style="width:100%;border-collapse:collapse;">
-            <thead><tr style="background:#eff6ff">
-              <th style="width:20px"></th><th style="width:30px"></th>
-              <th style="text-align:left;padding:5px 9px;font-size:9px;color:var(--acc);text-transform:uppercase">Project</th>
-              <th colspan="2" style="font-size:9px;color:var(--tx3)">Status</th>
-              ${detailColHdrs}
-              <th style="font-size:9px;color:var(--tx3);padding:5px 8px">Total</th>
-            </tr></thead>
-            <tbody>${projRows}</tbody>
-          </table>
-        </td></tr>`;
+      // v9.3.1 — breakdown rows go STRAIGHT into the parent table instead of a
+      // nested <table> inside a colspan cell. A nested table computes its own
+      // column widths, so its week columns drifted out from under the parent's
+      // week headers (the "weeks are not aligned" bug). Inline rows share the
+      // parent column grid — alignment is structural, at every zoom and width.
+      const detAttr=`data-engdet="${tId}-${e.id}"`;
+      const detDisp=isOpen?'':'display:none;';
+      // v9.3.2 — anchor breakdown text exactly like the parent: .tbl th/td are
+      // LEFT-aligned, so centred breakdown cells read as a half-column drift.
+      const detHdrCells=isWeekly
+        ? cols.map(ci=>`<td style="text-align:left;font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;">${colLabels[ci].replace(/<br>.*$/,'')}</td>`).join('')
+        : cols.map(ci=>`<td style="text-align:left;font-size:9px;color:var(--tx3);text-transform:uppercase;letter-spacing:.04em;">${miLabel(base+ci)}</td>`).join('');
+      h+=`<tr ${detAttr} style="${detDisp}background:#eff6ff;border-top:2px solid #dbeafe;">
+        <td></td><td></td>
+        <td style="text-align:left;font-size:9px;color:var(--acc);text-transform:uppercase;letter-spacing:.04em;font-weight:700;">Project</td>
+        <td colspan="2" style="font-size:9px;color:var(--tx3);text-align:left;text-transform:uppercase;letter-spacing:.04em;">Status</td>
+        ${detHdrCells}
+        <td style="font-size:9px;color:var(--tx3);text-align:left;text-transform:uppercase;letter-spacing:.04em;font-weight:700;">Total</td></tr>`;
+      h+=projRows.replace(/<tr style="/g,`<tr ${detAttr} style="${detDisp}`);
+      h+=`<tr ${detAttr} style="${detDisp}"><td colspan="${5+cols.length+1}" style="padding:0;height:0;border-bottom:2px solid #dbeafe;"></td></tr>`;
     }
   });
   // Monthly totals — two rows: Total Util and Billable Util
@@ -4879,26 +5143,26 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     // Total utilisation row
     const totRow=cols.map(mi=>{
       const avg=sub.map(e=>(util[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
-      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#e0e7ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
+      return`<td style="text-align:left;font-weight:700;font-size:11px;background:#e0e7ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
     }).join('');
     const overallUtil=sub.reduce((a,e)=>{const u=util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
     // Billable utilisation row
     const billRow=cols.map(mi=>{
       const avg=sub.map(e=>(bu[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
-      return`<td style="text-align:center;font-weight:700;font-size:11px;background:#cffafe;color:#164e63">${avg.toFixed(0)}%</td>`;
+      return`<td style="text-align:left;font-weight:700;font-size:11px;background:#cffafe;color:#164e63">${avg.toFixed(0)}%</td>`;
     }).join('');
     const overallBill=sub.reduce((a,e)=>{const u=bu[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
     h+=`<tr style="border-top:2px solid #1e3a5f;background:#e0e7ff;">
       <td></td><td></td>
       <td colspan="3" style="padding:4px 10px;font-weight:700;font-size:11px;color:#1e3a5f">TEAM UTIL%</td>
       ${totRow}
-      <td style="text-align:center;font-weight:800;font-size:12px;color:#1e3a5f;background:#c7d2fe">${overallUtil.toFixed(1)}%</td>
+      <td style="text-align:left;font-weight:800;font-size:12px;color:#1e3a5f;background:#c7d2fe">${overallUtil.toFixed(1)}%</td>
     </tr>
     <tr style="background:#cffafe;">
       <td></td><td></td>
       <td colspan="3" style="padding:4px 10px;font-weight:700;font-size:11px;color:#164e63">BILLABLE%</td>
       ${billRow}
-      <td style="text-align:center;font-weight:800;font-size:12px;color:#164e63;background:#a5f3fc">${overallBill.toFixed(1)}%</td>
+      <td style="text-align:left;font-weight:800;font-size:12px;color:#164e63;background:#a5f3fc">${overallBill.toFixed(1)}%</td>
     </tr>`;
   }
   el.innerHTML=h+'</tbody>';
@@ -5109,7 +5373,8 @@ function computeRangeWeekly(statusFilter){
     if(!p.start)return;
     if(statusFilter&&p.status!==statusFilter)return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
-      if(!wArr||!hrs[eid])return;
+      if(!wArr)return;
+      eid=slotBase(eid); if(!hrs[eid])return; // v9.3.0 — slots roll up to the person
       wArr.forEach((h,wi)=>{
         if(!h)return;
         const wkDate=projWeekDate(p.start,wi);
@@ -5148,10 +5413,13 @@ function computeRangeWeekly(statusFilter){
       if(isJSE){
         let totalMult=0;
         S.projects.forEach(p=>{
-          const wArr=p.weeklyHrs&&p.weeklyHrs[e.id];
-          if(!wArr||!p.start)return;
-          const pwi=Math.round((wk-new Date(p.start+(p.start.length===10?'T00:00:00':'')))/(7*86400000));
-          if(pwi>=0&&pwi<wArr.length&&wArr[pwi])totalMult+=getJseMult(p,e.id);
+          if(!p.start)return;
+          Object.keys(p.weeklyHrs||{}).forEach(k=>{ // v9.3.0 — each duplicate slot adds its own multiplier
+            if(k!==e.id&&slotBase(k)!==e.id)return;
+            const wArr=p.weeklyHrs[k]; if(!wArr)return;
+            const pwi=Math.round((wk-new Date(p.start+(p.start.length===10?'T00:00:00':'')))/(7*86400000));
+            if(pwi>=0&&pwi<wArr.length&&wArr[pwi])totalMult+=getJseMult(p,k);
+          });
         });
         effCap=totalMult>0?baseCap*totalMult:baseCap;
       }
@@ -5221,7 +5489,7 @@ function renderMEP(){
     var base=statusF?S.projects.filter(function(p){return p.status===statusF;}):S.projects.slice();
     var total=S.projects.length; // denominator stays the whole company, so the ratio ring stays meaningful
     if(!window.MEP_OFF && !mepDiscActive()) return {used:base.length,total:total};
-    var used=base.filter(function(p){var wh=p.weeklyHrs||{};return all.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});}).length;
+    var used=base.filter(function(p){return all.some(function(e){return whHasFor(p,e.id);});}).length; // v9.3.0
     return {used:used,total:total};
   })();
   const _actLabel=(function(){var sf=_msf();return sf?(sf+' Projects'):'All Projects';})();
@@ -5973,7 +6241,7 @@ function renderOffice(off,pcId){
   const utilSeries=subUtil(sub,grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
   const billSeries=subUtil(sub,grainData.billUtil||grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
   const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){var eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});return Math.round(c);});
-  const offProjs=S.projects.filter(function(pp){var wh=pp.weeklyHrs||{};return sub.some(function(e){var a=wh[e.id];return Array.isArray(a)&&a.some(function(v){return v>0;});});});
+  const offProjs=S.projects.filter(function(pp){return sub.some(function(e){return whHasFor(pp,e.id);});}); // v9.3.0
   const _offStatusF=_msf();
   const offActive=offProjs.filter(function(pp){return _offStatusF?pp.status===_offStatusF:true;}).length;
   const _offActLabel=_offStatusF?(_offStatusF+' Projects'):'All Projects';
@@ -6451,7 +6719,7 @@ function renderProj(){
     const totalHrs=projTotalHrs(p);
     // mobile content pass — stacked card with real status pill + engineer count
     if(typeof isMobile==='function'&&isMobile()){
-      const wh=p.weeklyHrs||{};const _hasH=(id)=>Array.isArray(wh[id])&&wh[id].some(v=>v>0);const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const memberLabel=assignedMEP>0&&assignedBIM>0?(assignedMEP+' engineer'+(assignedMEP===1?'':'s')+' · '+assignedBIM+' BIM'):assignedBIM>0?(assignedBIM+' BIM'):(assignedMEP+' engineer'+(assignedMEP===1?'':'s'));
+      const wh=p.weeklyHrs||{};const _hasH=(id)=>whHasFor(p,id);/*v9.3.0*/const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&_hasH(e.id)).reduce((s,e)=>s+getJseMult(p,e.id),0);const memberLabel=assignedMEP>0&&assignedBIM>0?(assignedMEP+' engineer'+(assignedMEP===1?'':'s')+' · '+assignedBIM+' BIM'):assignedBIM>0?(assignedBIM+' BIM'):(assignedMEP+' engineer'+(assignedMEP===1?'':'s'));
       const sc=p.status==='Active'?'#16a34a':p.status==='On Hold'?'#d97706':'#6b7280';
       return`<div style="padding:14px 16px;border-bottom:1px solid var(--bdr);cursor:pointer;" onclick="openProjDetail('${p.id}')">
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
@@ -7005,7 +7273,7 @@ function renderProjDetail(p){
     const isProg=sIdx.length>0;
     // For header use the first stage's border colour as a strong band, or default
     const headerBg=isProg?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:'#1e3a5f';
-    return`<th style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:#fff">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
+    return`<th style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:${stageTextOn(headerBg)}">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
   }).join('');
 
   // Build stage rows HTML
@@ -7013,7 +7281,7 @@ function renderProjDetail(p){
   const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
   const isMepLead=isMepLeadFor(p.id);
   const canEditProg=adminUnlocked||isMepLead;
-  const progLocked=!canEditProg||((window._progLocked&&window._progLocked[p.id])||false);
+  const progLocked=!canEditProg||progLockState(p);
   const stageRowsHtml=p.stages.map((st,si)=>{
     const sc=stageColor(si,st);
     const isCustom=!DEFAULT_STAGES.includes(st.name);
@@ -7047,25 +7315,30 @@ function renderProjDetail(p){
       </tr>`;
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
-    return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
+    return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};" ondragover="stgDragOver(event)" ondrop="stgDrop(event,'${p.id}',${si})">
       <td style="padding:4px 6px;min-width:450px;width:450px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;">
-          <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour" 
+          <span draggable="true" ondragstart="stgDragStart(event,'${p.id}',${si})" ondragend="stgDragEnd(event)" title="Drag to reorder stages" style="cursor:grab;color:var(--tx3);font-size:13px;line-height:1;flex-shrink:0;user-select:none;padding:2px 1px;">⠿</span>
+          <span style="display:flex;flex-direction:column;gap:1px;flex-shrink:0;">
+            <button onclick="moveProjStage('${p.id}',${si},-1)" title="Move stage up" ${si===0?'disabled':''} style="border:1px solid var(--bdr);background:#fff;border-radius:3px;font-size:7px;line-height:1;padding:1px 3px;cursor:pointer;color:var(--tx2);${si===0?'opacity:.3;cursor:default;':''}">▲</button>
+            <button onclick="moveProjStage('${p.id}',${si},1)" title="Move stage down" ${si===p.stages.length-1?'disabled':''} style="border:1px solid var(--bdr);background:#fff;border-radius:3px;font-size:7px;line-height:1;padding:1px 3px;cursor:pointer;color:var(--tx2);${si===p.stages.length-1?'opacity:.3;cursor:default;':''}">▼</button>
+          </span>
+          <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour"
             style="width:22px;height:22px;border:1px solid var(--bdr);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0;background:none;"
             onchange="setProjStageColor('${p.id}',${si},this.value)">
-          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;"
+          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
             onchange="handleStageSelect('${p.id}',${si},this)">
             ${stageOptions}
             <option value="__custom__">Custom…</option>
           </select>
           <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Stage name…"
-            style="${isCustom?'':'display:none;'}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
+            style="${isCustom?'':'display:none;'}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
             onchange="setProjStageNameCustom('${p.id}',${si},this.value)"
             onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
           <input type="date" value="${st.from||''}" title="Stage start" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
           <span style="font-size:10px;color:var(--tx3);flex-shrink:0;">to</span>
           <input type="date" value="${st.to||''}" title="Stage end" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
-          ${wkBadge}
+          <input type="number" min="1" max="200" step="1" value="${stageWkCount>0?stageWkCount:''}" placeholder="wks" title="Duration in weeks — typing a number sets the To date from the From date; editing the dates recalculates this count" style="width:46px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid ${sc.bdr}66;border-radius:4px;color:${sc.bdr};font-weight:700;background:${sc.bg};flex-shrink:0;" onchange="setProjStageWeeks('${p.id}',${si},this.value)">
           <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage" style="flex-shrink:0;">&#10005;</button>
         </div>
       </td>
@@ -7162,7 +7435,7 @@ function renderProjDetail(p){
             const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
             const isMepLead=isMepLeadFor(p.id);
             const canEdit=adminUnlocked||isMepLead;
-            const locked=(window._progLocked&&window._progLocked[p.id])||false;
+            const locked=progLockState(p);
             if(!canEdit){
               return`<span style="font-size:10px;font-weight:700;padding:4px 10px;border-radius:6px;border:1px solid #f97316;background:#fff7ed;color:#9a3412;">🔒 Locked — MEP Lead only</span>`;
             }
@@ -7210,8 +7483,8 @@ function renderProjDetail(p){
         return a+hrs*getProjRate(e,p)*mult;
       },0);
       const discStats=discs.map(d=>{
-        const mepE=S.engineers.filter(e=>effDisc(e,p)===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
-        const bimE=S.engineers.filter(e=>e.subDisc===d&&e.team==='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
+        const mepE=projEngineers(p).filter(e=>effDisc(e,p)===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0)); // v9.3.0 — includes duplicate slots
+        const bimE=projEngineers(p).filter(e=>e.subDisc===d&&e.team==='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
         const mepCost=calcCost(mepE),bimCost=calcCost(bimE);
         return{d,mepCost,bimCost,totalCost:mepCost+bimCost};
       });
@@ -7276,7 +7549,7 @@ function renderProjDetail(p){
             ${(()=>{
               const total=projTotalHrs(p);
               const ff=p.feeFactor||1.0;
-              const engs=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0));
+              const engs=projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)); // v9.3.0
               const cost=engs.reduce((a,e)=>{const r=getProjRate(e,p);return a+(p.weeklyHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0)*r;},0);
               return total>0
                 ?`<div class="cost-badges" id="cfb-badges-${p.id}" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
@@ -7311,11 +7584,11 @@ function renderProjDetail(p){
           <span style="font-size:13px;">⏱</span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Team</strong>
           ${(()=>{
-            const assigned=S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
-            const assignedMEP=S.engineers.filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
-            const assignedBIM=S.engineers.filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assigned=projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0); // v9.3.0
+            const assignedMEP=projEngineers(p).filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assignedBIM=projEngineers(p).filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const totalH=projTotalHrs(p);
-            const discs=[...new Set(S.engineers.filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))];
+            const discs=[...new Set(projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))]; // v9.3.0
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
             return assigned>0
               ?`<div class="weekly-badges" id="wb-badges-${p.id}" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -7361,12 +7634,14 @@ function renderProjDetail(p){
                   }
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
-                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&!assignedIds.has(e.id)&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  // v9.3.0 — BIM/JSE members stay listed even when assigned: picking them again adds a second booking (slot)
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='',lastDisc='';
                   mepAvail.forEach(e=>{
                     if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
-                    html+=`<option value="${esc(e.id)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]</option>`;
+                    const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id; // v9.3.0
+                    html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`;
                   });
                   if(lastDisc)html+='</optgroup>';
                   if(bimAvail.length){
@@ -7374,7 +7649,8 @@ function renderProjDetail(p){
                     bimAvail.forEach(e=>{
                       const bd=e.subDisc||e.disc;
                       if(bd!==lastBimDisc){ if(lastBimDisc)html+='</optgroup>'; html+=`<optgroup label="BIM-${bd}">`; lastBimDisc=bd; }
-                      html+=`<option value="${esc(e.id)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]</option>`;
+                      const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id; // v9.3.0
+                      html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`;
                     });
                     if(lastBimDisc)html+='</optgroup>';
                   }
@@ -7438,6 +7714,58 @@ function setProjStageDate(projId,si,field,val){
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
   renderProjDetail(p);
 }
+
+// v9.3.0 — Item 8: type a week count on a stage row and the To date is derived
+// from the From date (From + N×7 − 1 days, inclusive span). The reverse direction
+// (dates → week count) already happens on every re-render via stageWkCount.
+function setProjStageWeeks(projId,si,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  const st=p.stages[si];
+  const n=Math.round(parseFloat(val)||0);
+  if(!(n>0)){renderProjDetail(p);return;} // cleared/invalid — restore display
+  if(!st.from){toast('Set the stage From date first — weeks are counted from it.');renderProjDetail(p);return;}
+  const from=new Date(st.from);
+  if(isNaN(from)){toast('Stage From date is invalid.');renderProjDetail(p);return;}
+  const to=new Date(from);to.setDate(to.getDate()+n*7-1);
+  st.to=to.toISOString().slice(0,10);
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),800);
+  renderProjDetail(p);
+}
+
+// v9.3.0 — Item 9: reorder programme stages (drag handle or ▲▼ buttons).
+// Auto colours are index-based, so before the first reorder every stage's current
+// colour is pinned onto st.color — reordering changes row order, never colours.
+function pinStageColors(p){
+  (p.stages||[]).forEach((s,i)=>{ if(!s.color)s.color=stageColor(i,s).bdr; });
+}
+function moveProjStage(projId,si,dir){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages)return;
+  const ni=si+dir;
+  if(ni<0||ni>=p.stages.length)return;
+  pinStageColors(p);
+  const[st]=p.stages.splice(si,1);
+  p.stages.splice(ni,0,st);
+  pushProj(p);renderProjDetail(p);
+}
+function stgDragStart(ev,projId,si){
+  window._stgDrag={projId,si};
+  ev.dataTransfer.effectAllowed='move';
+  try{ev.dataTransfer.setData('text/plain','stage');}catch(e){}
+}
+function stgDragOver(ev){
+  if(window._stgDrag){ev.preventDefault();ev.dataTransfer.dropEffect='move';}
+}
+function stgDrop(ev,projId,ti){
+  ev.preventDefault();
+  const d=window._stgDrag;window._stgDrag=null;
+  if(!d||d.projId!==projId||d.si===ti)return;
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages||!p.stages[d.si])return;
+  pinStageColors(p);
+  const[st]=p.stages.splice(d.si,1);
+  p.stages.splice(ti,0,st);
+  pushProj(p);renderProjDetail(p);
+}
+function stgDragEnd(ev){window._stgDrag=null;}
 
 
 function toggleSection(id, arrowId){
@@ -7566,20 +7894,27 @@ async function cycleStatus(projId){
 async function addEngineerToProject(projId,engId){
   if(!engId)return;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
-  const eng=S.engineers.find(e=>e.id===engId);if(!eng)return;
+  const eng=slotEng(engId);if(!eng)return; // v9.3.0 — engId may be a slot key ('<id>#2') for a duplicate booking
   // Discipline access check (skip for proposals)
   if(!projId.toString().startsWith('prp')){
     const canAdd=eng.team==='BIM'?isBimLead():canEditDisc(eng.disc);
     if(!canAdd){toast('⛔ You can only add engineers from your own discipline.');return;}
   }
   if(!p.weeklyHrs)p.weeklyHrs={};
+  if(isSlotKey(engId)&&!canDupBook(eng)){toast('Duplicate booking is only available for BIM members and JSE crews.');return;}
+  if(p.weeklyHrs[engId]&&p.weeklyHrs[engId].some(v=>v>0)){toast('Already on this project — use the ⊕ add again entry for a second booking.');return;}
   const weeks=stageWeeks(p.start,p.end);
   // Initialise with a placeholder 1 in the first week so the row shows up
   // (since "assigned" is defined as having at least one non-zero week)
   p.weeklyHrs[engId]=new Array(weeks.length).fill(0);
   p.weeklyHrs[engId][0]=1;
+  if(isSlotKey(engId)){ // v9.3.0 — seed a default scope tag; persisted via pushProj
+    if(!p.slotTags)p.slotTags={};
+    if(!p.slotTags[engId])p.slotTags[engId]='Scope '+slotNo(engId);
+    if(!projId.toString().startsWith('prp'))pushProj(p);
+  }
   renderProjDetail(p);
-  toast(`Added ${eng.name.split(' ').slice(0,2).join(' ')} — set hours per week`);
+  toast(isSlotKey(engId)?`Added ${eng.name} — extra booking; set hours and rename its scope tag`:`Added ${eng.name.split(' ').slice(0,2).join(' ')} — set hours per week`);
   // Persist membership immediately. Hours live in the project_hours table, and
   // pushProj() strips weeklyHrs before saving the project row — so relying on it
   // here writes the placeholder to nothing and the row vanishes on reload. Write
@@ -7597,7 +7932,7 @@ async function addEngineerToProject(projId,engId){
 async function setBookDisc(projId,engId,val){
   const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
   if(!p)return;
-  const eng=S.engineers.find(e=>e.id===engId);
+  const eng=slotEng(engId); // v9.3.0 — duplicate-slot rows book independently
   // Permission backstop: same gate as the rest of the row — only admin or the
   // lead of this person's home discipline may re-book them.
   if(!eng||!(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))){
@@ -7616,8 +7951,8 @@ async function setBookDisc(projId,engId,val){
 // Remove an engineer from the project (clears their hours so they no longer show as assigned)
 async function removeEngineerFromProject(projId,engId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
-  const eng=S.engineers.find(e=>e.id===engId);
-  const shortName=eng?eng.name.split(' ').slice(0,2).join(' '):'engineer';
+  const eng=slotEng(engId); // v9.3.0 — resolves duplicate-slot keys
+  const shortName=eng?(eng._slotOf?eng.name:eng.name.split(' ').slice(0,2).join(' ')):'engineer';
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
     const disc=eng?(eng.team==='BIM'?'BIM':eng.disc):'';
@@ -7628,6 +7963,12 @@ async function removeEngineerFromProject(projId,engId){
   if(p.weeklyHrs&&p.weeklyHrs[engId]){
     delete p.weeklyHrs[engId];
   }
+  // v9.3.0 — clear this booking's per-project metadata so nothing lingers
+  let _metaDirty=false;
+  ['slotTags','bookDisc','rateOverrides','jseMultiplier'].forEach(fld=>{
+    if(p[fld]&&p[fld][engId]!=null){ delete p[fld][engId]; _metaDirty=true; }
+  });
+  if(_metaDirty&&!projId.toString().startsWith('prp'))pushProj(p);
   renderProjDetail(p); // reflect the removal immediately
   const isProp=projId.toString().startsWith('prp');
   try{
@@ -7649,17 +7990,33 @@ async function removeEngineerFromProject(projId,engId){
 }
 // Distinct visible colours for programme stages — soft tinted backgrounds + darker borders
 const STAGE_COLORS=[
-  {bg:'#fef3c7', bdr:'#f59e0b', name:'amber'},   // amber
-  {bg:'#dbeafe', bdr:'#3b82f6', name:'blue'},    // blue
-  {bg:'#fce7f3', bdr:'#ec4899', name:'pink'},    // pink
-  {bg:'#e0e7ff', bdr:'#6366f1', name:'indigo'},  // indigo
-  {bg:'#d1fae5', bdr:'#10b981', name:'green'},   // green (light, distinct from assigned-cell green)
-  {bg:'#ffedd5', bdr:'#f97316', name:'orange'},  // orange
-  {bg:'#f3e8ff', bdr:'#a855f7', name:'purple'},  // purple
-  {bg:'#cffafe', bdr:'#06b6d4', name:'cyan'},    // cyan
-  {bg:'#fee2e2', bdr:'#ef4444', name:'red'},     // red
-  {bg:'#fef9c3', bdr:'#eab308', name:'yellow'},  // yellow
+  {bg:'#fef3c7', bdr:'#f59e0b', name:'amber'},
+  {bg:'#dbeafe', bdr:'#3b82f6', name:'blue'},
+  {bg:'#fee2e2', bdr:'#ef4444', name:'red'},
+  {bg:'#d1fae5', bdr:'#10b981', name:'emerald'},
+  {bg:'#fce7f3', bdr:'#ec4899', name:'pink'},
+  {bg:'#ffedd5', bdr:'#f97316', name:'orange'},
+  {bg:'#e0e7ff', bdr:'#6366f1', name:'indigo'},
+  {bg:'#ccfbf1', bdr:'#14b8a6', name:'teal'},
+  {bg:'#f3e8ff', bdr:'#a855f7', name:'purple'},
+  {bg:'#ecfccb', bdr:'#84cc16', name:'lime'},
+  {bg:'#fef9c3', bdr:'#eab308', name:'yellow'},
+  {bg:'#ffe4e6', bdr:'#f43f5e', name:'rose'},
+  {bg:'#e7f5d9', bdr:'#4d7c0f', name:'olive'},
+  {bg:'#fdf2e9', bdr:'#c2410c', name:'burnt-orange'},
 ];
+// v9.3.0 — Item 7: contrast helpers. Relative luminance of a hex colour, and the
+// readable text colour (dark slate vs white) for an arbitrary stage background —
+// keeps labels legible across all 14 palette colours AND custom colour overrides.
+function hexLum(h){
+  try{
+    h=String(h||'').replace('#','');
+    if(h.length===3)h=h.split('').map(c=>c+c).join('');
+    const r=parseInt(h.slice(0,2),16)/255,g=parseInt(h.slice(2,4),16)/255,b=parseInt(h.slice(4,6),16)/255;
+    return .2126*r+.7152*g+.0722*b;
+  }catch(e){return 0;}
+}
+function stageTextOn(bg){ return hexLum(bg)>.62?'#1e293b':'#ffffff'; }
 function stageColor(si, st){
   // If the stage has a manual colour override, derive bg (lighter tint) and bdr from it
   if(st && st.color){
@@ -8063,7 +8420,7 @@ function renderJseDemandPanel(projectFilter){
     projects.forEach(p=>{
       const wh=p.weeklyHrs||{};
       const pWeeks=stageWeeks(p.start,p.end);
-      (wh[jse.id]||[]).forEach((h,wi)=>{
+      whArrFor(p,jse.id).forEach((h,wi)=>{ // v9.3.0 — includes duplicate-slot bookings
         if(!h||!pWeeks[wi]) return;
         const t=pWeeks[wi].getTime();
         discWeekHrs[disc][t]=(discWeekHrs[disc][t]||0)+h;
@@ -8171,15 +8528,27 @@ function getMepLeadName(email){
   return email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
 }
 
+// v9.3.0 — programme lock state: persisted on the project (p.progLocked, saved via
+// pushProj so it survives reloads and is visible to every user). Falls back to the
+// legacy per-session window._progLocked flag for projects saved before v9.3.0.
+function progLockState(p){
+  if(!p)return false;
+  if(typeof p.progLocked==='boolean')return p.progLocked;
+  return (window._progLocked&&window._progLocked[p.id])||false;
+}
 function toggleProgLock(projId){
   const p=S.projects.find(x=>x.id===projId);
   const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
   const isMepLead=isMepLeadFor(projId);
   if(!adminUnlocked&&!isMepLead){toast('🔒 Only MEP Lead or Admin can lock/unlock the programme.');return;}
+  if(!p){toast('Project not found');return;}
+  p.progLocked=!progLockState(p);
+  // Mirror to the legacy flag so any stale readers stay consistent this session
   window._progLocked = window._progLocked || {};
-  window._progLocked[projId] = !window._progLocked[projId];
-  if(p) renderProjDetail(p);
-  toast(window._progLocked[projId] ? '🔒 Programme locked' : '🔓 Programme unlocked');
+  window._progLocked[projId] = p.progLocked;
+  pushProj(p); // persist — other users see the lock after their next refresh/poll
+  renderProjDetail(p);
+  toast(p.progLocked ? '🔒 Programme locked' : '🔓 Programme unlocked');
 }
 
 // Set KPI view mode for a project detail page: 'combined' | 'mep' | 'bim'
@@ -8223,7 +8592,7 @@ function renderProjCard(p, mode){
   // (Director / Technical Director), because that column holds their per-project
   // booked-discipline picker. Normal projects are unchanged.
   const hasCrossDisc = Object.keys(wh).some(id=>{
-    const e=S.engineers.find(x=>x.id===id);
+    const e=slotEng(id); // v9.3.0
     return e && e.crossDisc && (wh[id]||[]).some(v=>v>0);
   });
   const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : new Set(hasCrossDisc?[0,3]:[0,1,3]);
@@ -8286,7 +8655,7 @@ function renderProjCard(p, mode){
   const wkHdrs=weeks.map((w,wi)=>{
     const sIdx=stageMap.get(wi)||[];
     const headerBg=sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f';
-    return`<th style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:#fff;padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
+    return`<th style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
   }).join('');
 
   // ── Month header row HTML
@@ -8304,7 +8673,7 @@ function renderProjCard(p, mode){
   discs.forEach(disc=>{
     // Grade seniority order — derived live from GRADES so custom/renamed tiers sort correctly
     const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
-    const mepEngs=S.engineers
+    const mepEngs=projEngineers(p) // v9.3.0 — slot clones give each booking its own row
       .filter(e=>e.team!=='BIM'&&effDisc(e,p)===disc)
       .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
       .sort((a,b)=>{
@@ -8314,7 +8683,7 @@ function renderProjCard(p, mode){
         if((a.off||'DXB')!==(b.off||'DXB'))return (a.off||'DXB')==='DXB'?-1:1;
         return a.name.localeCompare(b.name);
       });
-    const bimEngs=S.engineers
+    const bimEngs=projEngineers(p) // v9.3.0
       .filter(e=>(((p.bookDisc&&p.bookDisc[e.id])||e.subDisc)===disc)&&e.team==='BIM')
       .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
       .sort((a,b)=>a.name.localeCompare(b.name));
@@ -8406,14 +8775,17 @@ function renderProjCard(p, mode){
       const jseMult_html=isJSE
         ? `<span style="font-size:9px;color:#0f766e;font-weight:600;margin-left:4px;">×<input type="number" min="1" max="50" step="1" value="${jseMult}" title="JSE multiplier — number of JSE heads assigned" oninput="setJseMult('${p.id}','${eng.id}',this.value)" style="width:28px;text-align:center;font-size:11px;padding:1px 2px;border:1px solid #5eead4;border-radius:3px;background:#f0fdfa;color:#0f766e;font-weight:700;"></span>`
         : '';
-      const nameDisplay=eng.name.split(' ').slice(0,2).join(' ')+(isBIM?` <span style="font-size:8px;color:#0f766e;background:#ccfbf1;padding:1px 4px;border-radius:3px;">BIM</span>`:'');
+      const _baseShort=String(eng.name).replace(/\s*\(\d+\)$/,'').split(' ').slice(0,2).join(' ');
+      const nameDisplay=_baseShort+(eng._slotOf?` <span style="font-size:8px;color:#7c3aed;background:#ede9fe;padding:1px 4px;border-radius:3px;font-weight:700;" title="Additional booking of the same person on this project">⊕${eng._slotNo}</span>`:'')+(isBIM?` <span style="font-size:8px;color:#0f766e;background:#ccfbf1;padding:1px 4px;border-radius:3px;">BIM</span>`:'');
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
         <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
-        <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng.desig||''}">${eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')}</td>
+        <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${eng._slotOf
+          ?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`
+          :(eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—'))}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
         <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${MONEY_HIDDEN?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
         <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="Fee = Cost × ${ff.toFixed(2)}">${engFee>0?fN(Math.round(engFee)):'-'}</td>
@@ -8426,7 +8798,7 @@ function renderProjCard(p, mode){
         </td>`:''}
         ${weeks.map((wk,wi)=>{const v=engHrs[wi]||'';
           const gWI=Math.round((wk-new Date(G_ANCHOR_STR))/(7*24*3600*1000));
-          const lv=(S.leaveHrs[eng.id]&&gWI>=0)?S.leaveHrs[eng.id][gWI]||0:0;
+          const lv=(S.leaveHrs[slotBase(eng.id)]&&gWI>=0)?S.leaveHrs[slotBase(eng.id)][gWI]||0:0; /* v9.3.0 — leave is per person, shades every slot row */
           const cap=eng.cap||45;
           const wkStr=wk.toISOString().slice(0,10);
           const hv=holMap[wkStr]||0;
@@ -8575,7 +8947,7 @@ function toggleProj(id,event){
 function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
-    const eng=S.engineers.find(e=>e.id===engId);
+    const eng=slotEng(engId); // v9.3.0 — engId may be a duplicate-slot key ('<id>#2')
     const disc=eng?(eng.team==='BIM'?'BIM':eng.disc):'';
     if(!canEditDisc(disc)){
       inputEl.value=inputEl.defaultValue||'';
@@ -8831,7 +9203,9 @@ async function pushHourRow(projId,engId,wkIdx,hours){
     const prop=(S.proposals||[]).find(x=>x.id===projId);
     if(!prop){setSyncStatus(false,'Proposal not found');return;}
     clearTimeout(window._propSaveTimer);
+    window._propPendingId=prop.id; // v9.3.0 — lets saveAllNow() flush this debounce immediately
     window._propSaveTimer=setTimeout(async()=>{
+      window._propSaveTimer=null; window._propPendingId=null; // debounce fired — clear so saveAllNow() sees a clean state (v9.3.0)
       try{
         // Strip virtual flags before save
         const cleanProp=JSON.parse(JSON.stringify(prop));
@@ -8848,7 +9222,7 @@ async function pushHourRow(projId,engId,wkIdx,hours){
         {project_id:projId,engineer_id:engId,week_index:wkIdx,hours:hours},
         'resolution=merge-duplicates,return=representation');
     } else {
-      await sbFetch('project_hours?project_id=eq.'+projId+'&engineer_id=eq.'+engId+'&week_index=eq.'+wkIdx,'DELETE');
+      await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&engineer_id=eq.'+encodeURIComponent(engId)+'&week_index=eq.'+wkIdx,'DELETE'); // v9.3.0 — slot keys contain '#', must be encoded
     }
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
   }catch(e){
@@ -8932,7 +9306,7 @@ function updateProjCardTotals(p){
   const weeks=stageWeeks(p.start,p.end);
 
   // Update each engineer's total cells
-  S.engineers.forEach(eng=>{
+  projEngineers(p).forEach(eng=>{ // v9.3.0
     const engHrs=(wh[eng.id]||[]).reduce((a,b)=>a+(b||0),0);
     const jseMult=getJseMult(p,eng.id);
     const projRate=getProjRate(eng,p);
@@ -9307,8 +9681,10 @@ async function delEng(id){
     // Cascade: delete this engineer's hours everywhere, so they don't linger
     // as invisible "ghost" hours that still count toward project totals.
     await sbFetch('project_hours?engineer_id=eq.'+encodeURIComponent(id),'DELETE');
+    // v9.3.0 — also remove any duplicate-slot rows ('<id>#2', '<id>#3', …)
+    await sbFetch('project_hours?engineer_id=like.'+encodeURIComponent(id+'#')+'*','DELETE');
   }catch(e){console.error('delEng cascade failed:',e);saveLocal();}
-  (S._allProjects||S.projects||[]).forEach(p=>{if(p.weeklyHrs&&p.weeklyHrs[id])delete p.weeklyHrs[id];});
+  (S._allProjects||S.projects||[]).forEach(p=>{ if(!p.weeklyHrs)return; Object.keys(p.weeklyHrs).forEach(k=>{ if(k===id||slotBase(k)===id)delete p.weeklyHrs[k]; }); });
   invalidate('team');updSB();toast('Removed');
 }
 
@@ -9706,6 +10082,29 @@ function mgmtYearSwitcherHTML(){
   </div>`;
 }
 
+function exportLeaveXLSX(){
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded — please refresh.');return;}
+  const yr=window.leaveYear||new Date().getFullYear();
+  const weeks=globalWeeks(yr);
+  const wb=XLSX.utils.book_new();
+  const addSheet=(engs,sheetName)=>{
+    const hdr=['Name','Discipline','Office','Total Hrs'].concat(weeks.map(w=>'W'+wkNum(w)+' '+wkLabel(w)));
+    const rows=[hdr];
+    engs.forEach(e=>{
+      const arr=S.leaveHrs[e.id]||[];
+      const wkHrs=weeks.map(w=>{const gi=w.gwi;return arr[gi]||0;});
+      const tot=wkHrs.reduce((a,b)=>a+b,0);
+      if(!tot)return; // skip people with no leave
+      rows.push([e.name||'',e.team==='BIM'?(e.subDisc||e.disc||'BIM'):(e.disc||''),e.office||'',tot].concat(wkHrs.map(h=>h||'')));
+    });
+    const ws=XLSX.utils.aoa_to_sheet(rows);
+    ws['!cols']=[{wch:28},{wch:8},{wch:6},{wch:10}].concat(weeks.map(()=>({wch:11})));
+    XLSX.utils.book_append_sheet(wb,ws,sheetName);
+  };
+  addSheet(S.engineers.filter(e=>e.team!=='BIM'),'MEP Engineers');
+  addSheet(S.engineers.filter(e=>e.team==='BIM'),'BIM Team');
+  XLSX.writeFile(wb,'Annual_Leave_'+yr+'.xlsx');
+}
 function renderLeave(){
   const el=document.getElementById('pc-leave');
   if(!el)return;
@@ -9736,9 +10135,11 @@ function renderLeave(){
       <span style="font-size:10px;color:var(--tx3);margin-left:6px;">Showing ${weeks.length} weeks in ${window.leaveYear}</span>
     </div>
     <!-- Tabs -->
-    <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--bdr);">
+    <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--bdr);align-items:center;">
       <button onclick="switchLeaveTab('engineers')" id="leave-tab-engineers" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid ${activeTab==='engineers'?'#f59e0b':'transparent'};background:${activeTab==='engineers'?'#fefce8':'transparent'};color:${activeTab==='engineers'?'#78350f':'var(--tx2)'};cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">Engineers (${mepEngs.length})</button>
       <button onclick="switchLeaveTab('bim')" id="leave-tab-bim" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid ${activeTab==='bim'?'#0d9488':'transparent'};background:${activeTab==='bim'?'#f0fdfa':'transparent'};color:${activeTab==='bim'?'#0f766e':'var(--tx2)'};cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">BIM (${bimEngs.length})</button>
+      <div style="flex:1;"></div>
+      <button onclick="exportLeaveXLSX()" style="padding:6px 14px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">⬇ Export Leave</button>
     </div>
     <div id="leave-grid"></div>`;
 
@@ -10851,6 +11252,8 @@ function downloadImportTemplate(projId){
   const hdr=['Employee'].concat(weeks.map(w=>_impIso(w)));
   const hrRows=[hdr];
   Object.keys(wh).forEach(engId=>{
+    // v9.3.0 — duplicate-slot rows are intentionally NOT exported: the import
+    // round-trip matches by engineer name, so extra bookings are managed in-app only.
     const e=S.engineers.find(x=>x.id===engId); if(!e)return;
     const arr=wh[engId]||[];
     hrRows.push([e.name].concat(weeks.map((w,wi)=>{const v=arr[wi]||0;return v||'';})));
@@ -11011,9 +11414,9 @@ function exportStageSummary(projId){
   // Build list of assigned engineers per disc (one row per engineer)
   const discData=DISCS.map(disc=>{
     const engs=(disc==='BIM'
-      ? S.engineers.filter(e=>e.team==='BIM')
-      : S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM')
-    ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
+      ? projEngineers(p).filter(e=>e.team==='BIM')
+      : projEngineers(p).filter(e=>e.disc===disc&&e.team!=='BIM')
+    ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)) /* v9.3.0 — slot rows export as their own lines */
      .sort((a,b)=>{const ga=GO2[a.grade]||99,gb=GO2[b.grade]||99;if(ga!==gb)return ga-gb;return a.name.localeCompare(b.name);});
     if(!engs.length)return null;
     return{disc,engs};
@@ -11531,9 +11934,9 @@ function exportExcel(opts){
       MEP_DISCS_BIM.forEach(disc=>{
         const isBIM=disc==='BIM';
         const discEngs=(isBIM
-          ? all.filter(e=>e.team==='BIM')
-          : all.filter(e=>e.disc===disc&&e.team!=='BIM')
-        ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
+          ? projEngineers(p).filter(e=>e.team==='BIM')
+          : projEngineers(p).filter(e=>e.disc===disc&&e.team!=='BIM')
+        ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)) /* v9.3.0 — slot rows export as their own lines */
          .sort((a,b)=>{const ga=GO[a.grade]||99;const gb=GO[b.grade]||99;if(ga!==gb)return ga-gb;if((a.off||'DXB')!==(b.off||'DXB'))return(a.off||'DXB')==='DXB'?-1:1;return a.name.localeCompare(b.name);});
         if(!discEngs.length)return;
 
@@ -11673,12 +12076,12 @@ function exportExcel(opts){
         const wh=p.weeklyHrs||{};const ff=p.feeFactor||1.0;
         const engC=Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)).length;
         let tH=0,tC=0;
-        Object.entries(wh).forEach(([eid,arr])=>{if(!arr)return;const eng=all.find(e=>e.id===eid);const r=eng?getProjRate(eng,p):0;const h=arr.reduce((a,b)=>a+(b||0),0);tH+=h;tC+=h*r;});
+        Object.entries(wh).forEach(([eid,arr])=>{if(!arr)return;const eng=all.find(e=>e.id===slotBase(eid));/*v9.3.0*/const r=eng?getProjRate(eng,p):0;const h=arr.reduce((a,b)=>a+(b||0),0);tH+=h;tC+=h*r;});
         rows.push([p.no||p.id,p.name,p.status||'Active',p.start||'',p.end||'',engC,tH,Math.round(tC),ff,Math.round(tC*ff)]);
       });
 
       let sH=0,sC=0,sF=0;
-      S.projects.filter(p=>!selectedProjectIds||selectedProjectIds.includes(p.id)).forEach(p=>{const wh=p.weeklyHrs||{};const ff=p.feeFactor||1.0;Object.entries(wh).forEach(([eid,arr])=>{if(!arr)return;const eng=all.find(e=>e.id===eid);const r=eng?getProjRate(eng,p):0;const h=arr.reduce((a,b)=>a+(b||0),0);sH+=h;sC+=h*r;sF+=h*r*ff;});});
+      S.projects.filter(p=>!selectedProjectIds||selectedProjectIds.includes(p.id)).forEach(p=>{const wh=p.weeklyHrs||{};const ff=p.feeFactor||1.0;Object.entries(wh).forEach(([eid,arr])=>{if(!arr)return;const eng=all.find(e=>e.id===slotBase(eid));/*v9.3.0*/const r=eng?getProjRate(eng,p):0;const h=arr.reduce((a,b)=>a+(b||0),0);sH+=h;sC+=h*r;sF+=h*r*ff;});});
       rows.push(['','TOTAL','','','','',sH,Math.round(sC),'',Math.round(sF)]);
 
       const ws=XLSX.utils.aoa_to_sheet(rows);
@@ -11862,13 +12265,81 @@ function loadBIMSeedData(){
   <div id="weekly-fs-content"></div>
 </div>
 <script>
+// ═══════════════════════════════════════
+// v9.3.0 — Item 4: "New version available" toast.
+// Two complementary detectors:
+//   1. SW lifecycle — if sw.js installs an updated worker, prompt immediately.
+//   2. Version poll — every 5 min (and on tab focus) the deployed index.html is
+//      fetched with cache:no-store + the app's X-Bypass-SW header (sw.js already
+//      honours it) and its APP_VER compared to the running copy. Robust even if
+//      the service worker caches aggressively or isn't controlling the page.
+// Tapping the pill activates a waiting worker (if any) and reloads.
+// ═══════════════════════════════════════
+let _swReg=null;
 if('serviceWorker' in navigator){
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('/sw.js')
-      .then(r=>console.log('SW registered',r.scope))
+      .then(r=>{
+        _swReg=r;
+        console.log('SW registered',r.scope);
+        if(r.waiting&&navigator.serviceWorker.controller)showUpdateToast(); // update already waiting
+        r.addEventListener('updatefound',()=>{
+          const nw=r.installing;
+          if(!nw)return;
+          nw.addEventListener('statechange',()=>{
+            if(nw.state==='installed'&&navigator.serviceWorker.controller)showUpdateToast();
+          });
+        });
+      })
       .catch(e=>console.log('SW failed',e));
   });
 }
+function showUpdateToast(ver){
+  if(document.getElementById('upd-toast'))return;
+  const el=document.createElement('div');
+  el.id='upd-toast';
+  el.style.cssText='position:fixed;left:50%;bottom:22px;transform:translateX(-50%);z-index:100000;background:#0f172a;color:#fff;font-size:12px;font-weight:700;padding:10px 18px;border-radius:24px;cursor:pointer;box-shadow:0 8px 24px rgba(0,0,0,.35);display:flex;align-items:center;gap:8px;font-family:inherit;';
+  el.innerHTML='⬆ New version'+(ver?' v'+ver:'')+' available — tap to refresh';
+  el.onclick=applyAppUpdate;
+  document.body.appendChild(el);
+}
+function applyAppUpdate(){
+  try{
+    const w=_swReg&&_swReg.waiting;
+    if(w){
+      // Ask the waiting worker to take over, reload when it does.
+      let reloaded=false;
+      navigator.serviceWorker.addEventListener('controllerchange',()=>{ if(!reloaded){reloaded=true;location.reload();} });
+      try{ w.postMessage({type:'SKIP_WAITING'}); }catch(e){}
+      try{ w.postMessage('SKIP_WAITING'); }catch(e){}
+      // Fallback if sw.js doesn't handle the message
+      setTimeout(()=>{ if(!reloaded)location.reload(); },1200);
+      return;
+    }
+  }catch(e){}
+  location.reload();
+}
+function _verGt(a,b){
+  const A=String(a).split('.').map(Number),B=String(b).split('.').map(Number);
+  for(let i=0;i<Math.max(A.length,B.length);i++){
+    const x=A[i]||0,y=B[i]||0;
+    if(x>y)return true; if(x<y)return false;
+  }
+  return false;
+}
+async function checkForNewVersion(){
+  if(!/^https?:$/.test(location.protocol))return; // Capacitor/file builds: SW hook still applies, polling doesn't
+  try{
+    if(_swReg&&_swReg.update)_swReg.update().catch(()=>{}); // nudge the SW check too
+    const r=await fetch(location.pathname+'?_vchk='+Date.now(),{cache:'no-store',headers:{'X-Bypass-SW':'1'}});
+    if(!r.ok)return;
+    const txt=await r.text();
+    const m=txt.match(/APP_VER\s*=\s*'([0-9][0-9.]*)'/);
+    if(m&&_verGt(m[1],APP_VER))showUpdateToast(m[1]);
+  }catch(e){/* offline / transient — silent */}
+}
+setInterval(checkForNewVersion,5*60*1000);
+document.addEventListener('visibilitychange',()=>{ if(document.visibilityState==='visible')setTimeout(checkForNewVersion,1500); });
 </script>
 
 <!-- AI ASSISTANT -->
@@ -12044,7 +12515,7 @@ function aiSnapshot(){
   });
   var projs=(S.projects||[]).map(function(p){
     var heads=0,tot=0;
-    (S.engineers||[]).forEach(function(e){var wh=p.weeklyHrs&&p.weeklyHrs[e.id];if(wh){var t=wh.reduce(function(a,b){return a+(b||0);},0);if(t>0){heads++;tot+=t;}}});
+    (S.engineers||[]).forEach(function(e){var wh=whArrFor(p,e.id);if(wh.length){var t=wh.reduce(function(a,b){return a+(b||0);},0);if(t>0){heads++;tot+=t;}}});/*v9.3.0*/
     return {no:p.no,name:p.name,status:p.status,client:p.client||'',mepLead:(p.mepLeadEmail&&typeof getMepLeadName==='function')?getMepLeadName(p.mepLeadEmail):'',heads:heads,hrs:Math.round(tot)};
   });
   function avgBy(fn){var g={};engs.forEach(function(e){var k=fn(e);if(!k)return;(g[k]=g[k]||[]).push(e.avg);});var o={};for(var k in g)o[k]=Math.round(g[k].reduce(function(a,b){return a+b;},0)/g[k].length);return o;}
@@ -12179,8 +12650,8 @@ function aiAnalyseRisks(){
   activeProjects.forEach(p=>{
     const assigned=[];
     S.engineers.forEach(e=>{
-      const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
-      if(wh&&wh.reduce((a,b)=>a+b,0)>0)assigned.push(e.name);
+      const wh=whArrFor(p,e.id); // v9.3.0
+      if(wh.reduce((a,b)=>a+(b||0),0)>0)assigned.push(e.name);
     });
     if(assigned.length===1){
       risks.push({type:'warn',icon:'⚠️',title:'Single-person dependency',desc:p.name+' only has '+assigned[0]+' allocated. No backup if they\'re unavailable.'});
@@ -12203,8 +12674,8 @@ function aiAnalyseRisks(){
   S.engineers.filter(e=>e.team!=='BIM').forEach(e=>{
     let totalForecast=0;
     activeProjects.forEach(p=>{
-      const wh=p.weeklyHrs&&p.weeklyHrs[e.id];
-      if(wh)totalForecast+=wh.reduce((a,b)=>a+b,0);
+      const wh=whArrFor(p,e.id); // v9.3.0
+      totalForecast+=wh.reduce((a,b)=>a+(b||0),0);
     });
     if(totalForecast===0)zeroEngineers.push(e.name);
   });
@@ -12391,11 +12862,16 @@ const _origNav=typeof nav==='function'?nav:null;
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
     var alloc=[],allocOut=[];
     (S.projects||[]).forEach(function(p){
-      var w=p.weeklyHrs&&p.weeklyHrs[id]; if(!w||!p.start)return;
-      var h=0,hOut=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)h+=hh; else hOut+=hh; });
-      var nm=(p.no?p.no+' · ':'')+(p.name||'Project');
-      if(h>0)alloc.push({name:nm,hrs:h});
-      else if(hOut>0)allocOut.push({name:nm,hrs:hOut}); // allocated, but not in the selected range
+      if(!p.start)return;
+      Object.keys(p.weeklyHrs||{}).forEach(function(k){ // v9.3.0 — one line per booking, tagged
+        if(k!==id&&slotBase(k)!==id)return;
+        var w=p.weeklyHrs[k]; if(!w)return;
+        var h=0,hOut=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)h+=hh; else hOut+=hh; });
+        var tg=(p.slotTags&&p.slotTags[k])||(slotNo(k)>1?'booking '+slotNo(k):'');
+        var nm=(p.no?p.no+' · ':'')+(p.name||'Project')+(tg?' — '+tg:'');
+        if(h>0)alloc.push({name:nm,hrs:h});
+        else if(hOut>0)allocOut.push({name:nm,hrs:hOut}); // allocated, but not in the selected range
+      });
     });
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
     allocOut.sort(function(a,b){return b.hrs-a.hrs;});
@@ -12499,7 +12975,7 @@ const _origNav=typeof nav==='function'?nav:null;
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
 
     var alloc=[],allocOut=[];
-    (S.projects||[]).forEach(function(p){var w=p.weeklyHrs&&p.weeklyHrs[e.id];if(!w||!p.start)return;var hh=0,ho=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;else ho+=v;});var nm=(p.no?p.no+' · ':'')+(p.name||'Project');if(hh>0)alloc.push({name:nm,hrs:hh});else if(ho>0)allocOut.push({name:nm,hrs:ho});});
+    (S.projects||[]).forEach(function(p){var w=whArrFor(p,e.id);if(!w.length||!p.start)return;/*v9.3.0*/var hh=0,ho=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;else ho+=v;});var nm=(p.no?p.no+' · ':'')+(p.name||'Project');if(hh>0)alloc.push({name:nm,hrs:hh});else if(ho>0)allocOut.push({name:nm,hrs:ho});});
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
     allocOut.sort(function(a,b){return b.hrs-a.hrs;});
     var _wk=0;for(var i=0;i<NM;i++)_wk+=wpmFor(r.minMI+i);var capHrs=(e.cap||45)*_wk;
