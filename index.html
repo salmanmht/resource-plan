@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.7.1 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.7.2 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -970,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.7.1 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.7.2 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3772,12 +3772,13 @@ const ValueLabelsPlugin={id:'valueLabels',afterDatasetsDraw(chart){
     if(!meta||meta.hidden)return;
     (meta.data||[]).forEach((pt,i)=>{
       const v=(ds.data||[])[i]; if(v==null||!pt)return;
-      ctx.font='700 10px -apple-system,"Segoe UI",Roboto,sans-serif';
+      const compact=!!o.compact; // weekly grain: smaller labels, tighter offsets
+      ctx.font=compact?'700 8.5px -apple-system,"Segoe UI",Roboto,sans-serif':'700 10px -apple-system,"Segoe UI",Roboto,sans-serif';
       ctx.fillStyle=(typeof ds.borderColor==='string'?ds.borderColor:'#334155');
       ctx.textAlign='center';
       const above=di===0;
       ctx.textBaseline=above?'bottom':'top';
-      ctx.fillText(Math.round(v)+'%',pt.x,above?pt.y-7:pt.y+8);
+      ctx.fillText(Math.round(v)+'%',pt.x,above?pt.y-(compact?5:7):pt.y+(compact?6:8));
     });
   });
   ctx.restore();
@@ -5783,7 +5784,7 @@ function renderMEP(){
   mkChart('c-mep-bill','line',chartLabels,[
     {label:'Total Utilisation',data:chartUtil,borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:GRAIN==='week'?2:4},
     {label:'Billable Utilisation',data:chartBill,borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:GRAIN==='week'?2:4,borderDash:[6,3]}
-  ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}},valueLabels:{display:GRAIN!=='week'}},extra:{layout:{padding:{top:16}}}});
+  ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}},valueLabels:{display:true,compact:GRAIN==='week'}},extra:{layout:{padding:{top:16}}}});
   // Heatmap uses grain-aware data (weekly or monthly) — split MEP vs BIM, sorted by avg util desc
   function sortByAvgUtil(engList, utilObj, cols){
     return [...engList].sort((a,b)=>{
