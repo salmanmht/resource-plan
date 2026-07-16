@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.6.1 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.7.1 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -970,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.6.1 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.7.1 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -8568,6 +8568,18 @@ function jseMonthPeakHeads(e,miAbs,statusFilter){
   Object.values(wkSum).forEach(h=>{const hd=Math.ceil(h/_jc); if(hd>pk)pk=hd;});
   return pk;
 }
+// v9.7.0 — full-week leave lock: true when the engineer's annual leave in the
+// calendar week of (project, week-index) meets/exceeds their weekly capacity.
+function isOnFullLeave(engKey,proj,wi){
+  try{
+    const e=slotEng(engKey)||S.engineers.find(x=>x.id===slotBase(engKey));
+    if(!e||!proj||!proj.start)return false;
+    const arr=(S.leaveHrs&&S.leaveHrs[e.id])||[];
+    if(!arr.length)return false;
+    const gwi=globalWI(projWeekDate(proj.start,wi));
+    return (arr[gwi]||0)>=(e.cap||45);
+  }catch(err){return false;}
+}
 // Per-project member count contribution: JSE rows count their peak derived heads, others 1.
 function memberHeads(p,engKey){
   const e=S.engineers.find(x=>x.id===slotBase(engKey));
@@ -9023,7 +9035,9 @@ function renderProjCard(p, mode){
           const stageNames=(stageMap.get(wi)||[]).map(si=>(p.stages[si]&&p.stages[si].name)||`Stage ${si+1}`).join(' + ');
           const ttip=lv?`Leave: ${lv}h`:hv?`Holiday: ${hv}h`:stageNames?`Stage: ${stageNames}`:'';
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${ttip}"><input type="number" min="0" max="70" placeholder="" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"'} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${v?'#dcfce7':'transparent'};${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;'}"></td>`;}).join('')}
+          const _lvLock=(typeof isOnFullLeave==='function')&&isOnFullLeave(eng.id,p,wi);
+          const _lvRO=_lvLock&&!v; // locked+empty: fully read-only; locked+value: editable so hours can be CLEARED (setter rejects increases)
+          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):ttip}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_lvRO?'readonly':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':v?'#dcfce7':'transparent'};${_lvLock?'opacity:.6;':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -9164,6 +9178,17 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     if(!canEditDisc(disc)){
       inputEl.value=inputEl.defaultValue||'';
       toast('⛔ You can only edit hours for your own discipline.');
+      return;
+    }
+  }
+  // v9.7.1 — full-week leave lock: ADDING hours is blocked, CLEARING is always allowed
+  {
+    const _p=S.projects.find(x=>x.id===projId)||((S.proposals||[]).find(x=>x.id===projId));
+    const _nv=parseFloat(inputEl.value);
+    if(_p&&(_nv>0)&&typeof isOnFullLeave==='function'&&isOnFullLeave(engId,_p,wkIdx)){
+      inputEl.value=inputEl.defaultValue||'';
+      const _e=slotEng(engId);
+      toast('\ud83c\udfd6 '+((_e&&_e.name)||'This person')+' is on full-week leave that week \u2014 you can clear hours here, not add.');
       return;
     }
   }
