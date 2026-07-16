@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.5.7 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.6.1 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -959,6 +959,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
   <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend</div>
   <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health</div>
+  <div class="sbi" id="nav-activity" onclick="nav('activity')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity</div>
   <div class="sbi" id="nav-settings" onclick="nav('settings')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</div>
   <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
   <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
@@ -969,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.5.7 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.6.1 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1120,6 +1121,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   </div>
 
   <div id="pg-settings" style="display:none"><div class="hdr"><span class="hdr-t">Settings</span></div><div id="settings-body" style="padding:16px 20px;max-width:820px;"></div></div>
+  <div id="pg-activity" style="display:none">
+    <div class="hdr"><h1>Activity</h1></div>
+    <div id="activity-body"></div>
+  </div>
   <div id="pg-health" style="display:none">
     <div class="hdr">
       <div style="display:flex;align-items:center;gap:8px;">
@@ -1893,6 +1898,7 @@ function enterApp(){
   const fab=document.getElementById('ai-fab');if(fab)fab.style.display='flex';
   populateSidebarUser(SB_SESSION.user);
   window._currentUserEmail=SB_SESSION?.user?.email||'';
+  try{ startPresence(); }catch(e){}
   initApp();
   aiLoadKey(); // load AI key in background
 }
@@ -2590,6 +2596,50 @@ async function initApp(opts){
 // resilient path as app boot) and re-renders whichever page is currently open —
 // the global twin of the project-detail ↻ from v9.2.1.
 // ═══════════════════════════════════════
+// ── v9.6.0 — Activity & Presence ──────────────────────────────────────────────
+function _actName(){const e=currentUserEmail();const g=S.engineers.find(x=>x.email&&x.email.toLowerCase()===e.toLowerCase());return (g&&g.name)||e.split('@')[0]||'Unknown';}
+async function presenceBeat(){
+  try{
+    if(!currentUserEmail())return;
+    await sbUpsert('presence',{email:currentUserEmail().toLowerCase(),name:_actName(),last_seen:new Date().toISOString()});
+  }catch(e){/* tables may not exist yet — silent */}
+  if(typeof CURRENT_PAGE!=='undefined'&&CURRENT_PAGE==='activity'){try{renderActivity();}catch(e){}}
+}
+function startPresence(){ if(window._presT)return; presenceBeat(); window._presT=setInterval(presenceBeat,60000); }
+const _actThrottle={};
+async function logActivity(action,detail){
+  try{
+    const k=action+'|'+(detail||'');const now=Date.now();
+    if(_actThrottle[k]&&now-_actThrottle[k]<60000)return;
+    _actThrottle[k]=now;
+    await sbUpsert('activity_log',{email:currentUserEmail().toLowerCase(),name:_actName(),action:action,detail:detail||''});
+  }catch(e){/* silent */}
+}
+async function renderActivity(){
+  const el=document.getElementById('activity-body'); if(!el)return;
+  if(!el.innerHTML)el.innerHTML='<div style="padding:30px;text-align:center;color:var(--tx3);">Loading\u2026</div>';
+  let pres=null,log=[];
+  try{ pres=await sbGet('presence'); }catch(e){}
+  if(!Array.isArray(pres)){ el.innerHTML='<div class="card" style="padding:20px;font-size:13px;color:#b91c1c;">Activity tables not found. Run the setup SQL (presence + activity_log) in the Supabase SQL editor, then refresh this page.</div>'; return; }
+  try{ log=await sbFetch('activity_log?select=*&order=created_at.desc&limit=200'); if(!Array.isArray(log))log=[]; }catch(e){ log=[]; }
+  const now=Date.now();
+  const ago=t=>{const sec=(now-new Date(t))/1000;if(sec<0)return 'now';if(sec<60)return Math.floor(sec)+'s ago';if(sec<3600)return Math.floor(sec/60)+'m ago';if(sec<86400)return Math.floor(sec/3600)+'h ago';return Math.floor(sec/86400)+'d ago';};
+  const online=pres.filter(r=>now-new Date(r.last_seen)<3*60*1000).sort((a,b)=>String(a.name).localeCompare(String(b.name)));
+  const offline=pres.filter(r=>now-new Date(r.last_seen)>=3*60*1000).sort((a,b)=>new Date(b.last_seen)-new Date(a.last_seen)).slice(0,10);
+  const last=log[0]||null;
+  el.innerHTML=`
+  <div style="display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start;">
+    <div class="card" style="flex:1;min-width:250px;">
+      <div class="card-t">Online now (${online.length})</div>
+      ${online.length?online.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:5px 0;font-size:13px;"><span style="width:9px;height:9px;border-radius:50%;background:#22c55e;box-shadow:0 0 0 3px #22c55e33;flex-shrink:0;"></span><b>${esc(r.name||r.email)}</b><span style="color:var(--tx3);font-size:11px;margin-left:auto;">${ago(r.last_seen)}</span></div>`).join(''):'<div style="font-size:12px;color:var(--tx3);font-style:italic;">No one online right now.</div>'}
+      ${offline.length?`<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);margin:12px 0 4px;">Recently seen</div>`+offline.map(r=>`<div style="display:flex;align-items:center;gap:8px;padding:4px 0;font-size:12.5px;color:var(--tx2);"><span style="width:9px;height:9px;border-radius:50%;background:#cbd5e1;flex-shrink:0;"></span>${esc(r.name||r.email)}<span style="color:var(--tx3);font-size:11px;margin-left:auto;">${ago(r.last_seen)}</span></div>`).join(''):''}
+    </div>
+    <div class="card" style="flex:2.2;min-width:320px;">
+      <div class="card-t">Recent activity${last?` <span style="font-weight:400;font-size:11px;color:var(--tx3);">\u00b7 last saved by <b>${esc(last.name||last.email)}</b> ${ago(last.created_at)}</span>`:''}</div>
+      ${log.length?log.map(r=>`<div style="display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #f2f4f7;font-size:12.5px;"><span style="color:var(--tx3);white-space:nowrap;min-width:62px;">${ago(r.created_at)}</span><span style="min-width:0;"><b>${esc(r.name||r.email)}</b> ${esc(r.action||'')}${r.detail?' \u2014 '+esc(r.detail):''}</span></div>`).join(''):'<div style="font-size:12px;color:var(--tx3);font-style:italic;">No activity logged yet \u2014 entries appear here as people save.</div>'}
+    </div>
+  </div>`;
+}
 async function refreshCurrentPage(){
   if(window._pageRefreshing)return;
   window._pageRefreshing=true;
@@ -2745,6 +2795,7 @@ async function pushProj(p){
     const {weeklyHrs,_t,...meta}=p;
     await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+    logActivity('updated project',(p.no?p.no+' \u00b7 ':'')+(p.name||''));
   }catch{setSyncStatus(false,'Sync failed');saveLocal();}
 }
 
@@ -3745,7 +3796,7 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 // NAV
 // ═══════════════════════════════════════
-const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','settings','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals'];
+const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','settings','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals','activity'];
 const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave','nav-settings'];
 function applyAdminNav(show){ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});}
 let CURRENT_PAGE='mep';
@@ -4752,6 +4803,7 @@ function nav(p, fromPopstate){
   else if(p==='leave')renderLeave();
   else if(p==='mgmt')renderMgmt();
   else if(p==='holidays')renderHolidays();
+  else if(p==='activity')renderActivity();
   else if(p==='proposals')renderProposals();
   else if(p==='pending')renderPendingUsers();
 }
@@ -9323,6 +9375,14 @@ async function flushHourSaves(){
     }
   }
   markUnsavedCells();
+  // v9.6.0 — one batched activity entry per flush (not per cell)
+  try{
+    const ok=batch.filter(([k])=>!window._pendingHourSaves.has(k));
+    if(ok.length){
+      const names=[...new Set(ok.map(([,it])=>{const pj=S.projects.find(x=>x.id===it.projId);return pj?(pj.no?pj.no+' \u00b7 ':'')+(pj.name||''):'';}))].filter(Boolean);
+      logActivity('updated hours',ok.length+' cell'+(ok.length===1?'':'s')+(names.length?' on '+names.slice(0,3).join(', ')+(names.length>3?' +'+(names.length-3)+' more':''):''));
+    }
+  }catch(e){}
   if(window._pendingHourSaves.size>0){
     // Keep retrying automatically until everything lands
     if(!window._hourRetryTimer){
