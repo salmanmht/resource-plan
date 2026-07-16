@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.5.4 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.5.5 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -969,7 +969,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.5.4 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.5.5 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -5668,6 +5668,10 @@ function renderMEP(){
   // with people, consistent with the headline's team filter (fixes 0-vs-6 mismatch
   // and BIM card missing EGY).
   const offSplit=list=>{var by={};list.forEach(e=>{var o=e.off||'\u2014';by[o]=(by[o]||0)+1;});var p=['DXB','EGY','IND'].filter(o=>by[o]).map(o=>by[o]+' '+o);Object.keys(by).forEach(o=>{if(['DXB','EGY','IND'].indexOf(o)<0)p.push(by[o]+' '+o);});return p.join(' \u00b7 ')||'\u2014';};
+  // v9.5.5 — BIM headcount counts derived JSE modellers (peak heads ÷cap), real BIM people = 1 each
+  const bimHeadOf=e=>(e.name&&e.name.startsWith('JSE-'))?jsePeakHeads(e):1;
+  const bimHeadTotal=list=>list.reduce((n,e)=>n+bimHeadOf(e),0);
+  const offSplitHeads=list=>{var by={};list.forEach(e=>{var o=e.off||'\u2014';by[o]=(by[o]||0)+bimHeadOf(e);});var p=['DXB','EGY','IND'].filter(o=>by[o]).map(o=>by[o]+' '+o);Object.keys(by).forEach(o=>{if(['DXB','EGY','IND'].indexOf(o)<0)p.push(by[o]+' '+o);});return p.join(' \u00b7 ')||'\u2014';};
   document.getElementById('mep-metrics').innerHTML=`
     <div id="kpi-eng-card" class="mc-int hi" onclick="kpiDrillDown('engineers')" title="Click to view register">
       <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow">→</div></div>
@@ -5676,8 +5680,8 @@ function renderMEP(){
     </div>
     <div id="kpi-bim-card" class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488">${all.filter(e=>e.team==='BIM').length}</div></div></div>
-      <div class="mc-s">${offSplit(all.filter(e=>e.team==='BIM'))}</div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488" title="Total modellers — real BIM staff + derived JSE heads (peak weekly booked \u00f7 capacity)">${bimHeadTotal(all.filter(e=>e.team==='BIM'))}</div></div></div>
+      <div class="mc-s">${offSplitHeads(all.filter(e=>e.team==='BIM'))}</div>
     </div>
     <div class="mc-int gr" onclick="kpiDrillDown('util')" title="Click to view heatmap">
       <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow">→</div></div>
