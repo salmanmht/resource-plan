@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.7.6 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.8.0 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -970,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.7.6 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.8.0 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -6955,12 +6955,16 @@ function renderProj(){
     // Legend: colour dot + name + weeks
     const legendItems=stages.map((st,si)=>{
       const sc=stageColor(si,st);
-      const wks=Math.max(1,Math.round((new Date(st.to)-new Date(st.from))/(7*24*3600*1000)));
+      const _sd=new Date(st.from),_ed=new Date(st.to);
+      const wks=Math.max(1,Math.round((_ed-_sd)/(7*24*3600*1000)));
       const name=st.name||'Stage '+(si+1);
+      // v9.7.7 — week-of-year range (W27–W34); collapses to single "W27" for one-week stages
+      const _wa=wkNum(_sd),_wb=wkNum(_ed);
+      const wRange=(_wa===_wb)?('W'+_wa):('W'+_wa+'\u2013W'+_wb);
       return`<span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;">
         <span style="width:8px;height:8px;border-radius:2px;background:${sc.bdr};flex-shrink:0;display:inline-block;"></span>
         <span style="font-size:10px;color:var(--tx);font-weight:500;">${name}</span>
-        <span style="font-size:9px;color:var(--tx3);font-weight:600;">${wks}w</span>
+        <span style="font-size:9px;color:var(--tx3);font-weight:600;" title="Weeks ${wRange} (${wks}w)">${wRange} \u00b7 ${wks}w</span>
       </span>`;
     }).join('');
 
@@ -7595,15 +7599,18 @@ function renderProjDetail(p){
           <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour"
             style="width:22px;height:22px;border:1px solid var(--bdr);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0;background:none;"
             onchange="setProjStageColor('${p.id}',${si},this.value)">
-          <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
-            onchange="handleStageSelect('${p.id}',${si},this)">
-            ${stageOptions}
-            <option value="__custom__">Custom…</option>
-          </select>
-          <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Stage name…"
-            style="${isCustom?'':'display:none;'}flex:1 1 90px;min-width:70px;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
-            onchange="setProjStageNameCustom('${p.id}',${si},this.value)"
-            onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
+          <div class="stname-wrap" id="stwrap-${p.id}-${si}" style="position:relative;flex:0 0 auto;width:${_stageNameW(p.id,si)}px;min-width:70px;max-width:460px;display:flex;">
+            <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 auto;width:100%;min-width:0;font-size:11px;padding:3px 14px 3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
+              onchange="handleStageSelect('${p.id}',${si},this)">
+              ${stageOptions}
+              <option value="__custom__">Custom…</option>
+            </select>
+            <input type="text" id="sttxt-${p.id}-${si}" value="${nameEsc}" placeholder="Stage name…" title="${nameEsc}"
+              style="${isCustom?'':'display:none;'}flex:1 1 auto;width:100%;min-width:0;font-size:11px;padding:3px 14px 3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
+              onchange="setProjStageNameCustom('${p.id}',${si},this.value)"
+              onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
+            <span class="stname-grip" title="Drag to resize" onmousedown="_startStageResize(event,'${p.id}',${si})" style="position:absolute;right:0;top:0;height:100%;width:9px;cursor:col-resize;display:flex;align-items:center;justify-content:center;color:var(--tx3);user-select:none;">&#8942;</span>
+          </div>
           <input type="date" value="${st.from||''}" title="Stage start" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
           <span style="font-size:10px;color:var(--tx3);flex-shrink:0;">to</span>
           <input type="date" value="${st.to||''}" title="Stage end" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
@@ -7695,7 +7702,7 @@ function renderProjDetail(p){
           ${(()=>{
             const stgs=(p.stages||[]).filter(s=>s.from&&s.to);
             if(!stgs.length) return `<span style="font-size:10px;color:var(--tx3);font-style:italic;">No stages defined</span>`;
-            const chips=stgs.map((s,i)=>{const sc=stageColor(i,s);return`<span style="display:inline-flex;align-items:center;gap:3px;background:${sc.bdr}18;border:1px solid ${sc.bdr}44;border-radius:20px;padding:1px 8px;font-size:10px;font-weight:600;color:${sc.bdr};white-space:nowrap;"><span style="width:6px;height:6px;border-radius:50%;background:${sc.bdr};display:inline-block;"></span>${s.name}</span>`;}).join('');
+            const chips=stgs.map((s,i)=>{const sc=stageColor(i,s);const _wa=wkNum(new Date(s.from)),_wb=wkNum(new Date(s.to));const _wr=(_wa===_wb)?('W'+_wa):('W'+_wa+'\u2013W'+_wb);return`<span style="display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;background:${sc.bdr}18;border:1px solid ${sc.bdr}44;border-radius:12px;padding:2px 9px;font-size:10px;font-weight:600;color:${sc.bdr};white-space:nowrap;line-height:1.25;"><span style="display:inline-flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:50%;background:${sc.bdr};display:inline-block;"></span>${s.name}</span><span style="font-size:8.5px;font-weight:700;opacity:.8;margin-left:9px;">${_wr}</span></span>`;}).join('');
             return`<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${chips}</div>`;
           })()}
         </div>
@@ -7965,6 +7972,19 @@ function handleStageSelect(projId,si,sel){
     clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
   }
 }
+// v9.7.9 — resizable stage-name field; width persists per project+stage (per browser)
+function _stageNameKey(pid,si){return 'mep_stagew_'+pid+'_'+si;}
+function _startStageResize(ev,pid,si){
+  ev.preventDefault();ev.stopPropagation();
+  var wrap=document.getElementById('stwrap-'+pid+'-'+si); if(!wrap)return;
+  var startX=ev.clientX, startW=wrap.offsetWidth;
+  document.body.style.cursor='col-resize';
+  function mv(e){var w=Math.max(70,Math.min(460,startW+(e.clientX-startX)));wrap.style.width=w+'px';}
+  function up(e){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.cursor='';_saveStageNameW(pid,si,wrap.offsetWidth);}
+  document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
+}
+function _stageNameW(pid,si){try{var v=parseInt(localStorage.getItem(_stageNameKey(pid,si)));return (v&&v>=70&&v<=420)?v:150;}catch(e){return 150;}}
+function _saveStageNameW(pid,si,w){try{if(w>=70&&w<=420)localStorage.setItem(_stageNameKey(pid,si),w);}catch(e){}}
 function setProjStageNameCustom(projId,si,val){
   const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
   if(!val||!val.trim())return;
