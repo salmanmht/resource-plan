@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.5.5 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.5.7 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -969,7 +969,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.5.5 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.5.7 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1018,7 +1018,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <div id="deep-dive-body" style="display:none;padding:14px;">
           <div class="g2">
             <div class="card"><div class="card-t">Total Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-line"></canvas></div></div>
-            <div class="card"><div class="card-t">Billable Utilisation by Discipline</div><div class="cbox"><canvas id="c-mep-bill-line"></canvas></div></div>
+            <div class="card"><div class="card-t">Billable % by Discipline</div><div class="cbox"><canvas id="c-mep-bill-line"></canvas></div></div>
           </div>
           <div class="g2" style="margin-top:12px;">
             <div class="card"><div class="card-t">Dubai vs Egypt</div><div class="cbox"><canvas id="c-mep-office"></canvas></div></div>
@@ -3154,7 +3154,9 @@ function engProjHrs(engId,minMI,NMON){
     d.setDate(d.getDate()+wkIdx*7);
     return d;
   };
+  const _sf=(typeof _msf==='function'?_msf():null); // v9.5.7 — drill matches the % scope
   S.projects.forEach(p=>{
+    if(_sf&&p.status!==_sf)return;
     const wh=p.weeklyHrs||{};
     // v9.3.0 — merge duplicate-slot rows into the person's project hours
     const _ks=Object.keys(wh).filter(k=>k===engId||slotBase(k)===engId);
@@ -5137,7 +5139,9 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
   function engProjHrsWeekly(engId){
     // Returns [{proj, wHrs:[hours per week-column]}, ...] for projects this engineer has hours on
     const out=[];
+    const _sf=(typeof _msf==='function'?_msf():null); // v9.5.7 — drill matches the % scope
     S.projects.forEach(p=>{
+      if(_sf&&p.status!==_sf)return;
       const wh=p.weeklyHrs||{};
       const _ks=Object.keys(wh).filter(k=>k===engId||slotBase(k)===engId); // v9.3.0
       const arr=[];_ks.forEach(k=>{(wh[k]||[]).forEach((v,i)=>{arr[i]=(arr[i]||0)+(v||0);});});
