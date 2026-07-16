@@ -870,7 +870,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.8.0 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.8.5 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -970,7 +970,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.8.0 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.8.5 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2385,6 +2385,8 @@ async function refreshAuthToken(){
       const d=await r.json();
       if(!d.access_token) return false;
       SB_SESSION=d;
+      // v9.8.3 — record absolute expiry so we can refresh *before* it lapses
+      try{ window._tokenExpAt = Date.now() + ((d.expires_in||3600)*1000); }catch(e){}
       try{sessionStorage.setItem('mep_session',JSON.stringify(d));}catch(e){}
       return true;
     }catch(e){ console.warn('token refresh failed:',e); return false; }
@@ -2394,8 +2396,27 @@ async function refreshAuthToken(){
   return p;
 }
 setInterval(()=>{ if(SB_SESSION&&SB_SESSION.refresh_token) refreshAuthToken(); }, 45*60*1000);
+// v9.8.3 — refresh proactively if the token is within 5 min of expiry (or expiry unknown)
+async function ensureFreshToken(){
+  try{
+    if(!SB_SESSION||!SB_SESSION.refresh_token)return;
+    const exp=window._tokenExpAt||0;
+    if(!exp || Date.now() > exp - 5*60*1000){ await refreshAuthToken(); }
+  }catch(e){}
+}
+// v9.8.3 — close the "laptop slept" gap: timers freeze during sleep, so when the
+// tab becomes visible again we refresh immediately and flush anything pending.
+document.addEventListener('visibilitychange',function(){
+  if(document.visibilityState!=='visible')return;
+  (async()=>{
+    try{ await refreshAuthToken(); }catch(e){}
+    try{ if(window._pendingHourSaves&&window._pendingHourSaves.size>0)flushHourSaves(); }catch(e){}
+    try{ if(window._pendingProjSaves&&window._pendingProjSaves.size>0)flushProjSaves(); }catch(e){}
+  })();
+});
 
 async function sbFetch(path,method='GET',body=null,prefer='return=representation'){
+  if(typeof ensureFreshToken==='function' && method!=='GET'){ await ensureFreshToken(); } // v9.8.3 — refresh before writes
   for(let attempt=0;attempt<2;attempt++){
     const token=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
     const opts={
@@ -2451,7 +2472,10 @@ async function sbUpsert(table,row){
   return sbFetch(table,'POST',row,'resolution=merge-duplicates,return=representation');
 }
 async function sbDel(table,id){return sbFetch(table+'?id=eq.'+encodeURIComponent(id),'DELETE');}
-function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;}
+function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;
+  // v9.8.3 — clicking the status opens the failure log
+  var st=document.getElementById('sync-txt'); if(st&&!st._logHook){st._logHook=1;st.style.cursor='pointer';st.title='Click to view sync failures';st.onclick=function(){if(typeof showSyncLog==='function')showSyncLog();};}
+}
 
 async function initApp(opts){
   // v9.3.0: initApp doubles as the "pull fresh data" path for the per-page ↻
@@ -2800,7 +2824,73 @@ async function pushProj(p){
     await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
     logActivity('updated project',(p.no?p.no+' \u00b7 ':'')+(p.name||''));
-  }catch{setSyncStatus(false,'Sync failed');saveLocal();}
+    // v9.8.3 — success clears any earlier pending copy of this project
+    if(window._pendingProjSaves)window._pendingProjSaves.delete(p.id);
+    if(window._pendingProjSaves&&window._pendingProjSaves.size===0&&window._projRetryTimer){clearInterval(window._projRetryTimer);window._projRetryTimer=null;}
+  }catch(err){
+    // v9.8.3 — DON'T lose the edit: queue the project for retry (mirrors hour saves)
+    logSyncFail('save project',(p.no?p.no+' · ':'')+(p.name||p.id),err);
+    saveLocal();
+    if(!window._pendingProjSaves)window._pendingProjSaves=new Map();
+    window._pendingProjSaves.set(p.id,p); // latest state wins
+    setSyncStatus(false,'⚠ '+window._pendingProjSaves.size+' unsaved change(s) — retrying');
+    if(!window._projRetryTimer){
+      window._projRetryTimer=setInterval(flushProjSaves,30000);
+    }
+    showUnsavedBanner();
+  }
+}
+// v9.8.3 — retry all queued project saves
+async function flushProjSaves(){
+  if(!window._pendingProjSaves||window._pendingProjSaves.size===0){
+    if(window._projRetryTimer){clearInterval(window._projRetryTimer);window._projRetryTimer=null;}
+    return;
+  }
+  await ensureFreshToken();
+  const batch=[...window._pendingProjSaves.values()];
+  for(const p of batch){
+    try{
+      const {weeklyHrs,_t,...meta}=p;
+      await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
+      window._pendingProjSaves.delete(p.id);
+    }catch(err){ logSyncFail('retry project',(p.no?p.no+' · ':'')+(p.name||p.id),err); }
+  }
+  if(window._pendingProjSaves.size===0){
+    if(window._projRetryTimer){clearInterval(window._projRetryTimer);window._projRetryTimer=null;}
+    setSyncStatus(true,'✓ All changes saved · '+new Date().toLocaleTimeString());
+    const b=document.getElementById('unsaved-banner'); if(b)b.remove();
+    toast('✓ Pending project changes recovered');
+  }else{
+    setSyncStatus(false,'⚠ '+window._pendingProjSaves.size+' unsaved change(s) — retrying');
+  }
+}
+// v9.8.3 — persistent, loud banner while any project change is unsaved
+function showUnsavedBanner(){
+  if(document.getElementById('unsaved-banner'))return;
+  const d=document.createElement('div');
+  d.id='unsaved-banner';
+  d.style.cssText='position:fixed;left:0;right:0;bottom:0;z-index:100000;background:#b91c1c;color:#fff;padding:10px 16px;font-size:13px;font-weight:700;text-align:center;box-shadow:0 -2px 12px rgba(0,0,0,.2);';
+  d.innerHTML='\u26a0 Unsaved changes are still syncing — please keep this tab open. <button onclick="flushProjSaves();if(window._pendingHourSaves)flushHourSaves();" style="margin-left:10px;background:#fff;color:#b91c1c;border:none;border-radius:6px;padding:4px 12px;font-weight:700;cursor:pointer;">Retry now</button>';
+  document.body.appendChild(d);
+}
+// v9.8.3 — rolling sync-failure log (readable via the sync indicator)
+window._syncFailLog = window._syncFailLog || [];
+function logSyncFail(op,detail,err){
+  try{
+    var status=(err&&err.message&&/^\s*\d{3}/.test(err.message))?err.message.slice(0,3):'';
+    var msg=(err&&err.message)?String(err.message).slice(0,180):String(err).slice(0,180);
+    window._syncFailLog.unshift({t:new Date().toISOString(),op:op,detail:detail,status:status,msg:msg});
+    window._syncFailLog=window._syncFailLog.slice(0,25);
+    try{localStorage.setItem('mep_syncfail',JSON.stringify(window._syncFailLog));}catch(e){}
+    console.error('[SYNC FAIL]',op,detail,status,msg);
+  }catch(e){}
+}
+function showSyncLog(){
+  var log=window._syncFailLog||[];
+  try{ if(!log.length){var st=localStorage.getItem('mep_syncfail');if(st)log=JSON.parse(st);} }catch(e){}
+  if(!log.length){toast('No sync failures logged — all good.');return;}
+  var lines=log.map(function(x){return (x.t?new Date(x.t).toLocaleString():'')+' · '+x.op+(x.detail?' ('+x.detail+')':'')+' · '+(x.status?'HTTP '+x.status+' ':'')+x.msg;});
+  alert('Recent sync failures (newest first):\n\n'+lines.join('\n\n'));
 }
 
 async function pushRates(){try{
@@ -3577,7 +3667,7 @@ function renderHealth(){
 // ═══════════════════════════════════════
 // PROJECT SPEND
 // ═══════════════════════════════════════
-let SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:''};
+let SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',status:[],projSel:[]};
 function spendOffMatch(e){
   if(!SPEND.off)return true;
   const off=(e.off||'').toUpperCase();
@@ -3598,16 +3688,21 @@ function spendDiscMatch(e,p){
 }
 function spendWeekDate(pStart,wi){const d=new Date(pStart);const day=d.getDay();if(day!==1)d.setDate(d.getDate()+((8-day)%7||7));d.setDate(d.getDate()+wi*7);return d;}
 function spendStageNames(){
-  const projs=SPEND.proj?S.projects.filter(p=>p.id===SPEND.proj):S.projects;
+  let projs=S.projects;
+  if(SPEND.projSel&&SPEND.projSel.length)projs=S.projects.filter(p=>SPEND.projSel.indexOf(p.id)>=0);
+  else if(SPEND.proj)projs=S.projects.filter(p=>p.id===SPEND.proj);
   const set=[];
   projs.forEach(p=>(p.stages||[]).forEach(st=>{const n=st.name||'';if(n&&set.indexOf(n)<0)set.push(n);}));
   return set;
 }
 function spendCompute(){
-  const projs=SPEND.proj?S.projects.filter(p=>p.id===SPEND.proj):S.projects.slice();
+  let projs=S.projects.slice();
+  if(SPEND.projSel&&SPEND.projSel.length)projs=projs.filter(p=>SPEND.projSel.indexOf(p.id)>=0);
+  else if(SPEND.proj)projs=projs.filter(p=>p.id===SPEND.proj);
+  if(SPEND.status&&SPEND.status.length)projs=projs.filter(p=>SPEND.status.indexOf(p.status)>=0);
   const fromD=SPEND.from?new Date(SPEND.from+'T00:00:00'):null;
   const toD=SPEND.to?new Date(SPEND.to+'T23:59:59'):null;
-  const perEng={}, perStage={}, perMonth={};
+  const perEng={}, perStage={}, perMonth={}, perProj={};
   let totalCost=0,totalHrs=0; const projSet=new Set();
   projs.forEach(p=>{
     const wh=p.weeklyHrs||{}; if(!Object.keys(wh).length||!p.start)return;
@@ -3633,23 +3728,48 @@ function spendCompute(){
         perEng[eid].discSet.add(eng.team==='BIM'?'BIM':effDisc(eng,p));
         if(!perStage[stageName])perStage[stageName]={hrs:0,cost:0};
         perStage[stageName].hrs+=h; perStage[stageName].cost+=cost;
+        // v9.8.1 — per-project rollup with its own stage breakdown (for the grouped By-project table)
+        if(!perProj[p.id])perProj[p.id]={proj:p,hrs:0,cost:0,stages:{}};
+        perProj[p.id].hrs+=h; perProj[p.id].cost+=cost;
+        if(!perProj[p.id].stages[stageName])perProj[p.id].stages[stageName]={hrs:0,cost:0};
+        perProj[p.id].stages[stageName].hrs+=h; perProj[p.id].stages[stageName].cost+=cost;
         const mi=dateToMI(wd); perMonth[mi]=(perMonth[mi]||0)+cost;
       });
     });
   });
-  return {perEng,perStage,perMonth,totalCost,totalHrs,projCount:projSet.size,engCount:Object.keys(perEng).length};
+  return {perEng,perStage,perMonth,perProj,totalCost,totalHrs,projCount:projSet.size,engCount:Object.keys(perEng).length};
 }
 function spendSet(k,v){SPEND[k]=v;if(k==='proj')SPEND.stage='';renderSpend();}
-function spendReset(){SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:''};renderSpend();}
+function spendReset(){SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',status:[],projSel:[]};renderSpend();}
 function spendKpi(label,val,sub,cls){return '<div class="mc '+(cls||'')+'"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+val+'</div>'+(sub?'<div class="mc-s">'+sub+'</div>':'')+'</div>';}
+function toggleSpendProj(gid){
+  if(!window._spendCollapse)window._spendCollapse={};
+  const wasCol=!(window._spendCollapse[gid]===false); // default collapsed
+  const col=!wasCol; // flip
+  window._spendCollapse[gid]=col?true:false;
+  document.querySelectorAll('[data-spg="'+gid+'"]').forEach(tr=>{tr.style.display=col?'none':'';});
+  const ch=document.getElementById('spchev-'+gid); if(ch)ch.textContent=col?'\u25b6':'\u25bc';
+}
+// v9.8.5 — Project Spend multi-select menus (PROJECT + STATUS)
+function _spendMenu(id){var m=document.getElementById(id);if(m)return m;m=document.createElement('div');m.id=id;m.style.cssText='position:absolute;z-index:9999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 8px 30px rgba(16,36,62,.18);padding:6px;min-width:200px;max-height:340px;overflow:auto;display:none;';document.body.appendChild(m);document.addEventListener('click',function(e){if(m.style.display==='none')return;if(m.contains(e.target))return;if(e.target.closest&&(e.target.closest('.js-spend-proj-btn')||e.target.closest('.js-spend-stat-btn')))return;m.style.display='none';},true);return m;}
+function _spendMenuRow(on,label,onclick){return '<div onclick="'+onclick+'" style="display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:12px;'+(on?'background:var(--acc2);':'')+'"><span style="width:15px;height:15px;border-radius:4px;border:1.5px solid '+(on?'var(--acc)':'#c3cad3')+';background:'+(on?'var(--acc)':'#fff')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+(on?'<span style=\'color:#fff;font-size:10px;\'>\u2713</span>':'')+'</span><span style="color:var(--tx1);font-weight:'+(on?'600':'400')+';">'+label+'</span></div>';}
+function toggleSpendStatMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-stat-menu');var btn=ev.currentTarget;if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendStatMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
+function buildSpendStatMenu(){var m=document.getElementById('spend-stat-menu');if(!m)return;var sel=SPEND.status||[];m.innerHTML='<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);padding:4px 9px 6px;">Project status</div>'+['Active','On Hold','Completed'].map(function(o){return _spendMenuRow(sel.indexOf(o)>=0,o,"spendStatToggle('"+o+"')");}).join('')+'<div onclick="SPEND.status=[];buildSpendStatMenu();renderSpend();" style="padding:6px 9px;cursor:pointer;font-size:11px;color:var(--tx3);text-align:center;">Clear all</div>';}
+function spendStatToggle(o){var a=(SPEND.status||[]).slice();var i=a.indexOf(o);if(i>=0)a.splice(i,1);else a.push(o);SPEND.status=a;buildSpendStatMenu();renderSpend();}
+function toggleSpendProjMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-proj-menu');var btn=ev.currentTarget;if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendProjMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
+function buildSpendProjMenu(){var m=document.getElementById('spend-proj-menu');if(!m)return;var sel=SPEND.projSel||[];var rows=S.projects.slice().sort(function(a,b){return (a.no||'').localeCompare(b.no||'');}).map(function(p){return _spendMenuRow(sel.indexOf(p.id)>=0,esc((p.no?p.no+' — ':'')+(p.name||p.id)),"spendProjToggle('"+p.id+"')");}).join('');m.innerHTML='<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);padding:4px 9px 6px;">Projects (tap to combine)</div>'+rows+'<div onclick="SPEND.projSel=[];buildSpendProjMenu();renderSpend();" style="padding:6px 9px;cursor:pointer;font-size:11px;color:var(--tx3);text-align:center;position:sticky;bottom:0;background:#fff;">Clear all</div>';}
+function spendProjToggle(id){var a=(SPEND.projSel||[]).slice();var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);SPEND.projSel=a;SPEND.proj='';SPEND.stage='';buildSpendProjMenu();renderSpend();}
 function renderSpend(){
   const c=document.getElementById('pc-spend'); if(!c)return;
   if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required to view expenditure.</div>';return;}
   const sel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
   const dat='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none;';
   let h='<div class="spend-filters">';
-  h+='<select style="'+sel+'" onchange="spendSet(\'proj\',this.value)"><option value="">All projects</option>'+
-     S.projects.slice().sort((a,b)=>(a.no||'').localeCompare(b.no||'')).map(p=>'<option value="'+p.id+'"'+(SPEND.proj===p.id?' selected':'')+'>'+esc((p.no?p.no+' — ':'')+(p.name||p.id))+'</option>').join('')+'</select>';
+  // v9.8.5 — multi-select PROJECT + STATUS menus (mirror of Overview's checkbox menus)
+  const _pjLbl=(SPEND.projSel&&SPEND.projSel.length)?(SPEND.projSel.length+' project'+(SPEND.projSel.length===1?'':'s')):'All projects';
+  h+='<button type="button" class="js-spend-proj-btn" onclick="toggleSpendProjMenu(event)" style="'+sel+'">'+esc(_pjLbl)+' \u25be</button>';
+  const _stLbl=(SPEND.status&&SPEND.status.length)?(SPEND.status.length===1?SPEND.status[0]:SPEND.status.length+' statuses'):'All status';
+  h+='<button type="button" class="js-spend-stat-btn" onclick="toggleSpendStatMenu(event)" style="'+sel+'">'+esc(_stLbl)+' \u25be</button>';
   h+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
   h+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
   h+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
@@ -3674,8 +3794,21 @@ function renderSpend(){
   h+='</div>';
   const stageRows=Object.entries(r.perStage).sort((a,b)=>b[1].cost-a[1].cost);
   if(stageRows.length){
-    h+='<div class="spend-card"><div class="spend-h">By stage</div><div class="spend-tblwrap"><table class="tbl"><thead><tr><th>Stage</th><th class="num">Hours</th><th class="num">Cost</th><th class="num">%</th></tr></thead><tbody>';
-    stageRows.forEach(([n,v])=>{const pct=r.totalCost?(v.cost/r.totalCost*100):0;h+='<tr><td>'+esc(n)+'</td><td class="num">'+fN(Math.round(v.hrs))+'</td><td class="num">'+fAED(v.cost)+'</td><td class="num">'+pct.toFixed(1)+'%</td></tr>';});
+    h+='<div class="spend-card"><div class="spend-h">By project</div><div class="spend-tblwrap"><table class="tbl"><thead><tr><th>Project / Stage</th><th class="num">Hours</th><th class="num">Cost</th><th class="num">%</th></tr></thead><tbody>';
+    const projRows=Object.values(r.perProj).sort((a,b)=>b.cost-a.cost);
+    if(!projRows.length)h+='<tr><td colspan="4" style="text-align:center;color:var(--tx3);padding:18px;">No expenditure in this selection.</td></tr>';
+    projRows.forEach(pr=>{
+      const pj=pr.proj; const pid=pj.id; const pct=r.totalCost?(pr.cost/r.totalCost*100):0;
+      const gid='spp-'+String(pid).replace(/[^A-Za-z0-9]/g,'');
+      const col=!(window._spendCollapse&&window._spendCollapse[gid]===false); // v9.8.4 — default COLLAPSED; only open ones the user expanded
+      h+='<tr onclick="toggleSpendProj(\''+gid+'\')" style="cursor:pointer;background:#f8fafc;font-weight:600;">'
+        +'<td><span id="spchev-'+gid+'" style="display:inline-block;width:12px;color:var(--tx3);">'+(col?'\u25b6':'\u25bc')+'</span> '+(pj.no?esc(pj.no)+' \u00b7 ':'')+esc(pj.name||'Project')+'</td>'
+        +'<td class="num">'+fN(Math.round(pr.hrs))+'</td><td class="num">'+fAED(pr.cost)+'</td><td class="num">'+pct.toFixed(1)+'%</td></tr>';
+      // stage sub-rows — % is share OF THIS PROJECT
+      const stRows=Object.entries(pr.stages).sort((a,b)=>b[1].cost-a[1].cost);
+      stRows.forEach(([sn,sv])=>{const spct=pr.cost?(sv.cost/pr.cost*100):0;h+='<tr data-spg="'+gid+'"'+(col?' style="display:none"':'')+'><td style="padding-left:32px;color:var(--tx2);">'+esc(sn)+'</td><td class="num">'+fN(Math.round(sv.hrs))+'</td><td class="num">'+fAED(sv.cost)+'</td><td class="num" style="color:var(--tx3);">'+spct.toFixed(1)+'%</td></tr>';});
+    });
+    h+='<tr class="spend-tot"><td>Total</td><td class="num">'+fN(Math.round(r.totalHrs))+'</td><td class="num">'+fAED(r.totalCost)+'</td><td class="num">100%</td></tr>';
     h+='</tbody></table></div></div>';
   }
   const engRows=Object.values(r.perEng).sort((a,b)=>b.cost-a.cost);
@@ -6793,7 +6926,7 @@ function renderTeam(){
 
   // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
   let _eu={},_bu={},_euN=0;
-  try{const r=computeRange();_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
+  try{const r=computeRange(typeof _msf==='function'?_msf():null);_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
   const engAvgUtil=(e)=>{const a=_eu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
   const engAvgBill=(e)=>{const a=_bu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
 
@@ -9509,6 +9642,7 @@ async function flushHourSaves(){
     }catch(e){
       // Re-queue on failure so it isn't lost
       window._pendingHourSaves.set(key,item);
+      if(typeof logSyncFail==='function')logSyncFail('save hours',key,e);
       console.error('flushHourSaves failed, re-queued:',key,e);
     }
   }
@@ -13309,12 +13443,14 @@ const _origNav=typeof nav==='function'?nav:null;
   window.closeEngDetail=function(){var o=document.getElementById('engd-ov');if(o)o.style.display='none';};
   window.openEngDetail=function(id){
     var e=(S&&S.engineers||[]).find(function(x){return x.id===id;}); if(!e)return;
-    var r; try{r=computeRange();}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
+    var r; try{r=computeRange(typeof _msf==='function'?_msf():null);}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
     var NM=r.NMON||1, uA=r.util[id]||[];
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
     var alloc=[],allocOut=[];
+    var _sfA=(typeof _msf==='function')?_msf():null; // v9.8.2 — allocation obeys the status filter
     (S.projects||[]).forEach(function(p){
       if(!p.start)return;
+      if(_sfA&&(Array.isArray(_sfA)?_sfA.indexOf(p.status)<0:p.status!==_sfA))return;
       Object.keys(p.weeklyHrs||{}).forEach(function(k){ // v9.3.0 — one line per booking, tagged
         if(k!==id&&slotBase(k)!==id)return;
         var w=p.weeklyHrs[k]; if(!w)return;
@@ -13422,12 +13558,13 @@ const _origNav=typeof nav==='function'?nav:null;
       return;
     }
 
-    var r; try{r=computeRange();}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
+    var r; try{r=computeRange(typeof _msf==='function'?_msf():null);}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
     var NM=r.NMON||1, uA=r.util[e.id]||[];
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
 
     var alloc=[],allocOut=[];
-    (S.projects||[]).forEach(function(p){var w=whArrFor(p,e.id);if(!w.length||!p.start)return;/*v9.3.0*/var hh=0,ho=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;else ho+=v;});var nm=(p.no?p.no+' · ':'')+(p.name||'Project');if(hh>0)alloc.push({name:nm,hrs:hh});else if(ho>0)allocOut.push({name:nm,hrs:ho});});
+    var _sfB=(typeof _msf==='function')?_msf():null; // v9.8.2 — allocation obeys the status filter
+    (S.projects||[]).forEach(function(p){var w=whArrFor(p,e.id);if(!w.length||!p.start)return;if(_sfB&&(Array.isArray(_sfB)?_sfB.indexOf(p.status)<0:p.status!==_sfB))return;/*v9.3.0*/var hh=0,ho=0;w.forEach(function(v,wi){if(!v)return;var mi=dateToMI(pwd(p.start,wi));if(mi>=r.minMI&&mi<=r.maxMI)hh+=v;else ho+=v;});var nm=(p.no?p.no+' · ':'')+(p.name||'Project');if(hh>0)alloc.push({name:nm,hrs:hh});else if(ho>0)allocOut.push({name:nm,hrs:ho});});
     alloc.sort(function(a,b){return b.hrs-a.hrs;});
     allocOut.sort(function(a,b){return b.hrs-a.hrs;});
     var _wk=0;for(var i=0;i<NM;i++)_wk+=wpmFor(r.minMI+i);var capHrs=(e.cap||45)*_wk;
