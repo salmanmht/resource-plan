@@ -197,7 +197,8 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .card{background:#fff;border:1px solid var(--bdr);border-radius:var(--rl);padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.04),0 1px 2px rgba(0,0,0,.02);}
 .card-t{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.07em;color:var(--tx3);margin-bottom:12px;}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
-.g2>.card{min-width:0;overflow:hidden;} /* v9.4.3 — grid children must not inflate past viewport; inner data tables scroll instead */
+.g2>.card{min-width:0;overflow:hidden;}
+.lv-noscrollbar::-webkit-scrollbar{display:none;height:0;} /* v9.9.3 — hide native bar, floating mirror is the only one */ /* v9.4.3 — grid children must not inflate past viewport; inner data tables scroll instead */
 .cbox{position:relative;width:100%;height:210px;}
 
 /* TABLES */
@@ -870,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.8.5 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.10.0 · 16 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -949,7 +950,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
   </div>
 
-  <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button><span style="margin-left:auto;display:flex;gap:4px;"><button id="sb-refresh-btn" onclick="refreshCurrentPage()" title="Refresh — pull the latest data from the database for the page you're on (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">↻</button><button id="sb-save-btn" onclick="saveAllNow()" title="Save — push any pending/debounced edits to the database right now (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">💾</button></span></div>
+  <div class="sb-sync"><div class="sync-dot off" id="sync-dot"></div><span id="sync-txt">Connecting…</span><button id="reconnect-btn" onclick="tryReconnect()" style="display:none;margin-left:6px;font-size:9px;padding:1px 7px;border-radius:8px;border:1px solid #ef4444;color:#ef4444;background:none;cursor:pointer;">↺ Retry</button><span style="margin-left:auto;display:flex;gap:4px;"><button id="admin-mode-btn" onclick="toggleAdminMode()" style="display:none;font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">🔒 My role</button><button id="sb-refresh-btn" onclick="refreshCurrentPage()" title="Refresh — pull the latest data from the database for the page you're on (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">↻</button><button id="sb-save-btn" onclick="saveAllNow()" title="Save — push any pending/debounced edits to the database right now (v9.3.0)" style="font-size:11px;padding:2px 8px;border-radius:8px;border:1px solid var(--bdr);color:var(--tx2);background:#fff;cursor:pointer;line-height:1.3;">💾</button></span></div>
 
   <div class="sb-sec">Overview</div>
     <div class="sbi on" id="nav-mep" onclick="nav('mep')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z"/></svg>Overview</div>
@@ -970,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.8.5 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.10.0 · 16 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1085,6 +1086,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <input id="ts-q" placeholder="Search…" oninput="invalidate('team')" style="flex:1;min-width:120px;max-width:220px;">
         <select id="ts-disc" onchange="invalidate('team')" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
         <select id="ts-off" onchange="invalidate('team')" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
+        <select id="ts-pos" onchange="invalidate('team')" style="flex:1;min-width:140px;"><option value="all">All Positions</option></select>
       </div>
       <div id="team-grid"></div>
     </div>
@@ -1660,6 +1662,30 @@ function applyDisciplineConfig(arr){
 }
 rebuildDiscDerived();  // initialise from defaults immediately (before any use)
 let ADMIN_EMAILS=['salman.sabir@meinhardtgroup.com']; // fallback only — overridden by engineer_roles table
+// v9.9.1 — is the current user a real admin (regardless of toggle state)?
+function isRealAdmin(){ return !!window._isRealAdmin || isAdmin(currentUserEmail()); }
+// Director role: full data access (all projects/hours/costs/rates, can edit hours)
+// but NO system control. Checked where system-control gating is NOT wanted.
+function isDirector(){ return (S.roles||[]).some(r=>r.role==='director'&&(r.email||'').toLowerCase()===currentUserEmail().toLowerCase()); }
+// Can the current user SEE all data (costs, rates, every project)? Admin (armed or not),
+// director, or admin-in-safe-mode all qualify — safe mode only hides *controls*, not data.
+function canSeeAllData(){ return isRealAdmin() || isDirector(); }
+// Toggle admin powers on/off (real admins only). Plain switch, manual, no auto-relock.
+function toggleAdminMode(){
+  if(!isRealAdmin()){ toast('Only admins can enter admin mode.'); return; }
+  adminUnlocked=!adminUnlocked;
+  applyAdminNav(adminUnlocked);
+  syncAdminModeBtn();
+  // re-render the current page so gated controls appear/disappear immediately
+  try{ if(typeof CURRENT_PAGE!=='undefined')nav(CURRENT_PAGE); }catch(e){}
+  toast(adminUnlocked?'\ud83d\udd13 Admin mode ON — system controls visible':'\ud83d\udd12 Back to your role — admin controls hidden');
+}
+function syncAdminModeBtn(){
+  const b=document.getElementById('admin-mode-btn'); if(!b)return;
+  b.style.display=isRealAdmin()?'':'none';
+  if(adminUnlocked){ b.textContent='\ud83d\udd13 Admin mode'; b.style.background='#fef3c7'; b.style.borderColor='#f59e0b'; b.style.color='#92400e'; b.title='Admin mode is ON — click to return to your normal role'; }
+  else { b.textContent='\ud83d\udd12 My role'; b.style.background='#fff'; b.style.borderColor='var(--bdr)'; b.style.color='var(--tx2)'; b.title='You are in your normal role — click to arm admin mode'; }
+}
 function isAdmin(email){ 
   if(S.roles&&S.roles.length) return S.roles.some(r=>r.role==='admin'&&r.email.toLowerCase()===(email||'').toLowerCase());
   return ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((email||'').toLowerCase()); 
@@ -1671,6 +1697,7 @@ function myRoles(){ const e=currentUserEmail().toLowerCase(); return (S.roles||[
 // Can current user edit a discipline?
 function canEditDisc(disc){
   if(adminUnlocked)return true;
+  if(isDirector())return true; // v9.9.1 — directors can edit hours across disciplines
   const roles=myRoles();
   if(!roles.length){
     const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
@@ -1688,12 +1715,14 @@ function canEditDisc(disc){
 }
 function isBimLead(){
   if(adminUnlocked)return true;
+  if(isDirector())return true;
   const roles=myRoles();
   return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()==='BIM');
 }
 // Is current user MEP Lead for a project?
 function isMepLeadFor(projId){
   if(adminUnlocked)return true;
+  if(isDirector())return true;
   const currentEmail=currentUserEmail().toLowerCase();
   // Check roles table first
   const roles=myRoles();
@@ -1940,7 +1969,9 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
-    if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;applyAdminNav(true);}
+    // v9.9.1 — admins now boot in their assigned-role mode; admin powers are armed
+    // manually via the sidebar toggle so day-to-day work carries no delete risk.
+    if(d.user&&isAdmin(d.user.email)){window._isRealAdmin=true;adminUnlocked=false;applyAdminNav(false);}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -2009,7 +2040,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){adminUnlocked=true;applyAdminNav(true);}
+          if(d.user&&isAdmin(d.user.email)){window._isRealAdmin=true;adminUnlocked=false;applyAdminNav(false);}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           // PIN disabled — go straight to app on valid session
@@ -2168,8 +2199,8 @@ async function renderPendingUsers(){
       // Load fresh from Supabase
       const rolesRows=await sbGet('engineer_roles').catch(()=>[]);
       S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
-      const ROLE_LABELS={admin:'Admin',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer'};
-      const ROLE_COLORS={admin:'#fef3c7;color:#92400e',mep_lead:'#e0f2fe;color:#0369a1',disc_lead:'#dcfce7;color:#166534',bim_lead:'#fce7f3;color:#9d174d',viewer:'#f1f5f9;color:#374151'};
+      const ROLE_LABELS={admin:'Admin',director:'Director',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer'};
+      const ROLE_COLORS={admin:'#fef3c7;color:#92400e',director:'#ede9fe;color:#6d28d9',mep_lead:'#e0f2fe;color:#0369a1',disc_lead:'#dcfce7;color:#166534',bim_lead:'#fce7f3;color:#9d174d',viewer:'#f1f5f9;color:#374151'};
 
       // Build combined list: engineer_roles + MEP leads from projects
       const allRoles=[...S.roles];
@@ -2318,8 +2349,9 @@ async function addRole(){
     renderPendingUsers();
     // Re-check admin status
     if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
-      adminUnlocked=true;
-      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+      window._isRealAdmin=true;
+      // v9.9.1 — do NOT auto-arm admin; respect current toggle state (default off)
+      applyAdminNav(!!adminUnlocked);
     }
   }catch(e){toast('Error adding role');}
 }
@@ -2541,8 +2573,9 @@ async function initApp(opts){
     }
     // Re-check admin status now that roles are loaded
     if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
-      adminUnlocked=true;
-      ['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend'].forEach(id=>{const el=document.getElementById(id);if(el)el.style.display='';});
+      window._isRealAdmin=true;
+      // v9.9.1 — do NOT auto-arm admin; respect current toggle state (default off)
+      applyAdminNav(!!adminUnlocked);
       const eb=document.getElementById('proj-hdr-export-btn');if(eb)eb.style.display='flex';
       const ib=document.getElementById('proj-hdr-import-btn');if(ib)ib.style.display='flex';
       const nb=document.getElementById('proj-hdr-new-btn');if(nb)nb.style.display='';
@@ -2577,6 +2610,7 @@ async function initApp(opts){
         }catch(e){console.error('gAnchor migration persist failed:',e);}})();
       }
     }
+    try{ syncAdminModeBtn(); }catch(e){}
     if(adminUnlocked){ try{ normalizeAllDesignations(true); }catch(e){ console.error('normalizeAllDesignations (auto) failed:',e); } }
     if(adminUnlocked){ try{ wipeEmployeeNumbers(true); }catch(e){ console.error('wipeEmployeeNumbers (auto) failed:',e); } }
 
@@ -3276,8 +3310,24 @@ function nextSlotKey(p,engId){
   let n=2; while((engId+'#'+n) in wh)n++;
   return engId+'#'+n;
 }
-// Duplicate bookings are limited to BIM members and JSE crews (the .md scope).
-function canDupBook(e){ return !!e&&(e.team==='BIM'||(e.name&&String(e.name).replace(/\s*\(\d+\)$/,'').startsWith('JSE-'))); }
+// v9.10.0 — multi-discipline booking. Duplicate bookings ("slots") are available to:
+//  • BIM members and JSE crews (original scope), AND
+//  • senior staff (Associate grade and above) who legitimately split one project's
+//    hours across disciplines (PH&E + HVAC + ELE, etc.). Each slot books to its own
+//    discipline; the person's rate is fixed to their grade; slots roll up to one
+//    person for personal capacity. Qualification is by grade-name keyword so it
+//    survives custom Cost-Rates tier names.
+function isSeniorDupGrade(grade){
+  if(!grade)return false;
+  return /director|manager|associate|principal/i.test(String(grade));
+}
+function canDupBook(e){
+  if(!e)return false;
+  if(e.team==='BIM')return true;
+  if(e.name&&String(e.name).replace(/\s*\(\d+\)$/,'').startsWith('JSE-'))return true;
+  if(isSeniorDupGrade(e.grade))return true; // Associate-and-above: multi-discipline booking
+  return false;
+}
 function projCost(p){
   let c=0;
   Object.entries(p.weeklyHrs||{}).forEach(([eid,a])=>{
@@ -3658,7 +3708,7 @@ async function discDelete(i){
 }
 function renderHealth(){
   const c=document.getElementById('pc-health'); if(!c)return;
-  if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required.</div>';return;}
+  if(!canSeeAllData()){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required.</div>';return;}
   let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div><div class="dh-tab '+(DH_TAB==='ghosts'?'on':'')+'" onclick="dhSetTab(\'ghosts\')">Ghost Hours'+(function(){const n=dhFindGhosts().length;return n?' ('+n+')':'';})()+'</div></div>';
   h+=(DH_TAB==='balance')?dhRenderBalance():(DH_TAB==='ghosts')?dhRenderGhosts():dhRenderSetup();
   c.innerHTML=h;
@@ -3761,7 +3811,7 @@ function buildSpendProjMenu(){var m=document.getElementById('spend-proj-menu');i
 function spendProjToggle(id){var a=(SPEND.projSel||[]).slice();var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);SPEND.projSel=a;SPEND.proj='';SPEND.stage='';buildSpendProjMenu();renderSpend();}
 function renderSpend(){
   const c=document.getElementById('pc-spend'); if(!c)return;
-  if(!adminUnlocked){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Admin access required to view expenditure.</div>';return;}
+  if(!canSeeAllData()){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required to view expenditure.</div>';return;}
   const sel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
   const dat='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none;';
   let h='<div class="spend-filters">';
@@ -3936,7 +3986,14 @@ function mkChart(id,type,labels,datasets,opts){
 // ═══════════════════════════════════════
 const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','settings','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals','activity'];
 const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave','nav-settings'];
-function applyAdminNav(show){ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});}
+const DATA_NAV_IDS=['nav-spend','nav-health','nav-weekly','nav-leave','nav-mgmt','nav-holidays']; // v9.9.1 — data views: directors + admins (any mode)
+function applyAdminNav(show){
+  // Control pages: only when admin mode is armed
+  ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});
+  // Data pages: visible to anyone who can see all data (director, or admin even in safe mode)
+  const dataOK=(typeof canSeeAllData==='function')&&canSeeAllData();
+  DATA_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&dataOK)el.style.display='';});
+}
 let CURRENT_PAGE='mep';
 
 // ═══════════════════════════════════════
@@ -6904,6 +6961,27 @@ function flushViews(){
   });
 }
 
+// v9.9.0 — post membership (role table + project mepLeadEmail) and "projects led"
+function engHasPost(e,post){
+  if(!e)return false;
+  const em=(e.email||'').toLowerCase(); if(!em)return false;
+  const roles=(S.roles||[]);
+  if(roles.some(r=>r.role===post&&(r.email||'').toLowerCase()===em))return true;
+  if(post==='mep_lead'){
+    if((S.projects||[]).some(p=>p.mepLeadEmail&&p.mepLeadEmail.toLowerCase()===em))return true;
+  }
+  return false;
+}
+function projectsLedBy(e){
+  const em=(e&&e.email||'').toLowerCase(); if(!em)return [];
+  const led=[];
+  (S.projects||[]).forEach(p=>{
+    const byProj=p.mepLeadEmail&&p.mepLeadEmail.toLowerCase()===em;
+    const byRole=(S.roles||[]).some(r=>r.role==='mep_lead'&&r.scope===p.id&&(r.email||'').toLowerCase()===em);
+    if(byProj||byRole)led.push(p);
+  });
+  return led;
+}
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
@@ -6911,6 +6989,16 @@ function renderTeam(){
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   const df=document.getElementById('ts-disc').value;
   const of2=document.getElementById('ts-off').value;
+  // v9.9.0 — Position filter: grades from Cost Rates + assigned posts (roles)
+  const posSel=(document.getElementById('ts-pos')||{}).value||'all';
+  (function(){
+    const psel=document.getElementById('ts-pos'); if(!psel)return;
+    const cur=psel.value;
+    const gradeOpts=GRADES.map(g=>`<option value="grade:${esc(g)}">${esc(g)}</option>`).join('');
+    const postOpts=['mep_lead','disc_lead','bim_lead'].map(r=>`<option value="post:${r}">${({mep_lead:'\u2605 MEP Lead',disc_lead:'\u2605 Disc Lead',bim_lead:'\u2605 BIM Lead'})[r]}</option>`).join('');
+    psel.innerHTML='<option value="all">All Positions</option><optgroup label="Grade / Designation">'+gradeOpts+'</optgroup><optgroup label="Assigned Post">'+postOpts+'</optgroup>';
+    if(cur)psel.value=cur;
+  })();
   // Grade order for sorting engineers within a discipline/BIM section — derived
   // live from GRADES, so it always matches whatever order the Cost Rates page
   // currently has (including the cost-based auto-sort applied on Save).
@@ -6933,6 +7021,10 @@ function renderTeam(){
   const filterEng=(e)=>{
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
     if(of2!=='all'&&e.off!==of2)return false;
+    if(posSel&&posSel!=='all'){
+      if(posSel.startsWith('grade:')){ if((e.grade||'')!==posSel.slice(6))return false; }
+      else if(posSel.startsWith('post:')){ if(!engHasPost(e,posSel.slice(5)))return false; }
+    }
     return true;
   };
 
@@ -8323,7 +8415,7 @@ async function addEngineerToProject(projId,engId){
     if(!canAdd){toast('⛔ You can only add engineers from your own discipline.');return;}
   }
   if(!p.weeklyHrs)p.weeklyHrs={};
-  if(isSlotKey(engId)&&!canDupBook(eng)){toast('Duplicate booking is only available for BIM members and JSE crews.');return;}
+  if(isSlotKey(engId)&&!canDupBook(eng)){toast('Multiple bookings are available for BIM, JSE crews, and Associate-grade and above.');return;}
   if(p.weeklyHrs[engId]&&p.weeklyHrs[engId].some(v=>v>0)){toast('Already on this project — use the ⊕ add again entry for a second booking.');return;}
   const weeks=stageWeeks(p.start,p.end);
   // Initialise with a placeholder 1 in the first week so the row shows up
@@ -8516,6 +8608,7 @@ function toggleDiscRows(projId, disc){
 // ── JSE capacity setting ──────────────────────────────
 function getJseCap(){ return (S.settings&&S.settings.jseCap)||55; }
 async function saveJseCap(val){
+  if(!adminUnlocked){toast('\u26d4 Admin only.');return;} // v9.9.2 UI guard (DB also enforces via RLS)
   const n=parseInt(val);
   if(isNaN(n)||n<1)return;
   if(!S.settings)S.settings={};
@@ -9944,6 +10037,7 @@ function renderRates(){
   }
 }
 function saveRates(){
+  if(!adminUnlocked){toast('\u26d4 Admin only \u2014 rates can only be changed in admin mode.');return;} // v9.9.2 UI guard (DB also enforces via RLS)
   // Read directly off each rendered input's own data-grade attribute, rather than
   // reconstructing a lookup id from the grade name — guarantees we're reading
   // exactly the tier the box belongs to, with zero chance of an id collision
@@ -10546,7 +10640,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
 
   // Group engineers by discipline — all visible, but only editable for user's disciplines
   const discs=MEP_DISCS.slice();
-  let html=`<div id="lvmain-${containerId}" style="overflow-x:auto" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
+  let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
     <thead>${_monthBandRow(weeks,'#16324f')}<tr>
       <th class="left" style="min-width:180px;position:sticky;left:0;z-index:2;background:#1e3a5f;color:#fff">Engineer</th>
@@ -10744,7 +10838,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
   const el=document.getElementById(containerId);
   if(!el)return;
   const discs=MEP_DISCS.slice();
-  let html=`<div id="lvmain-${containerId}" style="overflow-x:auto" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
+  let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
     <thead>${_monthBandRow(weeks,'#0c5f59')}<tr>
       <th class="left" style="min-width:180px;position:sticky;left:0;z-index:2;background:#0f766e;color:#fff">BIM Member</th>
@@ -13635,6 +13729,11 @@ const _origNav=typeof nav==='function'?nav:null;
       +'</div>';
     var trendSection=(sp?('<div style="padding:0 16px 14px;">'+sect('Utilisation trend')+'<div style="background:#F8FAFC;border-radius:10px;padding:10px 12px;">'+sp+'<div style="font-size:10px;color:#9AA7B5;margin-top:2px;">'+NM+' months</div></div></div>'):'');
     var allocSection='<div style="padding:0 16px 14px;">'+sect('Current allocation')+allocHtml+'</div>';
+    // v9.9.0 — "Leading" list: projects where this person is MEP Lead (project field or role)
+    var _led=(typeof projectsLedBy==='function')?projectsLedBy(e):[];
+    var leadSection=_led.length?('<div style="padding:0 16px 14px;">'+sect('Leading ('+_led.length+')')
+        +_led.map(function(p){var nm=(p.no?p.no+' \\u00b7 ':'')+(p.name||'Project');var stt=p.status||'';var sc=stt==='Active'?'#16a34a':stt==='On Hold'?'#d97706':'#94a3b8';return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;padding:4px 0;"><span style="width:7px;height:7px;border-radius:50%;background:'+sc+';flex-shrink:0;"></span><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(nm)+'</span><span style="font-size:10px;color:#9AA7B5;flex-shrink:0;">'+esc(stt)+'</span></div>';}).join('')
+      +'</div>'):'';
     var leaveSection='<div style="padding:0 16px 14px;">'+sect('Leave')
         +infoRow('Annual leave',(leaveOnlyH>0?(Math.round(leaveOnlyH)+' h · ~'+Math.round(leaveOnlyH/(((e.cap||45)/5)||9))+' d'):'None'))
         +infoRow('Public holidays',(holH>0?Math.round(holH)+' h':'None'))
@@ -13645,7 +13744,7 @@ const _origNav=typeof nav==='function'?nav:null;
       +'</div>';
     html=headerHtml
       +'<div style="display:flex;flex-wrap:wrap;align-items:stretch;">'
-        +'<div style="flex:1 1 360px;min-width:280px;border-right:0.5px solid #EDF1F6;">'+utilSection+trendSection+allocSection+leaveSection+accountSection+'</div>'
+        +'<div style="flex:1 1 360px;min-width:280px;border-right:0.5px solid #EDF1F6;">'+utilSection+trendSection+allocSection+leadSection+leaveSection+accountSection+'</div>'
         +'<div style="flex:1 1 360px;min-width:280px;">'+projsSection+teamSection+'</div>'
       +'</div>'
       +footerHtml;
