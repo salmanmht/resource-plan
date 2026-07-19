@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.10.1 · 16 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.21.0 · 17 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.10.1 · 16 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.21.0 · 17 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1648,12 +1648,13 @@ function rebuildDiscDerived(){
   DISC_LABEL['BIM']='BIM';
   DISCIPLINE_CONFIG.forEach(function(d){ DISC_LABEL['BIM:'+d.code]='BIM — '+d.label; });
   DISC_MENU_ORDER = MEP_DISCS.concat(MEP_DISCS.map(function(c){return 'BIM:'+c;})).concat(['BIM']);
+  if(Array.isArray(window.MEP_DISC)){var _v=DISC_MENU_ORDER.slice();window.MEP_DISC=window.MEP_DISC.filter(function(x){return _v.indexOf(x)>=0;});if(!window.MEP_DISC.length)window.MEP_DISC=null;}
 }
 function bimSubAliases(code){ var d=DISCIPLINE_CONFIG.find(function(x){return x.code===code;}); return d?d.bimSub:[code]; }
 // Validate + apply a loaded/edited config (guards against bad data breaking startup)
 function applyDisciplineConfig(arr){
   if(Array.isArray(arr)&&arr.length){
-    var clean=arr.filter(function(d){return d&&d.code&&d.label;}).map(function(d){
+    var clean=arr.filter(function(d){return d&&d.code&&d.label&&!/^mep$/i.test(String(d.code));}).map(function(d){
       return {code:String(d.code),label:String(d.label),color:d.color||'#64748b',bimSub:Array.isArray(d.bimSub)&&d.bimSub.length?d.bimSub:[String(d.code)]};
     });
     if(clean.length)DISCIPLINE_CONFIG=clean;
@@ -1699,6 +1700,12 @@ function canEditDisc(disc){
   if(adminUnlocked)return true;
   if(isDirector())return true; // v9.9.1 — directors can edit hours across disciplines
   const roles=myRoles();
+  // v9.16.1 — umbrella / non-real disc codes (e.g. 'MEP') belong to no single
+  // discipline; let any MEP lead or discipline lead manage those cross-disc heads.
+  if(disc && typeof MEP_DISCS!=='undefined' && disc!=='BIM' && MEP_DISCS.indexOf(disc)<0){
+    const _up=MEP_DISCS.map(function(d){return d.toUpperCase();});
+    return roles.some(function(r){return r.role==='mep_lead'||(r.role==='disc_lead'&&_up.indexOf((r.scope||'').toUpperCase())>=0);});
+  }
   if(!roles.length){
     const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
     if(!eng)return false;
@@ -3132,7 +3139,7 @@ function discUtilWeighted(engSet,disc,util,minMI,NMON,split){
     engSet.forEach(e=>{
       let w;
       if(e.team==='BIM'){ w=(disc==='BIM')?1:0; }
-      else if(!e.crossDisc){ w=(e.disc===disc)?1:0; }
+      else if(!(e.crossDisc||isUmbrella(e))){ w=(e.disc===disc)?1:0; }
       else {
         const md=(split.perEng[e.id]&&split.perEng[e.id][m])||{};
         let tot=0; for(const k in md) tot+=md[k];
@@ -3321,10 +3328,15 @@ function isSeniorDupGrade(grade){
   if(!grade)return false;
   return /director|manager|associate|principal/i.test(String(grade));
 }
+// v9.12.0 — "MEP" (or any code not in the live discipline config) is an umbrella,
+// not a real discipline: such a person books across every discipline and surfaces
+// wherever they're booked, with no home discipline page of their own.
+function isUmbrella(e){ if(!e)return false; if(e.team==='BIM')return (e.subDisc||e.disc)==='MEP'; return !!(e.disc&&typeof MEP_DISCS!=='undefined'&&MEP_DISCS.indexOf(e.disc)<0); }
 function canDupBook(e){
   if(!e)return false;
   if(e.team==='BIM')return true;
   if(e.name&&String(e.name).replace(/\s*\(\d+\)$/,'').startsWith('JSE-'))return true;
+  if(isUmbrella(e))return true; // v9.19.2 — MEP heads stay in the add list (⊕ add again) so they can be booked into several disciplines on one project
   if(isSeniorDupGrade(e.grade))return true; // Associate-and-above: multi-discipline booking
   return false;
 }
@@ -3689,6 +3701,7 @@ async function discSave(i){
   if(!code||!label){ toast('Code and label are required.'); return; }
   var bimSub=bimRaw?bimRaw.split(',').map(function(s){return s.trim();}).filter(Boolean):[code];
   if(isNew){
+    if(/^mep$/i.test(code)){ toast('“MEP” is the umbrella for all disciplines — it can’t be a discipline itself.'); return; }
     if(code==='BIM'||DISCIPLINE_CONFIG.some(function(x){return x.code===code;})){ toast('That code already exists.'); return; }
     DISCIPLINE_CONFIG.push({code:code,label:label,color:color,bimSub:bimSub});
   } else {
@@ -4092,7 +4105,8 @@ function wtEngineerRows(){
     {key:'BIM-PH', label:'BIM — Plumbing & Fire', match:e=>e.team==='BIM'&&(e.subDisc==='PH&E'||e.subDisc==='PH')},
     {key:'BIM-ELV',label:'BIM — ELV', match:e=>e.team==='BIM'&&(e.subDisc==='ELV')},
     {key:'BIM-OTH',label:'BIM — Other', match:e=>e.team==='BIM'&&!['HVAC','MEC','Mechanical','ELE','PH&E','PH','ELV'].includes(e.subDisc)},
-    {key:'OTHER', label:'Other / Unassigned', match:e=>e.team!=='BIM'&&!MEP_DISCS.includes(e.disc)}
+    {key:'XDISC', label:'Cross-discipline', match:e=>e.team!=='BIM'&&isUmbrella(e)},
+    {key:'OTHER', label:'Other / Unassigned', match:e=>e.team!=='BIM'&&!MEP_DISCS.includes(e.disc)&&!isUmbrella(e)}
   ]);
   const TAB_TO_SEC={hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV'};
   const tabMatch=(secKey)=>{
@@ -5198,11 +5212,13 @@ function mepDiscMatch(e){
     var d=sel[i];
     if(d==='BIM'){ if(e.team==='BIM')return true; }
     else if(d.indexOf('BIM:')===0){ if(bimSubMatch(e,d.slice(4)))return true; }
-    else { if(e.team!=='BIM'&&e.disc===d)return true; }
+    else { if(e.team!=='BIM'){ if(e.disc===d)return true; if((e.crossDisc||isUmbrella(e))&&engBookedIntoDisc(e,d,(typeof _msf==='function'?_msf():null)))return true; } } // v9.20.0 — MEP heads join a discipline view via their BOOKED hours there
   }
   return false;
 }
 function mepDiscActive(){ return window.MEP_DISC && window.MEP_DISC.length>0; }
+// v9.16.0 — the MEP disciplines currently in scope (excludes BIM entries); null = all.
+function activeDiscScope(){ var s=(mepDiscActive()&&window.MEP_DISC)?window.MEP_DISC.filter(function(x){return x!=='BIM'&&x.indexOf('BIM:')!==0;}):[]; return s.length?s:null; }
 function mepDiscLabel(){
   var sel=window.MEP_DISC||[];
   if(!sel.length)return '';
@@ -5470,13 +5486,63 @@ function toggleEngRow(engId,tableId){
   if(legacy)legacy.style.display=isOpen?'':'none';
 }
 
-function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,weeks){
+// v9.16.0 — per-engineer project hours restricted to the in-scope discipline(s):
+// each booking key counts only if its effDisc is within `scope`. Used to show a
+// cross-disc / MEP head's DISCIPLINE share in a single-discipline heatmap view.
+function engDiscProjCols(engId,scope,isWeekly,weeks,base,n){
+  var _sf=(typeof _msf==='function'?_msf():null);
+  var baseEng=S.engineers.find(function(x){return x.id===engId;});
+  var out=[];
+  S.projects.forEach(function(p){
+    if(!p.start)return;
+    if(_sf&&(Array.isArray(_sf)?_sf.indexOf(p.status)<0:p.status!==_sf))return;
+    var wh=p.weeklyHrs||{};
+    var arr=[];
+    Object.keys(wh).forEach(function(k){
+      if(k!==engId&&slotBase(k)!==engId)return;
+      var se=slotEng(k)||baseEng;
+      if(scope.indexOf(effDisc(se,p))<0)return;
+      (wh[k]||[]).forEach(function(v,i){arr[i]=(arr[i]||0)+(v||0);});
+    });
+    if(!arr.some(function(v){return v>0;}))return;
+    var cells=Array(n).fill(0),has=false;
+    arr.forEach(function(hh,wi){
+      if(!hh)return;
+      var wk=projWeekDate(p.start,wi);
+      if(isWeekly){
+        var idx=weeks.findIndex(function(w){return w.getFullYear()===wk.getFullYear()&&w.getMonth()===wk.getMonth()&&w.getDate()===wk.getDate();});
+        if(idx>=0){cells[idx]+=hh;has=true;}
+      } else {
+        var mi=dateToMI(wk)-base;
+        if(mi>=0&&mi<n){cells[mi]+=hh;has=true;}
+      }
+    });
+    if(has)out.push(isWeekly?{proj:p,wHrs:cells}:{proj:p,mHrs:cells});
+  });
+  return out;
+}
+function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,weeks,discScope){
   const el=document.getElementById(elId);if(!el)return;
   const n=NMON||9;const base=minMI||0;
   const cols=mF!==null&&mF!==undefined?[mF-base]:Array.from({length:n},(_,i)=>i);
   const colLabels=customColLabels?cols.map(ci=>customColLabels[ci]||''):cols.map(ci=>miLabel(base+ci));
   const isWeekly=!!(customColLabels&&weeks&&weeks.length);
   const tId=elId;
+  // v9.16.0 — single-discipline scope: cross-disc / MEP-umbrella heads show only
+  // their booked hours for the in-scope discipline(s); management/leave excluded.
+  const _scope=(Array.isArray(discScope)&&discScope.length)?discScope:null;
+  const _scopedU={},_scopedProj={};
+  if(_scope){
+    sub.forEach(e=>{
+      if(!(isUmbrella(e)||e.crossDisc))return;
+      const pd=engDiscProjCols(e.id,_scope,isWeekly,weeks,base,n);
+      _scopedProj[e.id]=pd;
+      const dh=Array(n).fill(0);
+      pd.forEach(o=>{(o.wHrs||o.mHrs||[]).forEach((hh,ci)=>{dh[ci]=(dh[ci]||0)+(hh||0);});});
+      const _bU=billUtil||util;
+      _scopedU[e.id]=Array.from({length:n},(_,ci)=>{const tot=(hrs[e.id]||[])[ci]||0;return tot>0?(((_bU[e.id]||[])[ci]||0)*((dh[ci]||0)/tot)):0;});
+    });
+  }
 
   // Helper to compute per-engineer per-week project hours (only used in weekly mode)
   function engProjHrsWeekly(engId){
@@ -5528,10 +5594,10 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
 
   let h=`<thead><tr><th style="width:20px"></th><th>#</th><th>Name</th><th>Disc</th><th>Off</th>${colLabels.map(l=>'<th>'+l+'</th>').join('')}<th>Avg%</th></tr></thead><tbody>`;
   sub.forEach((e,i)=>{
-    const u=util[e.id]||Array(n).fill(0);const avg=u.slice(cols[0],cols[cols.length-1]+1).reduce((a,b)=>a+b,0)/cols.length;
-    const projData=isWeekly?engProjHrsWeekly(e.id):engProjHrs(e.id,minMI,NMON);
+    const u=_scopedU[e.id]||util[e.id]||Array(n).fill(0);const avg=u.slice(cols[0],cols[cols.length-1]+1).reduce((a,b)=>a+b,0)/cols.length;
+    const projData=_scopedProj[e.id]?_scopedProj[e.id]:(isWeekly?engProjHrsWeekly(e.id):engProjHrs(e.id,minMI,NMON));
     const hasProjs=projData.length>0;
-    const _npStr=_npRows(e);const hasExpand=hasProjs||_npStr.length>0;
+    const _npStr=_scopedU[e.id]?'':_npRows(e);const hasExpand=hasProjs||_npStr.length>0;
     const isOpen=window.engExpanded[tId]&&window.engExpanded[tId][e.id];
     const isJSEe=!!(e.name&&e.name.startsWith('JSE-'));
     const _hArr=hrs[e.id]||[];
@@ -5608,16 +5674,16 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     const bu=billUtil||util; // fallback to util if billUtil not passed
     // Total utilisation row
     const totRow=cols.map(mi=>{
-      const avg=sub.map(e=>(util[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
+      const avg=sub.map(e=>(_scopedU[e.id]||util[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
       return`<td style="text-align:left;font-weight:700;font-size:11px;background:#e0e7ff;color:#1e3a5f">${avg.toFixed(0)}%</td>`;
     }).join('');
-    const overallUtil=sub.reduce((a,e)=>{const u=util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
+    const overallUtil=sub.reduce((a,e)=>{const u=_scopedU[e.id]||util[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
     // Billable utilisation row
     const billRow=cols.map(mi=>{
-      const avg=sub.map(e=>(bu[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
+      const avg=sub.map(e=>(_scopedU[e.id]||bu[e.id]||[])[mi]||0).reduce((a,b)=>a+b,0)/sub.length;
       return`<td style="text-align:left;font-weight:700;font-size:11px;background:#cffafe;color:#164e63">${avg.toFixed(0)}%</td>`;
     }).join('');
-    const overallBill=sub.reduce((a,e)=>{const u=bu[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
+    const overallBill=sub.reduce((a,e)=>{const u=_scopedU[e.id]||bu[e.id]||[];return a+u.slice(cols[0],cols[cols.length-1]+1).reduce((x,y)=>x+y,0)/cols.length;},0)/sub.length;
     h+=`<tr style="border-top:2px solid #1e3a5f;background:#e0e7ff;">
       <td></td><td></td>
       <td colspan="3" style="padding:4px 10px;font-weight:700;font-size:11px;color:#1e3a5f">TEAM UTIL%</td>
@@ -6089,11 +6155,11 @@ function renderMEP(){
   if(GRAIN==='week'&&grainData.weeks){
     const wkLabels=grainData.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
     const wkCols=grainData.weeks.map((_,i)=>i);
-    heatTable('t-mep-heat',sortByAvgUtil(mepOnly,grainData.util,wkCols),grainData.util,grainData.hrs,0,N,null,grainData.billUtil,wkLabels,grainData.weeks);
+    heatTable('t-mep-heat',sortByAvgUtil(mepOnly,grainData.util,wkCols),grainData.util,grainData.hrs,0,N,null,grainData.billUtil,wkLabels,grainData.weeks,activeDiscScope());
     heatTable('t-bim-heat',sortByAvgUtil(bimOnly,grainData.util,wkCols),grainData.util,grainData.hrs,0,N,null,grainData.billUtil,wkLabels,grainData.weeks);
   } else {
     const moCols=Array.from({length:NMON},(_,i)=>i);
-    heatTable('t-mep-heat',sortByAvgUtil(mepOnly,util,moCols),util,hrs,minMI,NMON,null,billUtil);
+    heatTable('t-mep-heat',sortByAvgUtil(mepOnly,util,moCols),util,hrs,minMI,NMON,null,billUtil,null,null,activeDiscScope());
     heatTable('t-bim-heat',sortByAvgUtil(bimOnly,util,moCols),util,hrs,minMI,NMON,null,billUtil);
   }
   // Store data for deep dive rendering when expanded
@@ -6760,10 +6826,10 @@ function renderOffice(off,pcId){
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_msf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
-      heatTable(`off-t-${cid}`,subMEP,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
+      heatTable(`off-t-${cid}`,subMEP,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,activeDiscScope());
       heatTable(`off-t-bim-${cid}`,subBIM,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
     } else {
-      heatTable(`off-t-${cid}`,subMEP,util,hrs,minMI,NMON,null,billUtil);
+      heatTable(`off-t-${cid}`,subMEP,util,hrs,minMI,NMON,null,billUtil,null,null,activeDiscScope());
       heatTable(`off-t-bim-${cid}`,subBIM,util,hrs,minMI,NMON,null,billUtil);
     }
   },0);
@@ -6777,16 +6843,41 @@ function switchOffHeatTab(cid,tab){
     if(panel)panel.style.display=t===tab?'':'none';
   });
 }
+// v9.11.0 — does a cross-discipline person have any booked hours whose effDisc
+// resolves to `disc` (per-project override wins, slot rows count to their own
+// booked discipline)? Drives which discipline pages a shared head surfaces on.
+function engBookedIntoDisc(e,disc,sf){
+  return S.projects.some(function(p){
+    if(!p.start)return false;
+    if(sf&&(Array.isArray(sf)?sf.indexOf(p.status)<0:p.status!==sf))return false;
+    var wh=p.weeklyHrs||{};
+    return Object.keys(wh).some(function(k){
+      if(slotBase(k)!==e.id)return false;
+      var arr=wh[k];if(!arr||!arr.some(function(v){return v>0;}))return false;
+      var se=slotEng(k)||e;
+      return effDisc(se,p)===disc;
+    });
+  });
+}
 function renderDisc(disc,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());let sub=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');if(window.DISC_OFF&&window.DISC_OFF!=='all')sub=sub.filter(e=>e.off===window.DISC_OFF);document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF||'all';});document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS||'all';});
+  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());
+  let home=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');
+  let visitors=S.engineers.filter(e=>e.team!=='BIM'&&e.disc!==disc&&(e.crossDisc||isUmbrella(e))&&engBookedIntoDisc(e,disc,_dsf())); // v9.20.0 — MEP heads visit via bookings
+  if(window.DISC_OFF&&window.DISC_OFF!=='all'){home=home.filter(e=>e.off===window.DISC_OFF);visitors=visitors.filter(e=>e.off===window.DISC_OFF);}
+  document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF||'all';});document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS||'all';});
+  const sub=home.concat(visitors);
+  const split=discHoursSplit(sub,minMI,NMON,_dsf());
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
-  const avgU=wMean(subUtil(sub,util,minMI,NMON),minMI);const cid=disc.toLowerCase().replace('&','');
+  const homeDxb=home.filter(e=>e.off==='DXB'),homeEgy=home.filter(e=>e.off==='EGY');
+  const avgU=wMean(discUtilWeighted(sub,disc,util,minMI,NMON,split),minMI);
+  const discCost=sub.reduce((a,e)=>{const pe=split.perEng[e.id];if(!pe)return a;let h=0;for(let m=0;m<NMON;m++)h+=(pe[m][disc]||0);return a+h*getRate(e);},0);
+  const cid=disc.toLowerCase().replace('&','');
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
-      <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${sub.length}</div><div class="mc-s">${dxb.length} DXB · ${egy.length} EGY</div></div>
+      <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${home.length}</div><div class="mc-s">${homeDxb.length} DXB · ${homeEgy.length} EGY${visitors.length?` · +${visitors.length} cross`:``}</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div></div>
-      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div></div>
+      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(discCost)}</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="card-t">Utilisation vs Billable — ${disc}</div><div class="cbox"><canvas id="di-bill-${cid}"></canvas></div></div>
@@ -6810,19 +6901,19 @@ function renderDisc(disc,pcId){
       </div>
     </div>`;
   setTimeout(()=>{
-    mkChart(`di-off-${cid}`,'bar',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[{label:'DXB',data:subUtil(dxb,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'EGY',data:subUtil(egy,util,minMI,NMON).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
+    mkChart(`di-off-${cid}`,'bar',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[{label:'DXB',data:discUtilWeighted(dxb,disc,util,minMI,NMON,split).map(v=>+v.toFixed(1)),backgroundColor:'#5b21b6',borderRadius:3,borderSkipped:false},{label:'EGY',data:discUtilWeighted(egy,disc,util,minMI,NMON,split).map(v=>+v.toFixed(1)),backgroundColor:'#991b1b',borderRadius:3,borderSkipped:false}],{y:{ticks:{callback:v=>v+'%'},min:0}});
     mkChart(`di-bill-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),[
-      {label:'Total Utilisation',data:subUtil(sub,util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
-      {label:'Billable Utilisation',data:subUtil(sub,billUtil||util,minMI,NMON).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
+      {label:'Total Utilisation',data:discUtilWeighted(sub,disc,util,minMI,NMON,split).map(v=>+v.toFixed(1)),borderColor:'#1d4ed8',backgroundColor:'#1d4ed815',borderWidth:2.5,tension:.35,fill:false,pointRadius:4},
+      {label:'Billable Utilisation',data:discUtilWeighted(sub,disc,billUtil||util,minMI,NMON,split).map(v=>+v.toFixed(1)),borderColor:'#0891b2',backgroundColor:'#0891b215',borderWidth:2.5,tension:.35,fill:false,pointRadius:4,borderDash:[6,3]}
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_dsf());
       const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
-      heatTable(`di-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
-      heatTable(`di-egy-${cid}`,egy,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
+      heatTable(`di-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,[disc]);
+      heatTable(`di-egy-${cid}`,egy,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,[disc]);
     } else {
-      heatTable(`di-dxb-${cid}`,dxb,util,hrs,minMI,NMON,null,billUtil);
-      heatTable(`di-egy-${cid}`,egy,util,hrs,minMI,NMON,null,billUtil);
+      heatTable(`di-dxb-${cid}`,dxb,util,hrs,minMI,NMON,null,billUtil,null,null,[disc]);
+      heatTable(`di-egy-${cid}`,egy,util,hrs,minMI,NMON,null,billUtil,null,null,[disc]);
     }
   },0);
 }
@@ -6937,8 +7028,10 @@ function switchTeamTab(tab){
 function refreshTeamDiscFilterOptions(){
   const sel=document.getElementById('ts-disc'); if(!sel)return;
   const current=sel.value;
+  const hasUmb=S.engineers.some(e=>e.team!=='BIM'&&isUmbrella(e));
   const opts=['<option value="all">All Disciplines</option>']
     .concat(MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`))
+    .concat(hasUmb?['<option value="MEP">MEP</option>']:[])
     .concat(['<option value="BIM">BIM</option>']);
   sel.innerHTML=opts.join('');
   sel.value=Array.prototype.some.call(sel.options,o=>o.value===current)?current:'all';
@@ -7018,6 +7111,7 @@ function renderTeam(){
     'ELE':{bg:'#FAC775',color:'#633806',badge:'#FAEEDA',badgeTxt:'#854F0B'},
     'ELV':{bg:'#F4C0D1',color:'#72243E',badge:'#FBEAF0',badgeTxt:'#993556'},
     'BIM':{bg:'#CECBF6',color:'#3C3489',badge:'#EEEDFE',badgeTxt:'#534AB7'},
+    'MEP':{bg:'#D8DEE6',color:'#1e3a5f',badge:'#E9EEF4',badgeTxt:'#1e3a5f'},
   };
 
   // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
@@ -7036,7 +7130,7 @@ function renderTeam(){
     return true;
   };
 
-  const makeCard=(e,disc)=>{
+  const makeCard=(e,disc,isCross)=>{
     const st=DISC_STYLES[disc]||DISC_STYLES['BIM'];
     const initials=e.name.split(' ').slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
     const offLabel=e.off||'DXB';
@@ -7049,7 +7143,7 @@ function renderTeam(){
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.25;">${e.name}</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.25;">${e.name}${isCross?' <span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#eef2f7;color:#1e3a5f;vertical-align:2px;">cross</span>':''}</div>
             <div style="font-size:11px;color:var(--tx2);margin-top:3px;">${e.desig||'—'} · <span style="color:var(--tx3);">${offLabel}</span></div>
           </div>
           ${gaugeHtml}
@@ -7063,17 +7157,20 @@ function renderTeam(){
     </div>`;
   };
 
-  const makeSection=(disc,engs)=>{
-    if(!engs.length)return'';
+  const makeSection=(disc,engs,visitors)=>{
+    visitors=visitors||[];
+    if(!engs.length&&!visitors.length)return'';
     const st=DISC_STYLES[disc]||DISC_STYLES['BIM'];
-    const sorted=[...engs].sort((a,b)=>(GO[a.grade]??9)-(GO[b.grade]??9)||a.name.localeCompare(b.name));
+    const _srt=(a,b)=>(GO[a.grade]??9)-(GO[b.grade]??9)||a.name.localeCompare(b.name);
+    const sorted=[...engs].sort(_srt);
+    const vsorted=[...visitors].sort(_srt);
     return`<div style="margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--bdr);margin-bottom:10px;">
         <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${st.badge};color:${st.badgeTxt};">${disc}</span>
-        <span style="font-size:11px;color:var(--tx3);">${engs.length} ${disc==='BIM'?'members':'engineers'}</span>
+        <span style="font-size:11px;color:var(--tx3);">${engs.length} ${disc==='BIM'?'members':'engineers'}${visitors.length?` \u00b7 +${visitors.length} cross`:''}</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">
-        ${sorted.map(e=>makeCard(e,disc)).join('')}
+        ${sorted.map(e=>makeCard(e,disc,false)).join('')}${vsorted.map(e=>makeCard(e,disc,true)).join('')}
       </div>
     </div>`;
   };
@@ -7090,7 +7187,8 @@ function renderTeam(){
       if(!isBIM&&e.disc!==df)return false;
       return filterEng(e);
     });
-    grid.innerHTML=makeSection(df,engs)||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
+    const engsFinal=(df==='MEP')?S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e)):engs;
+    grid.innerHTML=makeSection(df,engsFinal)||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
     return;
   }
 
@@ -7101,6 +7199,9 @@ function renderTeam(){
     const engs=S.engineers.filter(e=>e.team!=='BIM'&&e.disc===disc&&filterEng(e));
     html+=makeSection(disc,engs);
   });
+  // MEP umbrella heads (Directors / cross-discipline) shown as one MEP group
+  const mepHeads=S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e));
+  html+=makeSection('MEP',mepHeads);
   // BIM grouped
   const bimEngs=S.engineers.filter(e=>e.team==='BIM'&&filterEng(e));
   html+=makeSection('BIM',bimEngs);
@@ -8122,7 +8223,7 @@ function renderProjDetail(p){
           <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap;">
             <div style="display:flex;gap:6px;align-items:center;">
               <span style="font-size:11px;color:var(--tx2);font-weight:600;white-space:nowrap;">${window._propViewing?'Add grade:':'Add team member:'}</span>
-              <select id="add-eng-${p.id}" onchange="addEngineerToProject('${p.id}',this.value);this.value='';" style="font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:#fff;min-width:240px;">
+              <select id="add-eng-${p.id}" onchange="onAddEngPick('${p.id}',this.value);this.value='';" style="font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;background:#fff;min-width:240px;">
                 <option value="">— select to add —</option>
                 ${(function(){
                   const wh=p.weeklyHrs||{};
@@ -8144,15 +8245,16 @@ function renderProjDetail(p){
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
                   // v9.3.0 — BIM/JSE members stay listed even when assigned: picking them again adds a second booking (slot)
-                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
-                  let html='',lastDisc='';
-                  mepAvail.forEach(e=>{
-                    if(e.disc!==lastDisc){ if(lastDisc)html+='</optgroup>'; html+=`<optgroup label="MEP-${e.disc}">`; lastDisc=e.disc; }
-                    const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id; // v9.3.0
-                    html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`;
-                  });
-                  if(lastDisc)html+='</optgroup>';
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  let html='';
+                  const _mepByD={}; mepAvail.forEach(e=>{ (_mepByD[e.disc]=_mepByD[e.disc]||[]).push(e); });
+                  const _mepOrder=MEP_DISCS.concat(Object.keys(_mepByD).filter(d=>MEP_DISCS.indexOf(d)<0)); // real disciplines first, MEP/umbrella last
+                  _mepOrder.forEach(d=>{ const list=_mepByD[d]; if(!list||!list.length)return;
+                    html+=`<optgroup label="MEP-${esc(d)}">`;
+                    list.forEach(e=>{ const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id;
+                      html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`; });
+                    html+='</optgroup>'; });
                   if(bimAvail.length){
                     let lastBimDisc='';
                     bimAvail.forEach(e=>{
@@ -8413,6 +8515,34 @@ async function cycleStatus(projId){
 // Access control: can the current user edit hours/engineers for a given discipline?
 // Admin → always yes. BIM grades → only BIM disc. Others → only their own disc.
 
+// v9.19.0 — adding a cross-disc / MEP head asks which discipline to book them to on
+// this project (drives cost). 'Keep as MEP' leaves them in the MEP group to set later.
+function onAddEngPick(projId,val){
+  if(!val)return;
+  const base=S.engineers.find(e=>e.id===slotBase(val));
+  if(base && isUmbrella(base)) showAddDiscChooser(projId,val,base.name);
+  else addEngineerToProject(projId,val);
+}
+function showAddDiscChooser(projId,engId,engName){
+  const old=document.getElementById('add-disc-chooser'); if(old)old.remove();
+  const bs='font-size:13px;font-weight:700;padding:8px 14px;border-radius:8px;border:1px solid #cbd5e1;background:#fff;color:#1e3a5f;cursor:pointer;';
+  const btns=MEP_DISCS.map(function(d){return `<button style="${bs}" onclick="_addDiscPick('${esc(projId)}','${esc(engId)}','${esc(d)}')">${esc(d)}</button>`;}).join('');
+  const ov=document.createElement('div');
+  ov.id='add-disc-chooser';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.45);z-index:99999;display:flex;align-items:center;justify-content:center;';
+  ov.innerHTML=`<div style="background:#fff;border-radius:12px;padding:20px 22px;max-width:380px;box-shadow:0 12px 40px rgba(0,0,0,.3);">`
+    +`<div style="font-size:14px;font-weight:800;color:#1e3a5f;margin-bottom:4px;">Add ${esc(engName)}</div>`
+    +`<div style="font-size:12px;color:#64748b;margin-bottom:14px;">Which discipline should their hours &amp; cost go to on this project? You can change it later.</div>`
+    +`<div style="display:flex;flex-wrap:wrap;gap:8px;">${btns}`
+    +`<button style="${bs}color:#64748b;" onclick="_addDiscPick('${esc(projId)}','${esc(engId)}','MEP')">Keep as MEP</button></div>`
+    +`<div style="text-align:right;margin-top:16px;"><button style="font-size:12px;color:#64748b;background:none;border:none;cursor:pointer;" onclick="document.getElementById('add-disc-chooser').remove()">Cancel</button></div></div>`;
+  document.body.appendChild(ov);
+}
+async function _addDiscPick(projId,engId,disc){
+  const ov=document.getElementById('add-disc-chooser'); if(ov)ov.remove();
+  await addEngineerToProject(projId,engId);
+  if(disc && disc!=='MEP') await setBookDisc(projId,engId,disc);
+}
 async function addEngineerToProject(projId,engId){
   if(!engId)return;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
@@ -9173,7 +9303,7 @@ function renderProjCard(p, mode){
   // booked-discipline picker. Normal projects are unchanged.
   const hasCrossDisc = Object.keys(wh).some(id=>{
     const e=slotEng(id); // v9.3.0
-    return e && e.crossDisc && (wh[id]||[]).some(v=>v>0);
+    return e && (e.crossDisc||isUmbrella(e)); // v9.16.1 — reveal even at 0 hours
   });
   const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : new Set(hasCrossDisc?[0,3]:[0,1,3]);
   const FROZEN_WIDTHS_FULL=[68,72,32,68,140,150,60,78,78];
@@ -9250,7 +9380,7 @@ function renderProjCard(p, mode){
 
   // ── Body rows
   let rows='';
-  discs.forEach(disc=>{
+  discs.concat(discs.indexOf('MEP')<0?['MEP']:[]).forEach(disc=>{ // v9.19.0 — MEP group for heads kept as MEP
     // Grade seniority order — derived live from GRADES so custom/renamed tiers sort correctly
     const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
     const mepEngs=projEngineers(p) // v9.3.0 — slot clones give each booking its own row
@@ -9282,8 +9412,8 @@ function renderProjCard(p, mode){
       const mult=getJseMult(p,e.id);
       return a+(wh[e.id]||[]).reduce((s,h)=>s+(h||0),0)*mult;
     },0);
-    const DISC_BG={'HVAC':'#dbeafe','PH&E':'#dcfce7','ELE':'#fef9c3','ELV':'#fce7f3'}[disc]||'#e5e7eb';
-    const DISC_FG={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d'}[disc]||'#374151';
+    const DISC_BG={'HVAC':'#dbeafe','PH&E':'#dcfce7','ELE':'#fef9c3','ELV':'#fce7f3','MEP':'#e2e8f0'}[disc]||'#e5e7eb';
+    const DISC_FG={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','MEP':'#1e3a5f'}[disc]||'#374151';
     
     const discCollapsed = (window._discCollapsed && window._discCollapsed[p.id] && window._discCollapsed[p.id][disc]) || false;
     const chevSymbol = discCollapsed ? '▶' : '▼';
@@ -9342,14 +9472,14 @@ function renderProjCard(p, mode){
       const nameBg=isBIM?'background:#f0fdfa;':'';
       const _bimCur=isBIM?((p.bookDisc&&p.bookDisc[eng.id])||bimDiscCode(eng.subDisc)||eng.subDisc||'BIM'):'';
       const discBadge=isBIM
-        ? (eng.crossDisc
+        ? ((eng.crossDisc||isUmbrella(eng))
             ? (isBimLead()
-                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this BIM member's hours under the chosen trade on this project (they stay BIM everywhere BIM is shown)" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #0d9488;border-radius:4px;background:#f0fdfa;color:#0d9488;font-weight:700;cursor:pointer;">${MEP_DISCS.map(dd=>`<option value="${dd}"${_bimCur===dd?' selected':''}>${dd}</option>`).join('')}</select>`
+                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this BIM member's hours under the chosen trade on this project (they stay BIM everywhere BIM is shown)" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #0d9488;border-radius:4px;background:#f0fdfa;color:#0d9488;font-weight:700;cursor:pointer;">${isUmbrella(eng)?`<option value="MEP"${_bimCur==='MEP'?' selected':''}>MEP</option>`:''}${MEP_DISCS.map(dd=>`<option value="${dd}"${_bimCur===dd?' selected':''}>${dd}</option>`).join('')}</select>`
                 : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;" title="Booked trade for this BIM member on this project — only the BIM Lead or admin can change it">${esc(_bimCur)}</span>`)
             : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`)
-        : (eng.crossDisc
+        : ((eng.crossDisc||isUmbrella(eng))
             ? (canEditDisc(eng.disc)
-                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
+                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this person's hours under the chosen discipline on this project" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #1e3a5f;border-radius:4px;background:#eef2f7;color:#1e3a5f;font-weight:700;cursor:pointer;">${MEP_DISCS.indexOf(effDisc(eng,p))<0?`<option value="" disabled selected>— pick —</option>`:''}${MEP_DISCS.map(d=>`<option value="${d}"${effDisc(eng,p)===d?' selected':''}>${d}</option>`).join('')}</select>`
                 : `<span class="bdg b-${effDisc(eng,p).replace(/[^A-Za-z]/g,'')}" title="Booked discipline on this project — only their discipline lead or admin can change it">${effDisc(eng,p)}</span>`)
             : `<span class="bdg b-${discCls}">${disc}</span>`);
       const jseMult_html=''; // v9.4.7 — ×N spinner removed from JSE rows per request (multiplier logic unchanged; management moving elsewhere)
@@ -10177,7 +10307,8 @@ function isBimAllowed(prefix){
 }
 function fillDisc(){
   const sel=document.getElementById('em-disc'); if(!sel)return;
-  sel.innerHTML=MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('');
+  const isBIM=document.getElementById('em-is-bim')&&document.getElementById('em-is-bim').checked;
+  sel.innerHTML=MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+`<option value="MEP">MEP (cross-discipline)</option>`;
 }
 function fillGrade(isBIM){
   const list=isBIM?BIM_GRADES:GRADES;
@@ -10189,6 +10320,7 @@ function fillGrade(isBIM){
 // approach, which tried to guess the grade back out of typed text).
 function computeDesig(grade,disc){
   grade=(grade||'').trim(); disc=(disc||'').trim();
+  if(disc==='MEP')disc=''; // umbrella — no discipline suffix in designation
   if(!grade&&!disc)return'';
   if(!disc)return grade;
   if(!grade)return disc;
@@ -10654,7 +10786,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
   if(!el)return;
 
   // Group engineers by discipline — all visible, but only editable for user's disciplines
-  const discs=MEP_DISCS.slice();
+  const discs=MEP_DISCS.concat(['MEP']); // v9.21.0 — umbrella heads get their own leave group
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
     <thead>${_monthBandRow(weeks,'#16324f')}<tr>
@@ -10852,7 +10984,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
   const weeks=globalWeeks(yr);
   const el=document.getElementById(containerId);
   if(!el)return;
-  const discs=MEP_DISCS.slice();
+  const discs=MEP_DISCS.concat(['MEP']); // v9.21.0 — umbrella heads get their own leave group
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
     <thead>${_monthBandRow(weeks,'#0c5f59')}<tr>
@@ -12110,7 +12242,7 @@ function exportStageSummary(projId){
   const discData=DISCS.map(disc=>{
     const engs=(disc==='BIM'
       ? projEngineers(p).filter(e=>e.team==='BIM')
-      : projEngineers(p).filter(e=>e.disc===disc&&e.team!=='BIM')
+      : projEngineers(p).filter(e=>effDisc(e,p)===disc&&e.team!=='BIM')
     ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)) /* v9.3.0 — slot rows export as their own lines */
      .sort((a,b)=>{const ga=GO2[a.grade]||99,gb=GO2[b.grade]||99;if(ga!==gb)return ga-gb;return a.name.localeCompare(b.name);});
     if(!engs.length)return null;
@@ -12630,7 +12762,7 @@ function exportExcel(opts){
         const isBIM=disc==='BIM';
         const discEngs=(isBIM
           ? projEngineers(p).filter(e=>e.team==='BIM')
-          : projEngineers(p).filter(e=>e.disc===disc&&e.team!=='BIM')
+          : projEngineers(p).filter(e=>effDisc(e,p)===disc&&e.team!=='BIM')
         ).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)) /* v9.3.0 — slot rows export as their own lines */
          .sort((a,b)=>{const ga=GO[a.grade]||99;const gb=GO[b.grade]||99;if(ga!==gb)return ga-gb;if((a.off||'DXB')!==(b.off||'DXB'))return(a.off||'DXB')==='DXB'?-1:1;return a.name.localeCompare(b.name);});
         if(!discEngs.length)return;
