@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.22.4 · 17 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.23.0 · 17 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.22.4 · 17 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.23.0 · 17 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -8096,11 +8096,16 @@ function renderProjDetail(p){
         const hrs=(wh2[e.id]||[]).reduce((b,h)=>b+(h||0),0);
         return a+hrs*getProjRate(e,p)*mult;
       },0);
+      // v9.23.0 — "as of" cut-off splits cost/fee into consumed vs to-complete
+      const _asOf=(window._cfbAsOf&&window._cfbAsOf[p.id])||'';
+      let _cutIdx=null;
+      if(_asOf){ const _wks=stageWeeks(p.start,p.end); const _cut=new Date(_asOf+'T23:59:59'); _cutIdx=0; for(let i=0;i<_wks.length;i++){ if(_wks[i]<=_cut)_cutIdx=i+1; else break; } }
+      const calcSplit=(engList)=>{ if(_cutIdx===null)return null; return engList.reduce((acc,e)=>{ const mult=getJseMult(p,e.id),rate=getProjRate(e,p),arr=wh2[e.id]||[]; let c=0,r=0; for(let i=0;i<arr.length;i++){ const v=(arr[i]||0)*rate*mult; if(i<_cutIdx)c+=v; else r+=v; } return{c:acc.c+c,r:acc.r+r}; },{c:0,r:0}); };
       const discStats=discs.map(d=>{
         const mepE=projEngineers(p).filter(e=>effDisc(e,p)===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0)); // v9.3.0 — includes duplicate slots
         const bimE=projEngineers(p).filter(e=>e.subDisc===d&&e.team==='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
         const mepCost=calcCost(mepE),bimCost=calcCost(bimE);
-        return{d,mepCost,bimCost,totalCost:mepCost+bimCost};
+        return{d,mepCost,bimCost,totalCost:mepCost+bimCost,mepSplit:calcSplit(mepE),bimSplit:calcSplit(bimE)};
       });
       const grandMepCost=discStats.reduce((a,x)=>a+x.mepCost,0);
       const grandBimCost=discStats.reduce((a,x)=>a+x.bimCost,0);
@@ -8109,6 +8114,17 @@ function renderProjDetail(p){
       const viewCost=(x)=>kpiView==='mep'?x.mepCost:kpiView==='bim'?x.bimCost:x.totalCost;
       const viewGrand=kpiView==='mep'?grandMepCost:kpiView==='bim'?grandBimCost:grandCost;
       const viewFee=viewGrand*ff2;
+      const grandMepSplit=_cutIdx===null?null:discStats.reduce((a,x)=>({c:a.c+x.mepSplit.c,r:a.r+x.mepSplit.r}),{c:0,r:0});
+      const grandBimSplit=_cutIdx===null?null:discStats.reduce((a,x)=>({c:a.c+x.bimSplit.c,r:a.r+x.bimSplit.r}),{c:0,r:0});
+      const viewSplitFor=(x)=>{ if(_cutIdx===null)return null; if(kpiView==='mep')return x.mepSplit; if(kpiView==='bim')return x.bimSplit; return {c:x.mepSplit.c+x.bimSplit.c,r:x.mepSplit.r+x.bimSplit.r}; };
+      const viewGrandSplit=_cutIdx===null?null:(kpiView==='mep'?grandMepSplit:kpiView==='bim'?grandBimSplit:{c:grandMepSplit.c+grandBimSplit.c,r:grandMepSplit.r+grandBimSplit.r});
+      const splitFooter=(sp,accentFg)=>{ if(!sp)return''; const cc=sp.c,rr=sp.r,tot=cc+rr,pc=tot>0?(cc/tot*100):0; const M=(v)=>MONEY_HIDDEN?'\u2022\u2022\u2022':fN(Math.round(v)); return `<div style="margin-top:6px;padding-top:5px;border-top:1px dashed #e2e8f0;">
+        <div style="display:flex;justify-content:space-between;font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);"><span>Consumed</span><span>${pc.toFixed(0)}%</span></div>
+        <div style="font-size:10px;font-weight:800;color:#0369a1;">${M(cc)} <span style="font-size:8.5px;color:#065f46;font-weight:600;">Fee ${M(cc*ff2)}</span></div>
+        <div style="height:4px;background:#f1f5f9;border-radius:2px;margin:3px 0;overflow:hidden;"><div style="height:100%;width:${pc.toFixed(1)}%;background:${accentFg};border-radius:2px;"></div></div>
+        <div style="font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;color:var(--tx3);">To complete</div>
+        <div style="font-size:10px;font-weight:800;color:#b45309;">${M(rr)} <span style="font-size:8.5px;color:#92400e;font-weight:600;">Fee ${M(rr*ff2)}</span></div>
+      </div>`; };
       const tabBtn=(val,label)=>{
         const on=kpiView===val;
         const clr=val==='bim'?'#0d9488':val==='mep'?'#1d4ed8':'#475569';
@@ -8126,8 +8142,8 @@ function renderProjDetail(p){
           <div style="font-size:14px;font-weight:800;color:#0369a1;">${fN(Math.round(cost))}</div>
           <div style="font-size:10px;color:#065f46;font-weight:600;">Fee: ${fN(Math.round(fee))}</div>
           ${subLine}
-          <div style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:100%;width:${pct.toFixed(1)}%;background:${DISC_FG[x.d]||'#374151'};border-radius:2px;"></div></div>
-          <div style="font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;">${pct.toFixed(1)}% of total</div>
+          ${_cutIdx!==null?splitFooter(viewSplitFor(x),DISC_FG[x.d]||'#374151'):`<div style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:100%;width:${pct.toFixed(1)}%;background:${DISC_FG[x.d]||'#374151'};border-radius:2px;"></div></div>
+          <div style="font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;">${pct.toFixed(1)}% of total</div>`}
         </div>`;
       };
       const bimCard=(kpiView!=='combined'||grandBimCost<=0)?'':`
@@ -8139,6 +8155,7 @@ function renderProjDetail(p){
           <div style="font-size:10px;color:#0f766e;font-weight:600;">Fee: ${fN(Math.round(grandBimCost*ff2))}</div>
           <div style="height:4px;background:#ccfbf1;border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:100%;width:${grandCost>0?(grandBimCost/grandCost*100).toFixed(1):0}%;background:#0d9488;border-radius:2px;"></div></div>
           <div style="font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;">${grandCost>0?(grandBimCost/grandCost*100).toFixed(1):0}% of total</div>
+          ${splitFooter(grandBimSplit,'#0d9488')}
           <div id="bim-pop-${p.id}" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #5eead4;border-radius:8px;padding:10px 14px;min-width:240px;box-shadow:0 8px 24px rgba(0,0,0,.2);">
             <div style="font-weight:700;color:#0f766e;margin-bottom:6px;font-size:11px;">BIM by discipline</div>
             ${discStats.filter(x=>x.bimCost>0).map(x=>`<div style="display:flex;justify-content:space-between;padding:3px 0;border-bottom:1px solid #f0fdfa;font-size:10px;"><span style="color:var(--tx2);">${x.d}</span><span style="font-weight:600;color:#0f766e;">Cost: ${fN(Math.round(x.bimCost))} · Fee: ${fN(Math.round(x.bimCost*ff2))}</span></div>`).join('')}
@@ -8151,6 +8168,7 @@ function renderProjDetail(p){
         <div style="font-size:10px;color:#065f46;font-weight:600;">Fee: ${fN(Math.round(viewFee))}</div>
         ${kpiView==='combined'&&grandMepCost>0&&grandBimCost>0?`<div style="font-size:9px;color:var(--tx3);margin-top:2px;">MEP: ${fN(Math.round(grandMepCost))} · BIM: ${fN(Math.round(grandBimCost))}</div>`:''}
         <div style="font-size:9px;color:var(--tx3);margin-top:3px;">×${ff2.toFixed(2)} fee factor</div>
+        ${splitFooter(viewGrandSplit,'#0369a1')}
       </div>`;
       return`<div style="margin-bottom:12px;margin-top:10px;background:#f5f5f7;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;">
         <div class="cost-sec-hdr" style="padding:8px 14px;background:#f5f5f7;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
@@ -8175,7 +8193,10 @@ function renderProjDetail(p){
             })()}
           </div>
           <div class="cost-tab-group" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <span style="font-size:9px;color:var(--tx3);font-weight:600;">View:</span>
+            <span style="font-size:9px;color:var(--tx3);font-weight:600;">Cost as of</span>
+            <input type="date" value="${_asOf}" onclick="event.stopPropagation()" onchange="setCfbAsOf('${p.id}',this.value)" title="Split cost &amp; fee into consumed vs to-complete at this date" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;">
+            ${_asOf?`<button onclick="event.stopPropagation();setCfbAsOf('${p.id}','')" title="Clear cut-off" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:12px;line-height:1;">\u2715</button>`:''}
+            <span style="font-size:9px;color:var(--tx3);font-weight:600;margin-left:6px;">View:</span>
             ${tabBtn('combined','Combined')}
             ${tabBtn('mep','Engineers only')}
             ${tabBtn('bim','BIM only')}
@@ -9266,6 +9287,7 @@ function toggleProgLock(projId){
 }
 
 // Set KPI view mode for a project detail page: 'combined' | 'mep' | 'bim'
+function setCfbAsOf(pid,val){ window._cfbAsOf=window._cfbAsOf||{}; if(val)window._cfbAsOf[pid]=val; else delete window._cfbAsOf[pid]; const p=S.projects.find(x=>x.id===pid)||(S._allProjects||[]).find(x=>x.id===pid); if(p)renderProjDetail(p); }
 function setKpiView(projId, view){
   window._kpiView = window._kpiView || {};
   window._kpiView[projId] = view;
