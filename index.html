@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.22.2 · 17 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.22.4 · 17 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.22.2 · 17 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.22.4 · 17 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1700,11 +1700,11 @@ function canEditDisc(disc){
   if(adminUnlocked)return true;
   if(isDirector())return true; // v9.9.1 — directors can edit hours across disciplines
   const roles=myRoles();
-  // v9.16.1 — umbrella / non-real disc codes (e.g. 'MEP') belong to no single
-  // discipline; let any MEP lead or discipline lead manage those cross-disc heads.
+  // v9.22.3 — umbrella / non-real disc codes (e.g. 'MEP') are managed ONLY by the
+  // MEP lead (admin/director handled above). A normal discipline lead must NOT be
+  // able to edit MEP heads — same rule as any other discipline.
   if(disc && typeof MEP_DISCS!=='undefined' && disc!=='BIM' && MEP_DISCS.indexOf(disc)<0){
-    const _up=MEP_DISCS.map(function(d){return d.toUpperCase();});
-    return roles.some(function(r){return r.role==='mep_lead'||(r.role==='disc_lead'&&_up.indexOf((r.scope||'').toUpperCase())>=0);});
+    return roles.some(function(r){return r.role==='mep_lead';});
   }
   if(!roles.length){
     const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
@@ -3305,6 +3305,9 @@ function slotTag(p,k){ return (p&&p.slotTags&&p.slotTags[k])||''; }
 function setSlotTag(projId,key,val){
   const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
   if(!p)return;
+  // v9.22.4 — same edit gate as the rest of the row
+  const _eng=slotEng(key);
+  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return; }
   if(!p.slotTags)p.slotTags={};
   val=(val||'').trim();
   if(val)p.slotTags[key]=val; else delete p.slotTags[key];
@@ -9504,7 +9507,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
         <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
         <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${eng._slotOf
-          ?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`
+          ?((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`:`<span style="font-size:10px;color:#0f766e;font-weight:600;">${esc(slotTag(p,eng.id))||'\u2014'}</span>`)
           :(eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—'))}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
         <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${MONEY_HIDDEN?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
