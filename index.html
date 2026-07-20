@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.21.0 · 17 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.22.2 · 17 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.21.0 · 17 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.22.2 · 17 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3035,7 +3035,7 @@ function computeAll(statusFilter){
       if(lArr[wi])leaveByMI[e.id][mi]+=lArr[wi];
       if(mArr[wi])mgmtByMI[e.id][mi]+=mArr[wi];
       // Add holiday hours to leave bucket (same treatment — not billable)
-      const wkStr=wk.toISOString().slice(0,10);
+      const wkStr=_localYMD(_localMonday(wk)); // v9.22.2 — timezone-safe holiday key
       if(holMap[wkStr])leaveByMI[e.id][mi]+=holMap[wkStr];
     });
   });
@@ -5936,7 +5936,7 @@ function computeRangeWeekly(statusFilter){
       const gwi=gWkIdx(wk);
       const lv=lArr[gwi]||0;
       const mg=mArr[gwi]||0;
-      const wkStr=wk.toISOString().slice(0,10);
+      const wkStr=_localYMD(_localMonday(wk)); // v9.22.2 — timezone-safe holiday key
       const hol=holMap[wkStr]||0;
       const h=hrs[e.id][wi]||0;
       const totalNonBill=lv+mg+hol;
@@ -8014,6 +8014,7 @@ function renderProjDetail(p){
               ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${(p.feeFactor||1.0).toFixed(2)}× FF</span>
+              ${(function(){const ds=(p.disciplines||[]).slice();if(!p.bimExcluded)ds.push('BIM');if(!ds.length)return'';const col={HVAC:'background:#dbeafe;color:#1d4ed8','PH&E':'background:#dcfce7;color:#166534',ELE:'background:#fef9c3;color:#854d0e',ELV:'background:#fce7f3;color:#9d174d',BIM:'background:#ede9fe;color:#6d28d9'};return ds.map(d=>`<span title="Discipline in scope for this project" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;${col[d]||'background:#f1f5f9;color:#374151'};">${esc(d)}</span>`).join('');})()}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${p.status}</span>
             </div>
           </div>
@@ -9283,7 +9284,17 @@ function toggleBIMSubRows(projId, disc){
 }
 
 function renderProjCard(p, mode){
-  const weeks=stageWeeks(p.start,p.end);
+  const officialWeeks=stageWeeks(p.start,p.end);
+  // v9.22.0 — reveal any hours booked past the end date instead of hiding them
+  let _maxIdx=officialWeeks.length-1;
+  Object.values(p.weeklyHrs||{}).forEach(arr=>{ for(let i=arr.length-1;i>=0;i--){ if(arr[i]>0){ if(i>_maxIdx)_maxIdx=i; break; } } });
+  let weeks=officialWeeks;
+  if(_maxIdx>=officialWeeks.length){
+    weeks=officialWeeks.slice();
+    let _d=weeks.length?new Date(weeks[weeks.length-1]):new Date(p.start);
+    while(weeks.length<=_maxIdx){ _d=new Date(_d); _d.setDate(_d.getDate()+7); weeks.push(new Date(_d)); }
+  }
+  const _officialLen=officialWeeks.length;
   const discs=MEP_DISCS.slice();
   const wh=p.weeklyHrs||{};
   const ff=p.feeFactor||1.0;
@@ -9363,9 +9374,10 @@ function renderProjCard(p, mode){
 
   // ── Week column headers (with stage colour bg)
   const wkHdrs=weeks.map((w,wi)=>{
+    const beyond=wi>=_officialLen; // v9.22.0 — past the project end date
     const sIdx=stageMap.get(wi)||[];
-    const headerBg=sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f';
-    return`<th style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
+    const headerBg=beyond?'#7c2d12':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f');
+    return`<th title="${beyond?'Beyond the project end date — hours kept here; clear them or extend the end date':''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
   }).join('');
 
   // ── Month header row HTML
@@ -9508,7 +9520,7 @@ function renderProjCard(p, mode){
           const gWI=Math.round((wk-new Date(G_ANCHOR_STR))/(7*24*3600*1000));
           const lv=(S.leaveHrs[slotBase(eng.id)]&&gWI>=0)?S.leaveHrs[slotBase(eng.id)][gWI]||0:0; /* v9.3.0 — leave is per person, shades every slot row */
           const cap=eng.cap||45;
-          const wkStr=wk.toISOString().slice(0,10);
+          const wkStr=_localYMD(_localMonday(wk)); // v9.22.2 — timezone-safe holiday key
           const hv=holMap[wkStr]||0;
           let tdStyle='';
           if(lv>=cap){ tdStyle='background:#fca5a5;'; }
@@ -10497,17 +10509,38 @@ async function saveProj(){
   const feeFactor=parseFloat(document.getElementById('pw-fee').value)||1.0;
   const newStart=document.getElementById('pw-start').value;
   const newEnd=document.getElementById('pw-end').value;
-  const newWeeks=stageWeeks(newStart,newEnd);
-  // Preserve existing hours, padding arrays to new week count
+  // v9.22.0 — DATE-BASED re-alignment that never silently deletes bookings.
+  // Hours are keyed to their calendar week, then re-placed. If the end date is
+  // pulled IN, we extend the stored span to the last week that still carries
+  // hours so nothing is dropped (they're kept and shown marked "past end").
   let weeklyHrs={};
+  let beyondHrs=0; const beyondEngs=new Set();
   if(existing&&existing.weeklyHrs){
     const oldWeeks=stageWeeks(existing.start,existing.end);
-    // Build date->hours maps per engineer for accurate re-alignment
+    let lastHourDate=null, firstHourDate=null;
+    Object.values(existing.weeklyHrs).forEach(arr=>{
+      for(let i=0;i<arr.length;i++){ if(arr[i]>0&&oldWeeks[i]){ const d=oldWeeks[i]; if(!lastHourDate||d>lastHourDate)lastHourDate=d; if(!firstHourDate||d<firstHourDate)firstHourDate=d; } }
+    });
+    // Hours BEFORE the new start can't be represented (index 0 = start) — warn + confirm before dropping just those.
+    const nStart=new Date(newStart);
+    if(firstHourDate&&firstHourDate<nStart){
+      let leadHrs=0; const leadEngs=new Set();
+      Object.entries(existing.weeklyHrs).forEach(([eid,arr])=>{ for(let i=0;i<arr.length;i++){ if(arr[i]>0&&oldWeeks[i]&&oldWeeks[i]<nStart){leadHrs+=arr[i];leadEngs.add(eid);} } });
+      if(leadHrs>0 && !confirm('Moving the start date to '+newStart+' will remove '+leadHrs+' hour(s) booked before it for '+leadEngs.size+' engineer(s) — these can\'t be kept. Continue?')) return;
+    }
+    // Extend the effective end so trailing hours are preserved even when the end is shortened.
+    let effEnd=new Date(newEnd);
+    if(lastHourDate&&lastHourDate>effEnd)effEnd=lastHourDate;
+    const newWeeks=stageWeeks(newStart,effEnd);
+    const officialLen=stageWeeks(newStart,newEnd).length;
     Object.entries(existing.weeklyHrs).forEach(([eid,arr])=>{
       const dateMap={};
       oldWeeks.forEach((wk,wi)=>{if(arr[wi])dateMap[wk.toISOString().slice(0,10)]=arr[wi];});
       const newArr=newWeeks.map(wk=>dateMap[wk.toISOString().slice(0,10)]||0);
-      if(newArr.some(v=>v>0))weeklyHrs[eid]=newArr;
+      if(newArr.some(v=>v>0)){
+        weeklyHrs[eid]=newArr;
+        for(let i=officialLen;i<newArr.length;i++){ if(newArr[i]>0){beyondHrs+=newArr[i];beyondEngs.add(eid);} }
+      }
     });
   }
   const disciplines=getCheckedDiscs('pw');
@@ -10516,6 +10549,7 @@ async function saveProj(){
   const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,bimExcluded,mepLeadEmail,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
   if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
   await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
+  if(beyondHrs>0)setTimeout(function(){toast(beyondHrs+' hr(s) for '+beyondEngs.size+' engineer(s) sit after the end date — kept and shown marked “past end”. Clear them or extend the end date.');},500);
   // If detail view is open for this project, re-render it with new dates
   const detailView=document.getElementById('proj-detail-view');
   if(detailView&&detailView.style.display!=='none'&&pId){
@@ -11213,12 +11247,13 @@ function getDefaultHolidays(country){
 }
 
 // Get week start date (Monday) for a given date string
+function _localMonday(d){ const x=new Date(d.getFullYear(),d.getMonth(),d.getDate()); const day=x.getDay(); x.setDate(x.getDate()+(day===0?-6:1-day)); return x; }
+function _localYMD(d){ return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0'); }
 function weekStartFor(dateStr){
-  const d=new Date(dateStr);
-  const day=d.getDay(); // 0=Sun
-  const diff=day===0?-6:1-day;
-  d.setDate(d.getDate()+diff);
-  return d.toISOString().slice(0,10);
+  // v9.22.2 — parse LOCAL and key by LOCAL parts (timezone-safe)
+  const p=String(dateStr).split('-');
+  const d=(p.length===3&&p[0].length===4)?new Date(+p[0],+p[1]-1,+p[2]):new Date(dateStr);
+  return _localYMD(_localMonday(d));
 }
 
 // Build a map: weekStartDate -> total holiday hours, for a given holidays array
