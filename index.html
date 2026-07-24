@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.24.1 · 17 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.28.3 · 23 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.24.1 · 17 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.28.3 · 23 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3335,13 +3335,133 @@ function isSeniorDupGrade(grade){
 // not a real discipline: such a person books across every discipline and surfaces
 // wherever they're booked, with no home discipline page of their own.
 function isUmbrella(e){ if(!e)return false; if(e.team==='BIM')return (e.subDisc||e.disc)==='MEP'; return !!(e.disc&&typeof MEP_DISCS!=='undefined'&&MEP_DISCS.indexOf(e.disc)<0); }
-function canDupBook(e){
+function canDupBook(e,p){
   if(!e)return false;
+  if(p&&hasParallelProg(p))return true; // v9.25.0 — parallel programmes: anyone may take a second booking to split a week across workstreams
   if(e.team==='BIM')return true;
   if(e.name&&String(e.name).replace(/\s*\(\d+\)$/,'').startsWith('JSE-'))return true;
   if(isUmbrella(e))return true; // v9.19.2 — MEP heads stay in the add list (⊕ add again) so they can be booked into several disciplines on one project
   if(isSeniorDupGrade(e.grade))return true; // Associate-and-above: multi-discipline booking
   return false;
+}
+// ═══════════════════════════════════════
+// v9.25.0 — PARALLEL PROGRAMMES ("workstreams").
+// A project can run more than one programme in parallel (e.g. Main services +
+// Outdoor cooling). Each stage is filed to a programme (st.prog) and each
+// booking — base id or slot key — is filed to a programme (p.bookProg[key]).
+// Everything here is INERT until a project has 2+ programmes: projProgrammes()
+// always yields at least one default (id 'main', navy) so stages/bookings with
+// no tag resolve to it, and a single-programme project renders + reports exactly
+// as before. programmes / bookProg / st.prog all live in the project metadata,
+// so they persist through pushProj and Backup with no schema or RLS change.
+// ═══════════════════════════════════════
+const DEFAULT_PROG_ID='main';
+const PROG_COLORS=['#1e3a5f','#0d9488','#b45309','#7c3aed','#be123c','#0369a1'];
+function projProgrammes(p){
+  if(p&&Array.isArray(p.programmes)&&p.programmes.length)return p.programmes;
+  return [{id:DEFAULT_PROG_ID,name:'Main programme',color:PROG_COLORS[0]}];
+}
+function hasParallelProg(p){ return projProgrammes(p).length>1; }
+function progById(p,id){ const list=projProgrammes(p); return list.find(pr=>pr.id===id)||list[0]; }
+function progColorOf(p,id){ const pr=progById(p,id); return (pr&&pr.color)||PROG_COLORS[0]; }
+// Programme a stage belongs to — untagged stages fall to the first (default) programme.
+function stageProg(p,st){ const list=projProgrammes(p); if(st&&st.prog&&list.some(pr=>pr.id===st.prog))return st.prog; return list[0].id; }
+// Programme a booking is filed to — untagged bookings fall to the first programme.
+function bookProg(p,key){ const list=projProgrammes(p); const v=p&&p.bookProg&&p.bookProg[key]; if(v&&list.some(pr=>pr.id===v))return v; return list[0].id; }
+function setBookProg(projId,key,val){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p)return;
+  const _eng=slotEng(key);
+  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return; }
+  if(!p.bookProg)p.bookProg={};
+  const list=projProgrammes(p);
+  if(val&&list.some(pr=>pr.id===val)&&val!==list[0].id)p.bookProg[key]=val; else delete p.bookProg[key];
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+  renderProjDetail(p);
+}
+// Stage index for a week, restricted to one programme — the reporting fix for
+// overlapping (parallel) stages so hours attribute to the right workstream.
+function stageIdxForProg(p,sm,wi,progId){ return (sm.get(wi)||[]).filter(si=>stageProg(p,p.stages[si])===progId); }
+// ── Programmes manager (MEP-Lead / admin gated) ─────────────────────────────
+function _progMaterialise(p){ if(!Array.isArray(p.programmes)||!p.programmes.length)p.programmes=projProgrammes(p).slice(); }
+function addProjProgramme(projId){
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  if(!(adminUnlocked||isMepLeadFor(p.id))){toast('Only the MEP Lead or admin can edit programmes','error');return;}
+  _progMaterialise(p);
+  const n=p.programmes.length;
+  p.programmes.push({id:'pg'+Date.now().toString(36),name:'Programme '+(n+1),color:PROG_COLORS[n%PROG_COLORS.length]});
+  pushProj(p);renderProjDetail(p);
+}
+function renameProjProgramme(projId,pid,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!Array.isArray(p.programmes))return;
+  const pr=p.programmes.find(x=>x.id===pid); if(!pr)return;
+  pr.name=(val||'').trim()||pr.name;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+}
+function setProjProgrammeColor(projId,pid,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!Array.isArray(p.programmes))return;
+  const pr=p.programmes.find(x=>x.id===pid); if(!pr)return;
+  pr.color=val;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);renderProjDetail(p);
+}
+// v9.26.4 — preset colour palette (Word/AutoCAD style) for stage + workstream colours, with a custom-picker fallback.
+const PRESET_COLORS=['#1e3a5f','#2563eb','#0ea5e9','#0891b2','#0d9488','#15803d','#65a30d','#ca8a04','#ea580c','#dc2626','#be123c','#db2777','#9333ea','#7c3aed','#475569','#0f172a'];
+function _applyPreset(kind,projId,key,hex){ if(kind==='stage')setProjStageColor(projId,key,hex); else setProjProgrammeColor(projId,key,hex); }
+function openPresetColors(evt,kind,projId,key,cur){
+  evt.stopPropagation();
+  const ex=document.getElementById('preset-pop'); if(ex)ex.remove();
+  const pop=document.createElement('div');
+  pop.id='preset-pop';
+  pop.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:10px;display:grid;grid-template-columns:repeat(8,1fr);gap:6px;width:262px;';
+  PRESET_COLORS.forEach(c=>{
+    const b=document.createElement('button'); b.type='button'; b.title=c;
+    const on=cur&&cur.toLowerCase()===c.toLowerCase();
+    b.style.cssText='width:24px;height:24px;border-radius:5px;border:2px solid '+(on?'#111827':'#fff')+';background:'+c+';cursor:pointer;box-shadow:0 0 0 1px var(--bdr);';
+    b.onclick=(e)=>{e.stopPropagation();_applyPreset(kind,projId,key,c);pop.remove();};
+    pop.appendChild(b);
+  });
+  const custom=document.createElement('label'); custom.title='Custom colour…';
+  custom.style.cssText='width:24px;height:24px;border-radius:5px;border:1px dashed var(--tx3);display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;line-height:1;color:var(--tx3);position:relative;';
+  custom.textContent='+';
+  const inp=document.createElement('input'); inp.type='color'; inp.value=cur||'#1e3a5f';
+  inp.style.cssText='position:absolute;inset:0;opacity:0;cursor:pointer;';
+  inp.onchange=(e)=>{_applyPreset(kind,projId,key,e.target.value);pop.remove();};
+  custom.appendChild(inp); pop.appendChild(custom);
+  document.body.appendChild(pop);
+  const x=Math.min(evt.clientX,window.innerWidth-274), y=Math.min(evt.clientY+8,window.innerHeight-140);
+  pop.style.left=Math.max(8,x)+'px'; pop.style.top=Math.max(8,y)+'px';
+  setTimeout(()=>{const close=(e)=>{if(!pop.contains(e.target)){pop.remove();document.removeEventListener('mousedown',close);}};document.addEventListener('mousedown',close);},0);
+}
+function removeProjProgramme(projId,pid){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!Array.isArray(p.programmes))return;
+  if(!(adminUnlocked||isMepLeadFor(p.id))){toast('Only the MEP Lead or admin can edit programmes','error');return;}
+  if(p.programmes.length<=1){toast('A project needs at least one programme','error');return;}
+  const idx=p.programmes.findIndex(x=>x.id===pid); if(idx<0)return;
+  p.programmes.splice(idx,1);
+  // Re-home stages / bookings that pointed at the removed programme → default.
+  (p.stages||[]).forEach(st=>{ if(st.prog===pid)delete st.prog; });
+  if(p.bookProg)Object.keys(p.bookProg).forEach(k=>{ if(p.bookProg[k]===pid)delete p.bookProg[k]; });
+  pushProj(p);renderProjDetail(p);
+}
+function setStageProg(projId,si,val){
+  const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
+  const list=projProgrammes(p);
+  if(val&&list.some(pr=>pr.id===val)&&val!==list[0].id)p.stages[si].prog=val; else delete p.stages[si].prog;
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);renderProjDetail(p);
+}
+// v9.26.0 — per-booking STAGE assignment (mandatory on parallel projects). Stages get a stable id so bookings survive stage reorder/rename; bookStage[key] stores that id.
+function ensureStageIds(p){ if(p&&Array.isArray(p.stages))p.stages.forEach(st=>{ if(st&&!st.id)st.id='st'+Math.random().toString(36).slice(2,8); }); }
+function bookStage(p,key){ return (p&&p.bookStage&&p.bookStage[key])||''; }
+function stageById(p,id){ return (p&&p.stages||[]).find(st=>st.id===id)||null; }
+function setBookStage(projId,key,val){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p)return;
+  const _eng=slotEng(key);
+  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return; }
+  if(!p.bookStage)p.bookStage={};
+  if(val&&stageById(p,val))p.bookStage[key]=val; else delete p.bookStage[key];
+  clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+  renderProjDetail(p);
 }
 function projCost(p){
   let c=0;
@@ -3792,7 +3912,7 @@ function spendCompute(){
         const wd=spendWeekDate(p.start,wi);
         if(fromD&&wd<fromD)return;
         if(toD&&wd>toD)return;
-        const sidx=sm.get(wi)||[];
+        const sidx=stageIdxForProg(p,sm,wi,bookProg(p,eid)); // v9.25.0 — attribute to THIS booking's programme, not the first overlapping stage
         const stageName=sidx.length?((p.stages[sidx[0]]&&p.stages[sidx[0]].name)||('Stage '+(sidx[0]+1))):'Unplanned';
         if(SPEND.stage&&stageName!==SPEND.stage)return;
         const cost=h*rate*mult;
@@ -4976,6 +5096,11 @@ function nav(p, fromPopstate){
   // (to-proposals nav still cleans up — user expects to land on the list)
   if(window._propViewing){
     try{closePropDetail();}catch(e){console.error('closePropDetail err',e);}
+  }
+  // v9.27.0 — if a project detail is open, close it so top-level nav (e.g. clicking Projects) lands on the list, not the stale detail
+  if(window._viewingProjId){
+    try{closeProjDetail();}catch(e){console.error('closeProjDetail err',e);}
+    window._viewingProjId=null;
   }
   CURRENT_PAGE=p;
   sessionStorage.setItem('lastPage',p);
@@ -7259,6 +7384,28 @@ function renderProj(){
     const fmt=(d)=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric'});
     const timelineLabel=fmt(d1)+' → '+fmt(d2)+' · '+totalWks+'w';
 
+    // v9.27.0 — parallel projects: mirror the detail view's workstream bands (one row per workstream with its own stage chips) instead of one flat timeline.
+    if(hasParallelProg(p)){
+      const _sd=new Date(p.start),_ed=new Date(p.end);
+      const allStages=(p.stages||[]).map((st,si)=>({st,si})).filter(o=>o.st.from&&o.st.to);
+      const rowsHtml=projProgrammes(p).map(pr=>{
+        const mine=allStages.filter(o=>stageProg(p,o.st)===pr.id);
+        const chips=mine.length?mine.map(o=>{
+          const sc=stageColor(o.si,o.st);
+          const a=new Date(o.st.from),b=new Date(o.st.to);
+          const wks=Math.max(1,Math.round((b-a)/(7*24*3600*1000)));
+          const wa=wkNum(a),wb=wkNum(b);
+          const wR=(wa===wb)?('W'+wa):('W'+wa+'\u2013W'+wb);
+          return`<span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;"><span style="width:7px;height:7px;border-radius:2px;background:${sc.bdr};flex-shrink:0;display:inline-block;"></span><span style="font-size:9px;color:var(--tx);font-weight:500;">${esc(o.st.name||'')}</span><span style="font-size:8px;color:var(--tx3);font-weight:600;">${wR}\u00b7${wks}w</span></span>`;
+        }).join(''):`<span style="font-size:9px;color:var(--tx3);font-style:italic;">no stages</span>`;
+        return`<div style="display:flex;align-items:center;gap:6px;">
+          <span style="display:inline-flex;align-items:center;gap:4px;min-width:96px;flex-shrink:0;font-size:9px;font-weight:700;color:${pr.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span style="width:8px;height:8px;border-radius:2px;background:${pr.color};flex-shrink:0;display:inline-block;"></span>${esc(pr.name)}</span>
+          <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">${chips}</div>
+        </div>`;
+      }).join('');
+      return`<div style="display:flex;flex-direction:column;gap:3px;">${rowsHtml}<div style="font-size:9px;color:var(--tx3);margin-top:1px;">${timelineLabel}</div></div>`;
+    }
+
     if(!stages.length){
       const noStageHrs=projTotalHrs(p);
       return`<div>
@@ -7447,6 +7594,7 @@ function openProjDetail(id){
 }
 function closeProjDetail(){
   try{ flushHourSaves(); }catch(e){} // commit pending hour edits before leaving
+  window._viewingProjId=null; // v9.27.0
   document.getElementById('proj-list-view').style.display='';
   document.getElementById('proj-detail-view').style.display='none';
   document.getElementById('proj-hdr-back-btn').style.display='none';
@@ -7682,14 +7830,26 @@ function renderProgNotes(p){
       <select id="prognote-stage-${p.id}" title="Link to a stage (optional)" style="flex:0 0 auto;font-size:10px;padding:6px 6px;border:1px solid var(--bdr);border-radius:8px;color:var(--tx3);max-width:150px;">${stageOpts}</select>
       <button class="btn btn-p btn-xs" onclick="addProgNote('${p.id}')" style="flex-shrink:0;">Post</button>
     </div>`:'<div style="font-size:11px;color:var(--tx3);padding:6px 4px;">Only team leads can post programme notes.</div>';
+  const _pnOpen=!!(window._pnOpen&&window._pnOpen[p.id]);
   return`<div style="margin:10px 0 4px;background:#fbfbfd;border:1px solid var(--bdr);border-radius:10px;padding:10px 12px;">
-    <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+    <div onclick="toggleProgNotes('${p.id}')" style="display:flex;align-items:center;gap:8px;cursor:pointer;user-select:none;">
+      <span id="pn-arrow-${p.id}" style="font-size:10px;color:#64748b;flex-shrink:0;">${_pnOpen?'\u25bc':'\u25b6'}</span>
       <span style="font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#1e3a5f;">\ud83d\udccc Programme Notes</span>
+      ${p.progNotes.length?`<span style="font-size:9px;color:var(--tx3);">${p.progNotes.length} note${p.progNotes.length===1?'':'s'}</span>`:''}
       ${pending>0?`<span style="font-size:10px;font-weight:700;color:#fff;background:#ff9500;border-radius:9px;padding:1px 8px;">${pending} to review</span>`:''}
     </div>
-    ${addBar}
-    ${rows}
+    <div id="pn-body-${p.id}" style="display:${_pnOpen?'block':'none'};margin-top:8px;">
+      ${addBar}
+      ${rows}
+    </div>
   </div>`;
+}
+function toggleProgNotes(pid){
+  if(!window._pnOpen)window._pnOpen={};
+  window._pnOpen[pid]=!window._pnOpen[pid];
+  const b=document.getElementById('pn-body-'+pid), a=document.getElementById('pn-arrow-'+pid);
+  if(b)b.style.display=window._pnOpen[pid]?'block':'none';
+  if(a)a.textContent=window._pnOpen[pid]?'\u25bc':'\u25b6';
 }
 function renderMilestoneEditor(p){
   if(!p.milestones)p.milestones=[];
@@ -7876,6 +8036,7 @@ function exportTrackerXLSX(){
 
 function renderProjDetail(p){
   if(!p.stages)p.stages=[];
+  ensureStageIds(p); // v9.26.0 — stable stage ids for per-booking stage assignment
   const weeks=stageWeeks(p.start,p.end);
   const stageMap=getStageWeekMap(p);
   const wkHdrs=weeks.map((w,wi)=>{
@@ -7892,17 +8053,16 @@ function renderProjDetail(p){
   const isMepLead=isMepLeadFor(p.id);
   const canEditProg=adminUnlocked||isMepLead;
   const progLocked=!canEditProg||progLockState(p);
+  const _fmtSD=(d)=>{ if(!d)return '?'; const dt=new Date(d); if(isNaN(dt))return d; return String(dt.getDate()).padStart(2,'0')+' '+dt.toLocaleString('en-US',{month:'short'})+' '+String(dt.getFullYear()).slice(-2); }; // v9.27.2 — "01 Jul 26"
   const stageRowsHtml=p.stages.map((st,si)=>{
     const sc=stageColor(si,st);
     const isCustom=!DEFAULT_STAGES.includes(st.name);
     const stageOptions=DEFAULT_STAGES.map(s=>`<option${s===st.name?' selected':''}>${s}</option>`).join('');
     const weekCells=weeks.map((_,wi)=>{
       const inStage=(stageMap.get(wi)||[]).includes(si);
-      const cellBg=inStage?sc.bg:'';
       const cls='swk-'+p.id+'-'+si;
-      // Programme week cells are visual-only — the coloured band shows the stage
-      // timeline (driven by the stage's from→to dates). Not free-text editable.
-      return`<td class="${cls}" style="padding:0;min-width:48px;height:30px;border-right:1px solid #f0f0f2;${cellBg?'background:'+cellBg+';':''}"></td>`;
+      // v9.27.0 — tint ONLY the weeks this stage spans; out-of-range weeks are solid white so the row's band can't bleed past the stage's from→to.
+      return`<td class="${cls}" style="padding:0;min-width:48px;height:22px;border-right:1px solid #f0f0f2;background:${inStage?sc.bg:'#fff'};"></td>`;
     }).join('');
     const nameEsc=(st.name||'').replace(/"/g,'&quot;');
     let stageWkCount=0;
@@ -7912,30 +8072,30 @@ function renderProjDetail(p){
       : `<span style="font-size:10px;color:var(--tx3);font-style:italic;flex-shrink:0;">— wks</span>`;
     if(progLocked){
       const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
-      return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};">
-        <td style="padding:6px 10px;min-width:450px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
-          <div style="display:flex;align-items:center;gap:6px;">
+      return`<tr>
+        <td style="padding:3px 10px;min-width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
+          <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
+            ${hasParallelProg(p)?`<span title="Workstream: ${esc(progById(p,stageProg(p,st)).name)}" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${progColorOf(p,stageProg(p,st))};background:${progColorOf(p,stageProg(p,st))}18;border:1px solid ${progColorOf(p,stageProg(p,st))}44;border-radius:8px;padding:1px 6px;flex-shrink:0;"><span style="width:6px;height:6px;border-radius:2px;background:${progColorOf(p,stageProg(p,st))};display:inline-block;"></span>${esc(progById(p,stageProg(p,st)).name)}</span>`:''}
+            ${(st.from||st.to)?`<span style="font-size:10px;color:var(--tx3);white-space:nowrap;">${_fmtSD(st.from)} → ${_fmtSD(st.to)}</span>`:''}
             ${wkBadge}
           </div>
-          ${(st.from||st.to)?`<div style="font-size:10px;color:var(--tx3);margin-top:3px;padding-left:30px;">${st.from||'?'} → ${st.to||'?'}</div>`:''}
         </td>
         ${weekCells}
       </tr>`;
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
-    return`<tr style="background:${sc.bg}55;border-left:4px solid ${sc.bdr};" ondragover="stgDragOver(event)" ondrop="stgDrop(event,'${p.id}',${si})">
-      <td style="padding:4px 6px;min-width:450px;width:450px;vertical-align:middle;border-left:4px solid ${sc.bdr};position:sticky;left:0;z-index:1;background:linear-gradient(${sc.bg}55,${sc.bg}55),#fff;">
+    return`<tr ondragover="stgDragOver(event)" ondrop="stgDrop(event,'${p.id}',${si})">
+      <td style="padding:2px 6px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
         <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;">
           <span draggable="true" ondragstart="stgDragStart(event,'${p.id}',${si})" ondragend="stgDragEnd(event)" title="Drag to reorder stages" style="cursor:grab;color:var(--tx3);font-size:13px;line-height:1;flex-shrink:0;user-select:none;padding:2px 1px;">⠿</span>
           <span style="display:flex;flex-direction:column;gap:1px;flex-shrink:0;">
             <button onclick="moveProjStage('${p.id}',${si},-1)" title="Move stage up" ${si===0?'disabled':''} style="border:1px solid var(--bdr);background:#fff;border-radius:3px;font-size:7px;line-height:1;padding:1px 3px;cursor:pointer;color:var(--tx2);${si===0?'opacity:.3;cursor:default;':''}">▲</button>
             <button onclick="moveProjStage('${p.id}',${si},1)" title="Move stage down" ${si===p.stages.length-1?'disabled':''} style="border:1px solid var(--bdr);background:#fff;border-radius:3px;font-size:7px;line-height:1;padding:1px 3px;cursor:pointer;color:var(--tx2);${si===p.stages.length-1?'opacity:.3;cursor:default;':''}">▼</button>
           </span>
-          <input type="color" value="${st.color||sc.bdr}" title="Click to change stage colour"
-            style="width:22px;height:22px;border:1px solid var(--bdr);border-radius:4px;padding:1px;cursor:pointer;flex-shrink:0;background:none;"
-            onchange="setProjStageColor('${p.id}',${si},this.value)">
+          <button type="button" title="Change stage colour" onclick="openPresetColors(event,'stage','${p.id}',${si},'${st.color||sc.bdr}')"
+            style="width:22px;height:22px;border:1px solid var(--bdr);border-radius:4px;cursor:pointer;flex-shrink:0;background:${st.color||sc.bdr};padding:0;"></button>
           <div class="stname-wrap" id="stwrap-${p.id}-${si}" style="position:relative;flex:0 0 auto;width:${_stageNameW(p.id,si)}px;min-width:70px;max-width:460px;display:flex;">
             <select id="stsel-${p.id}-${si}" style="${isCustom?'display:none;':''}flex:1 1 auto;width:100%;min-width:0;font-size:11px;padding:3px 14px 3px 6px;border:1px solid var(--bdr);border-radius:5px;background:#fff;color:#1e293b;font-weight:600;color-scheme:light;"
               onchange="handleStageSelect('${p.id}',${si},this)">
@@ -7953,6 +8113,7 @@ function renderProjDetail(p){
           <input type="date" value="${st.to||''}" title="Stage end" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
           <input type="number" min="1" max="200" step="1" value="${stageWkCount>0?stageWkCount:''}" placeholder="wks" title="Duration in weeks — typing a number sets the To date from the From date; editing the dates recalculates this count" style="width:46px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid ${sc.bdr}66;border-radius:4px;color:${sc.bdr};font-weight:700;background:${sc.bg};flex-shrink:0;" onchange="setProjStageWeeks('${p.id}',${si},this.value)">
           <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage" style="flex-shrink:0;">&#10005;</button>
+          ${hasParallelProg(p)?`<select title="Workstream this stage belongs to" onchange="setStageProg('${p.id}',${si},this.value)" style="font-size:10px;padding:2px 4px;border:1px solid ${progColorOf(p,stageProg(p,st))}66;border-radius:4px;color:${progColorOf(p,stageProg(p,st))};font-weight:700;background:#fff;flex-shrink:0;max-width:130px;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${stageProg(p,st)===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select>`:''}
         </div>
       </td>
       ${weekCells}
@@ -8038,10 +8199,22 @@ function renderProjDetail(p){
           <span style="font-size:13px;"></span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Programme</strong>
           ${(()=>{
-            const stgs=(p.stages||[]).filter(s=>s.from&&s.to);
+            const stgs=(p.stages||[]).map((s,i)=>({s,i})).filter(o=>o.s.from&&o.s.to);
             if(!stgs.length) return `<span style="font-size:10px;color:var(--tx3);font-style:italic;">No stages defined</span>`;
-            const chips=stgs.map((s,i)=>{const sc=stageColor(i,s);const _wa=wkNum(new Date(s.from)),_wb=wkNum(new Date(s.to));const _wr=(_wa===_wb)?('W'+_wa):('W'+_wa+'\u2013W'+_wb);return`<span style="display:inline-flex;flex-direction:column;align-items:flex-start;gap:0;background:${sc.bdr}18;border:1px solid ${sc.bdr}44;border-radius:12px;padding:2px 9px;font-size:10px;font-weight:600;color:${sc.bdr};white-space:nowrap;line-height:1.25;"><span style="display:inline-flex;align-items:center;gap:3px;"><span style="width:6px;height:6px;border-radius:50%;background:${sc.bdr};display:inline-block;"></span>${s.name}</span><span style="font-size:8.5px;font-weight:700;opacity:.8;margin-left:9px;">${_wr}</span></span>`;}).join('');
-            return`<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${chips}</div>`;
+            const chip=(s,i)=>{const sc=stageColor(i,s);const _wa=wkNum(new Date(s.from)),_wb=wkNum(new Date(s.to));const _wr=(_wa===_wb)?('W'+_wa):('W'+_wa+'\u2013W'+_wb);return`<span style="display:inline-flex;align-items:center;gap:5px;background:${sc.bdr}14;border:1px solid ${sc.bdr}44;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:${sc.bdr};white-space:nowrap;line-height:1.3;"><span style="width:5px;height:5px;border-radius:50%;background:${sc.bdr};display:inline-block;flex-shrink:0;"></span>${s.name}<span style="font-weight:700;opacity:.7;">${_wr}</span></span>`;};
+            if(!hasParallelProg(p)){
+              return`<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${stgs.map(o=>chip(o.s,o.i)).join('')}</div>`;
+            }
+            // v9.25.0 — parallel programmes: one band per workstream
+            const bands=projProgrammes(p).map(pr=>{
+              const mine=stgs.filter(o=>stageProg(p,o.s)===pr.id);
+              const chips=mine.length?mine.map(o=>chip(o.s,o.i)).join(''):`<span style="font-size:9px;color:var(--tx3);font-style:italic;">no stages</span>`;
+              return`<div style="display:flex;align-items:center;gap:8px;">
+                <span style="display:inline-flex;align-items:center;gap:5px;min-width:108px;flex-shrink:0;font-size:10px;font-weight:700;color:${pr.color};"><span style="width:8px;height:8px;border-radius:2px;background:${pr.color};display:inline-block;flex-shrink:0;"></span>${esc(pr.name)}</span>
+                <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;">${chips}</div>
+              </div>`;
+            }).join('');
+            return`<div style="display:flex;flex-direction:column;gap:3px;width:100%;">${bands}</div>`;
           })()}
         </div>
         <div class="prog-sec-hdr-btns" style="display:flex;gap:6px;align-items:center;" onclick="event.stopPropagation()">
@@ -8058,13 +8231,22 @@ function renderProjDetail(p){
               ${locked?'🔒 Locked':'🔓 Lock'}
             </button>
             ${locked?'':
-              `<button class="btn btn-g btn-sm" onclick="addProjStage('${p.id}')">+ Add Stage</button>
+              `<button class="btn btn-g btn-sm" onclick="addProjProgramme('${p.id}')" title="Add a parallel programme / workstream (e.g. Outdoor cooling) — bookings and stages can then be filed to it">+ Programme</button>
+               <button class="btn btn-g btn-sm" onclick="addProjStage('${p.id}')">+ Add Stage</button>
                <button class="btn btn-g btn-sm" onclick="addProjNoteRow('${p.id}')">+ Add Row</button>`
             }`;
           })()}
         </div>
       </div>
       <div id="sec-prog-${p.id}" style="display:${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'block':'none'};">
+      ${hasParallelProg(p)?`<div style="padding:8px 12px;background:#eef2f7;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+        <span style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">Workstreams</span>
+        ${projProgrammes(p).map((pr,pi)=>`<span style="display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid ${pr.color}55;border-radius:8px;padding:3px 6px;">
+          ${(canEditProg&&!progLocked)?`<button type="button" title="Programme colour" onclick="openPresetColors(event,'prog','${p.id}','${pr.id}','${pr.color}')" style="width:18px;height:18px;border:1px solid var(--bdr);border-radius:4px;padding:0;cursor:pointer;background:${pr.color};flex-shrink:0;"></button>`:`<span style="width:12px;height:12px;border-radius:3px;background:${pr.color};display:inline-block;flex-shrink:0;"></span>`}
+          ${(canEditProg&&!progLocked)?`<input type="text" value="${esc(pr.name)}" maxlength="40" onchange="renameProjProgramme('${p.id}','${pr.id}',this.value)" style="width:130px;font-size:11px;font-weight:600;padding:2px 5px;border:1px solid var(--bdr);border-radius:4px;color:${pr.color};background:#fff;">`:`<span style="font-size:11px;font-weight:700;color:${pr.color};">${esc(pr.name)}</span>`}
+          ${(canEditProg&&!progLocked&&pi>0)?`<button onclick="removeProjProgramme('${p.id}','${pr.id}')" title="Remove workstream (its stages and bookings revert to ${esc(projProgrammes(p)[0].name)})" style="background:none;border:none;color:var(--tx3);font-size:12px;cursor:pointer;padding:0 2px;line-height:1;">&#10005;</button>`:''}
+        </span>`).join('')}
+      </div>`:''}
       <div style="overflow-x:auto;">
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
@@ -8186,13 +8368,11 @@ function renderProjDetail(p){
                 :'<span style="font-size:10px;color:var(--tx3);">No hours assigned</span>';
             })()}
           </div>
-          <div class="cost-tab-group" style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
-            <span style="font-size:9px;color:var(--tx3);font-weight:600;">From</span>
-            <input type="date" value="${_rFrom}" onclick="event.stopPropagation()" onchange="setCfbRange('${p.id}','from',this.value)" title="Show cost &amp; fee from this date" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;">
-            <span style="font-size:9px;color:var(--tx3);font-weight:600;">To</span>
-            <input type="date" value="${_rTo}" onclick="event.stopPropagation()" onchange="setCfbRange('${p.id}','to',this.value)" title="Show cost &amp; fee up to this date" style="font-size:10px;padding:2px 5px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;">
+          <div class="cost-tab-group" style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;">
+            <span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;font-size:9px;color:var(--tx3);font-weight:600;">From<input type="date" value="${_rFrom}" onclick="event.stopPropagation()" onchange="setCfbRange('${p.id}','from',this.value)" title="Show cost &amp; fee from this date" style="width:116px;font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;color-scheme:light;"></span>
+            <span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;font-size:9px;color:var(--tx3);font-weight:600;">To<input type="date" value="${_rTo}" onclick="event.stopPropagation()" onchange="setCfbRange('${p.id}','to',this.value)" title="Show cost &amp; fee up to this date" style="width:116px;font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:6px;font-family:inherit;color-scheme:light;"></span>
             ${_rngActive?`<button onclick="event.stopPropagation();setCfbRange('${p.id}','clear')" title="Clear date filter" style="background:none;border:none;cursor:pointer;color:var(--tx3);font-size:12px;line-height:1;">\u2715</button>`:''}
-            <span style="font-size:9px;color:var(--tx3);font-weight:600;margin-left:6px;">View:</span>
+            <span style="font-size:9px;color:var(--tx3);font-weight:600;margin-left:4px;">View:</span>
             ${tabBtn('combined','Combined')}
             ${tabBtn('mep','Engineers only')}
             ${tabBtn('bim','BIM only')}
@@ -8215,9 +8395,10 @@ function renderProjDetail(p){
           <span style="font-size:13px;">⏱</span>
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Team</strong>
           ${(()=>{
-            const assigned=projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+memberHeads(p,e.id),0); // v9.5.0 derived
-            const assignedMEP=projEngineers(p).filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+memberHeads(p,e.id),0);
-            const assignedBIM=projEngineers(p).filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const _hc=hasParallelProg(p)?teamHeadcount(p):null;
+            const assignedMEP=_hc?_hc.mep:projEngineers(p).filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+memberHeads(p,e.id),0);
+            const assignedBIM=_hc?_hc.bim:projEngineers(p).filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assigned=assignedMEP+assignedBIM;
             const totalH=projTotalHrs(p);
             const discs=[...new Set(projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))]; // v9.3.0
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
@@ -8266,8 +8447,8 @@ function renderProjDetail(p){
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
                   // v9.3.0 — BIM/JSE members stay listed even when assigned: picking them again adds a second booking (slot)
-                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='';
                   const _mepByD={}; mepAvail.forEach(e=>{ (_mepByD[e.disc]=_mepByD[e.disc]||[]).push(e); });
                   const _mepOrder=MEP_DISCS.concat(Object.keys(_mepByD).filter(d=>MEP_DISCS.indexOf(d)<0)); // real disciplines first, MEP/umbrella last
@@ -8290,8 +8471,22 @@ function renderProjDetail(p){
                 })()}
               </select>
             </div>
+            ${(hasParallelProg(p)&&!window._propViewing)?(()=>{
+              const _bookedBases=[...new Set(Object.keys(p.weeklyHrs||{}).filter(k=>(p.weeklyHrs[k]||[]).some(v=>v>0)).map(k=>slotBase(k)))];
+              if(!_bookedBases.length)return '';
+              const _tgt=S.engineers.filter(e=>!e._isVirtual&&_bookedBases.indexOf(e.id)<0&&(adminUnlocked||(e.team==='BIM'?isBimLead():canEditDisc(e.disc)))).sort((a,b)=>a.name.localeCompare(b.name));
+              if(!_tgt.length)return '';
+              const _srcOpts=_bookedBases.map(b=>{const e=S.engineers.find(x=>x.id===b);const n=e?e.name.split(' ').slice(0,2).join(' '):b;const cnt=Object.keys(p.weeklyHrs).filter(k=>slotBase(k)===b&&(p.weeklyHrs[k]||[]).some(v=>v>0)).length;return `<option value="${esc(b)}">${esc(n)} (${cnt})</option>`;}).join('');
+              return`<button onclick="var e=document.getElementById('clone-ui-${p.id}');var o=e.style.display==='none';e.style.display=o?'inline-flex':'none';" title="Copy one person's workstream + stage rows onto another engineer (hours left blank)" style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #c4b5fd;background:#f5f3ff;color:#6d28d9;cursor:pointer;white-space:nowrap;">⧉ Copy setup</button>
+              <span id="clone-ui-${p.id}" style="display:none;align-items:center;gap:5px;">
+                <select id="clone-src-${p.id}" title="Copy from" style="font-size:11px;padding:4px 6px;border:1px solid #c4b5fd;border-radius:6px;background:#fff;max-width:150px;">${_srcOpts}</select>
+                <span style="font-size:12px;color:#6d28d9;">→</span>
+                <select id="clone-tgt-${p.id}" title="Copy to" style="font-size:11px;padding:4px 6px;border:1px solid #c4b5fd;border-radius:6px;background:#fff;max-width:170px;"><option value="">— pick person —</option>${_tgt.map(e=>`<option value="${esc(e.id)}">${esc(e.name.split(' ').slice(0,2).join(' '))} [${esc(e.off||'DXB')}]</option>`).join('')}</select>
+                <button onclick="cloneBookingSetup('${p.id}',document.getElementById('clone-src-${p.id}').value,document.getElementById('clone-tgt-${p.id}').value)" style="font-size:11px;font-weight:700;padding:4px 12px;border-radius:6px;border:1px solid #7c3aed;background:#7c3aed;color:#fff;cursor:pointer;">Copy</button>
+              </span>`;
+            })():''}
             <div style="display:flex;gap:14px;font-size:11px;color:#075985;background:#e0f2fe;padding:4px 12px;border-radius:20px;white-space:nowrap;">
-              <span>&#128119; <strong id="tb-assigned-${p.id}">${Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
+              <span>&#128119; <strong id="tb-assigned-${p.id}">${hasParallelProg(p)?(()=>{const _h=teamHeadcount(p);return _h.mep+_h.bim;})():Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
               <span>&#9200; <strong id="tb-hrs-${p.id}">${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
             </div>
           </div>
@@ -8307,12 +8502,15 @@ function renderProjDetail(p){
 function addProjStage(projId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   if(!p.stages)p.stages=[];
-  p.stages.push({name:DEFAULT_STAGES[0],from:'',to:'',weekVals:[]});
+  p.stages.push({id:'st'+Math.random().toString(36).slice(2,8),name:DEFAULT_STAGES[0],from:'',to:'',weekVals:[]});
   pushProj(p);renderProjDetail(p);
 }
 function removeProjStage(projId,si){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
-  p.stages.splice(si,1);pushProj(p);renderProjDetail(p);
+  const _rmId=p.stages[si]&&p.stages[si].id;
+  p.stages.splice(si,1);
+  if(_rmId&&p.bookStage)Object.keys(p.bookStage).forEach(k=>{ if(p.bookStage[k]===_rmId)delete p.bookStage[k]; }); // v9.26.0 — drop bookings' pointer to a deleted stage
+  pushProj(p);renderProjDetail(p);
 }
 function handleStageSelect(projId,si,sel){
   const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
@@ -8564,6 +8762,46 @@ async function _addDiscPick(projId,engId,disc){
   await addEngineerToProject(projId,engId);
   if(disc && disc!=='MEP') await setBookDisc(projId,engId,disc);
 }
+// v9.28.0 — copy one person's workstream+stage booking layout onto another engineer (structure only).
+// Each copied booking is seeded with a placeholder 1 inside its stage's window (so the row shows and sits in-range);
+// the user then fills the real hours. Assignments (bookProg/bookStage/slotTags) are copied; hours are otherwise blank.
+async function cloneBookingSetup(projId, fromBaseId, toBaseId){
+  const p=S.projects.find(x=>x.id===projId); if(!p)return;
+  if(!fromBaseId){toast('Pick a person to copy from');return;}
+  if(!toBaseId){toast('Pick a person to copy to');return;}
+  if(fromBaseId===toBaseId){toast('Choose a different person to copy to');return;}
+  const toEng=S.engineers.find(e=>e.id===toBaseId); if(!toEng){toast('Target not found');return;}
+  const canAdd=toEng.team==='BIM'?isBimLead():canEditDisc(toEng.disc);
+  if(!(adminUnlocked||canAdd)){toast('⛔ You can only add engineers from your own discipline.');return;}
+  if(!p.weeklyHrs)p.weeklyHrs={}; if(!p.bookProg)p.bookProg={}; if(!p.bookStage)p.bookStage={}; if(!p.slotTags)p.slotTags={};
+  const srcKeys=Object.keys(p.weeklyHrs)
+    .filter(k=>slotBase(k)===fromBaseId && (p.weeklyHrs[k]||[]).some(v=>v>0)) // real, visible bookings only — skip orphaned tags left by removed rows
+    .sort((a,b)=>slotNo(a)-slotNo(b));
+  if(!srcKeys.length){toast('That person has no bookings to copy');return;}
+  const weeks=stageWeeks(p.start,p.end);
+  const stageMap=getStageWeekMap(p);
+  const writes=[]; let made=0;
+  srcKeys.forEach(sk=>{
+    const suffix = sk.indexOf('#')>0 ? sk.slice(sk.indexOf('#')) : '';
+    const tk = toBaseId + suffix;
+    if(p.weeklyHrs[tk]&&p.weeklyHrs[tk].some(v=>v>0)) return; // don't clobber an existing target booking
+    if(p.bookProg[sk]) p.bookProg[tk]=p.bookProg[sk];
+    if(p.bookStage[sk]) p.bookStage[tk]=p.bookStage[sk];
+    if(suffix&&p.slotTags[sk]) p.slotTags[tk]=p.slotTags[sk];
+    // seed placeholder inside the copied stage's window so the row shows in-range (green), not stranded
+    let seedWk=0; const sid=p.bookStage[sk];
+    if(sid){ const si=p.stages.findIndex(s=>s.id===sid); if(si>=0){ for(let wi=0;wi<weeks.length;wi++){ if((stageMap.get(wi)||[]).includes(si)){ seedWk=wi; break; } } } }
+    const arr=new Array(weeks.length).fill(0); arr[seedWk]=1;
+    p.weeklyHrs[tk]=arr; writes.push({tk,seedWk}); made++;
+  });
+  if(!made){toast(`${toEng.name.split(' ').slice(0,2).join(' ')} is already set up like that`);return;}
+  if(!projId.toString().startsWith('prp'))pushProj(p);
+  renderProjDetail(p);
+  toast(`Copied ${made} booking${made===1?'':'s'} to ${toEng.name.split(' ').slice(0,2).join(' ')} — now set their hours`);
+  if(!projId.toString().startsWith('prp')){
+    for(const w of writes){ try{ await pushHourRow(projId,w.tk,w.seedWk,1); }catch(e){ console.error('cloneBookingSetup seed save failed',e); setSyncStatus(false,'Sync failed'); } }
+  } else { pushProj(p); }
+}
 async function addEngineerToProject(projId,engId){
   if(!engId)return;
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
@@ -8574,7 +8812,7 @@ async function addEngineerToProject(projId,engId){
     if(!canAdd){toast('⛔ You can only add engineers from your own discipline.');return;}
   }
   if(!p.weeklyHrs)p.weeklyHrs={};
-  if(isSlotKey(engId)&&!canDupBook(eng)){toast('Multiple bookings are available for BIM, JSE crews, and Associate-grade and above.');return;}
+  if(isSlotKey(engId)&&!canDupBook(eng,p)){toast('Multiple bookings are available for BIM, JSE crews, Associate-grade and above, and any grade on projects with parallel programmes.');return;}
   if(p.weeklyHrs[engId]&&p.weeklyHrs[engId].some(v=>v>0)){toast('Already on this project — use the ⊕ add again entry for a second booking.');return;}
   const weeks=stageWeeks(p.start,p.end);
   // Initialise with a placeholder 1 in the first week so the row shows up
@@ -8645,7 +8883,7 @@ async function removeEngineerFromProject(projId,engId){
   }
   // v9.3.0 — clear this booking's per-project metadata so nothing lingers
   let _metaDirty=false;
-  ['slotTags','bookDisc','rateOverrides','jseMultiplier'].forEach(fld=>{
+  ['slotTags','bookDisc','rateOverrides','jseMultiplier','bookProg','bookStage'].forEach(fld=>{
     if(p[fld]&&p[fld][engId]!=null){ delete p[fld][engId]; _metaDirty=true; }
   });
   if(_metaDirty&&!projId.toString().startsWith('prp'))pushProj(p);
@@ -9077,9 +9315,10 @@ function jseMonthPeakHeads(e,miAbs,statusFilter){
 // calendar week of (project, week-index) meets/exceeds their weekly capacity.
 function isOnFullLeave(engKey,proj,wi){
   try{
-    const e=slotEng(engKey)||S.engineers.find(x=>x.id===slotBase(engKey));
+    const base=slotBase(engKey); // v9.26.5 — leave is per person; resolve to base id so slot/extra-booking rows lock consistently with the base row
+    const e=S.engineers.find(x=>x.id===base)||slotEng(engKey);
     if(!e||!proj||!proj.start)return false;
-    const arr=(S.leaveHrs&&S.leaveHrs[e.id])||[];
+    const arr=(S.leaveHrs&&S.leaveHrs[base])||[];
     if(!arr.length)return false;
     const gwi=globalWI(projWeekDate(proj.start,wi));
     return (arr[gwi]||0)>=(e.cap||45);
@@ -9097,6 +9336,14 @@ function getJseMult(p, engId){
   if(!p.jseMultiplier)return 1;
   const v=p.jseMultiplier[engId];
   return(v!=null&&!isNaN(Number(v)))?Number(v):1;
+}
+// v9.28.3 — headcount as DISTINCT PEOPLE. With parallel programmes one person has several bookings (one per workstream/stage); dedupe by base id so they count once.
+function teamHeadcount(p){
+  const wh=p.weeklyHrs||{};
+  const bases=[...new Set(Object.keys(wh).filter(k=>(wh[k]||[]).some(v=>v>0)).map(k=>slotBase(k)))];
+  let mep=0,bim=0;
+  bases.forEach(b=>{ const e=S.engineers.find(x=>x.id===b); if(!e)return; if(e.team==='BIM')bim+=getJseMult(p,b); else mep+=memberHeads(p,b); });
+  return {mep,bim};
 }
 function setJseMult(projId, engId, val){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
@@ -9337,7 +9584,7 @@ function renderProjCard(p, mode){
     const e=slotEng(id); // v9.3.0
     return e && (e.crossDisc||isUmbrella(e)); // v9.16.1 — reveal even at 0 hours
   });
-  const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : new Set(hasCrossDisc?[0,3]:[0,1,3]);
+  const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : (hasParallelProg(p) ? new Set([0,1,2,3]) : new Set(hasCrossDisc?[0,3]:[0,1,3])); // v9.28.2 — parallel: also drop Disc (picker moves inline) + Rmv (remove lives on the workstream box)
   const FROZEN_WIDTHS_FULL=[68,72,32,68,140,150,60,78,78];
   const FROZEN_WIDTHS=FROZEN_WIDTHS_FULL.map((w,i)=>HIDDEN_IDX.has(i)?0:w);
   const FROZEN_LEFTS=[]; let acc=0;
@@ -9373,12 +9620,14 @@ function renderProjCard(p, mode){
     return `position:sticky;left:${FROZEN_LEFTS[idx]}px;top:0;z-index:7;box-sizing:border-box;width:${w}px;min-width:${w}px;max-width:${w}px;overflow:hidden;${bdr}${extra||''}`;
   };
 
-  // ── Programme week backgrounds + flags
+  // ── Programme week backgrounds + flags (v9.26.3 — suppressed on parallel projects; the per-booking stage window carries planning now, so the grid stays clean)
+  const _plain=hasParallelProg(p);
   const wkProgBg=weeks.map((_,wi)=>{
+    if(_plain)return '';
     const sIdx=stageMap.get(wi)||[];
     return stageBgCSS(sIdx, p.stages);
   });
-  const wkIsProg=weeks.map((_,wi)=>(stageMap.get(wi)||[]).length>0);
+  const wkIsProg=weeks.map((_,wi)=>_plain?false:(stageMap.get(wi)||[]).length>0);
 
   // ── Month band: group consecutive weeks by month-year
   const monthGroups=[]; // [{label, span, startIdx}]
@@ -9397,7 +9646,7 @@ function renderProjCard(p, mode){
   const wkHdrs=weeks.map((w,wi)=>{
     const beyond=wi>=_officialLen; // v9.22.0 — past the project end date
     const sIdx=stageMap.get(wi)||[];
-    const headerBg=beyond?'#7c2d12':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f');
+    const headerBg=beyond?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f'));
     return`<th title="${beyond?'Beyond the project end date — hours kept here; clear them or extend the end date':''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
   }).join('');
 
@@ -9432,6 +9681,9 @@ function renderProjCard(p, mode){
       .sort((a,b)=>a.name.localeCompare(b.name));
     const discEngs=[...mepEngs,...bimEngs];
     if(!discEngs.length) return;
+    // v9.25.5 — Excel-style merge: map each row to its consecutive same-person run (base + slots) so the name cell can rowspan the whole group. Run-based (not global) keeps rowspan rows strictly adjacent.
+    const _runFirst={}, _runSize={};
+    { let i=0; while(i<discEngs.length){ const b=slotBase(discEngs[i].id); let j=i; while(j<discEngs.length&&slotBase(discEngs[j].id)===b) j++; const first=discEngs[i].id, size=j-i; for(let k=i;k<j;k++){ _runFirst[discEngs[k].id]=first; _runSize[discEngs[k].id]=size; } i=j; } }
     const discCls=DISC_CLS[disc]||'';
 
     // Cost to Complete row (MEP+BIM combined)
@@ -9451,7 +9703,7 @@ function renderProjCard(p, mode){
     const discCollapsed = (window._discCollapsed && window._discCollapsed[p.id] && window._discCollapsed[p.id][disc]) || false;
     const chevSymbol = discCollapsed ? '▶' : '▼';
     const discSafeId = disc.replace(/[^A-Za-z]/g,'');
-    const mepCount=mepEngs.reduce((s,e)=>s+getJseMult(p,e.id),0), bimCount=bimEngs.reduce((s,e)=>s+getJseMult(p,e.id),0);
+    const mepCount=hasParallelProg(p)?[...new Set(mepEngs.map(e=>slotBase(e.id)))].reduce((s,b)=>s+memberHeads(p,b),0):mepEngs.reduce((s,e)=>s+getJseMult(p,e.id),0), bimCount=hasParallelProg(p)?[...new Set(bimEngs.map(e=>slotBase(e.id)))].reduce((s,b)=>s+getJseMult(p,b),0):bimEngs.reduce((s,e)=>s+getJseMult(p,e.id),0);
     const countLabel=`${mepCount} eng${mepEngs.length===1?'':'s'}${bimCount?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;margin-left:3px;">+${bimCount} BIM</span>`:''}`;
     
     rows+=`<tr style="background:${DISC_BG};border-top:2px solid ${DISC_FG};cursor:pointer;" onclick="toggleDiscRows('${p.id}','${disc}')" title="Click to collapse/expand ${disc}">
@@ -9518,15 +9770,43 @@ function renderProjCard(p, mode){
       const jseMult_html=''; // v9.4.7 — ×N spinner removed from JSE rows per request (multiplier logic unchanged; management moving elsewhere)
       const _baseShort=String(eng.name).replace(/\s*\(\d+\)$/,'').split(' ').slice(0,2).join(' ');
       const nameDisplay=_baseShort+(eng._slotOf?` <span style="font-size:8px;color:#7c3aed;background:#ede9fe;padding:1px 4px;border-radius:3px;font-weight:700;" title="Additional booking of the same person on this project">⊕${eng._slotNo}</span>`:'')+(isBIM?` <span style="font-size:8px;color:#0f766e;background:#ccfbf1;padding:1px 4px;border-radius:3px;">BIM</span>`:'');
+      // v9.25.3 — "grouped look": a person's bookings on a parallel-programme project read as one block (left rail + soft tint) with remove moved onto the workstream box.
+      // v9.25.5 — Excel-style merge of the name cell across a person's bookings.
+      const _gsize=_runSize[eng.id]||1;
+      const _ganchor=_runFirst[eng.id]===eng.id;
+      const _merged=hasParallelProg(p)&&_gsize>1;
+      let _nameTd;
+      if(_merged&&!_ganchor){
+        _nameTd=''; // merged away — the anchor's rowspan covers this row's name column
+      }else if(_merged&&_ganchor){
+        const _mBase=S.engineers.find(x=>x.id===slotBase(eng.id));
+        const _mName=_mBase?String(_mBase.name).replace(/\s*\(\d+\)$/,'').split(' ').slice(0,2).join(' '):_baseShort;
+        const _mDesig=_mBase?(_mBase.desig||_mBase.grade||''):(eng.desig||'');
+        const _mOff=_mBase?(_mBase.off||'DXB'):(eng.off||'DXB');
+        _nameTd=`<td rowspan="${_gsize}" style="${stickyTd(4,'padding:6px 8px;font-weight:600;font-size:11px;max-width:170px;vertical-align:middle;background:#faf5ff;border-left:3px solid #a78bfa;')}"><div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;">${esc(_mName)} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${_mOff}]</span>${isBIM?` <span style="font-size:8px;color:#0f766e;background:#ccfbf1;padding:1px 4px;border-radius:3px;">BIM</span>`:''}</div><div style="font-size:9px;color:var(--tx3);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;">${esc(_mDesig)}</div><div style="font-size:8px;color:#a78bfa;font-weight:700;margin-top:1px;">${_gsize} workstreams</div></td>`;
+      }else{
+        _nameTd=`<td style="${stickyTd(4,(hasParallelProg(p)?'padding:4px 8px;font-weight:600;font-size:11px;max-width:160px;'+nameBg:'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg))}">${hasParallelProg(p)?`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;">${nameDisplay} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></div><div style="font-size:9px;color:var(--tx3);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;">${esc(eng.desig||eng.grade||'')}</div>`:`${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span>`}</td>`;
+      }
+      // v9.26.0 — stage-window gating: on a parallel project every booking is filed to a stage (mandatory); only that stage's weeks are bookable, the rest are locked.
+      let _stgGate=false, _stgAllowed=null, _stgName='';
+      if(hasParallelProg(p)){
+        _stgGate=true;
+        const _sid=bookStage(p,eng.id);
+        const _sidx=_sid?p.stages.findIndex(st=>st.id===_sid):-1;
+        _stgAllowed=new Set();
+        if(_sidx>=0){ _stgName=(p.stages[_sidx]&&p.stages[_sidx].name)||''; weeks.forEach((_,wi)=>{ if((stageMap.get(wi)||[]).includes(_sidx))_stgAllowed.add(wi); }); }
+      }
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
-        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>'}</td>
+        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${hasParallelProg(p)?'<span style="color:var(--tx3);font-size:11px;opacity:.25;" title="Use the ✕ on the workstream box to remove this booking">—</span>':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>')}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
-        <td style="${stickyTd(4,'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg)}">${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></td>
-        <td style="${stickyTd(5,'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;')}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${eng._slotOf
+        ${_nameTd}
+        <td style="${stickyTd(5,(hasParallelProg(p)?'padding:3px 8px;font-size:10px;color:var(--tx2);max-width:170px;':'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;'))}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${hasParallelProg(p)?(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));const _pg=bookProg(p,eng.id);const _pc=progColorOf(p,_pg);const _curStg=bookStage(p,eng.id);const _stgIx=_curStg?p.stages.findIndex(st=>st.id===_curStg):-1;const _stgCol=_stgIx>=0?stageColor(_stgIx,p.stages[_stgIx]).bdr:'#dc2626';const _wsStages=(p.stages||[]).filter(st=>stageProg(p,st)===_pg);const _stgSel=_ce?(_wsStages.length?`<select onclick="event.stopPropagation()" onchange="setBookStage('${p.id}','${eng.id}',this.value)" title="Stage this booking is booked to — only this stage's weeks are bookable" style="width:100%;box-sizing:border-box;font-size:9px;padding:1px 3px;border:1px solid ${_curStg?_stgCol:'#dc2626'}99;border-radius:4px;color:${_curStg?_stgCol:'#dc2626'};font-weight:700;background:#fff;"><option value=""${!_curStg?' selected':''}>— pick stage —</option>${_wsStages.map(st=>`<option value="${st.id}"${_curStg===st.id?' selected':''}>${esc(st.name)}</option>`).join('')}</select>`:`<span style="font-size:8px;color:#dc2626;font-style:italic;">add a stage to this workstream</span>`):(_curStg?`<span style="font-size:9px;color:${_stgCol};font-weight:600;">${esc((stageById(p,_curStg)||{}).name||'')}</span>`:'');return _ce?`<div style="display:flex;flex-direction:column;gap:2px;min-width:0;"><div style="display:flex;align-items:center;gap:3px;"><select onclick="event.stopPropagation()" onchange="setBookProg('${p.id}','${eng.id}',this.value)" title="Workstream this booking is filed to" style="flex:1;min-width:0;box-sizing:border-box;font-size:9px;padding:1px 3px;border:1px solid ${_pc}66;border-radius:4px;color:${_pc};font-weight:700;background:#fff;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${_pg===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select><button onclick="event.stopPropagation();removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove this booking" style="background:none;border:none;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">\u2715</button></div>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</div>`:`<span style="display:flex;flex-direction:column;gap:1px;"><span style="display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${_pc};"><span style="width:6px;height:6px;border-radius:2px;background:${_pc};display:inline-block;flex-shrink:0;"></span>${esc(progById(p,_pg).name)}</span>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</span>`;})():''}${hasParallelProg(p)
+          ?''
+          :(eng._slotOf
           ?((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`:`<span style="font-size:10px;color:#0f766e;font-weight:600;">${esc(slotTag(p,eng.id))||'\u2014'}</span>`)
-          :(eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—'))}</td>
+          :(eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')))}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
         <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${MONEY_HIDDEN?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
         <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="Fee = Cost × ${ff.toFixed(2)}">${engFee>0?fN(Math.round(engFee)):'-'}</td>
@@ -9554,7 +9834,22 @@ function renderProjCard(p, mode){
           const cellBg=isBIM&&!tdStyle?'background:#f0fdfa;':'';
           const _lvLock=(typeof isOnFullLeave==='function')&&isOnFullLeave(eng.id,p,wi);
           const _lvRO=_lvLock&&!v; // locked+empty: fully read-only; locked+value: editable so hours can be CLEARED (setter rejects increases)
-          return`<td class="week-cell" style="${tdStyle||cellBg}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):ttip}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_lvRO?'readonly':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':v?'#dcfce7':'transparent'};${_lvLock?'opacity:.6;':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
+          const _stgOut=_stgGate&&!(_stgAllowed&&_stgAllowed.has(wi)); // v9.26.0 — outside this booking's stage window
+          const _stgRO=_stgOut&&!v; // empty & out-of-window → read-only; has a value → editable so it can be cleared out
+          const _stgTip=_stgOut?(_stgName?`\ud83d\udd12 Outside "${_stgName}" \u2014 this week isn't in this booking's stage`:'\ud83d\udd12 Pick a stage for this booking to unlock its weeks'):'';
+          const _canEditThis=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));
+          const _cellBgFinal=_stgOut&&!(lv||hv)?'background:#eef1f5;':(tdStyle||cellBg);
+          if(hasParallelProg(p)){
+            // v9.26.1 — Option C: green chip for booked hours, flat grey for locked weeks, no icons/stripes/boxes; leave & holiday keep their tint.
+            const _inBg=v?(_stgOut?'#fde2e2':'#dcfce7'):'transparent';
+            const _inCol=v?(_stgOut?'#b91c1c':'#166534'):'inherit';
+            const _inBd=v?(_stgOut?'#fca5a5':'#86efac'):'#e5e7eb';
+            const _cbg=lv>=cap?'background:#fca5a5;':lv>0?'background:#fed7aa;':hv>0?'background:#bfdbfe;':(_stgOut?'background:#f4f5f7;':(isBIM?'background:#f0fdfa;':''));
+            const _ro2=_lvRO||_stgRO||!_canEditThis;
+            const _tip2=_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 clear only':'\ud83c\udfd6 Full-week leave \u2014 locked'):(_stgOut?(_stgName?`Outside "${_stgName}"`:'Pick a stage to unlock this booking\u2019s weeks'):(stageNames?`Stage: ${stageNames}`:''));
+            return`<td class="week-cell" style="${_cbg}" title="${_tip2}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_ro2?'readonly':''} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${_inBd};border-radius:4px;background:${_inBg};color:${_inCol};font-weight:${v?'700':'400'};${(_stgOut&&!v)?'opacity:.5;':''}${!_canEditThis?'cursor:not-allowed;':''}"></td>`;
+          }
+          return`<td class="week-cell" style="${_cellBgFinal}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):(_stgTip||ttip)}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':(_stgOut?'\ud83d\udd12':'')}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(_lvRO||_stgRO)?'readonly':(_canEditThis?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':(_stgOut?(v?'#fee2e2':'#eef1f5'):(v?'#dcfce7':'transparent'))};${(_lvLock||(_stgOut&&!v))?'opacity:.55;':(_canEditThis?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -9659,7 +9954,7 @@ function renderProjCard(p, mode){
       <th style="${stickyTh(2,'background:#1e3a5f;color:#fff;font-size:10px;padding:4px;text-align:center;')}">Rmv</th>
       <th style="${stickyTh(3,'background:#1e3a5f;color:#fff;font-size:10px;padding:4px;text-align:left;')}">Emp No.</th>
       <th style="${stickyTh(4,'background:#1e3a5f;color:#fff;font-size:10px;padding:4px;text-align:left;')}">Name</th>
-      <th style="${stickyTh(5,'background:#1e3a5f;color:#fff;font-size:10px;padding:4px;text-align:left;')}">Position</th>
+      <th style="${stickyTh(5,'background:#1e3a5f;color:#fff;font-size:10px;padding:4px;text-align:left;')}">${hasParallelProg(p)?'Workstream / Stage':'Position'}</th>
       <th style="${stickyTh(6,'background:#0369a1;color:#fff;font-size:10px;padding:4px;text-align:center;')}" title="Total hours on this project">Total Hrs</th>
       <th style="${stickyTh(7,'background:#0369a1;color:#fff;font-size:10px;padding:4px;text-align:center;')}" title="Cost (AED) = hrs × rate (no fee factor)">Cost (AED)</th>
       <th style="${stickyTh(8,'background:#065f46;color:#fff;font-size:10px;padding:4px;text-align:center;')}" title="Fee (AED) = hrs × rate × fee factor ×${ff.toFixed(2)}">Fee (AED)</th>
@@ -10125,6 +10420,7 @@ function updateProjCardTotals(p){
   // the specific spans directly so every edit updates everything instantly.
   const totalH=projTotalHrs(p);
   const assignedIdsWithHrs=S.engineers.filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0));
+  const _hc=hasParallelProg(p)?teamHeadcount(p):null; // v9.28.3 — distinct-people headcount
 
   // Cost & Fee Breakdown widget
   const cfbHrs=document.getElementById(`cfb-hrs-${p.id}`);
@@ -10141,19 +10437,21 @@ function updateProjCardTotals(p){
   const wbHrs=document.getElementById(`wb-hrs-${p.id}`);
   if(wbHrs){
     wbHrs.textContent=fN(Math.round(totalH));
-    const assignedMEP=assignedIdsWithHrs.filter(e=>e.team!=='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
-    const assignedBIM=assignedIdsWithHrs.filter(e=>e.team==='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
+    const assignedMEP=_hc?_hc.mep:assignedIdsWithHrs.filter(e=>e.team!=='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
+    const assignedBIM=_hc?_hc.bim:assignedIdsWithHrs.filter(e=>e.team==='BIM').reduce((s,e)=>s+getJseMult(p,e.id),0);
     const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
     const wbMembers=document.getElementById(`wb-members-${p.id}`);
     if(wbMembers) wbMembers.textContent=memberLabel;
-    const discs=[...new Set(assignedIdsWithHrs.map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
+    const discs=hasParallelProg(p)
+      ?[...new Set(projEngineers(p).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))]
+      :[...new Set(assignedIdsWithHrs.map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
     const wbDiscs=document.getElementById(`wb-discs-${p.id}`);
     if(wbDiscs) wbDiscs.textContent=discs.join(' · ');
   }
 
   // Toolbar assigned / hrs total
   const tbAssigned=document.getElementById(`tb-assigned-${p.id}`);
-  if(tbAssigned) tbAssigned.textContent=assignedIdsWithHrs.reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+  if(tbAssigned) tbAssigned.textContent=_hc?(_hc.mep+_hc.bim):assignedIdsWithHrs.reduce((sum,e)=>sum+getJseMult(p,e.id),0);
   const tbHrs=document.getElementById(`tb-hrs-${p.id}`);
   if(tbHrs) tbHrs.textContent=fN(Math.round(totalH));
 }
