@@ -871,7 +871,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.28.3 · 23 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.29.3 · 23 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -971,7 +971,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.28.3 · 23 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.29.3 · 23 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1719,6 +1719,15 @@ function canEditDisc(disc){
   // So we need a separate check for BIM engineers in the caller, not here
   if(hasBimRole&&disc==='BIM')return true;
   return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()===(disc||'').toUpperCase());
+}
+// v9.29.3 — the logged-in user's OWN discipline code ('BIM' for BIM staff). Used to scope
+// people-pickers to the user's own discipline even in admin mode, where canEditDisc() allows everything.
+function myDiscCode(){
+  try{
+    const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
+    if(!eng)return null;
+    return eng.team==='BIM'?'BIM':((eng.disc||'').toUpperCase()||null);
+  }catch(e){return null;}
 }
 function isBimLead(){
   if(adminUnlocked)return true;
@@ -3366,17 +3375,51 @@ function progById(p,id){ const list=projProgrammes(p); return list.find(pr=>pr.i
 function progColorOf(p,id){ const pr=progById(p,id); return (pr&&pr.color)||PROG_COLORS[0]; }
 // Programme a stage belongs to — untagged stages fall to the first (default) programme.
 function stageProg(p,st){ const list=projProgrammes(p); if(st&&st.prog&&list.some(pr=>pr.id===st.prog))return st.prog; return list[0].id; }
-// Programme a booking is filed to — untagged bookings fall to the first programme.
-function bookProg(p,key){ const list=projProgrammes(p); const v=p&&p.bookProg&&p.bookProg[key]; if(v&&list.some(pr=>pr.id===v))return v; return list[0].id; }
-function setBookProg(projId,key,val){
-  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
-  if(!p)return;
-  const _eng=slotEng(key);
-  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return; }
+// Programme(s) a booking is filed to — untagged bookings fall to the first programme.
+// v9.29.2 — a booking may now hold MULTIPLE workstreams (bookProg[key] is an array; a bare string from earlier builds still works).
+// NOTE: workstreams run in parallel, so when two ticked stages from different workstreams cover the SAME week the hours in that
+// week can't be split between them. Attribution then follows project stage order (deterministic), and the cell is flagged amber.
+function bookProgs(p,key){
+  const list=projProgrammes(p);
+  const raw=p&&p.bookProg&&p.bookProg[key];
+  if(!raw)return [list[0].id];
+  const ids=Array.isArray(raw)?raw:[raw];
+  const valid=list.filter(pr=>ids.indexOf(pr.id)>=0).map(pr=>pr.id);
+  return valid.length?valid:[list[0].id];
+}
+function bookProg(p,key){ return bookProgs(p,key)[0]; } // legacy single-value accessor
+function _saveBookProgs(p,key,ids){
   if(!p.bookProg)p.bookProg={};
   const list=projProgrammes(p);
-  if(val&&list.some(pr=>pr.id===val)&&val!==list[0].id)p.bookProg[key]=val; else delete p.bookProg[key];
+  if(ids.length===1&&ids[0]===list[0].id)delete p.bookProg[key]; else p.bookProg[key]=ids;
+  // drop ticked stages that no longer belong to any ticked workstream
+  const allowed=new Set(ids);
+  const cur=bookStages(p,key).filter(id=>{const st=stageById(p,id);return st&&allowed.has(stageProg(p,st));});
+  if(p.bookStage){ if(cur.length)p.bookStage[key]=cur; else delete p.bookStage[key]; }
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+}
+function toggleBookProg(projId,key,pid){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  const list=projProgrammes(p); if(!list.some(pr=>pr.id===pid))return;
+  const cur=bookProgs(p,key);
+  const next=cur.indexOf(pid)>=0?cur.filter(x=>x!==pid):list.filter(pr=>cur.indexOf(pr.id)>=0||pr.id===pid).map(pr=>pr.id);
+  if(!next.length){ if(typeof toast==='function')toast('A booking needs at least one workstream','error'); return; }
+  _saveBookProgs(p,key,next);
+  renderProjDetail(p);
+}
+function setBookProgsAll(projId,key,on){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  if(!on){ if(typeof toast==='function')toast('A booking needs at least one workstream','error'); return; }
+  _saveBookProgs(p,key,projProgrammes(p).map(pr=>pr.id));
+  renderProjDetail(p);
+}
+function setBookProg(projId,key,val){ // legacy single-set path
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  const list=projProgrammes(p);
+  _saveBookProgs(p,key,(val&&list.some(pr=>pr.id===val))?[val]:[list[0].id]);
   renderProjDetail(p);
 }
 // Stage index for a week, restricted to one programme — the reporting fix for
@@ -3407,6 +3450,79 @@ function setProjProgrammeColor(projId,pid,val){
 // v9.26.4 — preset colour palette (Word/AutoCAD style) for stage + workstream colours, with a custom-picker fallback.
 const PRESET_COLORS=['#1e3a5f','#2563eb','#0ea5e9','#0891b2','#0d9488','#15803d','#65a30d','#ca8a04','#ea580c','#dc2626','#be123c','#db2777','#9333ea','#7c3aed','#475569','#0f172a'];
 function _applyPreset(kind,projId,key,hex){ if(kind==='stage')setProjStageColor(projId,key,hex); else setProjProgrammeColor(projId,key,hex); }
+// v9.29.0 — multi-stage picker popover: "All stages" plus a checkbox per stage in this booking's workstream.
+function openStagePicker(evt,projId,key){
+  evt.stopPropagation();
+  const ex=document.getElementById('stage-pop'); if(ex)ex.remove();
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId); if(!p)return;
+  const pgs=bookProgs(p,key); const pgSet=new Set(pgs); // v9.29.2 — stages across every ticked workstream
+  const list=(p.stages||[]).map((st,si)=>({st,si})).filter(o=>pgSet.has(stageProg(p,o.st)));
+  const cur=bookStages(p,key);
+  const pop=document.createElement('div');
+  pop.id='stage-pop';
+  pop.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:8px;min-width:250px;max-width:330px;max-height:340px;overflow:auto;';
+  if(!list.length){
+    pop.innerHTML='<div style="font-size:11px;color:#dc2626;padding:6px;">No stages in this workstream yet — add one in the Programme section.</div>';
+  }else{
+    const allOn=cur.length===list.length;
+    const _mkRow=(o)=>{
+      const sc=stageColor(o.si,o.st);
+      const on=cur.indexOf(o.st.id)>=0;
+      const wa=o.st.from?wkNum(new Date(o.st.from)):'',wb=o.st.to?wkNum(new Date(o.st.to)):'';
+      const wR=(wa&&wb)?((wa===wb)?('W'+wa):('W'+wa+'\u2013W'+wb)):'';
+      return`<label style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;cursor:pointer;${on?'background:'+sc.bdr+'12;':''}" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='${on?sc.bdr+'12':'transparent'}'">
+        <input type="checkbox" ${on?'checked':''} onchange="event.stopPropagation();toggleBookStage('${p.id}','${key}','${o.st.id}')" style="width:14px;height:14px;cursor:pointer;accent-color:${sc.bdr};flex-shrink:0;">
+        <span style="width:9px;height:9px;border-radius:2px;background:${sc.bdr};flex-shrink:0;display:inline-block;"></span>
+        <span style="font-size:11px;font-weight:600;color:${sc.bdr};flex:1;">${esc(o.st.name||'')}</span>
+        <span style="font-size:9px;color:var(--tx3);font-weight:700;flex-shrink:0;">${wR}</span>
+      </label>`;
+    };
+    const rows=(pgs.length>1)
+      ? pgs.map(pid=>{const mine=list.filter(o=>stageProg(p,o.st)===pid); if(!mine.length)return '';const pr=progById(p,pid);
+          return `<div style="font-size:9px;font-weight:800;color:${pr.color};text-transform:uppercase;letter-spacing:.04em;padding:5px 6px 2px;">${esc(pr.name)}</div>`+mine.map(_mkRow).join('');}).join('')
+      : list.map(_mkRow).join('');
+    pop.innerHTML=`<label style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-bottom:1px solid var(--bdr);margin-bottom:4px;cursor:pointer;font-weight:700;">
+        <input type="checkbox" ${allOn?'checked':''} onchange="event.stopPropagation();setBookStagesAll('${p.id}','${key}',this.checked)" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;">
+        <span style="font-size:11px;color:#1e3a5f;">All stages</span><span style="font-size:9px;color:var(--tx3);margin-left:auto;">${list.length}</span>
+      </label>${rows}`;
+  }
+  document.body.appendChild(pop);
+  const w=pop.offsetWidth||260, h=pop.offsetHeight||200;
+  pop.style.left=Math.max(8,Math.min(evt.clientX,window.innerWidth-w-10))+'px';
+  pop.style.top=Math.max(8,Math.min(evt.clientY+8,window.innerHeight-h-10))+'px';
+  setTimeout(()=>{const close=(e)=>{if(!pop.contains(e.target)){pop.remove();document.removeEventListener('mousedown',close);}};document.addEventListener('mousedown',close);},0);
+}
+// v9.29.2 — workstream multi-select popover: "All workstreams" plus a checkbox per workstream.
+function openProgPicker(evt,projId,key){
+  evt.stopPropagation();
+  const ex=document.getElementById('prog-pop'); if(ex)ex.remove();
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId); if(!p)return;
+  const list=projProgrammes(p);
+  const cur=bookProgs(p,key);
+  const pop=document.createElement('div');
+  pop.id='prog-pop';
+  pop.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:8px;min-width:240px;max-width:320px;max-height:320px;overflow:auto;';
+  const allOn=cur.length===list.length;
+  const rows=list.map(pr=>{
+    const on=cur.indexOf(pr.id)>=0;
+    const n=(p.stages||[]).filter(st=>stageProg(p,st)===pr.id).length;
+    return`<label style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-radius:6px;cursor:pointer;${on?'background:'+pr.color+'12;':''}">
+      <input type="checkbox" ${on?'checked':''} onchange="event.stopPropagation();toggleBookProg('${p.id}','${key}','${pr.id}')" style="width:14px;height:14px;cursor:pointer;accent-color:${pr.color};flex-shrink:0;">
+      <span style="width:9px;height:9px;border-radius:2px;background:${pr.color};flex-shrink:0;display:inline-block;"></span>
+      <span style="font-size:11px;font-weight:700;color:${pr.color};flex:1;">${esc(pr.name)}</span>
+      <span style="font-size:9px;color:var(--tx3);flex-shrink:0;">${n} stage${n===1?'':'s'}</span>
+    </label>`;
+  }).join('');
+  pop.innerHTML=`<label style="display:flex;align-items:center;gap:7px;padding:4px 6px;border-bottom:1px solid var(--bdr);margin-bottom:4px;cursor:pointer;font-weight:700;">
+      <input type="checkbox" ${allOn?'checked':''} onchange="event.stopPropagation();setBookProgsAll('${p.id}','${key}',this.checked)" style="width:14px;height:14px;cursor:pointer;flex-shrink:0;">
+      <span style="font-size:11px;color:#1e3a5f;">All workstreams</span><span style="font-size:9px;color:var(--tx3);margin-left:auto;">${list.length}</span>
+    </label>${rows}<div style="font-size:8.5px;color:var(--tx3);padding:5px 6px 1px;border-top:1px solid var(--bdr);margin-top:4px;line-height:1.4;">Workstreams run in parallel — where two ticked stages cover the same week, that week's hours can't be split between them. Such weeks are flagged amber.</div>`;
+  document.body.appendChild(pop);
+  const w=pop.offsetWidth||250, h=pop.offsetHeight||200;
+  pop.style.left=Math.max(8,Math.min(evt.clientX,window.innerWidth-w-10))+'px';
+  pop.style.top=Math.max(8,Math.min(evt.clientY+8,window.innerHeight-h-10))+'px';
+  setTimeout(()=>{const close=(e)=>{if(!pop.contains(e.target)){pop.remove();document.removeEventListener('mousedown',close);}};document.addEventListener('mousedown',close);},0);
+}
 function openPresetColors(evt,kind,projId,key,cur){
   evt.stopPropagation();
   const ex=document.getElementById('preset-pop'); if(ex)ex.remove();
@@ -3440,7 +3556,11 @@ function removeProjProgramme(projId,pid){
   p.programmes.splice(idx,1);
   // Re-home stages / bookings that pointed at the removed programme → default.
   (p.stages||[]).forEach(st=>{ if(st.prog===pid)delete st.prog; });
-  if(p.bookProg)Object.keys(p.bookProg).forEach(k=>{ if(p.bookProg[k]===pid)delete p.bookProg[k]; });
+  if(p.bookProg)Object.keys(p.bookProg).forEach(k=>{ // v9.29.2 — array-aware
+    const raw=p.bookProg[k];
+    if(Array.isArray(raw)){ const next=raw.filter(x=>x!==pid); if(next.length)p.bookProg[k]=next; else delete p.bookProg[k]; }
+    else if(raw===pid) delete p.bookProg[k];
+  });
   pushProj(p);renderProjDetail(p);
 }
 function setStageProg(projId,si,val){
@@ -3449,19 +3569,61 @@ function setStageProg(projId,si,val){
   if(val&&list.some(pr=>pr.id===val)&&val!==list[0].id)p.stages[si].prog=val; else delete p.stages[si].prog;
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);renderProjDetail(p);
 }
-// v9.26.0 — per-booking STAGE assignment (mandatory on parallel projects). Stages get a stable id so bookings survive stage reorder/rename; bookStage[key] stores that id.
+// v9.26.0 — per-booking STAGE assignment (mandatory on parallel projects). Stages get a stable id so bookings survive stage reorder/rename.
+// v9.29.0 — a booking may now hold MULTIPLE stages: bookStage[key] is an array of stage ids (a bare string from earlier builds still works).
 function ensureStageIds(p){ if(p&&Array.isArray(p.stages))p.stages.forEach(st=>{ if(st&&!st.id)st.id='st'+Math.random().toString(36).slice(2,8); }); }
-function bookStage(p,key){ return (p&&p.bookStage&&p.bookStage[key])||''; }
 function stageById(p,id){ return (p&&p.stages||[]).find(st=>st.id===id)||null; }
-function setBookStage(projId,key,val){
-  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
-  if(!p)return;
-  const _eng=slotEng(key);
-  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return; }
+// Array of valid stage ids on this booking (order follows p.stages so chips read chronologically).
+function bookStages(p,key){
+  const raw=p&&p.bookStage&&p.bookStage[key];
+  if(!raw)return [];
+  const ids=Array.isArray(raw)?raw:[raw];
+  return (p.stages||[]).filter(st=>ids.indexOf(st.id)>=0).map(st=>st.id);
+}
+function bookStage(p,key){ const a=bookStages(p,key); return a.length?a[0]:''; } // legacy single-value accessor
+function _saveBookStages(p,key,ids){
   if(!p.bookStage)p.bookStage={};
-  if(val&&stageById(p,val))p.bookStage[key]=val; else delete p.bookStage[key];
+  if(ids&&ids.length)p.bookStage[key]=ids; else delete p.bookStage[key];
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
+}
+function _bsGuard(key,p){
+  const _eng=slotEng(key);
+  if(_eng && !(_eng.team==='BIM'?isBimLead():canEditDisc(_eng.disc))){ if(typeof toast==='function')toast('Only their discipline lead or admin can edit this','error'); renderProjDetail(p); return false; }
+  return true;
+}
+function toggleBookStage(projId,key,stageId){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  if(!stageById(p,stageId))return;
+  const cur=bookStages(p,key);
+  const next=cur.indexOf(stageId)>=0?cur.filter(x=>x!==stageId):cur.concat([stageId]);
+  if(!next.length){ if(typeof toast==='function')toast('A booking needs at least one stage','error'); return; } // stage stays mandatory
+  _saveBookStages(p,key,next);
   renderProjDetail(p);
+}
+// Tick/untick every stage in this booking's workstream.
+function setBookStagesAll(projId,key,on){
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  const pgs=new Set(bookProgs(p,key));
+  const all=(p.stages||[]).filter(st=>pgs.has(stageProg(p,st))).map(st=>st.id);
+  if(!on){ if(typeof toast==='function')toast('A booking needs at least one stage','error'); return; }
+  _saveBookStages(p,key,all);
+  renderProjDetail(p);
+}
+function setBookStage(projId,key,val){ // legacy single-set path
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
+  if(!p||!_bsGuard(key,p))return;
+  _saveBookStages(p,key,(val&&stageById(p,val))?[val]:[]);
+  renderProjDetail(p);
+}
+// Which of a booking's ticked stages owns a given week (for tinting + cost attribution).
+function bookStageForWeek(p,key,wi,sm){
+  const ids=bookStages(p,key); if(!ids.length)return -1;
+  const map=sm||getStageWeekMap(p);
+  const here=map.get(wi)||[];
+  for(const si of here){ const st=p.stages[si]; if(st&&ids.indexOf(st.id)>=0)return si; }
+  return -1;
 }
 function projCost(p){
   let c=0;
@@ -3912,7 +4074,9 @@ function spendCompute(){
         const wd=spendWeekDate(p.start,wi);
         if(fromD&&wd<fromD)return;
         if(toD&&wd>toD)return;
-        const sidx=stageIdxForProg(p,sm,wi,bookProg(p,eid)); // v9.25.0 — attribute to THIS booking's programme, not the first overlapping stage
+        const _own=hasParallelProg(p)?bookStageForWeek(p,eid,wi,sm):-1; // v9.29.0 — multi-stage booking: the ticked stage covering THIS week
+        const _pgsSet=new Set(bookProgs(p,eid)); // v9.29.2 — multi-workstream aware fallback
+        const sidx=_own>=0?[_own]:(sm.get(wi)||[]).filter(si=>_pgsSet.has(stageProg(p,p.stages[si])));
         const stageName=sidx.length?((p.stages[sidx[0]]&&p.stages[sidx[0]].name)||('Stage '+(sidx[0]+1))):'Unplanned';
         if(SPEND.stage&&stageName!==SPEND.stage)return;
         const cost=h*rate*mult;
@@ -8205,16 +8369,18 @@ function renderProjDetail(p){
             if(!hasParallelProg(p)){
               return`<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${stgs.map(o=>chip(o.s,o.i)).join('')}</div>`;
             }
-            // v9.25.0 — parallel programmes: one band per workstream
-            const bands=projProgrammes(p).map(pr=>{
+            // v9.25.0 — parallel programmes: one band per workstream (v9.28.4 — colour rail + dashed divider so bands read as distinct groups)
+            const _prAll=projProgrammes(p);
+            const bands=_prAll.map((pr,pi)=>{
               const mine=stgs.filter(o=>stageProg(p,o.s)===pr.id);
               const chips=mine.length?mine.map(o=>chip(o.s,o.i)).join(''):`<span style="font-size:9px;color:var(--tx3);font-style:italic;">no stages</span>`;
-              return`<div style="display:flex;align-items:center;gap:8px;">
-                <span style="display:inline-flex;align-items:center;gap:5px;min-width:108px;flex-shrink:0;font-size:10px;font-weight:700;color:${pr.color};"><span style="width:8px;height:8px;border-radius:2px;background:${pr.color};display:inline-block;flex-shrink:0;"></span>${esc(pr.name)}</span>
-                <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;">${chips}</div>
+              const last=pi===_prAll.length-1;
+              return`<div style="display:flex;align-items:flex-start;gap:8px;padding:5px 0 5px 10px;border-left:3px solid ${pr.color};${last?'':'border-bottom:1px dashed var(--bdr);'}">
+                <span style="display:inline-flex;align-items:center;gap:5px;min-width:120px;flex-shrink:0;font-size:10px;font-weight:700;color:${pr.color};padding-top:2px;"><span style="width:8px;height:8px;border-radius:2px;background:${pr.color};display:inline-block;flex-shrink:0;"></span>${esc(pr.name)}</span>
+                <div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${chips}</div>
               </div>`;
             }).join('');
-            return`<div style="display:flex;flex-direction:column;gap:3px;width:100%;">${bands}</div>`;
+            return`<div style="display:flex;flex-direction:column;gap:0;width:100%;">${bands}</div>`;
           })()}
         </div>
         <div class="prog-sec-hdr-btns" style="display:flex;gap:6px;align-items:center;" onclick="event.stopPropagation()">
@@ -8472,9 +8638,17 @@ function renderProjDetail(p){
               </select>
             </div>
             ${(hasParallelProg(p)&&!window._propViewing)?(()=>{
-              const _bookedBases=[...new Set(Object.keys(p.weeklyHrs||{}).filter(k=>(p.weeklyHrs[k]||[]).some(v=>v>0)).map(k=>slotBase(k)))];
+              const _allBases=[...new Set(Object.keys(p.weeklyHrs||{}).filter(k=>(p.weeklyHrs[k]||[]).some(v=>v>0)).map(k=>slotBase(k)))];
+              // v9.29.3 — scope the "copy from" list to the logged-in user's OWN discipline (admin mode makes canEditDisc allow everything, which listed all 31 people).
+              const _myD=myDiscCode();
+              const _discOf=(id)=>{const e=S.engineers.find(x=>x.id===id);if(!e)return null;return e.team==='BIM'?'BIM':((effDisc(e,p)||e.disc||'').toUpperCase()||null);};
+              let _bookedBases=_myD?_allBases.filter(b=>_discOf(b)===_myD):_allBases;
+              if(!_bookedBases.length)_bookedBases=_allBases.filter(b=>{const e=S.engineers.find(x=>x.id===b);return e&&(e.team==='BIM'?isBimLead():canEditDisc(e.disc));}); // graceful fallback
               if(!_bookedBases.length)return '';
-              const _tgt=S.engineers.filter(e=>!e._isVirtual&&_bookedBases.indexOf(e.id)<0&&(adminUnlocked||(e.team==='BIM'?isBimLead():canEditDisc(e.disc)))).sort((a,b)=>a.name.localeCompare(b.name));
+              const _cand=S.engineers.filter(e=>!e._isVirtual&&_allBases.indexOf(e.id)<0&&(adminUnlocked||(e.team==='BIM'?isBimLead():canEditDisc(e.disc))));
+              let _tgt=_myD?_cand.filter(e=>(e.team==='BIM'?'BIM':((e.disc||'').toUpperCase()))===_myD):_cand; // v9.29.3 — same own-discipline scope as the source list
+              if(!_tgt.length)_tgt=_cand;
+              _tgt=_tgt.sort((a,b)=>a.name.localeCompare(b.name));
               if(!_tgt.length)return '';
               const _srcOpts=_bookedBases.map(b=>{const e=S.engineers.find(x=>x.id===b);const n=e?e.name.split(' ').slice(0,2).join(' '):b;const cnt=Object.keys(p.weeklyHrs).filter(k=>slotBase(k)===b&&(p.weeklyHrs[k]||[]).some(v=>v>0)).length;return `<option value="${esc(b)}">${esc(n)} (${cnt})</option>`;}).join('');
               return`<button onclick="var e=document.getElementById('clone-ui-${p.id}');var o=e.style.display==='none';e.style.display=o?'inline-flex':'none';" title="Copy one person's workstream + stage rows onto another engineer (hours left blank)" style="font-size:11px;font-weight:700;padding:5px 10px;border-radius:6px;border:1px solid #c4b5fd;background:#f5f3ff;color:#6d28d9;cursor:pointer;white-space:nowrap;">⧉ Copy setup</button>
@@ -8509,7 +8683,11 @@ function removeProjStage(projId,si){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   const _rmId=p.stages[si]&&p.stages[si].id;
   p.stages.splice(si,1);
-  if(_rmId&&p.bookStage)Object.keys(p.bookStage).forEach(k=>{ if(p.bookStage[k]===_rmId)delete p.bookStage[k]; }); // v9.26.0 — drop bookings' pointer to a deleted stage
+  if(_rmId&&p.bookStage)Object.keys(p.bookStage).forEach(k=>{ // v9.29.0 — array-aware cleanup
+    const raw=p.bookStage[k];
+    if(Array.isArray(raw)){ const next=raw.filter(x=>x!==_rmId); if(next.length)p.bookStage[k]=next; else delete p.bookStage[k]; }
+    else if(raw===_rmId) delete p.bookStage[k];
+  });
   pushProj(p);renderProjDetail(p);
 }
 function handleStageSelect(projId,si,sel){
@@ -8785,12 +8963,12 @@ async function cloneBookingSetup(projId, fromBaseId, toBaseId){
     const suffix = sk.indexOf('#')>0 ? sk.slice(sk.indexOf('#')) : '';
     const tk = toBaseId + suffix;
     if(p.weeklyHrs[tk]&&p.weeklyHrs[tk].some(v=>v>0)) return; // don't clobber an existing target booking
-    if(p.bookProg[sk]) p.bookProg[tk]=p.bookProg[sk];
-    if(p.bookStage[sk]) p.bookStage[tk]=p.bookStage[sk];
+    if(p.bookProg[sk]) p.bookProg[tk]=Array.isArray(p.bookProg[sk])?p.bookProg[sk].slice():p.bookProg[sk]; // v9.29.2 — copy by value
+    if(p.bookStage[sk]) p.bookStage[tk]=Array.isArray(p.bookStage[sk])?p.bookStage[sk].slice():p.bookStage[sk]; // v9.29.2 — copy by value
     if(suffix&&p.slotTags[sk]) p.slotTags[tk]=p.slotTags[sk];
     // seed placeholder inside the copied stage's window so the row shows in-range (green), not stranded
-    let seedWk=0; const sid=p.bookStage[sk];
-    if(sid){ const si=p.stages.findIndex(s=>s.id===sid); if(si>=0){ for(let wi=0;wi<weeks.length;wi++){ if((stageMap.get(wi)||[]).includes(si)){ seedWk=wi; break; } } } }
+    let seedWk=0; const sids=bookStages(p,tk); // v9.29.0 — multi-stage aware
+    if(sids.length){ const si=p.stages.findIndex(s=>s.id===sids[0]); if(si>=0){ for(let wi=0;wi<weeks.length;wi++){ if((stageMap.get(wi)||[]).includes(si)){ seedWk=wi; break; } } } }
     const arr=new Array(weeks.length).fill(0); arr[seedWk]=1;
     p.weeklyHrs[tk]=arr; writes.push({tk,seedWk}); made++;
   });
@@ -9787,14 +9965,23 @@ function renderProjCard(p, mode){
       }else{
         _nameTd=`<td style="${stickyTd(4,(hasParallelProg(p)?'padding:4px 8px;font-weight:600;font-size:11px;max-width:160px;'+nameBg:'padding:4px 8px;font-weight:600;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:140px;'+nameBg))}">${hasParallelProg(p)?`<div style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.25;">${nameDisplay} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span></div><div style="font-size:9px;color:var(--tx3);font-weight:400;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2;">${esc(eng.desig||eng.grade||'')}</div>`:`${nameDisplay}${jseMult_html} <span style="font-size:9px;color:var(--tx3);font-weight:400">[${eng.off||'DXB'}]</span>`}</td>`;
       }
-      // v9.26.0 — stage-window gating: on a parallel project every booking is filed to a stage (mandatory); only that stage's weeks are bookable, the rest are locked.
-      let _stgGate=false, _stgAllowed=null, _stgName='';
+      // v9.26.0 — stage-window gating: on a parallel project every booking is filed to stages (mandatory); only those stages' weeks are bookable.
+      // v9.29.0 — a booking may hold several stages, so the bookable window is the UNION of their windows; each week remembers which stage owns it (for tinting + cost attribution).
+      let _stgGate=false, _stgAllowed=null, _stgName='', _stgOwner=null, _stgAmbig=null;
       if(hasParallelProg(p)){
         _stgGate=true;
-        const _sid=bookStage(p,eng.id);
-        const _sidx=_sid?p.stages.findIndex(st=>st.id===_sid):-1;
-        _stgAllowed=new Set();
-        if(_sidx>=0){ _stgName=(p.stages[_sidx]&&p.stages[_sidx].name)||''; weeks.forEach((_,wi)=>{ if((stageMap.get(wi)||[]).includes(_sidx))_stgAllowed.add(wi); }); }
+        const _ids=bookStages(p,eng.id);
+        _stgAllowed=new Set(); _stgOwner=new Map(); _stgAmbig=new Set();
+        const _names=[]; const _hits=new Map();
+        _ids.forEach(id=>{
+          const _sidx=p.stages.findIndex(st=>st.id===id);
+          if(_sidx<0)return;
+          _names.push((p.stages[_sidx]&&p.stages[_sidx].name)||'');
+          weeks.forEach((_,wi)=>{ if((stageMap.get(wi)||[]).includes(_sidx)){ _stgAllowed.add(wi); if(!_stgOwner.has(wi))_stgOwner.set(wi,_sidx); _hits.set(wi,(_hits.get(wi)||[]).concat([_sidx])); } });
+        });
+        // v9.29.2 — a week covered by ticked stages from MORE THAN ONE workstream can't be split; flag it.
+        _hits.forEach((arr,wi)=>{ const ws=new Set(arr.map(si=>stageProg(p,p.stages[si]))); if(ws.size>1)_stgAmbig.add(wi); });
+        _stgName=_names.join(' + ');
       }
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
@@ -9802,7 +9989,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${hasParallelProg(p)?'<span style="color:var(--tx3);font-size:11px;opacity:.25;" title="Use the ✕ on the workstream box to remove this booking">—</span>':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>')}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
         ${_nameTd}
-        <td style="${stickyTd(5,(hasParallelProg(p)?'padding:3px 8px;font-size:10px;color:var(--tx2);max-width:170px;':'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;'))}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${hasParallelProg(p)?(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));const _pg=bookProg(p,eng.id);const _pc=progColorOf(p,_pg);const _curStg=bookStage(p,eng.id);const _stgIx=_curStg?p.stages.findIndex(st=>st.id===_curStg):-1;const _stgCol=_stgIx>=0?stageColor(_stgIx,p.stages[_stgIx]).bdr:'#dc2626';const _wsStages=(p.stages||[]).filter(st=>stageProg(p,st)===_pg);const _stgSel=_ce?(_wsStages.length?`<select onclick="event.stopPropagation()" onchange="setBookStage('${p.id}','${eng.id}',this.value)" title="Stage this booking is booked to — only this stage's weeks are bookable" style="width:100%;box-sizing:border-box;font-size:9px;padding:1px 3px;border:1px solid ${_curStg?_stgCol:'#dc2626'}99;border-radius:4px;color:${_curStg?_stgCol:'#dc2626'};font-weight:700;background:#fff;"><option value=""${!_curStg?' selected':''}>— pick stage —</option>${_wsStages.map(st=>`<option value="${st.id}"${_curStg===st.id?' selected':''}>${esc(st.name)}</option>`).join('')}</select>`:`<span style="font-size:8px;color:#dc2626;font-style:italic;">add a stage to this workstream</span>`):(_curStg?`<span style="font-size:9px;color:${_stgCol};font-weight:600;">${esc((stageById(p,_curStg)||{}).name||'')}</span>`:'');return _ce?`<div style="display:flex;flex-direction:column;gap:2px;min-width:0;"><div style="display:flex;align-items:center;gap:3px;"><select onclick="event.stopPropagation()" onchange="setBookProg('${p.id}','${eng.id}',this.value)" title="Workstream this booking is filed to" style="flex:1;min-width:0;box-sizing:border-box;font-size:9px;padding:1px 3px;border:1px solid ${_pc}66;border-radius:4px;color:${_pc};font-weight:700;background:#fff;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${_pg===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select><button onclick="event.stopPropagation();removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove this booking" style="background:none;border:none;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">\u2715</button></div>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</div>`:`<span style="display:flex;flex-direction:column;gap:1px;"><span style="display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${_pc};"><span style="width:6px;height:6px;border-radius:2px;background:${_pc};display:inline-block;flex-shrink:0;"></span>${esc(progById(p,_pg).name)}</span>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</span>`;})():''}${hasParallelProg(p)
+        <td style="${stickyTd(5,(hasParallelProg(p)?'padding:3px 8px;font-size:10px;color:var(--tx2);max-width:170px;':'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;'))}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${hasParallelProg(p)?(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));const _pgs=bookProgs(p,eng.id);const _pg=_pgs[0];const _pgSet=new Set(_pgs);const _pgMulti=_pgs.length>1;const _pgAll=_pgs.length===projProgrammes(p).length;const _pc=_pgMulti?'#334155':progColorOf(p,_pg);const _pgTitle=_pgs.map(id=>progById(p,id).name).join(' + ');const _pgLabel=_pgMulti?(_pgAll?'All workstreams':(_pgs.length+' workstreams')):esc(progById(p,_pg).name);const _stgIds=bookStages(p,eng.id);const _wsStages=(p.stages||[]).filter(st=>_pgSet.has(stageProg(p,st)));const _stgAll=_stgIds.length>0&&_stgIds.length===_wsStages.length;const _stgTitle=_stgIds.map(id=>(stageById(p,id)||{}).name||'').join(' + ');const _stgLabel=_stgAll?'All stages':(_stgIds.length+' selected');const _stgSel=_ce?(_wsStages.length?`<button onclick="openStagePicker(event,'${p.id}','${eng.id}')" title="${_stgIds.length?esc(_stgTitle)+' \u2014 click to change':'Pick the stages this booking covers'}" style="width:100%;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_stgIds.length?'#cbd5e1':'#dc2626'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_stgIds.length?`<span style="font-weight:700;color:#334155;">${_stgLabel}</span>`:'<span style="color:#dc2626;font-weight:700;">\u2014 pick stage \u2014</span>'}<span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`:`<span style="font-size:8px;color:#dc2626;font-style:italic;">add a stage to this workstream</span>`):(_stgIds.length?`<span style="font-size:9px;font-weight:700;color:#334155;" title="${esc(_stgTitle)}">${_stgLabel}</span>`:'');const _pgBtn=`<button onclick="openProgPicker(event,'${p.id}','${eng.id}')" title="${esc(_pgTitle)} \u2014 click to change" style="flex:1;min-width:0;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_pgMulti?'#94a3b8':_pc+'66'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_pgMulti?'':`<span style="width:6px;height:6px;border-radius:2px;background:${_pc};display:inline-block;flex-shrink:0;"></span>`}<span style="font-weight:700;color:${_pc};overflow:hidden;text-overflow:ellipsis;">${_pgLabel}</span><span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`;return _ce?`<div style="display:flex;flex-direction:column;gap:2px;min-width:0;"><div style="display:flex;align-items:center;gap:3px;">${_pgBtn}<button onclick="event.stopPropagation();removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove this booking" style="background:none;border:none;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">\u2715</button></div>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</div>`:`<span style="display:flex;flex-direction:column;gap:1px;"><span style="display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${_pc};" title="${esc(_pgTitle)}">${_pgMulti?'':'<span style="width:6px;height:6px;border-radius:2px;background:'+_pc+';display:inline-block;flex-shrink:0;"></span>'}${_pgLabel}</span>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</span>`;})():''}${hasParallelProg(p)
           ?''
           :(eng._slotOf
           ?((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`:`<span style="font-size:10px;color:#0f766e;font-weight:600;">${esc(slotTag(p,eng.id))||'\u2014'}</span>`)
@@ -9844,10 +10031,22 @@ function renderProjCard(p, mode){
             const _inBg=v?(_stgOut?'#fde2e2':'#dcfce7'):'transparent';
             const _inCol=v?(_stgOut?'#b91c1c':'#166534'):'inherit';
             const _inBd=v?(_stgOut?'#fca5a5':'#86efac'):'#e5e7eb';
-            const _cbg=lv>=cap?'background:#fca5a5;':lv>0?'background:#fed7aa;':hv>0?'background:#bfdbfe;':(_stgOut?'background:#f4f5f7;':(isBIM?'background:#f0fdfa;':''));
+            // v9.29.0 — in-window cells carry a faint wash of the OWNING stage's colour, with a thin top rule on that stage's first week, so multi-stage rows show where each stage starts/ends.
+            let _stgWash='', _stgRule='';
+            if(!_stgOut&&_stgOwner){
+              const _own=_stgOwner.get(wi);
+              if(_own!=null){
+                const _oc=stageColor(_own,p.stages[_own]).bdr;
+                _stgWash='background:'+_oc+'0f;';
+                const _prevOwn=wi>0?_stgOwner.get(wi-1):undefined;
+                if(_prevOwn!==_own)_stgRule='box-shadow:inset 0 2px 0 0 '+_oc+';';
+              }
+            }
+            const _amb=!!(_stgAmbig&&_stgAmbig.has(wi)); // v9.29.2 — hours here span two workstreams; attribution follows stage order
+            const _cbg=lv>=cap?'background:#fca5a5;':lv>0?'background:#fed7aa;':hv>0?'background:#bfdbfe;':(_stgOut?'background:#f4f5f7;':(_amb?'background:#fef3c7;':(_stgWash||(isBIM?'background:#f0fdfa;':''))));
             const _ro2=_lvRO||_stgRO||!_canEditThis;
-            const _tip2=_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 clear only':'\ud83c\udfd6 Full-week leave \u2014 locked'):(_stgOut?(_stgName?`Outside "${_stgName}"`:'Pick a stage to unlock this booking\u2019s weeks'):(stageNames?`Stage: ${stageNames}`:''));
-            return`<td class="week-cell" style="${_cbg}" title="${_tip2}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_ro2?'readonly':''} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${_inBd};border-radius:4px;background:${_inBg};color:${_inCol};font-weight:${v?'700':'400'};${(_stgOut&&!v)?'opacity:.5;':''}${!_canEditThis?'cursor:not-allowed;':''}"></td>`;
+            const _tip2=_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 clear only':'\ud83c\udfd6 Full-week leave \u2014 locked'):(_stgOut?(_stgName?`Outside ${_stgName}`:'Pick a stage to unlock this booking\u2019s weeks'):(_amb?('\u26a0 Overlapping workstreams this week \u2014 hours are reported under '+((p.stages[_stgOwner.get(wi)]||{}).name||'')):((_stgOwner&&_stgOwner.get(wi)!=null)?((p.stages[_stgOwner.get(wi)]||{}).name||''):(stageNames?`Stage: ${stageNames}`:''))));
+            return`<td class="week-cell" style="${_cbg}${_amb?'box-shadow:inset 0 0 0 1px #f59e0b;':_stgRule}" title="${_tip2}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_ro2?'readonly':''} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${_inBd};border-radius:4px;background:${_inBg};color:${_inCol};font-weight:${v?'700':'400'};${(_stgOut&&!v)?'opacity:.5;':''}${!_canEditThis?'cursor:not-allowed;':''}"></td>`;
           }
           return`<td class="week-cell" style="${_cellBgFinal}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):(_stgTip||ttip)}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':(_stgOut?'\ud83d\udd12':'')}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(_lvRO||_stgRO)?'readonly':(_canEditThis?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':(_stgOut?(v?'#fee2e2':'#eef1f5'):(v?'#dcfce7':'transparent'))};${(_lvLock||(_stgOut&&!v))?'opacity:.55;':(_canEditThis?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
       </tr>`;
