@@ -278,6 +278,31 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 
 /* FBAR */
 .fbar{display:flex;gap:8px;margin-bottom:12px;flex-wrap:wrap;}
+/* v9.29.4 — these filters had no width of their own, so the global select{width:100%} stretched them across the whole row.
+   Styled to match the compact pill filters in the Overview header. */
+#ps-st,#trk-filter,#prp-st{width:auto;flex:0 0 auto;min-width:132px;padding:5px 26px 5px 9px;font-size:12px;font-weight:600;color:#10243E;border-radius:8px;background-position:right 9px center;}
+/* v9.30.0 — filter bars that live INSIDE the page header, matching the Overview page's inline pill filters. */
+.hdr-fbar{display:flex;align-items:center;gap:6px;margin:0;flex-wrap:wrap;}
+.hdr-fbar input,.hdr-fbar select{width:auto;flex:0 0 auto;min-width:0;padding:5px 9px;font-size:12px;font-weight:600;color:#10243E;background-color:#fff;border-radius:8px;}
+.hdr-fbar select{padding-right:26px;background-position:right 9px center;}
+.hdr-fbar input{font-weight:500;width:150px;}
+.hdr-left{display:flex;align-items:center;gap:8px;flex-wrap:wrap;min-width:0;}
+/* v9.31.0 — blocks moved into the header still carry body spacing/borders; neutralise them there. */
+.hdr-fbar .wt-controls{padding:0;gap:8px;justify-content:flex-start;}
+.hdr-fbar .wt-filters{margin:0;padding:0;border-bottom:none;}
+.hdr-fbar .wt-weeklabel{min-width:0;font-size:12px;white-space:nowrap;}
+.wt-weeksel{width:auto;flex:0 0 auto;font-size:12px;font-weight:700;color:#10243E;background-color:#fff;border-radius:8px;padding:5px 26px 5px 9px;background-position:right 9px center;}
+.hdr-fbar .wt-weeknav button{width:24px;height:24px;font-size:11px;}
+.hdr-fbar .wt-weeknav button.wt-today{width:auto;padding:0 9px;}
+.hdr-fbar .wt-viewtoggle button{padding:4px 10px;font-size:11px;}
+.hdr-fbar .spend-filters{margin:0;gap:6px;}
+.hdr-fbar .spend-filters select,.hdr-fbar .spend-filters input[type="date"]{flex:0 0 auto;min-width:0;max-width:none;width:auto;}
+.hdr-fbar .spend-lbl{font-size:11px;color:var(--tx3);}
+@media(max-width:700px){
+  /* keep the header to one scrollable line instead of a tall stack of controls */
+  .hdr-fbar{flex-wrap:nowrap;overflow-x:auto;width:100%;-webkit-overflow-scrolling:touch;padding-bottom:2px;}
+  .hdr-fbar input{width:130px;}
+}
 
 /* BOTTOM NAV */
 .bot-nav{display:none;position:fixed;bottom:0;left:0;right:0;height:var(--bn);background:rgba(255,255,255,.9);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:1px solid var(--bdr);z-index:300;padding-bottom:env(safe-area-inset-bottom);}
@@ -380,7 +405,7 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
   .mc-back { display: none !important; }
   .mc-front { position: relative !important; transform: none !important; }
   .sb, .mob-sb-overlay, .mob-menu-btn, .btn-p, .btn-g, .btn-d,
-  #proj-hdr-back-btn, .fbar, .sort-bar, .ai-fab, .ai-panel, .bot-nav { display: none !important; }
+  #proj-hdr-back-btn, .fbar, .hdr-fbar, .sort-bar, .ai-fab, .ai-panel, .bot-nav { display: none !important; }
   select { display: none !important; }
   .main { margin-left: 0 !important; padding: 10px !important; }
   .hdr { position: static !important; box-shadow: none !important; border-bottom: 2px solid #1e3a5f; margin-bottom: 12px; padding: 8px 0; }
@@ -871,7 +896,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v9.29.3 · 23 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.0.0 · 23 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -960,7 +985,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
   <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend</div>
   <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health</div>
-  <div class="sbi" id="nav-activity" onclick="nav('activity')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity</div>
+  <div class="sbi" id="nav-activity" onclick="nav('activity')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity</div>
   <div class="sbi" id="nav-settings" onclick="nav('settings')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</div>
   <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
   <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
@@ -971,14 +996,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v9.29.3 · 23 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.0.0 · 23 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
   <!-- COMBINED MEP -->
   <div id="pg-mep">
     <div class="hdr" style="flex-wrap:wrap;gap:6px;">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="ov-title-mep">Combined MEP</span><span class="hdr-s" id="dash-period-label" style="display:none;">All Offices</span><div class="off-ms-wrap" style="position:relative;display:inline-block;margin-left:8px;"><button type="button" class="js-mep-off-btn" onclick="toggleOffMenu(event)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;">All Offices <span style="font-size:9px;color:var(--tx3);">▾</span></button></div><div class="disc-ms-wrap" style="position:relative;display:inline-block;margin-left:6px;"><button type="button" class="js-mep-disc-btn" onclick="toggleDiscMenu(event)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;">All disciplines <span style="font-size:9px;color:var(--tx3);">▾</span></button></div><div class="stat-ms-wrap" style="position:relative;display:inline-block;margin-left:6px;"><button type="button" class="js-mep-stat-btn" onclick="toggleStatMenu(event)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;">All status ▾</button></div>
       </div>
@@ -1075,19 +1100,19 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- TEAM -->
   <div id="pg-team" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Team Register</span>
+        <div class="hdr-fbar">
+        <input id="ts-q" placeholder="Search…" oninput="invalidate('team')">
+        <select id="ts-disc" onchange="invalidate('team')"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
+        <select id="ts-off" onchange="invalidate('team')"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
+        <select id="ts-pos" onchange="invalidate('team')"><option value="all">All Positions</option></select>
+      </div>
       </div>
       <div style="display:flex;gap:6px;" id="team-hdr-btns"></div>
     </div>
     <div class="pc">
-      <div class="fbar" style="flex-direction:row;flex-wrap:wrap;">
-        <input id="ts-q" placeholder="Search…" oninput="invalidate('team')" style="flex:1;min-width:120px;max-width:220px;">
-        <select id="ts-disc" onchange="invalidate('team')" style="flex:1;min-width:120px;"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
-        <select id="ts-off" onchange="invalidate('team')" style="flex:1;min-width:100px;"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
-        <select id="ts-pos" onchange="invalidate('team')" style="flex:1;min-width:140px;"><option value="all">All Positions</option></select>
-      </div>
       <div id="team-grid"></div>
     </div>
   </div>
@@ -1095,9 +1120,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- PROJECTS -->
   <div id="pg-proj" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="proj-hdr-title">Projects</span>
+        <div class="hdr-fbar">
+        <input id="ps-q" placeholder="Search..." oninput="renderProj()">
+        <select id="ps-st" onchange="renderProj()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
+        <span id="proj-count" style="font-size:11px;color:var(--tx3);white-space:nowrap;"></span>
+      </div>
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" id="proj-hdr-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
@@ -1110,10 +1140,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     </div>
     <!-- LIST VIEW -->
     <div id="proj-list-view" class="pc">
-      <div class="fbar">
-        <input id="ps-q" placeholder="Search..." oninput="renderProj()" style="flex:1;max-width:220px;">
-        <select id="ps-st" onchange="renderProj()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
-      </div>
       <div id="proj-list"></div>
     </div>
     <!-- DETAIL VIEW -->
@@ -1129,7 +1155,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   </div>
   <div id="pg-health" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Data Health</span>
       </div>
@@ -1139,9 +1165,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
   <div id="pg-spend" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Project Spend</span>
+        <div class="hdr-fbar" id="spend-filters-slot"></div>
       </div>
     </div>
     <div class="pc" id="pc-spend"></div>
@@ -1149,19 +1176,20 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 
   <div id="pg-tracker" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Deadline Tracker</span>
+        <div class="hdr-fbar">
+        <input id="trk-q" placeholder="Search projects..." oninput="renderTracker()">
+        <select id="trk-add" title="Add or edit deadlines for a project" onchange="if(this.value){openTrackerProj(this.value);this.value='';}"></select>
+        <select id="trk-filter" onchange="renderTracker()"><option value="all">All projects</option><option value="overdue">Has overdue</option><option value="upcoming">Has upcoming</option></select>
+      </div>
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" onclick="exportTrackerXLSX()" title="Export deadline tracker to Excel" style="align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export</span></button>
       </div>
     </div>
     <div class="pc">
-      <div class="fbar">
-        <input id="trk-q" placeholder="Search projects..." oninput="renderTracker()" style="flex:1;max-width:220px;">
-        <select id="trk-filter" onchange="renderTracker()"><option value="all">All projects</option><option value="overdue">Has overdue</option><option value="upcoming">Has upcoming</option></select>
-      </div>
       <div id="tracker-content"></div>
     </div>
   </div>
@@ -1169,9 +1197,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- WEEKLY TRACKER -->
   <div id="pg-weekly" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Weekly Tracker</span>
+        <div class="hdr-fbar" id="wt-controls-slot"></div>
       </div>
       <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap;">
         <button class="btn btn-g btn-sm" id="wt-cols-btn" onclick="wtOpenColsModal()" title="Choose which projects show as columns">Columns</button>
@@ -1187,10 +1216,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- ANNUAL LEAVE -->
   <div id="pg-leave" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Annual Leave</span>
-        <span class="hdr-s" id="leave-period-label"></span>
+                <div class="hdr-fbar" id="leave-filters-slot"></div>
       </div>
       
     </div>
@@ -1200,7 +1229,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- MGMT HOURS -->
   <div id="pg-mgmt" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Management Hours</span>
         <span class="hdr-s">Associate Engineers only</span>
@@ -1212,7 +1241,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- PUBLIC HOLIDAYS -->
   <div id="pg-holidays" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">Public Holidays</span>
         <span class="hdr-s">UAE & Egypt — affects utilisation, not billable</span>
@@ -1330,10 +1359,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- USER MANAGEMENT (Admin Only) -->
   <div id="pg-pending" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t">User Management</span>
         <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
+        <div class="hdr-fbar">
+        <input id="prp-q" placeholder="Search..." oninput="renderProposals()">
+        <select id="prp-st" onchange="renderProposals()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
+      </div>
       </div>
       <button class="btn btn-g btn-sm" onclick="renderPendingUsers()">↻ Refresh</button>
     </div>
@@ -1351,7 +1384,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- PROPOSALS (Admin Only) -->
   <div id="pg-proposals" style="display:none">
     <div class="hdr">
-      <div style="display:flex;align-items:center;gap:8px;">
+      <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="prop-hdr-title">Proposals</span>
         <span class="hdr-s" style="background:#fef3c7;color:#92400e;border-color:#fcd34d;">Admin Only</span>
@@ -1361,10 +1394,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       </div>
     </div>
     <div id="prop-list-view" class="pc">
-      <div class="fbar">
-        <input id="prp-q" placeholder="Search..." oninput="renderProposals()" style="flex:1;max-width:220px;">
-        <select id="prp-st" onchange="renderProposals()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
-      </div>
       <div id="prop-list"></div>
     </div>
   </div>
@@ -4119,28 +4148,29 @@ function buildSpendProjMenu(){var m=document.getElementById('spend-proj-menu');i
 function spendProjToggle(id){var a=(SPEND.projSel||[]).slice();var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);SPEND.projSel=a;SPEND.proj='';SPEND.stage='';buildSpendProjMenu();renderSpend();}
 function renderSpend(){
   const c=document.getElementById('pc-spend'); if(!c)return;
-  if(!canSeeAllData()){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required to view expenditure.</div>';return;}
+  if(!canSeeAllData()){ const _sf0=document.getElementById('spend-filters-slot'); if(_sf0)_sf0.innerHTML=''; c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required to view expenditure.</div>';return;}
   const sel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
   const dat='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none;';
-  let h='<div class="spend-filters">';
+  let hf='';  // v9.31.0 — filters render into the page header
   // v9.8.5 — multi-select PROJECT + STATUS menus (mirror of Overview's checkbox menus)
   const _pjLbl=(SPEND.projSel&&SPEND.projSel.length)?(SPEND.projSel.length+' project'+(SPEND.projSel.length===1?'':'s')):'All projects';
-  h+='<button type="button" class="js-spend-proj-btn" onclick="toggleSpendProjMenu(event)" style="'+sel+'">'+esc(_pjLbl)+' \u25be</button>';
+  hf+='<button type="button" class="js-spend-proj-btn" onclick="toggleSpendProjMenu(event)" style="'+sel+'">'+esc(_pjLbl)+' \u25be</button>';
   const _stLbl=(SPEND.status&&SPEND.status.length)?(SPEND.status.length===1?SPEND.status[0]:SPEND.status.length+' statuses'):'All status';
-  h+='<button type="button" class="js-spend-stat-btn" onclick="toggleSpendStatMenu(event)" style="'+sel+'">'+esc(_stLbl)+' \u25be</button>';
-  h+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
-  h+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
-  h+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
+  hf+='<button type="button" class="js-spend-stat-btn" onclick="toggleSpendStatMenu(event)" style="'+sel+'">'+esc(_stLbl)+' \u25be</button>';
+  hf+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
+  hf+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
+  hf+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
      MEP_DISCS.map(c=>{const cfg=DISCIPLINE_CONFIG.find(d=>d.code===c);return '<option value="'+esc(c)+'"'+(SPEND.disc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+'<option value="BIM"'+(SPEND.disc==='BIM'?' selected':'')+'>BIM</option></select>';
-  h+='<select style="'+sel+'" onchange="spendSet(\'off\',this.value)"><option value="">All Offices</option>'+
+  hf+='<select style="'+sel+'" onchange="spendSet(\'off\',this.value)"><option value="">All Offices</option>'+
      ['DXB','EGY','IND'].map(o=>'<option value="'+o+'"'+(SPEND.off===o?' selected':'')+'>'+o+'</option>').join('')+'</select>';
   const stNames=spendStageNames();
   if(stNames.length){
-    h+='<select style="'+sel+'" onchange="spendSet(\'stage\',this.value)"><option value="">All stages</option>'+
+    hf+='<select style="'+sel+'" onchange="spendSet(\'stage\',this.value)"><option value="">All stages</option>'+
        stNames.map(n=>'<option'+(SPEND.stage===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>';
   }
-  h+='<button class="btn btn-g btn-sm" onclick="spendReset()">Reset</button>';
-  h+='</div>';
+  hf+='<button class="btn btn-g btn-sm" onclick="spendReset()">Reset</button>';
+  let h='';
+  { const _sf=document.getElementById('spend-filters-slot'); if(_sf)_sf.innerHTML=hf; }
   const r=spendCompute();
   const blended=r.totalHrs?r.totalCost/r.totalHrs:0;
   h+='<div class="mrow">';
@@ -4293,8 +4323,14 @@ function mkChart(id,type,labels,datasets,opts){
 // NAV
 // ═══════════════════════════════════════
 const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','settings','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals','activity'];
-const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave','nav-settings'];
-const DATA_NAV_IDS=['nav-spend','nav-health','nav-weekly','nav-leave','nav-mgmt','nav-holidays']; // v9.9.1 — data views: directors + admins (any mode)
+const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave','nav-settings','nav-activity'];
+// v9.32.0 — Spend / Data Health / Mgmt Hours / Public Holidays / Activity are now ADMIN-ONLY;
+// directors keep only Weekly Tracker + Annual Leave here.
+const DATA_NAV_IDS=['nav-weekly','nav-leave'];
+// Hiding a sidebar icon is cosmetic — nav() enforces these so they can't be reached by a direct
+// nav() call or by the sessionStorage 'lastPage' restore after a reload.
+const ADMIN_ONLY_PAGES=['spend','health','mgmt','holidays','activity'];
+function pageAllowed(p){ return ADMIN_ONLY_PAGES.indexOf(p)<0 || !!adminUnlocked; }
 function applyAdminNav(show){
   // Control pages: only when admin mode is armed
   ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});
@@ -4497,32 +4533,37 @@ function wtBuild(canEdit){
   html+='<div><div class="wt-print-hdr-title">MEP Resource Plan — Weekly Tracker</div>';
   html+='<div class="wt-print-hdr-week">'+wtFmtWeek(WT_weekMonday)+'</div></div>';
   html+='<div class="wt-print-hdr-logo">Meinhardt Group</div></div>';
-  html+='<div class="wt-controls">';
-  html+='<div class="wt-weeknav"><button onclick="wtChangeWeek(-1)">◀</button>'+
-        '<span class="wt-weeklabel">'+wtFmtWeek(WT_weekMonday)+'</span>'+
-        '<button onclick="wtChangeWeek(1)">▶</button>'+
+  let hc='<div class="wt-controls">';  // v9.31.0 — week nav, view toggle and filters render into the page header
+  hc+='<div class="wt-weeknav"><button onclick="wtChangeWeek(-1)" title="Previous week">◀</button>'+
+        '<select class="wt-weeksel" title="Jump to a week" onchange="wtGoWeek(this.value)">'+
+          wtWeekOptions(WT_weekMonday).map(function(d){
+            return '<option value="'+wtISO(d)+'"'+(wtISO(d)===wtISO(WT_weekMonday)?' selected':'')+'>'+wtFmtWeek(d)+'</option>';
+          }).join('')+
+        '</select>'+
+        '<button onclick="wtChangeWeek(1)" title="Next week">▶</button>'+
         '<button onclick="wtThisWeek()" class="wt-today">Today</button></div>';
-  html+='<div class="wt-viewtoggle">'+
+  hc+='<div class="wt-viewtoggle">'+
         '<button class="'+(WT_view==='clean'?'on':'')+'" onclick="wtSetView(\'clean\')">Clean</button>'+
         '<button class="'+(WT_view==='variance'?'on':'')+'" onclick="wtSetView(\'variance\')">Forecast vs Actual</button>'+
         '</div>';
-  html+='</div>';
+  hc+='</div>';
 
   // ── Filters (dropdowns · match Overview look) ──
   const _wtDisc=WT_tab.startsWith('disc:')?WT_tab.slice(5):({all:'',hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[WT_tab]||'');
   const _wtSel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 9px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
-  html+='<div class="wt-filters">';
-  html+='<select class="js-wt-off" onchange="wtSetOff(this.value)" style="'+_wtSel+'">'+
+  hc+='<div class="wt-filters">';
+  hc+='<select class="js-wt-off" onchange="wtSetOff(this.value)" style="'+_wtSel+'">'+
         '<option value="">All Offices</option>'+
         '<option value="DXB"'+(WT_off==='DXB'?' selected':'')+'>DXB</option>'+
         '<option value="EGY"'+(WT_off==='EGY'?' selected':'')+'>EGY</option>'+
         '<option value="IND"'+(WT_off==='IND'?' selected':'')+'>IND</option></select>';
-  html+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">'+
+  hc+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">'+
         '<option value="">All disciplines</option>'+
         MEP_DISCS.map(function(c){var cfg=DISCIPLINE_CONFIG.find(function(d){return d.code===c;});return '<option value="'+esc(c)+'"'+(_wtDisc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+
         '<option value="BIM"'+(_wtDisc==='BIM'?' selected':'')+'>BIM</option></select>';
-  html+='</div>';
+  hc+='</div>';
 
+  { const _wc=document.getElementById('wt-controls-slot'); if(_wc)_wc.innerHTML=hc; }
   if(!projects.length){
     html+='<div style="padding:24px;color:var(--tx3);text-align:center;">No active projects to show. Use Columns to pick projects.</div>';
     c.innerHTML=html;return;
@@ -5092,6 +5133,17 @@ function wtChangeWeek(dir){
   renderWeekly();
 }
 function wtThisWeek(){WT_weekMonday=wtMondayOf(new Date());renderWeekly();}
+// v9.32.3 — jump directly to any week via the header dropdown
+function wtGoWeek(iso){ if(!iso)return; const p=iso.split('-'); WT_weekMonday=wtMondayOf(new Date(+p[0],+p[1]-1,+p[2])); renderWeekly(); }
+// Every Monday in the year currently being viewed (arrows still cross year boundaries).
+function wtWeekOptions(cur){
+  const yr=cur.getFullYear();
+  let d=wtMondayOf(new Date(yr,0,1));
+  if(d.getFullYear()<yr){ d=new Date(d); d.setDate(d.getDate()+7); } // ISO wk1 can start in December — keep the list inside the year
+  const out=[];
+  while(d.getFullYear()===yr){ out.push(new Date(d)); d=new Date(d); d.setDate(d.getDate()+7); }
+  return out;
+}
 function wtSetView(v){WT_view=v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtSetTab(t){WT_tab=t;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleOff(o){WT_offFilter[o]=!WT_offFilter[o];const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
@@ -5256,6 +5308,11 @@ function wtExportPDF(){
 function nav(p, fromPopstate){
   // Commit any pending hour edits before leaving the current view (mobile safety)
   try{ flushHourSaves(); }catch(e){}
+  // v9.32.0 — enforce admin-only pages (covers direct calls and the lastPage restore on reload)
+  if(!pageAllowed(p)){
+    if(typeof toast==='function')toast('That page is admin only','error');
+    p='mep';
+  }
   // If we were viewing a proposal detail and navigating anywhere, clean up first
   // (to-proposals nav still cleans up — user expects to land on the list)
   if(window._propViewing){
@@ -6302,8 +6359,9 @@ function renderMEP(){
 
   })();
   const _actScoped=(function(){
-    var statusF=_msf(); // null when 'All status' explicitly selected — means don't filter by status at all
-    var base=statusF?S.projects.filter(function(p){return p.status===statusF;}):S.projects.slice();
+    // v9.32.5 — _msf() returns a STRING for one status but an ARRAY for two or more, so the old
+    // `p.status===statusF` never matched a multi-select and the card read 0. _msfMatch handles all cases.
+    var base=S.projects.filter(function(p){return _msfMatch(p.status);});
     var total=S.projects.length; // denominator stays the whole company, so the ratio ring stays meaningful
     if(!mepOffActive() && !mepDiscActive()) return {used:base.length,total:total};
     var used=base.filter(function(p){return all.some(function(e){return whHasFor(p,e.id);});}).length; // v9.3.0
@@ -7068,8 +7126,8 @@ function renderOffice(off,pcId){
   const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){var eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});return Math.round(c);});
   const offProjs=S.projects.filter(function(pp){return sub.some(function(e){return whHasFor(pp,e.id);});}); // v9.3.0
   const _offStatusF=_msf();
-  const offActive=offProjs.filter(function(pp){return _offStatusF?pp.status===_offStatusF:true;}).length;
-  const _offActLabel=_offStatusF?(_offStatusF+' Projects'):'All Projects';
+  const offActive=offProjs.filter(function(pp){return _msfMatch(pp.status);}).length; // v9.32.5 — same multi-select fix as the MEP card
+  const _offActLabel=_offStatusF?((Array.isArray(_offStatusF)?_offStatusF.join('/'):_offStatusF)+' Projects'):'All Projects';
   const discs=MEP_DISCS_BIM.slice(),dClr=MEP_DISC_COLORS_BIM.slice();
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
@@ -7677,8 +7735,10 @@ function renderProj(){
 
   const emptyMsg=list.length===0?`<div style="text-align:center;padding:32px;color:var(--tx3);font-size:13px;font-style:italic;">No projects match the current filter.</div>`:'';
 
-  document.getElementById('proj-list').innerHTML=`<div style="font-size:11px;color:var(--tx3);margin-bottom:8px;padding:0 2px;"><strong style="color:var(--tx2);">${list.length}</strong> project${list.length===1?'':'s'}${(q||sf!=='all')?' shown':''} · <strong style="color:var(--tx2);">${S.projects.length}</strong> total</div>
-  <div class="card" style="padding:0;overflow:hidden;">
+  // v9.31.0 — project count now lives in the page header, not above the list
+  { const _pc=document.getElementById('proj-count');
+    if(_pc)_pc.innerHTML=`<strong style="color:var(--tx2);">${list.length}</strong> project${list.length===1?'':'s'}${(q||sf!=='all')?' shown':''} · <strong style="color:var(--tx2);">${S.projects.length}</strong> total`; }
+  document.getElementById('proj-list').innerHTML=`  <div class="card" style="padding:0;overflow:hidden;">
     ${(typeof isMobile==='function'&&isMobile())?'':headerRow}
     ${rowsHtml}
     ${emptyMsg}
@@ -7745,6 +7805,9 @@ if(!window._projPollTimer){
 function openProjDetail(id){
   window._viewingProjId=id;
   const p=S.projects.find(x=>x.id===id);if(!p)return;
+  // v9.30.1 — fresh open always starts with every discipline collapsed
+  window._discCollapsed=window._discCollapsed||{};
+  window._discCollapsed[id]={};
   document.getElementById('proj-list-view').style.display='none';
   document.getElementById('proj-detail-view').style.display='';
   document.getElementById('proj-hdr-back-btn').style.display='';
@@ -8115,6 +8178,19 @@ function renderTracker(){
   const today=todayISO();
 
   // Project cards — only projects that have any milestone or status data, plus filter/search
+  // v10.0.0 — the milestone editor was only reachable by clicking a project card, and cards only
+  // exist for projects that ALREADY have milestones — so the first one could never be created.
+  // This picker is the way in for any project the user is allowed to edit.
+  { const _add=document.getElementById('trk-add');
+    if(_add){
+      const _eligible=S.projects.filter(p=>adminUnlocked||isMepLeadFor(p.id))
+        .slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+      _add.innerHTML='<option value="">+ Add deadline\u2026</option>'+_eligible.map(function(p){
+        var n=(p.milestones||[]).length;
+        return '<option value="'+esc(p.id)+'">'+esc(p.no?p.no+' \u2014 ':'')+esc(p.name||'')+(n?' ('+n+')':'')+'</option>';
+      }).join('');
+      _add.style.display=_eligible.length?'':'none';
+    } }
   let projs=S.projects.filter(p=>(p.milestones&&p.milestones.length)||(p.statusLog&&p.statusLog.length));
   if(q)projs=projs.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.no||'').toString().toLowerCase().includes(q));
   if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>msEffectiveState(m)==='overdue'));
@@ -8155,7 +8231,7 @@ function renderTracker(){
       <span style="font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.06em;color:var(--tx3);">All projects</span>
       <span style="font-size:11px;color:var(--tx3);">· ${projs.length} with milestones</span>
     </div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">${cards||'<div style="font-size:12px;color:var(--tx3);padding:12px 0;">No projects match.</div>'}</div>`;
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">${cards||('<div style="font-size:12px;color:var(--tx3);padding:18px 0;line-height:1.6;">'+((q||filter!=='all')?'No projects match this search or filter.':'No deadlines set up yet \u2014 use <strong>+ Add deadline\u2026</strong> in the header to pick a project and add its first milestone.')+'</div>')}</div>`;
 }
 function openTrackerProj(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
@@ -9176,7 +9252,7 @@ function toggleRateCol(projId){
 function toggleDiscRows(projId, disc){
   window._discCollapsed = window._discCollapsed || {};
   window._discCollapsed[projId] = window._discCollapsed[projId] || {};
-  const wasCollapsed = !!window._discCollapsed[projId][disc];
+  const wasCollapsed = (disc in window._discCollapsed[projId]) ? !!window._discCollapsed[projId][disc] : true; // v9.30.1 — default is collapsed
   window._discCollapsed[projId][disc] = !wasCollapsed;
   // Toggle row visibility without full re-render
   const discSafe = disc.replace(/[^A-Za-z]/g, '');
@@ -9878,7 +9954,9 @@ function renderProjCard(p, mode){
     const DISC_BG={'HVAC':'#dbeafe','PH&E':'#dcfce7','ELE':'#fef9c3','ELV':'#fce7f3','MEP':'#e2e8f0'}[disc]||'#e5e7eb';
     const DISC_FG={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','MEP':'#1e3a5f'}[disc]||'#374151';
     
-    const discCollapsed = (window._discCollapsed && window._discCollapsed[p.id] && window._discCollapsed[p.id][disc]) || false;
+    // v9.30.1 — discipline groups start COLLAPSED; expanding records false and persists for this viewing session.
+    const _dcMap=(window._discCollapsed&&window._discCollapsed[p.id])||{};
+    const discCollapsed = (disc in _dcMap) ? !!_dcMap[disc] : true;
     const chevSymbol = discCollapsed ? '▶' : '▼';
     const discSafeId = disc.replace(/[^A-Za-z]/g,'');
     const mepCount=hasParallelProg(p)?[...new Set(mepEngs.map(e=>slotBase(e.id)))].reduce((s,b)=>s+memberHeads(p,b),0):mepEngs.reduce((s,e)=>s+getJseMult(p,e.id),0), bimCount=hasParallelProg(p)?[...new Set(bimEngs.map(e=>slotBase(e.id)))].reduce((s,b)=>s+getJseMult(p,b),0):bimEngs.reduce((s,e)=>s+getJseMult(p,e.id),0);
@@ -11312,14 +11390,19 @@ function globalWeeks(year){
 
 // Month band for week-grid headers: groups consecutive weeks by the month of
 // their week-start date and spans them (e.g. Jan 2026 | Feb 2026 | ...).
-function _monthBandRow(weeks,bg){
+function _monthBandRow(weeks,bg,leadCols){
+  // v9.32.7 — the spacer must span EVERY pinned left column. It was hardcoded to 3
+  // (Engineer/Disc/Off); once Total+Taken were added the whole band shifted 2 columns
+  // left, so Jan sat over Total/Taken and the final weeks had no band above them.
+  const _lead=leadCols||3;
+  const _lw=(typeof LV_STICKY_W!=='undefined'&&_lead===LV_STICKY_W.length)?LV_STICKY_W.reduce(function(a,b){return a+b;},0):0;
   const groups=[];
   weeks.forEach(w=>{
     const lbl=w.toLocaleDateString('en-GB',{month:'short'})+' '+w.getFullYear();
     if(groups.length&&groups[groups.length-1].lbl===lbl)groups[groups.length-1].n++;
     else groups.push({lbl:lbl,n:1});
   });
-  return `<tr><th colspan="3" style="position:sticky;left:0;z-index:2;background:${bg};"></th>${groups.map(g=>`<th colspan="${g.n}" style="background:${bg};color:#fff;font-size:10px;font-weight:700;text-align:center;padding:4px 2px;border-left:1px solid rgba(255,255,255,.25);letter-spacing:.03em;white-space:nowrap;">${g.lbl}</th>`).join('')}<th style="background:${bg};"></th></tr>`;
+  return `<tr><th colspan="${_lead}" style="position:sticky;left:0;z-index:3;background:${bg};${_lw?`width:${_lw}px;min-width:${_lw}px;max-width:${_lw}px;`:''}"></th>${groups.map(g=>`<th colspan="${g.n}" style="background:${bg};color:#fff;font-size:10px;font-weight:700;text-align:center;padding:4px 2px;border-left:1px solid rgba(255,255,255,.25);letter-spacing:.03em;white-space:nowrap;">${g.lbl}</th>`).join('')}<th style="background:${bg};"></th></tr>`;
 }
 // v9.4.6 — collapse/expand a discipline group in the leave/mgmt grids (no re-render)
 function toggleLeaveGroup(gid,containerId){
@@ -11331,6 +11414,46 @@ function toggleLeaveGroup(gid,containerId){
   const m=document.getElementById('lvmain-'+containerId),i=document.getElementById('lvsb-'+containerId+'-in');
   if(m&&i)i.style.width=m.scrollWidth+'px';
 }
+// v9.32.6 — HOURS vs DAYS. Storage is ALWAYS hours; the toggle only changes what the grid shows and accepts.
+const LV_HRS_PER_DAY=9;
+const LV_STICKY_W=[180,60,40,52,52];
+const LV_STICKY_L=(function(){var o=[],a=0;LV_STICKY_W.forEach(function(w){o.push(a);a+=w;});return o;})();
+// Pin all five left-hand columns. Previously only 'Engineer' was sticky, so Disc/Off/Total/Taken slid
+// underneath it on horizontal scroll and clipped the week headers.
+function lvSticky(i,bg,extra){
+  return 'position:sticky;left:'+LV_STICKY_L[i]+'px;z-index:'+(i===0?3:2)+';'+
+         'width:'+LV_STICKY_W[i]+'px;min-width:'+LV_STICKY_W[i]+'px;max-width:'+LV_STICKY_W[i]+'px;'+
+         'background:'+bg+';'+(extra||'');
+}
+function lvUnit(){ return window._lvUnit==='d'?'d':'h'; }
+function lvUnitLabel(){ return lvUnit()==='d'?'days':'hrs'; }
+function lvToDisp(h){ if(lvUnit()!=='d')return (h||0); const d=(h||0)/LV_HRS_PER_DAY; return Math.round(d*100)/100; }
+function lvFromDisp(v){ const n=parseFloat(v)||0; return lvUnit()==='d'? n*LV_HRS_PER_DAY : n; }
+function setLeaveUnit(u){ window._lvUnit=(u==='d')?'d':'h'; renderLeave(); }
+// Unit-aware setter used by the leave grids (typing AND drag-fill both route through here).
+function setLeaveHrU(engId, wi, el){
+  const hrs=lvFromDisp(el.value);
+  if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
+  S.leaveHrs[engId][wi]=hrs;
+  const cap=(S.engineers.find(e=>e.id===engId)||{}).cap||45;
+  el.style.background=hrs>=cap?'#fca5a5':hrs>0?'#fed7aa':'';
+  el.style.color=hrs>=cap?'#7f1d1d':hrs>0?'#7c2d12':'inherit';
+  el.style.border='1px solid '+(hrs?'#f59e0b':'#e4e6ea');
+  clearTimeout(el._t);el._t=setTimeout(()=>pushLeave(engId),1500);
+}
+// v9.32.4 — leave already TAKEN = hours in weeks that have fully passed (the in-progress week is not counted yet).
+function lvTakenSplit(arr,weeks){
+  const todayMon=wtMondayOf(new Date());
+  let total=0,taken=0;
+  weeks.forEach(w=>{
+    const gwi=w.gwi!=null?w.gwi:globalWI(w);
+    const v=(arr[gwi]||0); if(!v)return;
+    total+=v;
+    const ws=(w instanceof Date)?w:new Date(w);
+    if(ws<todayMon)taken+=v;
+  });
+  return {total,taken};
+}
 function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor, year){
   const yr = year || (containerId==='mgmt-grid'?(window.mgmtYear||window.leaveYear||2026):(window.leaveYear||2026));
   const weeks=globalWeeks(yr);
@@ -11339,33 +11462,42 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
 
   // Group engineers by discipline — all visible, but only editable for user's disciplines
   const discs=MEP_DISCS.concat(['MEP']); // v9.21.0 — umbrella heads get their own leave group
+  let _gTot=0,_gTaken=0; // v9.32.4 — grid-wide leave totals for the footer
+  const _uOn=(setFn==='setLeaveHrU'); // v9.32.6 — only the leave grids honour the Hours/Days toggle
+  const _uDay=_uOn&&lvUnit()==='d';
+  const _uLbl=_uOn?lvUnitLabel():'hrs';
+  const _dsp=(h)=>_uOn?lvToDisp(h):(h||0);
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
-    <thead>${_monthBandRow(weeks,'#16324f')}<tr>
-      <th class="left" style="min-width:180px;position:sticky;left:0;z-index:2;background:#1e3a5f;color:#fff">Engineer</th>
-      <th class="left" style="min-width:60px;background:#1e3a5f;color:#fff">Disc</th>
-      <th class="left" style="min-width:40px;background:#1e3a5f;color:#fff">Off</th>
+    <thead>${_monthBandRow(weeks,'#16324f',5)}<tr>
+      <th class="left" style="${lvSticky(0,'#1e3a5f','color:#fff')}">Engineer</th>
+      <th class="left" style="${lvSticky(1,'#1e3a5f','color:#fff')}">Disc</th>
+      <th class="left" style="${lvSticky(2,'#1e3a5f','color:#fff')}">Off</th>
+      <th style="${lvSticky(3,'#16324f','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
+      <th style="${lvSticky(4,'#16324f','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
       ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#1e3a5f;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
-      <th style="min-width:50px;background:#0369a1;color:#fff;text-align:center">Total</th>
     </tr></thead>
     <tbody>`;
 
   discs.forEach(disc=>{
     const discEngs=engList.filter(e=>e.disc===disc);
     if(!discEngs.length)return;
-    const dClr={HVAC:'#93c5fd',['PH&E']:'#86efac',ELE:'#fcd34d',ELV:'#f9a8d4'}[disc]||'#e2e8f0';
-    const dTxt={HVAC:'#1e3a5f',['PH&E']:'#14532d',ELE:'#78350f',ELV:'#831843'}[disc]||'#1e293b';
+    const dClr='#eef2f7'; // v9.32.6 — muted band, matching the rest of the app
+    const dTxt={HVAC:'#1d4ed8',['PH&E']:'#166534',ELE:'#854d0e',ELV:'#9d174d'}[disc]||'#475569';
     const gid=(containerId+'-'+disc).replace(/[^A-Za-z0-9-]/g,'');
     const gCol=!!(window._lvCollapse&&window._lvCollapse[gid]);
-    html+=`<tr onclick="toggleLeaveGroup('${gid}','${containerId}')" style="cursor:pointer;" title="Click to collapse/expand"><td colspan="${weeks.length+3}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span id="lvchev-${gid}" style="display:inline-block;width:12px;">${gCol?'\u25b6':'\u25bc'}</span> MEP-${disc} <span style="font-weight:400;opacity:.75;">(${discEngs.length})</span></td></tr>`;
+    html+=`<tr onclick="toggleLeaveGroup('${gid}','${containerId}')" style="cursor:pointer;" title="Click to collapse/expand"><td colspan="${weeks.length+5}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span id="lvchev-${gid}" style="display:inline-block;width:12px;">${gCol?'\u25b6':'\u25bc'}</span> MEP-${disc} <span style="font-weight:400;opacity:.75;">(${discEngs.length})</span></td></tr>`;
 
     discEngs.forEach(eng=>{
       const arr=hrsObj[eng.id]||[];
-      const total=arr.reduce((a,b)=>a+(b||0),0);
+      const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // v9.32.4 — year total + taken-to-date
+      _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
-        <td style="position:sticky;left:0;z-index:1;background:var(--surf);font-weight:500;padding:4px 8px">${eng.name}</td>
-        <td style="padding:4px 6px"><span class="bdg b-${(DISC_CLS[eng.disc]||'')}">${eng.disc}</span></td>
-        <td style="padding:4px 6px;font-size:10px;color:var(--tx3)">${eng.off}</td>
+        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${eng.name}</td>
+        <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[eng.disc]||'')}">${eng.disc}</span></td>
+        <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
+        <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
+        <td style="${lvSticky(4,'var(--surf)','text-align:center;font-weight:600;color:var(--tx2);font-size:11px')}">${_sp.taken>0?_dsp(_sp.taken):'-'}</td>
         ${weeks.map((w)=>{
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
@@ -11374,17 +11506,30 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           return`<td style="padding:2px;text-align:center">
-            <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
+            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
               style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
-        <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
       </tr>`;
     });
   });
 
+  { // v9.32.4 — footer: overall booked / taken / % still to come
+    const _left=_gTot-_gTaken;
+    const _pct=_gTot>0?Math.round(_left/_gTot*100):0;
+    html+=`<tr style="background:#0f2440;color:#fff;font-weight:700;">
+      <td class="left" style="${lvSticky(0,'#0f2440','color:#fff;padding:6px 8px')}">TOTAL</td>
+      <td style="${lvSticky(1,'#0f2440','')}"></td>
+      <td style="${lvSticky(2,'#0f2440','')}"></td>
+      <td style="${lvSticky(3,'#0f2440','color:#fff;text-align:center')}">${_gTot>0?_dsp(_gTot):'-'}</td>
+      <td style="${lvSticky(4,'#0f2440','color:#fff;text-align:center')}">${_gTaken>0?_dsp(_gTaken):'-'}</td>
+      <td colspan="${weeks.length}" style="padding:6px 10px;font-weight:600;font-size:11px;">
+        ${_dsp(_left)} ${_uLbl} remaining · <span style="color:#7ee2b8;">${_pct}% of booked leave still to come</span>
+      </td>
+    </tr>`;
+  }
   html+='</tbody></table></div>';
   // v9.4.6 — floating horizontal scrollbar pinned to the viewport bottom, synced both ways
   html+=`<div id="lvsb-${containerId}" style="position:sticky;bottom:0;z-index:9;overflow-x:auto;overflow-y:hidden;height:14px;background:#ffffffee;border-top:1px solid var(--bdr);" onscroll="(function(b){var m=document.getElementById('lvmain-${containerId}');if(m&&m.scrollLeft!==b.scrollLeft)m.scrollLeft=b.scrollLeft;})(this)"><div id="lvsb-${containerId}-in" style="height:1px;"></div></div>`;
@@ -11468,16 +11613,21 @@ function lvFilter(list,isBim){
     if(q&&String(e.name||'').toLowerCase().indexOf(q)<0)return false;
     if(o!=='all'&&e.off!==o)return false;
     if(d!=='all'){
-      if(isBim){ if((e.subDisc||e.disc)!==d)return false; }
+      // v9.32.2 — 'BIM' in the discipline filter means the whole BIM team (its members carry MEP sub-disciplines)
+      if(isBim){ if(d!=='BIM' && (e.subDisc||e.disc)!==d)return false; }
       else if(e.disc!==d)return false;
     }
     return true;
   });
 }
 function renderLeaveGridOnly(){
-  const activeTab=window.leaveActiveTab||'engineers';
-  if(activeTab==='engineers')renderLeaveGrid('leave-grid', lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false), S.leaveHrs, 'setLeaveHr', 'Annual Leave', '#f59e0b');
-  else renderLeaveGridBIM('leave-grid', lvFilter(S.engineers.filter(e=>e.team==='BIM'),true), S.leaveHrs, 'setLeaveHr', '#0d9488');
+  // v9.32.2 — BIM lives in the discipline filter now. 'All Disciplines' shows both grids;
+  // picking BIM shows only the BIM grid; picking a MEP discipline shows only engineers.
+  const d=window._lvDisc||'all';
+  const gEng=document.getElementById('leave-grid'), gBim=document.getElementById('leave-grid-bim');
+  const showEng=(d!=='BIM'), showBim=(d==='all'||d==='BIM');
+  if(gEng){ gEng.style.display=showEng?'':'none'; if(showEng)renderLeaveGrid('leave-grid', lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false), S.leaveHrs, 'setLeaveHrU', 'Annual Leave', '#f59e0b'); else gEng.innerHTML=''; }
+  if(gBim){ gBim.style.display=showBim?'':'none'; if(showBim)renderLeaveGridBIM('leave-grid-bim', lvFilter(S.engineers.filter(e=>e.team==='BIM'),true), S.leaveHrs, 'setLeaveHrU', '#0d9488'); else gBim.innerHTML=''; }
 }
 function renderLeave(){
   const el=document.getElementById('pc-leave');
@@ -11486,8 +11636,6 @@ function renderLeave(){
   window.leaveYear = Math.max(yr, 2026);
   const weeks=globalWeeks(window.leaveYear);
   const firstW=weeks[0],lastW=weeks[weeks.length-1];
-  const lbl=document.getElementById('leave-period-label');
-  if(lbl)lbl.textContent=(firstW?wkLabel(firstW):'')+(lastW?' – '+wkLabel(lastW):'');
 
   const activeTab=window.leaveActiveTab||'engineers';
   const mepEngs=S.engineers.filter(e=>e.team!=='BIM');
@@ -11498,30 +11646,19 @@ function renderLeave(){
   const bimLeaveHrs=bimEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
 
   el.innerHTML=`
-    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;gap:20px;align-items:center;flex-wrap:wrap;background:#EAF0F8;border-left:4px solid #10243E;">
-      <span style="font-size:12px;color:#10243E;font-weight:600">Total Leave Hours: <strong>${totalLeaveHrs.toFixed(0)}</strong></span>
-      <span style="font-size:11px;color:#2A4A6B">MEP: <strong>${mepLeaveHrs.toFixed(0)}</strong> · BIM: <strong>${bimLeaveHrs.toFixed(0)}</strong></span>
-      <span style="font-size:11px;color:#2A4A6B">Full week = <span style="background:#fca5a5;padding:1px 6px;border-radius:4px">red</span> &nbsp; Partial = <span style="background:#fed7aa;padding:1px 6px;border-radius:4px">orange</span></span>
-    </div>
-    <!-- Year switcher -->
-    <div class="card" style="padding:10px 14px;margin-bottom:10px;display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
-      ${leaveYearSwitcherHTML()}
-      <span style="font-size:10px;color:var(--tx3);margin-left:6px;">Showing ${weeks.length} weeks in ${window.leaveYear}</span>
-    </div>
-    <!-- Tabs -->
-    <div style="display:flex;gap:0;margin-bottom:12px;border-bottom:2px solid var(--bdr);align-items:center;">
-      <button onclick="switchLeaveTab('engineers')" id="leave-tab-engineers" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid ${activeTab==='engineers'?'#f59e0b':'transparent'};background:${activeTab==='engineers'?'#fefce8':'transparent'};color:${activeTab==='engineers'?'#78350f':'var(--tx2)'};cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">Engineers (${mepEngs.length})</button>
-      <button onclick="switchLeaveTab('bim')" id="leave-tab-bim" style="padding:8px 18px;font-size:12px;font-weight:700;border:none;border-bottom:3px solid ${activeTab==='bim'?'#0d9488':'transparent'};background:${activeTab==='bim'?'#f0fdfa':'transparent'};color:${activeTab==='bim'?'#0f766e':'var(--tx2)'};cursor:pointer;border-radius:8px 8px 0 0;transition:.15s;">BIM (${bimEngs.length})</button>
-      <div style="flex:1;"></div>
-      <button onclick="exportLeaveXLSX()" style="padding:6px 14px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">⬇ Export Leave</button>
-    </div>
-    <div class="fbar" style="flex-direction:row;flex-wrap:wrap;margin-bottom:10px;">
-      <input id="lv-q" placeholder="Search…" value="${esc(window._lvQ||'')}" oninput="window._lvQ=this.value;renderLeaveGridOnly()" style="flex:1;min-width:120px;max-width:220px;">
-      <select id="lv-disc" onchange="window._lvDisc=this.value;renderLeaveGridOnly()" style="flex:1;min-width:120px;">${['all','HVAC','PH&E','ELE','ELV'].map(d=>`<option value="${d}"${(window._lvDisc||'all')===d?' selected':''}>${d==='all'?'All Disciplines':d}</option>`).join('')}</select>
-      <select id="lv-off" onchange="window._lvOff=this.value;renderLeaveGridOnly()" style="flex:1;min-width:100px;">${['all','DXB','EGY','IND'].map(o=>`<option value="${o}"${(window._lvOff||'all')===o?' selected':''}>${o==='all'?'All Offices':o}</option>`).join('')}</select>
-    </div>
-    <div id="leave-grid"></div>`;
+    <div id="leave-grid"></div>
+    <div id="leave-grid-bim"></div>`;
 
+  // v9.32.1 — leave filters render into the page header, matching the other pages
+  { const _lf=document.getElementById('leave-filters-slot');
+    const _discOpts=['all','HVAC','PH&E','ELE','ELV','BIM']; // v9.32.2 — BIM is now a discipline option, not a separate tab
+    const _years=[2026,2027,2028,2029];
+    if(_lf)_lf.innerHTML=`<input id="lv-q" placeholder="Search…" value="${esc(window._lvQ||'')}" oninput="window._lvQ=this.value;renderLeaveGridOnly()">
+      <select id="lv-disc" onchange="window._lvDisc=this.value;renderLeaveGridOnly()">${_discOpts.map(d=>`<option value="${d}"${(window._lvDisc||'all')===d?' selected':''}>${d==='all'?'All Disciplines':d}</option>`).join('')}</select>
+      <select id="lv-off" onchange="window._lvOff=this.value;renderLeaveGridOnly()">${['all','DXB','EGY','IND'].map(o=>`<option value="${o}"${(window._lvOff||'all')===o?' selected':''}>${o==='all'?'All Offices':o}</option>`).join('')}</select>
+      <select id="lv-year" title="Leave year" onchange="setLeaveYear(parseInt(this.value,10))">${_years.map(y=>`<option value="${y}"${window.leaveYear===y?' selected':''}>${y}</option>`).join('')}</select>
+      <span style="display:inline-flex;border:1px solid var(--bdr);border-radius:8px;overflow:hidden;flex-shrink:0;"><button onclick="setLeaveUnit('h')" title="Show and enter values in hours" style="padding:4px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:${lvUnit()==='h'?'#1e3a5f':'#fff'};color:${lvUnit()==='h'?'#fff':'var(--tx2)'};">Hours</button><button onclick="setLeaveUnit('d')" title="Show and enter values in days (1 day = 9 hours)" style="padding:4px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:${lvUnit()==='d'?'#1e3a5f':'#fff'};color:${lvUnit()==='d'?'#fff':'var(--tx2)'};">Days</button></span><span style="font-size:11px;color:#2A4A6B;white-space:nowrap;" title="Full week = red · Partial = orange · 1 day = 9 hours"><strong style="color:#10243E;">${lvToDisp(totalLeaveHrs)}</strong> ${lvUnitLabel()} · MEP <strong>${lvToDisp(mepLeaveHrs)}</strong> · BIM <strong>${lvToDisp(bimLeaveHrs)}</strong></span>
+      <button onclick="exportLeaveXLSX()" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;white-space:nowrap;">\u2b07 Export</button>`; }
   renderLeaveGridOnly();
 }
 
@@ -11537,31 +11674,40 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
   const el=document.getElementById(containerId);
   if(!el)return;
   const discs=MEP_DISCS.concat(['MEP']); // v9.21.0 — umbrella heads get their own leave group
+  let _gTot=0,_gTaken=0; // v9.32.4 — grid-wide leave totals for the footer
+  const _uOn=(setFn==='setLeaveHrU'); // v9.32.6 — only the leave grids honour the Hours/Days toggle
+  const _uDay=_uOn&&lvUnit()==='d';
+  const _uLbl=_uOn?lvUnitLabel():'hrs';
+  const _dsp=(h)=>_uOn?lvToDisp(h):(h||0);
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
-    <thead>${_monthBandRow(weeks,'#0c5f59')}<tr>
-      <th class="left" style="min-width:180px;position:sticky;left:0;z-index:2;background:#0f766e;color:#fff">BIM Member</th>
-      <th class="left" style="min-width:60px;background:#0f766e;color:#fff">Disc</th>
-      <th class="left" style="min-width:40px;background:#0f766e;color:#fff">Off</th>
+    <thead>${_monthBandRow(weeks,'#0c5f59',5)}<tr>
+      <th class="left" style="${lvSticky(0,'#0f766e','color:#fff')}">BIM Member</th>
+      <th class="left" style="${lvSticky(1,'#0f766e','color:#fff')}">Disc</th>
+      <th class="left" style="${lvSticky(2,'#0f766e','color:#fff')}">Off</th>
+      <th style="${lvSticky(3,'#0c5f59','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
+      <th style="${lvSticky(4,'#0c5f59','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
       ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#0f766e;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
-      <th style="min-width:50px;background:#0d9488;color:#fff;text-align:center">Total</th>
     </tr></thead>
     <tbody>`;
 
   discs.forEach(disc=>{
     const discEngs=engList.filter(e=>(e.subDisc||e.disc)===disc);
     if(!discEngs.length)return;
-    const dClr={HVAC:'#93c5fd',['PH&E']:'#86efac',ELE:'#fcd34d',ELV:'#f9a8d4'}[disc]||'#e2e8f0';
-    const dTxt={HVAC:'#1e3a5f',['PH&E']:'#14532d',ELE:'#78350f',ELV:'#831843'}[disc]||'#1e293b';
-    html+=`<tr><td colspan="${weeks.length+3}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px">BIM-${disc} (${discEngs.length})</td></tr>`;
+    const dClr='#eef2f7'; // v9.32.6 — muted band, matching the rest of the app
+    const dTxt={HVAC:'#1d4ed8',['PH&E']:'#166534',ELE:'#854d0e',ELV:'#9d174d'}[disc]||'#475569';
+    html+=`<tr><td colspan="${weeks.length+5}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span style="position:sticky;left:8px;">BIM-${disc} (${discEngs.length})</span></td></tr>`;
 
     discEngs.forEach(eng=>{
       const arr=hrsObj[eng.id]||[];
-      const total=arr.reduce((a,b)=>a+(b||0),0);
+      const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // v9.32.4 — year total + taken-to-date
+      _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr>
-        <td style="position:sticky;left:0;z-index:1;background:#f0fdfa;font-weight:500;padding:4px 8px">${eng.name}</td>
-        <td style="padding:4px 6px"><span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">${eng.subDisc||eng.disc}</span></td>
-        <td style="padding:4px 6px;font-size:10px;color:var(--tx3)">${eng.off}</td>
+        <td style="${lvSticky(0,'#f0fdfa','font-weight:500;padding:4px 8px')}">${eng.name}</td>
+        <td style="${lvSticky(1,'#f0fdfa','padding:4px 6px')}"><span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">${eng.subDisc||eng.disc}</span></td>
+        <td style="${lvSticky(2,'#f0fdfa','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
+        <td style="${lvSticky(3,'#f0fdfa','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
+        <td style="${lvSticky(4,'#f0fdfa','text-align:center;font-weight:600;color:var(--tx2);font-size:11px')}">${_sp.taken>0?_dsp(_sp.taken):'-'}</td>
         ${weeks.map((w)=>{
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
@@ -11570,17 +11716,30 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           const editable=adminUnlocked||canEditDisc('BIM');
           return`<td style="padding:2px;text-align:center">
-            <input type="number" min="0" max="45" step="0.5" value="${v||''}" placeholder=""
+            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
               style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
-        <td style="text-align:center;font-weight:700;color:${accentColor}">${total>0?total:'-'}</td>
       </tr>`;
     });
   });
 
+  { // v9.32.4 — footer: overall booked / taken / % still to come
+    const _left=_gTot-_gTaken;
+    const _pct=_gTot>0?Math.round(_left/_gTot*100):0;
+    html+=`<tr style="background:#0f2440;color:#fff;font-weight:700;">
+      <td class="left" style="${lvSticky(0,'#0f2440','color:#fff;padding:6px 8px')}">TOTAL</td>
+      <td style="${lvSticky(1,'#0f2440','')}"></td>
+      <td style="${lvSticky(2,'#0f2440','')}"></td>
+      <td style="${lvSticky(3,'#0f2440','color:#fff;text-align:center')}">${_gTot>0?_dsp(_gTot):'-'}</td>
+      <td style="${lvSticky(4,'#0f2440','color:#fff;text-align:center')}">${_gTaken>0?_dsp(_gTaken):'-'}</td>
+      <td colspan="${weeks.length}" style="padding:6px 10px;font-weight:600;font-size:11px;">
+        ${_dsp(_left)} ${_uLbl} remaining · <span style="color:#7ee2b8;">${_pct}% of booked leave still to come</span>
+      </td>
+    </tr>`;
+  }
   html+='</tbody></table></div>';
   // v9.4.6 — floating horizontal scrollbar pinned to the viewport bottom, synced both ways
   html+=`<div id="lvsb-${containerId}" style="position:sticky;bottom:0;z-index:9;overflow-x:auto;overflow-y:hidden;height:14px;background:#ffffffee;border-top:1px solid var(--bdr);" onscroll="(function(b){var m=document.getElementById('lvmain-${containerId}');if(m&&m.scrollLeft!==b.scrollLeft)m.scrollLeft=b.scrollLeft;})(this)"><div id="lvsb-${containerId}-in" style="height:1px;"></div></div>`;
