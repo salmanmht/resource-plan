@@ -896,7 +896,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.0.0 · 23 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.1.3 · 23 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -996,7 +996,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.0.0 · 23 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.1.3 · 23 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2197,12 +2197,12 @@ async function renderPendingUsers(){
       el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${pending.length} pending request${pending.length>1?'s':''}</div>`+
         pending.map(u=>`<div class="card" style="padding:14px 16px;margin-bottom:10px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
           <div>
-            <div style="font-size:13px;font-weight:600;color:var(--tx);">${u.email}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx);">${esc(u.email)}</div>
             <div style="font-size:11px;color:var(--tx3);margin-top:2px;">Requested: ${u.requested_at?new Date(u.requested_at).toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):'—'}</div>
           </div>
           <div style="display:flex;gap:6px;">
-            <button class="btn btn-p btn-sm" onclick="approvePendingUser('${u.email}')">✓ Approve</button>
-            <button class="btn btn-d btn-sm" onclick="rejectPendingUser('${u.email}')">✕ Reject</button>
+            <button class="btn btn-p btn-sm" data-email="${esc(u.email)}" onclick="approvePendingUser(this.dataset.email)">✓ Approve</button>
+            <button class="btn btn-d btn-sm" data-email="${esc(u.email)}" onclick="rejectPendingUser(this.dataset.email)">✕ Reject</button>
           </div>
         </div>`).join('');
 
@@ -2213,12 +2213,12 @@ async function renderPendingUsers(){
         activeEngs.map(e=>`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
           <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#007aff,#5856d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(e.name||'?').charAt(0)}</div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
-            <div style="font-size:11px;color:var(--tx3);">${e.email}</div>
-            <div style="font-size:10px;color:var(--tx3);">${e.desig||'—'} · ${e.off||'DXB'}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.name)}</div>
+            <div style="font-size:11px;color:var(--tx3);">${esc(e.email)}</div>
+            <div style="font-size:10px;color:var(--tx3);">${esc(e.desig||'—')} · ${esc(e.off||'DXB')}</div>
           </div>
           ${isAdmin(e.email)?'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;">Admin</span>':''}
-          <button onclick="delEng('${e.id}')" title="Delete user from everywhere (engineer record, hours, roles, sign-in account)" style="border:1px solid #f0997b;background:#fcebeb;color:#a32d2d;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Delete</button>
+          <button data-eid="${esc(e.id)}" onclick="delEng(this.dataset.eid)" title="Delete user from everywhere (engineer record, hours, roles, sign-in account)" style="border:1px solid #f0997b;background:#fcebeb;color:#a32d2d;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Delete</button>
         </div>`).join('')+
         '<div id="um-orphans-host" style="margin-top:20px;"></div>';
       // v9.7.5 — fetch orphaned auth accounts (Supabase Auth users with no matching engineers row)
@@ -2232,9 +2232,9 @@ async function renderPendingUsers(){
           return`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
             <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#f59e0b,#d97706);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(eng?eng.name:r.email).charAt(0).toUpperCase()}</div>
             <div style="flex:1;min-width:0;">
-              <div style="font-size:13px;font-weight:600;color:var(--tx);">${eng?eng.name:r.email}</div>
-              <div style="font-size:11px;color:var(--tx3);">${r.email}</div>
-              ${eng?`<div style="font-size:10px;color:var(--tx3);">${eng.desig||'—'}</div>`:'<div style="font-size:10px;color:#f59e0b;">⚠ Not linked to an engineer profile</div>'}
+              <div style="font-size:13px;font-weight:600;color:var(--tx);">${esc(eng?eng.name:r.email)}</div>
+              <div style="font-size:11px;color:var(--tx3);">${esc(r.email)}</div>
+              ${eng?`<div style="font-size:10px;color:var(--tx3);">${esc(eng.desig||'—')}</div>`:'<div style="font-size:10px;color:#f59e0b;">⚠ Not linked to an engineer profile</div>'}
             </div>
             <span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#fef3c7;color:#92400e;">Admin</span>
           </div>`;
@@ -2369,7 +2369,7 @@ function updateScopeOptions(){
     scopeSel.innerHTML=MEP_DISCS.map(c=>`<option value="${esc(c)}">${esc(c)}</option>`).join('')+'<option value="BIM">BIM</option>';
     scopeSel.disabled=false;
   } else if(role==='mep_lead'){
-    scopeSel.innerHTML=S.projects.map(p=>`<option value="${p.id}">${p.no||p.id} — ${p.name}</option>`).join('');
+    scopeSel.innerHTML=S.projects.map(p=>`<option value="${esc(p.id)}">${esc(p.no||p.id)} — ${esc(p.name)}</option>`).join('');
     scopeSel.disabled=false;
   } else if(role==='bim_lead'){
     scopeSel.innerHTML='<option value="BIM">BIM</option>';
@@ -2652,7 +2652,14 @@ async function initApp(opts){
           for(const k of Object.keys(S.leaveHrs)){ if((S.leaveHrs[k]||[]).some(v=>v>0)) await sbFetch('leave_hrs','POST',{id:k,data:S.leaveHrs[k]},'resolution=merge-duplicates,return=representation'); }
           for(const k of Object.keys(S.mgmtHrs)){ if((S.mgmtHrs[k]||[]).some(v=>v>0)) await sbFetch('mgmt_hrs','POST',{id:k,data:S.mgmtHrs[k]},'resolution=merge-duplicates,return=representation'); }
           console.log('gAnchor migration: shifted + persisted');
-        }catch(e){console.error('gAnchor migration persist failed:',e);}})();
+        }catch(e){
+          console.error('gAnchor migration persist failed:',e);
+          // v10.0.1 — the flag is written first so a concurrent session can't double-shift
+          // (a 26-week shift is unrecoverable). If the data writes then fail, roll the flag
+          // back so the migration retries next session, and tell the admin loudly.
+          try{ await sbFetch('settings','POST',{key:'gAnchor',value:'pending'},'resolution=merge-duplicates,return=representation'); }catch(_){}
+          try{ toast('\u26a0 Leave/mgmt migration did not finish \u2014 reload before editing hours','error'); }catch(_){}
+        }})();
       }
     }
     try{ syncAdminModeBtn(); }catch(e){}
@@ -2846,22 +2853,21 @@ async function selfRestoreEngineerRow(){
     toast('Could not create the profile — check connection/permissions (RLS).');
   }
 }
-function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;const _em=(SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'';if((typeof isAdmin==='function')&&isAdmin(_em)&&p.rates)S.rates=p.rates;S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){console.warn('loadLocal failed',e);}
+function loadLocal(){try{const d=localStorage.getItem('mepR26');if(d){const p=JSON.parse(d);S.engineers=p.engineers||S.engineers;S.projects=p.projects||S.projects;const _em=(SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'';if(p.rates){delete p.rates;try{localStorage.setItem('mepR26',JSON.stringify(p));}catch(_){}}/* v10.0.1 — scrub rates cached by older builds */S.leaveHrs=p.leaveHrs||{};S.mgmtHrs=p.mgmtHrs||{};}}catch(e){console.warn('loadLocal failed',e);}
   S.engineers.forEach(e=>{ if(!e.team) e.team='MEP'; });
 }
 function saveLocal(){try{
   // Never persist test mode runtime state (_allProjects) or proposal virtuals
   // Cost rates are only cached locally for admins (avoid leaving salary data
   // in the browser profile of non-admin/shared machines). v8.10.0
-  const _email=(SB_SESSION&&SB_SESSION.user&&SB_SESSION.user.email)||'';
-  const _isAdmin=(typeof isAdmin==='function')&&isAdmin(_email);
+  // v10.0.1 — cost rates are NO LONGER cached locally at all. They are re-fetched from
+  // `settings` each session, so salary data never lingers in a browser profile after logout.
   const safe={
     engineers:(S.engineers||[]).filter(e=>!e._isVirtual),
     projects:(S._allProjects||S.projects||[]).filter(p=>!p._isProposal),
     leaveHrs:S.leaveHrs,
     mgmtHrs:S.mgmtHrs
   };
-  if(_isAdmin) safe.rates=S.rates;
   safe._savedAt=Date.now();
   localStorage.setItem('mepR26',JSON.stringify(safe));
 }catch(e){}}
@@ -7501,7 +7507,7 @@ function renderTeam(){
         ${billBar}
         ${adminUnlocked?`<div style="display:flex;gap:6px;margin-top:10px;">
           <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
-          <button class="btn btn-d btn-xs" onclick="event.stopPropagation();delEng('${e.id}')" style="padding:3px 10px;">Del</button>
+          <button class="btn btn-d btn-xs" data-eid="${esc(e.id)}" onclick="event.stopPropagation();delEng(this.dataset.eid)" style="padding:3px 10px;">Del</button>
         </div>`:''}
       </div>
     </div>`;
@@ -7704,7 +7710,7 @@ function renderProj(){
         <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:10px;">
           <div style="min-width:0;">
             <div style="font-size:11px;color:var(--tx3);font-weight:600;">${p.no||'—'}</div>
-            <div style="font-size:15px;font-weight:700;color:var(--tx);margin-top:1px;letter-spacing:-.01em;">${p.name}</div>
+            <div style="font-size:15px;font-weight:700;color:var(--tx);margin-top:1px;letter-spacing:-.01em;">${esc(p.name)}</div>
             ${p.client?`<div style="font-size:11px;color:var(--tx3);margin-top:1px;">${p.client}</div>`:''}
           </div>
           <span class="mh-pill" style="background:${sc}1A;color:${sc};flex-shrink:0;"><i style="background:${sc}"></i>${p.status||'—'}</span>
@@ -7724,7 +7730,7 @@ function renderProj(){
     return`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:7px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
       <div style="color:var(--tx3);font-size:12px;font-weight:600;">${idx+1}</div>
       <div style="color:var(--tx3);font-size:12px;font-weight:500;">${p.no||'—'}</div>
-      <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span>${p.mepLeadEmail?`<span style="font-size:9px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 5px;border-radius:4px;white-space:nowrap;">${getMepLeadName(p.mepLeadEmail)}</span>`:''}</div>
+      <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;flex-wrap:wrap;gap:4px;" title="${esc(p.name)}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span>${p.mepLeadEmail?`<span style="font-size:9px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 5px;border-radius:4px;white-space:nowrap;">${getMepLeadName(p.mepLeadEmail)}</span>`:''}</div>
       <div style="min-width:0;">${buildStrip(p)}</div>
       <div style="text-align:right;font-weight:600;color:#0369a1;">${totalHrs>0?fN(Math.round(totalHrs)):'—'}</div>
       <div class="row-actions" style="text-align:right;opacity:0;transition:opacity .12s;display:flex;gap:4px;justify-content:flex-end;" onclick="event.stopPropagation()">
@@ -7839,6 +7845,19 @@ function closeProjDetail(){
 const DEFAULT_STAGES=['Concept Design (Concept)','Schematic Design (SD)','Design Development (DD)','Construction Documents (CD)','Construction (CA)','Review','Tender','Procurement','No Programme'];
 
 
+function toggleOtherPop(projId, btn){ // v10.1.1 — breakdown of the Cost & Fee "Other" card
+  const pop=document.getElementById('other-pop-'+projId);
+  if(!pop) return;
+  if(pop.style.display!=='none'){pop.style.display='none';return;}
+  const rect=btn.getBoundingClientRect();
+  pop.style.display='block';
+  pop.style.top=(rect.bottom+6)+'px';
+  pop.style.left=Math.max(8,Math.min(rect.left-100,window.innerWidth-260))+'px';
+  setTimeout(()=>{
+    const close=(e)=>{if(!pop.contains(e.target)&&e.target!==btn){pop.style.display='none';document.removeEventListener('click',close);}};
+    document.addEventListener('click',close);
+  },10);
+}
 function toggleBimPop(projId, btn){
   const pop=document.getElementById('bim-pop-'+projId);
   if(!pop) return;
@@ -8525,20 +8544,43 @@ function renderProjDetail(p){
         if(_rTo){ const t=new Date(_rTo+'T23:59:59'); _toIdx=-1; for(let i=0;i<_wks.length;i++){ if(_wks[i]<=t) _toIdx=i; } }
       }
       const _inRng=(i)=> i>=_fromIdx && i<=_toIdx;
-      const calcCost=(engList)=>engList.reduce((a,e)=>{
-        const mult=getJseMult(p,e.id),rate=getProjRate(e,p),arr=wh2[e.id]||[];
-        let hrs=0; for(let i=0;i<arr.length;i++){ if(!_rngActive||_inRng(i))hrs+=(arr[i]||0); }
-        return a+hrs*rate*mult;
-      },0);
+      const _cfbR={active:_rngActive,inRng:function(i){return !_rngActive||_inRng(i);}};
+      const calcCost=(engList)=>cfbSumCost(p,engList,_cfbR); // v10.1.0 — shared formula
       const discStats=discs.map(d=>{
         const mepE=projEngineers(p).filter(e=>effDisc(e,p)===d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0)); // v9.3.0 — includes duplicate slots
-        const bimE=projEngineers(p).filter(e=>e.subDisc===d&&e.team==='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
+        // v10.1.1 — attribute BIM by BOOKED discipline first (bookDisc via effDisc), falling back to subDisc.
+        // Matches the grid grouping and the Spend page ("booked BIM shows under that trade too"); previously
+        // cards used subDisc ONLY, so a BIM member booked to ELV/PH&E with subDisc 'MEP' leaked into Other.
+        const bimE=projEngineers(p).filter(e=>{
+          if(e.team!=='BIM'||!wh2[e.id]||!wh2[e.id].some(v=>v>0))return false;
+          const booked=(p.bookDisc&&p.bookDisc[e.id])||''; // explicit trade booking
+          return booked?booked===d:(e.subDisc===d);
+        });
         const mepCost=calcCost(mepE),bimCost=calcCost(bimE);
         return{d,mepCost,bimCost,totalCost:mepCost+bimCost};
       });
-      const grandMepCost=discStats.reduce((a,x)=>a+x.mepCost,0);
-      const grandBimCost=discStats.reduce((a,x)=>a+x.bimCost,0);
+      // v10.1.0 — grand totals over EVERY engineer with hours. Summing the discipline
+      // cards silently dropped anyone whose effDisc isn't a configured discipline
+      // (e.g. 'MEP' umbrella heads) and BIM members with no matching subDisc — which is
+      // why the header total used to exceed Total Project.
+      const _allWith=projEngineers(p).filter(e=>wh2[e.id]&&wh2[e.id].some(v=>v>0));
+      const grandMepCost=cfbSumCost(p,_allWith.filter(e=>e.team!=='BIM'),_cfbR);
+      const grandBimCost=cfbSumCost(p,_allWith.filter(e=>e.team==='BIM'),_cfbR);
       const grandCost=grandMepCost+grandBimCost;
+      // surface any residual as its own card so the cards always reconcile to the total
+      const _cardMep=discStats.reduce((a,x)=>a+x.mepCost,0);
+      const _cardBim=discStats.reduce((a,x)=>a+x.bimCost,0);
+      const _resMep=grandMepCost-_cardMep, _resBim=grandBimCost-_cardBim;
+      if(_resMep>0.5||_resBim>0.5){
+        // v10.1.1 — name exactly who lands in Other, so the card is auditable rather than a mystery figure.
+        const _cfgd=discs.slice();
+        const _otherList=_allWith.filter(e=>{
+          if(e.team==='BIM'){ const booked=(p.bookDisc&&p.bookDisc[e.id])||''; return _cfgd.indexOf(booked||e.subDisc)<0; }
+          return _cfgd.indexOf(effDisc(e,p))<0;
+        }).map(e=>({name:e.name,team:e.team,cost:cfbEngCost(p,e,_cfbR)}))
+          .filter(o=>o.cost>0.5).sort((a,b)=>b.cost-a.cost);
+        discStats.push({d:'Other',mepCost:Math.max(0,_resMep),bimCost:Math.max(0,_resBim),totalCost:Math.max(0,_resMep)+Math.max(0,_resBim),list:_otherList});
+      }
       const _anyHrs=Object.values(wh2).some(arr=>(arr||[]).some(v=>v>0)); // v9.24.1 — keep the section + its date filter visible whenever the project has hours, even if the range filters cost to 0
       if(!_anyHrs)return'';
       const viewCost=(x)=>kpiView==='mep'?x.mepCost:kpiView==='bim'?x.bimCost:x.totalCost;
@@ -8554,13 +8596,23 @@ function renderProjDetail(p){
         if(cost<=0)return'';
         const fee=cost*ff2;
         const pct=viewGrand>0?(cost/viewGrand*100):0;
+        const _mepE2=projEngineers(p).filter(e=>effDisc(e,p)===x.d&&e.team!=='BIM'&&wh2[e.id]&&wh2[e.id].some(v=>v>0));
+        const _bimE2=projEngineers(p).filter(e=>{if(e.team!=='BIM'||!wh2[e.id]||!wh2[e.id].some(v=>v>0))return false;const b=(p.bookDisc&&p.bookDisc[e.id])||'';return b?b===x.d:(e.subDisc===x.d);});
+        const _dHrs=Math.round(cfbSumHrs(p,_mepE2,_cfbR)+cfbSumHrs(p,_bimE2,_cfbR));
         const subLine=(kpiView==='combined'&&x.mepCost>0&&x.bimCost>0)
-          ?`<div style="font-size:9px;color:var(--tx3);margin-top:2px;">MEP: ${fN(Math.round(x.mepCost))} · BIM: ${fN(Math.round(x.bimCost))}</div>`:'';
+          ?`<div style="font-size:9px;color:var(--tx3);margin-top:3px;">Engineers: ${fN(Math.round(x.mepCost))} · BIM: ${fN(Math.round(x.bimCost))}</div>`:'';
+        const hrsLine=(x.d!=='Other'&&_dHrs>0)?`<div style="font-size:9px;color:var(--tx3);margin-top:2px;">${fN(_dHrs)} hrs</div>`:'';
         return`<div style="flex:1;min-width:120px;background:#fff;border:1px solid ${DISC_BG[x.d]||'#e5e7eb'};border-top:3px solid ${DISC_FG[x.d]||'#374151'};border-radius:8px;padding:10px 12px;">
-          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${DISC_FG[x.d]||'#374151'};margin-bottom:4px;">${x.d}</div>
+          <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:${DISC_FG[x.d]||'#374151'};margin-bottom:4px;display:flex;align-items:center;gap:4px;">${x.d}${(x.d==='Other'&&x.list&&x.list.length)?`<button onclick="toggleOtherPop('${p.id}',this)" title="Who is in Other?" style="background:none;border:none;cursor:pointer;font-size:12px;color:#475569;padding:0;">▾</button>`:''}</div>
+          ${(x.d==='Other'&&x.list&&x.list.length)?`<div id="other-pop-${p.id}" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #cbd5e1;border-radius:8px;padding:10px 14px;min-width:240px;box-shadow:0 10px 30px rgba(0,0,0,.18);text-align:left;">
+            <div style="font-weight:700;color:#334155;margin-bottom:6px;font-size:11px;">Unattributed — no configured discipline</div>
+            ${x.list.map(o=>`<div style="display:flex;justify-content:space-between;gap:12px;padding:3px 0;border-bottom:1px solid #f1f5f9;font-size:10px;"><span style="color:var(--tx2);">${esc(o.name)} <span style="color:var(--tx3);font-size:8px;">${o.team==='BIM'?'BIM':'MEP'}</span></span><span style="font-weight:700;color:#0369a1;">${fN(Math.round(o.cost))}</span></div>`).join('')}
+            <div style="margin-top:5px;padding-top:4px;font-weight:700;font-size:10px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;"><span>Total</span><span>${fN(Math.round(cost))}</span></div>
+            <div style="margin-top:6px;font-size:8px;color:var(--tx3);line-height:1.5;">Give these people a booked discipline or sub-discipline to fold them into a trade card.</div>
+          </div>`:''}
           <div style="font-size:14px;font-weight:800;color:#0369a1;">${fN(Math.round(cost))}</div>
-          <div style="font-size:10px;color:#065f46;font-weight:600;">Fee: ${fN(Math.round(fee))}</div>
-          ${subLine}
+          <div style="font-size:10px;color:#065f46;font-weight:600;margin-top:1px;">Fee: ${fN(Math.round(fee))}</div>
+          ${hrsLine}${subLine}
           <div style="height:4px;background:#f1f5f9;border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:100%;width:${pct.toFixed(1)}%;background:${DISC_FG[x.d]||'#374151'};border-radius:2px;"></div></div>
           <div style="font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;">${pct.toFixed(1)}% of total</div>
         </div>`;
@@ -8572,6 +8624,7 @@ function renderProjDetail(p){
           </div>
           <div style="font-size:14px;font-weight:800;color:#0d9488;">${fN(Math.round(grandBimCost))}</div>
           <div style="font-size:10px;color:#0f766e;font-weight:600;">Fee: ${fN(Math.round(grandBimCost*ff2))}</div>
+          <div style="font-size:9px;color:var(--tx3);margin-top:2px;">${fN(Math.round(cfbSumHrs(p,_allWith.filter(e=>e.team==='BIM'),_cfbR)))} hrs</div>
           <div style="height:4px;background:#ccfbf1;border-radius:2px;margin-top:5px;overflow:hidden;"><div style="height:100%;width:${grandCost>0?(grandBimCost/grandCost*100).toFixed(1):0}%;background:#0d9488;border-radius:2px;"></div></div>
           <div style="font-size:9px;color:var(--tx3);margin-top:2px;font-weight:600;">${grandCost>0?(grandBimCost/grandCost*100).toFixed(1):0}% of total</div>
           <div id="bim-pop-${p.id}" style="display:none;position:fixed;z-index:9999;background:#fff;border:1px solid #5eead4;border-radius:8px;padding:10px 14px;min-width:240px;box-shadow:0 8px 24px rgba(0,0,0,.2);">
@@ -8584,6 +8637,7 @@ function renderProjDetail(p){
         <div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.07em;color:#0369a1;margin-bottom:4px;">Total Project</div>
         <div style="font-size:14px;font-weight:800;color:#0369a1;">${fN(Math.round(viewGrand))}</div>
         <div style="font-size:10px;color:#065f46;font-weight:600;">Fee: ${fN(Math.round(viewFee))}</div>
+        <div style="font-size:9px;color:var(--tx3);margin-top:2px;">${fN(Math.round(cfbSumHrs(p,_allWith.filter(e=>kpiView==='mep'?e.team!=='BIM':kpiView==='bim'?e.team==='BIM':true),_cfbR)))} hrs</div>
         ${kpiView==='combined'&&grandMepCost>0&&grandBimCost>0?`<div style="font-size:9px;color:var(--tx3);margin-top:2px;">MEP: ${fN(Math.round(grandMepCost))} · BIM: ${fN(Math.round(grandBimCost))}</div>`:''}
         <div style="font-size:9px;color:var(--tx3);margin-top:3px;">×${ff2.toFixed(2)} fee factor</div>
       </div>`;
@@ -8600,7 +8654,7 @@ function renderProjDetail(p){
               const total=projEngineers(p).reduce((a,e)=>a+_sumR(p.weeklyHrs&&p.weeklyHrs[e.id]),0);
               const ff=p.feeFactor||1.0;
               const engs=projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)); // v9.3.0
-              const cost=engs.reduce((a,e)=>{const r=getProjRate(e,p);return a+_sumR(p.weeklyHrs[e.id])*r;},0);
+              const cost=cfbSumCost(p,engs,cfbRangeFor(p)); // v10.1.0 — shared formula (was missing the JSE multiplier)
               return total>0
                 ?`<div class="cost-badges" id="cfb-badges-${p.id}" style="display:flex;flex-wrap:wrap;gap:4px;align-items:center;">
                   <span style="font-size:10px;color:#0369a1;font-weight:600;background:#e0f2fe;border-radius:20px;padding:1px 8px;"><span id="cfb-hrs-${p.id}">${fN(Math.round(total))}</span> hrs</span>
@@ -9586,6 +9640,34 @@ function memberHeads(p,engKey){
   let pk=1;((p.weeklyHrs||{})[engKey]||[]).forEach(h=>{const hd=Math.ceil((h||0)/_jc); if(hd>pk)pk=hd;});
   return pk;
 }
+// ═══════════════════════════════════════
+// v10.1.0 — SINGLE SOURCE OF TRUTH for every Cost & Fee figure.
+//   cost = hours inside the active From/To range × project rate × JSE multiplier
+//   fee  = cost × p.feeFactor
+// Previously the header, the discipline cards and the post-edit live update each
+// had their own inline formula; the header and live update both omitted the JSE
+// multiplier, and the live update ignored the date range entirely.
+// ═══════════════════════════════════════
+function cfbRangeFor(p){
+  const r=(window._cfbRange&&window._cfbRange[p.id])||{};
+  const from=r.from||'', to=r.to||'';
+  const active=!!(from||to);
+  let fromIdx=0, toIdx=1e9;
+  if(active){
+    const wks=stageWeeks(p.start,p.end);
+    if(from){ const f=new Date(from+'T00:00:00'); fromIdx=1e9; for(let i=0;i<wks.length;i++){ if(wks[i]>=f){ fromIdx=i; break; } } }
+    if(to){ const t=new Date(to+'T23:59:59'); toIdx=-1; for(let i=0;i<wks.length;i++){ if(wks[i]<=t) toIdx=i; } }
+  }
+  return { active, fromIdx, toIdx, inRng:function(i){ return !active || (i>=fromIdx && i<=toIdx); } };
+}
+function cfbHrs(p,engId,rng){
+  const arr=(p.weeklyHrs&&p.weeklyHrs[engId])||[];
+  let h=0; for(let i=0;i<arr.length;i++){ if(rng.inRng(i)) h+=(arr[i]||0); }
+  return h;
+}
+function cfbEngCost(p,e,rng){ return cfbHrs(p,e.id,rng)*getProjRate(e,p)*getJseMult(p,e.id); }
+function cfbSumCost(p,engList,rng){ return (engList||[]).reduce(function(a,e){ return a+cfbEngCost(p,e,rng); },0); }
+function cfbSumHrs(p,engList,rng){ return (engList||[]).reduce(function(a,e){ return a+cfbHrs(p,e.id,rng); },0); }
 function getJseMult(p, engId){
   if(!p.jseMultiplier)return 1;
   const v=p.jseMultiplier[engId];
@@ -10663,7 +10745,7 @@ function updateProjCardTotals(p){
     const wkCell=document.querySelector(`td[data-wk-total="${p.id}-${wi}"]`);
     if(wkCell) wkCell.textContent=wkSum>0?wkSum.toFixed(0)+'h':'-';
     // Fee row per week — mirrors the same formula used in the full render
-    const wkCost=S.engineers.reduce((a,e)=>{
+    const wkCost=projEngineers(p).reduce((a,e)=>{ // v10.1.0 — include duplicate slot bookings
       const h=wh[e.id]&&wh[e.id][wi]?wh[e.id][wi]:0;
       return a+h*getProjRate(e,p)*getJseMult(p,e.id);
     },0);
@@ -10679,7 +10761,7 @@ function updateProjCardTotals(p){
   if(gh2Cell) gh2Cell.textContent=grandHrs.toFixed(0)+'h';
 
   // Update grand cost + fee
-  const grandCost=S.engineers.reduce((a,e)=>{
+  const grandCost=projEngineers(p).reduce((a,e)=>{ // v10.1.0 — include duplicate slot bookings
     const hrs=(wh[e.id]||[]).reduce((s,h)=>s+(h||0),0);
     return a+hrs*getProjRate(e,p)*getJseMult(p,e.id);
   },0);
@@ -10696,13 +10778,13 @@ function updateProjCardTotals(p){
   // away and back. Recompute the same figures the full render uses and patch
   // the specific spans directly so every edit updates everything instantly.
   const totalH=projTotalHrs(p);
-  const assignedIdsWithHrs=S.engineers.filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0));
+  const assignedIdsWithHrs=projEngineers(p).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)); // v10.1.0 — include duplicate slot bookings
   const _hc=hasParallelProg(p)?teamHeadcount(p):null; // v9.28.3 — distinct-people headcount
 
   // Cost & Fee Breakdown widget
   const cfbHrs=document.getElementById(`cfb-hrs-${p.id}`);
   if(cfbHrs){
-    const cfbCost=assignedIdsWithHrs.reduce((a,e)=>{const r=getProjRate(e,p);return a+(wh[e.id]||[]).reduce((b,h)=>b+(h||0),0)*r;},0);
+    const cfbCost=cfbSumCost(p,assignedIdsWithHrs,cfbRangeFor(p)); // v10.1.0 — was all-weeks and multiplier-free
     cfbHrs.textContent=fN(Math.round(totalH));
     const cfbCostEl=document.getElementById(`cfb-cost-${p.id}`);
     const cfbFeeEl=document.getElementById(`cfb-fee-${p.id}`);
@@ -11174,7 +11256,7 @@ function renderProposals(){
   const headerRow=`<div style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;"><div>Proj No.</div><div>Name</div><div>Type / Disciplines</div><div>Start</div><div>Contractual End</div><div style="text-align:right;font-size:10px;">Actions</div></div>`;
   const rowsHtml=list.map(p=>`<div class="proj-row" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;border-bottom:1px solid var(--bdr);font-size:12px;cursor:pointer;transition:background .12s;" onclick="openPropDetail('${p.id}')" onmouseover="this.style.background='#f8fafc';this.querySelector('.row-actions').style.opacity='1'" onmouseout="this.style.background='';this.querySelector('.row-actions').style.opacity='0'">
     <div style="color:var(--tx3);font-size:12px;font-weight:500;">${p.no||'—'}</div>
-    <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;" title="${p.name}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${p.name}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span></div>
+    <div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;display:flex;align-items:center;" title="${esc(p.name)}">${statusDot(p)}<span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(p.name)}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</span></div>
     <div style="display:flex;gap:3px;flex-wrap:wrap;align-items:center;">${typeLabel(p)}<div style="display:flex;gap:3px;flex-wrap:wrap;">${discBadges(p)}</div></div>
     <div style="font-size:11px;color:var(--tx2);">${fmt(p.start)}</div>
     <div style="font-size:11px;color:var(--tx2);">${fmt(p.end)}${p.forecastEnd&&p.forecastEnd!==p.end?`<div style="font-size:10px;color:#f59e0b;">Forecast: ${fmt(p.forecastEnd)}</div>`:''}</div>
@@ -11493,7 +11575,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
       const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // v9.32.4 — year total + taken-to-date
       _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
-        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${eng.name}</td>
+        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
         <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[eng.disc]||'')}">${eng.disc}</span></td>
         <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
         <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
@@ -11703,7 +11785,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
       const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // v9.32.4 — year total + taken-to-date
       _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr>
-        <td style="${lvSticky(0,'#f0fdfa','font-weight:500;padding:4px 8px')}">${eng.name}</td>
+        <td style="${lvSticky(0,'#f0fdfa','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
         <td style="${lvSticky(1,'#f0fdfa','padding:4px 6px')}"><span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">${eng.subDisc||eng.disc}</span></td>
         <td style="${lvSticky(2,'#f0fdfa','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
         <td style="${lvSticky(3,'#f0fdfa','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
