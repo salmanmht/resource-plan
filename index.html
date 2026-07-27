@@ -3999,7 +3999,7 @@ function discEdit(i){
     +'<div style="border:1.5px solid var(--acc);border-radius:10px;padding:12px;background:#fff;">'
     +'<div style="font-size:13px;font-weight:700;margin-bottom:10px;">'+(isNew?'Add discipline':'Edit '+esc(d.label))+'</div>'
     +'<div style="display:flex;gap:10px;flex-wrap:wrap;">'
-      +'<label style="font-size:11px;color:var(--tx3);flex:0 0 130px;">Code'+(isNew?'':' (locked)')+'<br><input id="disc-f-code" value="'+esc(d.code)+'" '+(isNew?'':'disabled')+' placeholder="e.g. FLS" style="width:100%;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;'+(isNew?'':'background:#f4f5f7;color:var(--tx3);')+'"></label>'
+      +'<label style="font-size:11px;color:var(--tx3);flex:0 0 130px;">Code<br><input id="disc-f-code" value="'+esc(d.code)+'" placeholder="e.g. FLS" style="width:100%;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;"></label>'
       +'<label style="font-size:11px;color:var(--tx3);flex:1;min-width:160px;">Label<br><input id="disc-f-label" value="'+esc(d.label)+'" placeholder="e.g. Fire & Life Safety" style="width:100%;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;"></label>'
       +'<label style="font-size:11px;color:var(--tx3);flex:0 0 80px;">Colour<br><input id="disc-f-color" type="color" value="'+esc(d.color||'#0891b2')+'" style="width:100%;height:32px;padding:2px;border:1px solid var(--bdr);border-radius:6px;"></label>'
     +'</div>'
@@ -4012,6 +4012,41 @@ function discEdit(i){
   var f=document.getElementById('disc-f-code'); if(f&&isNew)f.focus();
 }
 function discEditCancel(){ var p=document.getElementById('disc-edit-panel'); if(p)p.innerHTML=''; }
+// v10.1.x — safely re-point every engineer + project booking from an old
+// discipline code to a new one, so renaming a code never orphans anyone.
+// Returns true on success, false if the user cancels.
+async function discRecode(oldCode,newCode){
+  var engs=(S.engineers||[]).filter(function(e){return e.disc===oldCode||e.discipline===oldCode;});
+  // per-project booked-discipline overrides that point at the old code
+  var projHits=[];
+  (S.projects||[]).forEach(function(p){
+    if(!p.bookDisc)return;
+    var keys=Object.keys(p.bookDisc).filter(function(k){return p.bookDisc[k]===oldCode;});
+    if(keys.length)projHits.push({p:p,keys:keys});
+  });
+  var bookCount=projHits.reduce(function(a,x){return a+x.keys.length;},0);
+  if(engs.length+bookCount>0){
+    if(!confirm('Change code “'+oldCode+'” → “'+newCode+'”?\n\n'
+      +'This re-points '+engs.length+' engineer'+(engs.length===1?'':'s')
+      +(bookCount?' and '+bookCount+' project booking'+(bookCount===1?'':'s'):'')
+      +' to the new code so nothing is orphaned.\n\n'
+      +'(Cosmetic “desig” labels like “Engineer - '+oldCode+'” are not auto-changed.)')) return false;
+  }
+  // apply + persist engineer updates
+  for(var j=0;j<engs.length;j++){
+    var e=engs[j];
+    if(e.disc===oldCode)e.disc=newCode;
+    if(e.discipline===oldCode)e.discipline=newCode;
+    try{ await pushEng(e); }catch(err){ console.error('discRecode pushEng failed',err); }
+  }
+  // apply + persist per-project booking overrides
+  for(var k=0;k<projHits.length;k++){
+    var ph=projHits[k];
+    ph.keys.forEach(function(key){ ph.p.bookDisc[key]=newCode; });
+    try{ await pushProj(ph.p); }catch(err){ console.error('discRecode pushProj failed',err); }
+  }
+  return true;
+}
 async function discSave(i){
   var isNew=(i<0);
   var code=(document.getElementById('disc-f-code').value||'').trim();
@@ -4019,13 +4054,22 @@ async function discSave(i){
   var color=(document.getElementById('disc-f-color').value||'#0891b2').trim();
   var bimRaw=(document.getElementById('disc-f-bim').value||'').trim();
   if(!code||!label){ toast('Code and label are required.'); return; }
+  // shared code validation (applies to new AND edited codes)
+  if(/^mep$/i.test(code)){ toast('“MEP” is the umbrella for all disciplines — it can’t be a discipline itself.'); return; }
+  if(code==='BIM'){ toast('“BIM” is reserved and can’t be used as a discipline code.'); return; }
+  if(DISCIPLINE_CONFIG.some(function(x,idx){return x.code===code&&idx!==i;})){ toast('That code already exists.'); return; }
   var bimSub=bimRaw?bimRaw.split(',').map(function(s){return s.trim();}).filter(Boolean):[code];
   if(isNew){
-    if(/^mep$/i.test(code)){ toast('“MEP” is the umbrella for all disciplines — it can’t be a discipline itself.'); return; }
-    if(code==='BIM'||DISCIPLINE_CONFIG.some(function(x){return x.code===code;})){ toast('That code already exists.'); return; }
     DISCIPLINE_CONFIG.push({code:code,label:label,color:color,bimSub:bimSub});
   } else {
-    // code locked on edit
+    var oldCode=DISCIPLINE_CONFIG[i].code;
+    if(code!==oldCode){
+      // v10.1.x — code is now editable; re-point everything that stored the
+      // old code so no engineer/booking is orphaned. Returns false if cancelled.
+      var moved=await discRecode(oldCode,code);
+      if(moved===false){ return; }
+    }
+    DISCIPLINE_CONFIG[i].code=code;
     DISCIPLINE_CONFIG[i].label=label;
     DISCIPLINE_CONFIG[i].color=color;
     DISCIPLINE_CONFIG[i].bimSub=bimSub;
@@ -4358,9 +4402,13 @@ const WT_NONBILL=[
   {key:'admin',   label:'Admin'}
 ];
 let WT_weekMonday=null;        // Date of currently-viewed Monday
-let WT_view='variance';        // 'clean' | 'variance' (default: variance)
-let WT_tab='all';              // discipline filter
-let WT_off='';                 // single-select office filter ('',DXB,EGY,IND) — matches Overview
+// v10.1.x — Weekly Tracker view prefs persist in the browser (survive logout/login),
+// mirroring how the Overview page remembers mep_grain / mep_dash_range.
+function _wtPref(k,d){try{const v=localStorage.getItem('mep_wt_'+k);return v===null?d:v;}catch(e){return d;}}
+function _wtSavePref(k,v){try{localStorage.setItem('mep_wt_'+k,v);}catch(e){}}
+let WT_view=_wtPref('view','variance'); // 'clean' | 'variance' (default: variance)
+let WT_tab=_wtPref('tab','all');        // discipline filter
+let WT_off=_wtPref('off','');           // single-select office filter ('',DXB,EGY,IND) — matches Overview
 let WT_offFilter={UAE:true,EGY:true,IND:true,JSE:true};
 let WT_visibleProjects=null;   // array of project ids shown as columns (null = auto active)
 let WT_actuals={};             // {engId:{key:val}}  key = projId | 'task_hrs' | 'task_note' | nonbill key
@@ -5150,11 +5198,11 @@ function wtWeekOptions(cur){
   while(d.getFullYear()===yr){ out.push(new Date(d)); d=new Date(d); d.setDate(d.getDate()+7); }
   return out;
 }
-function wtSetView(v){WT_view=v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
-function wtSetTab(t){WT_tab=t;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetView(v){WT_view=v;_wtSavePref('view',v);const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetTab(t){WT_tab=t;_wtSavePref('tab',t);const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleOff(o){WT_offFilter[o]=!WT_offFilter[o];const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
-function wtSetOff(v){WT_off=v||'';const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
-function wtSetDisc(v){const known={'':'all','HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'};WT_tab=known[v]!==undefined?known[v]:'disc:'+v;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetOff(v){WT_off=v||'';_wtSavePref('off',WT_off);const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
+function wtSetDisc(v){const known={'':'all','HVAC':'hvac','PH&E':'phe','ELE':'ele','ELV':'elv','BIM':'bim'};WT_tab=known[v]!==undefined?known[v]:'disc:'+v;_wtSavePref('tab',WT_tab);const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 function wtToggleSummary(){WT_summaryOpen=!WT_summaryOpen;const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));wtBuild(canEdit);}
 
 // ── Column picker modal ──
@@ -10050,7 +10098,7 @@ function renderProjCard(p, mode){
       <td style="${stickyTd(2,'padding:8px 4px;')}"></td>
       <td style="${stickyTd(3,'padding:8px 4px;')}"></td>
       <td style="${stickyTd(4,'padding:8px 10px;font-weight:800;font-size:13px;color:'+DISC_FG+';letter-spacing:.04em;user-select:none;')}"><span id="disc-chev-${p.id}-${discSafeId}" style="display:inline-block;width:14px;">${chevSymbol}</span> ${disc} <span style="font-weight:500;font-size:10px;">(${mepCount} eng${mepEngs.length===1?'':'s'})</span></td>
-      <td style="${stickyTd(5,'padding:8px 8px;text-align:left;')}">${bimCount?`<span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;">+${bimCount} BIM</span>`:`<span style="font-size:9px;font-weight:700;color:${DISC_FG};text-align:right;padding-right:4px;">Cost / Fee (AED/K)</span>`}</td>
+      <td style="${stickyTd(5,'padding:8px 8px;text-align:left;')}">${bimCount?`<span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:2px 8px;border-radius:10px;white-space:nowrap;">+${bimCount} BIM</span>`:''}</td>
       <td style="${stickyTd(6,'font-size:10px;text-align:center;font-weight:700;color:#fff;background:#0369a1;')}" title="Total hours for ${disc}">${discTotalHrs>0?discTotalHrs.toFixed(0):'-'}</td>
       <td style="${stickyTd(7,'font-size:10px;text-align:center;font-weight:700;color:#fff;background:#0369a1;')}" title="Total cost (K AED)">${ctcTotal>0?ctcTotal.toFixed(1)+'K':'-'}</td>
       <td style="${stickyTd(8,'font-size:10px;text-align:center;font-weight:700;color:#fff;background:#065f46;')}" title="Total fee (K AED)">${ctcTotal>0?(ctcTotal*ff).toFixed(1)+'K':'-'}</td>
