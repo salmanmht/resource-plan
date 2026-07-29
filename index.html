@@ -896,7 +896,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.1.3 · 23 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.1.8 · 29 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -996,7 +996,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.1.3 · 23 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.1.8 · 29 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1700,6 +1700,24 @@ function isDirector(){ return (S.roles||[]).some(r=>r.role==='director'&&(r.emai
 // Can the current user SEE all data (costs, rates, every project)? Admin (armed or not),
 // director, or admin-in-safe-mode all qualify — safe mode only hides *controls*, not data.
 function canSeeAllData(){ return isRealAdmin() || isDirector(); }
+// v10.1.5 — per-person money (rates/cost/fee at the individual + per-week level) is
+// visible only to a real admin with Admin mode armed. Group/discipline/grand TOTALS
+// are NOT gated by this — only individual and per-week money. Also gates export read-outs.
+function canSeePersonMoney(){ return isRealAdmin() && (typeof adminUnlocked!=='undefined' && adminUnlocked); }
+// v10.2.2 — PROJECT-LEVEL (aggregate) money. The grand "TOTAL / WEEK (AED)" fee row is a
+// project-wide total, not per-person data, so it is shown to anyone with responsibility for
+// this project: real admins (armed or in safe mode) and directors (via canSeeAllData), the
+// project's MEP Lead, and any discipline/BIM lead. Per-person cost/fee + exports stay gated
+// by canSeePersonMoney() — this ONLY widens the aggregate per-week fee row.
+function canSeeProjectMoney(projId){
+  if(canSeePersonMoney())return true;
+  if(typeof canSeeAllData==='function' && canSeeAllData())return true;
+  if(projId && typeof isMepLeadFor==='function' && isMepLeadFor(projId))return true;
+  try{
+    var e=currentUserEmail().toLowerCase();
+    return (S.roles||[]).some(function(r){ return r.email && r.email.toLowerCase()===e && (r.role==='mep_lead'||r.role==='disc_lead'||r.role==='bim_lead'); });
+  }catch(err){ return false; }
+}
 // Toggle admin powers on/off (real admins only). Plain switch, manual, no auto-relock.
 function toggleAdminMode(){
   if(!isRealAdmin()){ toast('Only admins can enter admin mode.'); return; }
@@ -6502,20 +6520,17 @@ function renderMEP(){
     </div>
     <div class="mc-int gr" onclick="kpiDrillDown('util')" title="Click to view heatmap">
       <div class="mc-head"><div class="mc-l">Avg Utilisation</div><div class="mc-arrow">→</div></div>
-      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${deltaBadge(utilDelta,'util')}</div>
-      <div class="spark-box"><canvas id="spark-util"></canvas></div>
+      <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div></div>
       <div class="mc-s">${grainLabel} · avg</div>
     </div>
     <div class="mc-int" style="border-top:3px solid #0891b2;">
       <div class="mc-head"><div class="mc-l">Billable Util</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div>
-      <div class="spark-box"><canvas id="spark-bill"></canvas></div>
       <div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div>
     </div>
     <div class="mc-int pu">
       <div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
-      <div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${deltaBadge(costDelta,'cost')}</div>
-      <div class="spark-box"><canvas id="spark-cost"></canvas></div>
+      <div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div>
       <div class="mc-s">Period total · ${grainLabel}</div>
     </div>
     <div class="mc-int te" onclick="kpiDrillDown('projects')" title="Click to view Projects">
@@ -6524,13 +6539,6 @@ function renderMEP(){
       <div class="mc-s">of ${_actScoped.total} total</div>
     </div>`;
 
-  
-  // Render sparklines
-  setTimeout(()=>{
-    mkSparkline('spark-util',utilSeries,'#057a55');
-    mkSparkline('spark-bill',billSeries,'#0891b2');
-    mkSparkline('spark-cost',costSeries,'#7e3af2');
-  },20);
   // Billing vs Utilisation — grain-aware
   const chartLabels=GRAIN==='week'&&grainData.weeks
     ? grainData.weeks.map(wk=>`W${getISOWeek(wk)} ${wk.getMonth()+1}/${wk.getDate()}`)
@@ -7188,9 +7196,9 @@ function renderOffice(off,pcId){
     <div class="mrow" id="off-metrics-${cid}">
       <div class="mc-int hi"><div class="mc-head"><div class="mc-l">Engineers (MEP)</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subMEP.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v">${subMEP.length}</div></div></div><div class="mc-s">${subMEP.length} ${off}</div></div>
       <div class="mc-int" style="border-top:3px solid #0d9488;"><div class="mc-head"><div class="mc-l">BIM Team</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
-      <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div>${kpiDeltaBadge(utilSeries,'util')}</div><div class="spark-box"><canvas id="spark-util-${cid}"></canvas></div><div class="mc-s">${grainLabel} · avg</div></div>
-      <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="spark-box"><canvas id="spark-bill-${cid}"></canvas></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
-      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div>${kpiDeltaBadge(costSeries,'cost')}</div><div class="spark-box"><canvas id="spark-cost-${cid}"></canvas></div><div class="mc-s">Period total · ${grainLabel}</div></div>
+      <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div></div><div class="mc-s">${grainLabel} · avg</div></div>
+      <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
+      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div><div class="mc-s">Period total · ${grainLabel}</div></div>
       <div class="mc-int te"><div class="mc-head"><div class="mc-l">${_offActLabel}</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
@@ -7214,9 +7222,6 @@ function renderOffice(off,pcId){
       </div>
     </div>`;
   setTimeout(()=>{
-    mkSparkline('spark-util-'+cid,utilSeries,'#057a55');
-    mkSparkline('spark-bill-'+cid,billSeries,'#0891b2');
-    mkSparkline('spark-cost-'+cid,costSeries,'#7e3af2');
     var _dcolor={'HVAC':'#1d4ed8','PH&E':'#166534','ELE':'#854d0e','ELV':'#9d174d','BIM':'#7c3aed'};
     var discsShow=mepDiscActive()?window.MEP_DISC.slice():discs;
     mkChart(`off-l-${cid}`,'line',Array.from({length:NMON},(_,i)=>miLabel(minMI+i)),discsShow.map(function(d){return {label:d,data:subUtil(d==='BIM'?subBIM:sub.filter(function(e){return e.disc===d&&e.team!=='BIM';}),util,minMI,NMON).map(function(v){return +v.toFixed(1);}),borderColor:_dcolor[d]||'#6b7280',borderWidth:2.5,tension:.35,fill:false,pointRadius:4};}),{y:{ticks:{callback:v=>v+'%'},min:0}});
@@ -9262,6 +9267,104 @@ async function removeEngineerFromProject(projId,engId){
     toast(`⚠️ Removed locally but sync failed — ${shortName} may reappear on refresh. Check connection and try again.`);
   }
 }
+// ── v10.1.7 — Replace an engineer on a project, carrying hours + bookings ──
+// Remaps weeklyHrs / bookProg / bookStage / slotTags / bookDisc / jseMultiplier from
+// the leaver's booking key(s) to the replacement's id. Drops the leaver's rateOverride
+// so cost recomputes at the replacement's own rate. Rewrites project_hours rows in
+// Supabase (delete leaver, insert replacement). Only affects THIS project.
+function openReplacePicker(evt,projId,leaverKey){
+  evt.stopPropagation();
+  const ex=document.getElementById('replace-pop'); if(ex)ex.remove();
+  const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId); if(!p)return;
+  const leaver=slotEng(leaverKey); if(!leaver){toast('Could not resolve that person.');return;}
+  const isBIM=leaver.team==='BIM';
+  // Permission: same as remove
+  const canDo=isBIM?isBimLead():canEditDisc(leaver.disc);
+  if(!canDo){toast('\u26d4 You can only replace engineers in your own discipline.');return;}
+  // Candidates: same team AND same discipline as the person being replaced, not the leaver,
+  // not already booked on this project. v10.2.1 — restricted to the ALLOWED team only: a PH&E
+  // lead may only swap in another PH&E engineer (HVAC lead only HVAC, etc.), and BIM stays BIM.
+  const bookedBases=new Set(Object.keys(p.weeklyHrs||{}).map(k=>slotBase(k)));
+  let cands=S.engineers.filter(e=>{
+    if((e.team==='BIM')!==isBIM)return false;
+    if(e.id===slotBase(leaverKey))return false;
+    if(bookedBases.has(e.id))return false;
+    if(!isBIM && (e.disc||'')!==(leaver.disc||''))return false; // same discipline only
+    return true;
+  });
+  cands.sort((a,b)=>(a.name||'').localeCompare(b.name||''));
+  const pop=document.createElement('div');
+  pop.id='replace-pop';
+  pop.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.2);padding:8px;min-width:240px;max-width:320px;max-height:340px;overflow:auto;';
+  const head=`<div style="font-size:10px;font-weight:800;color:#1e3a5f;text-transform:uppercase;letter-spacing:.04em;padding:4px 6px 6px;border-bottom:1px solid var(--bdr);margin-bottom:4px;">Replace ${esc(leaver.name.split(' ').slice(0,2).join(' '))} with\u2026</div>`;
+  if(!cands.length){
+    pop.innerHTML=head+'<div style="font-size:11px;color:#dc2626;padding:8px 6px;">No available '+(isBIM?'BIM members':esc((leaver.disc||'')+' engineers'))+' \u2014 everyone in this '+(isBIM?'team':'discipline')+' is already booked on this project.</div>';
+  }else{
+    const rows=cands.map(e=>{
+      const sub=isBIM?(e.desig||'BIM'):((e.disc||'')+(e.desig?' \u00b7 '+e.desig:''));
+      return`<div onclick="doReplaceEngineer('${p.id}','${esc(leaverKey)}','${e.id}')" style="display:flex;flex-direction:column;padding:6px 8px;border-radius:6px;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
+        <span style="font-size:12px;font-weight:600;color:#111827;">${esc(e.name||'')}</span>
+        <span style="font-size:9px;color:var(--tx3);">${esc(sub)}${e.off?' \u00b7 '+esc(e.off):''}</span>
+      </div>`;
+    }).join('');
+    pop.innerHTML=head+rows;
+  }
+  document.body.appendChild(pop);
+  const w=pop.offsetWidth||260, h=pop.offsetHeight||200;
+  pop.style.left=Math.max(8,Math.min(evt.clientX,window.innerWidth-w-10))+'px';
+  pop.style.top=Math.max(8,Math.min(evt.clientY+8,window.innerHeight-h-10))+'px';
+  setTimeout(()=>{const close=(e)=>{if(!pop.contains(e.target)){pop.remove();document.removeEventListener('mousedown',close);}};document.addEventListener('mousedown',close);},0);
+}
+async function doReplaceEngineer(projId,leaverKey,newBaseId){
+  const pop=document.getElementById('replace-pop'); if(pop)pop.remove();
+  const p=S.projects.find(x=>x.id===projId); if(!p)return;
+  if(projId.toString().startsWith('prp')){toast('Replace isn\u2019t available on proposals.');return;}
+  const leaver=slotEng(leaverKey), repl=S.engineers.find(x=>x.id===newBaseId);
+  if(!leaver||!repl){toast('Could not resolve people to swap.');return;}
+  const lBase=slotBase(leaverKey);
+  // All booking keys on this project belonging to the leaver (base + any #slots)
+  const MAPS=['weeklyHrs','bookProg','bookStage','slotTags','bookDisc','jseMultiplier'];
+  const keys=new Set();
+  MAPS.forEach(m=>{ if(p[m])Object.keys(p[m]).forEach(k=>{ if(slotBase(k)===lBase)keys.add(k); }); });
+  if(!keys.size){toast('Nothing to move \u2014 that person has no bookings here.');return;}
+  const lName=leaver.name.split(' ').slice(0,2).join(' '), rName=repl.name.split(' ').slice(0,2).join(' ');
+  if(!confirm(`Replace ${lName} with ${rName} on this project?\n\nAll of ${lName}'s hours, workstream and stage bookings move to ${rName}. Cost recalculates at ${rName}'s rate. ${lName} stays on all other projects.`))return;
+  // Build old→new key map (preserve #slot suffixes); collect hours to rewrite in Supabase
+  const remap=[]; const hourWrites=[]; const hourDeletes=new Set();
+  keys.forEach(oldK=>{
+    const suffix=String(oldK).indexOf('#')>=0?String(oldK).slice(String(oldK).indexOf('#')):'';
+    const newK=newBaseId+suffix;
+    remap.push([oldK,newK]);
+  });
+  // Apply in-memory remap across all maps (rateOverrides deliberately DROPPED)
+  remap.forEach(([oldK,newK])=>{
+    MAPS.forEach(m=>{ if(p[m]&&p[m][oldK]!=null){ p[m][newK]=p[m][oldK]; delete p[m][oldK]; } });
+    if(p.rateOverrides&&p.rateOverrides[oldK]!=null)delete p.rateOverrides[oldK];
+    // queue Supabase hour rewrites for this key
+    hourDeletes.add(oldK);
+    const arr=(p.weeklyHrs&&p.weeklyHrs[newK])||[];
+    arr.forEach((v,wi)=>{ if(v>0)hourWrites.push([newK,wi,v]); });
+  });
+  renderProjDetail(p); // reflect immediately
+  try{
+    // 1) delete the leaver's project_hours rows (per old key — slot keys contain '#', must encode)
+    for(const oldK of hourDeletes){
+      await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&engineer_id=eq.'+encodeURIComponent(oldK),'DELETE');
+    }
+    // 2) insert the replacement's rows
+    for(const [newK,wi,v] of hourWrites){
+      await sbFetch('project_hours','POST',{project_id:projId,engineer_id:newK,week_index:wi,hours:v},'resolution=merge-duplicates,return=representation');
+    }
+    // 3) save the remapped metadata (bookProg/bookStage/slotTags/bookDisc/jseMultiplier)
+    await pushProj(p);
+    logActivity('replaced engineer',lName+' \u2192 '+rName+(p.no?' on '+p.no:''));
+    toast(`\u21c4 Replaced ${lName} with ${rName}`);
+  }catch(e){
+    console.error('doReplaceEngineer sync failed',e);
+    setSyncStatus(false,'Sync failed');
+    toast(`\u26a0\ufe0f Swapped locally but sync failed \u2014 check connection and refresh to verify.`);
+  }
+}
 // Distinct visible colours for programme stages — soft tinted backgrounds + darker borders
 const STAGE_COLORS=[
   {bg:'#fef3c7', bdr:'#f59e0b', name:'amber'},
@@ -9969,7 +10072,7 @@ function renderProjCard(p, mode){
     return e && (e.crossDisc||isUmbrella(e)); // v9.16.1 — reveal even at 0 hours
   });
   const HIDDEN_IDX = IS_MOBILE ? new Set([0,1,2,3,5,7,8]) : (hasParallelProg(p) ? new Set([0,1,2,3]) : new Set(hasCrossDisc?[0,3]:[0,1,3])); // v9.28.2 — parallel: also drop Disc (picker moves inline) + Rmv (remove lives on the workstream box)
-  const FROZEN_WIDTHS_FULL=[68,72,32,68,140,150,60,78,78];
+  const FROZEN_WIDTHS_FULL=[68,72,54,68,140,150,60,78,78];
   const FROZEN_WIDTHS=FROZEN_WIDTHS_FULL.map((w,i)=>HIDDEN_IDX.has(i)?0:w);
   const FROZEN_LEFTS=[]; let acc=0;
   for(const w of FROZEN_WIDTHS){FROZEN_LEFTS.push(acc); acc+=w;}
@@ -10106,25 +10209,13 @@ function renderProjCard(p, mode){
       ${ctcWeekVals.map((v,wi)=>`<td style="font-size:9px;text-align:center;font-weight:600;background:#fff;color:var(--tx2);${wkProgBg[wi]}${wkIsProg[wi]?'color:#78350f;':''}">${v>0?v.toFixed(1):'-'}</td>`).join('')}
     </tr>`;
 
-    // Fee row
-    const feeWeekVals=ctcWeekVals.map(v=>v*ff);
-    const feeTotal=feeWeekVals.reduce((a,b)=>a+b,0);
-    rows+=`<tr class="disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" style="background:#f8fafc;${discCollapsed?'display:none;':''}">
-      <td style="${stickyTd(0,'padding:3px 4px;')}"></td>
-      <td style="${stickyTd(1,'padding:3px 4px;')}"></td>
-      <td style="${stickyTd(2,'padding:3px 4px;')}"></td>
-      <td style="${stickyTd(3,'padding:3px 4px;')}"></td>
-      <td style="${stickyTd(4,'padding:3px 10px;font-size:9px;color:var(--tx2);font-style:italic;')}">Fee (×${ff.toFixed(2)})</td>
-      <td style="${stickyTd(5,'text-align:right;font-size:9px;font-weight:700;color:var(--tx2);font-style:italic;padding-right:8px;')}">Fee (AED/K)</td>
-      <td style="${stickyTd(6,'font-size:10px;text-align:center;font-weight:700;font-style:italic;color:#fff;background:#0369a1;')}">—</td>
-      <td style="${stickyTd(7,'font-size:10px;text-align:center;font-weight:700;font-style:italic;color:#fff;background:#0369a1;')}">—</td>
-      <td style="${stickyTd(8,'font-size:10px;text-align:center;font-weight:700;font-style:italic;color:#fff;background:#065f46;')}">${feeTotal>0?feeTotal.toFixed(1)+'K':'-'}</td>
-      ${showRate?'<td style="background:#fff;"></td>':''}
-      ${feeWeekVals.map((v,wi)=>`<td style="font-size:9px;text-align:center;font-weight:600;font-style:italic;background:#fff;color:var(--tx2);${wkProgBg[wi]}${wkIsProg[wi]?'color:#78350f;':''}">${v>0?v.toFixed(1):'-'}</td>`).join('')}
-    </tr>`;
+    // v10.2.1 — the standalone "Fee (×N)" weekly row was removed so the SECOND row is the
+    // MEP-engineers subtotal (per the requested 3-row structure: total / engineers / BIM).
+    // Weekly fee is still available via the fee column and the per-week fee totals row below.
 
     // Helper: render one engineer row (MEP or BIM)
     const renderEngRow=(eng,ei,isBIM)=>{
+      const _moneyMask=(MONEY_HIDDEN||!canSeePersonMoney()); // v10.1.6 — hides value AND revealing tooltip
       const engHrs=wh[eng.id]||[];
       const holMap=eng.off==='EGY'?HOL_MAP_EGY:HOL_MAP_UAE;
       const defaultRate=getRate(eng);
@@ -10194,17 +10285,17 @@ function renderProjCard(p, mode){
       return`<tr class="eng-row disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" data-eng-id="${eng.id}" data-proj-id="${p.id}" style="${rowBg}${discCollapsed?'display:none;':''}">
         <td style="${stickyTd(0,'color:var(--tx3);padding:4px 8px;font-size:11px;')}">${p.no}</td>
         <td style="${stickyTd(1,'padding:4px 4px;')}">${discBadge}</td>
-        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;')}">${hasParallelProg(p)?'<span style="color:var(--tx3);font-size:11px;opacity:.25;" title="Use the ✕ on the workstream box to remove this booking">—</span>':((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 5px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`:'<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>')}</td>
+        <td style="${stickyTd(2,'padding:4px 4px;text-align:center;white-space:nowrap;')}">${(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));if(!_ce)return '<span style="color:var(--tx3);font-size:11px;opacity:.3;">—</span>';const rep=`<button onclick="openReplacePicker(event,'${p.id}','${eng.id}')" title="Replace this person on the project (keeps their hours)" style="background:transparent;border:none;color:var(--tx3);font-size:12px;cursor:pointer;padding:2px 4px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='#e0f2fe';this.style.color='#0369a1';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">\u21c4</button>`;if(hasParallelProg(p))return rep;const rem=`<button onclick="removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove from project" style="background:transparent;border:none;color:var(--tx3);font-size:13px;cursor:pointer;padding:2px 4px;line-height:1;border-radius:3px;transition:all .15s;" onmouseover="this.style.background='var(--red2)';this.style.color='var(--red)';" onmouseout="this.style.background='transparent';this.style.color='var(--tx3)';">&#10005;</button>`;return rep+rem;})()}</td>
         <td style="${stickyTd(3,'padding:4px 8px;color:var(--tx3);font-size:10px;')}">${ei+1}</td>
         ${_nameTd}
-        <td style="${stickyTd(5,(hasParallelProg(p)?'padding:3px 8px;font-size:10px;color:var(--tx2);max-width:170px;':'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;'))}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${hasParallelProg(p)?(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));const _pgs=bookProgs(p,eng.id);const _pg=_pgs[0];const _pgSet=new Set(_pgs);const _pgMulti=_pgs.length>1;const _pgAll=_pgs.length===projProgrammes(p).length;const _pc=_pgMulti?'#334155':progColorOf(p,_pg);const _pgTitle=_pgs.map(id=>progById(p,id).name).join(' + ');const _pgLabel=_pgMulti?(_pgAll?'All workstreams':(_pgs.length+' workstreams')):esc(progById(p,_pg).name);const _stgIds=bookStages(p,eng.id);const _wsStages=(p.stages||[]).filter(st=>_pgSet.has(stageProg(p,st)));const _stgAll=_stgIds.length>0&&_stgIds.length===_wsStages.length;const _stgTitle=_stgIds.map(id=>(stageById(p,id)||{}).name||'').join(' + ');const _stgLabel=_stgAll?'All stages':(_stgIds.length+' selected');const _stgSel=_ce?(_wsStages.length?`<button onclick="openStagePicker(event,'${p.id}','${eng.id}')" title="${_stgIds.length?esc(_stgTitle)+' \u2014 click to change':'Pick the stages this booking covers'}" style="width:100%;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_stgIds.length?'#cbd5e1':'#dc2626'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_stgIds.length?`<span style="font-weight:700;color:#334155;">${_stgLabel}</span>`:'<span style="color:#dc2626;font-weight:700;">\u2014 pick stage \u2014</span>'}<span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`:`<span style="font-size:8px;color:#dc2626;font-style:italic;">add a stage to this workstream</span>`):(_stgIds.length?`<span style="font-size:9px;font-weight:700;color:#334155;" title="${esc(_stgTitle)}">${_stgLabel}</span>`:'');const _pgBtn=`<button onclick="openProgPicker(event,'${p.id}','${eng.id}')" title="${esc(_pgTitle)} \u2014 click to change" style="flex:1;min-width:0;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_pgMulti?'#94a3b8':_pc+'66'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_pgMulti?'':`<span style="width:6px;height:6px;border-radius:2px;background:${_pc};display:inline-block;flex-shrink:0;"></span>`}<span style="font-weight:700;color:${_pc};overflow:hidden;text-overflow:ellipsis;">${_pgLabel}</span><span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`;return _ce?`<div style="display:flex;flex-direction:column;gap:2px;min-width:0;"><div style="display:flex;align-items:center;gap:3px;">${_pgBtn}<button onclick="event.stopPropagation();removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove this booking" style="background:none;border:none;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">\u2715</button></div>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</div>`:`<span style="display:flex;flex-direction:column;gap:1px;"><span style="display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${_pc};" title="${esc(_pgTitle)}">${_pgMulti?'':'<span style="width:6px;height:6px;border-radius:2px;background:'+_pc+';display:inline-block;flex-shrink:0;"></span>'}${_pgLabel}</span>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</span>`;})():''}${hasParallelProg(p)
+        <td style="${stickyTd(5,(hasParallelProg(p)?'padding:3px 8px;font-size:10px;color:var(--tx2);max-width:170px;':'padding:4px 8px;font-size:10px;color:var(--tx2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px;'))}" title="${eng._slotOf?'Scope / role tag for this extra booking':(eng.desig||'')}">${hasParallelProg(p)?(()=>{const _ce=(eng.team==='BIM'?isBimLead():canEditDisc(eng.disc));const _pgs=bookProgs(p,eng.id);const _pg=_pgs[0];const _pgSet=new Set(_pgs);const _pgMulti=_pgs.length>1;const _pgAll=_pgs.length===projProgrammes(p).length;const _pc=_pgMulti?'#334155':progColorOf(p,_pg);const _pgTitle=_pgs.map(id=>progById(p,id).name).join(' + ');const _pgLabel=_pgMulti?(_pgAll?'All workstreams':(_pgs.length+' workstreams')):esc(progById(p,_pg).name);const _stgIds=bookStages(p,eng.id);const _wsStages=(p.stages||[]).filter(st=>_pgSet.has(stageProg(p,st)));const _stgAll=_stgIds.length>0&&_stgIds.length===_wsStages.length;const _stgTitle=_stgIds.map(id=>(stageById(p,id)||{}).name||'').join(' + ');const _stgLabel=_stgAll?'All stages':(_stgIds.length+' selected');const _stgSel=_ce?(_wsStages.length?`<button onclick="openStagePicker(event,'${p.id}','${eng.id}')" title="${_stgIds.length?esc(_stgTitle)+' \u2014 click to change':'Pick the stages this booking covers'}" style="width:100%;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_stgIds.length?'#cbd5e1':'#dc2626'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_stgIds.length?`<span style="font-weight:700;color:#334155;">${_stgLabel}</span>`:'<span style="color:#dc2626;font-weight:700;">\u2014 pick stage \u2014</span>'}<span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`:`<span style="font-size:8px;color:#dc2626;font-style:italic;">add a stage to this workstream</span>`):(_stgIds.length?`<span style="font-size:9px;font-weight:700;color:#334155;" title="${esc(_stgTitle)}">${_stgLabel}</span>`:'');const _pgBtn=`<button onclick="openProgPicker(event,'${p.id}','${eng.id}')" title="${esc(_pgTitle)} \u2014 click to change" style="flex:1;min-width:0;box-sizing:border-box;text-align:left;font-size:9px;padding:1px 4px;border:1px solid ${_pgMulti?'#94a3b8':_pc+'66'};border-radius:4px;background:#fff;cursor:pointer;display:flex;align-items:center;gap:3px;white-space:nowrap;overflow:hidden;">${_pgMulti?'':`<span style="width:6px;height:6px;border-radius:2px;background:${_pc};display:inline-block;flex-shrink:0;"></span>`}<span style="font-weight:700;color:${_pc};overflow:hidden;text-overflow:ellipsis;">${_pgLabel}</span><span style="margin-left:auto;color:var(--tx3);font-size:8px;flex-shrink:0;">\u25be</span></button>`;return _ce?`<div style="display:flex;flex-direction:column;gap:2px;min-width:0;"><div style="display:flex;align-items:center;gap:3px;">${_pgBtn}<button onclick="event.stopPropagation();openReplacePicker(event,'${p.id}','${eng.id}')" title="Replace this person (keeps hours)" style="background:none;border:none;color:#64748b;font-size:13px;cursor:pointer;padding:0 2px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#0369a1'" onmouseout="this.style.color='#64748b'">\u21c4</button><button onclick="event.stopPropagation();removeEngineerFromProject('${p.id}','${eng.id}')" title="Remove this booking" style="background:none;border:none;color:#dc2626;font-size:14px;font-weight:700;cursor:pointer;padding:0 3px;line-height:1;flex-shrink:0;" onmouseover="this.style.color='#991b1b'" onmouseout="this.style.color='#dc2626'">\u2715</button></div>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</div>`:`<span style="display:flex;flex-direction:column;gap:1px;"><span style="display:flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${_pc};" title="${esc(_pgTitle)}">${_pgMulti?'':'<span style="width:6px;height:6px;border-radius:2px;background:'+_pc+';display:inline-block;flex-shrink:0;"></span>'}${_pgLabel}</span>${_stgSel}${(eng.crossDisc||isUmbrella(eng))?`<div style="display:flex;align-items:center;gap:3px;margin-top:1px;"><span style="font-size:8px;color:var(--tx3);font-weight:700;">disc</span>${discBadge}</div>`:''}</span>`;})():''}${hasParallelProg(p)
           ?''
           :(eng._slotOf
           ?((eng.team==='BIM'?isBimLead():canEditDisc(eng.disc))?`<input type="text" value="${esc(slotTag(p,eng.id))}" placeholder="scope tag…" maxlength="40" onclick="event.stopPropagation()" onchange="setSlotTag('${p.id}','${eng.id}',this.value)" style="width:100%;box-sizing:border-box;font-size:10px;padding:2px 5px;border:1px dashed #0d9488;border-radius:4px;background:#f0fdfa;color:#0f766e;font-weight:600;">`:`<span style="font-size:10px;color:#0f766e;font-weight:600;">${esc(slotTag(p,eng.id))||'\u2014'}</span>`)
           :(eng.team==='BIM'?(eng.desig||eng.grade||'BIM'):(eng.desig||'—')))}</td>
         <td data-total-hrs="${eng.id}" style="${stickyTd(6,'background:#e0f2fe;color:#075985;font-weight:700;text-align:center;font-size:11px;')}">${engTotalHrs>0?engTotalHrs.toFixed(0):'-'}</td>
-        <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="Cost = ${engTotalHrs.toFixed(0)} hrs × ${projRate} AED${isJSE?` × ${jseMult}`:''}">${MONEY_HIDDEN?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
-        <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="Fee = Cost × ${ff.toFixed(2)}">${engFee>0?fN(Math.round(engFee)):'-'}</td>
+        <td data-total-cost="${eng.id}" style="${stickyTd(7,'background:#e8f4f8;color:#0369a1;font-weight:700;font-size:10px;text-align:center;')}" title="${_moneyMask?'':'Cost = '+engTotalHrs.toFixed(0)+' hrs × '+projRate+' AED'+(isJSE?' × '+jseMult:'')}">${_moneyMask?'\u2022\u2022\u2022':(engCost>0?fN(Math.round(engCost)):'-')}</td>
+        <td data-total-fee="${eng.id}" style="${stickyTd(8,'background:#d1fae5;color:#065f46;font-weight:700;font-size:10px;text-align:center;')}" title="${_moneyMask?'':'Fee = Cost × '+ff.toFixed(2)}">${_moneyMask?'\u2022\u2022\u2022':(engFee>0?fN(Math.round(engFee)):'-')}</td>
         ${showRate?`<td style="padding:2px 4px;text-align:center;background:${rateBg};" title="${rateTip}">
           <input type="number" min="0" step="1" value="${projRate}"
             onchange="setProjRateOverride('${p.id}','${eng.id}',this.value)"
@@ -10260,6 +10351,30 @@ function renderProjCard(p, mode){
       </tr>`;
     };
 
+    // v10.2.1 — SECOND ROW: MEP-engineers subtotal, now placed ABOVE the engineer rows (was after
+    // them). Shown only when the discipline also has BIM — otherwise the top total already IS the
+    // MEP total. Original green styling + "MEP engineers" label kept; now carries the weekly MEP
+    // cost (K/wk) like the top total row above and the BIM row below.
+    if(mepEngs.length && bimEngs.length){
+      const mepWeekVals=weeks.map((_,wi)=>mepEngs.reduce((a,e)=>{const mult=getJseMult(p,e.id);return a+(wh[e.id]&&wh[e.id][wi]?(wh[e.id][wi]*getProjRate(e,p)*mult):0);},0)/1000);
+      const mepHrs=mepEngs.reduce((a,e)=>a+(wh[e.id]||[]).reduce((b,h)=>b+(h||0),0)*getJseMult(p,e.id),0);
+      const mepCostK=mepWeekVals.reduce((a,b)=>a+b,0);
+      const mepFeeK=mepCostK*ff;
+      rows+=`<tr class="disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" style="${discCollapsed?'display:none;':''}background:#dcfce7;">
+        <td style="${stickyTd(0,'padding:5px 10px;')}"></td>
+        <td style="${stickyTd(1,'padding:5px 4px;')}"></td>
+        <td style="${stickyTd(2,'padding:5px 4px;')}"></td>
+        <td style="${stickyTd(3,'padding:5px 4px;')}"></td>
+        <td style="${stickyTd(4,'padding:5px 10px;font-weight:700;font-size:11px;color:#166534;user-select:none;')}">MEP engineers <span style="font-size:9px;opacity:.7;font-weight:500;">(${mepEngs.length} eng${mepEngs.length===1?'':'s'})</span></td>
+        <td style="${stickyTd(5,'font-size:9px;color:#166534;text-align:right;padding-right:8px;')}">MEP Hrs / Cost / Fee</td>
+        <td style="${stickyTd(6,'background:#059669;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="MEP engineers total hours">${mepHrs>0?mepHrs.toFixed(0):'-'}</td>
+        <td style="${stickyTd(7,'background:#059669;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="MEP engineers total cost (K AED)">${mepCostK>0?mepCostK.toFixed(1)+'K':'-'}</td>
+        <td style="${stickyTd(8,'background:#047857;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="MEP engineers total fee (K AED)">${mepFeeK>0?mepFeeK.toFixed(1)+'K':'-'}</td>
+        ${showRate?'<td></td>':''}
+        ${mepWeekVals.map((v)=>`<td style="font-size:9px;text-align:center;font-weight:600;background:#dcfce7;color:#166534;">${v>0?v.toFixed(1):'-'}</td>`).join('')}
+      </tr>`;
+    }
+
     // MEP engineers
     if(mepEngs.length){
       mepEngs.forEach((eng,ei)=>{ rows+=renderEngRow(eng,ei,false); });
@@ -10275,10 +10390,8 @@ function renderProjCard(p, mode){
         const mult=getJseMult(p,e.id);
         return a+(wh[e.id]||[]).reduce((b,h)=>b+(h||0),0)*mult;
       },0);
-      const bimCostK=bimEngs.reduce((a,e)=>{
-        const mult=getJseMult(p,e.id);
-        return a+(wh[e.id]||[]).reduce((b,h)=>b+(h||0),0)*getProjRate(e,p)*mult;
-      },0)/1000;
+      const bimWeekVals=weeks.map((_,wi)=>bimEngs.reduce((a,e)=>{const mult=getJseMult(p,e.id);return a+(wh[e.id]&&wh[e.id][wi]?(wh[e.id][wi]*getProjRate(e,p)*mult):0);},0)/1000);
+      const bimCostK=bimWeekVals.reduce((a,b)=>a+b,0);
       const bimFeeK=bimCostK*ff;
       rows+=`<tr class="disc-row-${p.id}-${disc.replace(/[^A-Za-z]/g,'')}" style="${discCollapsed?'display:none;':''}background:#ccfbf1;cursor:pointer;" onclick="toggleBIMSubRows('${p.id}','${disc}')" title="Collapse/expand BIM members for ${disc}">
         <td style="${stickyTd(0,'padding:5px 10px;')}" colspan="1"></td>
@@ -10291,7 +10404,7 @@ function renderProjCard(p, mode){
         <td style="${stickyTd(7,'background:#0d9488;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="BIM total cost (K AED)">${bimCostK>0?bimCostK.toFixed(1)+'K':'-'}</td>
         <td style="${stickyTd(8,'background:#0f766e;color:#fff;font-size:10px;text-align:center;font-weight:700;')}" title="BIM total fee (K AED)">${bimFeeK>0?bimFeeK.toFixed(1)+'K':'-'}</td>
         ${showRate?'<td></td>':''}
-        ${weeks.map(()=>'<td style="background:#ccfbf1;"></td>').join('')}
+        ${bimWeekVals.map((v)=>`<td style="font-size:9px;text-align:center;font-weight:600;background:#ccfbf1;color:#0f766e;">${v>0?v.toFixed(1):'-'}</td>`).join('')}
       </tr>`;
       bimEngs.forEach((eng,ei)=>{
         const baseRow=renderEngRow(eng,ei,true);
@@ -10348,7 +10461,7 @@ function renderProjCard(p, mode){
     <td data-grand-cost="${p.id}" style="${stickyTd(7,'background:#022c22;color:#86efac;font-weight:800;font-size:11px;text-align:center;')}" title="Total Cost (no fee factor)">${fN(Math.round(grandTotalCost))}</td>
     <td data-grand-fee="${p.id}" style="${stickyTd(8,'background:#022c22;color:#86efac;font-weight:800;font-size:11px;text-align:center;')}" title="Total Fee = Cost × ×${ff.toFixed(2)}">${fN(Math.round(grandTotalFee))}</td>
     ${showRate?'<td style="background:#064e3b;color:#fff;text-align:center;">—</td>':''}
-    ${wkFees.map((v,wi)=>`<td data-wk-fee="${p.id}-${wi}" title="Fee (AED) — not hours" style="background:${wkIsProg[wi]?'#065f46':'#064e3b'};color:#fff;font-weight:700;font-size:10px;text-align:center;padding:3px;">${v>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(v)):'-'}</td>`).join('')}
+    ${wkFees.map((v,wi)=>`<td data-wk-fee="${p.id}-${wi}" title="Fee (AED) — not hours" style="background:${wkIsProg[wi]?'#065f46':'#064e3b'};color:#fff;font-weight:700;font-size:10px;text-align:center;padding:3px;">${(MONEY_HIDDEN||!canSeeProjectMoney(p.id))?'\u2022\u2022\u2022':(v>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(v)):'-')}</td>`).join('')}
   </tr>`;
 
   if(mode==='inner'){
@@ -10799,7 +10912,7 @@ function updateProjCardTotals(p){
     },0);
     const wkFee=wkCost*ff;
     const feeCell=document.querySelector(`td[data-wk-fee="${p.id}-${wi}"]`);
-    if(feeCell) feeCell.innerHTML=wkFee>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(wkFee)):'-';
+    if(feeCell) feeCell.innerHTML=(MONEY_HIDDEN||!canSeeProjectMoney(p.id))?'\u2022\u2022\u2022':(wkFee>0?'<span style="font-size:7px;opacity:.7;">Dh </span>'+fN(Math.round(wkFee)):'-');
   });
 
   // Update grand hours
@@ -12500,6 +12613,7 @@ async function applyImportChanges(){
 // EXPORT PICKER (project + sheets chooser)
 // ═══════════════════════════════════════
 function openExportPicker(){
+  if(!canSeePersonMoney()){ toast('\u26d4 Export is admin-only \u2014 turn on Admin mode.'); return; }
   const ov=document.getElementById('export-ov');
   if(!ov)return;
   // Build project list
@@ -13412,6 +13526,7 @@ function exportStageSummary(projId){
 }
 
 function exportExcel(opts){
+  if(!canSeePersonMoney()){ toast('\u26d4 Export is admin-only \u2014 turn on Admin mode.'); return; }
   if(typeof XLSX==='undefined'){toast('Excel library not loaded. Please refresh.');return;}
   // Default: export everything (preserves existing behaviour)
   opts=opts||{};
@@ -13841,6 +13956,7 @@ function exportExcel(opts){
 }
 
 function exportPDF(){
+  if(!canSeePersonMoney()){ toast('\u26d4 Export is admin-only \u2014 turn on Admin mode.'); return; }
   // Show hidden print header
   let hdr = document.getElementById('pdf-header');
   if(!hdr){
