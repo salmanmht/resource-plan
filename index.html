@@ -265,6 +265,9 @@ input,select{width:100%;padding:8px 11px;border:1px solid var(--bdr);border-radi
 input:focus,select:focus{outline:none;border-color:var(--acc);box-shadow:0 0 0 3px rgba(0,122,255,.12);}
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%239a9dab'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 10px center;padding-right:28px;-webkit-appearance:none;}
 
+#tms-pop label{display:flex!important;align-items:center;gap:8px;font-size:12px!important;font-weight:500!important;color:var(--tx)!important;text-align:left;}
+#tms-pop input[type="checkbox"]{width:14px!important;height:14px!important;flex:0 0 14px;margin:0;padding:0;accent-color:#2563eb;cursor:pointer;}
+#tms-pop label span{flex:1;min-width:0;}
 /* SORT */
 .sort-btn{padding:5px 12px;font-size:11px;font-weight:500;border-radius:20px;border:1px solid var(--bdr);background:#fff;color:var(--tx2);cursor:pointer;font-family:inherit;transition:.12s;white-space:nowrap;letter-spacing:-.01em;}
 .sort-btn:hover{background:var(--acc2);border-color:var(--acc);color:var(--acc);}
@@ -896,7 +899,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.1.8 · 29 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.3.8 · 29 Jul 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -983,10 +986,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
-  <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend</div>
-  <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health</div>
-  <div class="sbi" id="nav-activity" onclick="nav('activity')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity</div>
-  <div class="sbi" id="nav-settings" onclick="nav('settings')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings</div>
+  <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend 🔒</div>
+  <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health 🔒</div>
+  <div class="sbi" id="nav-activity" onclick="nav('activity')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity 🔒</div>
+  <div class="sbi" id="nav-settings" onclick="nav('settings')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings 🔒</div>
   <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
   <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
   <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
@@ -996,7 +999,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.1.8 · 29 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.3.8 · 29 Jul 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1105,9 +1108,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <span class="hdr-t">Team Register</span>
         <div class="hdr-fbar">
         <input id="ts-q" placeholder="Search…" oninput="invalidate('team')">
-        <select id="ts-disc" onchange="invalidate('team')"><option value="all">All Disciplines</option><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option><option>BIM</option></select>
-        <select id="ts-off" onchange="invalidate('team')"><option value="all">All Offices</option><option>DXB</option><option>EGY</option><option>IND</option></select>
-        <select id="ts-pos" onchange="invalidate('team')"><option value="all">All Positions</option></select>
+        <button type="button" id="tms-disc" onclick="tmsOpen('disc',this)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Disciplines</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
+        <button type="button" id="tms-off" onclick="tmsOpen('off',this)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Offices</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
+        <button type="button" id="tms-pos" onclick="tmsOpen('pos',this)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Positions</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
+        <button type="button" id="tms-proj" onclick="tmsOpen('proj',this)" title="Show only members booked to the ticked project(s)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Projects</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
       </div>
       </div>
       <div style="display:flex;gap:6px;" id="team-hdr-btns"></div>
@@ -1132,6 +1136,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" id="proj-hdr-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
         <button class="btn btn-g btn-sm" id="proj-hdr-refresh-btn" onclick="refreshProjData(window._viewingProjId,{manual:true})" title="Reload this project from the database — pulls in teammates' latest changes" style="display:none;">&#8635; Refresh</button>
+        <button class="btn btn-g btn-sm" id="proj-hdr-org-btn" onclick="openOrgChart(window._viewingProjId)" title="Project team organization chart (auto-generated from bookings)" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">🗂️</span><span class="proj-btn-label"> Org Chart</span></button>
         <button class="btn btn-g btn-sm proj-hdr-export-btn" id="proj-hdr-export-btn" onclick="exportProjXLSX()" title="Export project info &amp; programme stages to Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export Programme</span></button>
         <button class="btn btn-g btn-sm proj-hdr-import-btn" id="proj-hdr-import-btn" onclick="document.getElementById('proj-xlsx-import-input').click()" title="Import project info &amp; programme stages from Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">📂</span><span class="proj-btn-label"> Import Programme</span></button>
         <input type="file" id="proj-xlsx-import-input" accept=".xlsx,.xls" style="display:none;" onchange="importProjXLSX(this)">
@@ -3024,7 +3029,10 @@ function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/
 // ═══════════════════════════════════════
 // COMPUTATION
 // ═══════════════════════════════════════
-function computeAll(statusFilter){
+function computeAll(statusFilter,projIds){
+  // v10.3.8 — optional projIds (Set of project ids): when supplied, only those projects'
+  // hours are counted. The month window (pass 1 below) stays GLOBAL and unscoped so the
+  // timeline and DASH range alignment are unchanged; only the hours differ.
   // Build a date anchor per project: first Monday >= project start
   // Then for each weeklyHrs entry, compute actual week dates from that anchor
   // This ensures hours entered beyond declared end date are still counted
@@ -3062,6 +3070,7 @@ function computeAll(statusFilter){
   S.engineers.forEach(e=>{hrs[e.id]=Array(NMON).fill(0);});
   S.projects.forEach(p=>{
     if(!p.start)return;
+    if(projIds&&!projIds.has(p.id))return; // v10.3.8 — project-scoped figures
     if(statusFilter&&(Array.isArray(statusFilter)?statusFilter.indexOf(p.status)<0:p.status!==statusFilter))return;
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
       if(!wArr)return;
@@ -3116,6 +3125,7 @@ function computeAll(statusFilter){
     const wkSum={};
     S.projects.forEach(p=>{
       if(!p.start)return;
+      if(projIds&&!projIds.has(p.id))return; // v10.3.8 — keep capacity consistent with scoped hours
       Object.keys(p.weeklyHrs||{}).forEach(k=>{
         if(k!==e.id&&slotBase(k)!==e.id)return;
         const wArr=p.weeklyHrs[k]; if(!wArr)return;
@@ -3131,7 +3141,7 @@ function computeAll(statusFilter){
   };
   const getEffCap=(e)=>{
     if(!e.name||!e.name.startsWith('JSE-'))return e.cap||45;
-    const mults=S.projects.map(p=>getJseMult(p,e.id)).filter(m=>m>1);
+    const mults=S.projects.filter(p=>!projIds||projIds.has(p.id)).map(p=>getJseMult(p,e.id)).filter(m=>m>1);
     const maxMult=mults.length?Math.max(...mults):1;
     return getJseCap()*maxMult;
   };
@@ -5535,7 +5545,7 @@ function selectDiscipline(v){
 function clearDiscFilter(){
   window.DISC_FILTER=null;
   document.querySelectorAll('.js-disc-switch').forEach(function(el){el.value='';});
-  var ts=document.getElementById('ts-disc'); if(ts)ts.value='all';
+  if(typeof TS_SEL!=='undefined'){TS_SEL.disc.clear();try{tmsSyncLabels();}catch(e){}}
   if(CURRENT_PAGE==='team')invalidate('team');
   else if(CURRENT_PAGE==='proj')renderProj();
 }
@@ -6223,9 +6233,9 @@ function resetDashRange(){
   renderMEP();
 }
 
-function computeRange(statusFilter){
+function computeRange(statusFilter,projIds){
   // computeAll gives us the full universe; we slice to DASH range
-  const full=computeAll(statusFilter);
+  const full=computeAll(statusFilter,projIds);
   const fmi=DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI;
   const tmi=DASH_TO_MI!==null?DASH_TO_MI:full.maxMI;
   const NMON=tmi-fmi+1;
@@ -7423,9 +7433,7 @@ function setSort(col){
 }
 
 function switchTeamTab(tab){
-  const sel=document.getElementById('ts-disc');
-  if(sel&&tab==='bim')sel.value='BIM';
-  else if(sel&&tab==='engineers')sel.value='all';
+  if(typeof TS_SEL!=='undefined'){ if(tab==='bim')TS_SEL.disc=new Set(['BIM']); else if(tab==='engineers')TS_SEL.disc.clear(); try{tmsSyncLabels();}catch(e){} }
   invalidate('team');
 }
 
@@ -7492,23 +7500,62 @@ function projectsLedBy(e){
   });
   return led;
 }
+// ── v10.3.6 — Team page multi-select filters (tick several) ──
+const TS_SEL={disc:new Set(),off:new Set(),pos:new Set(),proj:new Set()};
+function tmsOptions(kind){
+  if(kind==='disc'){
+    // Only offer disciplines that actually hold engineers. An empty management/umbrella
+    // bucket (e.g. 'MEP Management', whose Directors/TDs sit outside MEP_DISCS and are
+    // grouped separately) is excluded, since it can never render a discipline section.
+    const base=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']);
+    const real=base.filter(d=>(S.engineers||[]).some(e=>e.team!=='BIM'&&e.disc===d));
+    return (real.length?real:base).concat(['BIM']).map(v=>({v,label:(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[v])||v}));
+  }
+  if(kind==='off')return ['DXB','EGY','IND'].map(v=>({v,label:v}));
+  if(kind==='pos'){ const g=(typeof GRADES!=='undefined'?GRADES:[]).map(x=>({v:'grade:'+x,label:x})); const posts=[['post:mep_lead','\u2605 MEP Lead'],['post:disc_lead','\u2605 Disc Lead'],['post:bim_lead','\u2605 BIM Lead']].map(a=>({v:a[0],label:a[1]})); return g.concat(posts); }
+  if(kind==='proj')return (S.projects||[]).slice().sort((a,b)=>String(a.no||'').localeCompare(String(b.no||''))).map(p=>({v:p.id,label:(p.no?p.no+' \u2014 ':'')+(p.name||'')}));
+  return [];
+}
+function tmsLabel(kind){
+  const names={disc:'All Disciplines',off:'All Offices',pos:'All Positions',proj:'All Projects'};
+  const s=TS_SEL[kind]; if(!s||!s.size)return names[kind];
+  if(s.size===1){ const o=tmsOptions(kind).find(x=>s.has(x.v)); return o?o.label:'1 selected'; }
+  return s.size+' selected';
+}
+function tmsSyncLabels(){ ['disc','off','pos','proj'].forEach(k=>{ const b=document.getElementById('tms-'+k); if(b){ const l=b.querySelector('.tms-lbl'); if(l)l.textContent=tmsLabel(k); } }); }
+function tmsRenderPop(pop,kind){
+  const opts=tmsOptions(kind), s=TS_SEL[kind];
+  const head=({disc:'disciplines',off:'offices',pos:'positions',proj:'projects'})[kind];
+  pop.innerHTML=`<div style="display:flex;justify-content:space-between;align-items:center;padding:4px 6px 6px;border-bottom:1px solid var(--bdr);margin-bottom:4px;"><span style="font-weight:800;font-size:10px;letter-spacing:.04em;text-transform:uppercase;color:var(--tx3);">Select ${head}</span><button onclick="tmsClear('${kind}')" style="font-size:10px;color:#2563eb;background:none;border:none;cursor:pointer;font-weight:600;">Clear</button></div>`
+    +(opts.length?opts.map(o=>`<label style="display:flex;align-items:center;gap:8px;padding:5px 6px;border-radius:5px;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'"><input type="checkbox" ${s.has(o.v)?'checked':''} data-v="${esc(String(o.v))}" onchange="tmsToggle('${kind}',this.getAttribute('data-v'))"><span>${esc(o.label)}</span></label>`).join(''):'<div style="padding:8px 6px;font-size:11px;color:var(--tx3);">None available</div>');
+}
+function tmsOpen(kind,btn){
+  const ex=document.getElementById('tms-pop'), same=ex&&ex._kind===kind; if(ex)ex.remove(); if(same)return;
+  const pop=document.createElement('div'); pop.id='tms-pop'; pop._kind=kind;
+  pop.style.cssText='position:fixed;z-index:99999;background:#fff;border:1px solid var(--bdr);border-radius:8px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:6px;min-width:190px;max-height:340px;overflow:auto;font-size:12px;';
+  tmsRenderPop(pop,kind);
+  document.body.appendChild(pop);
+  const r=btn.getBoundingClientRect(), w=pop.offsetWidth, h=pop.offsetHeight;
+  pop.style.left=Math.max(8,Math.min(r.left,window.innerWidth-w-10))+'px';
+  pop.style.top=Math.max(8,Math.min(r.bottom+5,window.innerHeight-h-10))+'px';
+  setTimeout(()=>{const close=e=>{ if(!pop.contains(e.target)&&e.target!==btn){ pop.remove(); document.removeEventListener('mousedown',close); } }; document.addEventListener('mousedown',close);},0);
+}
+function tmsToggle(kind,v){ const s=TS_SEL[kind]; if(s.has(v))s.delete(v); else s.add(v); const pop=document.getElementById('tms-pop'); if(pop&&pop._kind===kind)tmsRenderPop(pop,kind); tmsSyncLabels(); try{invalidate('team');}catch(e){} }
+function tmsClear(kind){ TS_SEL[kind].clear(); const pop=document.getElementById('tms-pop'); if(pop&&pop._kind===kind)tmsRenderPop(pop,kind); tmsSyncLabels(); try{invalidate('team');}catch(e){} }
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
   if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Team Member</button>`:'';
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
-  const df=document.getElementById('ts-disc').value;
-  const of2=document.getElementById('ts-off').value;
-  // v9.9.0 — Position filter: grades from Cost Rates + assigned posts (roles)
-  const posSel=(document.getElementById('ts-pos')||{}).value||'all';
-  (function(){
-    const psel=document.getElementById('ts-pos'); if(!psel)return;
-    const cur=psel.value;
-    const gradeOpts=GRADES.map(g=>`<option value="grade:${esc(g)}">${esc(g)}</option>`).join('');
-    const postOpts=['mep_lead','disc_lead','bim_lead'].map(r=>`<option value="post:${r}">${({mep_lead:'\u2605 MEP Lead',disc_lead:'\u2605 Disc Lead',bim_lead:'\u2605 BIM Lead'})[r]}</option>`).join('');
-    psel.innerHTML='<option value="all">All Positions</option><optgroup label="Grade / Designation">'+gradeOpts+'</optgroup><optgroup label="Assigned Post">'+postOpts+'</optgroup>';
-    if(cur)psel.value=cur;
-  })();
+  // v10.3.6 — multi-select filters (tick several). Empty set = "all". Semantics: OR within a
+  // filter, AND across filters. Selections live in TS_SEL (see tms* helpers).
+  tmsSyncLabels();
+  const dsel=TS_SEL.disc, osel=TS_SEL.off, psel2=TS_SEL.pos, prsel=TS_SEL.proj;
+  let projBooked=null;
+  if(prsel.size){
+    projBooked=new Set();
+    prsel.forEach(pid=>{ const p=(S.projects||[]).find(x=>x.id===pid); if(p)['weeklyHrs','bookProg','bookStage'].forEach(m=>{ if(p[m])Object.keys(p[m]).forEach(k=>projBooked.add(slotBase(k))); }); });
+  }
   // Grade order for sorting engineers within a discipline/BIM section — derived
   // live from GRADES, so it always matches whatever order the Cost Rates page
   // currently has (including the cost-based auto-sort applied on Save).
@@ -7525,17 +7572,22 @@ function renderTeam(){
 
   // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
   let _eu={},_bu={},_euN=0;
-  try{const r=computeRange(typeof _msf==='function'?_msf():null);_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
+  try{const r=computeRange(typeof _msf==='function'?_msf():null, prsel.size?prsel:null);_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
   const engAvgUtil=(e)=>{const a=_eu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
   const engAvgBill=(e)=>{const a=_bu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
 
   const filterEng=(e)=>{
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
-    if(of2!=='all'&&e.off!==of2)return false;
-    if(posSel&&posSel!=='all'){
-      if(posSel.startsWith('grade:')){ if((e.grade||'')!==posSel.slice(6))return false; }
-      else if(posSel.startsWith('post:')){ if(!engHasPost(e,posSel.slice(5)))return false; }
+    if(osel.size&&!osel.has(e.off))return false;
+    if(psel2.size){
+      let ok=false;
+      for(const ps of psel2){
+        if(ps.indexOf('grade:')===0){ if((e.grade||'')===ps.slice(6)){ok=true;break;} }
+        else if(ps.indexOf('post:')===0){ if(engHasPost(e,ps.slice(5))){ok=true;break;} }
+      }
+      if(!ok)return false;
     }
+    if(projBooked&&!projBooked.has(e.id))return false;
     return true;
   };
 
@@ -7587,33 +7639,24 @@ function renderTeam(){
   const grid=document.getElementById('team-grid');
   if(!grid)return;
 
-  if(df!=='all'){
-    // Single discipline filter
-    const isBIM=df==='BIM';
-    const engs=S.engineers.filter(e=>{
-      if(isBIM&&e.team!=='BIM')return false;
-      if(!isBIM&&(e.team==='BIM'||(isBIM?e.subDisc:e.disc)!==df))return false;
-      if(!isBIM&&e.disc!==df)return false;
-      return filterEng(e);
-    });
-    const engsFinal=(df==='MEP')?S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e)):engs;
-    grid.innerHTML=makeSection(df,engsFinal)||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
-    return;
-  }
-
-  // All disciplines grouped
-  const DISCS=MEP_DISCS.slice();
+  // v10.3.6 — discipline is multi-select now: show a section for each ticked discipline
+  // (empty = all). MEP umbrella-heads group appears only when no discipline filter is active.
+  const showDisc=(dc)=> dsel.size ? dsel.has(dc) : true;
+  const DISCS=MEP_DISCS.slice().filter(d=>(S.engineers||[]).some(e=>e.team!=='BIM'&&e.disc===d));
   let html='';
   DISCS.forEach(disc=>{
+    if(!showDisc(disc))return;
     const engs=S.engineers.filter(e=>e.team!=='BIM'&&e.disc===disc&&filterEng(e));
     html+=makeSection(disc,engs);
   });
-  // MEP umbrella heads (Directors / cross-discipline) shown as one MEP group
-  const mepHeads=S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e));
-  html+=makeSection('MEP',mepHeads);
-  // BIM grouped
-  const bimEngs=S.engineers.filter(e=>e.team==='BIM'&&filterEng(e));
-  html+=makeSection('BIM',bimEngs);
+  if(!dsel.size){ // MEP umbrella heads (Directors / cross-discipline) — only when unfiltered
+    const mepHeads=S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e));
+    html+=makeSection('MEP',mepHeads);
+  }
+  if(showDisc('BIM')){
+    const bimEngs=S.engineers.filter(e=>e.team==='BIM'&&filterEng(e));
+    html+=makeSection('BIM',bimEngs);
+  }
 
   grid.innerHTML=html||`<div style="text-align:center;padding:32px;color:var(--tx3);">No engineers found.</div>`;
 }
@@ -7871,6 +7914,7 @@ function openProjDetail(id){
   document.getElementById('proj-detail-view').style.display='';
   document.getElementById('proj-hdr-back-btn').style.display='';
   var _rb=document.getElementById('proj-hdr-refresh-btn'); if(_rb)_rb.style.display='';
+  var _ob=document.getElementById('proj-hdr-org-btn'); if(_ob)_ob.style.display=adminUnlocked?'flex':'none';
   document.getElementById('proj-hdr-title').textContent=p.no+' — '+p.name;
   // Hide list-only header buttons
   document.getElementById('proj-hdr-export-btn').style.display='none';
@@ -7885,6 +7929,7 @@ function closeProjDetail(){
   document.getElementById('proj-detail-view').style.display='none';
   document.getElementById('proj-hdr-back-btn').style.display='none';
   var _rb2=document.getElementById('proj-hdr-refresh-btn'); if(_rb2)_rb2.style.display='none';
+  var _ob2=document.getElementById('proj-hdr-org-btn'); if(_ob2)_ob2.style.display='none';
   document.getElementById('proj-hdr-title').textContent='Projects';
   // Restore list-only header buttons (admin only)
   if(adminUnlocked){
@@ -7893,6 +7938,234 @@ function closeProjDetail(){
     document.getElementById('proj-hdr-new-btn').style.display='';
   }
   renderProj();
+}
+
+// ── v10.3.0 — Project Team Organization Chart (auto-generated from bookings) ──
+function orgInitials(name){
+  const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length)return '?';
+  return ((parts[0][0]||'')+(parts.length>1?(parts[parts.length-1][0]||''):'')).toUpperCase();
+}
+function orgAvatar(e,color){
+  const url=e.photoUrl||e.photo||'';
+  if(url){
+    return `<div style="width:52px;height:52px;border-radius:50%;border:3px solid ${color};overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;background:${color}22;color:${color};font-weight:800;font-size:15px;">`
+      +`<img src="${esc(url)}" style="width:100%;height:100%;object-fit:cover;" onerror="this.remove();this.parentNode.textContent='${orgInitials(e.name)}';"></div>`;
+  }
+  return `<div style="width:52px;height:52px;border-radius:50%;border:3px solid ${color};background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${orgInitials(e.name)}</div>`;
+}
+function orgGradeRank(g){ const i=(typeof GRADES!=='undefined')?GRADES.indexOf(g):-1; return i<0?999:i; }
+function orgDesig(e,disc){
+  if(e.desig)return esc(e.desig);
+  const dl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc||'';
+  return esc([e.grade,dl].filter(Boolean).join(' — '));
+}
+function orgCard(e,disc,color,isLead){
+  const lead=isLead?` <span style="font-size:8px;font-weight:800;color:#fff;background:${color};border-radius:8px;padding:1px 6px;vertical-align:middle;">LEAD</span>`:'';
+  return `<div style="background:#fff;border-radius:10px;box-shadow:0 1px 4px rgba(0,0,0,.12);padding:9px 11px;display:flex;align-items:center;gap:10px;margin-bottom:9px;">
+    ${orgAvatar(e,color)}
+    <div style="min-width:0;">
+      <div style="font-weight:700;font-size:12.5px;color:#111827;line-height:1.25;">${esc(e.name||'')}${lead}</div>
+      <div style="font-size:10.5px;color:#6b7280;line-height:1.3;">${orgDesig(e,disc)}</div>
+    </div>
+  </div>`;
+}
+function buildOrgChartHTML(p){
+  const isJSEeng=e=>/^JSE-/.test(String(e.name||''));
+  // Everyone booked on this project (union of booking maps), resolved to base engineers.
+  const keys=new Set();
+  ['weeklyHrs','bookProg','bookStage'].forEach(m=>{ if(p[m])Object.keys(p[m]).forEach(k=>keys.add(slotBase(k))); });
+  const people=[...keys].map(id=>S.engineers.find(e=>e.id===id)).filter(Boolean);
+  const bySeniority=(a,b)=>orgGradeRank(a.grade)-orgGradeRank(b.grade)||String(a.name).localeCompare(String(b.name));
+  // Top tier: MEP umbrella heads only (Directors / Technical Directors). BIM never sits here.
+  const heads=people.filter(e=>isUmbrella(e)&&e.team!=='BIM').sort(bySeniority);
+  // Real discipline columns (drop the 'MEP' management column — those people are the heads above). BIM last.
+  const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>d!=='MEP');
+  const discList=realDiscs.concat(['BIM']);
+  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
+  let mepCount=0;
+  const cols=discList.map((disc,i)=>{
+    const color=colorFor(disc,i);
+    let members;
+    if(disc==='BIM') members=people.filter(e=>e.team==='BIM'&&!isJSEeng(e)); // named BIM only; JSE pool is counted below, not carded
+    else members=people.filter(e=>e.team!=='BIM'&&!isUmbrella(e)&&effDisc(e,p)===disc);
+    if(!members.length)return ''; // only booked disciplines — no empty column, no placeholder string
+    members=members.sort(bySeniority);
+    // Lead = most-senior DXB member (always DXB); pull the lead to the TOP of the column.
+    const dxb=members.filter(e=>e.off==='DXB');
+    const leadId=dxb.length?dxb[0].id:null;
+    if(leadId){ const li=members.findIndex(e=>e.id===leadId); if(li>0){ const ld=members.splice(li,1)[0]; members.unshift(ld); } }
+    if(disc!=='BIM')mepCount+=members.length;
+    const label=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc;
+    const cards=members.map(e=>orgCard(e,disc,color,e.id===leadId)).join('');
+    return `<div style="flex:1;min-width:160px;max-width:260px;">
+      <div style="background:${color};color:#fff;font-weight:800;font-size:12.5px;letter-spacing:.06em;text-align:center;padding:9px;border-radius:8px;margin-bottom:12px;">${esc(String(label).toUpperCase())}</div>
+      ${cards}
+    </div>`;
+  }).filter(Boolean).join('');
+  // BIM Team headcount = all booked BIM counted with pool multiplier (named=1, JSE=pool size), matching the overview.
+  const bimTeam=people.filter(e=>e.team==='BIM').reduce((a,e)=>a+(typeof getJseMult==='function'?getJseMult(p,e.id):1),0);
+  // Top tier rendered as vertical tiers by grade (Director on top, Technical Director below), connected.
+  let headHTML='';
+  if(heads.length){
+    const tiers=[];
+    heads.forEach(h=>{ const r=orgGradeRank(h.grade); let t=tiers.find(x=>x.r===r); if(!t){t={r,items:[]};tiers.push(t);} t.items.push(h); });
+    tiers.sort((a,b)=>a.r-b.r);
+    const headCard=e=>`<div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.14);padding:11px 16px;display:flex;align-items:center;gap:11px;min-width:250px;max-width:340px;">
+        ${orgAvatar(e,'#1e3a5f')}
+        <div><div style="font-weight:800;font-size:13.5px;color:#0f172a;">${esc(e.name||'')}</div><div style="font-size:11px;color:#64748b;">${orgDesig(e,e.disc)}</div></div>
+      </div>`;
+    const tierRows=tiers.map((t,ti)=>{
+      const row=`<div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">${t.items.map(headCard).join('')}</div>`;
+      const connector=ti<tiers.length-1?'<div style="width:2px;height:16px;background:#94a3b8;margin:0 auto;"></div>':'';
+      return row+connector;
+    }).join('');
+    headHTML=`<div style="display:flex;flex-direction:column;align-items:center;margin-bottom:6px;">${tierRows}</div>
+      <div style="width:2px;height:14px;background:#94a3b8;margin:0 auto;"></div>
+      <div style="height:2px;background:#94a3b8;margin:0 0 18px;"></div>`;
+  }
+  return `<div style="background:#f1f5f9;padding:0;border-radius:12px;overflow:hidden;">
+    <div style="background:#10243E;color:#fff;padding:16px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div><div style="font-size:20px;font-weight:800;letter-spacing:.02em;">PROJECT TEAM ORGANIZATION CHART</div>
+        <div style="font-size:11.5px;letter-spacing:.14em;color:#c7d2e0;margin-top:2px;">${esc(p.no||'')} — ${esc((p.name||'').toUpperCase())}</div></div>
+      <img src="${(typeof BRAND_LOGO_URL!=='undefined')?BRAND_LOGO_URL:''}" style="height:38px;background:#fff;padding:5px 10px;border-radius:5px;flex-shrink:0;">
+    </div>
+    <div style="padding:22px 24px;">
+      ${headHTML}
+      <div style="display:flex;gap:14px;align-items:flex-start;justify-content:center;">${cols}</div>
+    </div>
+    <div style="background:#10243E;color:#fff;padding:14px 24px;display:flex;justify-content:space-between;align-items:center;gap:16px;">
+      <div style="font-weight:800;font-size:13px;letter-spacing:.03em;">PROJECT TEAM HEADCOUNT</div>
+      <div style="display:flex;gap:36px;">
+        <div><span style="font-size:22px;font-weight:800;">${mepCount}</span> <span style="font-size:11px;color:#c7d2e0;">MEP Engineers</span></div>
+        <div><span style="font-size:22px;font-weight:800;">${bimTeam}</span> <span style="font-size:11px;color:#c7d2e0;">BIM Team</span></div>
+      </div>
+    </div>
+  </div>`;
+}
+function openOrgChart(pid){
+  if(!adminUnlocked){ toast('⛔ Org chart is admin-only — turn on Admin mode.'); return; }
+  const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
+  closeOrgChart();
+  const ov=document.createElement('div');
+  ov.id='orgchart-ov';
+  ov.style.cssText='position:fixed;inset:0;z-index:100000;background:rgba(15,23,42,.55);display:flex;align-items:flex-start;justify-content:center;overflow:auto;padding:24px;';
+  ov.onclick=(e)=>{ if(e.target===ov)closeOrgChart(); };
+  const sheet=document.createElement('div');
+  sheet.style.cssText='background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:1180px;width:100%;margin:auto;';
+  sheet.innerHTML=`<div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 12px;border-bottom:1px solid #e5e7eb;">
+      <button onclick="exportOrgChartPPTX('${pid}')" style="background:#10243E;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Export PPTX</button>
+      <button onclick="closeOrgChart()" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;">Close</button>
+    </div>
+    <div style="padding:14px;">${buildOrgChartHTML(p)}</div>`;
+  ov.appendChild(sheet);
+  document.body.appendChild(ov);
+}
+function closeOrgChart(){ const ex=document.getElementById('orgchart-ov'); if(ex)ex.remove(); }
+// Shared data model for the org chart (used by both the on-screen view and the PPTX export).
+function getOrgChartData(p){
+  const isJSEeng=e=>/^JSE-/.test(String(e.name||''));
+  const keys=new Set();
+  ['weeklyHrs','bookProg','bookStage'].forEach(m=>{ if(p[m])Object.keys(p[m]).forEach(k=>keys.add(slotBase(k))); });
+  const people=[...keys].map(id=>S.engineers.find(e=>e.id===id)).filter(Boolean);
+  const rank=e=>orgGradeRank(e.grade);
+  const bySeniority=(a,b)=>rank(a)-rank(b)||String(a.name).localeCompare(String(b.name));
+  const heads=people.filter(e=>isUmbrella(e)&&e.team!=='BIM').sort(bySeniority);
+  const tiers=[]; heads.forEach(h=>{const r=rank(h); let t=tiers.find(x=>x.r===r); if(!t){t={r,items:[]};tiers.push(t);} t.items.push(h);}); tiers.sort((a,b)=>a.r-b.r);
+  const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>d!=='MEP');
+  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
+  let mepCount=0; const columns=[];
+  realDiscs.concat(['BIM']).forEach((disc,i)=>{
+    let members;
+    if(disc==='BIM') members=people.filter(e=>e.team==='BIM'&&!isJSEeng(e));
+    else members=people.filter(e=>e.team!=='BIM'&&!isUmbrella(e)&&effDisc(e,p)===disc);
+    if(!members.length)return;
+    members=members.sort(bySeniority);
+    const dxb=members.filter(e=>e.off==='DXB'); const leadId=dxb.length?dxb[0].id:null;
+    if(leadId){ const li=members.findIndex(e=>e.id===leadId); if(li>0){ const ld=members.splice(li,1)[0]; members.unshift(ld); } }
+    if(disc!=='BIM')mepCount+=members.length;
+    const label=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc;
+    columns.push({disc,label:String(label),color:colorFor(disc,i),leadId,members});
+  });
+  const bimTeam=people.filter(e=>e.team==='BIM').reduce((a,e)=>a+(typeof getJseMult==='function'?getJseMult(p,e.id):1),0);
+  return {no:p.no||'',name:p.name||'',tiers,columns,mepCount,bimTeam};
+}
+function ensurePptxGen(cb){
+  if(window.PptxGenJS){cb();return;}
+  toast('Loading PPTX library…');
+  const s=document.createElement('script');
+  s.src='https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js';
+  s.onload=()=>cb();
+  s.onerror=()=>toast('⚠️ Could not load the PPTX library (check connection).');
+  document.head.appendChild(s);
+}
+function exportOrgChartPPTX(pid){
+  if(!adminUnlocked){ toast('⛔ Admin-only.'); return; }
+  const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
+  ensurePptxGen(()=>{
+    try{
+      const d=getOrgChartData(p);
+      const hx=c=>String(c||'').replace('#','').toUpperCase()||'1E3A5F';
+      const dePlain=s=>String(s||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#0?39;/g,"'").replace(/&quot;/g,'"').replace(/&nbsp;/g,' ');
+      const NAVY='10243E';
+      const pptx=new PptxGenJS();
+      pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
+      const s=pptx.addSlide(); s.background={color:'F1F5F9'};
+      // Title band
+      s.addShape('rect',{x:0,y:0,w:13.33,h:0.85,fill:{color:NAVY}});
+      s.addText('PROJECT TEAM ORGANIZATION CHART',{x:0.35,y:0.10,w:10,h:0.4,color:'FFFFFF',bold:true,fontSize:20});
+      s.addText(`${d.no} — ${d.name.toUpperCase()}`,{x:0.36,y:0.50,w:10,h:0.28,color:'C7D2E0',fontSize:10,charSpacing:1});
+      try{ if(typeof BRAND_LOGO_URL!=='undefined'&&BRAND_LOGO_URL) s.addImage({data:BRAND_LOGO_URL,x:11.55,y:0.16,w:1.5,h:0.53}); }catch(e){}
+      // avatar+box helpers
+      const initials=(nm)=>orgInitials(nm);
+      function personBox(x,y,w,h,e,ring,isLead){
+        s.addShape('roundRect',{x,y,w,h,rectRadius:0.06,fill:{color:'FFFFFF'},line:{color:'E2E8F0',width:1},shadow:{type:'outer',blur:3,offset:1,angle:90,color:'BBBBBB',opacity:0.3}});
+        const dia=Math.min(h-0.16,0.42);
+        s.addText(dePlain(initials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',bold:true,fontSize:10});
+        const tx=x+0.08+dia+0.12, tw=w-(0.08+dia+0.12)-0.08;
+        const nameRuns=[{text:dePlain(e.name),options:{bold:true,fontSize:9.5,color:'111827'}}];
+        if(isLead)nameRuns.push({text:'  LEAD',options:{bold:true,fontSize:7,color:hx(ring)}});
+        // Name in the TOP band, designation in the BOTTOM band — non-overlapping. Shrink-to-fit keeps
+        // long names on one line so they can't spill into the designation.
+        s.addText(nameRuns,{x:tx,y:y+0.06,w:tw,h:0.22,valign:'middle',wrap:false,fit:'shrink'});
+        s.addText(dePlain(orgDesig(e,e.disc)),{x:tx,y:y+0.29,w:tw,h:0.19,fontSize:8,color:'6B7280',valign:'middle',wrap:false,fit:'shrink'});
+      }
+      // Heads (tiers, centered)
+      let y=1.02; const HB={w:3.4,h:0.6};
+      d.tiers.forEach((t,ti)=>{
+        const n=t.items.length, totalW=n*HB.w+(n-1)*0.25, startX=(13.33-totalW)/2;
+        t.items.forEach((e,k)=>{ personBox(startX+k*(HB.w+0.25),y,HB.w,HB.h,e,NAVY,false); });
+        y+=HB.h;
+        if(ti<d.tiers.length-1){ s.addShape('line',{x:6.665,y:y,w:0,h:0.18,line:{color:'94A3B8',width:1.5}}); y+=0.18; }
+      });
+      let busY=y+0.12;
+      if(d.tiers.length){ s.addShape('line',{x:6.665,y:y,w:0,h:0.12,line:{color:'94A3B8',width:1.5}}); s.addShape('line',{x:0.4,y:busY,w:12.53,h:0,line:{color:'94A3B8',width:1.5}}); }
+      // Columns
+      const nCols=d.columns.length||1;
+      const M=0.4, GAP=0.16;
+      const colW=(13.33-2*M-(nCols-1)*GAP)/nCols;
+      const headerY=busY+0.18, headerH=0.4;
+      const memTop=headerY+headerH+0.14, memBottom=6.85;
+      const maxMembers=Math.max(1,...d.columns.map(c=>c.members.length));
+      let memH=(memBottom-memTop)/maxMembers-0.08; memH=Math.max(0.52,Math.min(0.74,memH));
+      d.columns.forEach((c,ci)=>{
+        const x=M+ci*(colW+GAP);
+        s.addShape('line',{x:x+colW/2,y:busY,w:0,h:headerY-busY,line:{color:'94A3B8',width:1}});
+        s.addShape('roundRect',{x,y:headerY,w:colW,h:headerH,rectRadius:0.05,fill:{color:hx(c.color)},line:{type:'none'}});
+        s.addText(c.label.toUpperCase(),{x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:11,align:'center',valign:'middle',charSpacing:1});
+        c.members.forEach((e,mi)=>{
+          const my=memTop+mi*(memH+0.08);
+          personBox(x,my,colW,memH,e,c.color,e.id===c.leadId);
+        });
+      });
+      // Footer band
+      s.addShape('rect',{x:0,y:6.95,w:13.33,h:0.55,fill:{color:NAVY}});
+      s.addText('PROJECT TEAM HEADCOUNT',{x:0.35,y:6.95,w:6,h:0.55,color:'FFFFFF',bold:true,fontSize:12,valign:'middle',charSpacing:1});
+      s.addText([{text:String(d.mepCount),options:{bold:true,fontSize:18,color:'FFFFFF'}},{text:'  MEP Engineers      ',options:{fontSize:10,color:'C7D2E0'}},{text:String(d.bimTeam),options:{bold:true,fontSize:18,color:'FFFFFF'}},{text:'  BIM Team',options:{fontSize:10,color:'C7D2E0'}}],{x:7.2,y:6.95,w:5.8,h:0.55,align:'right',valign:'middle'});
+      const fn=((p.no?p.no+' ':'')+(p.name||'Project').replace(/[\\\/:*?"<>|]/g,'')+' - Org Chart.pptx').substring(0,90);
+      pptx.writeFile({fileName:fn}).then(()=>toast('Org chart exported ✓')).catch(e=>{console.error(e);toast('Export failed.');});
+    }catch(e){ console.error('org pptx',e); toast('Export failed — see console.'); }
+  });
 }
 
 const DEFAULT_STAGES=['Concept Design (Concept)','Schematic Design (SD)','Design Development (DD)','Construction Documents (CD)','Construction (CA)','Review','Tender','Procurement','No Programme'];
