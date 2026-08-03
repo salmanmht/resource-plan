@@ -35,6 +35,14 @@
   --pur:#af52de;--pur2:#f5eeff;
   --tel:#32ade6;--tel2:#e5f6fd;
   --r:10px;--rl:14px;--sb:224px;--hh:52px;--bn:58px;
+  /* ── Semantic design tokens (v10.5.0) — single source of truth for headers/tables.
+       Every value below equals what the app already renders, so defining them changes
+       nothing; migrating hardcoded hex to these vars lets one edit here restyle everywhere. ── */
+  --thead-bg:#f5f5f7; --thead-tx:#86868b;                 /* light list-table header (.tbl) */
+  --grid-head:#1d1d1f; --grid-head-tx:#ffffff; --grid-head-bdr:#3a3a3c;  /* dense planning grid (.proj-tbl) */
+  --lv-head:#1e3a5f; --lv-head-d:#16324f;                 /* leave / weekly navy header */
+  --wt-tasks:#162f52; --wt-proj:#1a3457; --wt-nb:#1f4d3a; --wt-total:#0f2540;  /* weekly-tracker header columns */
+  --bim-head:#0f766e; --bim-head-d:#0c5f59;               /* BIM leave header (teal) */
 }
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;letter-spacing:-.01em;}
@@ -203,7 +211,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 
 /* TABLES */
 .tbl{width:100%;border-collapse:collapse;font-size:11px;}
-.tbl th{background:#f5f5f7;padding:8px 10px;text-align:left;font-weight:600;color:var(--tx3);font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bdr);white-space:nowrap;}
+.tbl th{background:var(--thead-bg);padding:8px 10px;text-align:left;font-weight:600;color:var(--tx3);font-size:9px;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid var(--bdr);white-space:nowrap;}
 .tbl td{padding:8px 10px;border-bottom:1px solid #f2f2f7;vertical-align:middle;}
 .tbl tr:last-child td{border-bottom:none;}
 .tbl tr:hover td{background:#f5f5f7;}
@@ -212,7 +220,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 
 /* PROJECT TABLE */
 .proj-tbl{border-collapse:collapse;font-size:11px;min-width:100%;}
-.proj-tbl th{padding:5px 7px;background:#1d1d1f;color:#fff;font-size:9px;font-weight:600;white-space:nowrap;border:1px solid #3a3a3c;text-align:center;}
+.proj-tbl th{padding:5px 7px;background:var(--grid-head);color:var(--grid-head-tx);font-size:9px;font-weight:600;white-space:nowrap;border:1px solid var(--grid-head-bdr);text-align:center;}
 .proj-tbl th.left{text-align:left;}
 .proj-tbl td{padding:4px 6px;border:1px solid var(--bdr);white-space:nowrap;vertical-align:middle;font-size:11px;}
 .proj-tbl tr.disc-hd td{background:#1e3a5f;font-weight:700;font-size:10px;color:#fff !important;}
@@ -581,15 +589,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 }
 .wt-tablewrap{overflow-x:auto;border:1px solid var(--bdr);border-radius:var(--rl);background:var(--surf);box-shadow:0 1px 3px rgba(0,0,0,.04);}
 .wt-table{width:100%;border-collapse:collapse;font-size:12px;}
-.wt-table thead .wt-h1 th{background:#1e3a5f;color:#fff;padding:8px 8px;font-weight:600;font-size:10px;white-space:nowrap;text-align:center;position:sticky;top:0;letter-spacing:.02em;text-transform:uppercase;vertical-align:middle;}
+.wt-table thead .wt-h1 th{background:var(--lv-head);color:#fff;padding:8px 8px;font-weight:600;font-size:10px;white-space:nowrap;text-align:center;position:sticky;top:0;letter-spacing:.02em;text-transform:uppercase;vertical-align:middle;}
 .wt-table th.wt-c-name{text-align:left;min-width:145px;padding-left:14px;}
 .wt-table th.wt-c-loc{min-width:36px;}
-.wt-table th.wt-c-tasks{text-align:left;min-width:240px;padding:8px 12px!important;background:#162f52;}
-.wt-table th.wt-c-proj{min-width:78px;max-width:95px;background:#1a3457;padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
+.wt-table th.wt-c-tasks{text-align:left;min-width:240px;padding:8px 12px!important;background:var(--wt-tasks);}
+.wt-table th.wt-c-proj{min-width:78px;max-width:95px;background:var(--wt-proj);padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
 .wt-proj-name{font-size:10px;font-weight:600;line-height:1.2;word-wrap:break-word;hyphens:auto;}
 .wt-proj-no{font-size:9px;font-weight:400;opacity:.7;margin-top:3px;letter-spacing:.04em;}
-.wt-table th.wt-c-nb{min-width:55px;background:#1f4d3a;padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
-.wt-table th.wt-c-total{min-width:50px;background:#0f2540;}
+.wt-table th.wt-c-nb{min-width:55px;background:var(--wt-nb);padding:6px 4px!important;white-space:normal!important;vertical-align:middle;}
+.wt-table th.wt-c-total{min-width:50px;background:var(--wt-total);}
 
 .wt-disc td{background:var(--bg);padding:5px 14px;font-size:9px;font-weight:700;color:var(--tx3);letter-spacing:.07em;text-transform:uppercase;border-top:1px solid var(--bdr);border-bottom:1px solid var(--bdr);}
 .wt-row td{border-bottom:1px solid var(--bdr);vertical-align:middle;}
@@ -746,7 +754,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     word-wrap:break-word;overflow:hidden;
   }
   body.wt-printing .wt-table thead .wt-h1 th{
-    background:#1e3a5f!important;color:#fff!important;
+    background:var(--lv-head)!important;color:#fff!important;
     -webkit-print-color-adjust:exact;print-color-adjust:exact;
     font-size:10px!important;font-weight:600;
     white-space:normal!important;line-height:1.2;
@@ -754,10 +762,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   }
   body.wt-printing .wt-c-name{width:9%!important;text-align:left!important;}
   body.wt-printing .wt-c-loc{width:3%!important;}
-  body.wt-printing .wt-c-tasks{width:15%!important;background:#162f52!important;text-align:left!important;}
-  body.wt-printing .wt-c-proj{width:auto!important;background:#1a3457!important;}
-  body.wt-printing .wt-c-nb{width:auto!important;background:#1f4d3a!important;}
-  body.wt-printing .wt-c-total{width:5%!important;background:#0f2540!important;}
+  body.wt-printing .wt-c-tasks{width:15%!important;background:var(--wt-tasks)!important;text-align:left!important;}
+  body.wt-printing .wt-c-proj{width:auto!important;background:var(--wt-proj)!important;}
+  body.wt-printing .wt-c-nb{width:auto!important;background:var(--wt-nb)!important;}
+  body.wt-printing .wt-c-total{width:5%!important;background:var(--wt-total)!important;}
   body.wt-printing .wt-proj-name{font-size:9px!important;}
   body.wt-printing .wt-proj-no{font-size:8px!important;}
   body.wt-printing .wt-table .wt-disc td{
@@ -899,7 +907,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.3.8 · 29 Jul 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.9 · 2 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -999,7 +1007,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.3.8 · 29 Jul 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.9 · 2 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1112,6 +1120,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <button type="button" id="tms-off" onclick="tmsOpen('off',this)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Offices</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
         <button type="button" id="tms-pos" onclick="tmsOpen('pos',this)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Positions</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
         <button type="button" id="tms-proj" onclick="tmsOpen('proj',this)" title="Show only members booked to the ticked project(s)" style="background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:12px;font-weight:600;cursor:pointer;"><span class="tms-lbl">All Projects</span> <span style="font-size:9px;color:var(--tx3);">▾</span></button>
+        <div class="hdr-daterange" style="display:flex;align-items:center;gap:4px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:3px 8px;margin-left:8px;">
+          <span style="font-size:10px;color:var(--tx3);white-space:nowrap;">From</span>
+          <select id="teamFrom" onchange="onTeamRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
+          <span style="font-size:10px;color:var(--tx3);">To</span>
+          <select id="teamTo" onchange="onTeamRangeChange()" style="font-size:11px;border:none;background:transparent;padding:2px 2px;"></select>
+        </div>
+        <button id="team-range-reset" onclick="resetTeamRange()" title="Reset to the Overview range" style="display:none;background:#eef2f7;border:1px solid var(--bdr);border-radius:8px;padding:5px 8px;font-size:12px;cursor:pointer;color:#10243E;margin-left:4px;">↺ Overview</button>
       </div>
       </div>
       <div style="display:flex;gap:6px;" id="team-hdr-btns"></div>
@@ -5275,7 +5290,11 @@ function wtExportPDF(){
   // Keep current tab — only force all offices and all projects so nothing is hidden
   const savedProjs=WT_visibleProjects;
   const savedOff=WT_off;
-  WT_visibleProjects=null; // all active projects
+  // v10.5.4 — include EVERY project (any status) as a candidate column so On Hold /
+  // Completed projects with hours this week aren't dropped. null meant "Active only",
+  // which silently hid them. Empty columns are pruned below, so only projects that
+  // actually have hours survive — regardless of status.
+  WT_visibleProjects=S.projects.filter(p=>p.id!=='proj-00000').map(p=>p.id);
   WT_off='';
   const canEdit=adminUnlocked||(myRoles().some(r=>r.role==='disc_lead'||r.role==='bim_lead'));
   wtBuild(canEdit);
@@ -5295,7 +5314,9 @@ function wtExportPDF(){
           const cell=cells[projStart+pi];
           if(!cell)return false;
           const inp=cell.querySelector('input');
-          return inp&&inp.value&&parseFloat(inp.value)>0;
+          if(inp)return inp.value&&parseFloat(inp.value)>0;
+          const t=(cell.textContent||'').trim(); // v10.5.4 — read-only exports render hours as text
+          return t!==''&&t!=='\u2014'&&t!=='0'&&parseFloat(t)>0;
         });
         if(!hasVal)emptyPI.push(pi);
       });
@@ -6233,11 +6254,11 @@ function resetDashRange(){
   renderMEP();
 }
 
-function computeRange(statusFilter,projIds){
-  // computeAll gives us the full universe; we slice to DASH range
+function computeRange(statusFilter,projIds,fromMI,toMI){
+  // computeAll gives us the full universe; we slice to DASH range (or an explicit override).
   const full=computeAll(statusFilter,projIds);
-  const fmi=DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI;
-  const tmi=DASH_TO_MI!==null?DASH_TO_MI:full.maxMI;
+  const fmi=(fromMI!=null?fromMI:(DASH_FROM_MI!==null?DASH_FROM_MI:full.minMI));
+  const tmi=(toMI!=null?toMI:(DASH_TO_MI!==null?DASH_TO_MI:full.maxMI));
   const NMON=tmi-fmi+1;
   const offset=fmi-full.minMI;  // how many months into full array our window starts
   // Slice hrs and util arrays; zero out months outside engineer's active window
@@ -7500,6 +7521,22 @@ function projectsLedBy(e){
   });
   return led;
 }
+// ── v10.4.0 — Team page date bar. Session-local override of the Overview range:
+// null = follow Overview (DASH_FROM_MI/TO_MI). Not persisted, so a page reload resets it;
+// the "↺ Overview" button also resets it on demand.
+let TEAM_FROM_MI=null, TEAM_TO_MI=null;
+function teamEffFrom(){ return TEAM_FROM_MI!=null?TEAM_FROM_MI:DASH_FROM_MI; }
+function teamEffTo(){ return TEAM_TO_MI!=null?TEAM_TO_MI:DASH_TO_MI; }
+function onTeamRangeChange(){
+  const ff=document.getElementById('teamFrom'), tt=document.getElementById('teamTo');
+  if(!ff||!tt)return;
+  let f=parseInt(ff.value), t=parseInt(tt.value);
+  if(!Number.isFinite(f)||!Number.isFinite(t))return;
+  if(t<f){t=f;tt.value=f;}
+  TEAM_FROM_MI=f; TEAM_TO_MI=t;   // session-only; no localStorage → resets on reload
+  invalidate('team');
+}
+function resetTeamRange(){ TEAM_FROM_MI=null; TEAM_TO_MI=null; invalidate('team'); }
 // ── v10.3.6 — Team page multi-select filters (tick several) ──
 const TS_SEL={disc:new Set(),off:new Set(),pos:new Set(),proj:new Set()};
 function tmsOptions(kind){
@@ -7570,9 +7607,23 @@ function renderTeam(){
     'MEP':{bg:'#D8DEE6',color:'#1e3a5f',badge:'#E9EEF4',badgeTxt:'#1e3a5f'},
   };
 
+  // v10.4.0 — resolve the Team date bar: populate the selects + the effective range
+  // (local override if set, otherwise the Overview range). Toggle the reset button.
+  let _teamFrom=null,_teamTo=null;
+  (function(){
+    const ff=document.getElementById('teamFrom'), tt=document.getElementById('teamTo'); if(!ff||!tt)return;
+    const rng=computeAll(); const minMI=rng.minMI, maxMI=rng.maxMI;
+    const need=ff.options.length===0||+ff.options[0].value!==minMI||+ff.options[ff.options.length-1].value!==maxMI;
+    if(need){ ff.innerHTML='';tt.innerHTML=''; for(let mi=minMI;mi<=maxMI;mi++){const o1=document.createElement('option');o1.value=mi;o1.textContent=miLabel(mi);ff.appendChild(o1);const o2=document.createElement('option');o2.value=mi;o2.textContent=miLabel(mi);tt.appendChild(o2);} }
+    const dFrom=DASH_FROM_MI!==null?DASH_FROM_MI:minMI, dTo=DASH_TO_MI!==null?DASH_TO_MI:maxMI;
+    _teamFrom=Math.max(minMI,Math.min(TEAM_FROM_MI!=null?TEAM_FROM_MI:dFrom,maxMI));
+    _teamTo=Math.max(minMI,Math.min(TEAM_TO_MI!=null?TEAM_TO_MI:dTo,maxMI));
+    ff.value=_teamFrom; tt.value=_teamTo;
+    const rb=document.getElementById('team-range-reset'); if(rb)rb.style.display=(TEAM_FROM_MI!=null)?'':'none';
+  })();
   // mobile content pass — real per-engineer utilisation (same engine the dashboard uses)
   let _eu={},_bu={},_euN=0;
-  try{const r=computeRange(typeof _msf==='function'?_msf():null, prsel.size?prsel:null);_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
+  try{const r=computeRange(typeof _msf==='function'?_msf():null, prsel.size?prsel:null, _teamFrom, _teamTo);_eu=r.util||{};_bu=r.billUtil||{};_euN=r.NMON||0;}catch(err){console.warn('team util',err);}
   const engAvgUtil=(e)=>{const a=_eu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
   const engAvgBill=(e)=>{const a=_bu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
 
@@ -11918,7 +11969,8 @@ function _monthBandRow(weeks,bg,leadCols){
     if(groups.length&&groups[groups.length-1].lbl===lbl)groups[groups.length-1].n++;
     else groups.push({lbl:lbl,n:1});
   });
-  return `<tr><th colspan="${_lead}" style="position:sticky;left:0;z-index:3;background:${bg};${_lw?`width:${_lw}px;min-width:${_lw}px;max-width:${_lw}px;`:''}"></th>${groups.map(g=>`<th colspan="${g.n}" style="background:${bg};color:#fff;font-size:10px;font-weight:700;text-align:center;padding:4px 2px;border-left:1px solid rgba(255,255,255,.25);letter-spacing:.03em;white-space:nowrap;">${g.lbl}</th>`).join('')}<th style="background:${bg};"></th></tr>`;
+  const _lt=/^#(f|e)/i.test(bg); const _tc=_lt?'#6b7280':'#fff'; const _bc=_lt?'rgba(0,0,0,.08)':'rgba(255,255,255,.25)'; // v10.4.2 — dark text on light band
+  return `<tr><th colspan="${_lead}" style="position:sticky;left:0;z-index:3;background:${bg};${_lw?`width:${_lw}px;min-width:${_lw}px;max-width:${_lw}px;`:''}"></th>${groups.map(g=>`<th colspan="${g.n}" style="background:${bg};color:${_tc};font-size:10px;font-weight:700;text-align:center;padding:4px 2px;border-left:1px solid ${_bc};letter-spacing:.03em;white-space:nowrap;">${g.lbl}</th>`).join('')}<th style="background:${bg};"></th></tr>`;
 }
 // v9.4.6 — collapse/expand a discipline group in the leave/mgmt grids (no re-render)
 function toggleLeaveGroup(gid,containerId){
@@ -11985,13 +12037,13 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
   const _dsp=(h)=>_uOn?lvToDisp(h):(h||0);
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
-    <thead>${_monthBandRow(weeks,'#16324f',5)}<tr>
-      <th class="left" style="${lvSticky(0,'#1e3a5f','color:#fff')}">Engineer</th>
-      <th class="left" style="${lvSticky(1,'#1e3a5f','color:#fff')}">Disc</th>
-      <th class="left" style="${lvSticky(2,'#1e3a5f','color:#fff')}">Off</th>
-      <th style="${lvSticky(3,'#16324f','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
-      <th style="${lvSticky(4,'#16324f','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
-      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#1e3a5f;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+    <thead>${_monthBandRow(weeks,'var(--lv-head-d)',5)}<tr>
+      <th class="left" style="${lvSticky(0,'var(--lv-head)','color:#fff')}">Engineer</th>
+      <th class="left" style="${lvSticky(1,'var(--lv-head)','color:#fff')}">Disc</th>
+      <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
+      <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
+      <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
     </tr></thead>
     <tbody>`;
 
@@ -12136,14 +12188,125 @@ function lvFilter(list,isBim){
     return true;
   });
 }
+// v10.5.3 — ONE unified leave table: MEP disciplines, then a "BIM Members" divider
+// band, then BIM disciplines — a single <thead> and a single horizontal scrollbar,
+// replacing the old two-table layout (renderLeaveGrid + renderLeaveGridBIM stacked).
+// renderLeaveGrid stays as-is for the Management Hours page; renderLeaveGridBIM is
+// now unused on this page and kept only as dead code.
+function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, year){
+  const yr = year || window.leaveYear || 2026;
+  const weeks=globalWeeks(yr);
+  const el=document.getElementById(containerId);
+  if(!el)return;
+  const discs=MEP_DISCS.concat(['MEP']); // v9.21.0 — umbrella heads get their own group
+  const _uOn=(setFn==='setLeaveHrU');
+  const _uDay=_uOn&&lvUnit()==='d';
+  const _uLbl=_uOn?lvUnitLabel():'hrs';
+  const _dsp=(h)=>_uOn?lvToDisp(h):(h||0);
+  const hasMep=!!(mepList&&mepList.length), hasBim=!!(bimList&&bimList.length);
+  const firstColLabel = hasMep ? 'Engineer' : 'BIM Member';
+
+  // Render one team's discipline groups; returns markup + running totals.
+  // discOf(eng) -> group/badge disc code; editDiscFn(disc) -> is this row editable.
+  function section(list, prefix, accent, editDiscFn, discOf){
+    let out='', tot=0, taken=0;
+    discs.forEach(disc=>{
+      const dEngs=list.filter(e=>discOf(e)===disc);
+      if(!dEngs.length)return;
+      const dClr='#eef2f7';
+      const dTxt={HVAC:'#1d4ed8',['PH&E']:'#166534',ELE:'#854d0e',ELV:'#9d174d'}[disc]||'#475569';
+      const gid=(containerId+'-'+prefix+'-'+disc).replace(/[^A-Za-z0-9-]/g,''); // prefix keeps MEP/BIM groups distinct
+      const gCol=!!(window._lvCollapse&&window._lvCollapse[gid]);
+      out+=`<tr onclick="toggleLeaveGroup('${gid}','${containerId}')" style="cursor:pointer;" title="Click to collapse/expand"><td colspan="${weeks.length+5}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span id="lvchev-${gid}" style="display:inline-block;width:12px;">${gCol?'\u25b6':'\u25bc'}</span> ${prefix}-${disc} <span style="font-weight:400;opacity:.75;">(${dEngs.length})</span></td></tr>`;
+      dEngs.forEach(eng=>{
+        const arr=hrsObj[eng.id]||[];
+        const _sp=lvTakenSplit(arr,weeks); const total=_sp.total;
+        tot+=_sp.total; taken+=_sp.taken;
+        out+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
+          <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
+          <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[discOf(eng)]||'')}">${discOf(eng)}</span></td>
+          <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
+          <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accent)}">${total>0?_dsp(total):'-'}</td>
+          <td style="${lvSticky(4,'var(--surf)','text-align:center;font-weight:600;color:var(--tx2);font-size:11px')}">${_sp.taken>0?_dsp(_sp.taken):'-'}</td>
+          ${weeks.map((w)=>{
+            const gwi=w.gwi!=null?w.gwi:globalWI(w);
+            const v=arr[gwi]||0;
+            const cap=eng.cap||45;
+            const editable=adminUnlocked||editDiscFn(disc);
+            const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
+            const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+            return`<td style="padding:2px;text-align:center">
+              <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
+                class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
+                ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
+                style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accent:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
+            </td>`;
+          }).join('')}
+        </tr>`;
+      });
+    });
+    return {out, tot, taken};
+  }
+
+  // Navy footer row — same look as the old per-table TOTAL row.
+  function footRow(label, tot, taken){
+    const left=tot-taken, pct=tot>0?Math.round(left/tot*100):0;
+    return `<tr style="background:#0f2440;color:#fff;font-weight:700;">
+      <td class="left" style="${lvSticky(0,'#0f2440','color:#fff;padding:6px 8px')}">${label}</td>
+      <td style="${lvSticky(1,'#0f2440','')}"></td>
+      <td style="${lvSticky(2,'#0f2440','')}"></td>
+      <td style="${lvSticky(3,'#0f2440','color:#fff;text-align:center')}">${tot>0?_dsp(tot):'-'}</td>
+      <td style="${lvSticky(4,'#0f2440','color:#fff;text-align:center')}">${taken>0?_dsp(taken):'-'}</td>
+      <td colspan="${weeks.length}" style="padding:6px 10px;font-weight:600;font-size:11px;">
+        ${_dsp(left)} ${_uLbl} remaining · <span style="color:#7ee2b8;">${pct}% of booked leave still to come</span>
+      </td>
+    </tr>`;
+  }
+
+  let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
+  html+=`<table class="proj-tbl" style="min-width:100%">
+    <thead>${_monthBandRow(weeks,'var(--lv-head-d)',5)}<tr>
+      <th class="left" style="${lvSticky(0,'var(--lv-head)','color:#fff')}">${firstColLabel}</th>
+      <th class="left" style="${lvSticky(1,'var(--lv-head)','color:#fff')}">Disc</th>
+      <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
+      <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
+      <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+    </tr></thead>
+    <tbody>`;
+
+  if(hasMep){
+    const r=section(mepList,'MEP','#f59e0b',(disc)=>canEditDisc(disc),(e)=>e.disc);
+    html+=r.out;
+    html+=footRow(hasBim?'MEP TOTAL':'TOTAL', r.tot, r.taken);
+  }
+  if(hasBim){
+    if(hasMep) html+=`<tr><td colspan="${weeks.length+5}" style="background:var(--lv-head);color:#fff;font-weight:700;font-size:11px;padding:6px 10px;letter-spacing:.02em;border-top:2px solid #0f2440;"><span style="position:sticky;left:8px;">BIM Members</span></td></tr>`;
+    const r=section(bimList,'BIM','#0d9488',()=>canEditDisc('BIM'),(e)=>e.subDisc||e.disc);
+    html+=r.out;
+    html+=footRow(hasMep?'BIM TOTAL':'TOTAL', r.tot, r.taken);
+  }
+  if(!hasMep&&!hasBim){
+    html+=`<tr><td colspan="${weeks.length+5}" style="padding:14px 12px;text-align:center;color:var(--tx3);font-size:12px;">No one matches the current filters.</td></tr>`;
+  }
+
+  html+='</tbody></table></div>';
+  html+=`<div id="lvsb-${containerId}" style="position:sticky;bottom:0;z-index:9;overflow-x:auto;overflow-y:hidden;height:14px;background:#ffffffee;border-top:1px solid var(--bdr);" onscroll="(function(b){var m=document.getElementById('lvmain-${containerId}');if(m&&m.scrollLeft!==b.scrollLeft)m.scrollLeft=b.scrollLeft;})(this)"><div id="lvsb-${containerId}-in" style="height:1px;"></div></div>`;
+  el.innerHTML=html;
+  const _m=document.getElementById('lvmain-'+containerId),_i=document.getElementById('lvsb-'+containerId+'-in');
+  if(_m&&_i)_i.style.width=_m.scrollWidth+'px';
+}
+
 function renderLeaveGridOnly(){
-  // v9.32.2 — BIM lives in the discipline filter now. 'All Disciplines' shows both grids;
-  // picking BIM shows only the BIM grid; picking a MEP discipline shows only engineers.
+  // v10.5.3 — one combined table. The discipline filter decides which sections appear:
+  // 'all' shows MEP + BIM, 'BIM' shows only BIM, a MEP disc shows only that discipline.
   const d=window._lvDisc||'all';
   const gEng=document.getElementById('leave-grid'), gBim=document.getElementById('leave-grid-bim');
   const showEng=(d!=='BIM'), showBim=(d==='all'||d==='BIM');
-  if(gEng){ gEng.style.display=showEng?'':'none'; if(showEng)renderLeaveGrid('leave-grid', lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false), S.leaveHrs, 'setLeaveHrU', 'Annual Leave', '#f59e0b'); else gEng.innerHTML=''; }
-  if(gBim){ gBim.style.display=showBim?'':'none'; if(showBim)renderLeaveGridBIM('leave-grid-bim', lvFilter(S.engineers.filter(e=>e.team==='BIM'),true), S.leaveHrs, 'setLeaveHrU', '#0d9488'); else gBim.innerHTML=''; }
+  const mepList = showEng ? lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false) : [];
+  const bimList = showBim ? lvFilter(S.engineers.filter(e=>e.team==='BIM'),true) : [];
+  if(gBim){ gBim.style.display='none'; gBim.innerHTML=''; } // legacy second container — now unused
+  if(gEng){ gEng.style.display=''; renderLeaveGridCombined('leave-grid', mepList, bimList, S.leaveHrs, 'setLeaveHrU'); }
 }
 function renderLeave(){
   const el=document.getElementById('pc-leave');
@@ -12197,13 +12360,13 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
   const _dsp=(h)=>_uOn?lvToDisp(h):(h||0);
   let html=`<div id="lvmain-${containerId}" class="lv-noscrollbar" style="overflow-x:auto;scrollbar-width:none;-ms-overflow-style:none;" onscroll="(function(m){var b=document.getElementById('lvsb-${containerId}');if(b&&b.scrollLeft!==m.scrollLeft)b.scrollLeft=m.scrollLeft;})(this)">`;
   html+=`<table class="proj-tbl" style="min-width:100%">
-    <thead>${_monthBandRow(weeks,'#0c5f59',5)}<tr>
-      <th class="left" style="${lvSticky(0,'#0f766e','color:#fff')}">BIM Member</th>
-      <th class="left" style="${lvSticky(1,'#0f766e','color:#fff')}">Disc</th>
-      <th class="left" style="${lvSticky(2,'#0f766e','color:#fff')}">Off</th>
-      <th style="${lvSticky(3,'#0c5f59','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
-      <th style="${lvSticky(4,'#0c5f59','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
-      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:#0f766e;color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+    <thead>${_monthBandRow(weeks,'var(--lv-head-d)',5)}<tr>
+      <th class="left" style="${lvSticky(0,'var(--lv-head)','color:#fff')}">BIM Member</th>
+      <th class="left" style="${lvSticky(1,'var(--lv-head)','color:#fff')}">Disc</th>
+      <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
+      <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
+      <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
     </tr></thead>
     <tbody>`;
 
@@ -12212,18 +12375,20 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
     if(!discEngs.length)return;
     const dClr='#eef2f7'; // v9.32.6 — muted band, matching the rest of the app
     const dTxt={HVAC:'#1d4ed8',['PH&E']:'#166534',ELE:'#854d0e',ELV:'#9d174d'}[disc]||'#475569';
-    html+=`<tr><td colspan="${weeks.length+5}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span style="position:sticky;left:8px;">BIM-${disc} (${discEngs.length})</span></td></tr>`;
+    const gid=(containerId+'-'+disc).replace(/[^A-Za-z0-9-]/g,''); // v9.32.7 — BIM groups now collapse like MEP
+    const gCol=!!(window._lvCollapse&&window._lvCollapse[gid]);
+    html+=`<tr onclick="toggleLeaveGroup('${gid}','${containerId}')" style="cursor:pointer;" title="Click to collapse/expand"><td colspan="${weeks.length+5}" style="background:${dClr};color:${dTxt};font-weight:700;font-size:10px;padding:4px 10px"><span id="lvchev-${gid}" style="display:inline-block;width:12px;">${gCol?'\u25b6':'\u25bc'}</span> BIM-${disc} <span style="font-weight:400;opacity:.75;">(${discEngs.length})</span></td></tr>`;
 
     discEngs.forEach(eng=>{
       const arr=hrsObj[eng.id]||[];
       const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // v9.32.4 — year total + taken-to-date
       _gTot+=_sp.total; _gTaken+=_sp.taken;
-      html+=`<tr>
-        <td style="${lvSticky(0,'#f0fdfa','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
-        <td style="${lvSticky(1,'#f0fdfa','padding:4px 6px')}"><span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">${eng.subDisc||eng.disc}</span></td>
-        <td style="${lvSticky(2,'#f0fdfa','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
-        <td style="${lvSticky(3,'#f0fdfa','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
-        <td style="${lvSticky(4,'#f0fdfa','text-align:center;font-weight:600;color:var(--tx2);font-size:11px')}">${_sp.taken>0?_dsp(_sp.taken):'-'}</td>
+      html+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
+        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
+        <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[eng.subDisc||eng.disc]||'')}">${eng.subDisc||eng.disc}</span></td>
+        <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
+        <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
+        <td style="${lvSticky(4,'var(--surf)','text-align:center;font-weight:600;color:var(--tx2);font-size:11px')}">${_sp.taken>0?_dsp(_sp.taken):'-'}</td>
         ${weeks.map((w)=>{
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
@@ -14904,24 +15069,117 @@ const _origNav=typeof nav==='function'?nav:null;
 
 
 <!-- ENGINEER DETAIL POPUP (v8.9.8) — removable block -->
+<style>
+#engd-ov{animation:engdFade .15s ease;backdrop-filter:blur(2px);-webkit-backdrop-filter:blur(2px);}
+#engd-card{animation:engdPop .22s cubic-bezier(.16,1,.3,1);}
+#engd-card::-webkit-scrollbar{width:8px;}
+#engd-card::-webkit-scrollbar-track{background:transparent;margin:14px 0;}
+#engd-card::-webkit-scrollbar-thumb{background:#D5DEE8;border-radius:20px;border:2px solid #fff;}
+#engd-card::-webkit-scrollbar-thumb:hover{background:#B9C6D4;}
+@keyframes engdFade{from{opacity:0}to{opacity:1}}
+@keyframes engdPop{from{opacity:0;transform:translateY(10px) scale(.985)}to{opacity:1;transform:none}}
+</style>
+<style>
+/* v10.5.8 — Apple-style employee dashboard */
+#engd-ov{justify-content:center !important;align-items:center !important;padding:16px !important;}
+#engd-card{max-width:880px !important;width:100% !important;max-height:90vh !important;height:auto !important;border-radius:22px !important;position:relative;opacity:0;transform:translateY(10px) scale(.98);transition:opacity .2s ease,transform .22s cubic-bezier(.22,.61,.36,1);}
+#engd-ov.engd-open #engd-card{opacity:1;transform:translateY(0) scale(1);}
+@media(max-width:640px){#engd-card{max-width:100% !important;max-height:92vh !important;}}
+@media(prefers-reduced-motion:reduce){#engd-card{transition:none;}}
+.engd-eyebrow{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#9AA7B5;}
+.engd-x{position:absolute;top:12px;right:14px;z-index:5;border:none;background:rgba(255,255,255,.55);backdrop-filter:blur(4px);-webkit-backdrop-filter:blur(4px);width:30px;height:30px;border-radius:50%;font-size:19px;line-height:1;color:#6e6e73;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.engd-grid{display:grid;grid-template-columns:35% 65%;font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',Arial,sans-serif;color:#1d1d1f;}
+@media(max-width:640px){.engd-grid{grid-template-columns:1fr;}}
+.engd-media{background:#F5F5F7;padding:26px 20px 24px;display:flex;flex-direction:column;align-items:center;text-align:center;}
+.engd-av{width:66px;height:66px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:600;flex:0 0 auto;}
+.engd-nm{font-size:19px;line-height:1.15;font-weight:600;margin:12px 0 2px;letter-spacing:-.01em;color:#1d1d1f;}
+.engd-role{font-size:12.5px;color:#6e6e73;margin-bottom:16px;}
+.engd-hero{font-size:40px;font-weight:600;line-height:1;letter-spacing:-.02em;}
+.engd-hsub{font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:#86868b;margin-top:4px;}
+.engd-chip{display:inline-flex;align-items:center;gap:6px;margin-top:11px;font-size:12px;font-weight:600;padding:4px 11px;border-radius:16px;}
+.engd-free{font-size:12px;color:#6e6e73;margin-top:9px;line-height:1.45;}
+.engd-btns{display:flex;gap:8px;margin-top:16px;width:100%;justify-content:center;}
+.engd-pill{border:none;border-radius:980px;padding:8px 20px;font-size:13.5px;font-weight:500;cursor:pointer;font-family:inherit;}
+.engd-pill-p{background:#10243E;color:#fff;}
+.engd-pill-g{background:#E6E9EE;color:#1d1d1f;}
+.engd-mprof{width:100%;margin-top:20px;padding-top:14px;border-top:1px solid #E4E7EC;text-align:left;}
+.engd-rows{padding:6px 24px 12px;overflow:auto;}
+.engd-row{display:flex;gap:13px;padding:13px 0;border-top:1px solid #EDEDEF;}
+.engd-row:first-child{border-top:none;}
+.engd-tile{width:34px;height:34px;border-radius:9px;background:#EEF2F7;color:#10243E;flex:0 0 auto;display:flex;align-items:center;justify-content:center;}
+.engd-tile svg{width:18px;height:18px;}
+.engd-rc{flex:1;min-width:0;}
+.engd-h3{font-size:14px;font-weight:600;margin:0 0 1px;letter-spacing:-.01em;color:#1d1d1f;}
+.engd-cap{font-size:12px;color:#6e6e73;line-height:1.35;}
+.engd-fact{display:flex;gap:10px;font-size:12.5px;padding:6px 0;border-top:1px solid #EDEDEF;}
+.engd-fact:first-child{border-top:none;}
+.engd-fact .k{color:#6e6e73;flex:0 0 auto;}
+.engd-fact .v{margin-left:auto;font-weight:600;text-align:right;color:#1d1d1f;}
+.engd-cell{flex:1;text-align:center;background:#F5F5F7;border-radius:12px;padding:10px 6px;}
+.engd-cell b{font-size:17px;font-weight:600;color:#10243E;}
+.engd-cell span{display:block;font-size:9.5px;color:#86868b;text-transform:uppercase;letter-spacing:.05em;margin-top:2px;}
+.engd-admtag{font-size:9px;font-weight:700;color:#fff;background:#10243E;padding:1px 5px;border-radius:5px;vertical-align:middle;margin-left:6px;}
+</style>
 <div id="engd-ov" style="position:fixed;inset:0;z-index:1000;display:none;align-items:center;justify-content:center;background:rgba(15,23,42,.5);padding:16px;" onclick="if(event.target===this)closeEngDetail()">
-  <div id="engd-card" style="width:100%;max-width:360px;max-height:88vh;overflow:auto;background:#fff;border-radius:16px;-webkit-overflow-scrolling:touch;box-shadow:0 12px 40px rgba(15,23,42,.25);"></div>
+  <div id="engd-card" style="width:100%;max-width:372px;max-height:88vh;overflow:auto;background:#fff;border-radius:20px;-webkit-overflow-scrolling:touch;box-shadow:0 18px 50px rgba(15,23,42,.28),0 2px 8px rgba(15,23,42,.12);"></div>
 </div>
 <script>
 (function(){
   var MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   var DC={'HVAC':{bg:'#B5D4F4',fg:'#0C447C'},'PH&E':{bg:'#C0DD97',fg:'#27500A'},'ELE':{bg:'#FAC775',fg:'#633806'},'ELV':{bg:'#F4C0D1',fg:'#72243E'},'BIM':{bg:'#CECBF6',fg:'#3C3489'}};
   function pwd(pStart,wi){return projWeekDate(pStart,wi);}
-  window.closeEngDetail=function(){var o=document.getElementById('engd-ov');if(o)o.style.display='none';};
+  window.closeEngDetail=function(){var o=document.getElementById('engd-ov');if(!o)return;o.classList.remove('engd-open');document.body.style.overflow='';setTimeout(function(){o.style.display='none';},240);};
+  // v10.5.5 — forecast (in-memory bookings) vs actual (weekly_actuals) over the last 13 weeks. MEP Lead / admin only.
+  window._engdLoadFVA=async function(id){
+    var host=document.getElementById('engd-fva'); if(!host)return;
+    try{
+      var e=(S&&S.engineers||[]).find(function(x){return x.id===id;}); if(!e){host.innerHTML='';return;}
+      function _mon(d){var x=new Date(d);var g=(x.getDay()+6)%7;x.setDate(x.getDate()-g);x.setHours(0,0,0,0);return x;}
+      var end=_mon(new Date()),mondays=[]; for(var i=12;i>=0;i--){var d=new Date(end);d.setDate(d.getDate()-i*7);mondays.push(d);}
+      var isoSet={}; mondays.forEach(function(d){isoSet[wtISO(d)]=1;});
+      var minIso=wtISO(mondays[0]),maxIso=wtISO(mondays[mondays.length-1]);
+      var fBy={};
+      (S.projects||[]).forEach(function(p){
+        if(!p.start)return;
+        Object.keys(p.weeklyHrs||{}).forEach(function(k){
+          if(k!==id&&slotBase(k)!==id)return;
+          var w=p.weeklyHrs[k]; if(!w)return;
+          w.forEach(function(hh,wi){ if(!hh)return; var iso=wtISO(projWeekDate(p.start,wi)); if(isoSet[iso])fBy[p.id]=(fBy[p.id]||0)+hh; });
+        });
+      });
+      var aBy={};
+      var rows=await sbFetch('weekly_actuals?select=project_id,hours,week_commencing&category=eq.project&engineer_id=eq.'+encodeURIComponent(id)+'&week_commencing=gte.'+minIso+'&week_commencing=lte.'+maxIso).catch(function(){return[];});
+      (Array.isArray(rows)?rows:[]).forEach(function(rr){ if(!rr.project_id||!isoSet[rr.week_commencing])return; aBy[rr.project_id]=(aBy[rr.project_id]||0)+(Number(rr.hours)||0); });
+      var ids={}; Object.keys(fBy).forEach(function(k){ids[k]=1;}); Object.keys(aBy).forEach(function(k){ids[k]=1;});
+      var list=Object.keys(ids).map(function(pid){var p=(S.projects||[]).find(function(x){return x.id===pid;});return{nm:p?((p.no?p.no+' · ':'')+(p.name||'Project')):pid,f:Math.round(fBy[pid]||0),a:Math.round(aBy[pid]||0)};});
+      list.sort(function(a,b){return Math.max(b.f,b.a)-Math.max(a.f,a.a);}); list=list.slice(0,5);
+      if(!list.length){host.innerHTML='<div style="font-size:12px;color:#9AA7B5;font-style:italic;padding:6px 0;">No actuals logged in the last 13 weeks.</div>';return;}
+      var mx=1; list.forEach(function(x){mx=Math.max(mx,x.f,x.a);});
+      var out=list.map(function(x){
+        var fp=Math.round(x.f/mx*100),ap=Math.round(x.a/mx*100);
+        return '<div style="margin-bottom:10px;"><div style="display:flex;justify-content:space-between;font-size:12px;color:#28384A;margin-bottom:3px;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+esc(x.nm)+'</span><span style="color:#6B7A8D;flex:0 0 auto;">'+x.a+'h / '+x.f+'h</span></div>'
+          +'<div style="position:relative;height:14px;background:#EDF1F6;border-radius:4px;"><div style="position:absolute;left:0;top:0;height:14px;width:'+fp+'%;background:#B9C6D6;border-radius:4px;"></div><div style="position:absolute;left:0;top:3px;height:8px;width:'+ap+'%;background:#0E7C86;border-radius:3px;"></div></div></div>';
+      }).join('');
+      out+='<div style="font-size:10px;color:#9AA7B5;margin-top:2px;"><span style="display:inline-block;width:9px;height:9px;background:#B9C6D6;border-radius:2px;vertical-align:middle;"></span> forecast &nbsp; <span style="display:inline-block;width:9px;height:9px;background:#0E7C86;border-radius:2px;vertical-align:middle;"></span> actual</div>';
+      host.innerHTML=out;
+    }catch(err){ if(host)host.innerHTML='<div style="font-size:12px;color:#9AA7B5;padding:6px 0;">Couldn\'t load actuals.</div>'; }
+  };
   window.openEngDetail=function(id){
     var e=(S&&S.engineers||[]).find(function(x){return x.id===id;}); if(!e)return;
-    var r; try{r=computeRange(typeof _msf==='function'?_msf():null);}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
+    // v10.3.9 — when opened from the Team page with a project filter active, scope the gauge
+    // AND the allocation list to those projects only (so it matches the card). Elsewhere unscoped.
+    var _projScope=(typeof CURRENT_PAGE!=='undefined'&&CURRENT_PAGE==='team'&&typeof TS_SEL!=='undefined'&&TS_SEL.proj&&TS_SEL.proj.size)?TS_SEL.proj:null;
+    var _onTeam=(typeof CURRENT_PAGE!=='undefined'&&CURRENT_PAGE==='team');
+    var _rF=(_onTeam&&typeof TEAM_FROM_MI!=='undefined'&&TEAM_FROM_MI!=null)?TEAM_FROM_MI:undefined;
+    var _rT=(_onTeam&&typeof TEAM_TO_MI!=='undefined'&&TEAM_TO_MI!=null)?TEAM_TO_MI:undefined;
+    var r; try{r=computeRange(typeof _msf==='function'?_msf():null,_projScope,_rF,_rT);}catch(_){r={util:{},NMON:1,minMI:0,maxMI:0};}
     var NM=r.NMON||1, uA=r.util[id]||[];
     var avg=Math.round((uA.reduce(function(a,b){return a+(b||0);},0))/NM)||0;
     var alloc=[],allocOut=[];
     var _sfA=(typeof _msf==='function')?_msf():null; // v9.8.2 — allocation obeys the status filter
     (S.projects||[]).forEach(function(p){
       if(!p.start)return;
+      if(_projScope&&!_projScope.has(p.id))return; // v10.3.9 — only the ticked project(s)
       if(_sfA&&(Array.isArray(_sfA)?_sfA.indexOf(p.status)<0:p.status!==_sfA))return;
       Object.keys(p.weeklyHrs||{}).forEach(function(k){ // v9.3.0 — one line per booking, tagged
         if(k!==id&&slotBase(k)!==id)return;
@@ -14958,23 +15216,128 @@ const _origNav=typeof nav==='function'?nav:null;
     }).join(''):'<div style="font-size:12px;color:#6B7A8D;font-style:italic;padding:4px 0;">Not staffed in this period.</div>';
     var outHtml=allocOut.length?'<div style="font-size:10px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9AA7B5;margin:10px 0 4px;border-top:0.5px solid #EDF1F6;padding-top:10px;">Also allocated (outside selected range)</div>'+allocOut.map(function(x){return '<div style="display:flex;justify-content:space-between;font-size:12px;color:#6B7A8D;padding:3px 0;gap:8px;"><span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+x.name+'</span><span style="flex:0 0 auto;font-weight:600;">'+Math.round(x.hrs)+' h</span></div>';}).join(''):'';
     allocHtml+=outHtml;
-    var html=
-      '<div style="display:flex;align-items:center;gap:12px;padding:16px 16px 14px;border-bottom:0.5px solid #EDF1F6;">'
-        +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:15px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
-        +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:15px;color:#10243E;line-height:1.25;">'+(e.name||'')+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
-        +'<button onclick="closeEngDetail()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
-      +'</div>'
-      +'<div style="display:flex;align-items:center;gap:14px;padding:14px 16px;">'+ring
-        +'<div style="flex:1;"><span style="display:inline-block;background:'+chipBg+';color:'+chipFg+';font-size:12px;font-weight:600;padding:3px 10px;border-radius:8px;">'+chipTxt+'</span><div style="font-size:12px;color:#6B7A8D;margin-top:7px;line-height:1.5;">'+freeTxt+loadLine+'</div></div>'
-      +'</div>'
-      +'<div style="padding:4px 16px 14px;"><div style="font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;color:#9AA7B5;margin-bottom:9px;">Current allocation</div>'+allocHtml+'</div>'
-      +'<div style="padding:0 16px 14px;">'
-        +'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Annual leave</span><span style="margin-left:auto;font-weight:600;">'+(leaveOnlyH>0?(Math.round(leaveOnlyH)+' h · ~'+Math.round(leaveOnlyH/(((e.cap||45)/5)||9))+' d'):'None')+'</span></div>'+'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Public holidays</span><span style="margin-left:auto;font-weight:600;">'+(holH>0?(Math.round(holH)+' h'):'None')+'</span></div>'+'<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Leave months</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+lvMonTxt+'</span></div>'
-        +(admin?('<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">Grade · rate</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+(e.grade||'—')+' · '+(e.cap||45)+' h/wk · AED '+rate+'/hr</span></div>'):'')
-      +'</div>'
-      +(admin?('<div style="display:flex;gap:10px;padding:12px 16px;background:#F8FAFC;border-top:0.5px solid #EDF1F6;"><button onclick="closeEngDetail();editEng(\''+id+'\')" style="flex:1;border:0.5px solid #C9D3DE;background:#fff;color:#28384A;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Edit</button><button onclick="closeEngDetail();delEng(\''+id+'\')" style="flex:1;border:0.5px solid #F0997B;background:#FCEBEB;color:#A32D2D;border-radius:8px;padding:9px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button></div>'):'');
-    document.getElementById('engd-card').innerHTML=html;
-    document.getElementById('engd-ov').style.display='flex';
+    // ── visibility gating ──
+    var mepLead = admin
+      || (typeof isDirector==='function'&&isDirector())
+      || (typeof myRoles==='function'&&myRoles().some(function(rr){return rr.role==='mep_lead';}))
+      || (S.projects||[]).some(function(p){return p.mepLeadEmail&&typeof currentUserEmail==='function'&&p.mepLeadEmail.toLowerCase()===currentUserEmail().toLowerCase();});
+
+    // range label (shared)
+    var _rf=miToDate(r.minMI),_rl=miToDate(r.maxMI);
+    var _rangeLab=(NM<=1)?(MN[_rf.m]+' '+_rf.y):(MN[_rf.m]+'–'+MN[_rl.m]+' '+_rl.y);
+
+    // icons
+    var IC={
+      alloc:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" d="M4 6h16M4 12h10M4 18h7"/></svg>',
+      trend:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 19V5m0 14h16M8 16v-4m4 4V9m4 7v-6"/></svg>',
+      fva:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/></svg>',
+      leave:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7V3m8 4V3M4 11h16M5 5h14a1 1 0 011 1v13a1 1 0 01-1 1H5a1 1 0 01-1-1V6a1 1 0 011-1z"/></svg>',
+      cost:'<svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 10v2m0-10c1.11 0 2.08.402 2.599 1M12 16c-1.11 0-2.08-.402-2.599-1"/></svg>'
+    };
+    function _row(icon,h3,cap,body){return '<div class="engd-row"><div class="engd-tile">'+icon+'</div><div class="engd-rc"><div class="engd-h3">'+h3+'</div>'+(cap?'<div class="engd-cap">'+cap+'</div>':'')+(body||'')+'</div></div>';}
+
+    // ── utilisation trend inner (selected range); MEP Lead+ ──
+    var trendInner='';
+    if(mepLead){
+      try{
+        var _uSel=(r.util&&r.util[id])||[],_nowMI=dateToMI(new Date()),_bars='',_xs='',_mx=1,_vals=[];
+        for(var _t=0;_t<NM;_t++){var _mi=r.minMI+_t;var _v=Math.round(_uSel[_t]||0);_vals.push({mi:_mi,v:_v});if(_v>_mx)_mx=_v;}
+        _vals.forEach(function(o){
+          var _col=o.v>100?'#A32D2D':(o.v<60?'#B8C4D2':'#10243E');
+          var _h=Math.max(3,Math.round(o.v/Math.max(_mx,100)*40));
+          var _md=miToDate(o.mi);
+          _bars+='<div title="'+MN[_md.m]+' '+_md.y+': '+o.v+'%" style="flex:1;min-width:6px;height:'+_h+'px;background:'+_col+';border-radius:3px 3px 0 0;'+(o.mi===_nowMI?'outline:2px solid #0E7C86;outline-offset:1px;':'')+'"></div>';
+          _xs+='<span style="flex:1;min-width:6px;text-align:center;font-size:8.5px;color:#86868b;">'+MN[_md.m][0]+'</span>';
+        });
+        trendInner='<div style="display:flex;align-items:flex-end;gap:4px;height:44px;margin-top:9px;">'+_bars+'</div><div style="display:flex;gap:4px;margin-top:4px;">'+_xs+'</div>';
+      }catch(_e){trendInner='';}
+    }
+
+    // ── leave inner ──
+    var leaveStrip='';
+    if(mepLead){
+      var _lvSet={}; lvMonths.forEach(function(n){_lvSet[n]=1;});
+      var _cells='';
+      for(var _s2=0;_s2<NM;_s2++){var _mi2=r.minMI+_s2;var _md3=miToDate(_mi2);var _off=_lvSet[MN[_md3.m]]?1:0;
+        _cells+='<div title="'+MN[_md3.m]+' '+_md3.y+'" style="flex:1;min-width:6px;text-align:center;font-size:9px;padding:5px 0;border-radius:6px;border:1px solid '+(_off?'#EBD3A0':'#EDEDEF')+';background:'+(_off?'#FAEEDA':'#F5F5F7')+';color:'+(_off?'#854F0B':'#86868b')+';font-weight:'+(_off?'700':'400')+';">'+MN[_md3.m][0]+'</div>';}
+      leaveStrip='<div style="display:flex;gap:3px;margin:9px 0 4px;">'+_cells+'</div>';
+    }
+    var leaveFacts=
+      '<div class="engd-fact"><span class="k">Annual leave</span><span class="v">'+(leaveOnlyH>0?(Math.round(leaveOnlyH)+' h · ~'+Math.round(leaveOnlyH/(((e.cap||45)/5)||9))+' d'):'None')+'</span></div>'
+      +'<div class="engd-fact"><span class="k">Public holidays</span><span class="v">'+(holH>0?(Math.round(holH)+' h'):'None')+'</span></div>';
+    var leaveCap = lvMonths.length ? ('Off in '+lvMonths.join(', ')+' this period') : 'No leave booked this period';
+    var leaveInner = leaveStrip + '<div style="margin-top:6px;">'+leaveFacts+'</div>';
+
+    // ── billable cells (admin) ──
+    function _cell(v,l){return '<div class="engd-cell"><b>'+v+'</b><span>'+l+'</span></div>';}
+    var costInner='';
+    if(admin){
+      var _cost=0;
+      (S.projects||[]).forEach(function(p){
+        if(!p.start)return;
+        if(_projScope&&!_projScope.has(p.id))return;
+        if(_sfA&&(Array.isArray(_sfA)?_sfA.indexOf(p.status)<0:p.status!==_sfA))return;
+        Object.keys(p.weeklyHrs||{}).forEach(function(k){
+          if(k!==id&&slotBase(k)!==id)return;
+          var w=p.weeklyHrs[k]; if(!w)return;
+          var hr=0; w.forEach(function(hh,wi){ if(!hh)return; var mi=dateToMI(pwd(p.start,wi)); if(mi>=r.minMI&&mi<=r.maxMI)hr+=hh; });
+          if(hr>0)_cost+=hr*getProjRate(e,p)*getJseMult(p,id);
+        });
+      });
+      var _bAvg=0; try{var _bu=(r.billUtil&&r.billUtil[id])||[]; _bAvg=Math.round(_bu.reduce(function(a,b){return a+(b||0);},0)/NM)||0;}catch(_e){}
+      costInner='<div style="display:flex;gap:9px;margin-top:9px;">'+_cell('AED '+Math.round(_cost).toLocaleString(),'Value')+_cell(_bAvg+'%','Billable')+_cell('AED '+rate,'Rate/hr')+'</div>';
+    }
+
+    // ── profile facts (left column; MEP Lead+) ──
+    var profLeft='';
+    if(mepLead){
+      var _hist=[];
+      (S.projects||[]).forEach(function(p){
+        var any=Object.keys(p.weeklyHrs||{}).some(function(k){return (k===id||slotBase(k)===id)&&(p.weeklyHrs[k]||[]).some(function(v){return v>0;});});
+        if(any)_hist.push((p.no?p.no+' · ':'')+(p.name||'Project')+(p.status&&p.status!=='Active'?' ('+p.status+')':''));
+      });
+      var _histTxt=_hist.length?(_hist.slice(0,6).map(esc).join(' · ')+(_hist.length>6?' · +'+(_hist.length-6)+' more':'')):'—';
+      var _discTxt=e.team==='BIM'?('BIM'+(e.subDisc?' · '+e.subDisc:'')):(e.disc||'—');
+      profLeft='<div class="engd-mprof"><div class="engd-h3" style="margin-bottom:6px;">Profile &amp; history</div>'
+        +'<div class="engd-fact"><span class="k">Grade · cap</span><span class="v">'+esc((e.grade||'—')+' · '+(e.cap||45)+' h/wk')+'</span></div>'
+        +'<div class="engd-fact"><span class="k">Discipline</span><span class="v">'+esc(_discTxt)+'</span></div>'
+        +'<div class="engd-fact"><span class="k">Office</span><span class="v">'+esc(e.off||'DXB')+'</span></div>'
+        +(e.joinDate?('<div class="engd-fact"><span class="k">Joined</span><span class="v">'+esc(e.joinDate)+'</span></div>'):'')
+        +'<div class="engd-fact"><span class="k">All projects</span><span class="v" style="font-weight:500;font-size:11px;color:#6e6e73;">'+_histTxt+'</span></div>'
+      +'</div>';
+    }
+
+    // ── left / identity column ──
+    var leftCol='<div class="engd-media">'
+      +'<div class="engd-av" style="background:'+dc.bg+';color:'+dc.fg+';">'+initials+'</div>'
+      +'<div class="engd-nm">'+esc(e.name||'')+'</div>'
+      +'<div class="engd-role">'+sub+'</div>'
+      +'<div class="engd-hero" style="color:'+chipFg+';">'+Math.round(avg)+'%</div>'
+      +'<div class="engd-hsub">Utilisation · '+_rangeLab+'</div>'
+      +'<div class="engd-chip" style="background:'+chipBg+';color:'+chipFg+';"><span style="width:7px;height:7px;border-radius:50%;background:'+chipFg+';"></span>'+chipTxt+'</div>'
+      +'<div class="engd-free">'+freeTxt+loadLine+'</div>'
+      +(admin?('<div class="engd-btns"><button class="engd-pill engd-pill-p" onclick="closeEngDetail();editEng(\''+id+'\')">Edit</button><button class="engd-pill engd-pill-g" onclick="closeEngDetail();delEng(\''+id+'\')">Delete</button></div>'):'')
+      +profLeft
+    +'</div>';
+
+    // ── right / detail rows ──
+    var _allocCap = top.length ? (top.length+' active project'+(top.length>1?'s':'')+' this period') : 'Not staffed in this period';
+    var rightRows=''
+      + _row(IC.alloc,'Current allocation',_allocCap,'<div style="margin-top:8px;">'+allocHtml+'</div>')
+      + (mepLead?_row(IC.trend,'Utilisation · '+_rangeLab,'Across the selected date range',trendInner):'')
+      + (mepLead?_row(IC.fva,'Forecast vs actual','Last 13 weeks · from Weekly Tracker','<div id="engd-fva" style="margin-top:8px;"><div style="font-size:12px;color:#86868b;padding:4px 0;">Loading actuals…</div></div>'):'')
+      + _row(IC.leave,'Leave',leaveCap,leaveInner)
+      + (admin?_row(IC.cost,'Billable value<span class="engd-admtag">ADMIN</span>','Selected period',costInner):'');
+
+    var html='<button class="engd-x" onclick="closeEngDetail()" aria-label="Close">&times;</button>'
+      +'<div class="engd-grid">'+leftCol+'<div class="engd-rows">'+rightRows+'</div></div>';
+
+    var _card=document.getElementById('engd-card'); if(_card)_card.scrollTop=0;
+    _card.innerHTML=html;
+    var _ov=document.getElementById('engd-ov'); _ov.style.display='flex';
+    document.body.style.overflow='hidden';
+    requestAnimationFrame(function(){_ov.classList.add('engd-open');});
+    if(mepLead){ try{ window._engdLoadFVA&&window._engdLoadFVA(id); }catch(_e){} }
   };
 })();
 </script>
