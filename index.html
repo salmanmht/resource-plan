@@ -907,7 +907,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.9 · 2 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.12 · 2 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1007,7 +1007,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.9 · 2 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.12 · 2 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1145,6 +1145,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <div class="hdr-fbar">
         <input id="ps-q" placeholder="Search..." oninput="renderProj()">
         <select id="ps-st" onchange="renderProj()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
+        <select id="ps-sort" onchange="setProjSort(this.value)" title="Sort projects"><option value="status">Sort: Status</option><option value="name">Sort: Name</option><option value="no">Sort: Proj No</option><option value="hrs">Sort: Total Hrs</option><option value="start">Sort: Start date</option><option value="mgr">Sort: Manager</option></select>
+        <button id="ps-dir" type="button" onclick="toggleProjDir()" title="Toggle sort direction" style="background:#fff;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;cursor:pointer;color:#10243E;line-height:1;">&#8593;</button>
+        <div id="ps-view" style="display:inline-flex;gap:3px;background:#eef1f5;border-radius:8px;padding:3px;">
+          <button type="button" data-v="detailed" onclick="setProjView('detailed')" style="border:none;background:#10243E;color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Detailed</button>
+          <button type="button" data-v="compact" onclick="setProjView('compact')" style="border:none;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">List</button>
+          <button type="button" data-v="cards" onclick="setProjView('cards')" style="border:none;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Cards</button>
+        </div>
         <span id="proj-count" style="font-size:11px;color:var(--tx3);white-space:nowrap;"></span>
       </div>
       </div>
@@ -6539,12 +6546,12 @@ function renderMEP(){
   const bimHeadTotal=list=>list.reduce((n,e)=>n+bimHeadOf(e),0);
   const offSplitHeads=list=>{var by={};list.forEach(e=>{var o=e.off||'\u2014';by[o]=(by[o]||0)+bimHeadOf(e);});var p=['DXB','EGY','IND'].filter(o=>by[o]).map(o=>by[o]+' '+o);Object.keys(by).forEach(o=>{if(['DXB','EGY','IND'].indexOf(o)<0)p.push(by[o]+' '+o);});return p.join(' \u00b7 ')||'\u2014';};
   document.getElementById('mep-metrics').innerHTML=`
-    <div id="kpi-eng-card" class="mc-int hi" onclick="kpiDrillDown('engineers')" title="Click to view register">
+    <div id="kpi-eng-card" class="mc-int hi" onclick="goTeamFiltered('MEP',null)" title="View these engineers on the Team page">
       <div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var m=all.filter(function(e){return e.team!=='BIM';}).length,t=all.length;return t?Math.round(m/t*100):0;})(),34):''}<div class="mc-v">${all.filter(e=>e.team!=='BIM').length}</div></div></div>
       <div class="mc-s">${offSplit(all.filter(e=>e.team!=='BIM'))}</div>
     </div>
-    <div id="kpi-bim-card" class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="nav('team');setTimeout(()=>switchTeamTab('bim'),50)" title="Click to view BIM team">
+    <div id="kpi-bim-card" class="mc-int" style="border-top:3px solid #0d9488;cursor:pointer;" onclick="goTeamFiltered('BIM',null)" title="View the BIM team on the Team page">
       <div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div>
       <div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((function(){var b=all.filter(function(e){return e.team==='BIM';}).length,t=all.length;return t?Math.round(b/t*100):0;})(),34):''}<div class="mc-v" style="color:#0d9488" title="Total modellers — real BIM staff + derived JSE heads (peak weekly booked \u00f7 capacity)">${bimHeadTotal(all.filter(e=>e.team==='BIM'))}</div></div></div>
       <div class="mc-s">${offSplitHeads(all.filter(e=>e.team==='BIM'))}</div>
@@ -7225,8 +7232,8 @@ function renderOffice(off,pcId){
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow" id="off-metrics-${cid}">
-      <div class="mc-int hi"><div class="mc-head"><div class="mc-l">Engineers (MEP)</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subMEP.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v">${subMEP.length}</div></div></div><div class="mc-s">${subMEP.length} ${off}</div></div>
-      <div class="mc-int" style="border-top:3px solid #0d9488;"><div class="mc-head"><div class="mc-l">BIM Team</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
+      <div class="mc-int hi" onclick="goTeamFiltered('MEP','${off}')" title="View these engineers on the Team page" style="cursor:pointer;"><div class="mc-head"><div class="mc-l">Engineers (MEP)</div><div class="mc-arrow">→</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subMEP.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v">${subMEP.length}</div></div></div><div class="mc-s">${subMEP.length} ${off}</div></div>
+      <div class="mc-int" onclick="goTeamFiltered('BIM','${off}')" title="View the BIM team on the Team page" style="border-top:3px solid #0d9488;cursor:pointer;"><div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
       <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div></div><div class="mc-s">${grainLabel} · avg</div></div>
       <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
       <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div><div class="mc-s">Period total · ${grainLabel}</div></div>
@@ -7457,6 +7464,25 @@ function switchTeamTab(tab){
   if(typeof TS_SEL!=='undefined'){ if(tab==='bim')TS_SEL.disc=new Set(['BIM']); else if(tab==='engineers')TS_SEL.disc.clear(); try{tmsSyncLabels();}catch(e){} }
   invalidate('team');
 }
+
+// v10.5.11 — land on the Team page pre-filtered to match an overview card.
+// kind: 'MEP' → active MEP disciplines (or all MEP if none active); 'BIM' → BIM only.
+// officeOverride: single office code for office overviews; null → use the MEP overview office selection.
+function goTeamFiltered(kind, officeOverride){
+  if(typeof TS_SEL==='undefined')return;
+  TS_SEL.disc=new Set(); TS_SEL.off=new Set();
+  var offs = officeOverride ? [officeOverride] : (Array.isArray(window.MEP_OFF)?window.MEP_OFF.slice():[]);
+  offs.forEach(function(o){ if(o)TS_SEL.off.add(o); });
+  if(kind==='BIM'){ TS_SEL.disc.add('BIM'); }
+  else {
+    var act=(Array.isArray(window.MEP_DISC)?window.MEP_DISC.filter(function(d){return d!=='BIM';}):[]);
+    if(act.length){ act.forEach(function(d){TS_SEL.disc.add(d);}); }
+    else { (typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():[]).forEach(function(d){TS_SEL.disc.add(d);}); }
+  }
+  try{tmsSyncLabels();}catch(e){}
+  nav('team');
+}
+window.goTeamFiltered=goTeamFiltered;
 
 
 // Rebuilds the Team page's discipline filter from the live discipline config
@@ -7716,17 +7742,37 @@ function renderTeam(){
 // ═══════════════════════════════════════
 // PROJECTS — LIST + DETAIL
 // ═══════════════════════════════════════
+// v10.5.10 — Projects sort + view state
+let PROJ_SORT={field:'status',dir:1};
+let PROJ_VIEW='detailed';
+try{const _ps=localStorage.getItem('projSort'); if(_ps){const o=JSON.parse(_ps); if(o&&o.field){PROJ_SORT={field:o.field,dir:(o.dir===-1?-1:1)};}}}catch(e){}
+try{const _pv=localStorage.getItem('projView'); if(_pv&&['detailed','compact','cards'].indexOf(_pv)>=0)PROJ_VIEW=_pv;}catch(e){}
+function _projStatusRank(s){return s==='Active'?0:s==='On Hold'?1:2;}
+function projSortCmp(a,b){
+  const f=PROJ_SORT.field, dir=PROJ_SORT.dir;
+  if(f==='status'){ const ra=_projStatusRank(a.status), rb=_projStatusRank(b.status); if(ra!==rb)return (ra-rb)*dir; return (a.name||'').localeCompare(b.name||'')*dir; }
+  if(f==='name')  return (a.name||'').localeCompare(b.name||'')*dir;
+  if(f==='no')    return String(a.no||'').localeCompare(String(b.no||''),undefined,{numeric:true})*dir;
+  if(f==='hrs')   return ((projTotalHrs(a)||0)-(projTotalHrs(b)||0))*dir;
+  if(f==='start') return ((new Date(a.start||0).getTime()||0)-(new Date(b.start||0).getTime()||0))*dir;
+  if(f==='mgr')   return String(getMepLeadName(a.mepLeadEmail)||'').toLowerCase().localeCompare(String(getMepLeadName(b.mepLeadEmail)||'').toLowerCase())*dir;
+  return 0;
+}
+function _projSyncControls(){
+  const ss=document.getElementById('ps-sort'); if(ss)ss.value=PROJ_SORT.field;
+  const sd=document.getElementById('ps-dir'); if(sd)sd.innerHTML=(PROJ_SORT.dir===1?'&#8593;':'&#8595;');
+  const vw=document.getElementById('ps-view'); if(vw){vw.querySelectorAll('button').forEach(function(b){var on=b.getAttribute('data-v')===PROJ_VIEW;b.style.background=on?'#10243E':'transparent';b.style.color=on?'#fff':'var(--tx2)';});}
+}
+function setProjSort(f){PROJ_SORT.field=f;try{localStorage.setItem('projSort',JSON.stringify(PROJ_SORT));}catch(e){} _projSyncControls(); renderProj();}
+function toggleProjDir(){PROJ_SORT.dir=(PROJ_SORT.dir===1?-1:1);try{localStorage.setItem('projSort',JSON.stringify(PROJ_SORT));}catch(e){} _projSyncControls(); renderProj();}
+function setProjView(v){PROJ_VIEW=v;try{localStorage.setItem('projView',v);}catch(e){} _projSyncControls(); renderProj();}
+window.setProjSort=setProjSort; window.toggleProjDir=toggleProjDir; window.setProjView=setProjView;
 function renderProj(){
   const q=(document.getElementById('ps-q').value||'').toLowerCase();
   const sf=document.getElementById('ps-st').value;
   const list=S.projects.filter(p=>{if(sf!=='all'&&p.status!==sf)return false;if(q&&!(p.name||'').toLowerCase().includes(q)&&!(p.no||'').toLowerCase().includes(q))return false;return true;});
-  // Sort: Active (0) → On Hold (1) → everything else (2); within each group, sort A–Z by name
-  const statusRank=s=>s==='Active'?0:s==='On Hold'?1:2;
-  list.sort((a,b)=>{
-    const ra=statusRank(a.status), rb=statusRank(b.status);
-    if(ra!==rb)return ra-rb;
-    return (a.name||'').localeCompare(b.name||'');
-  });
+  _projSyncControls();
+  list.sort(projSortCmp);
 
   // Compact single-line row layout with programme strip
   const COLS='40px 80px 1fr minmax(220px,2fr) 100px 90px';
@@ -7838,6 +7884,51 @@ function renderProj(){
     </div>`;
   };
 
+  // v10.5.10 — helpers for compact + card views
+  const _DB={HVAC:['#B5D4F4','#0C447C'],'PH&E':['#C0DD97','#27500A'],ELE:['#FAC775','#633806'],ELV:['#F4C0D1','#72243E'],BIM:['#CECBF6','#3C3489']};
+  const discsOf=(p)=>{ const set={}; S.engineers.forEach(e=>{ if(whHasFor(p,e.id)){ if(e.team==='BIM')set['BIM']=1; else if(e.disc)set[e.disc]=1; } }); const order=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():[]).concat(['BIM']); const inOrder=order.filter(d=>set[d]); const extra=Object.keys(set).filter(d=>order.indexOf(d)<0); return inOrder.concat(extra); };
+  const teamOf=(p)=>S.engineers.filter(e=>whHasFor(p,e.id)).length;
+  const elapsedOf=(p)=>{ const s=new Date(p.start).getTime(), e=new Date(p.end).getTime(); if(!(e>s))return 0; return Math.max(0,Math.min(100,Math.round((Date.now()-s)/(e-s)*100))); };
+  const nextStageOf=(p)=>{ const now=Date.now(); const fut=(p.stages||[]).filter(s=>s.from&&s.to&&new Date(s.from).getTime()>now).sort((a,b)=>new Date(a.from)-new Date(b.from)); if(!fut.length)return null; const s=fut[0]; const away=Math.max(0,Math.round((new Date(s.from).getTime()-now)/(7*24*3600*1000))); return {name:s.name||'Stage', wk:'W'+wkNum(new Date(s.from)), in:(away>0?('in '+away+'w'):'this week')}; };
+  const miniBar=(p)=>{ const stages=(p.stages||[]).filter(s=>s.from&&s.to); if(!stages.length)return '<div style="height:7px;background:repeating-linear-gradient(90deg,#e4e6ea 0 6px,#f1f5f9 6px 12px);border-radius:4px;"></div>'; const ps=new Date(p.start).getTime(), pe=new Date(p.end).getTime(), span=Math.max(1,pe-ps); const blocks=stages.map((st,si)=>{ const sc=stageColor(si,st); const f=Math.max(ps,new Date(st.from).getTime()); const t=Math.min(pe,new Date(st.to).getTime()); if(t<=f)return ''; const l=((f-ps)/span*100), w=((t-f)/span*100); return '<i style="position:absolute;left:'+l.toFixed(2)+'%;width:'+w.toFixed(2)+'%;top:0;bottom:0;background:'+sc.bdr+';"></i>'; }).join(''); return '<div style="position:relative;height:7px;background:#F1F4F8;border-radius:4px;overflow:hidden;">'+blocks+'</div>'; };
+  const _fmtD=(d)=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric'});
+
+  const buildCompact=()=>{
+    const COLS_C='32px 78px 1fr 150px 92px';
+    const head=`<div style="display:grid;grid-template-columns:${COLS_C};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;"><div>#</div><div>Proj No.</div><div>Name</div><div>Manager</div><div style="text-align:right;">Total Hrs</div></div>`;
+    const rows=list.map((p,idx)=>{ const th=projTotalHrs(p); return `<div class="proj-row" style="display:grid;grid-template-columns:${COLS_C};align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--bdr);font-size:13px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''"><div style="color:var(--tx3);font-weight:600;font-size:12px;">${idx+1}</div><div style="color:var(--tx3);font-weight:500;font-size:12px;">${p.no||'—'}</div><div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${statusDot(p)}${esc(p.name)}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</div><div style="min-width:0;">${p.mepLeadEmail?`<span style="font-size:10px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 6px;border-radius:4px;">${getMepLeadName(p.mepLeadEmail)}</span>`:'<span style="color:var(--tx3);font-size:11px;">—</span>'}</div><div style="text-align:right;font-weight:700;color:#0369a1;">${th>0?fN(Math.round(th)):'—'}</div></div>`; }).join('');
+    return `<div class="card" style="padding:0;overflow:hidden;">${head}${rows}${emptyMsg}</div>`;
+  };
+
+  const buildCards=()=>{
+    if(!list.length)return emptyMsg;
+    const cards=list.map(p=>{
+      const th=projTotalHrs(p);
+      const stg=(p.stages||[]).filter(s=>s.from&&s.to).length;
+      const badges=discsOf(p).map(c=>{const col=_DB[c]||['#e5e7eb','#374151'];return `<span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${col[0]};color:${col[1]};">${esc(c)}</span>`;}).join('');
+      const badgesHtml=badges?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px;">${badges}</div>`:'';
+      const team=teamOf(p), el=elapsedOf(p);
+      const ns=nextStageOf(p);
+      const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:#F0F6FF;border:1px solid #DCE8FA;border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;">Next milestone</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
+      let tll='';try{const d1=new Date(p.start),d2=new Date(p.end);const w=Math.round((d2-d1)/(7*24*3600*1000));tll=_fmtD(d1)+' → '+_fmtD(d2)+' · '+w+'w';}catch(_){}
+      return `<div class="proj-card" style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:15px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.05);" onclick="openProjDetail('${p.id}')">
+        <div style="display:flex;align-items:center;gap:7px;">${statusDot(p)}<span style="font-size:11px;color:var(--tx3);">${p.no||'—'} · ${p.status||'—'}</span><span style="margin-left:auto;font-size:10.5px;color:var(--tx3);">${stg} stage${stg===1?'':'s'}</span></div>
+        <div style="font-weight:700;font-size:14.5px;margin:5px 0 2px;line-height:1.2;">${esc(p.name)}</div>
+        <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">${[p.client,p.mepLeadEmail?getMepLeadName(p.mepLeadEmail):''].filter(Boolean).join(' · ')||'—'}</div>
+        ${badgesHtml}
+        <div style="display:flex;gap:8px;margin-bottom:10px;">
+          <div style="flex:1;background:#F5F5F7;border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${team}</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Team</span></div>
+          <div style="flex:1;background:#F5F5F7;border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${el}%</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Elapsed</span><div style="height:6px;background:#EDF1F6;border-radius:4px;overflow:hidden;margin-top:5px;"><div style="height:6px;width:${el}%;background:#10243E;border-radius:4px;"></div></div></div>
+        </div>
+        ${nextHtml}
+        ${miniBar(p)}
+        <div style="font-size:10px;color:#9AA7B5;margin-top:6px;">${tll}</div>
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:11px;border-top:1px solid var(--bdr);font-size:11px;color:var(--tx3);"><span>Total hours</span><span style="font-size:18px;font-weight:700;color:#0d7d8a;">${th>0?fN(Math.round(th)):'—'}</span></div>
+      </div>`;
+    }).join('');
+    return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">${cards}</div>`;
+  };
+
   const headerRow=`<div class="proj-row-header" style="display:grid;grid-template-columns:${COLS};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;">
     <div>#</div>
     <div>Proj No.</div>
@@ -7891,11 +7982,12 @@ function renderProj(){
   // v9.31.0 — project count now lives in the page header, not above the list
   { const _pc=document.getElementById('proj-count');
     if(_pc)_pc.innerHTML=`<strong style="color:var(--tx2);">${list.length}</strong> project${list.length===1?'':'s'}${(q||sf!=='all')?' shown':''} · <strong style="color:var(--tx2);">${S.projects.length}</strong> total`; }
-  document.getElementById('proj-list').innerHTML=`  <div class="card" style="padding:0;overflow:hidden;">
-    ${(typeof isMobile==='function'&&isMobile())?'':headerRow}
-    ${rowsHtml}
-    ${emptyMsg}
-  </div>`;
+  const _mobile=(typeof isMobile==='function'&&isMobile());
+  let _body;
+  if(PROJ_VIEW==='cards'){ _body=buildCards(); }
+  else if(PROJ_VIEW==='compact' && !_mobile){ _body=buildCompact(); }
+  else { _body=`<div class="card" style="padding:0;overflow:hidden;">${_mobile?'':headerRow}${rowsHtml}${emptyMsg}</div>`; }
+  document.getElementById('proj-list').innerHTML=_body;
 }
 
 // ── Pull-based sync (v9.2.1) ───────────────────────────────────────────────
