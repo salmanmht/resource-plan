@@ -907,7 +907,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.12 · 2 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.25 · 4 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1007,7 +1007,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.12 · 2 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.25 · 4 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1208,8 +1208,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <span class="hdr-t">Deadline Tracker</span>
         <div class="hdr-fbar">
         <input id="trk-q" placeholder="Search projects..." oninput="renderTracker()">
-        <select id="trk-add" title="Add or edit deadlines for a project" onchange="if(this.value){openTrackerProj(this.value);this.value='';}"></select>
         <select id="trk-filter" onchange="renderTracker()"><option value="all">All projects</option><option value="overdue">Has overdue</option><option value="upcoming">Has upcoming</option></select>
+        <select id="trk-sort" onchange="setTrkSort(this.value)" title="Sort rows"><option value="no">Sort: Proj No</option><option value="name">Sort: Name</option><option value="next">Sort: Next deadline</option><option value="status">Sort: Status</option></select>
+        <button id="trk-sort-dir" type="button" onclick="toggleTrkSortDir()" title="Sort direction" style="background:#fff;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;cursor:pointer;color:#10243E;line-height:1;">&#8593;</button>
+        <input id="trk-grid-from" type="date" title="Grid start week" onchange="setTrkGridFrom(this.value)" style="display:none;">
+        <select id="trk-grid-weeks" title="Weeks shown" onchange="setTrkGridWeeks(this.value)" style="display:none;"><option value="13">13 weeks</option><option value="26" selected>26 weeks</option><option value="39">39 weeks</option><option value="52">52 weeks</option></select>
+        <div id="trk-view" style="display:inline-flex;gap:3px;background:#eef1f5;border-radius:8px;padding:3px;">
+          <button type="button" data-v="cards" onclick="setTrkView('cards')" style="border:none;background:#10243E;color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Cards</button>
+          <button type="button" data-v="grid" onclick="setTrkView('grid')" style="border:none;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Grid</button>
+        </div>
       </div>
       </div>
       <div style="display:flex;gap:4px;align-items:center;">
@@ -8349,6 +8356,8 @@ const renderProjList=renderProj;
 // ═══════════════════════════════════════
 // DEADLINES & NOTES  (v8.11.1 — simplified: two panels only)
 // ═══════════════════════════════════════
+function _trkCanEdit(){ if(adminUnlocked)return true; try{ if(typeof isDirector==='function'&&isDirector())return true; }catch(e){} try{ return (S.projects||[]).some(function(p){return isMepLeadFor(p.id);}); }catch(e){ return false; } }
+window._trkCanEdit=_trkCanEdit;
 function fmtMsDate(d){
   if(!d)return '';
   const dt=new Date(d+'T00:00:00');
@@ -8376,13 +8385,13 @@ function msEffectiveState(m){
 }
 // Can the current user add meeting notes? (any lead role, or admin/MEP lead)
 function canAddTrkNotes(pid){
-  if(adminUnlocked||isMepLeadFor(pid))return true;
+  if(_trkCanEdit())return true;
   return myRoles().some(r=>['mep_lead','disc_lead','bim_lead'].includes(r.role));
 }
 // ── Deadlines ──
 function trkAddMilestone(pid){
   const p=S.projects.find(x=>x.id===pid);if(!p)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!(_trkCanEdit()))return toast('⛔ Only admin or the MEP Lead can edit.');
   const tEl=document.getElementById('trk-new-ms-t'),dEl=document.getElementById('trk-new-ms-d');
   const label=(tEl&&tEl.value||'').trim();
   if(!label){if(tEl)tEl.focus();return;}
@@ -8406,7 +8415,7 @@ function trkEditMsDate(pid,i,val){
 }
 function cycleMsStatus(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones||!p.milestones[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!(_trkCanEdit()))return toast('⛔ Only admin or the MEP Lead can edit.');
   const m=p.milestones[i];
   const cur=m.status||(m.done?'done':'upcoming');
   let idx=MS_CYCLE.indexOf(cur);
@@ -8418,7 +8427,7 @@ function cycleMsStatus(pid,i){
 }
 function removeMilestone(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.milestones)return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('⛔ Only admin or the MEP Lead can edit.');
+  if(!(_trkCanEdit()))return toast('⛔ Only admin or the MEP Lead can edit.');
   if(!confirm('Remove this deadline?'))return;
   p.milestones.splice(i,1);pushProj(p);refreshMilestoneViews();
 }
@@ -8459,7 +8468,7 @@ function removeStatusNote(pid,i){
 // PROGRAMME NOTES  (v8.11.7 — team heads-up for the MEP Lead to review)
 // ═══════════════════════════════════════
 function canPostProgNote(pid){
-  if(adminUnlocked||isMepLeadFor(pid))return true;
+  if(_trkCanEdit())return true;
   return myRoles().some(r=>['mep_lead','disc_lead','bim_lead'].includes(r.role));
 }
 function progNoteAuthor(){
@@ -8482,7 +8491,7 @@ function addProgNote(pid){
 }
 function toggleProgNoteReviewed(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes||!p.progNotes[i])return;
-  if(!(adminUnlocked||isMepLeadFor(pid)))return toast('\u26d4 Only the MEP Lead or admin can mark a note reviewed.');
+  if(!(_trkCanEdit()))return toast('\u26d4 Only the MEP Lead or admin can mark a note reviewed.');
   const n=p.progNotes[i];
   n.reviewed=!n.reviewed;
   if(n.reviewed){n.reviewedBy=progNoteAuthor();n.reviewedOn=todayISO();}else{delete n.reviewedBy;delete n.reviewedOn;}
@@ -8494,7 +8503,7 @@ function removeProgNote(pid,i){
   const p=S.projects.find(x=>x.id===pid);if(!p||!p.progNotes)return;
   const n=p.progNotes[i];
   const mine=(n&&n.by===progNoteAuthor());
-  if(!(adminUnlocked||isMepLeadFor(pid)||mine))return toast('\u26d4 You can only remove your own note.');
+  if(!(_trkCanEdit()||mine))return toast('\u26d4 You can only remove your own note.');
   if(!confirm('Remove this programme note?'))return;
   p.progNotes.splice(i,1);pushProj(p);
   if(window._viewingProjId===pid && typeof renderProjDetail==='function')renderProjDetail(p);
@@ -8509,7 +8518,7 @@ function fmtProgDate(d){
 function renderProgNotes(p){
   if(!p.progNotes)p.progNotes=[];
   const canPost=canPostProgNote(p.id);
-  const canReview=adminUnlocked||isMepLeadFor(p.id);
+  const canReview=_trkCanEdit();
   const me=progNoteAuthor();
   const idx=p.progNotes.map((n,i)=>i);
   idx.sort((a,b)=>{
@@ -8569,7 +8578,7 @@ function toggleProgNotes(pid){
 function renderMilestoneEditor(p){
   if(!p.milestones)p.milestones=[];
   if(!p.statusLog)p.statusLog=[];
-  const canEdit=adminUnlocked||isMepLeadFor(p.id);
+  const canEdit=_trkCanEdit();
   const canNote=canAddTrkNotes(p.id);
   const ms=[...p.milestones].sort((a,b)=>(a.date||'').localeCompare(b.date||''));
 
@@ -8659,8 +8668,239 @@ function trackerProjStatus(p){
   if(ms.length>0)return{label:done+'/'+ms.length+' done',cls:'hi',bg:'var(--acc2)',fg:'var(--acc)'};
   return{label:'no milestones',cls:'',bg:'var(--surf2)',fg:'var(--tx3)'};
 }
+// ── v10.5.13 — Deadline Tracker GRID view (projects × weeks, fully editable) ──
+let TRK_VIEW='cards', TRK_GRID_FROM='', TRK_GRID_WEEKS=26;
+let TRK_SORT={field:'no',dir:1};
+try{const so=localStorage.getItem('trkSort'); if(so){const o=JSON.parse(so); if(o&&o.field)TRK_SORT={field:o.field,dir:(o.dir===-1?-1:1)};}}catch(e){}
+try{const v=localStorage.getItem('trkView'); if(v==='grid'||v==='cards')TRK_VIEW=v;}catch(e){}
+try{const f=localStorage.getItem('trkGridFrom'); if(f)TRK_GRID_FROM=f;}catch(e){}
+try{const w=parseInt(localStorage.getItem('trkGridWeeks'),10); if(w)TRK_GRID_WEEKS=w;}catch(e){}
+const TRK_COLORS={red:['#F6C9C9','#8f1d1d'],amber:['#F7E0B8','#7a4d09'],green:['#CFE6AE','#2f5a0d'],blue:['#C4D6F0','#1c4272'],purple:['#D6CFEE','#3a2f76'],navy:['#C9D3E2','#10243E']};
+function _trkMonday(d){var x=new Date(d);if(isNaN(x))x=new Date();var g=(x.getDay()+6)%7;x.setDate(x.getDate()-g);x.setHours(0,0,0,0);return x;}
+function _trkISOWeek(d){var t=new Date(Date.UTC(d.getFullYear(),d.getMonth(),d.getDate()));var day=(t.getUTCDay()+6)%7;t.setUTCDate(t.getUTCDate()-day+3);var f=new Date(Date.UTC(t.getUTCFullYear(),0,4));return 1+Math.round(((t-f)/86400000-3+((f.getUTCDay()+6)%7))/7);}
+function _trkMsColor(m){ if(m&&m.color&&TRK_COLORS[m.color])return TRK_COLORS[m.color]; const st=msEffectiveState(m); return st==='overdue'?TRK_COLORS.red:st==='done'?TRK_COLORS.green:st==='progress'?TRK_COLORS.amber:TRK_COLORS.blue; }
+function _trkSyncControls(){
+  TRK_VIEW='grid';
+  const fv=document.getElementById('trk-view'); if(fv)fv.style.display='none';
+  _trkSyncSort();
+  const showGrid=(TRK_VIEW==='grid');
+  const gf=document.getElementById('trk-grid-from'), gw=document.getElementById('trk-grid-weeks');
+  if(!TRK_GRID_FROM)TRK_GRID_FROM=wtISO(_trkMonday(todayISO()));
+  if(gf){gf.style.display=showGrid?'':'none'; gf.value=TRK_GRID_FROM;}
+  if(gw){gw.style.display=showGrid?'':'none'; gw.value=String(TRK_GRID_WEEKS);}
+}
+function setTrkView(v){TRK_VIEW=v;try{localStorage.setItem('trkView',v);}catch(e){} _trkSyncControls(); renderTracker();}
+function setTrkGridFrom(v){TRK_GRID_FROM=wtISO(_trkMonday(v||todayISO()));try{localStorage.setItem('trkGridFrom',TRK_GRID_FROM);}catch(e){} renderTracker();}
+function _trkNextDate(p){ const now=todayISO(); const fut=(p.milestones||[]).filter(m=>m.date&&m.date>=now).map(m=>m.date).sort(); if(fut.length)return fut[0]; const all=(p.milestones||[]).map(m=>m.date).filter(Boolean).sort(); return all.length?all[all.length-1]:''; }
+function _trkStatusRank(p){ const ms=(p.milestones||[]); if(ms.some(m=>msEffectiveState(m)==='overdue'))return 0; if(ms.some(m=>{const s=msEffectiveState(m);return s==='upcoming'||s==='progress';}))return 1; if(ms.length)return 2; return 3; }
+function trkSortCmp(a,b){
+  const f=TRK_SORT.field, dir=TRK_SORT.dir;
+  if(f==='name') return (a.name||'').localeCompare(b.name||'')*dir;
+  if(f==='no')   return String(a.no||'').localeCompare(String(b.no||''),undefined,{numeric:true})*dir;
+  if(f==='next'){ const na=_trkNextDate(a)||'9999-99-99', nb=_trkNextDate(b)||'9999-99-99'; return (na<nb?-1:na>nb?1:0)*dir; }
+  if(f==='status') return (_trkStatusRank(a)-_trkStatusRank(b))*dir;
+  return 0;
+}
+function _trkSyncSort(){
+  const ss=document.getElementById('trk-sort'); if(ss)ss.value=TRK_SORT.field;
+  const sd=document.getElementById('trk-sort-dir'); if(sd)sd.innerHTML=(TRK_SORT.dir===1?'&#8593;':'&#8595;');
+}
+function setTrkSort(f){TRK_SORT.field=f;try{localStorage.setItem('trkSort',JSON.stringify(TRK_SORT));}catch(e){} _trkSyncSort(); renderTracker();}
+function toggleTrkSortDir(){TRK_SORT.dir=(TRK_SORT.dir===1?-1:1);try{localStorage.setItem('trkSort',JSON.stringify(TRK_SORT));}catch(e){} _trkSyncSort(); renderTracker();}
+window.setTrkSort=setTrkSort; window.toggleTrkSortDir=toggleTrkSortDir;
+function setTrkGridWeeks(v){TRK_GRID_WEEKS=parseInt(v,10)||26;try{localStorage.setItem('trkGridWeeks',String(TRK_GRID_WEEKS));}catch(e){} renderTracker();}
+window.setTrkView=setTrkView; window.setTrkGridFrom=setTrkGridFrom; window.setTrkGridWeeks=setTrkGridWeeks;
+
+function renderTrackerGrid(){
+  const host=document.getElementById('tracker-content'); if(!host)return;
+  const q=(document.getElementById('trk-q')?.value||'').toLowerCase().trim();
+  const filter=document.getElementById('trk-filter')?.value||'all';
+  let projs=S.projects.slice();
+  if(q)projs=projs.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.no||'').toString().toLowerCase().includes(q));
+  if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>msEffectiveState(m)==='overdue'));
+  if(filter==='upcoming')projs=projs.filter(p=>(p.milestones||[]).some(m=>{const s=msEffectiveState(m);return s==='upcoming'||s==='progress';}));
+  projs.sort(trkSortCmp);
+
+  const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const fromM=_trkMonday(TRK_GRID_FROM||todayISO());
+  const NW=TRK_GRID_WEEKS||26;
+  const wk=[]; for(let i=0;i<NW;i++){const d=new Date(fromM);d.setDate(d.getDate()+i*7);wk.push(d);}
+  const wiOf=(dateStr)=>{ const md=_trkMonday(dateStr); return Math.round((md-fromM)/(7*86400000)); };
+
+  const css=`<style>
+    .tg-scroll{overflow:auto;border-top:1px solid #D8DEE7;border-bottom:1px solid #D8DEE7;background:#fff;height:fit-content;max-height:calc(100vh - 112px);margin:0 -16px;}
+    .tg{border-collapse:collapse;display:table;font-size:11px;font-family:Arial,Calibri,'Segoe UI',sans-serif;}
+    .tg thead{display:table-header-group;} .tg tbody{display:table-row-group;} .tg tr{display:table-row;}
+    .tg th,.tg td{display:table-cell;border:1px solid #D8DEE7;padding:0;}
+    .tg .f{position:sticky;background:#fff;z-index:3;}
+    .tg .c-sno{left:0;width:34px;min-width:34px;text-align:center;}
+    .tg .c-no{left:34px;width:70px;min-width:70px;text-align:center;font-weight:600;}
+    .tg .c-nm{left:104px;width:150px;min-width:150px;}
+    .tg .c-rem{left:254px;width:270px;min-width:270px;}
+    .tg thead th{position:sticky;z-index:5;background:#E8ECF2;vertical-align:middle;}
+    .tg thead .f{z-index:7;background:#E8ECF2;}
+    .tg tr.hr1 th{top:0;height:20px;}
+    .tg tr.hr2 th{top:20px;height:48px;}
+    .tg tr.hr3 th{top:68px;height:16px;box-shadow:inset 0 -1px 0 #D8DEE7;}
+    .tg .grp-desc{background:#F2C9A6;color:#5a3410;font-weight:700;text-align:center;}
+    .tg .grp-dl{background:#E8ECF2;color:#10243E;font-weight:700;text-align:center;letter-spacing:.03em;}
+    .tg .hc{width:30px;min-width:30px;max-width:30px;text-align:center;color:#6B7A8D;font-size:9.5px;line-height:1.2;padding:2px 0;}
+    .tg .hw{font-weight:600;color:#10243E;}
+    .tg td.wk{width:30px;min-width:30px;max-width:30px;height:40px;vertical-align:middle;text-align:center;}
+    .tg td.wk.ed{cursor:pointer;}
+    .tg td.wk.ed:hover{background:#eef6ff;}
+    .tg .c-nm div{padding:6px 8px;font-weight:600;}
+    .tg .c-sno div{padding:6px 4px;text-align:center;}
+    .tg .rem{padding:6px 8px;font-size:10px;line-height:1.5;color:#28384A;white-space:pre-line;outline:none;}
+    .tg .rem.ed:focus{background:#eef6ff;}
+    .tg .rem.ed:empty::before{content:'click to add remarks…';color:#9AA7B5;pointer-events:none;}
+    .tg .tg-ce:focus{background:#eef6ff;border-radius:3px;}
+    .tg .ra td.wk,.tg .ra .f{background:#EAF3DE;} .tg .rb td.wk,.tg .rb .f{background:#fff;}
+    .tg .ms{writing-mode:vertical-rl;transform:rotate(180deg);white-space:normal;overflow-wrap:anywhere;font-size:10px;font-weight:700;padding:6px 3px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;max-height:150px;line-height:1.25;cursor:pointer;}
+  </style>`;
+
+  // header (3 rows: group · labels+date · week no)
+  let thead='<thead>';
+  thead+=`<tr class="hr1"><th class="f c-sno grp-desc"></th><th class="f c-no grp-desc"></th><th class="f c-nm grp-desc"></th><th class="f c-rem grp-desc">Description</th><th class="grp-dl" colspan="${NW}">Deadlines</th></tr>`;
+  let rd='<tr class="hr2"><th class="f c-sno">S.No</th><th class="f c-no">Project<br>Number</th><th class="f c-nm">Projects /<br>Resources</th><th class="f c-rem">Status / Remarks</th>';
+  wk.forEach((d,i)=>{ const m=d.getMonth(),y=d.getFullYear(); const showYr=(i===0)||(m===0&&wk[i-1]&&wk[i-1].getFullYear()!==y); const mon=MN[m]+(showYr?` '${String(y).slice(2)}`:''); rd+=`<th class="hc">${mon}<br>${d.getDate()} Mon</th>`; });
+  thead+=rd+'</tr>';
+  let rw='<tr class="hr3"><th class="f c-sno"></th><th class="f c-no"></th><th class="f c-nm"></th><th class="f c-rem"></th>';
+  wk.forEach(d=>rw+=`<th class="hc hw">w${_trkISOWeek(d)}</th>`); thead+=rw+'</tr></thead>';
+
+  // body
+  let tb='<tbody>';
+  if(!projs.length){
+    tb+=`<tr><td colspan="${NW+4}" style="padding:18px;text-align:center;color:#6B7A8D;font-size:12px;">No deadlines set up yet — use <strong>+ Add deadline…</strong> in the header, or click a week cell to add one.</td></tr>`;
+  }
+  projs.forEach((p,ri)=>{
+    const canEd=_trkCanEdit();
+    const byWi={};
+    (p.milestones||[]).forEach((m,mi)=>{ const w=wiOf(m.date); if(w>=0&&w<NW){ (byWi[w]=byWi[w]||[]).push({m,mi}); } });
+    const log=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
+    const remTxt=(log.length?(log[0].text||''):'').trim();
+    let row=`<tr class="${ri%2?'rb':'ra'}">`;
+    row+=`<td class="f c-sno"><div>${ri+1}</div></td>`;
+    row+=`<td class="f c-no"><div style="padding:6px 4px;">${esc(p.no||'—')}</div></td>`;
+    row+=`<td class="f c-nm"><div style="padding:6px 8px;font-weight:600;">${esc(p.name||'')}</div></td>`;
+    row+=`<td class="f c-rem"><div class="rem${canEd?' ed':''}"${canEd?` contenteditable="true" oninput="if(!this.textContent.trim())this.innerHTML=''" onblur="trkGridSaveRemark('${p.id}',this.innerText)"`:''}>${esc(remTxt)}</div></td>`;
+    for(let i=0;i<NW;i++){
+      const cell=byWi[i];
+      if(cell&&cell.length){
+        const blocks=cell.map(({m,mi})=>{const c=_trkMsColor(m);const _dn=msEffectiveState(m)==='done';const fw=m.bold?'800':'600';const fs=m.italic?'italic':'normal';const tdc=(m.strike||_dn)?'line-through':'none';return `<span class="ms" style="background:${c[0]};color:${c[1]};font-weight:${fw};font-style:${fs};text-decoration:${tdc};opacity:${_dn?'0.6':'1'};" onclick="${canEd?`trkGridOpenEditor(event,'${p.id}',${mi},${i})`:'return false'}" title="${esc(m.label)} · ${esc(m.date||'')}${_dn?' · Completed':''}">${_dn?'✓ ':''}${esc(m.label)}</span>`;}).join('');
+        row+=`<td class="wk">${blocks}</td>`;
+      } else {
+        row+=`<td class="wk${canEd?' ed':''}"${canEd?` onclick="trkGridOpenEditor(event,'${p.id}',null,${i})"`:''}></td>`;
+      }
+    }
+    row+='</tr>'; tb+=row;
+  });
+  tb+='</tbody>';
+
+  const _prevSc=host.querySelector('.tg-scroll'); const _sx=_prevSc?_prevSc.scrollLeft:0, _sy=_prevSc?_prevSc.scrollTop:0;
+  host.innerHTML=css+`<div class="tg-scroll"><table class="tg">${thead}${tb}</table></div>`;
+  const _newSc=host.querySelector('.tg-scroll'); if(_newSc){_newSc.scrollLeft=_sx;_newSc.scrollTop=_sy;}
+}
+
+// Milestone popover editor (add / edit / delete) for the grid
+function trkGridClosePop(){ const el=document.getElementById('trk-ms-pop'); if(el)el.style.display='none'; window._trkPop=null; }
+function _trkPopColorSel(c){ window._trkPopColor=c; const box=document.getElementById('trk-pop-colors'); if(box)box.querySelectorAll('span').forEach(function(s){s.style.outline=(s.getAttribute('data-c')===c)?'2px solid #10243E':'2px solid transparent';}); }
+function _trkFmtSync(){ const box=document.getElementById('trk-ms-pop'); if(!box)return; const f=window._trkPopFmt||{}; box.querySelectorAll('[data-f]').forEach(function(b){var on=!!f[b.getAttribute('data-f')]; b.style.background=on?'#10243E':'#fff'; b.style.color=on?'#fff':'#28384A'; b.style.borderColor=on?'#10243E':'#d8dee7';}); }
+function _trkFmtToggle(k){ window._trkPopFmt=window._trkPopFmt||{}; window._trkPopFmt[k]=!window._trkPopFmt[k]; _trkFmtSync(); }
+window._trkFmtToggle=_trkFmtToggle;
+function trkGridOpenEditor(ev,pid,i,wi){
+  if(ev){ev.stopPropagation();}
+  const p=S.projects.find(x=>x.id===pid); if(!p)return;
+  if(!(_trkCanEdit()))return toast('⛔ Only admin or the MEP Lead can edit.');
+  let el=document.getElementById('trk-ms-pop');
+  if(!el){
+    el=document.createElement('div'); el.id='trk-ms-pop';
+    el.style.cssText='display:none;position:fixed;z-index:2200;background:#fff;border:1px solid #d8dee7;border-radius:12px;box-shadow:0 14px 44px rgba(15,23,42,.24);padding:14px;width:264px;font-family:Arial,Calibri,sans-serif;';
+    el.innerHTML='<div id="trk-pop-title" style="font-size:12px;font-weight:700;color:#10243E;margin-bottom:9px;">Milestone</div>'
+      +'<input id="trk-pop-label" placeholder="Label" style="width:100%;padding:8px;border:1px solid #d8dee7;border-radius:7px;font-size:13px;margin-bottom:8px;">'
+      +'<input id="trk-pop-date" type="date" style="width:100%;padding:8px;border:1px solid #d8dee7;border-radius:7px;font-size:13px;margin-bottom:10px;">'
+      +'<div id="trk-pop-colors" style="display:flex;gap:6px;margin-bottom:10px;"></div>'
+      +'<div style="display:flex;gap:6px;margin-bottom:12px;">'
+      +'<button data-f="bold" onclick="_trkFmtToggle(\'bold\')" title="Bold" style="flex:1;padding:6px;border:1px solid #d8dee7;border-radius:7px;background:#fff;cursor:pointer;font-weight:800;font-size:13px;">B</button>'
+      +'<button data-f="italic" onclick="_trkFmtToggle(\'italic\')" title="Italic" style="flex:1;padding:6px;border:1px solid #d8dee7;border-radius:7px;background:#fff;cursor:pointer;font-style:italic;font-size:13px;">I</button>'
+      +'<button data-f="strike" onclick="_trkFmtToggle(\'strike\')" title="Strikethrough" style="flex:1;padding:6px;border:1px solid #d8dee7;border-radius:7px;background:#fff;cursor:pointer;text-decoration:line-through;font-size:13px;">S</button>'
+      +'</div>'
+      +'<label style="display:flex;align-items:center;gap:8px;font-size:12.5px;margin-bottom:12px;cursor:pointer;color:#0c7a55;font-weight:600;"><input type="checkbox" id="trk-pop-done" style="width:15px;height:15px;cursor:pointer;"> Mark as completed</label>'
+      +'<div style="display:flex;gap:8px;"><button onclick="trkGridSaveMs()" style="flex:1;background:#10243E;color:#fff;border:none;border-radius:7px;padding:8px;font-size:13px;font-weight:600;cursor:pointer;">Save</button>'
+      +'<button id="trk-pop-del" onclick="trkGridDeleteMs()" style="background:#FCEBEB;color:#A32D2D;border:1px solid #F0997B;border-radius:7px;padding:8px 12px;font-size:13px;font-weight:600;cursor:pointer;">Delete</button>'
+      +'<button onclick="trkGridClosePop()" style="background:#eef1f5;border:none;border-radius:7px;padding:8px 11px;font-size:13px;cursor:pointer;">✕</button></div>';
+    document.body.appendChild(el);
+    const cbox=el.querySelector('#trk-pop-colors');
+    cbox.innerHTML=Object.keys(TRK_COLORS).map(function(k){var c=TRK_COLORS[k];return '<span data-c="'+k+'" onclick="_trkPopColorSel(\''+k+'\')" title="'+k+'" style="width:24px;height:24px;border-radius:6px;background:'+c[0]+';border:1px solid '+c[1]+'55;cursor:pointer;outline:2px solid transparent;outline-offset:1px;display:inline-block;"></span>';}).join('');
+  }
+  const m=(i!=null&&p.milestones&&p.milestones[i])?p.milestones[i]:null;
+  const cellMon=new Date(fromMFor()); cellMon.setDate(cellMon.getDate()+wi*7);
+  document.getElementById('trk-pop-title').textContent=(m?'Edit milestone · ':'Add milestone · ')+esc(p.name||'');
+  document.getElementById('trk-pop-label').value=m?m.label:'';
+  document.getElementById('trk-pop-date').value=m?m.date:wtISO(cellMon);
+  document.getElementById('trk-pop-del').style.display=m?'':'none';
+  window._trkPop={pid:pid,i:(m?i:null)};
+  _trkPopColorSel(m&&m.color?m.color:(m?'':'blue'));
+  window._trkPopFmt={bold:!!(m&&m.bold),italic:!!(m&&m.italic),strike:!!(m&&m.strike)};
+  _trkFmtSync();
+  { const dc=document.getElementById('trk-pop-done'); if(dc)dc.checked=!!(m&&(m.status==='done'||m.done)); }
+  // position near click, clamped
+  el.style.display='block';
+  const vw=window.innerWidth, vh=window.innerHeight, r=el.getBoundingClientRect();
+  let x=(ev?ev.clientX:vw/2)+8, y=(ev?ev.clientY:vh/2)+8;
+  if(x+r.width>vw-8)x=vw-r.width-8; if(y+r.height>vh-8)y=vh-r.height-8;
+  el.style.left=Math.max(8,x)+'px'; el.style.top=Math.max(8,y)+'px';
+  setTimeout(()=>{const t=document.getElementById('trk-pop-label');if(t)t.focus();},30);
+}
+function fromMFor(){ return _trkMonday(TRK_GRID_FROM||todayISO()); }
+function trkGridSaveMs(){
+  const ctx=window._trkPop; if(!ctx)return;
+  const p=S.projects.find(x=>x.id===ctx.pid); if(!p)return;
+  if(!(_trkCanEdit()))return;
+  const label=(document.getElementById('trk-pop-label').value||'').trim();
+  const date=document.getElementById('trk-pop-date').value||todayISO();
+  const color=window._trkPopColor||'';
+  if(!label){document.getElementById('trk-pop-label').focus();return;}
+  if(!p.milestones)p.milestones=[];
+  const fmt=window._trkPopFmt||{};
+  const _done=(function(){const dc=document.getElementById('trk-pop-done');return dc?dc.checked:false;})();
+  if(ctx.i!=null&&p.milestones[ctx.i]){ const _prev=p.milestones[ctx.i].status; p.milestones[ctx.i].label=label; p.milestones[ctx.i].date=date; p.milestones[ctx.i].color=color; p.milestones[ctx.i].bold=!!fmt.bold; p.milestones[ctx.i].italic=!!fmt.italic; p.milestones[ctx.i].strike=!!fmt.strike; p.milestones[ctx.i].status=_done?'done':(_prev==='done'?'upcoming':(_prev||'upcoming')); p.milestones[ctx.i].done=_done; }
+  else { p.milestones.push({date:date,label:label,done:_done,status:_done?'done':'upcoming',color:color,bold:!!fmt.bold,italic:!!fmt.italic,strike:!!fmt.strike}); }
+  pushProj(p); trkGridClosePop(); refreshMilestoneViews();
+}
+function trkGridDeleteMs(){
+  const ctx=window._trkPop; if(!ctx||ctx.i==null)return;
+  const p=S.projects.find(x=>x.id===ctx.pid); if(!p||!p.milestones)return;
+  if(!(_trkCanEdit()))return;
+  p.milestones.splice(ctx.i,1); pushProj(p); trkGridClosePop(); refreshMilestoneViews();
+}
+function trkGridSaveRemark(pid,text){
+  const p=S.projects.find(x=>x.id===pid); if(!p)return;
+  if(!(_trkCanEdit()))return;
+  text=(text||'').trim();
+  if(!p.statusLog)p.statusLog=[];
+  const log=[...p.statusLog].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
+  const latest=log[0];
+  if(latest){ const idx=p.statusLog.indexOf(latest); if(idx>=0){ if((p.statusLog[idx].text||'')===text)return; p.statusLog[idx].text=text; } }
+  else { if(!text)return; p.statusLog.push({date:todayISO(),text:text}); }
+  pushProj(p);
+}
+function trkGridSaveField(pid,field,text){
+  const p=S.projects.find(x=>x.id===pid); if(!p)return;
+  if(!(_trkCanEdit()))return;
+  text=(text||'').replace(/\s+/g,' ').trim();
+  if(field==='no'){ if((p.no||'')===text)return; p.no=text; }
+  else if(field==='name'){ if(!text)return; if((p.name||'')===text)return; p.name=text; }
+  else return;
+  pushProj(p);
+}
+window.trkGridSaveField=trkGridSaveField;
+window.trkGridOpenEditor=trkGridOpenEditor; window.trkGridSaveMs=trkGridSaveMs; window.trkGridDeleteMs=trkGridDeleteMs; window.trkGridClosePop=trkGridClosePop; window.trkGridSaveRemark=trkGridSaveRemark; window._trkPopColorSel=_trkPopColorSel;
+
 function renderTracker(){
   const host=document.getElementById('tracker-content');if(!host)return;
+  _trkSyncControls();
+  renderTrackerGrid(); return;
   const q=(document.getElementById('trk-q')?.value||'').toLowerCase().trim();
   const filter=document.getElementById('trk-filter')?.value||'all';
   const today=todayISO();
@@ -8671,7 +8911,7 @@ function renderTracker(){
   // This picker is the way in for any project the user is allowed to edit.
   { const _add=document.getElementById('trk-add');
     if(_add){
-      const _eligible=S.projects.filter(p=>adminUnlocked||isMepLeadFor(p.id))
+      const _eligible=S.projects.filter(p=>_trkCanEdit())
         .slice().sort((a,b)=>(a.name||'').localeCompare(b.name||''));
       _add.innerHTML='<option value="">+ Add deadline\u2026</option>'+_eligible.map(function(p){
         var n=(p.milestones||[]).length;
