@@ -904,7 +904,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.28 · 4 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.33 · 4 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1006,7 +1006,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.28 · 4 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.33 · 4 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3878,6 +3878,23 @@ function dhSetupIssues(){
       const has=Object.values(p.weeklyHrs||{}).some(a=>a&&a.some(v=>v>0));
       if(has)plan.push({t:nm+' — '+p.status+' but still has booked hours',sev:'warn'});
     }
+    // v10.5.31 — bookings must stay within the project's declared disciplines.
+    // Everything is Settings-driven: a legacy/unconfigured disc code (e.g. an
+    // old 'MEP' umbrella) simply shows up as out-of-scope until reassigned.
+    if(p.disciplines&&p.disciplines.length){
+      const scope=new Set(p.disciplines);
+      const off=new Set();
+      Object.keys(p.weeklyHrs||{}).forEach(k=>{
+        const arr=p.weeklyHrs[k]; if(!arr||!arr.some(v=>v>0))return;
+        const e=(typeof slotEng==='function')?slotEng(k):S.engineers.find(x=>x.id===(typeof slotBase==='function'?slotBase(k):k));
+        if(!e)return;
+        let d;
+        if(e.team==='BIM')d=(scope.has('BIM')?null:'BIM');
+        else d=e.disc||'';
+        if(d && !scope.has(d)){const lbl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[d])||d;off.add(e.name+' ('+lbl+')');}
+      });
+      if(off.size)proj.push({t:nm+' — booked outside declared scope: '+[...off].slice(0,6).join(', ')+(off.size>6?' +'+(off.size-6)+' more':''),d:'tick the discipline in the project, or move the booking',sev:'warn'});
+    }
   });
   let noRate=0,noDisc=0,noOff=0;
   S.engineers.forEach(e=>{
@@ -4052,9 +4069,15 @@ function renderSettings(){
       +'<button class="btn btn-d btn-sm" onclick="discDelete('+i+')" title="'+(n>0?'In use — cannot delete':'Delete')+'"'+(n>0?' style="opacity:.4;cursor:not-allowed;"':'')+'>Delete</button>'
       +'</div>';
   }).join('');
+  var _lm=legacyMepStats();
+  var _mt=DISCIPLINE_CONFIG.find(function(d){return d.code==='MEP-MANG';})||DISCIPLINE_CONFIG.find(function(d){return /management/i.test(d.label)||/mang/i.test(d.code);});
+  var mergeBanner=(_lm.total>0&&_mt)?('<div style="margin:4px 0 12px;padding:12px 14px;border:1px solid #f0997b;background:#fff7ed;border-radius:10px;font-size:12px;color:#7a3410;display:flex;align-items:center;gap:12px;flex-wrap:wrap;">'
+      +'<div style="flex:1;min-width:220px;line-height:1.5;"><b>Legacy “MEP” code found.</b> '+_lm.engs+' engineer'+(_lm.engs===1?'':'s')+(_lm.books?' and '+_lm.books+' project booking'+(_lm.books===1?'':'s'):'')+' still use the old umbrella code. Merge them into <b>'+esc(_mt.label)+'</b> so cards, grid and edit box all match.</div>'
+      +'<button class="btn btn-sm" style="background:#c2410c;color:#fff;border:none;white-space:nowrap;" onclick="mergeLegacyMep()">Merge legacy MEP → '+esc(_mt.label)+'</button></div>'):'';
   body.innerHTML=''
     +'<div style="margin-bottom:8px;"><span style="font-size:14px;font-weight:700;">Disciplines</span>'
       +'<span style="font-size:11px;color:var(--tx3);margin-left:8px;">Add, edit or remove disciplines. Changes apply across the whole app.</span></div>'
+    +mergeBanner
     +rows
     +'<button class="btn btn-p btn-sm" style="margin-top:6px;" onclick="discEdit(-1)">＋ Add discipline</button>'
     +'<div id="disc-edit-panel" style="margin-top:14px;"></div>'
@@ -4118,6 +4141,22 @@ async function discRecode(oldCode,newCode){
   }
   return true;
 }
+// v10.5.33 — count anyone still on the legacy umbrella 'MEP' code (engineers + per-project bookDisc overrides).
+function legacyMepStats(){
+  var engs=(S.engineers||[]).filter(function(e){return e.disc==='MEP'||e.discipline==='MEP';}).length;
+  var books=0; (S.projects||[]).forEach(function(p){ if(p.bookDisc){ books+=Object.keys(p.bookDisc).filter(function(k){return p.bookDisc[k]==='MEP';}).length; } });
+  return {engs:engs, books:books, total:engs+books};
+}
+// One-shot: re-point every legacy 'MEP' engineer + booking onto the MEP Management discipline.
+async function mergeLegacyMep(){
+  if(!adminUnlocked){ toast('⛔ Admin only.'); return; }
+  var target=DISCIPLINE_CONFIG.find(function(d){return d.code==='MEP-MANG';})||DISCIPLINE_CONFIG.find(function(d){return /management/i.test(d.label)||/mang/i.test(d.code);});
+  if(!target){ toast('Create a “MEP Management” discipline in Settings first.'); return; }
+  if(legacyMepStats().total===0){ toast('Nothing to merge — no one is on the legacy MEP code.'); return; }
+  var ok=await discRecode('MEP', target.code);
+  if(ok!==false){ toast('Merged legacy MEP → '+target.label+' \u2713'); try{renderSettings();}catch(e){} try{if(typeof invalidate==='function')invalidate('projects');}catch(e){} }
+}
+window.mergeLegacyMep=mergeLegacyMep;
 async function discSave(i){
   var isNew=(i<0);
   var code=(document.getElementById('disc-f-code').value||'').trim();
@@ -7930,7 +7969,7 @@ function renderProj(){
 
   // v10.5.10 — helpers for compact + card views
   const _DB={HVAC:['#B5D4F4','#0C447C'],'PH&E':['#C0DD97','#27500A'],ELE:['#FAC775','#633806'],ELV:['#F4C0D1','#72243E'],BIM:['#CECBF6','#3C3489']};
-  const discsOf=(p)=>{ const set={}; S.engineers.forEach(e=>{ if(whHasFor(p,e.id)){ if(e.team==='BIM')set['BIM']=1; else if(e.disc)set[e.disc]=1; } }); const order=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():[]).concat(['BIM']); const inOrder=order.filter(d=>set[d]); const extra=Object.keys(set).filter(d=>order.indexOf(d)<0); return inOrder.concat(extra); };
+  const discsOf=(p)=>{ const set={}; S.engineers.forEach(e=>{ if(whHasFor(p,e.id)){ if(e.team==='BIM')set['BIM']=1; else { const d=(typeof effDisc==='function'?effDisc(e,p):null)||e.disc; if(d)set[d]=1; } } }); const order=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():[]).concat(['BIM']); const inOrder=order.filter(d=>set[d]); const extra=Object.keys(set).filter(d=>order.indexOf(d)<0); return inOrder.concat(extra); };
   const teamOf=(p)=>S.engineers.filter(e=>whHasFor(p,e.id)).length;
   const elapsedOf=(p)=>{ const s=new Date(p.start).getTime(), e=new Date(p.end).getTime(); if(!(e>s))return 0; return Math.max(0,Math.min(100,Math.round((Date.now()-s)/(e-s)*100))); };
   const nextStageOf=(p)=>{ const now=Date.now(); const fut=(p.stages||[]).filter(s=>s.from&&s.to&&new Date(s.from).getTime()>now).sort((a,b)=>new Date(a.from)-new Date(b.from)); if(!fut.length)return null; const s=fut[0]; const away=Math.max(0,Math.round((new Date(s.from).getTime()-now)/(7*24*3600*1000))); return {name:s.name||'Stage', wk:'W'+wkNum(new Date(s.from)), in:(away>0?('in '+away+'w'):'this week')}; };
@@ -7949,7 +7988,7 @@ function renderProj(){
     const cards=list.map(p=>{
       const th=projTotalHrs(p);
       const stg=(p.stages||[]).filter(s=>s.from&&s.to).length;
-      const badges=discsOf(p).map(c=>{const col=_DB[c]||['#e5e7eb','#374151'];return `<span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${col[0]};color:${col[1]};">${esc(c)}</span>`;}).join('');
+      const badges=discsOf(p).map(c=>{const col=_DB[c]||['#e5e7eb','#374151'];const lbl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[c])||c;return `<span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${col[0]};color:${col[1]};">${esc(lbl)}</span>`;}).join('');
       const badgesHtml=badges?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px;">${badges}</div>`:'';
       const team=teamOf(p), el=elapsedOf(p);
       const ns=nextStageOf(p);
@@ -9183,7 +9222,7 @@ function renderProjDetail(p){
               ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${(p.feeFactor||1.0).toFixed(2)}× FF</span>
-              ${(function(){const ds=(p.disciplines||[]).slice();if(!p.bimExcluded)ds.push('BIM');if(!ds.length)return'';const col={HVAC:'background:#dbeafe;color:#1d4ed8','PH&E':'background:#dcfce7;color:#166534',ELE:'background:#fef9c3;color:#854d0e',ELV:'background:#fce7f3;color:#9d174d',BIM:'background:#ede9fe;color:#6d28d9'};return ds.map(d=>`<span title="Discipline in scope for this project" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;${col[d]||'background:#f1f5f9;color:#374151'};">${esc(d)}</span>`).join('');})()}
+              ${(function(){const ds=(p.disciplines||[]).slice();if(!p.bimExcluded)ds.push('BIM');if(!ds.length)return'';const col={HVAC:'background:#dbeafe;color:#1d4ed8','PH&E':'background:#dcfce7;color:#166534',ELE:'background:#fef9c3;color:#854d0e',ELV:'background:#fce7f3;color:#9d174d',BIM:'background:#ede9fe;color:#6d28d9'};return ds.map(d=>`<span title="Discipline in scope for this project" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;${col[d]||'background:#f1f5f9;color:#374151'};">${esc((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[d])||d)}</span>`).join('');})()}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${p.status}</span>
             </div>
           </div>
@@ -9489,8 +9528,8 @@ function renderProjDetail(p){
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
                   // v9.3.0 — BIM/JSE members stay listed even when assigned: picking them again adds a second booking (slot)
-                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='';
                   const _mepByD={}; mepAvail.forEach(e=>{ (_mepByD[e.disc]=_mepByD[e.disc]||[]).push(e); });
                   const _mepOrder=MEP_DISCS.concat(Object.keys(_mepByD).filter(d=>MEP_DISCS.indexOf(d)<0)); // real disciplines first, MEP/umbrella last
@@ -11826,7 +11865,7 @@ function renderDiscCheckboxes(containerId,prefix){
     const safeId=prefix+'-disc-'+code.replace(/[^a-zA-Z0-9]/g,'').toLowerCase();
     const cfg=DISCIPLINE_CONFIG.find(d=>d.code===code);
     const color=(cfg&&cfg.color)||'#64748b';
-    return `<label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" class="disc-check-${prefix}" id="${safeId}" value="${esc(code)}" style="accent-color:${color};width:16px;height:16px;flex-shrink:0;margin:0;"> ${esc(code)}</label>`;
+    return `<label style="display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:400;cursor:pointer;white-space:nowrap;margin-right:6px;"><input type="checkbox" class="disc-check-${prefix}" id="${safeId}" value="${esc(code)}" style="accent-color:${color};width:16px;height:16px;flex-shrink:0;margin:0;"> ${esc((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[code])||code)}</label>`;
   }).join('');
   // BIM sits in the same row but is NOT part of the disciplines array — it's
   // backed by its own field (bimExcluded) and defaults to checked/allowed so
