@@ -867,10 +867,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 </head>
 <body>
 
-<!-- TEST MODE BANNER -->
-<div id="test-mode-banner" style="display:none;position:fixed;top:0;left:0;right:0;z-index:9999;background:linear-gradient(90deg,#dc2626,#ef4444);color:#fff;padding:8px 16px;text-align:center;font-size:12px;font-weight:700;letter-spacing:.04em;box-shadow:0 2px 8px rgba(220,38,38,.3);">
-  🧪 TEST MODE ACTIVE — only TEST projects are visible. <button onclick="toggleTestMode(false)" style="margin-left:10px;background:rgba(255,255,255,.25);border:1px solid rgba(255,255,255,.5);color:#fff;font-weight:700;padding:2px 10px;border-radius:5px;cursor:pointer;font-size:11px;">Exit Test Mode</button>
-</div>
+<!-- test mode removed (v10.5.27) -->
 
 <!-- LOGIN SCREEN -->
 <div id="pin-screen">
@@ -907,7 +904,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.25 · 4 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.28 · 4 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -994,20 +991,22 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sb-sec">Manage</div>
   <div class="sbi" id="nav-team" onclick="nav('team')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0"/></svg>Team<span class="sb-badge" id="sb-team">—</span></div>
   <div class="sbi" id="nav-proj" onclick="nav('proj')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>Projects</div>
+  <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
+  <div class="sbi" id="nav-weekly" onclick="nav('weekly')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker</div>
+  <div class="sbi" id="nav-leave" onclick="nav('leave')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave</div>
+
+  <div class="sb-sec" id="sb-sec-admin" style="display:none;">Admin</div>
   <div class="sbi" id="nav-spend" onclick="nav('spend')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Project Spend 🔒</div>
   <div class="sbi" id="nav-health" onclick="nav('health')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Data Health 🔒</div>
   <div class="sbi" id="nav-activity" onclick="nav('activity')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>Activity 🔒</div>
   <div class="sbi" id="nav-settings" onclick="nav('settings')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>Settings 🔒</div>
-  <div class="sbi" id="nav-tracker" onclick="nav('tracker')"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Deadline Tracker</div>
-  <div class="sbi" id="nav-weekly" onclick="nav('weekly')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Weekly Tracker 🔒</div>
-  <div class="sbi" id="nav-leave" onclick="nav('leave')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>Annual Leave 🔒</div>
   <div class="sbi" id="nav-mgmt" onclick="nav('mgmt')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>Mgmt Hours 🔒</div>
   <div class="sbi" id="nav-holidays" onclick="nav('holidays')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 21v-4m0 0V5a2 2 0 012-2h6.5l1 1H21l-3 6 3 6h-8.5l-1-1H5a2 2 0 00-2 2zm9-13.5V9"/></svg>Public Holidays 🔒</div>
   <div class="sbi" id="nav-rates" onclick="requireAdmin()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>Cost Rates 🔒</div>
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.25 · 4 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.28 · 4 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1366,27 +1365,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           </div>
         </div>
       </div>
-      <!-- Test Mode -->
-      <div style="max-width:900px;margin-top:14px;" class="card">
-        <div style="background:#dc2626;color:#fff;padding:10px 14px;font-weight:700;font-size:12px;">🧪 Test Mode</div>
-        <div style="padding:14px 16px;">
-          <div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;">
-            <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
-              <input type="checkbox" id="test-mode-toggle" onchange="toggleTestMode(this.checked)" style="width:18px;height:18px;cursor:pointer;accent-color:#dc2626;">
-              <span style="font-size:13px;font-weight:700;color:var(--tx);">Enable Test Mode</span>
-            </label>
-            <span style="font-size:11px;color:var(--tx3);">When ON, only projects tagged "TEST" are visible. A red banner shows app-wide.</span>
-          </div>
-          <div style="margin-top:12px;padding-top:12px;border-top:1px dashed #fecaca;">
-            <button class="btn btn-sm" onclick="generateTestData()" style="background:#dc2626;color:#fff;border:none;" title="Auto-create a test project with all engineers at standard hours">⚡ Generate Test Data (TEST-AUTO project)</button>
-            <button class="btn btn-sm" onclick="deleteAllTestProjects()" style="background:#7f1d1d;color:#fff;border:none;margin-left:6px;" title="Permanently delete all projects with 'TEST' in name or number">🗑️ Delete All TEST Projects</button>
-            <div style="font-size:10px;color:var(--tx3);margin-top:6px;">Generate creates 1 project, 26 weeks, all engineers @ 45h/wk (JSE @ 55h × mult 2). Delete cleans up all TEST projects from Supabase.</div>
-          </div>
-          <div style="margin-top:10px;font-size:10px;color:var(--tx3);background:#fef2f2;padding:8px 12px;border-radius:6px;border:1px solid #fecaca;line-height:1.5;">
-            <strong>How to use:</strong> Take a backup → enable Test Mode → create projects with "TEST" in the project number or name → verify formulas → disable Test Mode to see real data again. Test Mode does NOT delete or modify your real data.
-          </div>
-        </div>
-      </div>
+      <!-- test mode removed (v10.5.27) -->
     </div>
   </div>
 
@@ -1816,6 +1795,36 @@ function isBimLead(){
   const roles=myRoles();
   return roles.some(r=>(r.role==='disc_lead'||r.role==='bim_lead')&&(r.scope||'').toUpperCase()==='BIM');
 }
+// v10.5.26 — scope for Annual Leave + Weekly Tracker. null = full access (admin/director).
+// {own:true} = no lead role, only own row. Otherwise a lead sees only their team+discipline.
+function lvScope(){
+  if(adminUnlocked||isDirector())return null;
+  const roles=myRoles().filter(r=>['disc_lead','mep_lead','bim_lead'].includes(r.role));
+  if(!roles.length)return {own:true};
+  const eng=S.engineers.find(e=>e.email&&e.email.toLowerCase()===currentUserEmail().toLowerCase());
+  const myTeam=eng?(eng.team==='BIM'?'BIM':'MEP'):'MEP';
+  const discs=new Set(); let allMep=false, allBim=false;
+  roles.forEach(r=>{ const sc=(r.scope||'').toUpperCase();
+    if(r.role==='mep_lead'||sc==='MEP')allMep=true;
+    else if(r.role==='bim_lead'||sc==='BIM')allBim=true;
+    else if(sc)discs.add(sc); });
+  return {own:false, team:myTeam, discs:[...discs], allMep, allBim};
+}
+function lvEngInScope(e,scope){
+  if(!scope)return true;
+  const me=currentUserEmail().toLowerCase();
+  if(scope.own)return !!(e.email && e.email.toLowerCase()===me);
+  const isBim=e.team==='BIM';
+  if(scope.allMep && !isBim)return true;
+  if(scope.allBim && isBim)return true;
+  if(scope.discs.length){
+    const eDisc=(isBim?(e.subDisc||''):(e.disc||'')).toUpperCase();
+    const teamMatch=((scope.team==='BIM')===isBim);
+    if(teamMatch && scope.discs.includes(eDisc))return true;
+  }
+  return false;
+}
+window.lvScope=lvScope; window.lvEngInScope=lvEngInScope;
 // Is current user MEP Lead for a project?
 function isMepLeadFor(projId){
   if(adminUnlocked)return true;
@@ -2068,7 +2077,7 @@ async function doLogin(){
     SB_SESSION=d;
     // v9.9.1 — admins now boot in their assigned-role mode; admin powers are armed
     // manually via the sidebar toggle so day-to-day work carries no delete risk.
-    if(d.user&&isAdmin(d.user.email)){window._isRealAdmin=true;adminUnlocked=false;applyAdminNav(false);}
+    {window._isRealAdmin=!!(d.user&&isAdmin(d.user.email));adminUnlocked=false;applyAdminNav(false);try{syncAdminModeBtn();}catch(e){}}
     sessionStorage.setItem('mep_session', JSON.stringify(d));
     btn.disabled=false;btn.textContent='Sign In';
     // Check if user already has a PIN set
@@ -2090,7 +2099,8 @@ async function doLogout(){
       headers:{'apikey':SB_KEY,'Authorization':'Bearer '+((SB_SESSION&&SB_SESSION.access_token)||'')}
     });
   }catch(e){}
-  SB_SESSION=null;adminUnlocked=false;
+  SB_SESSION=null;adminUnlocked=false;window._isRealAdmin=false;
+  try{applyAdminNav(false);syncAdminModeBtn();}catch(e){}
   sessionStorage.removeItem('mep_session');
   try{sessionStorage.removeItem('lastPage');}catch(e){}
   try{localStorage.removeItem('mepR26');}catch(e){}
@@ -2137,7 +2147,7 @@ async function doLogout(){
         const d = await r.json();
         if(d.access_token){
           SB_SESSION = d;
-          if(d.user&&isAdmin(d.user.email)){window._isRealAdmin=true;adminUnlocked=false;applyAdminNav(false);}
+          {window._isRealAdmin=!!(d.user&&isAdmin(d.user.email));adminUnlocked=false;applyAdminNav(false);try{syncAdminModeBtn();}catch(e){}}
           sessionStorage.setItem('mep_session', JSON.stringify(d));
           // Session valid — check PIN
           // PIN disabled — go straight to app on valid session
@@ -2668,15 +2678,19 @@ async function initApp(opts){
         BIM_GRADES.length=0; BIM_GRADES.push(...(Array.isArray(rgrades.value.bim)?rgrades.value.bim:[]));
       }catch(e){ console.warn('grade tiers load failed, using defaults',e); }
     }
-    // Re-check admin status now that roles are loaded
-    if(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email)){
-      window._isRealAdmin=true;
+    // Re-check admin status now that roles are loaded — set the flag explicitly
+    // (both true AND false) so a non-admin session can never inherit a stale true.
+    window._isRealAdmin = !!(SB_SESSION&&SB_SESSION.user&&isAdmin(SB_SESSION.user.email));
+    if(window._isRealAdmin){
       // v9.9.1 — do NOT auto-arm admin; respect current toggle state (default off)
       applyAdminNav(!!adminUnlocked);
       const eb=document.getElementById('proj-hdr-export-btn');if(eb)eb.style.display='flex';
       const ib=document.getElementById('proj-hdr-import-btn');if(ib)ib.style.display='flex';
       const nb=document.getElementById('proj-hdr-new-btn');if(nb)nb.style.display='';
+    } else {
+      adminUnlocked=false; applyAdminNav(false);
     }
+    try{ syncAdminModeBtn(); }catch(e){}
     // Show Annual Leave for disc leads
     const userEmail2=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
     const isDiscLead2=S.roles.some(r=>r.email.toLowerCase()===userEmail2.toLowerCase()&&(r.role==='disc_lead'||r.role==='bim_lead'));
@@ -4430,7 +4444,7 @@ function mkChart(id,type,labels,datasets,opts){
 // NAV
 // ═══════════════════════════════════════
 const PAGES=['mep','dxb','egy','ind','hvac','phe','ele','elv','bim','team','proj','spend','health','settings','tracker','weekly','leave','mgmt','holidays','rates','pending','proposals','activity'];
-const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-weekly','nav-spend','nav-health','nav-leave','nav-settings','nav-activity'];
+const ADMIN_NAV_IDS=['nav-proposals','nav-pending','nav-rates','nav-mgmt','nav-holidays','nav-spend','nav-health','nav-settings','nav-activity'];
 // v9.32.0 — Spend / Data Health / Mgmt Hours / Public Holidays / Activity are now ADMIN-ONLY;
 // directors keep only Weekly Tracker + Annual Leave here.
 const DATA_NAV_IDS=['nav-weekly','nav-leave'];
@@ -4441,6 +4455,7 @@ function pageAllowed(p){ return ADMIN_ONLY_PAGES.indexOf(p)<0 || !!adminUnlocked
 function applyAdminNav(show){
   // Control pages: only when admin mode is armed
   ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});
+  const _ah=document.getElementById('sb-sec-admin'); if(_ah)_ah.style.display=show?'':'none';
   // Data pages: visible to anyone who can see all data (director, or admin even in safe mode)
   const dataOK=(typeof canSeeAllData==='function')&&canSeeAllData();
   DATA_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el&&dataOK)el.style.display='';});
@@ -4549,10 +4564,12 @@ function wtEngineerRows(){
     if(WT_tab.startsWith('disc:'))return secKey===WT_tab.slice(5); // custom disciplines pass their raw code
     return secKey===TAB_TO_SEC[WT_tab];
   };
+  const _wtScope=lvScope();
   sections.forEach(sec=>{
     if(!tabMatch(sec.key))return;
     const engs=S.engineers.filter(e=>{
       if(!sec.match(e))return false;
+      if(!lvEngInScope(e,_wtScope))return false;
       if(!WT_off)return true; // all offices
       const off=(e.off||'').toUpperCase();
       const isIND=(off==='IND'||(e.id||'').includes('jse'));
@@ -4635,6 +4652,16 @@ async function wtLoadWeek(){
 function wtBuild(canEdit){
   const c=document.getElementById('pc-weekly');
   const projects=wtColumnProjects();
+  { const _sc=lvScope();
+    if(_sc && !_sc.own){
+      if(_sc.allBim && !_sc.allMep && !_sc.discs.length){ if(WT_tab!=='bim')WT_tab='bim'; }
+      else if(_sc.discs.length===1 && !_sc.allMep && !_sc.allBim){
+        const d0=_sc.discs[0], map={HVAC:'hvac','PH&E':'phe',ELE:'ele',ELV:'elv'};
+        const curDisc=WT_tab.startsWith('disc:')?WT_tab.slice(5):({hvac:'HVAC',phe:'PH&E',ele:'ELE',elv:'ELV',bim:'BIM'}[WT_tab]||'');
+        if((curDisc||'').toUpperCase()!==d0) WT_tab=map[d0]||('disc:'+d0);
+      }
+    }
+  }
   const groups=wtEngineerRows();
 
   // ── Control bar ──
@@ -4668,10 +4695,20 @@ function wtBuild(canEdit){
         '<option value="DXB"'+(WT_off==='DXB'?' selected':'')+'>DXB</option>'+
         '<option value="EGY"'+(WT_off==='EGY'?' selected':'')+'>EGY</option>'+
         '<option value="IND"'+(WT_off==='IND'?' selected':'')+'>IND</option></select>';
-  hc+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">'+
-        '<option value="">All disciplines</option>'+
-        MEP_DISCS.map(function(c){var cfg=DISCIPLINE_CONFIG.find(function(d){return d.code===c;});return '<option value="'+esc(c)+'"'+(_wtDisc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+
-        '<option value="BIM"'+(_wtDisc==='BIM'?' selected':'')+'>BIM</option></select>';
+  hc+='<select class="js-wt-disc" onchange="wtSetDisc(this.value)" style="margin-left:6px;'+_wtSel+'">';
+  { const _sc=lvScope();
+    let discList=MEP_DISCS.slice(), showAll=true, showBim=true;
+    if(_sc){
+      if(_sc.own){ discList=[]; showAll=true; showBim=false; }
+      else if(_sc.allMep && !_sc.allBim){ showBim=false; }
+      else if(_sc.allBim && !_sc.allMep){ discList=[]; showAll=false; showBim=true; }
+      else if(_sc.discs.length){ discList=MEP_DISCS.filter(c=>_sc.discs.includes(c.toUpperCase())); showAll=false; showBim=false; }
+    }
+    if(showAll)hc+='<option value="">All disciplines</option>';
+    hc+=discList.map(function(c){var cfg=DISCIPLINE_CONFIG.find(function(d){return d.code===c;});return '<option value="'+esc(c)+'"'+(_wtDisc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('');
+    if(showBim)hc+='<option value="BIM"'+(_wtDisc==='BIM'?' selected':'')+'>BIM</option>';
+  }
+  hc+='</select>';
   hc+='</div>';
 
   { const _wc=document.getElementById('wt-controls-slot'); if(_wc)_wc.innerHTML=hc; }
@@ -10227,7 +10264,7 @@ async function restoreFullBackup(ev){
 // Implementation: the FULL canonical list lives in S._allProjects when test mode is active.
 // S.projects becomes a filtered view. When test mode is off, S._allProjects is null and
 // S.projects is the canonical source. This avoids any risk of data loss.
-function isTestMode(){return localStorage.getItem('testMode')==='1';}
+function isTestMode(){ try{localStorage.removeItem('testMode');}catch(e){} return false; }
 function _isTestProject(p){return /test/i.test(p.no||'')||/test/i.test(p.name||'');}
 function applyTestModeFilter(){
   if(!isTestMode()){
@@ -12632,11 +12669,18 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
 function renderLeaveGridOnly(){
   // v10.5.3 — one combined table. The discipline filter decides which sections appear:
   // 'all' shows MEP + BIM, 'BIM' shows only BIM, a MEP disc shows only that discipline.
+  const scope=lvScope();
+  if(scope){
+    if(scope.own){ window._lvDisc='all'; }
+    else if(scope.allBim && !scope.allMep && !scope.discs.length){ window._lvDisc='BIM'; }
+    else if(scope.discs.length===1 && !scope.allMep && !scope.allBim){ window._lvDisc=scope.discs[0]; }
+  }
   const d=window._lvDisc||'all';
   const gEng=document.getElementById('leave-grid'), gBim=document.getElementById('leave-grid-bim');
   const showEng=(d!=='BIM'), showBim=(d==='all'||d==='BIM');
-  const mepList = showEng ? lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false) : [];
-  const bimList = showBim ? lvFilter(S.engineers.filter(e=>e.team==='BIM'),true) : [];
+  let mepList = showEng ? lvFilter(S.engineers.filter(e=>e.team!=='BIM'),false) : [];
+  let bimList = showBim ? lvFilter(S.engineers.filter(e=>e.team==='BIM'),true) : [];
+  if(scope){ mepList=mepList.filter(e=>lvEngInScope(e,scope)); bimList=bimList.filter(e=>lvEngInScope(e,scope)); }
   if(gBim){ gBim.style.display='none'; gBim.innerHTML=''; } // legacy second container — now unused
   if(gEng){ gEng.style.display=''; renderLeaveGridCombined('leave-grid', mepList, bimList, S.leaveHrs, 'setLeaveHrU'); }
 }
@@ -12649,10 +12693,12 @@ function renderLeave(){
   const firstW=weeks[0],lastW=weeks[weeks.length-1];
 
   const activeTab=window.leaveActiveTab||'engineers';
-  const mepEngs=S.engineers.filter(e=>e.team!=='BIM');
-  const bimEngs=S.engineers.filter(e=>e.team==='BIM');
+  const _scope=lvScope();
+  const _inScope=e=>lvEngInScope(e,_scope);
+  const mepEngs=S.engineers.filter(e=>e.team!=='BIM'&&_inScope(e));
+  const bimEngs=S.engineers.filter(e=>e.team==='BIM'&&_inScope(e));
 
-  const totalLeaveHrs=Object.values(S.leaveHrs).reduce((a,arr)=>a+(arr||[]).reduce((b,h)=>b+(h||0),0),0);
+  const totalLeaveHrs=[...mepEngs,...bimEngs].reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
   const mepLeaveHrs=mepEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
   const bimLeaveHrs=bimEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
 
@@ -12662,7 +12708,13 @@ function renderLeave(){
 
   // v9.32.1 — leave filters render into the page header, matching the other pages
   { const _lf=document.getElementById('leave-filters-slot');
-    const _discOpts=['all','HVAC','PH&E','ELE','ELV','BIM']; // v9.32.2 — BIM is now a discipline option, not a separate tab
+    let _discOpts=['all','HVAC','PH&E','ELE','ELV','BIM']; // v9.32.2 — BIM is now a discipline option, not a separate tab
+    if(_scope){
+      if(_scope.own){ _discOpts=['all']; }
+      else if(_scope.allMep && !_scope.allBim){ _discOpts=['all','HVAC','PH&E','ELE','ELV']; if(window._lvDisc==='BIM')window._lvDisc='all'; }
+      else if(_scope.allBim && !_scope.allMep){ _discOpts=['BIM']; window._lvDisc='BIM'; }
+      else if(_scope.discs.length){ _discOpts=_scope.discs.slice(); if(!_scope.discs.includes((window._lvDisc||'').toUpperCase()))window._lvDisc=_scope.discs[0]; }
+    }
     const _years=[2026,2027,2028,2029];
     if(_lf)_lf.innerHTML=`<input id="lv-q" placeholder="Search…" value="${esc(window._lvQ||'')}" oninput="window._lvQ=this.value;renderLeaveGridOnly()">
       <select id="lv-disc" onchange="window._lvDisc=this.value;renderLeaveGridOnly()">${_discOpts.map(d=>`<option value="${d}"${(window._lvDisc||'all')===d?' selected':''}>${d==='all'?'All Disciplines':d}</option>`).join('')}</select>
