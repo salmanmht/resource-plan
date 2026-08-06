@@ -913,7 +913,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.34 · 6 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.37 · 6 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1015,7 +1015,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.34 · 6 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.37 · 6 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1706,7 +1706,7 @@ function bimSubAliases(code){ var d=DISCIPLINE_CONFIG.find(function(x){return x.
 function applyDisciplineConfig(arr){
   if(Array.isArray(arr)&&arr.length){
     var clean=arr.filter(function(d){return d&&d.code&&d.label&&!/^mep$/i.test(String(d.code));}).map(function(d){
-      return {code:String(d.code),label:String(d.label),color:d.color||'#64748b',bimSub:Array.isArray(d.bimSub)&&d.bimSub.length?d.bimSub:[String(d.code)]};
+      return {code:String(d.code),label:String(d.label),color:d.color||'#64748b',bimSub:Array.isArray(d.bimSub)&&d.bimSub.length?d.bimSub:[String(d.code)],umbrella:!!d.umbrella};
     });
     if(clean.length)DISCIPLINE_CONFIG=clean;
   }
@@ -2620,9 +2620,57 @@ async function sbUpsert(table,row){
   return sbFetch(table,'POST',row,'resolution=merge-duplicates,return=representation');
 }
 async function sbDel(table,id){return sbFetch(table+'?id=eq.'+encodeURIComponent(id),'DELETE');}
+// v10.5.35 — LOUD SAVE FAILURES.
+// Previously a failed write only flipped a small "Sync failed" label in the
+// sidebar and then called saveLocal(), so the edit stayed on screen and looked
+// saved — until a refresh pulled the server's older row and the change vanished.
+// Every write failure now raises a persistent banner that can only be cleared by
+// a successful save or an explicit dismiss.
+function _saveFailBanner(){
+  var el=document.getElementById('save-fail-banner');
+  if(el)return el;
+  el=document.createElement('div');
+  el.id='save-fail-banner';
+  el.style.cssText='display:none;position:fixed;top:0;left:0;right:0;z-index:9998;background:linear-gradient(90deg,#b91c1c,#dc2626);color:#fff;padding:9px 14px;font-size:12.5px;font-weight:600;font-family:Arial,Calibri,sans-serif;box-shadow:0 2px 10px rgba(185,28,28,.35);display:none;align-items:center;gap:10px;flex-wrap:wrap;';
+  el.innerHTML='<span style="flex:1;min-width:200px;line-height:1.45;">'
+    +'<b>\u26A0 Not saved to the server.</b> <span id="sfb-msg">Your last change is on this device only and will be lost on refresh.</span></span>'
+    +'<button onclick="retryFailedSaves()" style="background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.55);color:#fff;font-weight:700;padding:4px 12px;border-radius:6px;cursor:pointer;font-size:11.5px;">Retry now</button>'
+    +'<button onclick="if(typeof showSyncLog===\'function\')showSyncLog()" style="background:transparent;border:1px solid rgba(255,255,255,.45);color:#fff;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;font-size:11.5px;">Details</button>'
+    +'<button onclick="document.getElementById(\'save-fail-banner\').style.display=\'none\'" title="Hide (the change is still unsaved)" style="background:transparent;border:none;color:#fff;font-weight:700;padding:4px 8px;cursor:pointer;font-size:14px;line-height:1;">\u2715</button>';
+  document.body.appendChild(el);
+  return el;
+}
+function showSaveFail(msg){
+  try{
+    var el=_saveFailBanner();
+    var m=document.getElementById('sfb-msg');
+    if(m&&msg)m.textContent=msg;
+    el.style.display='flex';
+  }catch(e){}
+}
+function hideSaveFail(){ var el=document.getElementById('save-fail-banner'); if(el)el.style.display='none'; }
+async function retryFailedSaves(){
+  try{
+    if(typeof flushProjSaves==='function'&&window._pendingProjSaves&&window._pendingProjSaves.size>0){
+      await flushProjSaves();
+    } else if(typeof initApp==='function'){
+      // Nothing queued to replay — re-pull so the user can see the true server state.
+      hideSaveFail(); await initApp({skipNav:true}); return;
+    }
+    if(!window._pendingProjSaves||window._pendingProjSaves.size===0)hideSaveFail();
+  }catch(e){ console.error('retryFailedSaves failed:',e); }
+}
+window.showSaveFail=showSaveFail; window.hideSaveFail=hideSaveFail; window.retryFailedSaves=retryFailedSaves;
+
 function setSyncStatus(ok,txt){document.getElementById('sync-dot').className='sync-dot'+(ok?'':' off');document.getElementById('sync-txt').textContent=txt;
   // v9.8.3 — clicking the status opens the failure log
   var st=document.getElementById('sync-txt'); if(st&&!st._logHook){st._logHook=1;st.style.cursor='pointer';st.title='Click to view sync failures';st.onclick=function(){if(typeof showSyncLog==='function')showSyncLog();};}
+  // v10.5.35 — raise/clear the loud banner. Only WRITE failures qualify: states
+  // like 'Connecting…' or a failed *load* don't risk losing the user's edit.
+  try{
+    if(ok){ hideSaveFail(); }
+    else if(/sync failed|save failed|unsaved change/i.test(String(txt||''))){ showSaveFail(String(txt||'')+' — your last change is on this device only and will be lost on refresh.'); }
+  }catch(e){}
 }
 
 async function initApp(opts){
@@ -2650,7 +2698,7 @@ async function initApp(opts){
     S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
   // Load pending users badge for admins
   if(adminUnlocked)setTimeout(loadPendingBadge,2000);
-    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; delete d._t; return d; }); // _t = legacy debounce-timer ids that leaked into saved data — strip so saveAllNow() can trust it
+    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; delete d._t; try{_projNoteSafe(d);}catch(e){} return d; }); // _t = legacy debounce-timer ids that leaked into saved data — strip so saveAllNow() can trust it
     S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
     if(Array.isArray(projHrsRows)){
@@ -2738,8 +2786,15 @@ async function initApp(opts){
       }
     }
     try{ syncAdminModeBtn(); }catch(e){}
-    if(adminUnlocked){ try{ normalizeAllDesignations(true); }catch(e){ console.error('normalizeAllDesignations (auto) failed:',e); } }
-    if(adminUnlocked){ try{ wipeEmployeeNumbers(true); }catch(e){ console.error('wipeEmployeeNumbers (auto) failed:',e); } }
+    // v10.5.35 — REMOVED the two auto-running "one-time" migrations that fired on
+    // every admin load (normalizeAllDesignations + wipeEmployeeNumbers). Both
+    // iterated the whole roster and pushed to Supabase, so any session where
+    // adminUnlocked was true — including one armed from the console — triggered
+    // mass writes across every engineer record. Run them deliberately instead:
+    //   • Designations → the "↻ Normalize Designations" button on the Team page.
+    //   • Employee No. → one-off SQL:
+    //       update engineers set data = data - 'empno' where data ? 'empno';
+    // The functions remain defined below so they can still be invoked on purpose.
 
     // Legacy rates fallback
     const rrOld=Array.isArray(sets)?sets.find(r=>r.key==='rates'):null;
@@ -2965,6 +3020,14 @@ function showStaleBanner(){
   }catch(e){}
 }
 async function pushEng(e){try{await sbUpsert('engineers',{id:e.id,data:e});setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());}catch{setSyncStatus(false,'Sync failed');saveLocal();}}
+// v10.5.37 — high-water record of each project's deadline data, used by the
+// write guard in pushProj to refuse saves that would erase milestones/remarks.
+window._projSafe=window._projSafe||{};
+function _projNoteSafe(p){
+  if(!p||!p.id)return;
+  try{ window._projSafe[p.id]={ms:(p.milestones||[]).length, log:(p.statusLog||[]).length}; }catch(e){}
+}
+window._projNoteSafe=_projNoteSafe;
 async function pushProj(p){
   // If proposal, save to proposals table
   if(p && p.id && p.id.toString().startsWith('prp')){
@@ -2977,11 +3040,29 @@ async function pushProj(p){
     return;
   }
   try{
+    // v10.5.37 — DATA-LOSS GUARD. `_projSafe` records how many milestones and
+    // remarks each project is known to have (recorded on load and after every
+    // successful save). If a write would take a non-empty array to empty and it
+    // wasn't an explicit, confirmed delete, refuse it and shout — rather than
+    // quietly persisting the erasure the way we did on 6 Aug 2026.
+    const _s=window._projSafe&&window._projSafe[p.id];
+    const _msN=(p.milestones||[]).length, _lgN=(p.statusLog||[]).length;
+    const _intentional=(window._allowShrinkFor===p.id);
+    if(_s&&!_intentional&&((_s.ms>0&&_msN===0)||(_s.log>0&&_lgN===0))){
+      const what=[]; if(_s.ms>0&&_msN===0)what.push(_s.ms+' milestone'+(_s.ms===1?'':'s'));
+      if(_s.log>0&&_lgN===0)what.push(_s.log+' remark'+(_s.log===1?'':'s'));
+      try{ logSyncFail('BLOCKED erasing write',(p.no?p.no+' · ':'')+(p.name||p.id)+' — would have deleted '+what.join(' and '),new Error('write guard')); }catch(e){}
+      showSaveFail('Blocked a save that would have deleted '+what.join(' and ')+' on "'+(p.no||'')+' '+(p.name||'')+'". Nothing was written — reload to get the latest.');
+      console.error('WRITE GUARD: refused to erase',p.id,_s,{ms:_msN,log:_lgN});
+      return;
+    }
+    if(window._allowShrinkFor===p.id)window._allowShrinkFor=null;
     // Save metadata only — weeklyHrs stored separately in project_hours table
     // mep_lead_email saved as top-level column for RLS enforcement
     // _t = session-local debounce timer id — never persist it (v9.3.0)
     const {weeklyHrs,_t,...meta}=p;
     await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
+    _projNoteSafe(p);
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
     logActivity('updated project',(p.no?p.no+' \u00b7 ':'')+(p.name||''));
     // v9.8.3 — success clears any earlier pending copy of this project
@@ -3458,7 +3539,7 @@ function isSeniorDupGrade(grade){
 // v9.12.0 — "MEP" (or any code not in the live discipline config) is an umbrella,
 // not a real discipline: such a person books across every discipline and surfaces
 // wherever they're booked, with no home discipline page of their own.
-function isUmbrella(e){ if(!e)return false; if(e.team==='BIM')return (e.subDisc||e.disc)==='MEP'; return !!(e.disc&&typeof MEP_DISCS!=='undefined'&&MEP_DISCS.indexOf(e.disc)<0); }
+function isUmbrella(e){ if(!e)return false; var d=(e.team==='BIM')?(e.subDisc||e.disc):e.disc; if(isUmbrellaDisc(d))return true; if(e.team==='BIM')return false; return !!(d&&typeof MEP_DISCS!=='undefined'&&MEP_DISCS.indexOf(d)<0); }
 function canDupBook(e,p){
   if(!e)return false;
   if(p&&hasParallelProg(p))return true; // v9.25.0 — parallel programmes: anyone may take a second booking to split a week across workstreams
@@ -4073,7 +4154,7 @@ function renderSettings(){
     return '<div style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid var(--bdr);border-radius:10px;margin-bottom:8px;background:#fff;">'
       +'<span style="width:16px;height:16px;border-radius:4px;background:'+esc(d.color)+';flex-shrink:0;border:1px solid rgba(0,0,0,.1);"></span>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">'+esc(d.label)+'</div>'
-        +'<div style="font-size:11px;color:var(--tx3);">code: '+esc(d.code)+' · BIM aliases: '+esc((d.bimSub||[]).join(', '))+' · '+n+(n===1?' person':' assigned')+(discOfficeSplit(d.code)?' ('+esc(discOfficeSplit(d.code))+')':'')+'</div></div>'
+        +'<div style="font-size:11px;color:var(--tx3);">code: '+esc(d.code)+' · BIM aliases: '+esc((d.bimSub||[]).join(', '))+' · '+n+(n===1?' person':' assigned')+(discOfficeSplit(d.code)?' ('+esc(discOfficeSplit(d.code))+')':'')+(d.umbrella?' · <span style="font-weight:700;color:#10243E;background:#E7EDF6;padding:1px 6px;border-radius:4px;">Management</span>':'')+'</div></div>'
       +'<button class="btn btn-g btn-sm" onclick="discEdit('+i+')">Edit</button>'
       +'<button class="btn btn-d btn-sm" onclick="discDelete('+i+')" title="'+(n>0?'In use — cannot delete':'Delete')+'"'+(n>0?' style="opacity:.4;cursor:not-allowed;"':'')+'>Delete</button>'
       +'</div>';
@@ -4108,6 +4189,14 @@ function discEdit(i){
     +'</div>'
     +'<label style="font-size:11px;color:var(--tx3);display:block;margin-top:10px;">BIM sub-discipline aliases (comma-separated \u2014 codes on BIM modellers that map here)<br>'
       +'<input id="disc-f-bim" value="'+esc((d.bimSub||[]).join(', '))+'" placeholder="e.g. FLS, Fire" style="width:100%;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;font-size:12px;"></label>'
+    // v10.5.36 — marks a discipline as the department/management group (e.g. MEP
+    // Management). People in it are department heads, not a trade: their job title
+    // gets no discipline suffix, and they are treated as booking across all
+    // disciplines automatically instead of relying on the per-person checkbox.
+    +'<label style="display:flex;align-items:flex-start;gap:8px;margin-top:12px;padding:10px 12px;background:#F7F9FC;border:1px solid #E4EAF2;border-radius:8px;cursor:pointer;">'
+      +'<input id="disc-f-umb" type="checkbox"'+(d.umbrella?' checked':'')+' style="width:16px;height:16px;margin-top:1px;flex:0 0 auto;cursor:pointer;accent-color:#10243E;">'
+      +'<span style="font-size:12px;font-weight:600;color:#10243E;line-height:1.45;">Management / department group'
+        +'<span style="display:block;font-weight:400;font-size:11px;color:var(--tx3);margin-top:2px;">Members are department heads rather than a trade \u2014 no discipline suffix in their designation, and they can book into any discipline. Use for MEP Management.</span></span></label>'
     +'<div style="display:flex;gap:8px;margin-top:12px;justify-content:flex-end;">'
       +'<button class="btn btn-g btn-sm" onclick="discEditCancel()">Cancel</button>'
       +'<button class="btn btn-p btn-sm" onclick="discSave('+i+')">'+(isNew?'Add':'Save')+'</button>'
@@ -4178,8 +4267,9 @@ async function discSave(i){
   if(code==='BIM'){ toast('“BIM” is reserved and can’t be used as a discipline code.'); return; }
   if(DISCIPLINE_CONFIG.some(function(x,idx){return x.code===code&&idx!==i;})){ toast('That code already exists.'); return; }
   var bimSub=bimRaw?bimRaw.split(',').map(function(s){return s.trim();}).filter(Boolean):[code];
+  var umb=!!(document.getElementById('disc-f-umb')&&document.getElementById('disc-f-umb').checked);
   if(isNew){
-    DISCIPLINE_CONFIG.push({code:code,label:label,color:color,bimSub:bimSub});
+    DISCIPLINE_CONFIG.push({code:code,label:label,color:color,bimSub:bimSub,umbrella:umb});
   } else {
     var oldCode=DISCIPLINE_CONFIG[i].code;
     if(code!==oldCode){
@@ -4192,6 +4282,7 @@ async function discSave(i){
     DISCIPLINE_CONFIG[i].label=label;
     DISCIPLINE_CONFIG[i].color=color;
     DISCIPLINE_CONFIG[i].bimSub=bimSub;
+    DISCIPLINE_CONFIG[i].umbrella=umb;
   }
   rebuildDiscDerived();
   var ok=await saveDisciplines();
@@ -9043,7 +9134,9 @@ function trkGridDeleteMs(){
   const ctx=window._trkPop; if(!ctx||ctx.i==null)return;
   const p=S.projects.find(x=>x.id===ctx.pid); if(!p||!p.milestones)return;
   if(!(_trkCanEdit()))return;
-  p.milestones.splice(ctx.i,1); pushProj(p); trkGridClosePop(); refreshMilestoneViews();
+  p.milestones.splice(ctx.i,1);
+  window._allowShrinkFor=p.id; // deliberate delete — the write guard must allow this
+  pushProj(p); trkGridClosePop(); refreshMilestoneViews();
 }
 function trkGridSaveRemark(pid,text){
   const p=S.projects.find(x=>x.id===pid); if(!p)return;
@@ -9052,7 +9145,22 @@ function trkGridSaveRemark(pid,text){
   if(!p.statusLog)p.statusLog=[];
   const log=[...p.statusLog].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
   const latest=log[0];
-  if(latest){ const idx=p.statusLog.indexOf(latest); if(idx>=0){ if((p.statusLog[idx].text||'')===text)return; p.statusLog[idx].text=text; } }
+  if(latest){
+    const idx=p.statusLog.indexOf(latest); if(idx<0)return;
+    const prev=(p.statusLog[idx].text||'');
+    if(prev===text)return;
+    // v10.5.37 — DATA-LOSS GUARD. This used to overwrite an existing remark with
+    // an empty string without asking, so a blur fired on a re-rendered/detached
+    // cell silently erased it (and pushed the erasure to Supabase). Clearing is
+    // now only ever possible as a deliberate, confirmed act.
+    if(!text && prev){
+      const ok=confirm('Clear the remarks for "'+(p.no||'')+' '+(p.name||'')+'"?\n\nThis deletes the existing text:\n\n'
+        +prev.slice(0,220)+(prev.length>220?'…':''));
+      if(!ok){ try{ refreshMilestoneViews(); }catch(e){} return; }
+      window._allowShrinkFor=p.id; // an intentional clear may shrink the record
+    }
+    p.statusLog[idx].text=text;
+  }
   else { if(!text)return; p.statusLog.push({date:todayISO(),text:text}); }
   pushProj(p);
 }
@@ -11996,9 +12104,23 @@ function fillGrade(isBIM){
 // Designation is always derived from Grade Tier + Discipline — never free-typed —
 // so the two can never drift out of sync (this replaces the old reverse-parse
 // approach, which tried to guess the grade back out of typed text).
+// v10.5.36 — is this discipline CODE the department/management group?
+// Driven by the Settings flag, with the legacy literal 'MEP' kept as a fallback
+// so un-migrated records keep behaving correctly.
+function isUmbrellaDisc(code){
+  if(!code)return false;
+  if(/^mep$/i.test(code))return true; // legacy umbrella code
+  try{
+    var d=DISCIPLINE_CONFIG.find(function(x){return x.code===code;});
+    return !!(d&&d.umbrella);
+  }catch(e){ return false; }
+}
+window.isUmbrellaDisc=isUmbrellaDisc;
 function computeDesig(grade,disc){
   grade=(grade||'').trim(); disc=(disc||'').trim();
-  if(disc==='MEP')disc=''; // umbrella — no discipline suffix in designation
+  // Department heads carry no discipline suffix (was hardcoded to 'MEP'; now any
+  // discipline flagged as the management group in Settings — v10.5.36).
+  if(isUmbrellaDisc(disc))disc='';
   if(!grade&&!disc)return'';
   if(!disc)return grade;
   if(!grade)return disc;
@@ -13355,23 +13477,26 @@ function parseImportData(workbook){
     if(rows.length < 5) return;
 
     // Find header row (contains "Emp No." in first cell)
+    // v10.5.35 — matching used to be exact ('Emp No.' / 'Emp No'), so a stray
+    // space, different case or a missing period silently skipped the whole sheet.
+    const _hnorm = s => String(s||'').toLowerCase().replace(/[\s._()\/-]/g,'');
     let hdrIdx = -1;
     for(let i = 0; i < Math.min(10, rows.length); i++){
-      const first = String(rows[i][0]||'').trim();
-      if(first === 'Emp No.' || first === 'Emp No'){hdrIdx = i; break;}
+      const first = _hnorm(rows[i][0]);
+      if(first === 'empno' || first === 'employeeno' || first === 'empnumber'){hdrIdx = i; break;}
     }
-    if(hdrIdx < 0){changes.errors.push('Sheet "'+matchSheet+'": could not find header row');return;}
+    if(hdrIdx < 0){changes.errors.push('Sheet "'+matchSheet+'": could not find header row (expected "Emp No." in the first column)');return;}
 
     const hdr = rows[hdrIdx];
     // Find week columns: between "Rate" and "Total Hrs"
     let rateCol = -1, totalCol = -1;
     for(let c = 0; c < hdr.length; c++){
-      const h = String(hdr[c]||'').trim();
-      if(h === 'Rate' || h === 'Rate (AED/hr)') rateCol = c;
-      if(h === 'Total Hrs') totalCol = c;
+      const h = _hnorm(hdr[c]);
+      if(rateCol < 0 && (h === 'rate' || h === 'rateaedhr' || h === 'rateaed')) rateCol = c;
+      if(totalCol < 0 && (h === 'totalhrs' || h === 'totalhours' || h === 'total')) totalCol = c;
     }
     if(rateCol < 0 || totalCol < 0 || totalCol <= rateCol){
-      changes.errors.push('Sheet "'+matchSheet+'": could not find Rate/Total Hrs columns');
+      changes.errors.push('Sheet "'+matchSheet+'": could not find Rate / Total Hrs columns');
       return;
     }
     const weekStart = rateCol + 1;
@@ -13583,6 +13708,28 @@ function showImportPreview(changes){
 async function applyImportChanges(){
   if(!_pendingImport) return;
   const changes = _pendingImport;
+  // v10.5.35 — this used to go straight into the write loop: one click after the
+  // preview and dozens of engineer/project records were overwritten with no
+  // confirmation and no undo. Require an explicit, itemised OK first.
+  {
+    const st=changes.stats||{};
+    const lines=[];
+    if(st.updated)lines.push('• '+st.updated+' hour row(s) updated');
+    if(st.added)lines.push('• '+st.added+' engineer booking(s) added');
+    if(st.removed)lines.push('• '+st.removed+' booking(s) REMOVED');
+    if(st.leaveUpdated)lines.push('• '+st.leaveUpdated+' leave row(s) updated');
+    if(!lines.length)lines.push('• (no changes detected)');
+    let msg='Apply this import?\n\n'+lines.join('\n')
+      +'\n\nAcross '+((changes.projects||[]).length)+' project sheet(s)'
+      +((changes.leave||[]).length?' and '+changes.leave.length+' leave sheet(s)':'')+'.';
+    if((changes.errors||[]).length){
+      msg+='\n\n\u26A0 '+changes.errors.length+' sheet problem(s) were found and those sheets will be SKIPPED:\n'
+        +changes.errors.slice(0,5).map(e=>'  – '+e).join('\n')
+        +(changes.errors.length>5?'\n  – …and '+(changes.errors.length-5)+' more':'');
+    }
+    msg+='\n\nThis overwrites existing hours and cannot be undone.';
+    if(!confirm(msg)){ return; }
+  }
   const applyBtn = document.getElementById('import-apply-btn');
   applyBtn.disabled = true;
   applyBtn.textContent = 'Applying...';
