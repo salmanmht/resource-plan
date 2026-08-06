@@ -294,6 +294,15 @@ select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/
 #ps-st,#trk-filter,#prp-st{width:auto;flex:0 0 auto;min-width:132px;padding:5px 26px 5px 9px;font-size:12px;font-weight:600;color:#10243E;border-radius:8px;background-position:right 9px center;}
 /* v9.30.0 — filter bars that live INSIDE the page header, matching the Overview page's inline pill filters. */
 .hdr-fbar{display:flex;align-items:center;gap:6px;margin:0;flex-wrap:wrap;}
+@media(max-width:700px){
+  /* v10.5.34 — on phones let the filter row scroll sideways so nothing gets clipped
+     off the right edge (was cutting off the From/To range on Team Register). */
+  .hdr-fbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding-bottom:2px;width:100%;}
+  .hdr-fbar::-webkit-scrollbar{display:none;}
+  .hdr-fbar > *{flex:0 0 auto;}
+  .hdr-fbar input{width:130px;}
+  .hdr-daterange{margin-left:4px !important;}
+}
 .hdr-fbar input,.hdr-fbar select{width:auto;flex:0 0 auto;min-width:0;padding:5px 9px;font-size:12px;font-weight:600;color:#10243E;background-color:#fff;border-radius:8px;}
 .hdr-fbar select{padding-right:26px;background-position:right 9px center;}
 .hdr-fbar input{font-weight:500;width:150px;}
@@ -904,7 +913,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.33 · 4 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.34 · 6 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1006,7 +1015,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.33 · 4 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.34 · 6 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -6008,6 +6017,23 @@ function closeMobSB(){
 }
 function showMobMenuBtns(){document.querySelectorAll('.mob-menu-btn').forEach(b=>b.style.display=isMobile()?'flex':'none');}
 window.addEventListener('resize',showMobMenuBtns);
+// v10.5.34 — the Deadline Tracker and Annual Leave have separate mobile layouts,
+// so re-render when the viewport crosses the 700px breakpoint (rotation, window resize).
+window._wasMobile=(typeof isMobile==='function')?isMobile():false;
+window.addEventListener('resize',function(){
+  var now=isMobile();
+  if(now===window._wasMobile)return;
+  window._wasMobile=now;
+  clearTimeout(window._bpT);
+  window._bpT=setTimeout(function(){
+    try{
+      var pg=(typeof CURRENT_PAGE!=='undefined')?CURRENT_PAGE:'';
+      if(pg==='tracker'&&typeof renderTracker==='function')renderTracker();
+      else if(pg==='leave'&&typeof renderLeave==='function')renderLeave();
+      else if(pg==='team'&&typeof invalidate==='function')invalidate('team');
+    }catch(e){}
+  },160);
+},{passive:true});
 window.addEventListener('popstate',function(e){
   if(e.state&&e.state.page&&PAGES.includes(e.state.page)) nav(e.state.page,true);
 });
@@ -8787,8 +8813,9 @@ window.setTrkSort=setTrkSort; window.toggleTrkSortDir=toggleTrkSortDir;
 function setTrkGridWeeks(v){TRK_GRID_WEEKS=parseInt(v,10)||26;try{localStorage.setItem('trkGridWeeks',String(TRK_GRID_WEEKS));}catch(e){} renderTracker();}
 window.setTrkView=setTrkView; window.setTrkGridFrom=setTrkGridFrom; window.setTrkGridWeeks=setTrkGridWeeks;
 
-function renderTrackerGrid(){
-  const host=document.getElementById('tracker-content'); if(!host)return;
+// v10.5.34 — shared filter+sort so the desktop grid and the mobile card list
+// always show exactly the same rows in the same order.
+function _trkProjList(){
   const q=(document.getElementById('trk-q')?.value||'').toLowerCase().trim();
   const filter=document.getElementById('trk-filter')?.value||'all';
   let projs=S.projects.slice();
@@ -8796,6 +8823,74 @@ function renderTrackerGrid(){
   if(filter==='overdue')projs=projs.filter(p=>(p.milestones||[]).some(m=>msEffectiveState(m)==='overdue'));
   if(filter==='upcoming')projs=projs.filter(p=>(p.milestones||[]).some(m=>{const s=msEffectiveState(m);return s==='upcoming'||s==='progress';}));
   projs.sort(trkSortCmp);
+  return projs;
+}
+
+// v10.5.34 — mobile layout: one card per project (the 26-week grid can't work on a phone).
+// Fully editable: tap remarks to edit, tap a deadline to edit/delete, or add a new one.
+function renderTrackerMobile(){
+  const host=document.getElementById('tracker-content'); if(!host)return;
+  const projs=_trkProjList();
+  const canEd=_trkCanEdit();
+  const css=`<style>
+    .tkm{padding:2px 0 26px;}
+    .tkm-card{background:#fff;border:1px solid #E2E7EE;border-radius:13px;padding:13px;margin-bottom:11px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+    .tkm-top{display:flex;align-items:center;gap:7px;margin-bottom:3px;}
+    .tkm-dot{width:8px;height:8px;border-radius:50%;flex:0 0 auto;}
+    .tkm-no{font-size:11px;color:#9AA7B5;font-weight:600;}
+    .tkm-nm{font-size:15px;font-weight:700;line-height:1.25;margin-bottom:9px;color:#10243E;}
+    .tkm-rem{font-size:12px;line-height:1.55;color:#28384A;background:#F7F9FC;border:1px solid #EAEFF5;border-radius:9px;padding:9px 10px;white-space:pre-line;outline:none;}
+    .tkm-rem.ed:focus{background:#eef6ff;border-color:#c9dcf5;}
+    .tkm-rem.ed:empty::before{content:'Tap to add remarks…';color:#9AA7B5;font-style:italic;}
+    .tkm-lbl{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#9AA7B5;margin:11px 0 5px;}
+    .tkm-ms{display:flex;align-items:flex-start;gap:9px;padding:8px 9px;border:1px solid #E2E7EE;border-radius:9px;margin-bottom:6px;background:#fff;}
+    .tkm-ms .cd{width:9px;height:9px;border-radius:3px;margin-top:4px;flex:0 0 auto;}
+    .tkm-ms .tx{flex:1;min-width:0;}
+    .tkm-ms .t1{font-size:12.5px;font-weight:600;line-height:1.35;word-break:break-word;}
+    .tkm-ms .t2{font-size:10.5px;color:#6B7A8D;margin-top:2px;}
+    .tkm-ms.dn .t1{text-decoration:line-through;opacity:.55;}
+    .tkm-wk{font-size:10px;font-weight:700;color:#10243E;background:#EEF2F8;border-radius:5px;padding:2px 6px;flex:0 0 auto;margin-top:2px;}
+    .tkm-add{width:100%;border:1px dashed #C3CEDC;background:#FAFCFE;color:#42597a;border-radius:9px;padding:9px;font-size:12px;font-weight:700;cursor:pointer;}
+    .tkm-none{font-size:11.5px;color:#9AA7B5;font-style:italic;padding:2px 0 4px;}
+  </style>`;
+  if(!projs.length){
+    host.innerHTML=css+'<div class="tkm"><div style="padding:22px;text-align:center;color:#6B7A8D;font-size:12.5px;">No projects match.</div></div>';
+    return;
+  }
+  const cards=projs.map(p=>{
+    const stCol=(p.status==='Active')?'#22c55e':(p.status==='On Hold')?'#f59e0b':'#94a3b8';
+    const log=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
+    const remTxt=(log.length?(log[0].text||''):'').trim();
+    const ms=(p.milestones||[]).map((m,i)=>({m,i})).sort((a,b)=>String(a.m.date||'').localeCompare(String(b.m.date||'')));
+    const msRows=ms.length?ms.map(({m,i})=>{
+      const c=_trkMsColor(m);
+      const dn=msEffectiveState(m)==='done';
+      const d=m.date?new Date(m.date):null;
+      const dTxt=(d&&!isNaN(d))?d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric'}):'—';
+      const wk=(d&&!isNaN(d))?('W'+_trkISOWeek(d)):'';
+      const fw=m.bold?'800':'600', fs=m.italic?'italic':'normal', tdc=(m.strike&&!dn)?'line-through':'';
+      return `<div class="tkm-ms${dn?' dn':''}"${canEd?` onclick="trkGridOpenEditor(null,'${p.id}',${i},null)"`:''} style="cursor:${canEd?'pointer':'default'};">
+        <i class="cd" style="background:${c[0]};border:1px solid ${c[1]}55;"></i>
+        <div class="tx"><div class="t1" style="font-weight:${fw};font-style:${fs};${tdc?'text-decoration:'+tdc+';':''}">${dn?'✓ ':''}${esc(m.label||'')}</div><div class="t2">${dTxt}</div></div>
+        ${wk?`<span class="tkm-wk">${wk}</span>`:''}
+      </div>`;
+    }).join(''):'<div class="tkm-none">No deadlines yet.</div>';
+    return `<div class="tkm-card">
+      <div class="tkm-top"><i class="tkm-dot" style="background:${stCol};"></i><span class="tkm-no">${esc(p.no||'—')} · ${esc(p.status||'')}</span></div>
+      <div class="tkm-nm">${esc(p.name||'')}</div>
+      <div class="tkm-rem${canEd?' ed':''}"${canEd?` contenteditable="true" oninput="if(!this.textContent.trim())this.innerHTML=''" onblur="trkGridSaveRemark('${p.id}',this.innerText)"`:''}>${esc(remTxt)}</div>
+      <div class="tkm-lbl">Deadlines${ms.length?' ('+ms.length+')':''}</div>
+      ${msRows}
+      ${canEd?`<button class="tkm-add" onclick="trkGridOpenEditor(null,'${p.id}',null,null)">＋ Add deadline</button>`:''}
+    </div>`;
+  }).join('');
+  host.innerHTML=css+'<div class="tkm">'+cards+'</div>';
+}
+
+function renderTrackerGrid(){
+  const host=document.getElementById('tracker-content'); if(!host)return;
+  if(typeof isMobile==='function'&&isMobile()){ renderTrackerMobile(); return; }
+  let projs=_trkProjList();
 
   const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
   const fromM=_trkMonday(TRK_GRID_FROM||todayISO());
@@ -8910,7 +9005,7 @@ function trkGridOpenEditor(ev,pid,i,wi){
     cbox.innerHTML=Object.keys(TRK_COLORS).map(function(k){var c=TRK_COLORS[k];return '<span data-c="'+k+'" onclick="_trkPopColorSel(\''+k+'\')" title="'+k+'" style="width:24px;height:24px;border-radius:6px;background:'+c[0]+';border:1px solid '+c[1]+'55;cursor:pointer;outline:2px solid transparent;outline-offset:1px;display:inline-block;"></span>';}).join('');
   }
   const m=(i!=null&&p.milestones&&p.milestones[i])?p.milestones[i]:null;
-  const cellMon=new Date(fromMFor()); cellMon.setDate(cellMon.getDate()+wi*7);
+  const cellMon=(wi==null)?_trkMonday(todayISO()):(function(){var d=new Date(fromMFor());d.setDate(d.getDate()+wi*7);return d;})();
   document.getElementById('trk-pop-title').textContent=(m?'Edit milestone · ':'Add milestone · ')+esc(p.name||'');
   document.getElementById('trk-pop-label').value=m?m.label:'';
   document.getElementById('trk-pop-date').value=m?m.date:wtISO(cellMon);
@@ -12705,6 +12800,78 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
   if(_m&&_i)_i.style.width=_m.scrollWidth+'px';
 }
 
+// v10.5.34 — mobile layout for Annual Leave: one card per person with
+// Total / Taken / Remaining. Week-by-week entry stays on desktop (a 52-week
+// grid can't be edited reliably on a phone), so this view is read-only.
+function renderLeaveMobile(containerId, mepList, bimList, hrsObj){
+  const el=document.getElementById(containerId); if(!el)return;
+  const yr=window.leaveYear||2026;
+  const weeks=globalWeeks(yr);
+  const uLbl=lvUnitLabel();
+  const discs=MEP_DISCS.concat(['MEP']);
+  const css=`<style>
+    .lvm{padding:2px 0 26px;}
+    .lvm-tot{background:#10243E;color:#fff;border-radius:12px;padding:12px 14px;margin-bottom:12px;display:flex;justify-content:space-between;gap:8px;}
+    .lvm-tot div{min-width:0;}
+    .lvm-tot span{display:block;font-size:9.5px;letter-spacing:.05em;text-transform:uppercase;opacity:.7;margin-bottom:3px;}
+    .lvm-tot b{font-size:15.5px;}
+    .lvm-grp{font-size:11px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:#6B7A8D;margin:16px 2px 8px;display:flex;align-items:center;gap:8px;}
+    .lvm-grp:after{content:'';flex:1;height:1px;background:#E2E7EE;}
+    .lvm-card{background:#fff;border:1px solid #E2E7EE;border-radius:13px;padding:13px;margin-bottom:10px;box-shadow:0 1px 2px rgba(15,23,42,.04);}
+    .lvm-top{display:flex;align-items:center;gap:10px;}
+    .lvm-av{width:36px;height:36px;border-radius:10px;background:#DCE8FA;color:#1e4e8c;font-weight:800;font-size:13px;display:flex;align-items:center;justify-content:center;flex:0 0 auto;}
+    .lvm-nm{font-size:14.5px;font-weight:700;color:#10243E;line-height:1.2;word-break:break-word;}
+    .lvm-sub{font-size:11px;color:#6B7A8D;margin-top:2px;}
+    .lvm-chip{font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:#DCE8FA;color:#1c4272;flex:0 0 auto;}
+    .lvm-st{display:flex;gap:7px;margin-top:11px;}
+    .lvm-st > div{flex:1;background:#F5F7FA;border-radius:10px;padding:8px 4px;text-align:center;}
+    .lvm-st b{display:block;font-size:16.5px;font-weight:800;color:#10243E;line-height:1;}
+    .lvm-st span{display:block;font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#9AA7B5;margin-top:4px;}
+    .lvm-st .rm b{color:#0d7d8a;}
+    .lvm-bar{height:7px;background:#E9EEF4;border-radius:5px;overflow:hidden;margin-top:10px;}
+    .lvm-bar i{display:block;height:7px;border-radius:5px;background:linear-gradient(90deg,#1e4e8c,#3f7fd0);}
+    .lvm-bl{display:flex;justify-content:space-between;font-size:10px;color:#6B7A8D;margin-top:5px;}
+    .lvm-hint{text-align:center;font-size:11px;color:#9AA7B5;padding:6px 0 2px;}
+  </style>`;
+  const card=(e,discLbl)=>{
+    const sp=lvTakenSplit(hrsObj[e.id]||[],weeks);
+    const tot=lvToDisp(sp.total), tak=lvToDisp(sp.taken), rem=lvToDisp(sp.total-sp.taken);
+    const pct=sp.total?Math.round(sp.taken/sp.total*100):0;
+    const ini=(e.name||'?').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase();
+    return `<div class="lvm-card">
+      <div class="lvm-top"><div class="lvm-av">${esc(ini)}</div>
+        <div style="flex:1;min-width:0;"><div class="lvm-nm">${esc(e.name||'')}</div>
+        <div class="lvm-sub">${esc([e.pos||e.position||'',e.off||''].filter(Boolean).join(' · '))}</div></div>
+        <span class="lvm-chip">${esc(discLbl)}</span></div>
+      <div class="lvm-st">
+        <div><b>${sp.total?tot:'—'}</b><span>Total</span></div>
+        <div><b>${sp.total?tak:'—'}</b><span>Taken</span></div>
+        <div class="rm"><b>${sp.total?rem:'—'}</b><span>Left</span></div>
+      </div>
+      ${sp.total?`<div class="lvm-bar"><i style="width:${pct}%"></i></div><div class="lvm-bl"><span>${pct}% taken</span><span>${rem} ${esc(uLbl)} left</span></div>`:''}
+    </div>`;
+  };
+  let out='', gTot=0, gTak=0;
+  const build=(list,prefix,discOf)=>{
+    let s='';
+    discs.forEach(d=>{
+      const eng=list.filter(e=>discOf(e)===d);
+      if(!eng.length)return;
+      const lbl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[d])||d;
+      s+=`<div class="lvm-grp">${esc(prefix+'-'+lbl)} · ${eng.length}</div>`;
+      eng.forEach(e=>{ const sp=lvTakenSplit(hrsObj[e.id]||[],weeks); gTot+=sp.total; gTak+=sp.taken; s+=card(e,lbl); });
+    });
+    return s;
+  };
+  const mepPart=(mepList&&mepList.length)?build(mepList,'MEP',(e)=>e.disc):'';
+  const bimPart=(bimList&&bimList.length)?build(bimList,'BIM',(e)=>e.subDisc||e.disc):'';
+  if(!mepPart&&!bimPart){
+    el.innerHTML=css+'<div class="lvm"><div style="padding:22px;text-align:center;color:#6B7A8D;font-size:12.5px;">No one to show.</div></div>';
+    return;
+  }
+  out+=`<div class="lvm-tot"><div><span>Total</span><b>${lvToDisp(gTot)} ${esc(uLbl)}</b></div><div><span>Taken</span><b>${lvToDisp(gTak)}</b></div><div><span>Left</span><b>${lvToDisp(gTot-gTak)}</b></div></div>`;
+  el.innerHTML=css+'<div class="lvm">'+out+mepPart+bimPart+'<div class="lvm-hint">Week-by-week leave entry is on desktop</div></div>';
+}
 function renderLeaveGridOnly(){
   // v10.5.3 — one combined table. The discipline filter decides which sections appear:
   // 'all' shows MEP + BIM, 'BIM' shows only BIM, a MEP disc shows only that discipline.
@@ -12721,7 +12888,10 @@ function renderLeaveGridOnly(){
   let bimList = showBim ? lvFilter(S.engineers.filter(e=>e.team==='BIM'),true) : [];
   if(scope){ mepList=mepList.filter(e=>lvEngInScope(e,scope)); bimList=bimList.filter(e=>lvEngInScope(e,scope)); }
   if(gBim){ gBim.style.display='none'; gBim.innerHTML=''; } // legacy second container — now unused
-  if(gEng){ gEng.style.display=''; renderLeaveGridCombined('leave-grid', mepList, bimList, S.leaveHrs, 'setLeaveHrU'); }
+  if(gEng){ gEng.style.display='';
+    if(typeof isMobile==='function'&&isMobile()) renderLeaveMobile('leave-grid', mepList, bimList, S.leaveHrs);
+    else renderLeaveGridCombined('leave-grid', mepList, bimList, S.leaveHrs, 'setLeaveHrU');
+  }
 }
 function renderLeave(){
   const el=document.getElementById('pc-leave');
