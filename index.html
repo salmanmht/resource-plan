@@ -913,7 +913,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.37 · 6 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.38 · 6 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1015,7 +1015,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.37 · 6 Aug 2026</div>
+  <div style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.38 · 6 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3363,13 +3363,32 @@ function subUtil(sub,util,minMI,NMON){
 }
 function subHrs(sub,hrs){return sub.reduce((a,e)=>(hrs[e.id]||[]).reduce((b,h)=>b+h,0)+a,0);}
 // Get rate for an engineer based on their office (DXB vs EGY) or per-engineer rate for BIM
+// v10.5.38 — rate diagnostics: grades referenced by an engineer but absent from
+// the rates table. Previously these silently fell back to 150 (DXB) / 15 (EGY),
+// which could skew a project's cost by a wide margin with no warning.
+window.missingGradeLog=window.missingGradeLog||[];
 function getRate(e){
-  // Per-engineer override takes priority
-  if(e&&typeof e.rateOverride==='number'&&e.rateOverride>0)return e.rateOverride;
+  if(!e)return 0;
+  // Per-engineer override takes priority. 0 is a VALID override (non-billable
+  // secondment / internal time) — v10.5.38. Previously `>0` silently discarded
+  // it and fell back to the grade rate, inflating cost.
+  if(typeof e.rateOverride==='number'&&!isNaN(e.rateOverride))return e.rateOverride;
   // BIM members carry their rate directly on the engineer object (not via grade table)
-  if(e&&e.team==='BIM'&&typeof e.rate==='number')return e.rate;
+  if(e.team==='BIM'&&typeof e.rate==='number')return e.rate;
   const rates=e.off==='EGY'?S.ratesEGY:S.ratesDXB;
-  return (rates&&rates[e.grade])||(e.off==='EGY'?15:150);
+  const r=rates?rates[e.grade]:undefined;
+  // v10.5.38 — use a null check, not truthiness: a grade deliberately set to 0
+  // used to fall through to the 150 fallback.
+  if(r!=null&&!isNaN(r))return r;
+  // Missing grade → keep a fallback so cost calcs don't break, but record it so
+  // Data Health can surface it instead of it staying invisible.
+  try{
+    const key=(e.grade||'(none)')+'|'+(e.off||'?');
+    if(!window.missingGradeLog.some(x=>x.key===key)){
+      window.missingGradeLog.push({key:key,grade:e.grade||'(none)',off:e.off||'?',name:e.name||e.email||'(unknown)',ts:Date.now()});
+    }
+  }catch(err){}
+  return (e.off==='EGY'?15:150);
 }
 // Returns the rate to use on a specific project — override if set, otherwise the engineer's default
 function getProjRate(eng,p){
@@ -3997,6 +4016,16 @@ function dhSetupIssues(){
   if(noDisc)eng.push({t:noDisc+' engineer'+(noDisc>1?'s':'')+' missing discipline',sev:'warn'});
   if(noOff)eng.push({t:noOff+' engineer'+(noOff>1?'s':'')+' missing office',sev:'warn'});
   dhOverAlloc().forEach(o=>plan.push(o));
+  // v10.5.38 — grades referenced by engineers but absent from the rates table.
+  // These silently used the 150/15 fallback, so a mistyped or unconfigured grade
+  // could skew project cost invisibly. Populated by getRate().
+  try{
+    (window.missingGradeLog||[]).forEach(function(m){
+      eng.push({t:'Rate missing for grade "'+m.grade+'" ('+m.off+') — e.g. '+m.name,
+                d:'cost is falling back to '+(m.off==='EGY'?15:150)+' AED/hr. Add this grade in Cost Rates, or fix the engineer\u2019s grade.',
+                sev:'warn'});
+    });
+  }catch(e){}
   return {proj,eng,plan,time};
 }
 function dhTile(l,v,sev){const col=sev==='bad'?'#dc2626':sev==='warn'?'#d97706':'#16a34a';return '<div class="mc-int"><div class="mc-head"><div class="mc-l">'+l+'</div></div><div class="mc-val-row"><div class="mc-v" style="color:'+col+'">'+v+'</div></div></div>';}
@@ -11951,7 +11980,7 @@ function renderRates(){
   // Per-engineer overrides panel
   const ovBody=document.getElementById('rate-overrides-body');
   if(ovBody){
-    const withOv=S.engineers.filter(e=>typeof e.rateOverride==='number'&&e.rateOverride>0);
+    const withOv=S.engineers.filter(e=>typeof e.rateOverride==='number'&&!isNaN(e.rateOverride)&&e.rateOverride>=0);
     if(withOv.length===0){
       ovBody.innerHTML='<span style="color:var(--tx3);font-size:11px;">No per-engineer overrides set. Edit an engineer to add a custom rate.</span>';
     } else {
@@ -12195,7 +12224,9 @@ async function saveEng(){
     team:isBIM?'BIM':'MEP'
   };
   const rateVal=parseFloat(document.getElementById('em-rate').value);
-  if(!isNaN(rateVal)&&rateVal>0)eng.rateOverride=rateVal;
+  // v10.5.38 — accept 0 as a deliberate non-billable rate. An empty field still
+  // yields NaN, which correctly leaves rateOverride unset (= no override).
+  if(!isNaN(rateVal)&&rateVal>=0)eng.rateOverride=rateVal;
   const jd=document.getElementById('em-join-date').value;
   if(jd)eng.joinDate=jd;
   const ed=document.getElementById('em-end-date').value;
