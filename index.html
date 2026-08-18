@@ -136,38 +136,32 @@ body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-
 .sb-user{padding:8px 14px 14px;border-top:1px solid var(--bdr);display:flex;align-items:center;gap:8px;}
 .sb-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.3);z-index:199;touch-action:none;}
 
-/* ── SIDEBAR ICON RAIL (v10.5.41) ─────────────────────────────────────────
-   Collapsed state. Nav labels are bare text nodes inside .sbi (no wrapper
-   element to target), so instead of rewriting 18 items of markup we zero the
-   font-size on the row and restore it on the few children that must stay
-   readable. Icons are SVGs with fixed px dimensions, so they are unaffected.
-   Width is driven by --sb, which .main already consumes for its offset — so
-   the content pane reflows on its own with no JS layout work. */
+/* ── SIDEBAR ICON RAIL (v10.5.54) ─────────────────────────────────────────
+   Nav labels are bare text nodes inside .sbi with no wrapper to target, so the
+   row's font-size is zeroed and restored on the children that must stay legible.
+   Icons are fixed-size SVGs and unaffected. Width rides on --sb, which .main
+   already consumes, so the content pane reflows with no JS layout work. */
 body.sb-rail{--sb:56px;}
 body.sb-rail .sb{overflow-x:hidden;}
-/* Brand: the house-style block later in this file paints .sb-logo navy, which
-   reads as an ugly full-bleed slab at 56px. Reset it and use a small mark. */
+/* The house-style block later in this file paints .sb-logo navy, which reads as
+   an ugly full-bleed slab at 56px. Reset it and use a small mark instead. */
 body.sb-rail .sb-logo{background:transparent!important;padding:14px 0 11px;display:flex;
   align-items:center;justify-content:center;border-bottom:1px solid var(--bdr);}
 body.sb-rail .sb-logo-t{font-size:0!important;width:30px;height:30px;border-radius:9px;
   background:var(--mh-navy,#10243E);display:flex;align-items:center;justify-content:center;}
 body.sb-rail .sb-logo-t::after{content:'M';font-size:13px;font-weight:800;color:#fff;letter-spacing:0;}
 body.sb-rail .sb-logo-s{display:none;}
-/* User: keep just the avatar, centred and smaller. */
 body.sb-rail #sb-user{padding:10px 0;}
 body.sb-rail #sb-user>div{justify-content:center;gap:0;}
 body.sb-rail #sb-user>div>div:first-child{width:30px!important;height:30px!important;border-radius:9px!important;}
 body.sb-rail #sb-user-initial{font-size:13px!important;}
 body.sb-rail #sb-user>div>div:nth-child(2),
 body.sb-rail #sb-signout-icon{display:none!important;}
-/* Sync row hidden outright — half of it left a stray dot floating on its own. */
 body.sb-rail .sb-sync,
 body.sb-rail .sb-foot,
 body.sb-rail #sb-ver-line{display:none!important;}
-/* Section captions become plain dividers. */
 body.sb-rail .sb-sec{font-size:0;padding:0;margin:9px 12px;height:1px;background:var(--bdr);}
 body.sb-rail .sb-sec:first-of-type{margin-top:6px;}
-/* Nav rows: square, centred, evenly spaced. */
 body.sb-rail .sbi{font-size:0;justify-content:center;gap:0;padding:0;margin:3px 9px;
   height:38px;border-radius:9px;}
 body.sb-rail .sbi svg{width:18px;height:18px;flex:0 0 auto;}
@@ -175,7 +169,6 @@ body.sb-rail .sbi.on{box-shadow:none;}
 body.sb-rail .sb-badge,
 body.sb-rail #pending-badge{display:none!important;}
 .main{transition:margin-left .2s ease;}
-/* Collapse toggle — quiet by default, only picks up weight on hover. */
 .sb-toggle{display:none;align-items:center;justify-content:center;width:26px;height:26px;
   border:none;background:transparent;border-radius:7px;cursor:pointer;color:var(--tx3);
   flex:0 0 auto;margin-right:8px;transition:all .12s;}
@@ -961,7 +954,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.47 · 17 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.54 · 18 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1063,7 +1056,10 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="sbi" id="nav-pending" onclick="requireAdmin('pending')" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>User Management 🔒 <span id="pending-badge" style="display:none;background:#ef4444;color:#fff;font-size:9px;font-weight:700;padding:1px 5px;border-radius:8px;margin-left:4px;">0</span></div>
   <div class="sbi" id="nav-proposals" onclick="requireProposals()" style="display:none;"><svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>Proposals 🔒</div>
   <div class="sb-foot" id="sb-foot">Loading…</div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.47 · 17 Aug 2026</div>
+  <div style="padding:0 14px 6px;">
+    <span id="sb-tenant-tag" style="display:none;"></span>
+  </div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.54 · 18 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1205,7 +1201,6 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <button id="ps-dir" type="button" onclick="toggleProjDir()" title="Toggle sort direction" style="background:#fff;border:1px solid var(--bdr);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:700;cursor:pointer;color:#10243E;line-height:1;">&#8593;</button>
         <div id="ps-view" style="display:inline-flex;gap:3px;background:#eef1f5;border-radius:8px;padding:3px;">
           <button type="button" data-v="detailed" onclick="setProjView('detailed')" style="border:none;background:#10243E;color:#fff;font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Detailed</button>
-          <button type="button" data-v="compact" onclick="setProjView('compact')" style="border:none;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">List</button>
           <button type="button" data-v="cards" onclick="setProjView('cards')" style="border:none;background:transparent;color:var(--tx2);font-size:12px;font-weight:600;padding:4px 10px;border-radius:6px;cursor:pointer;">Cards</button>
         </div>
         <span id="proj-count" style="font-size:11px;color:var(--tx3);white-space:nowrap;"></span>
@@ -2090,7 +2085,6 @@ function enterApp(){
   document.getElementById('pin-screen').style.display='none';
   document.getElementById('app-shell').style.display='flex';
   try{ _injectSbToggles(); _seedSbTooltips(); }catch(e){}
-  try{ startRealtime(); }catch(e){}
   const fab=document.getElementById('ai-fab');if(fab)fab.style.display='flex';
   populateSidebarUser(SB_SESSION.user);
   window._currentUserEmail=SB_SESSION?.user?.email||'';
@@ -2151,7 +2145,6 @@ async function doLogin(){
 }
 
 async function doLogout(){
-  try{ stopRealtime(); }catch(e){} // v10.5.46 — drop the socket with the session
   try{closeMobSB();}catch(e){}
   setTimeout(async()=>{
   if(!confirm('Sign out?'))return;
@@ -2751,7 +2744,7 @@ async function initApp(opts){
     S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
   // Load pending users badge for admins
   if(adminUnlocked)setTimeout(loadPendingBadge,2000);
-    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; delete d._t; d._rev=r.updated_at||null; /* v10.5.45 — baseline for the lost-update guard */ try{_projNoteSafe(d);}catch(e){} return d; }); // _t = legacy debounce-timer ids that leaked into saved data — strip so saveAllNow() can trust it
+    S.projects=projs.map(r=>{ const d=r.data; if(!d.weeklyHrs)d.weeklyHrs={}; if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email; delete d._t; try{_projNoteSafe(d);}catch(e){} return d; }); // _t = legacy debounce-timer ids that leaked into saved data — strip so saveAllNow() can trust it
     S.proposals=(Array.isArray(propRows)?propRows:[]).map(r=>r.data||r).filter(Boolean);
     // Load hours from project_hours table into in-memory weeklyHrs
     if(Array.isArray(projHrsRows)){
@@ -3081,26 +3074,6 @@ function _projNoteSafe(p){
   try{ window._projSafe[p.id]={ms:(p.milestones||[]).length, log:(p.statusLog||[]).length}; }catch(e){}
 }
 window._projNoteSafe=_projNoteSafe;
-// v10.5.45 — read back just this project's updated_at and compare with the value
-// we loaded. Returns {conflict:false} on any failure: a flaky connection must not
-// block every save, which would be a worse outage than the race it prevents.
-async function _projRevConflict(p){
-  try{
-    if(!p||!p.id)return{conflict:false};
-    if(String(p.id).startsWith('prp'))return{conflict:false};       // proposals: local session
-    if(!p._rev)return{conflict:false};                              // no baseline (new project)
-    const rows=await sbFetch('projects?id=eq.'+encodeURIComponent(p.id)+'&select=updated_at');
-    if(!Array.isArray(rows)||!rows.length)return{conflict:false};   // row gone / not readable
-    const theirs=rows[0].updated_at;
-    if(!theirs)return{conflict:false};
-    const a=Date.parse(theirs), b=Date.parse(p._rev);
-    if(isNaN(a)||isNaN(b))return{conflict:false};
-    return {conflict:a>b, mine:p._rev, theirs:theirs};
-  }catch(e){
-    console.warn('rev check failed — allowing save',e);
-    return{conflict:false};
-  }
-}
 async function pushProj(p){
   // If proposal, save to proposals table
   if(p && p.id && p.id.toString().startsWith('prp')){
@@ -3130,29 +3103,11 @@ async function pushProj(p){
       return;
     }
     if(window._allowShrinkFor===p.id)window._allowShrinkFor=null;
-    // v10.5.45 — LOST-UPDATE GUARD. Writes replace the whole `data` blob, so a
-    // stale tab silently erases anything a colleague changed while it sat idle.
-    // Compare the row's updated_at against the value we loaded; if it moved,
-    // refuse rather than clobber. NOTE: nothing maintains updated_at server-side
-    // (no trigger — the column only ever got its insert default), so we set it
-    // ourselves in the payload below. Don't remove that or this check goes blind.
-    const _conf=await _projRevConflict(p);
-    if(_conf.conflict){
-      showSaveFail('"'+(p.no||'')+' '+(p.name||'')+'" was edited by someone else while this page was open. '+
-                   'Nothing was written — reload to pull their changes, then redo your edit.');
-      try{ logSyncFail('BLOCKED stale write',(p.no?p.no+' · ':'')+(p.name||p.id)+
-           ' — loaded '+_conf.mine+', server '+_conf.theirs,new Error('rev conflict')); }catch(e){}
-      console.error('REV GUARD: refused stale write',p.id,_conf);
-      return;
-    }
     // Save metadata only — weeklyHrs stored separately in project_hours table
     // mep_lead_email saved as top-level column for RLS enforcement
     // _t = session-local debounce timer id — never persist it (v9.3.0)
-    // _rev = the loaded updated_at; session-local bookkeeping, never persisted
-    const {weeklyHrs,_t,_rev,...meta}=p;
-    const _now=new Date().toISOString();
-    await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null,updated_at:_now});
-    p._rev=_now; // our write is now the baseline for the next save
+    const {weeklyHrs,_t,...meta}=p;
+    await sbUpsert('projects',{id:p.id,data:meta,mep_lead_email:p.mepLeadEmail||null});
     _projNoteSafe(p);
     setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
     logActivity('updated project',(p.no?p.no+' \u00b7 ':'')+(p.name||''));
@@ -5719,157 +5674,11 @@ function wtExportPDF(){
 
 
 // ═══════════════════════════════════════
-// REALTIME  (v10.5.46)
+// SIDEBAR ICON RAIL  (v10.5.54)
 // ═══════════════════════════════════════
-// Supabase pushes row changes over a websocket, so a colleague's edit shows up
-// in a second or two instead of waiting up to 60s for the poll. The poll stays
-// as a safety net — if the socket drops or the table isn't in the publication,
-// the app still catches up, just more slowly.
-//
-// PREREQUISITE (database side, once):
-//   alter publication supabase_realtime add table projects;
-// Without it Postgres never emits the change and this subscribes to silence.
-// RLS still applies: a user only receives rows their policies let them read.
-//
-// Note this pushes the whole row, not a diff — same single-JSON-blob shape as
-// every other write. It makes updates fast, not mergeable.
-let RT_CLIENT=null, RT_CHAN=null;
-window._rtLive=false;
-function _rtCanApply(){
-  if(typeof SB_SESSION==='undefined'||!SB_SESSION)return false;
-  if(window._pendingProjSaves&&window._pendingProjSaves.size>0)return false; // our edits not yet safe
-  const ae=document.activeElement;
-  if(ae&&(ae.isContentEditable||['INPUT','TEXTAREA','SELECT'].indexOf((ae.tagName||'').toUpperCase())>=0))return false;
-  if(document.getElementById('trk-ms-pop'))return false;                     // editor popover open
-  return true;
-}
-// Merge one pushed row into state. Returns true if anything actually changed.
-function _rtApplyProjectRow(row){
-  if(!row||!row.id||!row.data)return false;
-  const i=S.projects.findIndex(x=>x.id===row.id);
-  if(i<0)return false;                       // unknown project — the poll will pick it up
-  const cur=S.projects[i];
-  // Ignore the echo of our own write.
-  if(cur._rev&&row.updated_at&&Date.parse(row.updated_at)<=Date.parse(cur._rev))return false;
-  const a=JSON.stringify([cur.milestones||[],cur.statusLog||[],cur.no||'',cur.name||'']);
-  const b=JSON.stringify([row.data.milestones||[],row.data.statusLog||[],row.data.no||'',row.data.name||'']);
-  if(a===b){ cur._rev=row.updated_at||cur._rev; return false; }
-  const d=row.data;
-  d.weeklyHrs=cur.weeklyHrs||{};             // hours live in their own table
-  if(row.mep_lead_email)d.mepLeadEmail=row.mep_lead_email;
-  d._rev=row.updated_at||null;
-  try{_projNoteSafe(d);}catch(e){}
-  S.projects[i]=d;
-  if(S._allProjects){ const ai=S._allProjects.findIndex(x=>x.id===row.id); if(ai>=0)S._allProjects[ai]=d; }
-  return true;
-}
-function _rtRepaint(){
-  try{
-    if(typeof CURRENT_PAGE==='undefined'||CURRENT_PAGE!=='tracker')return;
-    const sc=document.querySelector('.tg-scroll');
-    const sx=sc?sc.scrollLeft:0, sy=sc?sc.scrollTop:0;
-    refreshMilestoneViews();
-    const sc2=document.querySelector('.tg-scroll');
-    if(sc2){ sc2.scrollLeft=sx; sc2.scrollTop=sy; }
-  }catch(e){}
-}
-function startRealtime(){
-  try{
-    if(RT_CHAN)return;
-    if(typeof supabase==='undefined'||!supabase.createClient){ console.warn('realtime: supabase-js not loaded'); return; }
-    if(typeof SB_SESSION==='undefined'||!SB_SESSION)return;
-    RT_CLIENT=RT_CLIENT||supabase.createClient(SB_URL,SB_KEY,{auth:{persistSession:false,autoRefreshToken:false}});
-    // RLS is enforced on the socket too, so it needs the user's token, not the
-    // publishable key — otherwise protected rows are simply never delivered.
-    try{ RT_CLIENT.realtime.setAuth(SB_SESSION.access_token); }catch(e){}
-    RT_CHAN=RT_CLIENT.channel('projects-live')
-      .on('postgres_changes',{event:'*',schema:'public',table:'projects'},function(payload){
-        try{
-          const row=payload.new||payload.record;
-          if(!row)return;                       // DELETE — leave it to the poll
-          if(!_rtCanApply()){ window._rtDeferred=true; return; } // mid-edit: poll will reconcile
-          if(_rtApplyProjectRow(row)){
-            _rtRepaint();
-            setSyncStatus(true,'Live · updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
-          }
-        }catch(e){ console.warn('realtime apply',e); }
-      })
-      .subscribe(function(status){
-        window._rtLive=(status==='SUBSCRIBED');
-        if(status==='SUBSCRIBED'){ setSyncStatus(true,'Live'); }
-        else if(status==='CHANNEL_ERROR'||status==='TIMED_OUT'){
-          console.warn('realtime status:',status,'— falling back to 60s poll');
-          window._rtLive=false;
-        }
-      });
-  }catch(e){ console.warn('startRealtime failed — poll still active',e); }
-}
-function stopRealtime(){
-  try{ if(RT_CHAN&&RT_CLIENT)RT_CLIENT.removeChannel(RT_CHAN); }catch(e){}
-  RT_CHAN=null; window._rtLive=false;
-}
-window.startRealtime=startRealtime; window.stopRealtime=stopRealtime;
-
-// ═══════════════════════════════════════
-// TRACKER POLL  (v10.5.45)
-// ═══════════════════════════════════════
-// Without this an idle tracker tab shows whatever loaded at sign-in — for hours.
-// Every 60s pull the project rows and re-render if anything actually changed.
-// Skipped whenever a re-render could destroy work in progress: tab hidden, saves
-// still queued, or the user typing in a remark / popover. Scroll is preserved so
-// a refresh mid-read doesn't throw you back to the top of a 39-week grid.
-async function _trkPollOnce(){
-  try{
-    if(typeof CURRENT_PAGE==='undefined'||CURRENT_PAGE!=='tracker')return;
-    if(document.visibilityState!=='visible')return;
-    if(typeof SB_SESSION==='undefined'||!SB_SESSION)return;
-    if(window._pendingProjSaves&&window._pendingProjSaves.size>0)return;  // our edits not yet safe
-    const ae=document.activeElement;
-    if(ae&&(ae.isContentEditable||['INPUT','TEXTAREA','SELECT'].indexOf((ae.tagName||'').toUpperCase())>=0))return;
-    if(document.getElementById('trk-ms-pop'))return;                       // editor popover open
-    const rows=await sbFetch('projects?select=id,data,mep_lead_email,updated_at');
-    if(!Array.isArray(rows)||!rows.length)return;
-    if(typeof CURRENT_PAGE==='undefined'||CURRENT_PAGE!=='tracker')return;  // navigated mid-fetch
-    let changed=0;
-    rows.forEach(function(r){
-      if(!r||!r.data)return;
-      const i=S.projects.findIndex(x=>x.id===r.id);
-      if(i<0)return;
-      const cur=S.projects[i];
-      // Compare only what the tracker renders — hours live in another table and
-      // would otherwise make every poll look like a change.
-      const a=JSON.stringify([cur.milestones||[],cur.statusLog||[],cur.no||'',cur.name||'']);
-      const b=JSON.stringify([r.data.milestones||[],r.data.statusLog||[],r.data.no||'',r.data.name||'']);
-      if(a===b){ cur._rev=r.updated_at||cur._rev; return; }
-      const hrs=cur.weeklyHrs;
-      const d=r.data;
-      d.weeklyHrs=hrs||{};                       // keep hours already in memory
-      if(r.mep_lead_email)d.mepLeadEmail=r.mep_lead_email;
-      d._rev=r.updated_at||null;
-      try{_projNoteSafe(d);}catch(e){}
-      S.projects[i]=d;
-      if(S._allProjects){ const ai=S._allProjects.findIndex(x=>x.id===r.id); if(ai>=0)S._allProjects[ai]=d; }
-      changed++;
-    });
-    if(!changed)return;
-    const sc=document.querySelector('.tg-scroll');
-    const sx=sc?sc.scrollLeft:0, sy=sc?sc.scrollTop:0;
-    refreshMilestoneViews();
-    const sc2=document.querySelector('.tg-scroll');
-    if(sc2){ sc2.scrollLeft=sx; sc2.scrollTop=sy; }
-    setSyncStatus(true,'Updated · '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}));
-  }catch(e){ console.warn('tracker poll',e); }
-}
-if(!window._trkPollTimer)window._trkPollTimer=setInterval(_trkPollOnce,60000);
-window._trkPollOnce=_trkPollOnce;
-
-// ═══════════════════════════════════════
-// SIDEBAR ICON RAIL  (v10.5.41)
-// ═══════════════════════════════════════
-// The Deadline Tracker grid is the widest view in the app, so the sidebar
-// auto-collapses to a 58px icon rail when you land on it and expands again when
-// you leave. The toggle overrides that for as long as you stay on the page; the
-// override is dropped on navigation so the auto rule resumes.
+// The Deadline Tracker grid is the widest view, so the sidebar auto-collapses to
+// a 56px icon rail on that page and expands again on leaving. The toggle
+// overrides that while you stay put; the override drops on navigation.
 // Desktop only — mobile already slides the sidebar out via the hamburger.
 const SB_RAIL_AUTO_PAGES=['tracker'];
 window._sbRailManual=false;
@@ -5877,27 +5686,24 @@ function _sbRailChevron(){
   return '<svg aria-hidden="true" focusable="false" fill="none" stroke="currentColor" viewBox="0 0 24 24">'+
          '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/></svg>';
 }
-// One toggle per page header. Injected rather than hand-added to ~20 .hdr blocks.
 function _injectSbToggles(){
   try{
     document.querySelectorAll('.hdr').forEach(function(h){
       if(h.querySelector('.sb-toggle'))return;
       const host=(h.firstElementChild&&h.firstElementChild.tagName==='DIV')?h.firstElementChild:h;
       const b=document.createElement('button');
-      b.type='button'; b.className='sb-toggle';
-      b.innerHTML=_sbRailChevron();
+      b.type='button'; b.className='sb-toggle'; b.innerHTML=_sbRailChevron();
       b.addEventListener('click',function(){ toggleSbRail(); });
       host.insertBefore(b,host.firstChild);
     });
     _syncSbToggles();
   }catch(e){}
 }
-// Labels vanish in the rail, so carry them into tooltips instead.
 function _seedSbTooltips(){
   try{
     document.querySelectorAll('.sb .sbi').forEach(function(el){
       if(el.getAttribute('title'))return;
-      const txt=(el.textContent||'').replace(/\s+/g,' ').replace(/[—–]\s*$/,'').trim();
+      const txt=(el.textContent||'').replace(/\s+/g,' ').trim();
       if(txt)el.setAttribute('title',txt);
     });
   }catch(e){}
@@ -5918,27 +5724,24 @@ function setSbRail(on){
   _syncSbToggles();
 }
 function toggleSbRail(){
-  if(isMobile())return;               // mobile uses the hamburger, not the rail
-  window._sbRailManual=true;          // hold this choice until the next nav()
+  if(isMobile())return;
+  window._sbRailManual=true;
   setSbRail(!document.body.classList.contains('sb-rail'));
 }
-// Called from nav(). A fresh page drops any manual override.
 function _applySbRailForPage(p){
   window._sbRailManual=false;
   setSbRail(SB_RAIL_AUTO_PAGES.indexOf(p)>=0);
 }
 window.toggleSbRail=toggleSbRail; window.setSbRail=setSbRail;
-// Ctrl/Cmd+B, ignored while typing.
 document.addEventListener('keydown',function(ev){
   try{
     if(!(ev.ctrlKey||ev.metaKey))return;
     if((ev.key||'').toLowerCase()!=='b')return;
-    const t=ev.target||{}; const tag=(t.tagName||'').toUpperCase();
+    const t=ev.target||{}, tag=(t.tagName||'').toUpperCase();
     if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||t.isContentEditable)return;
     ev.preventDefault(); toggleSbRail();
   }catch(e){}
 });
-// Never leave the rail applied if the window is resized down to mobile.
 window.addEventListener('resize',function(){ if(isMobile())document.body.classList.remove('sb-rail'); });
 
 function nav(p, fromPopstate){
@@ -8290,7 +8093,11 @@ function renderTeam(){
 let PROJ_SORT={field:'status',dir:1};
 let PROJ_VIEW='detailed';
 try{const _ps=localStorage.getItem('projSort'); if(_ps){const o=JSON.parse(_ps); if(o&&o.field){PROJ_SORT={field:o.field,dir:(o.dir===-1?-1:1)};}}}catch(e){}
-try{const _pv=localStorage.getItem('projView'); if(_pv&&['detailed','compact','cards'].indexOf(_pv)>=0)PROJ_VIEW=_pv;}catch(e){}
+// v10.5.54 — List view removed. Anyone whose saved preference is the old
+// 'compact' value lands back on Detailed rather than a blank page.
+try{const _pv=localStorage.getItem('projView');
+  if(_pv==='compact'){ localStorage.setItem('projView','detailed'); }
+  else if(_pv&&['detailed','cards'].indexOf(_pv)>=0)PROJ_VIEW=_pv;}catch(e){}
 function _projStatusRank(s){return s==='Active'?0:s==='On Hold'?1:2;}
 function projSortCmp(a,b){
   const f=PROJ_SORT.field, dir=PROJ_SORT.dir;
@@ -8437,13 +8244,6 @@ function renderProj(){
   const miniBar=(p)=>{ const stages=(p.stages||[]).filter(s=>s.from&&s.to); if(!stages.length)return '<div style="height:7px;background:repeating-linear-gradient(90deg,#e4e6ea 0 6px,#f1f5f9 6px 12px);border-radius:4px;"></div>'; const ps=new Date(p.start).getTime(), pe=new Date(p.end).getTime(), span=Math.max(1,pe-ps); const blocks=stages.map((st,si)=>{ const sc=stageColor(si,st); const f=Math.max(ps,new Date(st.from).getTime()); const t=Math.min(pe,new Date(st.to).getTime()); if(t<=f)return ''; const l=((f-ps)/span*100), w=((t-f)/span*100); return '<i style="position:absolute;left:'+l.toFixed(2)+'%;width:'+w.toFixed(2)+'%;top:0;bottom:0;background:'+sc.bdr+';"></i>'; }).join(''); return '<div style="position:relative;height:7px;background:#F1F4F8;border-radius:4px;overflow:hidden;">'+blocks+'</div>'; };
   const _fmtD=(d)=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric'});
 
-  const buildCompact=()=>{
-    const COLS_C='32px 78px 1fr 150px 92px';
-    const head=`<div style="display:grid;grid-template-columns:${COLS_C};align-items:center;gap:12px;padding:8px 14px;background:#f1f5f9;border-bottom:1px solid var(--bdr);font-size:11px;font-weight:600;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;"><div>#</div><div>Proj No.</div><div>Name</div><div>Manager</div><div style="text-align:right;">Total Hrs</div></div>`;
-    const rows=list.map((p,idx)=>{ const th=projTotalHrs(p); return `<div class="proj-row" style="display:grid;grid-template-columns:${COLS_C};align-items:center;gap:12px;padding:9px 14px;border-bottom:1px solid var(--bdr);font-size:13px;cursor:pointer;transition:background .12s;" onclick="openProjDetail('${p.id}')" onmouseover="this.style.background='#f8fafc'" onmouseout="this.style.background=''"><div style="color:var(--tx3);font-weight:600;font-size:12px;">${idx+1}</div><div style="color:var(--tx3);font-weight:500;font-size:12px;">${p.no||'—'}</div><div style="font-weight:600;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${statusDot(p)}${esc(p.name)}${p.client?`<span style="font-size:10px;color:var(--tx3);font-weight:400;margin-left:5px;">${p.client}</span>`:''}</div><div style="min-width:0;">${p.mepLeadEmail?`<span style="font-size:10px;font-weight:600;color:#0369a1;background:#e0f2fe;padding:1px 6px;border-radius:4px;">${getMepLeadName(p.mepLeadEmail)}</span>`:'<span style="color:var(--tx3);font-size:11px;">—</span>'}</div><div style="text-align:right;font-weight:700;color:#0369a1;">${th>0?fN(Math.round(th)):'—'}</div></div>`; }).join('');
-    return `<div class="card" style="padding:0;overflow:hidden;">${head}${rows}${emptyMsg}</div>`;
-  };
-
   const buildCards=()=>{
     if(!list.length)return emptyMsg;
     const cards=list.map(p=>{
@@ -8529,7 +8329,6 @@ function renderProj(){
   const _mobile=(typeof isMobile==='function'&&isMobile());
   let _body;
   if(PROJ_VIEW==='cards'){ _body=buildCards(); }
-  else if(PROJ_VIEW==='compact' && !_mobile){ _body=buildCompact(); }
   else { _body=`<div class="card" style="padding:0;overflow:hidden;">${_mobile?'':headerRow}${rowsHtml}${emptyMsg}</div>`; }
   document.getElementById('proj-list').innerHTML=_body;
 }
@@ -8563,7 +8362,6 @@ async function refreshProjData(projId,opts){
   const before=JSON.stringify(S.projects[idx]);
   const d=rows[0].data;
   if(rows[0].mep_lead_email)d.mepLeadEmail=rows[0].mep_lead_email;
-  d._rev=rows[0].updated_at||null; // v10.5.45 — re-baseline after pulling fresh
   d.weeklyHrs={};
   (hrRows||[]).forEach(r=>{ if(!d.weeklyHrs[r.engineer_id])d.weeklyHrs[r.engineer_id]=[]; d.weeklyHrs[r.engineer_id][r.week_index]=Number(r.hours)||0; });
   S.projects[idx]=d;
@@ -8927,38 +8725,31 @@ function canAddTrkNotes(pid){
   return myRoles().some(r=>['mep_lead','disc_lead','bim_lead'].includes(r.role));
 }
 // ═══════════════════════════════════════
-// UNDO / REDO — Deadline Tracker  (v10.5.41)
+// UNDO / REDO — Deadline Tracker  (v10.5.54)
 // ═══════════════════════════════════════
 // Session-only, in-memory. Every tracker mutation snapshots the four fields it
-// could possibly touch on ONE project (milestones, statusLog, no, name) before
-// changing anything. Undo pops that snapshot and writes it back; the inverse
-// snapshot goes on the redo stack. A fresh edit clears redo, as you'd expect.
-//
-// IMPORTANT: restoring can SHRINK milestones/statusLog (e.g. undoing an add
-// takes 1 -> 0), which the v10.5.37 write guard in pushProj would otherwise
-// refuse. _trkUndoApply sets _allowShrinkFor first and re-marks _projSafe after,
-// so the guard's high-water mark stays honest rather than being left stale.
+// could touch on ONE project (milestones, statusLog, no, name) before changing
+// anything. Undo pops that snapshot and writes it back; the inverse goes on the
+// redo stack. A fresh edit clears redo.
+// Restoring can SHRINK an array (undoing an add takes 1 -> 0), which the
+// v10.5.37 write guard would refuse, so _allowShrinkFor is set and _projSafe
+// re-marked before the write.
 const TRK_UNDO_MAX=25;
 window._trkUndoStack=window._trkUndoStack||[];
 window._trkRedoStack=window._trkRedoStack||[];
 function _trkSnapOf(p){
-  return {
-    pid:p.id,
+  return {pid:p.id,
     milestones:JSON.parse(JSON.stringify(p.milestones||[])),
     statusLog:JSON.parse(JSON.stringify(p.statusLog||[])),
-    no:p.no||'',
-    name:p.name||''
-  };
+    no:p.no||'', name:p.name||''};
 }
-// Call BEFORE mutating. `label` is what the button tooltip / toast will say.
 function trkSnap(pid,label){
   try{
     const p=S.projects.find(x=>x.id===pid); if(!p)return;
-    const snap=_trkSnapOf(p);
-    snap.label=label||'edit';
+    const snap=_trkSnapOf(p); snap.label=label||'edit';
     window._trkUndoStack.push(snap);
     if(window._trkUndoStack.length>TRK_UNDO_MAX)window._trkUndoStack.shift();
-    window._trkRedoStack.length=0; // a new edit invalidates the redo branch
+    window._trkRedoStack.length=0;
     _trkUndoSyncBtns();
   }catch(e){ console.warn('trkSnap',e); }
 }
@@ -8966,13 +8757,11 @@ window.trkSnap=trkSnap;
 function _trkUndoApply(snap){
   const p=S.projects.find(x=>x.id===snap.pid);
   if(!p){ toast('\u26a0 That project is no longer loaded.'); return null; }
-  const inverse=_trkSnapOf(p);
-  inverse.label=snap.label;
+  const inverse=_trkSnapOf(p); inverse.label=snap.label;
   p.milestones=JSON.parse(JSON.stringify(snap.milestones||[]));
   p.statusLog=JSON.parse(JSON.stringify(snap.statusLog||[]));
-  p.no=snap.no;
-  p.name=snap.name;
-  window._allowShrinkFor=p.id; // deliberate revert — the write guard must allow it
+  p.no=snap.no; p.name=snap.name;
+  window._allowShrinkFor=p.id;
   try{ if(typeof _projNoteSafe==='function')_projNoteSafe(p); }catch(e){}
   pushProj(p);
   try{ trkGridClosePop(); }catch(e){}
@@ -8983,44 +8772,36 @@ function trkUndo(){
   if(!(_trkCanEdit()))return toast('\u26d4 Only admin or the MEP Lead can edit.');
   const snap=window._trkUndoStack.pop();
   if(!snap){ toast('Nothing to undo.'); _trkUndoSyncBtns(); return; }
-  const inverse=_trkUndoApply(snap);
-  if(inverse)window._trkRedoStack.push(inverse);
-  _trkUndoSyncBtns();
-  toast('\u21a9 Undone: '+(snap.label||'edit'));
+  const inv=_trkUndoApply(snap); if(inv)window._trkRedoStack.push(inv);
+  _trkUndoSyncBtns(); toast('\u21a9 Undone: '+(snap.label||'edit'));
 }
 function trkRedo(){
   if(!(_trkCanEdit()))return toast('\u26d4 Only admin or the MEP Lead can edit.');
   const snap=window._trkRedoStack.pop();
   if(!snap){ toast('Nothing to redo.'); _trkUndoSyncBtns(); return; }
-  const inverse=_trkUndoApply(snap);
-  if(inverse)window._trkUndoStack.push(inverse);
-  _trkUndoSyncBtns();
-  toast('\u21aa Redone: '+(snap.label||'edit'));
+  const inv=_trkUndoApply(snap); if(inv)window._trkUndoStack.push(inv);
+  _trkUndoSyncBtns(); toast('\u21aa Redone: '+(snap.label||'edit'));
 }
 function _trkUndoSyncBtns(){
   try{
     let canEd=true; try{ canEd=_trkCanEdit(); }catch(e){}
-    const pairs=[['trk-undo-btn',window._trkUndoStack,'Undo'],['trk-redo-btn',window._trkRedoStack,'Redo']];
-    pairs.forEach(function(pr){
+    [['trk-undo-btn',window._trkUndoStack,'Undo'],['trk-redo-btn',window._trkRedoStack,'Redo']]
+    .forEach(function(pr){
       const b=document.getElementById(pr[0]); if(!b)return;
-      b.style.display=canEd?'':'none'; // read-only users get no revert controls
+      b.style.display=canEd?'':'none';
       const st=pr[1]||[], n=st.length, top=n?st[n-1]:null;
-      b.disabled=!n;
-      b.style.opacity=n?'1':'.4';
-      b.style.cursor=n?'pointer':'default';
+      b.disabled=!n; b.style.opacity=n?'1':'.4'; b.style.cursor=n?'pointer':'default';
       b.title=n?(pr[2]+': '+(top.label||'edit')+(n>1?'  ('+n+' steps available)':'')):('Nothing to '+pr[2].toLowerCase());
     });
   }catch(e){}
 }
 window.trkUndo=trkUndo; window.trkRedo=trkRedo; window._trkUndoSyncBtns=_trkUndoSyncBtns;
-// Ctrl/Cmd+Z and Ctrl/Cmd+Shift+Z — tracker page only, and never mid-typing.
 document.addEventListener('keydown',function(ev){
   try{
     if(!(ev.ctrlKey||ev.metaKey))return;
     if((ev.key||'').toLowerCase()!=='z')return;
     if(typeof CURRENT_PAGE!=='undefined'&&CURRENT_PAGE!=='tracker')return;
-    const t=ev.target||{};
-    const tag=(t.tagName||'').toUpperCase();
+    const t=ev.target||{}, tag=(t.tagName||'').toUpperCase();
     if(tag==='INPUT'||tag==='TEXTAREA'||tag==='SELECT'||t.isContentEditable)return;
     ev.preventDefault();
     if(ev.shiftKey)trkRedo(); else trkUndo();
@@ -9716,14 +9497,16 @@ function refreshMilestoneViews(){
   if(CURRENT_PAGE==='tracker')renderTracker();
 }
 // ═══════════════════════════════════════
-// TRACKER EXPORT — mirrors the on-screen grid  (v10.5.42)
+// TRACKER EXPORT — mirrors the on-screen grid  (v10.5.54)
 // ═══════════════════════════════════════
-// Single sheet "Deadline Tracker", reproducing renderTrackerGrid() cell for
-// cell: same 3-row header, same visible week window, same filter/search/sort,
-// same TRK_COLORS fills, same green/white row banding, milestone labels rotated
-// so they read bottom-up as on screen.
+// Reproduces renderTrackerGrid() cell for cell: same 3-row header, same visible
+// week window, same filter/search/sort, same TRK_COLORS fills, same green/white
+// row banding, milestone labels rotated so they read bottom-up as on screen.
 // Requires xlsx-js-style (already loaded) — plain SheetJS ignores cell styles.
-const _XB='D8DEE7';                      // grid line colour, matches .tg borders
+// NOTE: this library cannot write freeze panes (its only 'frozen' handling is in
+// the XLS parser), so the sticky columns don't carry over. Select E4 and use
+// View > Freeze Panes if you want them.
+const _XB='D8DEE7';
 function _xh(c){ return String(c||'').replace('#','').toUpperCase(); }
 function _xBorder(){
   return {top:{style:'thin',color:{rgb:_XB}},bottom:{style:'thin',color:{rgb:_XB}},
@@ -9743,7 +9526,6 @@ function exportTrackerXLSX(){
   try{
     if(typeof XLSX==='undefined'){toast('Export library not loaded');return;}
     const today=todayISO();
-    // ── same inputs the grid renders from ──
     const projs=_trkProjList();
     const MN=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
     const fromM=_trkMonday(TRK_GRID_FROM||todayISO());
@@ -9751,80 +9533,67 @@ function exportTrackerXLSX(){
     const wk=[]; for(let i=0;i<NW;i++){const d=new Date(fromM);d.setDate(d.getDate()+i*7);wk.push(d);}
     const wiOf=(ds)=>Math.round((_trkMonday(ds)-fromM)/(7*86400000));
     const NC=4+NW;
-
     const ws={}, merges=[], rows=[], cols=[];
     const put=(r,c,cell)=>{ ws[XLSX.utils.encode_cell({r:r,c:c})]=cell; };
 
-    // ── header row 1: peach Description band + Deadlines band ──
-    put(0,0,_xCell('Description',{bg:'F2C9A6',fg:'5A3410',bold:true,ha:'center',sz:10}));
+    put(0,0,_xCell('Description',{bg:'F2C9A6',fg:'5A3410',bold:true,ha:'center'}));
     for(let c=1;c<4;c++)put(0,c,_xCell('',{bg:'F2C9A6'}));
-    put(0,4,_xCell('Deadlines',{bg:'E8ECF2',fg:'10243E',bold:true,ha:'center',sz:10}));
+    put(0,4,_xCell('Deadlines',{bg:'E8ECF2',fg:'10243E',bold:true,ha:'center'}));
     for(let c=5;c<NC;c++)put(0,c,_xCell('',{bg:'E8ECF2'}));
     merges.push({s:{r:0,c:0},e:{r:0,c:3}});
     merges.push({s:{r:0,c:4},e:{r:0,c:NC-1}});
 
-    // ── header row 2: labels + month/day per week ──
-    const h2=['S.No','Project\nNumber','Projects /\nResources','Status / Remarks'];
-    h2.forEach((t,c)=>put(1,c,_xCell(t,{bg:'E8ECF2',fg:'10243E',bold:true,ha:'center',wrap:true,sz:10})));
+    ['S.No','Project\nNumber','Projects /\nResources','Status / Remarks']
+      .forEach((t,c)=>put(1,c,_xCell(t,{bg:'E8ECF2',fg:'10243E',bold:true,ha:'center',wrap:true})));
     wk.forEach((d,i)=>{
       const m=d.getMonth(), y=d.getFullYear();
       const showYr=(i===0)||(m===0&&wk[i-1]&&wk[i-1].getFullYear()!==y);
       const mon=MN[m]+(showYr?" '"+String(y).slice(2):'');
       put(1,4+i,_xCell(mon+'\n'+d.getDate()+' Mon',{bg:'E8ECF2',fg:'6B7A8D',ha:'center',wrap:true,sz:8}));
     });
-
-    // ── header row 3: ISO week numbers ──
     for(let c=0;c<4;c++)put(2,c,_xCell('',{bg:'E8ECF2'}));
     wk.forEach((d,i)=>put(2,4+i,_xCell('w'+_trkISOWeek(d),{bg:'E8ECF2',fg:'10243E',bold:true,ha:'center',sz:8})));
-
     rows[0]={hpt:15}; rows[1]={hpt:30}; rows[2]={hpt:13};
 
-    // ── body: one row per project, exactly as on screen ──
     projs.forEach((p,ri)=>{
       const r=3+ri;
-      const band=(ri%2)?'FFFFFF':'EAF3DE';     // .rb / .ra
+      const band=(ri%2)?'FFFFFF':'EAF3DE';
       const byWi={};
       (p.milestones||[]).forEach(m=>{ const w=wiOf(m.date); if(w>=0&&w<NW)(byWi[w]=byWi[w]||[]).push(m); });
       const log=[...(p.statusLog||[])].sort((a,b)=>(b.date||'0').localeCompare(a.date||'0'));
       const remTxt=(log.length?(log[0].text||''):'').trim();
-
-      put(r,0,_xCell(ri+1,{bg:band,ha:'center',sz:10}));
-      put(r,1,_xCell(p.no||'—',{bg:band,ha:'center',bold:true,sz:10}));
-      put(r,2,_xCell(p.name||'',{bg:band,bold:true,wrap:true,sz:10}));
+      put(r,0,_xCell(ri+1,{bg:band,ha:'center'}));
+      put(r,1,_xCell(p.no||'\u2014',{bg:band,ha:'center',bold:true}));
+      put(r,2,_xCell(p.name||'',{bg:band,bold:true,wrap:true}));
       put(r,3,_xCell(remTxt,{bg:band,wrap:true,va:'top',sz:9}));
-
       let longestMs=0;
       for(let i=0;i<NW;i++){
         const cell=byWi[i];
         if(cell&&cell.length){
-          // One Excel cell cannot hold two chips side by side, so same-week
+          // One Excel cell can't hold two chips side by side, so same-week
           // milestones are joined — keeps 1 screen row == 1 sheet row.
           const dn=cell.every(m=>msEffectiveState(m)==='done');
-          const txt=cell.map(m=>(msEffectiveState(m)==='done'?'✓ ':'')+(m.label||'')).join('  |  ');
+          const txt=cell.map(m=>(msEffectiveState(m)==='done'?'\u2713 ':'')+(m.label||'')).join('  |  ');
           const col=_trkMsColor(cell[0]);
           longestMs=Math.max(longestMs,txt.length);
-          // Screen renders chips at 600-800 weight, so bold is always on here.
           put(r,4+i,_xCell(txt,{bg:col[0],fg:col[1],bold:true,
             italic:cell.some(m=>m.italic),strike:dn||cell.some(m=>m.strike),
             ha:'center',va:'center',rot:90,wrap:true,sz:8}));
-        } else {
-          put(r,4+i,_xCell('',{bg:band}));
-        }
+        } else put(r,4+i,_xCell('',{bg:band}));
       }
-      // Height: whichever needs more room — wrapped remarks or a rotated label.
       const remLines=remTxt?remTxt.split('\n').reduce((a,l)=>a+Math.max(1,Math.ceil(l.length/46)),0):1;
       const remH=Math.min(remLines*12+8,168);
       const msH=longestMs?Math.min(longestMs*5.4+16,118):0;
       rows[r]={hpt:Math.max(30,remH,msH)};
     });
 
-    // ── footer: what this export actually shows ──
     const fr=3+projs.length+1;
-    const q=(document.getElementById('trk-q')?.value||'').trim();
-    const fl=document.getElementById('trk-filter')?.value||'all';
-    const note='Exported '+today+'  ·  weeks '+wtISO(fromM)+' → '+wtISO(wk[NW-1])+' ('+NW+' wks)'+
-               '  ·  filter: '+fl+(q?('  ·  search: "'+q+'"'):'')+'  ·  '+projs.length+' projects';
-    put(fr,0,_xCell(note,{fg:'6B7A8D',sz:8}));
+    const qEl=document.getElementById('trk-q'), flEl=document.getElementById('trk-filter');
+    const q=(qEl&&qEl.value||'').trim();
+    const fl=(flEl&&flEl.value)||'all';
+    put(fr,0,_xCell('Exported '+today+'  \u00b7  '+NW+' weeks from '+wtISO(fromM)+
+      '  \u00b7  filter: '+fl+(q?('  \u00b7  search: "'+q+'"'):'')+'  \u00b7  '+projs.length+' projects',
+      {fg:'6B7A8D',sz:8}));
     merges.push({s:{r:fr,c:0},e:{r:fr,c:Math.min(NC-1,11)}});
 
     ws['!ref']=XLSX.utils.encode_range({s:{r:0,c:0},e:{r:fr,c:NC-1}});
@@ -9832,15 +9601,13 @@ function exportTrackerXLSX(){
     cols.push({wch:5},{wch:11},{wch:24},{wch:44});
     for(let i=0;i<NW;i++)cols.push({wch:4.6});
     ws['!cols']=cols; ws['!rows']=rows;
-    // NOTE: xlsx-js-style cannot write freeze panes — its only 'frozen' handling
-    // is in the XLS parser, and the XLSX writer drops it. So the sticky columns
-    // do not carry over; do View > Freeze Panes with E4 selected if you want them.
 
     const wb=XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb,ws,'Deadline Tracker');
     XLSX.writeFile(wb,'Deadline_Tracker_'+today+'.xlsx');
   }catch(e){console.error('export tracker',e);toast('Export failed');}
 }
+
 function renderProjDetail(p){
   if(!p.stages)p.stages=[];
   ensureStageIds(p); // v9.26.0 — stable stage ids for per-booking stage assignment
@@ -12896,8 +12663,45 @@ async function saveProj(){
   const disciplines=getCheckedDiscs('pw');
   const bimExcluded=!isBimAllowed('pw');
   const mepLeadEmail=document.getElementById('pw-meplead').value||'';
-  const p={id:pId||'pr'+Date.now(),no:document.getElementById('pw-no').value.trim(),name,client:document.getElementById('pw-client').value.trim(),pm:document.getElementById('pw-pm').value.trim(),location:document.getElementById('pw-loc').value.trim(),start:newStart,end:newEnd,forecastEnd:document.getElementById('pw-fend').value||'',projType:document.getElementById('pw-ptype').value||'',disciplines,bimExcluded,mepLeadEmail,status:document.getElementById('pw-st').value,feeFactor,weeklyHrs,stages:existing?existing.stages:[],noteRows:existing?existing.noteRows:[]};
-  if(pId){const i=S.projects.findIndex(x=>x.id===pId);S.projects[i]=p;}else S.projects.push(p);
+  // ─── v10.5.53 — CRITICAL DATA-LOSS FIX ────────────────────────────────────
+  // This object used to be rebuilt from scratch, carrying over ONLY `stages`
+  // and `noteRows` from the existing record. Every other stored field was
+  // silently dropped: milestones (deadlines), statusLog (remarks), progNotes,
+  // rateOverrides, and anything else added later. So saving this modal erased
+  // them from the in-memory project and then tried to persist that.
+  // The v10.5.37 write guard is what has been refusing those writes — the
+  // "Blocked a save that would have deleted N remark(s)" banner — and this is
+  // almost certainly what wiped milestones and remarks on 6 Aug 2026, before
+  // that guard existed.
+  // Fix: start from the existing record and override ONLY the edited fields.
+  // Mutating in place also keeps every reference held elsewhere valid (the
+  // debounced p._t save timers, renderProjDetail handlers, S._allProjects).
+  const _edits={
+    no:document.getElementById('pw-no').value.trim(),
+    name:name,
+    client:document.getElementById('pw-client').value.trim(),
+    pm:document.getElementById('pw-pm').value.trim(),
+    location:document.getElementById('pw-loc').value.trim(),
+    start:newStart, end:newEnd,
+    forecastEnd:document.getElementById('pw-fend').value||'',
+    projType:document.getElementById('pw-ptype').value||'',
+    disciplines:disciplines, bimExcluded:bimExcluded, mepLeadEmail:mepLeadEmail,
+    status:document.getElementById('pw-st').value,
+    feeFactor:feeFactor, weeklyHrs:weeklyHrs
+  };
+  let p;
+  if(existing){
+    p=existing;                       // keep the same object — do not replace it
+    Object.assign(p,_edits);
+  }else{
+    p=Object.assign({id:pId||'pr'+Date.now(),stages:[],noteRows:[]},_edits);
+  }
+  if(!p.stages)p.stages=[];
+  if(!p.noteRows)p.noteRows=[];
+  if(!p.milestones)p.milestones=[];
+  if(!p.statusLog)p.statusLog=[];
+  if(pId){ const _i=S.projects.findIndex(x=>x.id===pId); if(_i>=0)S.projects[_i]=p; else S.projects.push(p); }
+  else S.projects.push(p);
   await pushProj(p);closeProjModal();updSB();toast(pId?'Updated ✓':'Created ✓');
   if(beyondHrs>0)setTimeout(function(){toast(beyondHrs+' hr(s) for '+beyondEngs.size+' engineer(s) sit after the end date — kept and shown marked “past end”. Clear them or extend the end date.');},500);
   // If detail view is open for this project, re-render it with new dates
