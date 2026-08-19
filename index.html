@@ -954,7 +954,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.57 · 18 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.69 · 19 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1059,7 +1059,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.57 · 18 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.69 · 19 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1194,7 +1194,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="hdr-left">
         <button class="mob-menu-btn" onclick="openMobSB()" style="display:none;background:none;border:none;cursor:pointer;padding:4px 6px;color:var(--tx2);"><svg aria-hidden="true" focusable="false" width="20" height="20" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg></button>
         <span class="hdr-t" id="proj-hdr-title">Projects</span>
-        <div class="hdr-fbar">
+        <div class="hdr-fbar" id="proj-hdr-fbar">
         <input id="ps-q" placeholder="Search..." oninput="renderProj()">
         <select id="ps-st" onchange="renderProj()"><option value="all">All Status</option><option>Active</option><option>On Hold</option><option>Completed</option></select>
         <select id="ps-sort" onchange="setProjSort(this.value)" title="Sort projects"><option value="status">Sort: Status</option><option value="name">Sort: Name</option><option value="no">Sort: Proj No</option><option value="hrs">Sort: Total Hrs</option><option value="start">Sort: Start date</option><option value="mgr">Sort: Manager</option></select>
@@ -7980,7 +7980,8 @@ function tmsClear(kind){ TS_SEL[kind].clear(); const pop=document.getElementById
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
-  if(hdrBtns)hdrBtns.innerHTML=adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Team Member</button>`:'';
+  const _orgBtn='<button class="btn btn-g" onclick="openTeamOrgChart()" title="Team organization chart for the members currently shown (respects the filters above)">&#128451;&#65039; Org Chart</button>';
+  if(hdrBtns)hdrBtns.innerHTML=(_orgBtn)+(adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Team Member</button>`:'');
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   // multi-select filters (tick several). Empty set = "all". Semantics: OR within a
   // filter, AND across filters. Selections live in TS_SEL (see tms* helpers).
@@ -8425,9 +8426,12 @@ function openProjDetail(id){
   document.getElementById('proj-detail-view').style.display='';
   document.getElementById('proj-hdr-back-btn').style.display='';
   var _rb=document.getElementById('proj-hdr-refresh-btn'); if(_rb)_rb.style.display='';
-  var _ob=document.getElementById('proj-hdr-org-btn'); if(_ob)_ob.style.display=adminUnlocked?'flex':'none';
+  var _ob=document.getElementById('proj-hdr-org-btn'); if(_ob)_ob.style.display='flex';
   document.getElementById('proj-hdr-title').textContent=p.no+' — '+p.name;
-  // Hide list-only header buttons
+  // Hide list-only header controls. The search box, status/sort selects and the
+  // Detailed/Cards toggle all act on the project LIST, so they are meaningless
+  // — and confusing — while a single project is open.
+  var _fb=document.getElementById('proj-hdr-fbar'); if(_fb)_fb.style.display='none';
   document.getElementById('proj-hdr-export-btn').style.display='none';
   document.getElementById('proj-hdr-import-btn').style.display='none';
   document.getElementById('proj-hdr-new-btn').style.display='none';
@@ -8438,6 +8442,7 @@ function closeProjDetail(){
   window._viewingProjId=null;
   document.getElementById('proj-list-view').style.display='';
   document.getElementById('proj-detail-view').style.display='none';
+  var _fb2=document.getElementById('proj-hdr-fbar'); if(_fb2)_fb2.style.display='';
   document.getElementById('proj-hdr-back-btn').style.display='none';
   var _rb2=document.getElementById('proj-hdr-refresh-btn'); if(_rb2)_rb2.style.display='none';
   var _ob2=document.getElementById('proj-hdr-org-btn'); if(_ob2)_ob2.style.display='none';
@@ -8465,7 +8470,22 @@ function orgAvatar(e,color){
   }
   return `<div style="width:52px;height:52px;border-radius:50%;border:3px solid ${color};background:${color}22;color:${color};display:flex;align-items:center;justify-content:center;font-weight:800;font-size:15px;flex-shrink:0;">${orgInitials(e.name)}</div>`;
 }
-function orgGradeRank(g){ const i=(typeof GRADES!=='undefined')?GRADES.indexOf(g):-1; return i<0?999:i; }
+// Grades not present in GRADES used to fall to 999 and sort to the BOTTOM of a
+// column — which put "Senior Associate" and "Associate" below every engineer.
+// Unknown grades are now placed by keyword instead, so seniority still reads
+// correctly, and anything genuinely unrecognised sits last.
+const _GRADE_FALLBACK=[
+  [/director/i,-3],[/technical manager/i,-2],[/senior associate/i,-1.5],[/associate/i,-1],
+  [/principal/i,2.5],[/^lead\b|lead engineer/i,3.5],[/senior/i,4.5],[/engineer/i,5.5],
+  [/junior|grad/i,6.5],[/intern/i,7.5]
+];
+function orgGradeRank(g){
+  const i=(typeof GRADES!=='undefined')?GRADES.indexOf(g):-1;
+  if(i>=0)return i;
+  const s=String(g||'');
+  for(const [re,r] of _GRADE_FALLBACK){ if(re.test(s))return r; }
+  return 999;
+}
 function orgDesig(e,disc){
   if(e.desig)return esc(e.desig);
   const dl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc||'';
@@ -8481,6 +8501,443 @@ function orgCard(e,disc,color,isLead){
     </div>
   </div>`;
 }
+// ═══════════════════════════════════════
+// MEP TEAM ORG CHART  —  Team Register page
+// ═══════════════════════════════════════
+// Sibling of the project org chart (openOrgChart / exportOrgChartPPTX), but the
+// population is the Team Register rather than one project's bookings, so:
+//   • it honours whatever the Team page filters are currently showing
+//     (search, discipline, office, position, project) via filterEngForOrg
+//   • BIM is normally represented by its MANAGERS only, because the full BIM
+//     team would swamp the sheet. Tick BIM in the discipline filter and the
+//     whole team is shown instead.
+//   • JSE-* rows are capacity pools, not people, so they never appear.
+// One compressed slide: crowded columns wrap into sub-columns and switch to a
+// compact box (no avatar) rather than running off the bottom.
+
+// Long names wrap over the designation in a narrow box, so they are shortened to
+// first + last ("Senthil Kumar Sundara Rajan" -> "Senthil Rajan"), and reduced to
+// a last initial if still too long ("Senthilkumar Jayaprakash" -> "Senthilkumar J.").
+function orgShortName(n,limit){
+  const max=limit||19;
+  const parts=String(n||'').trim().split(/\s+/).filter(Boolean);
+  if(!parts.length)return '';
+  let s=parts.length<=2?parts.join(' '):(parts[0]+' '+parts[parts.length-1]);
+  if(s.length<=max)return s;
+  s=parts[0]+' '+parts[parts.length-1].charAt(0).toUpperCase()+'.';
+  if(s.length<=max)return s;
+  return parts[0].slice(0,Math.max(1,max-3))+' '+parts[parts.length-1].charAt(0).toUpperCase()+'.';
+}
+window.orgShortName=orgShortName;
+
+const TEAM_ORG_BIM_MGR=/^(BIM Manager|Assistant BIM Manager)$/i;
+
+// Mirror of renderTeam()'s filterEng, reading the same TS_SEL state.
+function filterEngForOrg(e){
+  try{
+    const qEl=document.getElementById('ts-q');
+    const q=((qEl&&qEl.value)||'').toLowerCase();
+    const sel=(typeof TS_SEL!=='undefined')?TS_SEL:{disc:new Set(),off:new Set(),pos:new Set(),proj:new Set()};
+    if(q&&!String(e.name||'').toLowerCase().includes(q)&&!String(e.desig||'').toLowerCase().includes(q))return false;
+    if(sel.off&&sel.off.size&&!sel.off.has(e.off))return false;
+    if(sel.pos&&sel.pos.size){
+      let ok=false;
+      for(const ps of sel.pos){
+        if(ps.indexOf('grade:')===0){ if((e.grade||'')===ps.slice(6)){ok=true;break;} }
+        else if(ps.indexOf('post:')===0){ if(typeof engHasPost==='function'&&engHasPost(e,ps.slice(5))){ok=true;break;} }
+      }
+      if(!ok)return false;
+    }
+    if(sel.proj&&sel.proj.size){
+      const booked=new Set();
+      sel.proj.forEach(pid=>{
+        const p=(S.projects||[]).find(x=>x.id===pid);
+        if(p)['weeklyHrs','bookProg','bookStage'].forEach(m=>{
+          if(p[m])Object.keys(p[m]).forEach(k=>booked.add(slotBase(k)));
+        });
+      });
+      if(!booked.has(e.id))return false;
+    }
+    return true;
+  }catch(err){ return true; }
+}
+
+function getTeamOrgData(){
+  const isJSEeng=e=>/^JSE-/.test(String(e.name||''));
+  const sel=(typeof TS_SEL!=='undefined')?TS_SEL:{disc:new Set()};
+  const discSel=(sel.disc&&sel.disc.size)?sel.disc:null;
+  const bimPicked=!!(discSel&&discSel.has('BIM'));
+
+  const all=(S.engineers||[]).filter(e=>e&&!isJSEeng(e)&&filterEngForOrg(e));
+  const rank=e=>orgGradeRank(e.grade);
+  // Grade first, then office (Dubai, then Egypt, then India), then name.
+  const OFF_ORDER={DXB:0,EGY:1,IND:2};
+  const offRank=e=>{const v=OFF_ORDER[e.off]; return v===undefined?9:v;};
+  const bySeniority=(a,b)=>rank(a)-rank(b)||offRank(a)-offRank(b)||String(a.name).localeCompare(String(b.name));
+  // A management discipline (MEP-MANG and friends) is not a delivery column — its
+  // people belong at the top of the chart. isUmbrellaDisc only returns true when
+  // the discipline is flagged `umbrella` in DISCIPLINE_CONFIG, which MEP-MANG is
+  // not, so match on the code as well or those heads render as a 6th column.
+  const _isMgmtDisc=d=>{
+    if(!d)return false;
+    if(/^mep$/i.test(d))return true;
+    try{ if(typeof isUmbrellaDisc==='function'&&isUmbrellaDisc(d))return true; }catch(e){}
+    return /mang|mgmt|manage/i.test(d);
+  };
+
+  // ── Hierarchy comes straight from designation and grade. No configuration. ──
+  // Read from the FULL roster, not the filtered view, so filtering to one office
+  // doesn't remove the Director from the top of the chart.
+  const roster=(S.engineers||[]).filter(e=>e&&!isJSEeng(e)&&e.team!=='BIM'&&_isMgmtDisc(e.disc));
+  const _txt=e=>((e.desig||'')+' '+(e.grade||'')).toLowerCase();
+  const _isDirector=e=>/\bdirector\b/.test(_txt(e))&&!/technical\s+director/.test(_txt(e));
+  const _isTD=e=>/technical\s+director/.test(_txt(e));
+  const director=roster.find(_isDirector)||null;
+  // ── MEP branch heads. Edit these two lines if the structure changes. ─────────
+  // Left to right as written: Brian over Mechanical, Amr over Electrical. Kept
+  // here rather than in the database because it is two facts that change rarely;
+  // matching is on first name against the management-discipline roster only.
+  const ORG_BRANCHES=[
+    {name:/^brian\b/i, discs:['HVAC','PH&E']},
+    {name:/^amr\b/i,   discs:['ELE','ELV']}
+  ];
+  const branches=ORG_BRANCHES.map(function(rule){
+    const head=roster.find(x=>x!==director&&rule.name.test(String(x.name||'')));
+    return head?{head:head,discs:rule.discs.slice()}:null;
+  }).filter(Boolean);
+  // Management people who are neither the Director nor a discipline-owning TD.
+  const otherHeads=roster.filter(e=>e!==director&&!branches.some(b=>b.head===e))
+    .sort((a,b)=>bySeniority(a,b));
+  const structured=!!(director||branches.length||otherHeads.length);
+
+  // Anyone with a box in the hierarchy must not also appear in a column.
+  const placed=new Set();
+  if(director)placed.add(director.id);
+  branches.forEach(b=>placed.add(b.head.id));
+  otherHeads.forEach(e=>placed.add(e.id));
+  roster.forEach(e=>placed.add(e.id));   // management is never a delivery column
+  // Tier rows shown between the Director and the columns: Technical Directors with
+  // no named discipline, then any other management grade, in seniority order.
+  const tiers=[];
+  if(otherHeads.length){
+    const tds=otherHeads.filter(_isTD), rest=otherHeads.filter(e=>!_isTD(e));
+    if(tds.length)tiers.push({r:0,items:tds});
+    if(rest.length)tiers.push({r:1,items:rest});
+  }
+
+  const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>!_isMgmtDisc(d));
+  const colorFor=(disc,i)=>{
+    if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed');
+    return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f';
+  };
+
+  let mepCount=0,bimCount=0,bimRest=0,bimRestLabel='';
+  const columns=[];
+  realDiscs.concat(['BIM']).forEach((disc,i)=>{
+    if(discSel&&!discSel.has(disc))return;
+    let members;
+    if(disc==='BIM'){
+      members=all.filter(e=>e.team==='BIM'&&!placed.has(e.id));
+      if(!bimPicked){
+        const mgrs=members.filter(e=>TEAM_ORG_BIM_MGR.test(String(e.grade||'')));
+        // The modellers aren't drawn individually, but the headcount still has to
+        // be visible — a tally box goes under the last manager.
+        const rest=members.filter(e=>!TEAM_ORG_BIM_MGR.test(String(e.grade||'')));
+        bimRest=rest.length;
+        bimRestLabel=rest.length?('+ '+rest.length+' BIM '+(rest.length===1?'Modeller':'Modellers')+' & Coordinators'):'';
+        members=mgrs;
+      }
+      bimCount+=members.length+(bimPicked?0:bimRest);
+    }else{
+      members=all.filter(e=>e.team!=='BIM'&&!placed.has(e.id)&&(e.disc||'')===disc);
+      mepCount+=members.length;
+    }
+    if(!members.length)return;
+    // Strict grade order — nobody is floated to the top and no LEAD badge is
+    // drawn; the position under each name says everything needed.
+    members=members.sort(bySeniority);
+    const label=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc;
+    columns.push({disc,label:String(label),color:colorFor(disc,i),leadId:null,members,
+                  // Header count is the whole discipline. For BIM only the managers
+                  // are drawn, so the tally has to be added back or the header
+                  // would read (3) while the footer reads 28.
+                  total:members.length+(disc==='BIM'?bimRest:0),
+                  summary:(disc==='BIM'?bimRestLabel:'')});
+  });
+
+  // Group the discipline columns under whichever branch heads them. BIM and
+  // anything unclaimed sit directly under the Director, spanning both branches.
+  const groups=[];
+  if(structured){
+    branches.forEach(b=>{
+      const own=columns.filter(c=>b.discs.indexOf(c.disc)>=0);
+      groups.push({head:b.head,label:'',columns:own});
+    });
+    const claimed=new Set(groups.flatMap(g=>g.columns.map(c=>c.disc)));
+    const rest=columns.filter(c=>!claimed.has(c.disc));
+    if(rest.length)groups.push({head:null,label:'',columns:rest});
+  }
+
+  const bits=[];
+  try{
+    const qEl=document.getElementById('ts-q'); const q=((qEl&&qEl.value)||'').trim();
+    if(q)bits.push('search "'+q+'"');
+    if(discSel)bits.push([...discSel].join(', '));
+    if(sel.off&&sel.off.size)bits.push([...sel.off].join(', '));
+    if(sel.pos&&sel.pos.size)bits.push(sel.pos.size+' position filter'+(sel.pos.size>1?'s':''));
+    if(sel.proj&&sel.proj.size)bits.push(sel.proj.size+' project'+(sel.proj.size>1?'s':''));
+  }catch(e){}
+  if(!bits.length)bits.push('Full register');
+
+  return {director,branches,groups,structured,tiers,columns,mepCount,bimCount,bimRest,
+          scope:bits.length?bits.join(' · '):'Full register',
+          total:mepCount+bimCount+placed.size};
+}
+
+function closeTeamOrgChart(){ const ex=document.getElementById('team-org-ov'); if(ex)ex.remove(); }
+
+function openTeamOrgChart(){
+  const d=getTeamOrgData();
+  if(!d.columns.length&&!d.tiers.length&&!d.director){ toast('No team members match the current filters.'); return; }
+  closeTeamOrgChart();
+  const ov=document.createElement('div');
+  ov.id='team-org-ov';
+  ov.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:9000;display:flex;align-items:flex-start;justify-content:center;padding:24px;overflow:auto;';
+  ov.onclick=(e)=>{ if(e.target===ov)closeTeamOrgChart(); };
+  const colBlock=(c)=>`
+    <div style="flex:1;min-width:180px;">
+      <div style="background:${c.color};color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.04em;
+        text-align:center;padding:6px 4px;border-radius:7px;margin-bottom:8px;">${esc(c.label.toUpperCase())}
+        <span style="opacity:.75;font-weight:600;">· ${c.members.length}</span></div>
+      <div style="display:flex;flex-direction:column;gap:6px;">${c.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')}
+        ${c.summary?`<div style="border:1.5px dashed ${c.color};border-radius:10px;padding:9px 11px;text-align:center;
+          font-size:11.5px;font-weight:700;color:${c.color};background:rgba(255,255,255,.6);">${esc(c.summary)}</div>`:''}</div>
+    </div>`;
+  const LN='#94A3B8';
+  const vline=(h)=>`<div style="width:0;height:${h}px;border-left:2px solid ${LN};margin:0 auto;"></div>`;
+  const short=(e)=>Object.assign({},e,{name:orgShortName(e.name,26)});
+  let body='';
+  if(d.structured){
+    if(d.director)body+=`<div style="display:flex;justify-content:center;">${orgCard(short(d.director),'MEP','#10243E',false)}</div>`+vline(16);
+    if(d.tiers.length)body+=d.tiers.map(t=>`<div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap;">${t.items.map(e=>orgCard(short(e),'MEP','#334155',false)).join('')}</div>`).join('')+vline(16);
+    // Bus across the branches, then a drop into each one, mirroring the export.
+    if(d.groups.length>1){
+      body+=`<div style="display:flex;">`+d.groups.map((g,gi)=>`<div style="flex:${Math.max(1,g.columns.length)};height:2px;background:${LN};${gi===0?'margin-left:50%;':''}${gi===d.groups.length-1?'margin-right:50%;':''}"></div>`).join('')+`</div>`;
+    }
+    body+=`<div style="display:flex;gap:16px;align-items:flex-start;justify-content:center;flex-wrap:wrap;">`;
+    d.groups.forEach(function(g){
+      const wd=Math.max(1,g.columns.length);
+      body+=`<div style="flex:${wd};min-width:${wd*186}px;">`
+          + vline(14)
+          + (g.head?`<div style="display:flex;justify-content:center;">${orgCard(short(g.head),'MEP','#1e3a5f',false)}</div>`
+                   :`<div style="text-align:center;font-size:10.5px;color:#64748b;padding:4px 0;">Reports to Director</div>`)
+          + vline(12)
+          + `<div style="display:flex;gap:10px;align-items:flex-start;">${g.columns.map(colBlock).join('')}</div>`
+          + `</div>`;
+    });
+    body+=`</div>`;
+  }else{
+    body+=d.tiers.map(t=>`<div style="display:flex;gap:10px;justify-content:center;margin-bottom:9px;flex-wrap:wrap;">${t.items.map(e=>orgCard(short(e),'MEP','#10243E',false)).join('')}</div>`).join('');
+    body+=`<div style="display:flex;gap:12px;align-items:flex-start;">${d.columns.map(colBlock).join('')}</div>`;
+  }
+  ov.innerHTML=`
+    <div style="background:#F1F5F9;border-radius:12px;max-width:1400px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+      <div style="display:flex;align-items:center;gap:10px;padding:12px 16px;background:#10243E;border-radius:12px 12px 0 0;">
+        <div style="flex:1;min-width:0;">
+          <div style="color:#fff;font-weight:700;font-size:15px;">MEP Team Organization Chart</div>
+          <div style="color:#C7D2E0;font-size:10.5px;margin-top:2px;">${esc(d.scope)} · ${d.total} people</div>
+        </div>
+        <button onclick="exportTeamOrgPPTX()" style="background:#fff;color:#10243E;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">&#11015; Export PPTX</button>
+        <button onclick="closeTeamOrgChart()" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;">Close</button>
+      </div>
+      <div style="padding:16px;">${body}</div>
+    </div>`;
+  document.body.appendChild(ov);
+}
+
+// ═══════════════════════════════════════
+// SHARED ORG CHART SLIDE RENDERER
+// ═══════════════════════════════════════
+// One drawing routine for both the MEP Team chart and the per-project chart, so
+// they are visually identical. Caller supplies:
+//   {title, subtitle, director, tiers, groups, structured, columns,
+//    footerLabel, footerStats:[[value,label],…]}
+// Notes that matter:
+//  • connectors are thin rectangles — a shape with w:0/h:0 is drawn by PowerPoint
+//    as a black filled box, which put bars across the sheet
+//  • names are shortened and the font sized from string length, or long names wrap
+//    over the designation
+//  • crowded columns wrap into sub-columns and switch to a compact box rather
+//    than running off the bottom of the slide
+function _orgDrawSlide(pptx,cfg){
+  const hx=c=>String(c||'').replace('#','').toUpperCase()||'1E3A5F';
+  const dePlain=s=>String(s||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
+    .replace(/&gt;/g,'>').replace(/&#0?39;/g,"'").replace(/&quot;/g,'"');
+  const NAVY='10243E', CONN='94A3B8';
+  const s=pptx.addSlide(); s.background={color:'F1F5F9'};
+
+  s.addShape('rect',{x:0,y:0,w:13.33,h:0.85,fill:{color:NAVY}});
+  s.addText(dePlain(cfg.title),{x:0.35,y:0.10,w:10,h:0.4,color:'FFFFFF',bold:true,fontSize:20});
+  s.addText(dePlain(cfg.subtitle||''),{x:0.36,y:0.50,w:10,h:0.28,color:'C7D2E0',fontSize:10,charSpacing:1});
+  try{ if(typeof BRAND_LOGO_URL!=='undefined'&&BRAND_LOGO_URL) s.addImage({data:BRAND_LOGO_URL,x:11.55,y:0.16,w:1.5,h:0.53}); }catch(e){}
+
+  const _vline=(cx,y,h)=>s.addShape('rect',{x:cx-0.01,y:y,w:0.02,h:Math.max(h,0.02),fill:{color:CONN},line:{type:'none'}});
+  const _hline=(x,y,w)=>s.addShape('rect',{x:x,y:y-0.01,w:Math.max(w,0.02),h:0.02,fill:{color:CONN},line:{type:'none'}});
+  const fitPt=(t,wIn,max,min)=>{ const len=Math.max(1,String(t||'').length);
+    return Math.max(min,Math.min(max,(wIn*72)/(0.52*len))); };
+
+  function personBox(x,y,w,h,e,ring){
+    s.addShape('roundRect',{x,y,w,h,rectRadius:0.05,fill:{color:'FFFFFF'},line:{color:'E2E8F0',width:1}});
+    const compact=(h<0.5)||(w<1.6);
+    let tx,tw;
+    if(compact){
+      s.addShape('rect',{x:x,y:y,w:0.05,h:h,fill:{color:hx(ring)},line:{type:'none'}});
+      tx=x+0.14; tw=w-0.22;
+    }else{
+      const dia=Math.min(h-0.16,0.40);
+      s.addText(dePlain(orgInitials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,
+        fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',fontSize:9,bold:true,wrap:false,margin:0});
+      tx=x+0.08+dia+0.10; tw=w-(0.08+dia+0.10)-0.08;
+    }
+    const nm=dePlain(orgShortName(e.name)), dg=dePlain(orgDesig(e,e.disc));
+    const nameH=compact?0.155:0.21, desigH=compact?0.135:0.185;
+    const yTop=y+(h-(nameH+desigH))/2;
+    s.addText(nm,{x:tx,y:yTop,w:tw,h:nameH,valign:'middle',wrap:false,margin:0,bold:true,
+      color:'111827',fontSize:fitPt(nm,tw,compact?8:10,5.6)});
+    s.addText(dg,{x:tx,y:yTop+nameH,w:tw,h:desigH,valign:'middle',wrap:false,margin:0,
+      color:'6B7280',fontSize:fitPt(dg,tw,compact?6.4:8.2,4.8)});
+  }
+
+  const M=0.4, GAP=0.16;
+  let y=1.02; const HB={w:3.4,h:0.6};
+  let busY, headerY, headerH=0.36, groupX=null;
+  const groups=cfg.groups||[];
+  const structured=!!cfg.structured;
+
+  if(structured){
+    if(cfg.director){ personBox((13.33-HB.w)/2,y,HB.w,HB.h,cfg.director,NAVY); y+=HB.h; _vline(6.665,y,0.16); y+=0.16; }
+    (cfg.tiers||[]).forEach(t=>{
+      const n=t.items.length, tw=n*HB.w+(n-1)*0.25, sx=(13.33-tw)/2;
+      t.items.forEach((e,k)=>personBox(sx+k*(HB.w+0.25),y,HB.w,HB.h,e,'334155'));
+      y+=HB.h+0.14;
+    });
+    const totalCols=groups.reduce((a,g)=>a+Math.max(1,g.columns.length),0)||1;
+    const usable=13.33-2*M-(groups.length-1)*0.30;
+    groupX=[]; let gx=M;
+    groups.forEach(g=>{ const w=usable*(Math.max(1,g.columns.length)/totalCols); groupX.push({x:gx,w:w,g:g}); gx+=w+0.30; });
+    if(groupX.length>1){
+      const f=groupX[0].x+groupX[0].w/2, l=groupX[groupX.length-1].x+groupX[groupX.length-1].w/2;
+      _hline(f,y,l-f);
+    }
+    const BHh=0.55;
+    groupX.forEach(gi=>{
+      const cx=gi.x+gi.w/2;
+      _vline(cx,y,0.14);
+      if(gi.g.head){ const bw=Math.min(3.4,gi.w-0.1); personBox(cx-bw/2,y+0.14,bw,BHh,gi.g.head,'1E3A5F'); }
+      else s.addText('REPORTS TO DIRECTOR',{x:gi.x,y:y+0.14,w:gi.w,h:BHh,align:'center',valign:'middle',
+        fontSize:8.5,color:'64748B',charSpacing:1});
+    });
+    busY=y+0.14+BHh+0.10; headerY=busY+0.14;
+  }else{
+    (cfg.tiers||[]).forEach((t,ti)=>{
+      const n=t.items.length, totalW=n*HB.w+(n-1)*0.25, startX=(13.33-totalW)/2;
+      t.items.forEach((e,k)=>personBox(startX+k*(HB.w+0.25),y,HB.w,HB.h,e,NAVY));
+      y+=HB.h;
+      if(ti<(cfg.tiers||[]).length-1){ _vline(6.665,y,0.18); y+=0.18; }
+    });
+    busY=y+0.12;
+    if((cfg.tiers||[]).length){ _vline(6.665,y,0.12); _hline(0.4,busY,12.53); }
+    headerY=busY+0.18;
+  }
+
+  const cols=cfg.columns||[];
+  const nCols=cols.length||1;
+  const colW0=(13.33-2*M-(nCols-1)*GAP)/nCols;
+  const memTop=headerY+headerH+0.12, memBottom=6.85;
+  const avail=memBottom-memTop;
+  const MINH=0.30, GAPY=0.05;
+  const plan=cols.map(c=>{
+    const n=c.members.length+(c.summary?1:0);
+    let sub=1;
+    while(sub<4){ const rows=Math.ceil(n/sub); if((avail-(rows-1)*GAPY)/rows>=MINH)break; sub++; }
+    return {rows:Math.ceil(n/sub),sub};
+  });
+  const maxRows=Math.max(1,...plan.map(p=>p.rows));
+  let memH=(avail-(maxRows-1)*GAPY)/maxRows;
+  memH=Math.max(MINH,Math.min(0.74,memH));
+
+  const layout=[];
+  if(structured&&groupX){
+    groupX.forEach(gi=>{
+      const n=Math.max(1,gi.g.columns.length);
+      const cw=(gi.w-(n-1)*GAP)/n;
+      gi.g.columns.forEach((c,k)=>layout.push({c,x:gi.x+k*(cw+GAP),w:cw}));
+    });
+  }else cols.forEach((c,k)=>layout.push({c,x:M+k*(colW0+GAP),w:colW0}));
+
+  layout.forEach(L=>{
+    const c=L.c, x=L.x, colW=L.w, ci=cols.indexOf(c);
+    // Only drop a connector if there is actually something above it — a project
+    // with no umbrella heads has no bus line, and the stub looked like a defect.
+    const hasAbove=structured||((cfg.tiers||[]).length>0);
+    if(hasAbove)_vline(x+colW/2,busY,headerY-busY);
+    s.addShape('roundRect',{x,y:headerY,w:colW,h:headerH,rectRadius:0.05,fill:{color:hx(c.color)},line:{type:'none'}});
+    s.addText(dePlain(c.label).toUpperCase()+'  ('+(c.total!=null?c.total:c.members.length)+')',
+      {x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:10.5,align:'center',valign:'middle',charSpacing:1});
+    const pl=plan[ci];
+    const subW=(colW-(pl.sub-1)*0.08)/pl.sub;
+    c.members.forEach((e,mi)=>{
+      const sc=Math.floor(mi/pl.rows), rw=mi%pl.rows;
+      personBox(x+sc*(subW+0.08),memTop+rw*(memH+GAPY),subW,memH,e,c.color);
+    });
+    if(c.summary){
+      const mi=c.members.length, sc=Math.floor(mi/pl.rows), rw=mi%pl.rows;
+      const bx=x+sc*(subW+0.08), by=memTop+rw*(memH+GAPY);
+      s.addShape('roundRect',{x:bx,y:by,w:subW,h:memH,rectRadius:0.05,fill:{color:'FFFFFF'},
+        line:{color:hx(c.color),width:1.25,dashType:'dash'}});
+      s.addText(dePlain(c.summary),{x:bx+0.06,y:by,w:subW-0.12,h:memH,align:'center',valign:'middle',
+        bold:true,color:hx(c.color),margin:0,
+        fontSize:Math.max(6,Math.min(9,((subW-0.12)*72)/(0.5*String(c.summary).length)))});
+    }
+  });
+
+  s.addShape('rect',{x:0,y:6.95,w:13.33,h:0.55,fill:{color:NAVY}});
+  s.addText(dePlain(cfg.footerLabel||''),{x:0.35,y:6.95,w:6,h:0.55,color:'FFFFFF',bold:true,fontSize:12,valign:'middle',charSpacing:1});
+  const runs=[];
+  (cfg.footerStats||[]).forEach(function(st,k){
+    runs.push({text:String(st[0]),options:{bold:true,fontSize:18,color:'FFFFFF'}});
+    runs.push({text:'  '+st[1]+(k<cfg.footerStats.length-1?'      ':''),options:{fontSize:10,color:'C7D2E0'}});
+  });
+  if(runs.length)s.addText(runs,{x:6.4,y:6.95,w:6.6,h:0.55,align:'right',valign:'middle'});
+  return s;
+}
+
+function exportTeamOrgPPTX(){
+  ensurePptxGen(()=>{
+    try{
+      const d=getTeamOrgData();
+      if(!d.columns.length&&!d.tiers.length&&!d.director){ toast('No team members match the current filters.'); return; }
+      const pptx=new PptxGenJS();
+      pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
+      _orgDrawSlide(pptx,{
+        title:'MEP TEAM ORGANIZATION CHART',
+        subtitle:String(d.scope||'').toUpperCase()+'  ·  '+d.total+' PEOPLE',
+        director:d.director, tiers:d.tiers, groups:d.groups, structured:d.structured,
+        columns:d.columns,
+        footerLabel:'MEP TEAM HEADCOUNT',
+        footerStats:[[d.mepCount,'MEP Engineers'],[d.bimCount,'BIM']]
+      });
+      const stamp=new Date().toISOString().slice(0,10);
+      pptx.writeFile({fileName:'MEP Team - Org Chart '+stamp+'.pptx'})
+        .then(()=>toast('Team org chart exported \u2713'))
+        .catch(e=>{console.error(e);toast('Export failed.');});
+    }catch(e){ console.error('team org pptx',e); toast('Export failed — see console.'); }
+  });
+}
+window.openTeamOrgChart=openTeamOrgChart;
+window.closeTeamOrgChart=closeTeamOrgChart;
+window.exportTeamOrgPPTX=exportTeamOrgPPTX;
+
 function buildOrgChartHTML(p){
   const isJSEeng=e=>/^JSE-/.test(String(e.name||''));
   // Everyone booked on this project (union of booking maps), resolved to base engineers.
@@ -8555,7 +9012,7 @@ function buildOrgChartHTML(p){
   </div>`;
 }
 function openOrgChart(pid){
-  if(!adminUnlocked){ toast('⛔ Org chart is admin-only — turn on Admin mode.'); return; }
+  // Available to everyone: reads the roster and writes nothing.
   const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
   closeOrgChart();
   const ov=document.createElement('div');
@@ -8611,70 +9068,35 @@ function ensurePptxGen(cb){
   document.head.appendChild(s);
 }
 function exportOrgChartPPTX(pid){
-  if(!adminUnlocked){ toast('⛔ Admin-only.'); return; }
   const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
   ensurePptxGen(()=>{
     try{
       const d=getOrgChartData(p);
-      const hx=c=>String(c||'').replace('#','').toUpperCase()||'1E3A5F';
-      const dePlain=s=>String(s||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&#0?39;/g,"'").replace(/&quot;/g,'"').replace(/&nbsp;/g,' ');
-      const NAVY='10243E';
+      // Same renderer as the MEP Team chart, so the two are visually identical.
+      // Members are re-sorted here to match it: grade, then Dubai, Egypt, India,
+      // then name — and no lead is floated to the top.
+      const OFF={DXB:0,EGY:1,IND:2};
+      const offRank=e=>{const v=OFF[e.off]; return v===undefined?9:v;};
+      const cols=(d.columns||[]).map(function(c){
+        const ms=c.members.slice().sort((a,b)=>
+          orgGradeRank(a.grade)-orgGradeRank(b.grade)||offRank(a)-offRank(b)||
+          String(a.name).localeCompare(String(b.name)));
+        return {disc:c.disc,label:c.label,color:c.color,members:ms,total:ms.length,summary:''};
+      });
       const pptx=new PptxGenJS();
       pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
-      const s=pptx.addSlide(); s.background={color:'F1F5F9'};
-      // Title band
-      s.addShape('rect',{x:0,y:0,w:13.33,h:0.85,fill:{color:NAVY}});
-      s.addText('PROJECT TEAM ORGANIZATION CHART',{x:0.35,y:0.10,w:10,h:0.4,color:'FFFFFF',bold:true,fontSize:20});
-      s.addText(`${d.no} — ${d.name.toUpperCase()}`,{x:0.36,y:0.50,w:10,h:0.28,color:'C7D2E0',fontSize:10,charSpacing:1});
-      try{ if(typeof BRAND_LOGO_URL!=='undefined'&&BRAND_LOGO_URL) s.addImage({data:BRAND_LOGO_URL,x:11.55,y:0.16,w:1.5,h:0.53}); }catch(e){}
-      // avatar+box helpers
-      const initials=(nm)=>orgInitials(nm);
-      function personBox(x,y,w,h,e,ring,isLead){
-        s.addShape('roundRect',{x,y,w,h,rectRadius:0.06,fill:{color:'FFFFFF'},line:{color:'E2E8F0',width:1},shadow:{type:'outer',blur:3,offset:1,angle:90,color:'BBBBBB',opacity:0.3}});
-        const dia=Math.min(h-0.16,0.42);
-        s.addText(dePlain(initials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',bold:true,fontSize:10});
-        const tx=x+0.08+dia+0.12, tw=w-(0.08+dia+0.12)-0.08;
-        const nameRuns=[{text:dePlain(e.name),options:{bold:true,fontSize:9.5,color:'111827'}}];
-        if(isLead)nameRuns.push({text:'  LEAD',options:{bold:true,fontSize:7,color:hx(ring)}});
-        // Name in the TOP band, designation in the BOTTOM band — non-overlapping. Shrink-to-fit keeps
-        // long names on one line so they can't spill into the designation.
-        s.addText(nameRuns,{x:tx,y:y+0.06,w:tw,h:0.22,valign:'middle',wrap:false,fit:'shrink'});
-        s.addText(dePlain(orgDesig(e,e.disc)),{x:tx,y:y+0.29,w:tw,h:0.19,fontSize:8,color:'6B7280',valign:'middle',wrap:false,fit:'shrink'});
-      }
-      // Heads (tiers, centered)
-      let y=1.02; const HB={w:3.4,h:0.6};
-      d.tiers.forEach((t,ti)=>{
-        const n=t.items.length, totalW=n*HB.w+(n-1)*0.25, startX=(13.33-totalW)/2;
-        t.items.forEach((e,k)=>{ personBox(startX+k*(HB.w+0.25),y,HB.w,HB.h,e,NAVY,false); });
-        y+=HB.h;
-        if(ti<d.tiers.length-1){ s.addShape('line',{x:6.665,y:y,w:0,h:0.18,line:{color:'94A3B8',width:1.5}}); y+=0.18; }
+      _orgDrawSlide(pptx,{
+        title:'PROJECT TEAM ORGANIZATION CHART',
+        subtitle:(d.no?d.no+' — ':'')+String(d.name||'').toUpperCase(),
+        director:null, tiers:d.tiers, groups:[], structured:false,
+        columns:cols,
+        footerLabel:'PROJECT TEAM',
+        footerStats:[[d.mepCount,'MEP Engineers'],[(d.bimTeam||0),'BIM']]
       });
-      let busY=y+0.12;
-      if(d.tiers.length){ s.addShape('line',{x:6.665,y:y,w:0,h:0.12,line:{color:'94A3B8',width:1.5}}); s.addShape('line',{x:0.4,y:busY,w:12.53,h:0,line:{color:'94A3B8',width:1.5}}); }
-      // Columns
-      const nCols=d.columns.length||1;
-      const M=0.4, GAP=0.16;
-      const colW=(13.33-2*M-(nCols-1)*GAP)/nCols;
-      const headerY=busY+0.18, headerH=0.4;
-      const memTop=headerY+headerH+0.14, memBottom=6.85;
-      const maxMembers=Math.max(1,...d.columns.map(c=>c.members.length));
-      let memH=(memBottom-memTop)/maxMembers-0.08; memH=Math.max(0.52,Math.min(0.74,memH));
-      d.columns.forEach((c,ci)=>{
-        const x=M+ci*(colW+GAP);
-        s.addShape('line',{x:x+colW/2,y:busY,w:0,h:headerY-busY,line:{color:'94A3B8',width:1}});
-        s.addShape('roundRect',{x,y:headerY,w:colW,h:headerH,rectRadius:0.05,fill:{color:hx(c.color)},line:{type:'none'}});
-        s.addText(c.label.toUpperCase(),{x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:11,align:'center',valign:'middle',charSpacing:1});
-        c.members.forEach((e,mi)=>{
-          const my=memTop+mi*(memH+0.08);
-          personBox(x,my,colW,memH,e,c.color,e.id===c.leadId);
-        });
-      });
-      // Footer band
-      s.addShape('rect',{x:0,y:6.95,w:13.33,h:0.55,fill:{color:NAVY}});
-      s.addText('PROJECT TEAM HEADCOUNT',{x:0.35,y:6.95,w:6,h:0.55,color:'FFFFFF',bold:true,fontSize:12,valign:'middle',charSpacing:1});
-      s.addText([{text:String(d.mepCount),options:{bold:true,fontSize:18,color:'FFFFFF'}},{text:'  MEP Engineers      ',options:{fontSize:10,color:'C7D2E0'}},{text:String(d.bimTeam),options:{bold:true,fontSize:18,color:'FFFFFF'}},{text:'  BIM Team',options:{fontSize:10,color:'C7D2E0'}}],{x:7.2,y:6.95,w:5.8,h:0.55,align:'right',valign:'middle'});
-      const fn=((p.no?p.no+' ':'')+(p.name||'Project').replace(/[\\\/:*?"<>|]/g,'')+' - Org Chart.pptx').substring(0,90);
-      pptx.writeFile({fileName:fn}).then(()=>toast('Org chart exported ✓')).catch(e=>{console.error(e);toast('Export failed.');});
+      const safe=String(d.name||'Project').replace(/[\/:*?"<>|]/g,'-').slice(0,40);
+      pptx.writeFile({fileName:(d.no?d.no+' - ':'')+safe+' - Org Chart.pptx'})
+        .then(()=>toast('Org chart exported ✓'))
+        .catch(e=>{console.error(e);toast('Export failed.');});
     }catch(e){ console.error('org pptx',e); toast('Export failed — see console.'); }
   });
 }
