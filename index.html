@@ -954,7 +954,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.69 · 19 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.77 · 19 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1059,7 +1059,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.69 · 19 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.77 · 19 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3657,6 +3657,18 @@ function projProgrammes(p){
   return [{id:DEFAULT_PROG_ID,name:'Main programme',color:PROG_COLORS[0]}];
 }
 function hasParallelProg(p){ return projProgrammes(p).length>1; }
+// Display rule. hasParallelProg governs booking/layout logic and must stay
+// strictly ">1", but a single workstream that has been RENAMED still deserves to
+// be shown — otherwise the name you typed appears nowhere. The untouched default
+// ("Main programme") stays hidden so ordinary projects gain no clutter.
+function progNamed(p){
+  const list=projProgrammes(p);
+  if(list.length>1)return true;
+  const stored=Array.isArray(p&&p.programmes)?p.programmes:null;
+  if(!stored||stored.length!==1)return false;
+  const n=String(stored[0].name||'').trim();
+  return !!n && n!=='Main programme';
+}
 function progById(p,id){ const list=projProgrammes(p); return list.find(pr=>pr.id===id)||list[0]; }
 function progColorOf(p,id){ const pr=progById(p,id); return (pr&&pr.color)||PROG_COLORS[0]; }
 // Programme a stage belongs to — untagged stages fall to the first (default) programme.
@@ -3722,13 +3734,17 @@ function addProjProgramme(projId){
   pushProj(p);renderProjDetail(p);
 }
 function renameProjProgramme(projId,pid,val){
-  const p=S.projects.find(x=>x.id===projId);if(!p||!Array.isArray(p.programmes))return;
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  // A project with no programmes array runs on the implicit default, which isn't
+  // stored anywhere and so couldn't be renamed. Materialise it on first edit.
+  if(!Array.isArray(p.programmes)||!p.programmes.length)p.programmes=projProgrammes(p).map(x=>({...x}));
   const pr=p.programmes.find(x=>x.id===pid); if(!pr)return;
   pr.name=(val||'').trim()||pr.name;
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);
 }
 function setProjProgrammeColor(projId,pid,val){
-  const p=S.projects.find(x=>x.id===projId);if(!p||!Array.isArray(p.programmes))return;
+  const p=S.projects.find(x=>x.id===projId);if(!p)return;
+  if(!Array.isArray(p.programmes)||!p.programmes.length)p.programmes=projProgrammes(p).map(x=>({...x}));
   const pr=p.programmes.find(x=>x.id===pid); if(!pr)return;
   pr.color=val;
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),900);renderProjDetail(p);
@@ -4412,7 +4428,7 @@ function renderHealth(){
 // ═══════════════════════════════════════
 // PROJECT SPEND
 // ═══════════════════════════════════════
-let SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',status:[],projSel:[]};
+let SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',prog:'',status:[],projSel:[]};
 function spendOffMatch(e){
   if(!SPEND.off)return true;
   const off=(e.off||'').toUpperCase();
@@ -4439,6 +4455,25 @@ function spendStageNames(){
   const set=[];
   projs.forEach(p=>(p.stages||[]).forEach(st=>{const n=st.name||'';if(n&&set.indexOf(n)<0)set.push(n);}));
   return set;
+}
+// Distinct workstream names across the selected projects. Projects on the
+// untouched default are skipped so the menu only lists meaningful names.
+// Workstream and stage names only mean something inside ONE project — across a
+// mixed selection you get an unrelated soup of names from different jobs. Both
+// filters are therefore offered only when the selection narrows to a single one.
+function spendSingleProj(){
+  if(SPEND.projSel&&SPEND.projSel.length===1)return S.projects.find(p=>p.id===SPEND.projSel[0])||null;
+  if(!(SPEND.projSel&&SPEND.projSel.length)&&SPEND.proj)return S.projects.find(p=>p.id===SPEND.proj)||null;
+  return null;
+}
+function spendProgNames(){
+  let projs=S.projects;
+  if(SPEND.projSel&&SPEND.projSel.length)projs=S.projects.filter(p=>SPEND.projSel.indexOf(p.id)>=0);
+  else if(SPEND.proj)projs=S.projects.filter(p=>p.id===SPEND.proj);
+  const set=[];
+  projs.forEach(p=>{ if(!progNamed(p))return;
+    projProgrammes(p).forEach(pr=>{ const n=(pr.name||'').trim(); if(n&&set.indexOf(n)<0)set.push(n); }); });
+  return set.sort();
 }
 function spendCompute(){
   let projs=S.projects.slice();
@@ -4468,6 +4503,14 @@ function spendCompute(){
         const sidx=_own>=0?[_own]:(sm.get(wi)||[]).filter(si=>_pgsSet.has(stageProg(p,p.stages[si])));
         const stageName=sidx.length?((p.stages[sidx[0]]&&p.stages[sidx[0]].name)||('Stage '+(sidx[0]+1))):'Unplanned';
         if(SPEND.stage&&stageName!==SPEND.stage)return;
+        if(SPEND.prog){
+          // Match on the workstream owning this week's stage; fall back to the
+          // booking's own workstream when no stage covers the week.
+          const _st=sidx.length?p.stages[sidx[0]]:null;
+          const _pid=_st?stageProg(p,_st):(bookProgs(p,eid)[0]||projProgrammes(p)[0].id);
+          const _pr=progById(p,_pid);
+          if(!_pr||_pr.name!==SPEND.prog)return;
+        }
         const cost=h*rate*mult;
         totalCost+=cost; totalHrs+=h; projSet.add(p.id);
         if(!perEng[eid])perEng[eid]={eng,hrs:0,cost:0,discSet:new Set()};
@@ -4486,8 +4529,8 @@ function spendCompute(){
   });
   return {perEng,perStage,perMonth,perProj,totalCost,totalHrs,projCount:projSet.size,engCount:Object.keys(perEng).length};
 }
-function spendSet(k,v){SPEND[k]=v;if(k==='proj')SPEND.stage='';renderSpend();}
-function spendReset(){SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',status:[],projSel:[]};renderSpend();}
+function spendSet(k,v){SPEND[k]=v;if(k==='proj'){SPEND.stage='';SPEND.prog='';}renderSpend();}
+function spendReset(){SPEND={proj:'',from:'',to:'',disc:'',off:'',stage:'',prog:'',status:[],projSel:[]};renderSpend();}
 function spendKpi(label,val,sub,cls){return '<div class="mc '+(cls||'')+'"><div class="mc-l">'+label+'</div><div class="mc-v" style="font-size:22px;font-weight:700;color:var(--tx);margin:2px 0;">'+val+'</div>'+(sub?'<div class="mc-s">'+sub+'</div>':'')+'</div>';}
 function toggleSpendProj(gid){
   if(!window._spendCollapse)window._spendCollapse={};
@@ -4500,34 +4543,42 @@ function toggleSpendProj(gid){
 // Project Spend multi-select menus (PROJECT + STATUS)
 function _spendMenu(id){var m=document.getElementById(id);if(m)return m;m=document.createElement('div');m.id=id;m.style.cssText='position:absolute;z-index:9999;background:#fff;border:1px solid var(--bdr);border-radius:10px;box-shadow:0 8px 30px rgba(16,36,62,.18);padding:6px;min-width:200px;max-height:340px;overflow:auto;display:none;';document.body.appendChild(m);document.addEventListener('click',function(e){if(m.style.display==='none')return;if(m.contains(e.target))return;if(e.target.closest&&(e.target.closest('.js-spend-proj-btn')||e.target.closest('.js-spend-stat-btn')))return;m.style.display='none';},true);return m;}
 function _spendMenuRow(on,label,onclick){return '<div onclick="'+onclick+'" style="display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:7px;cursor:pointer;font-size:12px;'+(on?'background:var(--acc2);':'')+'"><span style="width:15px;height:15px;border-radius:4px;border:1.5px solid '+(on?'var(--acc)':'#c3cad3')+';background:'+(on?'var(--acc)':'#fff')+';display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;">'+(on?'<span style=\'color:#fff;font-size:10px;\'>\u2713</span>':'')+'</span><span style="color:var(--tx1);font-weight:'+(on?'600':'400')+';">'+label+'</span></div>';}
-function toggleSpendStatMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-stat-menu');var btn=ev.currentTarget;if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendStatMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
+function toggleSpendStatMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-stat-menu');var btn=ev.currentTarget;var _o=document.getElementById('spend-proj-menu');if(_o)_o.style.display='none';/* only one filter menu open at a time — they sit at the same top and overlapped */if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendStatMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
 function buildSpendStatMenu(){var m=document.getElementById('spend-stat-menu');if(!m)return;var sel=SPEND.status||[];m.innerHTML='<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);padding:4px 9px 6px;">Project status</div>'+['Active','On Hold','Completed'].map(function(o){return _spendMenuRow(sel.indexOf(o)>=0,o,"spendStatToggle('"+o+"')");}).join('')+'<div onclick="SPEND.status=[];buildSpendStatMenu();renderSpend();" style="padding:6px 9px;cursor:pointer;font-size:11px;color:var(--tx3);text-align:center;">Clear all</div>';}
 function spendStatToggle(o){var a=(SPEND.status||[]).slice();var i=a.indexOf(o);if(i>=0)a.splice(i,1);else a.push(o);SPEND.status=a;buildSpendStatMenu();renderSpend();}
-function toggleSpendProjMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-proj-menu');var btn=ev.currentTarget;if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendProjMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
+function toggleSpendProjMenu(ev){ev.preventDefault();ev.stopPropagation();var m=_spendMenu('spend-proj-menu');var btn=ev.currentTarget;var _o=document.getElementById('spend-stat-menu');if(_o)_o.style.display='none';/* only one filter menu open at a time — they sit at the same top and overlapped */if(m.style.display==='block'&&m._b===btn){m.style.display='none';return;}m._b=btn;buildSpendProjMenu();var r=btn.getBoundingClientRect();m.style.left=(window.scrollX+r.left)+'px';m.style.top=(window.scrollY+r.bottom+5)+'px';m.style.display='block';}
 function buildSpendProjMenu(){var m=document.getElementById('spend-proj-menu');if(!m)return;var sel=SPEND.projSel||[];var rows=S.projects.slice().sort(function(a,b){return (a.no||'').localeCompare(b.no||'');}).map(function(p){return _spendMenuRow(sel.indexOf(p.id)>=0,esc((p.no?p.no+' — ':'')+(p.name||p.id)),"spendProjToggle('"+p.id+"')");}).join('');m.innerHTML='<div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:var(--tx3);padding:4px 9px 6px;">Projects (tap to combine)</div>'+rows+'<div onclick="SPEND.projSel=[];buildSpendProjMenu();renderSpend();" style="padding:6px 9px;cursor:pointer;font-size:11px;color:var(--tx3);text-align:center;position:sticky;bottom:0;background:#fff;">Clear all</div>';}
-function spendProjToggle(id){var a=(SPEND.projSel||[]).slice();var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);SPEND.projSel=a;SPEND.proj='';SPEND.stage='';buildSpendProjMenu();renderSpend();}
+function spendProjToggle(id){var a=(SPEND.projSel||[]).slice();var i=a.indexOf(id);if(i>=0)a.splice(i,1);else a.push(id);SPEND.projSel=a;SPEND.proj='';SPEND.stage='';SPEND.prog='';buildSpendProjMenu();renderSpend();}
 function renderSpend(){
   const c=document.getElementById('pc-spend'); if(!c)return;
   if(!canSeeAllData()){ const _sf0=document.getElementById('spend-filters-slot'); if(_sf0)_sf0.innerHTML=''; c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required to view expenditure.</div>';return;}
   const sel='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-weight:600;cursor:pointer;outline:none;';
   const dat='background:#fff;color:#10243E;border:1px solid var(--bdr);border-radius:8px;padding:6px 10px;font-size:12px;font-family:inherit;outline:none;';
   let hf='';  // filters render into the page header
-  // multi-select PROJECT + STATUS menus (mirror of Overview's checkbox menus)
-  const _pjLbl=(SPEND.projSel&&SPEND.projSel.length)?(SPEND.projSel.length+' project'+(SPEND.projSel.length===1?'':'s')):'All projects';
-  hf+='<button type="button" class="js-spend-proj-btn" onclick="toggleSpendProjMenu(event)" style="'+sel+'">'+esc(_pjLbl)+' \u25be</button>';
+  // Order runs broad -> narrow so each choice narrows the next:
+  // status, project, office, discipline, workstream, stage, then the date range.
   const _stLbl=(SPEND.status&&SPEND.status.length)?(SPEND.status.length===1?SPEND.status[0]:SPEND.status.length+' statuses'):'All status';
   hf+='<button type="button" class="js-spend-stat-btn" onclick="toggleSpendStatMenu(event)" style="'+sel+'">'+esc(_stLbl)+' \u25be</button>';
-  hf+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
-  hf+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
-  hf+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
-     MEP_DISCS.map(c=>{const cfg=DISCIPLINE_CONFIG.find(d=>d.code===c);return '<option value="'+esc(c)+'"'+(SPEND.disc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+'<option value="BIM"'+(SPEND.disc==='BIM'?' selected':'')+'>BIM</option></select>';
+  const _pjLbl=(SPEND.projSel&&SPEND.projSel.length)?(SPEND.projSel.length+' project'+(SPEND.projSel.length===1?'':'s')):'All projects';
+  hf+='<button type="button" class="js-spend-proj-btn" onclick="toggleSpendProjMenu(event)" style="'+sel+'">'+esc(_pjLbl)+' \u25be</button>';
   hf+='<select style="'+sel+'" onchange="spendSet(\'off\',this.value)"><option value="">All Offices</option>'+
      ['DXB','EGY','IND'].map(o=>'<option value="'+o+'"'+(SPEND.off===o?' selected':'')+'>'+o+'</option>').join('')+'</select>';
-  const stNames=spendStageNames();
+  hf+='<select style="'+sel+'" onchange="spendSet(\'disc\',this.value)"><option value="">All disciplines</option>'+
+     MEP_DISCS.map(c=>{const cfg=DISCIPLINE_CONFIG.find(d=>d.code===c);return '<option value="'+esc(c)+'"'+(SPEND.disc===c?' selected':'')+'>'+esc((cfg&&cfg.label)||c)+'</option>';}).join('')+'</select>';
+  const _one=spendSingleProj();
+  if(!_one){ SPEND.prog=''; SPEND.stage=''; }
+  const pgNames=_one?spendProgNames():[];
+  if(pgNames.length>1){
+    hf+='<select style="'+sel+'" onchange="spendSet(\'prog\',this.value)"><option value="">All workstreams</option>'+
+       pgNames.map(n=>'<option'+(SPEND.prog===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>';
+  }
+  const stNames=_one?spendStageNames():[];
   if(stNames.length){
     hf+='<select style="'+sel+'" onchange="spendSet(\'stage\',this.value)"><option value="">All stages</option>'+
        stNames.map(n=>'<option'+(SPEND.stage===n?' selected':'')+'>'+esc(n)+'</option>').join('')+'</select>';
   }
+  hf+='<label class="spend-lbl">From</label><input type="date" style="'+dat+'" value="'+SPEND.from+'" onchange="spendSet(\'from\',this.value)">';
+  hf+='<label class="spend-lbl">To</label><input type="date" style="'+dat+'" value="'+SPEND.to+'" onchange="spendSet(\'to\',this.value)">';
   hf+='<button class="btn btn-g btn-sm" onclick="spendReset()">Reset</button>';
   let h='';
   { const _sf=document.getElementById('spend-filters-slot'); if(_sf)_sf.innerHTML=hf; }
@@ -8183,7 +8234,7 @@ function renderProj(){
     const timelineLabel=fmt(d1)+' → '+fmt(d2)+' · '+totalWks+'w';
 
     // parallel projects: mirror the detail view's workstream bands (one row per workstream with its own stage chips) instead of one flat timeline.
-    if(hasParallelProg(p)){
+    if(progNamed(p)){
       const _sd=new Date(p.start),_ed=new Date(p.end);
       const allStages=(p.stages||[]).map((st,si)=>({st,si})).filter(o=>o.st.from&&o.st.to);
       const rowsHtml=projProgrammes(p).map(pr=>{
@@ -8266,7 +8317,17 @@ function renderProj(){
   const discsOf=(p)=>{ const set={}; S.engineers.forEach(e=>{ if(whHasFor(p,e.id)){ if(e.team==='BIM')set['BIM']=1; else { const d=(typeof effDisc==='function'?effDisc(e,p):null)||e.disc; if(d)set[d]=1; } } }); const order=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():[]).concat(['BIM']); const inOrder=order.filter(d=>set[d]); const extra=Object.keys(set).filter(d=>order.indexOf(d)<0); return inOrder.concat(extra); };
   const teamOf=(p)=>S.engineers.filter(e=>whHasFor(p,e.id)).length;
   const elapsedOf=(p)=>{ const s=new Date(p.start).getTime(), e=new Date(p.end).getTime(); if(!(e>s))return 0; return Math.max(0,Math.min(100,Math.round((Date.now()-s)/(e-s)*100))); };
-  const nextStageOf=(p)=>{ const now=Date.now(); const fut=(p.stages||[]).filter(s=>s.from&&s.to&&new Date(s.from).getTime()>now).sort((a,b)=>new Date(a.from)-new Date(b.from)); if(!fut.length)return null; const s=fut[0]; const away=Math.max(0,Math.round((new Date(s.from).getTime()-now)/(7*24*3600*1000))); return {name:s.name||'Stage', wk:'W'+wkNum(new Date(s.from)), in:(away>0?('in '+away+'w'):'this week')}; };
+  const nextStageOf=(p)=>{ const now=Date.now(); const fut=(p.stages||[]).filter(s=>s.from&&s.to&&new Date(s.from).getTime()>now).sort((a,b)=>new Date(a.from)-new Date(b.from)); if(!fut.length)return null; const s=fut[0]; const away=Math.max(0,Math.round((new Date(s.from).getTime()-now)/(7*24*3600*1000))); // With parallel programmes a stage name alone is ambiguous — "SD Production"
+    // could belong to any workstream — so carry the owning programme through.
+    let pn='',pc='';
+    try{
+      if(typeof progNamed==='function'&&progNamed(p)){
+        const pr=progById(p,s.prog||projProgrammes(p)[0].id);
+        if(pr){ pn=pr.name; pc=pr.color; }
+      }
+    }catch(e){}
+    return {name:s.name||'Stage', wk:'W'+wkNum(new Date(s.from)), in:(away>0?('in '+away+'w'):'this week'),
+            progName:pn, progColor:pc}; };
   const miniBar=(p)=>{ const stages=(p.stages||[]).filter(s=>s.from&&s.to); if(!stages.length)return '<div style="height:7px;background:repeating-linear-gradient(90deg,#e4e6ea 0 6px,#f1f5f9 6px 12px);border-radius:4px;"></div>'; const ps=new Date(p.start).getTime(), pe=new Date(p.end).getTime(), span=Math.max(1,pe-ps); const blocks=stages.map((st,si)=>{ const sc=stageColor(si,st); const f=Math.max(ps,new Date(st.from).getTime()); const t=Math.min(pe,new Date(st.to).getTime()); if(t<=f)return ''; const l=((f-ps)/span*100), w=((t-f)/span*100); return '<i style="position:absolute;left:'+l.toFixed(2)+'%;width:'+w.toFixed(2)+'%;top:0;bottom:0;background:'+sc.bdr+';"></i>'; }).join(''); return '<div style="position:relative;height:7px;background:#F1F4F8;border-radius:4px;overflow:hidden;">'+blocks+'</div>'; };
   const _fmtD=(d)=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric'});
 
@@ -8275,14 +8336,29 @@ function renderProj(){
     const cards=list.map(p=>{
       const th=projTotalHrs(p);
       const stg=(p.stages||[]).filter(s=>s.from&&s.to).length;
+      // Parallel workstreams weren't shown on cards at all — the stage count and
+      // the mini bar merge every programme into one. Shown as coloured dots on the
+      // existing header line rather than a chip row, so the card gains no height.
+      let progDots='';
+      try{
+        if(typeof progNamed==='function'&&progNamed(p)){
+          const list=projProgrammes(p);
+          const counts={};
+          (p.stages||[]).forEach(x=>{ const k=x.prog||list[0].id; counts[k]=(counts[k]||0)+1; });
+          const tip=list.map(pr=>pr.name+' ('+(counts[pr.id]||0)+')').join('  ·  ');
+          progDots='<span title="'+esc(tip)+'" style="display:inline-flex;align-items:center;gap:3px;margin-left:auto;">'+
+            list.slice(0,5).map(pr=>'<span style="width:7px;height:7px;border-radius:50%;background:'+pr.color+';"></span>').join('')+
+            '<span style="font-size:10.5px;color:var(--tx3);margin-left:3px;">'+list.length+' prog</span></span>';
+        }
+      }catch(e){}
       const badges=discsOf(p).map(c=>{const col=_DB[c]||['#e5e7eb','#374151'];const lbl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[c])||c;return `<span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${col[0]};color:${col[1]};">${esc(lbl)}</span>`;}).join('');
       const badgesHtml=badges?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px;">${badges}</div>`:'';
       const team=teamOf(p), el=elapsedOf(p);
       const ns=nextStageOf(p);
-      const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:#F0F6FF;border:1px solid #DCE8FA;border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;">Next milestone</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
+      const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:#F0F6FF;border:1px solid #DCE8FA;border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Next milestone${ns.progName?`<span style="color:${ns.progColor};"> · ${esc(ns.progName)}</span>`:''}</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
       let tll='';try{const d1=new Date(p.start),d2=new Date(p.end);const w=Math.round((d2-d1)/(7*24*3600*1000));tll=_fmtD(d1)+' → '+_fmtD(d2)+' · '+w+'w';}catch(_){}
       return `<div class="proj-card" style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:15px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.05);" onclick="openProjDetail('${p.id}')">
-        <div style="display:flex;align-items:center;gap:7px;">${statusDot(p)}<span style="font-size:11px;color:var(--tx3);">${p.no||'—'} · ${p.status||'—'}</span><span style="margin-left:auto;font-size:10.5px;color:var(--tx3);">${stg} stage${stg===1?'':'s'}</span></div>
+        <div style="display:flex;align-items:center;gap:7px;">${statusDot(p)}<span style="font-size:11px;color:var(--tx3);">${p.no||'—'} · ${p.status||'—'}</span>${progDots}<span style="${progDots?'margin-left:8px;':'margin-left:auto;'}font-size:10.5px;color:var(--tx3);">${stg} stage${stg===1?'':'s'}</span></div>
         <div style="font-weight:700;font-size:14.5px;margin:5px 0 2px;line-height:1.2;">${esc(p.name)}</div>
         <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">${[p.client,p.mepLeadEmail?getMepLeadName(p.mepLeadEmail):''].filter(Boolean).join(' · ')||'—'}</div>
         ${badgesHtml}
@@ -10098,7 +10174,7 @@ function renderProjDetail(p){
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
-            ${hasParallelProg(p)?`<span title="Workstream: ${esc(progById(p,stageProg(p,st)).name)}" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${progColorOf(p,stageProg(p,st))};background:${progColorOf(p,stageProg(p,st))}18;border:1px solid ${progColorOf(p,stageProg(p,st))}44;border-radius:8px;padding:1px 6px;flex-shrink:0;"><span style="width:6px;height:6px;border-radius:2px;background:${progColorOf(p,stageProg(p,st))};display:inline-block;"></span>${esc(progById(p,stageProg(p,st)).name)}</span>`:''}
+            ${progNamed(p)?`<span title="Workstream: ${esc(progById(p,stageProg(p,st)).name)}" style="display:inline-flex;align-items:center;gap:3px;font-size:9px;font-weight:700;color:${progColorOf(p,stageProg(p,st))};background:${progColorOf(p,stageProg(p,st))}18;border:1px solid ${progColorOf(p,stageProg(p,st))}44;border-radius:8px;padding:1px 6px;flex-shrink:0;"><span style="width:6px;height:6px;border-radius:2px;background:${progColorOf(p,stageProg(p,st))};display:inline-block;"></span>${esc(progById(p,stageProg(p,st)).name)}</span>`:''}
             ${(st.from||st.to)?`<span style="font-size:10px;color:var(--tx3);white-space:nowrap;">${_fmtSD(st.from)} → ${_fmtSD(st.to)}</span>`:''}
             ${wkBadge}
           </div>
@@ -10223,7 +10299,7 @@ function renderProjDetail(p){
             const stgs=(p.stages||[]).map((s,i)=>({s,i})).filter(o=>o.s.from&&o.s.to);
             if(!stgs.length) return `<span style="font-size:10px;color:var(--tx3);font-style:italic;">No stages defined</span>`;
             const chip=(s,i)=>{const sc=stageColor(i,s);const _wa=wkNum(new Date(s.from)),_wb=wkNum(new Date(s.to));const _wr=(_wa===_wb)?('W'+_wa):('W'+_wa+'\u2013W'+_wb);return`<span style="display:inline-flex;align-items:center;gap:5px;background:${sc.bdr}14;border:1px solid ${sc.bdr}44;border-radius:6px;padding:2px 8px;font-size:10px;font-weight:600;color:${sc.bdr};white-space:nowrap;line-height:1.3;"><span style="width:5px;height:5px;border-radius:50%;background:${sc.bdr};display:inline-block;flex-shrink:0;"></span>${s.name}<span style="font-weight:700;opacity:.7;">${_wr}</span></span>`;};
-            if(!hasParallelProg(p)){
+            if(!progNamed(p)){
               return`<div style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">${stgs.map(o=>chip(o.s,o.i)).join('')}</div>`;
             }
             // parallel programmes: one band per workstream (colour rail + dashed divider so bands read as distinct groups)
@@ -10262,7 +10338,7 @@ function renderProjDetail(p){
         </div>
       </div>
       <div id="sec-prog-${p.id}" style="display:${(window._secOpen&&window._secOpen['sec-prog-'+p.id])?'block':'none'};">
-      ${hasParallelProg(p)?`<div style="padding:8px 12px;background:#eef2f7;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
+      ${(hasParallelProg(p)||(canEditProg&&!progLocked))?`<div style="padding:8px 12px;background:#eef2f7;border-bottom:1px solid var(--bdr);display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
         <span style="font-size:10px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:.04em;flex-shrink:0;">Workstreams</span>
         ${projProgrammes(p).map((pr,pi)=>`<span style="display:inline-flex;align-items:center;gap:5px;background:#fff;border:1px solid ${pr.color}55;border-radius:8px;padding:3px 6px;">
           ${(canEditProg&&!progLocked)?`<button type="button" title="Programme colour" onclick="openPresetColors(event,'prog','${p.id}','${pr.id}','${pr.color}')" style="width:18px;height:18px;border:1px solid var(--bdr);border-radius:4px;padding:0;cursor:pointer;background:${pr.color};flex-shrink:0;"></button>`:`<span style="width:12px;height:12px;border-radius:3px;background:${pr.color};display:inline-block;flex-shrink:0;"></span>`}
