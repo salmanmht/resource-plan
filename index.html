@@ -954,7 +954,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.81 · 19 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.83 · 21 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1059,7 +1059,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.81 · 19 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.83 · 21 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1568,6 +1568,17 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div class="modal-hd"><div class="modal-ht" id="eng-title">Add Team Member</div><button class="cls" onclick="closeEngModal()">&times;</button></div>
   <div class="modal-bd" style="max-height:none">
     <div class="fg">
+      <div class="ff full" id="em-photo-row" style="display:none;align-items:center;gap:12px;padding:2px 0 6px;">
+        <div id="em-photo-av" style="width:56px;height:56px;border-radius:50%;overflow:hidden;background:#e2e8f0;color:#475569;display:flex;align-items:center;justify-content:center;font-size:19px;font-weight:600;flex:0 0 auto;">&mdash;</div>
+        <div style="flex:1;min-width:0;">
+          <label style="display:block;margin-bottom:5px;">Photo</label>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-g btn-xs" id="em-photo-up" style="padding:4px 12px;">Upload&hellip;</button>
+            <button type="button" class="btn btn-g btn-xs" id="em-photo-rm" style="padding:4px 12px;">Remove</button>
+          </div>
+          <div style="font-size:10px;color:var(--tx3);margin-top:5px;line-height:1.4;">JPG, PNG or WebP &middot; auto-cropped square and shrunk to 256px. Saves immediately &mdash; no need to press Save.</div>
+        </div>
+      </div>
       <div class="ff full"><label>Full Name *</label><input id="em-name"></div>
       <div class="ff full"><label>Designation <span style="font-weight:400;color:var(--tx3);font-size:10px;">(auto — Grade Tier + Discipline)</span></label><input id="em-desig" readonly style="background:#f1f5f9;color:var(--tx2);cursor:not-allowed;"></div>
       <div class="ff full"><label>Work Email</label><input type="email" id="em-email" placeholder="e.g. name@meinhardtgroup.com"></div>
@@ -8102,7 +8113,7 @@ function renderTeam(){
     const billBar=(b==null)?'':`<div style="margin-top:9px;"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:3px;"><span style="font-size:8px;font-weight:700;letter-spacing:.06em;color:var(--tx3);text-transform:uppercase;">Billable</span><span style="font-size:10px;font-weight:700;color:#0891b2;">${b}%</span></div><div style="height:5px;background:var(--bdr);border-radius:3px;overflow:hidden;"><div style="height:100%;width:${Math.min(100,Math.max(0,b))}%;background:#0891b2;border-radius:3px;"></div></div></div>`;
     const gaugeHtml=(u==null)?'':`<div style="flex-shrink:0;text-align:center;">${window.mhGauge?window.mhGauge(u,38):''}<div style="font-size:7.5px;font-weight:700;letter-spacing:.06em;color:var(--tx3);margin-top:1px;text-transform:uppercase;">Util</div></div>`;
     return`<div style="background:var(--surf,#fff);border:0.5px solid var(--bdr);border-radius:12px;padding:13px 15px;display:flex;align-items:flex-start;gap:11px;transition:border-color .15s;cursor:pointer;" onclick="openEngDetail('${e.id}')" onmouseover="this.style.borderColor='#94a3b8'" onmouseout="this.style.borderColor='var(--bdr)'">
-      <div style="width:38px;height:38px;border-radius:50%;background:${st.bg};display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500;color:${st.color};flex-shrink:0;">${initials}</div>
+      ${engAvatarHTML(e,38,st.bg,st.color,13)}
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div style="flex:1;min-width:0;">
@@ -8544,6 +8555,238 @@ function closeProjDetail(){
   renderProj();
 }
 
+// ═══════════════════════════════════════
+// ENGINEER PHOTOS  —  Supabase Storage 'avatars' bucket
+// ═══════════════════════════════════════
+// Objects live at  avatars/{engineerId}.webp  (public read). The engineer
+// record itself stores only the public URL, in data.photoUrl, carrying a ?v=
+// cache-buster — the object path is stable, so without the buster a re-upload
+// would keep serving the browser's cached copy of the old face.
+//
+// Everything is squeezed CLIENT-SIDE before a byte leaves the browser:
+// centre-crop to square -> 256px -> WebP, quality stepped down until the blob
+// fits PHOTO_MAX_BYTES. A 6 MB phone photo lands as a ~25 KB thumbnail, so the
+// full 93-person roster costs single-digit MB of bucket.
+//
+// HEIC (iPhone default) cannot be decoded by canvas in Chrome/Edge. Those are
+// rejected up front with a clear message rather than failing silently; adding a
+// HEIC decoder would mean a second file, which this app deliberately avoids.
+const PHOTO_BUCKET='avatars';
+const PHOTO_PX=256;                 // stored square edge
+const PHOTO_MAX_BYTES=40*1024;      // re-encode target
+const PHOTO_SRC_MAX=8*1024*1024;    // reject sources bigger than this
+const _ORG_PHOTO_B64={};            // id -> dataURL|null, for PPTX export
+
+// FIRST TWO WORDS, deliberately — this is the rule the Team Register and the
+// detail panel already used, so people without a photo keep the exact initials
+// they have today ("Abd El Hamid Mansour" stays AE, not AM). The org chart has
+// its own first+last rule in orgInitials(); the two are intentionally separate.
+function engInitials(n){
+  const p=String(n||'').trim().split(/\s+/).filter(Boolean);
+  if(!p.length)return '?';
+  return p.slice(0,2).map(w=>w[0]||'').join('').toUpperCase();
+}
+function engPhoto(e){ return (e&&(e.photoUrl||e.photo))||''; }
+
+// Shared circular avatar used by the Team Register cards and the detail panel.
+// Initials remain the fallback both when there is no photo at all and when the
+// image 404s, so a broken or deleted object never leaves an empty hole.
+function engAvatarHTML(e,size,bg,fg,fontSize){
+  const ini=engInitials(e&&e.name);
+  const fs=fontSize||Math.max(10,Math.round(size*0.36));
+  const base='width:'+size+'px;height:'+size+'px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:0 0 auto;font-weight:600;font-size:'+fs+'px;overflow:hidden;background:'+bg+';color:'+fg+';';
+  const url=engPhoto(e);
+  const slot=(e&&e.id)?(' data-photo-slot="'+esc(e.id)+'"'):'';
+  if(!url) return '<div'+slot+' style="'+base+'">'+esc(ini)+'</div>';
+  const safeIni=ini.replace(/['"\\]/g,'');
+  return '<div'+slot+' style="'+base+'"><img src="'+esc(url)+'" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="var p=this.parentNode;this.remove();p.textContent=\''+safeIni+'\';"></div>';
+}
+
+// Admins may set anyone's photo; everyone else only their own.
+function canEditPhoto(engId){
+  if(typeof adminUnlocked!=='undefined'&&adminUnlocked)return true;
+  const e=(S.engineers||[]).find(x=>x.id===engId);
+  const me=(typeof currentUserEmail==='function'?currentUserEmail():'')||'';
+  return !!(e&&e.email&&me&&e.email.toLowerCase()===me.toLowerCase());
+}
+
+// Decode -> centre-crop -> resize -> re-encode under the byte budget.
+function _photoProcess(file){
+  return new Promise((resolve,reject)=>{
+    const objUrl=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(objUrl);
+      try{
+        const side=Math.min(img.naturalWidth,img.naturalHeight);
+        if(!side){reject(new Error('Image has no dimensions'));return;}
+        const sx=(img.naturalWidth-side)/2, sy=(img.naturalHeight-side)/2;
+        const c=document.createElement('canvas'); c.width=PHOTO_PX; c.height=PHOTO_PX;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,PHOTO_PX,PHOTO_PX); // flatten PNG alpha
+        try{ctx.imageSmoothingQuality='high';}catch(_){}
+        ctx.drawImage(img,sx,sy,side,side,0,0,PHOTO_PX,PHOTO_PX);
+        const QS=[0.82,0.72,0.62,0.5,0.4];
+        const step=(type,i)=>{
+          c.toBlob(b=>{
+            if(!b){resolve(null);return;}
+            if(b.size<=PHOTO_MAX_BYTES||i>=QS.length-1){resolve({blob:b,type:type});return;}
+            step(type,i+1);
+          },type,QS[i]);
+        };
+        // Probe for a real WebP encoder. Browsers without one hand back PNG
+        // from toBlob instead of erroring, so check the mime and use JPEG.
+        c.toBlob(probe=>{
+          step((probe&&probe.type==='image/webp')?'image/webp':'image/jpeg',0);
+        },'image/webp',0.82);
+      }catch(err){reject(err);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(objUrl);reject(new Error('Could not decode image'));};
+    img.src=objUrl;
+  });
+}
+
+// Targeted single-field write. This deliberately mutates the EXISTING engineer
+// object and re-pushes it, rather than rebuilding one from form values — that
+// rebuild pattern is what silently dropped fields in the saveProj bug.
+async function _setEngPhotoUrl(engId,url){
+  const i=(S.engineers||[]).findIndex(x=>x.id===engId);
+  if(i<0)return false;
+  const had=Object.prototype.hasOwnProperty.call(S.engineers[i],'photoUrl');
+  const prev=S.engineers[i].photoUrl;
+  if(url)S.engineers[i].photoUrl=url; else delete S.engineers[i].photoUrl;
+  try{
+    await sbUpsert('engineers',{id:engId,data:S.engineers[i]});
+    if(typeof setSyncStatus==='function')setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+  }catch(err){
+    if(had)S.engineers[i].photoUrl=prev; else delete S.engineers[i].photoUrl;
+    console.error('photo save failed',err);
+    toast('Photo uploaded but the record did not save — try again');
+    return false;
+  }
+  delete _ORG_PHOTO_B64[engId];
+  _refreshPhotoSlots(engId,url);
+  // keep the modal's Remove button in step when the edit modal is the open UI
+  try{
+    const _av=document.getElementById('em-photo-av'), _rm=document.getElementById('em-photo-rm');
+    if(_av&&_rm&&_av.getAttribute('data-photo-slot')===String(engId))_rm.style.display=url?'':'none';
+  }catch(_){}
+  try{invalidate('team');}catch(_){}
+  try{updSB();}catch(_){}
+  return true;
+}
+
+// Live-patch any avatar already on screen so the new face appears without a
+// full re-render (the detail panel in particular is not rebuilt by invalidate).
+function _refreshPhotoSlots(engId,url){
+  const e=(S.engineers||[]).find(x=>x.id===engId);
+  const ini=esc(engInitials(e&&e.name));
+  const nodes=document.querySelectorAll('[data-photo-slot="'+String(engId).replace(/"/g,'')+'"]');
+  for(let k=0;k<nodes.length;k++){
+    nodes[k].innerHTML=url
+      ? '<img src="'+esc(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+      : ini;
+  }
+}
+
+async function uploadEngPhoto(engId,file){
+  if(!canEditPhoto(engId)){toast('You can only change your own photo');return;}
+  if(!(S.engineers||[]).some(x=>x.id===engId)){toast('Save the team member first, then add a photo');return;}
+  if(!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type||'')){
+    toast('Use a JPG, PNG or WebP — iPhone HEIC files cannot be read');return;
+  }
+  if(file.size>PHOTO_SRC_MAX){
+    toast('That file is '+Math.round(file.size/1048576)+' MB — please use one under 8 MB');return;
+  }
+  toast('Processing photo…');
+  let out=null;
+  try{ out=await _photoProcess(file); }
+  catch(err){ console.error('photo decode failed',err); toast('Could not read that image'); return; }
+  if(!out||!out.blob){ toast('Could not process that image'); return; }
+
+  const ext=(out.type==='image/webp')?'webp':'jpg';
+  const other=(ext==='webp')?'jpg':'webp';
+  const base=SB_URL+'/storage/v1/object/'+PHOTO_BUCKET+'/'+encodeURIComponent(engId)+'.';
+  try{
+    if(typeof ensureFreshToken==='function')await ensureFreshToken();
+    const tok=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
+    const r=await fetch(base+ext,{
+      method:'POST',cache:'no-store',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'Content-Type':out.type,'x-upsert':'true','X-Bypass-SW':'1'},
+      body:out.blob
+    });
+    if(!r.ok){ throw new Error('HTTP '+r.status+' '+(await r.text().catch(()=>''))); }
+    // drop the opposite extension if a previous upload used the other encoder,
+    // otherwise an orphan object lingers in the bucket forever
+    fetch(base+other,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'X-Bypass-SW':'1'}}).catch(()=>{});
+  }catch(err){
+    console.error('photo upload failed',err);
+    toast('Upload failed — '+String((err&&err.message)||err).slice(0,80));
+    return;
+  }
+  const pub=SB_URL+'/storage/v1/object/public/'+PHOTO_BUCKET+'/'+encodeURIComponent(engId)+'.'+ext+'?v='+Date.now();
+  const ok=await _setEngPhotoUrl(engId,pub);
+  if(ok)toast('Photo updated · '+Math.round(out.blob.size/1024)+' KB');
+}
+
+function pickEngPhoto(engId){
+  if(!canEditPhoto(engId)){toast('You can only change your own photo');return;}
+  let inp=document.getElementById('eng-photo-input');
+  if(!inp){
+    inp=document.createElement('input');
+    inp.type='file'; inp.id='eng-photo-input';
+    inp.accept='image/jpeg,image/png,image/webp';
+    inp.style.display='none';
+    document.body.appendChild(inp);
+  }
+  inp.value='';
+  inp.onchange=function(){ const f=inp.files&&inp.files[0]; inp.value=''; if(f)uploadEngPhoto(engId,f); };
+  inp.click();
+}
+
+async function removeEngPhoto(engId){
+  if(!canEditPhoto(engId)){toast('You can only change your own photo');return;}
+  if(!confirm('Remove this photo?\n\nThe avatar goes back to initials.'))return;
+  try{
+    if(typeof ensureFreshToken==='function')await ensureFreshToken();
+    const tok=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
+    const base=SB_URL+'/storage/v1/object/'+PHOTO_BUCKET+'/'+encodeURIComponent(engId)+'.';
+    await Promise.all(['webp','jpg'].map(x=>fetch(base+x,{
+      method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'X-Bypass-SW':'1'}
+    }).catch(()=>{})));
+  }catch(_){}
+  const ok=await _setEngPhotoUrl(engId,'');
+  if(ok)toast('Photo removed');
+}
+
+// Fetch every stored photo as base64 for the PPTX exports. pptxgenjs cannot
+// take a URL, so this runs once before a slide is drawn; results are cached, so
+// a second export in the same session is instant. A failed fetch caches null
+// and the slide falls back to the initials ellipse rather than blanking.
+async function _orgPrefetchPhotos(){
+  const todo=(S.engineers||[]).filter(e=>e&&e.id&&engPhoto(e)&&_ORG_PHOTO_B64[e.id]===undefined);
+  if(!todo.length)return;
+  const grab=async(e)=>{
+    try{
+      const r=await fetch(engPhoto(e),{cache:'no-store'});
+      if(!r.ok)throw new Error('HTTP '+r.status);
+      const b=await r.blob();
+      _ORG_PHOTO_B64[e.id]=await new Promise(res=>{
+        const fr=new FileReader();
+        fr.onload=()=>res(fr.result); fr.onerror=()=>res(null);
+        fr.readAsDataURL(b);
+      });
+    }catch(err){ console.warn('org photo fetch failed for',e.name,err); _ORG_PHOTO_B64[e.id]=null; }
+  };
+  // six at a time — a 90-person roster all at once stalls the main thread
+  for(let i=0;i<todo.length;i+=6) await Promise.all(todo.slice(i,i+6).map(grab));
+}
+
+window.pickEngPhoto=pickEngPhoto;
+window.removeEngPhoto=removeEngPhoto;
+window.uploadEngPhoto=uploadEngPhoto;
+window.engAvatarHTML=engAvatarHTML;
+
 // ── Project Team Organization Chart (auto-generated from bookings) ──
 function orgInitials(name){
   const parts=String(name||'').trim().split(/\s+/).filter(Boolean);
@@ -8744,8 +8987,28 @@ function getTeamOrgData(){
     // Strict grade order — nobody is floated to the top and no LEAD badge is
     // drawn; the position under each name says everything needed.
     members=members.sort(bySeniority);
+    // Split each discipline into office groups (Dubai, then Egypt, then India),
+    // grade-ordered within each. Only when the column actually spans more than
+    // one office — a single-office discipline gains nothing from a header.
+    const OFF_LABEL={DXB:'Dubai',EGY:'Egypt',IND:'India'};
+    const offSeen=[];
+    members.forEach(e=>{ const o=e.off||'—'; if(offSeen.indexOf(o)<0)offSeen.push(o); });
+    offSeen.sort((a,b)=>{
+      const oa=OFF_ORDER[a], ob=OFF_ORDER[b];
+      return (oa===undefined?9:oa)-(ob===undefined?9:ob);
+    });
+    let officeGroups=null;
+    if(offSeen.length>1){
+      officeGroups=offSeen.map(o=>({
+        off:o, label:(OFF_LABEL[o]||o),
+        members:members.filter(e=>(e.off||'—')===o).sort(bySeniority)
+      })).filter(g=>g.members.length);
+      // Keep `members` consistent with the grouped order so anything reading the
+      // flat list stays in step with what is drawn.
+      members=officeGroups.reduce((a,g)=>a.concat(g.members),[]);
+    }
     const label=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc;
-    columns.push({disc,label:String(label),color:colorFor(disc,i),leadId:null,members,
+    columns.push({disc,label:String(label),color:colorFor(disc,i),leadId:null,members,officeGroups,
                   // Header count is the whole discipline. For BIM only the managers
                   // are drawn, so the tally has to be added back or the header
                   // would read (3) while the footer reads 28.
@@ -8797,7 +9060,11 @@ function openTeamOrgChart(){
       <div style="background:${c.color};color:#fff;font-weight:700;font-size:11.5px;letter-spacing:.04em;
         text-align:center;padding:6px 4px;border-radius:7px;margin-bottom:8px;">${esc(c.label.toUpperCase())}
         <span style="opacity:.75;font-weight:600;">· ${c.members.length}</span></div>
-      <div style="display:flex;flex-direction:column;gap:6px;">${c.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')}
+      <div style="display:flex;flex-direction:column;gap:6px;">${
+        c.officeGroups
+          ? c.officeGroups.map(g=>`<div style="font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${c.color};opacity:.75;padding:4px 2px 1px;border-top:1px solid ${c.color}33;">${esc(g.label)} <span style="opacity:.7;font-weight:600;">${g.members.length}</span></div>`+
+              g.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')).join('')
+          : c.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')}
         ${c.summary?`<div style="border:1.5px dashed ${c.color};border-radius:10px;padding:9px 11px;text-align:center;
           font-size:11.5px;font-weight:700;color:${c.color};background:rgba(255,255,255,.6);">${esc(c.summary)}</div>`:''}</div>
     </div>`;
@@ -8883,8 +9150,18 @@ function _orgDrawSlide(pptx,cfg){
       tx=x+0.14; tw=w-0.22;
     }else{
       const dia=Math.min(h-0.16,0.40);
-      s.addText(dePlain(orgInitials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,
-        fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',fontSize:9,bold:true,wrap:false,margin:0});
+      // Photo if one was prefetched, otherwise the initials ellipse. Any fetch
+      // that failed cached null, so it lands here rather than blanking the box.
+      const _ph=(typeof _ORG_PHOTO_B64!=='undefined')?_ORG_PHOTO_B64[e.id]:null;
+      let _drew=false;
+      if(_ph){
+        try{ s.addImage({data:_ph,x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,rounding:true}); _drew=true; }
+        catch(_e){ _drew=false; }
+      }
+      if(!_drew){
+        s.addText(dePlain(orgInitials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,
+          fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',fontSize:9,bold:true,wrap:false,margin:0});
+      }
       tx=x+0.08+dia+0.10; tw=w-(0.08+dia+0.10)-0.08;
     }
     const nm=dePlain(orgShortName(e.name)), dg=dePlain(orgDesig(e,e.disc));
@@ -8944,8 +9221,11 @@ function _orgDrawSlide(pptx,cfg){
   const memTop=headerY+headerH+0.12, memBottom=6.85;
   const avail=memBottom-memTop;
   const MINH=0.30, GAPY=0.05;
+  // An office header occupies a slot in the column, so it has to be counted or
+  // the last person falls off the bottom of the slide.
+  const hdrCount=c=>(c.officeGroups?c.officeGroups.length:0);
   const plan=cols.map(c=>{
-    const n=c.members.length+(c.summary?1:0);
+    const n=c.members.length+(c.summary?1:0)+hdrCount(c);
     let sub=1;
     while(sub<4){ const rows=Math.ceil(n/sub); if((avail-(rows-1)*GAPY)/rows>=MINH)break; sub++; }
     return {rows:Math.ceil(n/sub),sub};
@@ -8974,12 +9254,24 @@ function _orgDrawSlide(pptx,cfg){
       {x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:10.5,align:'center',valign:'middle',charSpacing:1});
     const pl=plan[ci];
     const subW=(colW-(pl.sub-1)*0.08)/pl.sub;
-    c.members.forEach((e,mi)=>{
-      const sc=Math.floor(mi/pl.rows), rw=mi%pl.rows;
-      personBox(x+sc*(subW+0.08),memTop+rw*(memH+GAPY),subW,memH,e,c.color);
-    });
+    let slot=0;
+    const place=(fn)=>{ const sc=Math.floor(slot/pl.rows), rw=slot%pl.rows; slot++;
+      fn(x+sc*(subW+0.08),memTop+rw*(memH+GAPY)); };
+    if(c.officeGroups){
+      c.officeGroups.forEach(g=>{
+        place((bx,by)=>{
+          s.addShape('rect',{x:bx,y:by+memH*0.28,w:subW,h:memH*0.44,fill:{color:hx(c.color)},line:{type:'none'}});
+          s.addText(dePlain(g.label).toUpperCase()+'  '+g.members.length,
+            {x:bx,y:by+memH*0.28,w:subW,h:memH*0.44,align:'center',valign:'middle',
+             bold:true,color:'FFFFFF',fontSize:Math.max(6,Math.min(8.5,memH*11)),charSpacing:1,margin:0});
+        });
+        g.members.forEach(e=>place((bx,by)=>personBox(bx,by,subW,memH,e,c.color)));
+      });
+    } else {
+      c.members.forEach(e=>place((bx,by)=>personBox(bx,by,subW,memH,e,c.color)));
+    }
     if(c.summary){
-      const mi=c.members.length, sc=Math.floor(mi/pl.rows), rw=mi%pl.rows;
+      const sc=Math.floor(slot/pl.rows), rw=slot%pl.rows; slot++;
       const bx=x+sc*(subW+0.08), by=memTop+rw*(memH+GAPY);
       s.addShape('roundRect',{x:bx,y:by,w:subW,h:memH,rectRadius:0.05,fill:{color:'FFFFFF'},
         line:{color:hx(c.color),width:1.25,dashType:'dash'}});
@@ -9001,10 +9293,11 @@ function _orgDrawSlide(pptx,cfg){
 }
 
 function exportTeamOrgPPTX(){
-  ensurePptxGen(()=>{
+  ensurePptxGen(async()=>{
     try{
       const d=getTeamOrgData();
       if(!d.columns.length&&!d.tiers.length&&!d.director){ toast('No team members match the current filters.'); return; }
+      try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); }
       const pptx=new PptxGenJS();
       pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
       _orgDrawSlide(pptx,{
@@ -9157,9 +9450,10 @@ function ensurePptxGen(cb){
 }
 function exportOrgChartPPTX(pid){
   const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
-  ensurePptxGen(()=>{
+  ensurePptxGen(async()=>{
     try{
       const d=getOrgChartData(p);
+      try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); }
       // Same renderer as the MEP Team chart, so the two are visually identical.
       // Members are re-sorted here to match it: grade, then Dubai, Egypt, India,
       // then name — and no lead is floated to the top.
@@ -13067,7 +13361,25 @@ function openEngModal(){
   document.getElementById('em-disc-label').textContent='Discipline *';
   document.getElementById('em-grade-label').textContent='Grade Tier (cost)';
   fillGrade(false);
+  // No engineer id exists yet, so there is nothing to name the storage object
+  // after. The row reappears the moment the record is saved and re-opened.
+  const _pr=document.getElementById('em-photo-row'); if(_pr)_pr.style.display='none';
   document.getElementById('eng-ov').classList.add('open');
+}
+// Populate the modal's photo preview and wire its buttons to this engineer.
+function _fillEngModalPhoto(e){
+  const row=document.getElementById('em-photo-row'); if(!row)return;
+  row.style.display='flex';
+  const av=document.getElementById('em-photo-av');
+  const url=engPhoto(e);
+  if(av)av.innerHTML=url
+    ? '<img src="'+esc(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+    : esc(engInitials(e.name));
+  if(av)av.setAttribute('data-photo-slot',e.id);
+  const up=document.getElementById('em-photo-up');
+  const rm=document.getElementById('em-photo-rm');
+  if(up)up.onclick=function(){pickEngPhoto(e.id);};
+  if(rm){ rm.onclick=function(){removeEngPhoto(e.id);}; rm.style.display=url?'':'none'; }
 }
 function editEng(id){
   if(!adminUnlocked){toast('Admin access required');return;}
@@ -13093,6 +13405,7 @@ function editEng(id){
   fillGrade(isBIM);
   document.getElementById('em-grade').value=e.grade||(isBIM?'BIM Modeler':'Engineer');
   updateDesigPreview();
+  _fillEngModalPhoto(e);
   document.getElementById('eng-ov').classList.add('open');
 }
 function closeEngModal(){document.getElementById('eng-ov').classList.remove('open');}
@@ -13100,6 +13413,10 @@ async function saveEng(){
   const name=document.getElementById('em-name').value.trim();if(!name){toast('Name required');return;}
   const isBIM=document.getElementById('em-is-bim').checked;
   const discVal=document.getElementById('em-disc').value;
+  // The object below is built from scratch out of form values, so ANY field the
+  // modal does not have an input for would be wiped on save. Photos are set
+  // outside this form, so the existing value has to be carried across.
+  const _prev=eId?S.engineers.find(x=>x.id===eId):null;
   const eng={
     id:eId||'e'+Date.now(),
     name,
@@ -13131,6 +13448,7 @@ async function saveEng(){
     if(_allow.length>1)eng.crossDisc=true; else delete eng.crossDisc;
   } else if(document.getElementById('em-crossdisc').checked)eng.crossDisc=true;
   if(!isBIM)delete eng.subDisc;
+  if(_prev&&_prev.photoUrl)eng.photoUrl=_prev.photoUrl;
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();invalidate('team');updSB();toast('Saved & synced ✓');
 }
@@ -17015,14 +17333,28 @@ const _origNav=typeof nav==='function'?nav:null;
 
     // ── left / identity column ──
     var leftCol='<div class="engd-media">'
-      +'<div class="engd-av" style="background:'+dc.bg+';color:'+dc.fg+';">'+initials+'</div>'
+      +'<div class="engd-av" data-photo-slot="'+esc(id)+'" style="background:'+dc.bg+';color:'+dc.fg+';overflow:hidden;">'
+        +(engPhoto(e)?('<img src="'+esc(engPhoto(e))+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="var p=this.parentNode;this.remove();p.textContent=\''+String(initials).replace(/['"\\]/g,'')+'\';">'):initials)
+      +'</div>'
       +'<div class="engd-nm">'+esc(e.name||'')+'</div>'
       +'<div class="engd-role">'+sub+'</div>'
       +'<div class="engd-hero" style="color:'+chipFg+';">'+Math.round(avg)+'%</div>'
       +'<div class="engd-hsub">Utilisation · '+_rangeLab+'</div>'
       +'<div class="engd-chip" style="background:'+chipBg+';color:'+chipFg+';"><span style="width:7px;height:7px;border-radius:50%;background:'+chipFg+';"></span>'+chipTxt+'</div>'
       +'<div class="engd-free">'+freeTxt+loadLine+'</div>'
-      +(admin?('<div class="engd-btns"><button class="engd-pill engd-pill-p" onclick="closeEngDetail();editEng(\''+id+'\')">Edit</button><button class="engd-pill engd-pill-g" onclick="closeEngDetail();delEng(\''+id+'\')">Delete</button></div>'):'')
+      +(function(){
+        // Photo pills appear for admins on anyone, and for each person on their
+        // own record. Edit/Delete stay admin-only.
+        var _canPh=(typeof canEditPhoto==='function')&&canEditPhoto(id);
+        if(!admin&&!_canPh)return '';
+        var _b='';
+        if(_canPh){
+          _b+='<button class="engd-pill engd-pill-g" onclick="pickEngPhoto(\''+id+'\')">'+(engPhoto(e)?'Change photo':'Add photo')+'</button>';
+          if(engPhoto(e))_b+='<button class="engd-pill engd-pill-g" onclick="removeEngPhoto(\''+id+'\')">Remove photo</button>';
+        }
+        if(admin)_b+='<button class="engd-pill engd-pill-p" onclick="closeEngDetail();editEng(\''+id+'\')">Edit</button><button class="engd-pill engd-pill-g" onclick="closeEngDetail();delEng(\''+id+'\')">Delete</button>';
+        return '<div class="engd-btns" style="flex-wrap:wrap;">'+_b+'</div>';
+      })()
       +profLeft
     +'</div>';
 
