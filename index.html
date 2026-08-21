@@ -954,7 +954,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.77 · 19 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.81 · 19 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1059,7 +1059,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.77 · 19 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.81 · 19 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1577,14 +1577,12 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <span style="color:#0f766e;">BIM Team member</span>
         </label>
       </div>
-      <div class="ff full" style="display:flex;align-items:center;gap:10px;padding:6px 0;">
-        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:12px;">
-          <input type="checkbox" id="em-crossdisc" style="width:15px;height:15px;accent-color:#1e3a5f;">
-          <span style="color:#1e3a5f;">Books across disciplines</span>
-          <span style="font-weight:400;color:var(--tx3);font-size:10px;">(Director / Technical Director)</span>
-        </label>
+      <div class="ff full" style="padding:6px 0;">
+        <label style="display:block;margin-bottom:5px;">Can be booked in <span style="font-weight:400;color:var(--tx3);font-size:10px;">— tick more than one for cross-discipline</span></label>
+        <div id="em-allowed" style="display:flex;flex-wrap:wrap;gap:12px;"></div>
+        <input type="checkbox" id="em-crossdisc" style="display:none;">
       </div>
-      <div class="ff"><label id="em-disc-label">Discipline *</label><select id="em-disc" onchange="updateDesigPreview()"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
+      <div class="ff" id="em-disc-wrap"><label id="em-disc-label">Discipline *</label><select id="em-disc" onchange="updateDesigPreview()"><option>HVAC</option><option>PH&amp;E</option><option>ELE</option><option>ELV</option></select></div>
       <div class="ff"><label>Office *</label><select id="em-off"><option>DXB</option><option>EGY</option><option>IND</option></select></div>
       <div class="ff"><label id="em-grade-label">Grade Tier (cost)</label><select id="em-grade" onchange="updateDesigPreview()"></select></div>
       <div class="ff"><label>Capacity hrs/wk</label><input type="number" id="em-cap" value="45" min="1" max="80"></div>
@@ -3666,8 +3664,11 @@ function progNamed(p){
   if(list.length>1)return true;
   const stored=Array.isArray(p&&p.programmes)?p.programmes:null;
   if(!stored||stored.length!==1)return false;
+  // Compare loosely — "Main Programme", "main programme" and "Main  programme"
+  // are all the untouched default and must not count as a rename.
   const n=String(stored[0].name||'').trim();
-  return !!n && n!=='Main programme';
+  const norm=n.toLowerCase().replace(/\s+/g,' ');
+  return !!n && norm!=='main programme' && norm!=='main program';
 }
 function progById(p,id){ const list=projProgrammes(p); return list.find(pr=>pr.id===id)||list[0]; }
 function progColorOf(p,id){ const pr=progById(p,id); return (pr&&pr.color)||PROG_COLORS[0]; }
@@ -8247,8 +8248,19 @@ function renderProj(){
           const wR=(wa===wb)?('W'+wa):('W'+wa+'\u2013W'+wb);
           return`<span style="display:inline-flex;align-items:center;gap:3px;white-space:nowrap;"><span style="width:7px;height:7px;border-radius:2px;background:${sc.bdr};flex-shrink:0;display:inline-block;"></span><span style="font-size:9px;color:var(--tx);font-weight:500;">${esc(o.st.name||'')}</span><span style="font-size:8px;color:var(--tx3);font-weight:600;">${wR}\u00b7${wks}w</span></span>`;
         }).join(''):`<span style="font-size:9px;color:var(--tx3);font-style:italic;">no stages</span>`;
+        // A thin bar per row, so multi-workstream projects keep the timeline that
+        // the flat layout gives everyone else instead of losing it to the row list.
+        const _span=Math.max(1,_ed-_sd);
+        const barSegs=mine.map(o=>{
+          const a=new Date(o.st.from),b=new Date(o.st.to);
+          const l=Math.max(0,Math.min(100,((a-_sd)/_span)*100));
+          const wdt=Math.max(1.2,Math.min(100-l,((b-a)/_span)*100));
+          return`<span style="position:absolute;left:${l}%;width:${wdt}%;top:0;bottom:0;background:${stageColor(o.si,o.st).bdr};border-radius:2px;"></span>`;
+        }).join('');
+        const barHtml=`<span style="position:relative;display:inline-block;width:92px;height:6px;background:#eef1f5;border-radius:3px;flex-shrink:0;overflow:hidden;">${barSegs}</span>`;
         return`<div style="display:flex;align-items:center;gap:6px;">
           <span style="display:inline-flex;align-items:center;gap:4px;min-width:96px;flex-shrink:0;font-size:9px;font-weight:700;color:${pr.color};white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"><span style="width:8px;height:8px;border-radius:2px;background:${pr.color};flex-shrink:0;display:inline-block;"></span>${esc(pr.name)}</span>
+          ${barHtml}
           <div style="display:flex;gap:7px;flex-wrap:wrap;align-items:center;">${chips}</div>
         </div>`;
       }).join('');
@@ -12021,7 +12033,13 @@ function renderProjCard(p, mode){
       const discBadge=isBIM
         ? ((eng.crossDisc||isUmbrella(eng))
             ? (isBimLead()
-                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this BIM member's hours under the chosen trade on this project (they stay BIM everywhere BIM is shown)" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #0d9488;border-radius:4px;background:#f0fdfa;color:#0d9488;font-weight:700;cursor:pointer;">${isUmbrella(eng)?`<option value="MEP"${_bimCur==='MEP'?' selected':''}>MEP</option>`:''}${MEP_DISCS.map(dd=>`<option value="${dd}"${_bimCur===dd?' selected':''}>${dd}</option>`).join('')}</select>`
+                ? `<select onchange="setBookDisc('${p.id}','${eng.id}',this.value)" onclick="event.stopPropagation()" title="Books across disciplines — files this BIM member's hours under the chosen trade on this project (they stay BIM everywhere BIM is shown)" style="width:62px;max-width:62px;font-size:9px;padding:1px 2px;border:1px solid #0d9488;border-radius:4px;background:#f0fdfa;color:#0d9488;font-weight:700;cursor:pointer;">${isUmbrella(eng)?`<option value="MEP"${_bimCur==='MEP'?' selected':''}>MEP</option>`:''}${(function(){
+                    // Offer only the trades this person is permitted in — that is
+                    // the point of the "can be booked in" boxes on their record.
+                    const _al=(typeof engAllowed==='function')?engAllowed(eng):[];
+                    const _opts=(_al.length?_al:MEP_DISCS);
+                    return _opts.map(dd=>`<option value="${dd}"${_bimCur===dd?' selected':''}>${dd}</option>`).join('');
+                  })()}}</select>`
                 : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;" title="Booked trade for this BIM member on this project — only the BIM Lead or admin can change it">${esc(_bimCur)}</span>`)
             : `<span class="bdg" style="background:#0d9488;color:#fff;font-size:8px;">BIM</span>`)
         : ((eng.crossDisc||isUmbrella(eng))
@@ -12970,12 +12988,64 @@ function computeDesig(grade,disc){
   grade=(grade||'').trim(); disc=(disc||'').trim();
   // Department heads carry no discipline suffix (was hardcoded to 'MEP'; now any
   // discipline flagged as the management group in Settings).
-  if(isUmbrellaDisc(disc))disc='';
+  // 'MEP' means cross-discipline and SHOULD read as the suffix ("Lead Engineer -
+  // MEP"); the management group still carries none.
+  if(/^mep$/i.test(disc)){ /* keep — cross-discipline reads as "- MEP" */ }
+  else if(isUmbrellaDisc(disc)||/mang|mgmt|manage/i.test(disc))disc='';
   if(!grade&&!disc)return'';
   if(!disc)return grade;
   if(!grade)return disc;
   return grade+' - '+disc;
 }
+// ── Booking permissions ─────────────────────────────────────────────────────
+// Rather than a boolean "books across disciplines", each engineer carries the
+// set of trades they may be booked into. One trade behaves exactly as before;
+// two or more sets disc='MEP' and keeps crossDisc true, so all existing reads of
+// e.disc and e.crossDisc keep working untouched — the checkboxes drive them
+// instead of replacing them.
+function allowedTrades(){
+  return (typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV'])
+    .filter(d=>!/^mep$/i.test(d)&&!/mang|mgmt|manage/i.test(d));
+}
+// Existing records have no list yet: derive it from what they already say.
+function engAllowed(e){
+  if(e&&Array.isArray(e.allowedDiscs)&&e.allowedDiscs.length)return e.allowedDiscs.slice();
+  if(e&&(e.crossDisc||(typeof isUmbrella==='function'&&isUmbrella(e))))return allowedTrades();
+  return (e&&e.disc&&allowedTrades().indexOf(e.disc)>=0)?[e.disc]:[];
+}
+function buildAllowedBoxes(sel){
+  const host=document.getElementById('em-allowed'); if(!host)return;
+  const chosen=sel||[];
+  host.innerHTML=allowedTrades().map(function(d){
+    const cfg=(typeof DISCIPLINE_CONFIG!=='undefined')?DISCIPLINE_CONFIG.find(x=>x.code===d):null;
+    return '<label style="display:flex;align-items:center;gap:5px;cursor:pointer;font-size:12px;font-weight:600;color:'+((cfg&&cfg.color)||'#1e3a5f')+';">'+
+      '<input type="checkbox" class="em-allow" value="'+esc(d)+'"'+(chosen.indexOf(d)>=0?' checked':'')+
+      ' onchange="onAllowedChange()" style="width:15px;height:15px;accent-color:'+((cfg&&cfg.color)||'#1e3a5f')+';">'+
+      esc((cfg&&cfg.label)||d)+'</label>';
+  }).join('');
+  onAllowedChange();
+}
+function readAllowed(){
+  return [...document.querySelectorAll('.em-allow')].filter(c=>c.checked).map(c=>c.value);
+}
+function onAllowedChange(){
+  const a=readAllowed();
+  const dsel=document.getElementById('em-disc');
+  const cross=document.getElementById('em-crossdisc');
+  if(cross)cross.checked=a.length>1;
+  if(dsel){
+    // Primary discipline is derived: the single tick, or MEP when several.
+    const want=a.length>1?'MEP':(a[0]||dsel.value);
+    const opt=[...dsel.options].find(o=>o.value===want||o.text===want||o.text.indexOf(want+' ')===0);
+    if(opt)dsel.value=opt.value;
+    dsel.disabled=a.length>0;
+    dsel.title=a.length?'Derived from the boxes above':'';
+    dsel.style.background=a.length?'#f5f7fa':'';
+  }
+  updateDesigPreview();
+}
+window.onAllowedChange=onAllowedChange;
+
 function updateDesigPreview(){
   const el=document.getElementById('em-desig'); if(!el)return;
   const grade=document.getElementById('em-grade').value;
@@ -12993,6 +13063,7 @@ function openEngModal(){
   document.getElementById('em-cap').value=45;
   document.getElementById('em-is-bim').checked=false;
   document.getElementById('em-crossdisc').checked=false;
+  buildAllowedBoxes([]);
   document.getElementById('em-disc-label').textContent='Discipline *';
   document.getElementById('em-grade-label').textContent='Grade Tier (cost)';
   fillGrade(false);
@@ -13013,6 +13084,7 @@ function editEng(id){
   const isBIM=e.team==='BIM';
   document.getElementById('em-is-bim').checked=isBIM;
   document.getElementById('em-crossdisc').checked=!!e.crossDisc;
+  buildAllowedBoxes(engAllowed(e));
   document.getElementById('em-disc-label').textContent=isBIM?'Sub-Discipline *':'Discipline *';
   document.getElementById('em-grade-label').textContent=isBIM?'BIM Grade':'Grade Tier (cost)';
   fillDisc();
@@ -13052,7 +13124,12 @@ async function saveEng(){
   if(jd)eng.joinDate=jd;
   const ed=document.getElementById('em-end-date').value;
   if(ed)eng.endDate=ed;
-  if(document.getElementById('em-crossdisc').checked)eng.crossDisc=true;
+  const _allow=readAllowed();
+  if(_allow.length){
+    eng.allowedDiscs=_allow;
+    eng.disc=_allow.length>1?'MEP':_allow[0];
+    if(_allow.length>1)eng.crossDisc=true; else delete eng.crossDisc;
+  } else if(document.getElementById('em-crossdisc').checked)eng.crossDisc=true;
   if(!isBIM)delete eng.subDisc;
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();invalidate('team');updSB();toast('Saved & synced ✓');
