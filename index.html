@@ -743,7 +743,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 .wt-totals td:first-child{text-align:left;padding-left:14px;font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
 
 /* Stats strip — use .mc cards from the app */
-.wt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin-top:12px;}
+.wt-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px;margin:4px 0 14px;}
 
 /* Summary panel */
 .wt-summary{margin-top:10px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--rl);padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04);}
@@ -782,12 +782,21 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-print-hdr-title{font-size:12px;font-weight:700;color:#1e3a5f;}
   body.wt-printing .wt-print-hdr-week{font-size:10px;color:#86868b;}
   body.wt-printing .wt-print-hdr-logo{font-size:9px;color:#86868b;}
-  /* Hide controls, tabs, stats, summary, ghost text */
+  /* Hide controls, tabs, summary, ghost text.
+     .wt-stats is deliberately NOT hidden — the utilisation / billability strip
+     is wanted on the exported PDF. */
   body.wt-printing .wt-controls,
   body.wt-printing .wt-tabs,
-  body.wt-printing .wt-stats,
   body.wt-printing .wt-summary,
   body.wt-printing .wt-ghost{display:none!important;}
+  body.wt-printing .wt-stats{
+    display:grid!important;grid-template-columns:repeat(5,1fr);gap:6px;
+    margin:0 0 6px;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body.wt-printing .wt-stats .mc{padding:4px 6px;border:1px solid #d7dde5;border-radius:5px;}
+  body.wt-printing .wt-stats .mc-v{font-size:13px!important;margin:0!important;}
+  body.wt-printing .wt-stats .mc-l{font-size:7.5px;}
+  body.wt-printing .wt-stats .mc-s{font-size:7px;}
   /* Table — force fit by removing all min-widths */
   body.wt-printing .wt-tablewrap{
     border:none!important;overflow:visible!important;
@@ -954,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.83 · 21 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.84 · 22 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1059,7 +1068,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.83 · 21 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.84 · 22 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -5019,6 +5028,9 @@ function wtBuild(canEdit){
     c.innerHTML=html;return;
   }
 
+  // ── Week stats strip (above the table) ──
+  html+='<div class="wt-stats" id="wt-stats">'+wtStatsHTML(wtComputeStats())+'</div>';
+
   // ── Table ──
   html+='<div class="wt-tablewrap"><table class="wt-table"><thead><tr class="wt-h1">';
   const nameLabel=WT_tab==='bim'?'BIM Team':'Engineer';
@@ -5214,23 +5226,8 @@ function wtBuild(canEdit){
   }
   html+='</div>';
 
-  // Stats strip
-  const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
-  const billableForecast=Object.values(projForecastTotals).reduce((a,b)=>a+b,0);
-  const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training+nbTot.admin;
-  html+='<div class="wt-stats">';
-  if(WT_view==='variance'){
-    html+=wtStatCardVar('Total Hours',grand,grandForecast);
-    html+=wtStatCardVar('Billable',billable,billableForecast);
-    html+=wtStatCardVar('Non-Billable',nonBill,null,'leave · comp · hol · training · admin');
-    html+=wtStatCard('Active Team',activeCount,'logged hours');
-  } else {
-    html+=wtStatCard('Total Hours',grand,'this week');
-    html+=wtStatCard('Billable',billable,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
-    html+=wtStatCard('Non-Billable',nonBill,'leave · comp · hol · training · admin');
-    html+=wtStatCard('Active Team',activeCount,'logged hours');
-  }
-  html+='</div>';
+  // Stats strip now renders ABOVE the table (see wt-stats above) — the numbers
+  // are built by wtStatsHTML/wtComputeStats so there is a single source of truth.
 
   // Summary panel
   if(WT_summaryOpen){
@@ -5241,6 +5238,93 @@ function wtBuild(canEdit){
   c.innerHTML=html;
   // Auto-grow any task notes that had content on load
   c.querySelectorAll('.wt-task-note').forEach(t=>{t.style.height='auto';t.style.height=t.scrollHeight+'px';});
+}
+
+// ═══════════════════════════════════════
+// WEEKLY TRACKER — WEEK UTILISATION + BILLABILITY
+// ═══════════════════════════════════════
+// Definitions deliberately mirror computeRange() so these agree with the UTIL
+// and BILLABLE figures on the Team Register cards:
+//   utilisation = ALL logged hours (projects + leave/comp/hol/training/admin) / capacity
+//   billable    = project hours only / capacity
+// Note both divide by CAPACITY, not by hours logged. The "share of hours
+// actually logged" reading answers a different question and is kept in the
+// Billable card's tooltip rather than dropped.
+function wtWeekCapacity(groups){
+  const mon=WT_weekMonday?new Date(WT_weekMonday):null;
+  let sun=null;
+  if(mon){ sun=new Date(mon); sun.setDate(sun.getDate()+6); }
+  let cap=0;
+  (groups||[]).forEach(function(g){ g.engs.forEach(function(e){
+    // Someone who hadn't joined yet, or had already left, contributes no
+    // capacity for this week — otherwise a leaver silently drags the whole
+    // team's utilisation down for every week after their exit.
+    if(mon){
+      if(e.joinDate && new Date(e.joinDate)>sun) return;
+      if(e.endDate  && new Date(e.endDate) <mon) return;
+    }
+    cap+=(+e.cap||45);
+  });});
+  return cap;
+}
+function wtComputeStats(){
+  const projects=wtColumnProjects();
+  const groups=wtEngineerRows();
+  let billable=0,nonBill=0,grand=0,billableForecast=0,grandForecast=0,activeCount=0,engCount=0;
+  groups.forEach(function(g){ g.engs.forEach(function(e){
+    engCount++;
+    const act=WT_actuals[e.id]||{};
+    let row=0;
+    projects.forEach(function(p){
+      const v=+act[p.id]||0; billable+=v; row+=v;
+      const f=wtForecast(p,e.id); billableForecast+=f; grandForecast+=f;
+    });
+    WT_NONBILL.forEach(function(nb){ const v=+act[nb.key]||0; nonBill+=v; row+=v; });
+    if(row>0)activeCount++;
+    grand+=row;
+  });});
+  const cap=wtWeekCapacity(groups);
+  return {cap:cap,billable:billable,nonBill:nonBill,grand:grand,
+    billableForecast:billableForecast,grandForecast:grandForecast,
+    activeCount:activeCount,engCount:engCount,
+    utilPct:cap?Math.round(grand/cap*100):0,
+    billPct:cap?Math.round(billable/cap*100):0,
+    billOfLogged:grand>0?Math.round(billable/grand*100):0};
+}
+function wtPctColor(p){
+  if(p>100)return '#A32D2D';
+  if(p>=85)return '#3B6D11';
+  if(p>=50)return '#854F0B';
+  if(p>0)  return '#185FA5';
+  return '#5F5E5A';
+}
+function wtPctCard(id,label,pct,sub,tip){
+  const col=wtPctColor(pct);
+  return '<div class="mc" id="'+id+'"'+(tip?' title="'+esc(tip)+'"':'')+'>'
+    +'<div class="mc-l">'+label+'</div>'
+    +'<div class="mc-v" style="font-size:22px;font-weight:700;margin:2px 0;color:'+col+';">'+pct+'%</div>'
+    +'<div style="height:4px;background:var(--bdr);border-radius:3px;margin:3px 0 5px;"><div style="height:4px;width:'+Math.min(100,Math.max(0,pct))+'%;background:'+col+';border-radius:3px;"></div></div>'
+    +'<div class="mc-s">'+sub+'</div></div>';
+}
+// One builder used by BOTH the initial render and the live update, so the strip
+// can never drift out of step with the table underneath it.
+function wtStatsHTML(s){
+  let h='';
+  h+=wtPctCard('wt-sc-util','Utilisation',s.utilPct,
+      Math.round(s.grand)+' h of '+Math.round(s.cap)+' h capacity',
+      'All logged hours (including leave, holiday, training and admin) divided by team capacity for the week.');
+  h+=wtPctCard('wt-sc-bill','Billable',s.billPct,
+      Math.round(s.billable)+' h on projects',
+      'Project hours divided by capacity — same basis as the Team Register. As a share of hours actually logged this week: '+s.billOfLogged+'%.');
+  if(WT_view==='variance'){
+    h+=wtStatCardVar('Total Hours',s.grand,s.grandForecast);
+    h+=wtStatCardVar('Non-Billable',s.nonBill,null,'leave \u00b7 comp \u00b7 hol \u00b7 training \u00b7 admin');
+  }else{
+    h+=wtStatCard('Total Hours',s.grand,'this week');
+    h+=wtStatCard('Non-Billable',s.nonBill,'leave \u00b7 comp \u00b7 hol \u00b7 training \u00b7 admin');
+  }
+  h+=wtStatCard('Active Team',s.activeCount,'of '+s.engCount+' logged hours');
+  return h;
 }
 
 function wtStatCard(label,val,sub){
@@ -5435,41 +5519,13 @@ function wtUpdateAllTotals(){
     WT_NONBILL.forEach(nb=>{setTot(nb.key,nbTot[nb.key]||'');});
     setTot('grand',grand||'—');
   }
-  // Update stat cards
-  const billable=Object.values(projTotals).reduce((a,b)=>a+b,0);
-  const billableForecast=Object.values(projForecastTotals).reduce((a,b)=>a+b,0);
-  const nonBill=nbTot.leave+nbTot.compoff+nbTot.holiday+nbTot.training+nbTot.admin;
-  const cards=document.querySelectorAll('.wt-stats > .mc');
-  if(cards.length>=4){
-    const updateCard=(card,actual,forecast,fallbackSub)=>{
-      const v=card.querySelector('.mc-v');const s=card.querySelector('.mc-s');
-      if(v)v.textContent=actual;
-      card.classList.remove('wt-card-match','wt-card-warn','wt-card-over');
-      if(WT_view==='variance'&&forecast!=null){
-        const diff=actual-forecast;
-        const sign=diff>0?'+':'';
-        const ratio=forecast===0?(actual>0?1:0):Math.abs(diff)/forecast;
-        if(actual>0||forecast>0){
-          card.classList.add(ratio<0.05?'wt-card-match':ratio<0.2?'wt-card-warn':'wt-card-over');
-        }
-        const diffTxt=(actual>0&&forecast>0&&diff!==0)?' · '+sign+Math.round(diff)+'h':'';
-        if(s)s.textContent='vs '+forecast+'h forecast'+diffTxt;
-      } else if(s&&fallbackSub){
-        s.textContent=fallbackSub;
-      }
-    };
-    if(WT_view==='variance'){
-      updateCard(cards[0],grand,grandForecast);
-      updateCard(cards[1],billable,billableForecast);
-      updateCard(cards[2],nonBill,null,'leave · comp · hol · training · admin');
-      updateCard(cards[3],activeCount,null,'logged hours');
-    } else {
-      updateCard(cards[0],grand,null,'this week');
-      updateCard(cards[1],billable,null,grand>0?Math.round(billable/grand*100)+'% of total':'0%');
-      updateCard(cards[2],nonBill,null,'leave · comp · hol · training · admin');
-      updateCard(cards[3],activeCount,null,'logged hours');
-    }
-  }
+  // Stats strip — rebuilt wholesale from the single wtStatsHTML builder.
+  // The previous version patched cards by ARRAY POSITION behind a
+  // `cards.length>=4` guard, so adding a card silently fed the wrong number to
+  // the wrong card. The strip holds no inputs, so replacing its innerHTML
+  // cannot steal focus from whatever cell is being typed into.
+  const _sc=document.getElementById('wt-stats');
+  if(_sc)_sc.innerHTML=wtStatsHTML(wtComputeStats());
 }
 
 async function wtSaveCell(engId,key){
