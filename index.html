@@ -963,7 +963,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.84 · 22 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.85 · 22 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1068,7 +1068,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.84 · 22 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.85 · 22 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -2647,7 +2647,10 @@ document.addEventListener('visibilitychange',function(){
   })();
 });
 
-async function sbFetch(path,method='GET',body=null,prefer='return=representation'){
+// wantCount=true returns {rows,total} instead of a bare array, reading the total
+// out of the Content-Range header (PostgREST sends it when Prefer: count=exact).
+// Existing callers pass 4 args or fewer and are completely unaffected.
+async function sbFetch(path,method='GET',body=null,prefer='return=representation',wantCount=false){
   if(typeof ensureFreshToken==='function' && method!=='GET'){ await ensureFreshToken(); } // refresh before writes
   for(let attempt=0;attempt<2;attempt++){
     const token=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
@@ -2670,7 +2673,19 @@ async function sbFetch(path,method='GET',body=null,prefer='return=representation
       if(ok) continue;
     }
     if(!r.ok)throw new Error(await r.text());
-    const t=await r.text();return t?JSON.parse(t):[];
+    const t=await r.text();
+    const rows=t?JSON.parse(t):[];
+    if(!wantCount)return rows;
+    // Content-Range looks like "0-999/45231"; the tail is the total. It can be
+    // "*" if the server declined to count, in which case total stays null and
+    // the caller falls back to sequential paging.
+    let total=null;
+    try{
+      const cr=r.headers.get('Content-Range')||'';
+      const tail=cr.split('/')[1];
+      if(tail&&tail!=='*'){ const n=parseInt(tail,10); if(!isNaN(n))total=n; }
+    }catch(e){}
+    return {rows:rows,total:total};
   }
 }
 async function sbGet(t){return sbFetch(t+'?select=*');}
@@ -2683,21 +2698,75 @@ async function saveDisciplines(){
     return true;
   }catch(e){ console.error('saveDisciplines failed',e); toast('Save failed — check connection.'); return false; }
 }
-// Paginated fetch — PostgREST caps each response at 1000 rows. This pages
-// through the entire table in 1000-row batches so nothing is ever truncated.
-// (Critical for project_hours / weekly_actuals which exceed 1000 rows.)
+// Paginated fetch. PostgREST caps each response at 1000 rows, so large tables
+// (project_hours, weekly_actuals) must be paged.
+//
+// This used to walk the pages ONE AT A TIME, awaiting each before requesting the
+// next — 45k rows meant 45 sequential round trips, which was the bulk of a ~10s
+// cold load. Now the first page doubles as a probe: it reports the server's real
+// page size (batch.length) and the total row count (Content-Range), so every
+// remaining page is requested in parallel.
+//
+// Deliberately NOT done: raising the requested limit above 1000. The server cap
+// is enforced server-side, so a larger limit still returns 1000 rows — and the
+// old `batch.length < PAGE` test would then read that as "last page" and
+// silently discard everything after the first thousand. Using the ACTUAL
+// returned length as the page size makes this correct at any server cap.
 async function sbGetAll(path){
   const sep=path.includes('?')?'&':'?';
-  const PAGE=1000;
+  const REQ=1000;   // what we ask for; the server may hand back fewer
+  const WAVE=8;     // parallel requests in flight at once — enough to collapse
+                    // the round trips, few enough not to stall a phone
+  const t0=(typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();
+  let first;
+  try{
+    first=await sbFetch(path+sep+'limit='+REQ+'&offset=0','GET',null,'count=exact',true);
+  }catch(e){
+    // count=exact rejected (or any other first-page failure) — fall all the way
+    // back to the original sequential walk rather than returning partial data.
+    return _sbGetAllSequential(path,sep,REQ);
+  }
+  const head=Array.isArray(first.rows)?first.rows:[];
+  const page=head.length;
+  if(!page)return [];
+  const total=first.total;
+  // No usable count header → can't plan parallel offsets safely, so walk it.
+  if(total==null)return _sbGetAllSequential(path,sep,REQ);
+  if(total<=page){ _sbLogLoad(path,total,1,t0); return head; }
+
+  const offsets=[];
+  for(let o=page;o<total;o+=page)offsets.push(o);
+  const all=head.slice();
+  for(let i=0;i<offsets.length;i+=WAVE){
+    const wave=offsets.slice(i,i+WAVE);
+    const parts=await Promise.all(wave.map(function(o){
+      return sbFetch(path+sep+'limit='+page+'&offset='+o);
+    }));
+    // Promise.all preserves order, and waves run in sequence, so rows land in
+    // offset order without any extra sorting.
+    parts.forEach(function(b){ if(Array.isArray(b))for(let k=0;k<b.length;k++)all.push(b[k]); });
+  }
+  _sbLogLoad(path,all.length,offsets.length+1,t0);
+  return all;
+}
+// Original one-page-at-a-time walk. Kept as the fallback for any server that
+// won't give us a count, so behaviour degrades to "slow" and never to "wrong".
+async function _sbGetAllSequential(path,sep,PAGE){
   let offset=0, all=[];
   for(let guard=0; guard<100; guard++){ // hard cap 100k rows
     const batch=await sbFetch(path+sep+'limit='+PAGE+'&offset='+offset);
     if(!Array.isArray(batch)||batch.length===0)break;
     all=all.concat(batch);
     if(batch.length<PAGE)break; // last page
-    offset+=PAGE;
+    offset+=batch.length;
   }
   return all;
+}
+function _sbLogLoad(path,rows,reqs,t0){
+  try{
+    const ms=Math.round(((typeof performance!=='undefined'&&performance.now)?performance.now():Date.now())-t0);
+    console.log('[load] '+String(path).split('?')[0]+': '+rows+' rows in '+reqs+' request(s), '+ms+' ms');
+  }catch(e){}
 }
 async function sbUpsert(table,row){
   // merge-duplicates = UPDATE on conflict, never errors on duplicate key
@@ -2768,7 +2837,14 @@ async function initApp(opts){
     // loads independently; only failure of CORE data (engineers/projects/hours)
     // engages the fallback. Non-core tables degrade gracefully with a warning.
     const wrap=(pr,label)=>pr.then(d=>({ok:true,d})).catch(e=>{console.warn('load failed:',label,e&&e.message);return{ok:false,d:[],label};});
-    const[engsR,projsR,setsR,leaveR,mgmtR,holR,projHrsR,propRows,rolesRows]=await Promise.all([wrap(sbGet('engineers'),'engineers'),wrap(sbGet('projects'),'projects'),wrap(sbFetch('settings?select=*'),'settings'),wrap(sbGet('leave_hrs'),'leave'),wrap(sbGet('mgmt_hrs'),'mgmt'),wrap(sbGet('holidays'),'holidays'),wrap(sbGetAll('project_hours?select=*'),'project_hours'),safeGet('proposals'),safeGet('engineer_roles')]);
+    // project_hours is by far the biggest table, and only these four columns are
+    // ever read (see the weeklyHrs fill below). select=* also dragged id,
+    // created_at and updated_at across the wire on every one of tens of
+    // thousands of rows. The snapshot and full-export callers still use select=*
+    // deliberately — an archive should be complete.
+    const _t0Load=(typeof performance!=='undefined'&&performance.now)?performance.now():Date.now();
+    const[engsR,projsR,setsR,leaveR,mgmtR,holR,projHrsR,propRows,rolesRows]=await Promise.all([wrap(sbGet('engineers'),'engineers'),wrap(sbGet('projects'),'projects'),wrap(sbFetch('settings?select=*'),'settings'),wrap(sbGet('leave_hrs'),'leave'),wrap(sbGet('mgmt_hrs'),'mgmt'),wrap(sbGet('holidays'),'holidays'),wrap(sbGetAll('project_hours?select=project_id,engineer_id,week_index,hours'),'project_hours'),safeGet('proposals'),safeGet('engineer_roles')]);
+    try{ console.log('[load] all tables settled in '+Math.round((((typeof performance!=='undefined'&&performance.now)?performance.now():Date.now()))-_t0Load)+' ms'); }catch(e){}
     const coreFail=[engsR,projsR,projHrsR].filter(x=>!x.ok).map(x=>x.label);
     if(coreFail.length)throw new Error('Core data failed to load: '+coreFail.join(', '));
     const softFail=[setsR,leaveR,mgmtR,holR].filter(x=>!x.ok).map(x=>x.label);
@@ -5316,13 +5392,11 @@ function wtStatsHTML(s){
   h+=wtPctCard('wt-sc-bill','Billable',s.billPct,
       Math.round(s.billable)+' h on projects',
       'Project hours divided by capacity — same basis as the Team Register. As a share of hours actually logged this week: '+s.billOfLogged+'%.');
-  if(WT_view==='variance'){
-    h+=wtStatCardVar('Total Hours',s.grand,s.grandForecast);
-    h+=wtStatCardVar('Non-Billable',s.nonBill,null,'leave \u00b7 comp \u00b7 hol \u00b7 training \u00b7 admin');
-  }else{
-    h+=wtStatCard('Total Hours',s.grand,'this week');
-    h+=wtStatCard('Non-Billable',s.nonBill,'leave \u00b7 comp \u00b7 hol \u00b7 training \u00b7 admin');
-  }
+  // Total Hours reads the same in both views — the "vs Nh forecast" line was
+  // noise on the strip. Per-cell and per-row forecast comparison is still there
+  // in the table itself when Forecast vs Actual view is on.
+  h+=wtStatCard('Total Hours',s.grand,'this week');
+  h+=wtStatCard('Non-Billable',s.nonBill,'leave \u00b7 comp \u00b7 hol \u00b7 training \u00b7 admin');
   h+=wtStatCard('Active Team',s.activeCount,'of '+s.engCount+' logged hours');
   return h;
 }
