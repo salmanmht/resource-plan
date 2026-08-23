@@ -167,7 +167,7 @@
   .sidebar-section-label{font-size:8px;font-weight:700;letter-spacing:.065em;text-transform:uppercase;color:#86868b;padding:10px 16px 4px;}.sidebar-nav{padding:0 8px;}.sidebar-nav-button{width:100%;display:flex;align-items:center;gap:9px;padding:8px 9px;border:0;border-radius:8px;background:transparent;color:#424245;font-size:11px;font-weight:600;text-align:left;cursor:pointer;transition:.12s;}.sidebar-nav-button:hover{background:#f5f5f7;color:#1d1d1f;}.sidebar-nav-button.active{background:rgba(0,122,255,.1);color:#007aff;font-weight:750;}.sidebar-nav-icon{width:16px;text-align:center;color:inherit;flex:0 0 16px;font-size:12px;}.sidebar-nav-pill{margin-left:auto;font-size:8px;color:#86868b;border:1px solid #d2d2d7;background:#fff;border-radius:20px;padding:1px 6px;}.sidebar-nav-button.active .sidebar-nav-pill{color:#007aff;border-color:transparent;background:rgba(0,122,255,.1);}
   .sidebar-stage{margin:3px 12px 5px;padding:9px 10px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;}.sidebar-stage label{font-size:8px!important;text-transform:uppercase;letter-spacing:.06em;color:#86868b!important;display:block;margin-bottom:5px;}.sidebar-stage select{width:100%;padding:6px 8px!important;font-size:11px!important;font-weight:700!important;}.sidebar-stage-actions{display:flex;gap:4px;margin-top:6px;}.sidebar-stage-actions button{flex:1;border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:7px;padding:5px 4px;font-size:9px;font-weight:700;cursor:pointer;}.sidebar-stage-actions button:hover{border-color:#007aff;color:#007aff;background:#e8f0fe;}
   .sidebar-status{margin:7px 12px 0;padding:8px 10px;border:1px solid #e1e1e6;border-radius:9px;background:#fafafb;display:flex;align-items:center;gap:6px;font-size:10px;color:#6e6e73;}.sidebar-status-dot{width:6px;height:6px;border-radius:50%;background:#34c759;flex:0 0 auto;}.sidebar-status-dot.saving{background:#ff9500;}.sidebar-status-dot.error{background:#ff3b30;}
-  .sidebar-actions{margin-top:auto;padding:12px;border-top:1px solid #d2d2d7;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fff;}.sidebar-action{border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:8px;padding:8px 6px;font-size:10px;font-weight:700;cursor:pointer;line-height:1.2;}.sidebar-action:hover{background:#f5f5f7;}.sidebar-action.export{background:#167344;color:#fff;border-color:#167344;}.sidebar-action.print{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}.sidebar-action.full{grid-column:span 2;}.sidebar-signout{border:0;background:transparent;color:#86868b;font-size:10px;padding:5px;cursor:pointer;}.sidebar-signout:hover{color:#ff3b30;}
+  .sidebar-actions{margin-top:auto;padding:12px;border-top:1px solid #d2d2d7;display:grid;grid-template-columns:1fr 1fr;gap:6px;background:#fff;}.sidebar-action{border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:8px;padding:8px 6px;font-size:10px;font-weight:700;cursor:pointer;line-height:1.2;}.sidebar-action:hover{background:#f5f5f7;}.sidebar-action.export{background:#167344;color:#fff;border-color:#167344;}.sidebar-action.print{background:#1e3a5f;color:#fff;border-color:#1e3a5f;}.sidebar-action.full{grid-column:span 2;}.sidebar-signout{border:0;background:transparent;color:#86868b;font-size:10px;padding:5px;cursor:pointer;}.sidebar-signout.full{grid-column:span 2;}.sidebar-signout:hover{color:#ff3b30;}
   .pump-main{margin-left:240px;min-width:0;min-height:100dvh;}.sidebar-content{max-width:none!important;margin:0!important;padding:16px 20px 28px!important;}.pump-mobile-bar{display:none;}
   .sidebar-backdrop{display:none;}
   @media(max-width:900px){.pump-sidebar{transform:translateX(-100%);transition:transform .22s ease;box-shadow:12px 0 35px rgba(0,0,0,.16);}.pump-sidebar.open{transform:translateX(0);}.sidebar-backdrop.open{display:block;position:fixed;inset:0;background:rgba(0,0,0,.28);z-index:299;}.pump-main{margin-left:0;}.pump-mobile-bar{display:flex;position:sticky;top:0;z-index:200;align-items:center;gap:10px;padding:9px 12px;background:rgba(255,255,255,.92);backdrop-filter:blur(16px);border-bottom:1px solid #d2d2d7;}.pump-mobile-menu{border:0;background:#f5f5f7;color:#424245;border-radius:8px;width:30px;height:30px;font-size:16px;cursor:pointer;}.pump-mobile-title{font-size:12px;font-weight:750;color:#1d1d1f;flex:1;}.pump-mobile-save{font-size:9px;color:#86868b;}.sidebar-content{padding:12px!important;}}
@@ -706,9 +706,22 @@ function AuthScreen({onAuthed}) {
         const { error } = await sb.auth.signInWithPassword({ email, password });
         if (error) throw error;
       } else {
-        const { error } = await sb.auth.signUp({ email, password });
+        const { data, error } = await sb.auth.signUp({ email, password });
         if (error) throw error;
-        setInfo("Account created. If email confirmation is enabled on your Supabase project, check your inbox before logging in.");
+        const normalizedEmail = email.trim().toLowerCase();
+        if (data && data.session) {
+          const { data: roster } = await sb.from('engineers').select('id,active').eq('email', normalizedEmail).maybeSingle();
+          if (!roster || roster.active === false) {
+            const { error: requestError } = await sb.from('pending_users').upsert(
+              {email:normalizedEmail, status:'pending', requested_at:new Date().toISOString()},
+              {onConflict:'email', ignoreDuplicates:true}
+            );
+            if (requestError) throw requestError;
+          }
+          setInfo("Account created and your access request is pending administrator approval.");
+        } else {
+          setInfo("Account created. Check your inbox to confirm your email, then sign in to submit or view your access request.");
+        }
       }
     } catch (e2) {
       setErr(e2.message || "Something went wrong.");
@@ -855,9 +868,9 @@ function buildPumpWorkbook(ExcelJSLib, proj, pumps, stageName) {
   sch.getCell("G2").value = `Stage: ${stageName||proj.stage||""}`;
   sch.getCell("J2").value = `Rev: ${proj.revision||""}`;
   sch.getCell("A3").value = `Date: ${proj.date||""}`;
-  sch.getCell("D3").value = `Calc: ${proj.calcBy||""}`;
-  sch.getCell("G3").value = `Checked: ${proj.checkedBy||""}`;
-  sch.getCell("J3").value = `Reviewed: ${proj.reviewedBy||""}`;
+  sch.getCell("D3").value = `Prepared: ${proj.calcBy||""}${proj.calcDate?"  "+proj.calcDate:""}`;
+  sch.getCell("G3").value = `Checked: ${proj.checkedBy||""}${proj.checkedDate?"  "+proj.checkedDate:""}`;
+  sch.getCell("J3").value = `Approved: ${proj.reviewedBy||""}${proj.reviewedDate?"  "+proj.reviewedDate:""}`;
   [2,3].forEach(r=>{ sch.getRow(r).font={size:9,color:{argb:XL.slate}}; });
 
   const schHdr = ["No.","System","Tag","Pipe","Method","Q/Pump (L/s)","Total Flow (L/s)","Total Head (m)","Motor (kW)","Arrangement","Total No.","Velocity (m/s)"];
@@ -928,7 +941,7 @@ function buildPumpWorkbook(ExcelJSLib, proj, pumps, stageName) {
 
     title(`${idx+1}. ${p.name||"Pump"}${p.tag?`  [${p.tag}]`:""}`);
     meta(`${proj.name||""} · ${proj.client||""} · Stage ${stageName||proj.stage||""} · Rev ${proj.revision||""} · ${proj.date||""}`);
-    meta(`Type: ${TYPE_LBL[p.type]} · Pipe: ${mat.label} · Calc ${proj.calcBy||"-"} / Check ${proj.checkedBy||"-"} / Review ${proj.reviewedBy||"-"}`);
+    meta(`Type: ${TYPE_LBL[p.type]} · Pipe: ${mat.label} · Prepared ${proj.calcBy||"-"} / Checked ${proj.checkedBy||"-"} / Approved ${proj.reviewedBy||"-"}`);
     meta(`Amber cells are inputs — change them and the whole sheet recalculates.`);
     r++;
 
@@ -1407,7 +1420,7 @@ function CalcSheet({pump, idx, proj}) {
         <div className="calc-card-title">{String(idx+1).padStart(2,"0")}. {pump.name}</div>
         <div className="calc-card-meta"><span>Tag: <b>{pump.tag||'—'}</b></span><span>│</span><span>Type: {TYPE_LBL[pump.type]}</span><span>│</span><span>Pipe: {mat.label}</span><span>│</span><span>{res.config}</span><span>│</span><span className="calc-card-expand">{open?'▾ Collapse':'▸ Expand'}</span></div>
       </div>
-      <div className="calc-card-project"><div className="calc-card-project-name">{proj.name}</div><div className="calc-card-project-meta">{proj.client||'—'} · Stage {proj.stage||'—'} · Rev {proj.revision||'—'}<br/>Date: {proj.date||'—'}<br/>Calc: {proj.calcBy||'—'} / Check: {proj.checkedBy||'—'} / Rev: {proj.reviewedBy||'—'}</div></div>
+      <div className="calc-card-project"><div className="calc-card-project-name">{proj.name}</div><div className="calc-card-project-meta">{proj.client||'—'} · Stage {proj.stage||'—'} · Rev {proj.revision||'—'}<br/>Date: {proj.date||'—'}<br/>Prepared: {proj.calcBy||'—'}{proj.calcDate?' '+proj.calcDate:''} / Checked: {proj.checkedBy||'—'}{proj.checkedDate?' '+proj.checkedDate:''} / Approved: {proj.reviewedBy||'—'}{proj.reviewedDate?' '+proj.reviewedDate:''}</div></div>
     </header>
     <div className="calc-card-body">
       <div className="calc-overview">{metrics.map(([label,value],i)=><div key={label} className={`calc-overview-metric ${i===3?'selection':''}`}><span>{label}</span><b>{value}</b></div>)}</div>
@@ -1543,15 +1556,261 @@ const DEMO = [
   {id:_id++,...DEFS.irrigation, name:"Landscape Irrigation Pump",tag:"IRR-P-01"},
 ];
 
-const EMPTY_META = {revision:"01", date:new Date().toISOString().slice(0,10), calcBy:"", checkedBy:"", reviewedBy:""};
+const EMPTY_META = {revision:"01", date:new Date().toISOString().slice(0,10), calcBy:"", calcDate:"", checkedBy:"", checkedDate:"", reviewedBy:"", reviewedDate:""};
 
-function App({session, projectId, projectRow, onBackToProjects}) {
+function AccessPendingScreen({session, reload}) {
+  const email = (session && session.user && session.user.email || '').toLowerCase();
+  const [state, setState] = React.useState('loading');
+  const [message, setMessage] = React.useState('Checking access request…');
+  React.useEffect(() => {
+    let alive = true;
+    (async () => {
+      try {
+        const {data, error} = await sb.from('pending_users').select('id,status,requested_at,note').eq('email', email).maybeSingle();
+        if (!alive) return;
+        if (error) throw error;
+        if (data) {
+          setState(data.status || 'pending');
+          setMessage(data.status === 'rejected' ? (data.note || 'Your access request was not approved. Contact a PumpCalcTool administrator.') : 'Your access request is awaiting review by a PumpCalcTool administrator.');
+          return;
+        }
+        const {error: insertError} = await sb.from('pending_users').insert({email, status:'pending', requested_at:new Date().toISOString()});
+        if (insertError) throw insertError;
+        if (alive) { setState('pending'); setMessage('Your access request has been submitted. An administrator can approve it from Team & Access.'); }
+      } catch (e) {
+        if (alive) { setState('error'); setMessage('Access could not be checked or requested: ' + (e.message || e)); }
+      }
+    })();
+    return () => { alive = false; };
+  }, [email]);
+  const blocked = state === 'rejected' || state === 'error';
+  return <div style={{minHeight:'100vh',background:'#f5f5f7',display:'flex',alignItems:'center',justifyContent:'center',padding:20}}>
+    <div style={{width:'min(520px,94vw)',background:'#fff',border:'1px solid #d2d2d7',borderRadius:18,padding:'34px 36px',boxShadow:'0 12px 40px rgba(0,0,0,.08)',textAlign:'center'}}>
+      <div style={{width:52,height:52,borderRadius:14,margin:'0 auto 18px',background:blocked?'#fff0ee':'#e8faf0',color:blocked?'#c2410c':'#16803a',display:'flex',alignItems:'center',justifyContent:'center',fontSize:23,fontWeight:800}}>{blocked?'!':'✓'}</div>
+      <div style={{fontSize:10,fontWeight:800,letterSpacing:'.12em',textTransform:'uppercase',color:'#86868b',marginBottom:8}}>PumpCalcTool access</div>
+      <h1 style={{fontSize:22,letterSpacing:'-.03em',margin:'0 0 10px',color:'#1d1d1f'}}>{state==='loading'?'Checking access…':state==='rejected'?'Access not approved':'Access request pending'}</h1>
+      <p style={{fontSize:13,lineHeight:1.6,color:'#6e6e73',margin:'0 auto 18px',maxWidth:390}}>{message}</p>
+      <div style={{fontSize:11,color:'#86868b',background:'#f5f5f7',borderRadius:8,padding:'9px 12px',marginBottom:18,overflowWrap:'anywhere'}}>{email}</div>
+      <div style={{display:'flex',justifyContent:'center',gap:10}}>
+        <button onClick={reload} style={{padding:'8px 14px',border:'1px solid #d2d2d7',background:'#fff',borderRadius:8,fontSize:12,fontWeight:700,cursor:'pointer'}}>Check again</button>
+        <button onClick={()=>sb.auth.signOut()} style={{padding:'8px 14px',border:'none',background:'#1d1d1f',color:'#fff',borderRadius:8,fontSize:12,fontWeight:700,cursor:'pointer'}}>Sign out</button>
+      </div>
+    </div>
+  </div>;
+}
+
+function TeamAccessAdmin({onBack, session, team, roles, reload, canEdit}) {
+  const [tab, setTab] = React.useState('requests');
+  const [requests, setRequests] = React.useState([]);
+  const [rows, setRows] = React.useState([]);
+  const [roleRows, setRoleRows] = React.useState([]);
+  const [message, setMessage] = React.useState('');
+  const [busy, setBusy] = React.useState(false);
+  const [newEmail, setNewEmail] = React.useState('');
+  const [newRole, setNewRole] = React.useState('viewer');
+  const [newScope, setNewScope] = React.useState('global');
+  const currentEmail = (session && session.user && session.user.email || '').toLowerCase();
+  const autoIni = n => { const p=String(n||'').trim().split(/\s+/).filter(Boolean); return p.length ? (p[0][0]+(p.length>1?p[p.length-1][0]: '')).toUpperCase() : ''; };
+  const blank = {name:'',email:'',desig:'',initials:'',disc:'PH&E',office:'DXB',active:true,_new:true};
+  const load = React.useCallback(async () => {
+    setBusy(true); setMessage('');
+    const [reqRes, roleRes] = await Promise.all([
+      sb.from('pending_users').select('id,email,status,requested_at,reviewed_at,note').order('requested_at',{ascending:false}),
+      sb.from('engineer_roles').select('id,email,role,scope,active,created_at').order('email')
+    ]);
+    if (reqRes.error || roleRes.error) setMessage('Access data could not be loaded: ' + ((reqRes.error||roleRes.error).message||''));
+    setRequests(reqRes.data || []);
+    setRoleRows(roleRes.data || []);
+    setRows(team.map(t=>({...t})));
+    setBusy(false);
+  }, [team]);
+  React.useEffect(() => { load(); }, [load]);
+  const set = (i,k,v) => setRows(r=>r.map((x,j)=>j===i ? {...x,[k]:v}:x));
+  const pill = (role) => { const map={admin:['#fef3c7','#92400e','Admin'],director:['#dbeafe','#1d4ed8','Director'],mep_lead:['#dcfce7','#166534','MEP lead'],disc_lead:['#f3e8ff','#7e22ce','Discipline lead'],bim_lead:['#ffedd5','#9a3412','BIM lead'],viewer:['#f1f5f9','#475569','Viewer']}; const x=map[role]||map.viewer; return <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:6,background:x[0],color:x[1]}}>{x[2]}</span>; };
+  const activeRoles = (email) => roleRows.filter(r=>r.active!==false && (r.email||'').toLowerCase()===(email||'').toLowerCase());
+  async function saveMember(i) {
+    const r=rows[i]; if(!r.name || !r.name.trim()) { setMessage('Name is required.'); return; }
+    setBusy(true); const payload={name:r.name.trim(),email:(r.email||'').trim().toLowerCase()||null,desig:r.desig||'',initials:(r.initials||autoIni(r.name)).toUpperCase(),disc:r.disc||'PH&E',office:r.office||'',active:r.active!==false};
+    const q=r._new?sb.from('engineers').insert(payload):sb.from('engineers').update(payload).eq('id',r.id);
+    const {error}=await q; setBusy(false);
+    if(error){setMessage('Save failed: '+error.message);return;}
+    setMessage('Team member saved.'); await reload(); await load();
+  }
+  async function approve(req) {
+    setBusy(true); const email=(req.email||'').toLowerCase();
+    const existing=team.find(t=>(t.email||'').toLowerCase()===email);
+    let error=null;
+    if(existing) ({error}=await sb.from('engineers').update({active:true}).eq('id',existing.id));
+    else { const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); ({error}=await sb.from('engineers').insert({name,email,desig:'Pending profile setup',initials:autoIni(name),disc:'PH&E',office:'DXB',active:true})); }
+    if(!error) ({error}=await sb.from('pending_users').update({status:'approved',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',req.id));
+    setBusy(false); if(error){setMessage('Approval failed: '+error.message);return;} setMessage(email+' approved. Assign a role in the Roles tab.'); await reload(); await load();
+  }
+  async function reject(req) {
+    if(!window.confirm('Reject access for '+req.email+'?'))return; setBusy(true);
+    const {error}=await sb.from('pending_users').update({status:'rejected',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',req.id);
+    setBusy(false); if(error){setMessage('Rejection failed: '+error.message);return;} setMessage('Request rejected.'); await load();
+  }
+  async function addRole() {
+    if(!newEmail){setMessage('Select an active team member.');return;} setBusy(true);
+    const {error}=await sb.from('engineer_roles').insert({email:newEmail.toLowerCase(),role:newRole,scope:newScope||'global',active:true,created_by:session.user.id});
+    setBusy(false); if(error){setMessage('Role could not be added: '+error.message);return;} setMessage('Role granted.'); await load();
+  }
+  async function removeRole(r) {
+    if(!window.confirm('Remove '+r.role+' access from '+r.email+'?'))return; setBusy(true);
+    const {error}=await sb.from('engineer_roles').delete().eq('id',r.id); setBusy(false);
+    if(error){setMessage('Role removal failed: '+error.message);return;} setMessage('Role removed.'); await load();
+  }
+  const tabs=[['requests','Access requests'],['people','Team table'],['roles','Roles & access']];
+  const pending=requests.filter(r=>r.status==='pending');
+  return <div className="global-page" style={{minHeight:'100vh',background:'#f5f5f7'}}>
+    <div className="app-header" style={{background:'rgba(255,255,255,.9)',backdropFilter:'blur(20px)',borderBottom:'1px solid #d2d2d7',padding:'10px 20px'}}>
+      <div style={{maxWidth:1180,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><div style={{fontSize:9,letterSpacing:'.15em',textTransform:'uppercase',color:'#86868b',fontWeight:800}}>PumpCalcTool administration</div><div style={{fontSize:19,fontWeight:800,letterSpacing:'-.03em',color:'#1d1d1f'}}>Team & Access</div></div><button onClick={onBack} style={{padding:'6px 12px',background:'#fff',color:'#424245',border:'1px solid #d2d2d7',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer'}}>← All Projects</button></div>
+    </div>
+    <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px'}}>
+      {!canEdit && <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#9a3412',marginBottom:14}}>You can view team information, but only an administrator can grant, revoke, or approve access.</div>}
+      {message && <div style={{background:/failed|could not|error/i.test(message)?'#fff0ee':'#e8faf0',color:/failed|could not|error/i.test(message)?'#b91c1c':'#166534',borderRadius:9,padding:'9px 12px',fontSize:12,marginBottom:12}}>{message}</div>}
+      <div style={{display:'flex',gap:4,borderBottom:'1px solid #d2d2d7',marginBottom:18}}>{tabs.map(([key,label])=><button key={key} onClick={()=>setTab(key)} style={{position:'relative',padding:'9px 12px',border:'none',borderBottom:tab===key?'2px solid #007aff':'2px solid transparent',background:'transparent',fontSize:12,fontWeight:tab===key?800:600,color:tab===key?'#007aff':'#6e6e73',cursor:'pointer'}}>{label}{key==='requests'&&pending.length>0&&<span style={{marginLeft:6,fontSize:9,padding:'1px 5px',borderRadius:7,background:'#ff3b30',color:'#fff'}}>{pending.length}</span>}</button>)}</div>
+      {tab==='requests' && <div>{pending.length===0?<div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:30,textAlign:'center',color:'#86868b',fontSize:13}}>No pending access requests.</div>:<div style={{display:'grid',gap:9}}>{pending.map(r=><div key={r.id} style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:'14px 16px',display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><div><div style={{fontSize:13,fontWeight:800,color:'#1d1d1f'}}>{r.email}</div><div style={{fontSize:11,color:'#86868b',marginTop:3}}>Requested {r.requested_at?new Date(r.requested_at).toLocaleString():'—'}</div></div>{canEdit&&<div style={{display:'flex',gap:7}}><button disabled={busy} onClick={()=>approve(r)} style={{padding:'6px 11px',border:'none',borderRadius:7,background:'#16803a',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer'}}>Approve</button><button disabled={busy} onClick={()=>reject(r)} style={{padding:'6px 11px',border:'1px solid #fecaca',borderRadius:7,background:'#fff',color:'#b91c1c',fontSize:11,fontWeight:800,cursor:'pointer'}}>Reject</button></div>}</div>)}</div>}</div>}
+      {tab==='people' && <div>
+        <div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,overflowX:'auto'}}>
+          <div style={{minWidth:890}}>
+            <div style={{display:'grid',gridTemplateColumns:'1.25fr 1.65fr 1.15fr 80px 100px 100px 72px',gap:8,padding:'10px 12px',background:'#f5f5f7',fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#86868b'}}>
+              <div>Name</div><div>Email</div><div>Designation</div><div>Initials</div><div>Access</div><div>Status</div><div></div>
+            </div>
+            {rows.map((r,i)=><div key={r.id||'new'+i} style={{display:'grid',gridTemplateColumns:'1.25fr 1.65fr 1.15fr 80px 100px 100px 72px',gap:8,padding:'8px 12px',borderTop:'1px solid #f0f0f2',alignItems:'center',opacity:r.active===false?.55:1}}>
+              <input disabled={!canEdit} value={r.name||''} onChange={e=>set(i,'name',e.target.value)} style={IN}/>
+              <input disabled={!canEdit} value={r.email||''} onChange={e=>set(i,'email',e.target.value)} style={IN}/>
+              <input disabled={!canEdit} value={r.desig||''} onChange={e=>set(i,'desig',e.target.value)} style={IN}/>
+              <input disabled={!canEdit} value={r.initials||''} onChange={e=>set(i,'initials',e.target.value.toUpperCase())} placeholder={autoIni(r.name)} maxLength={4} style={{...IN,textAlign:'center',fontWeight:800}}/>
+              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>{activeRoles(r.email).length ? activeRoles(r.email).map(x=><React.Fragment key={x.id}>{pill(x.role)}</React.Fragment>) : <span style={{fontSize:10,color:'#86868b'}}>No role</span>}</div>
+              <label style={{display:'flex',gap:5,alignItems:'center',fontSize:11,color:'#424245'}}><input disabled={!canEdit} type='checkbox' checked={r.active!==false} onChange={e=>set(i,'active',e.target.checked)}/> Active</label>
+              <button disabled={!canEdit||busy} onClick={()=>saveMember(i)} style={{padding:'5px 7px',fontSize:10,fontWeight:800,border:'1px solid #d2d2d7',borderRadius:6,background:'#fff',cursor:'pointer'}}>Save</button>
+            </div>)}
+          </div>
+        </div>
+        {canEdit && <button onClick={()=>setRows(r=>[...r,{...blank}])} style={{marginTop:12,padding:'8px 13px',background:'#007aff',color:'#fff',border:'none',borderRadius:8,fontSize:12,fontWeight:800,cursor:'pointer'}}>+ Add team member</button>}
+      </div>}
+      {tab==='roles' && <div><div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:16,marginBottom:14}}><div style={{fontSize:10,fontWeight:800,textTransform:'uppercase',letterSpacing:'.08em',color:'#86868b',marginBottom:10}}>Grant access</div><div style={{display:'grid',gridTemplateColumns:'minmax(220px,1fr) 180px 150px auto',gap:9,alignItems:'end'}}><div><label style={lbl}>Team member</label><select disabled={!canEdit} value={newEmail} onChange={e=>setNewEmail(e.target.value)} style={{...IN,cursor:'pointer'}}><option value=''>— Select —</option>{rows.filter(r=>r.active!==false&&r.email).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(r=><option key={r.id} value={r.email}>{r.name} · {r.email}</option>)}</select></div><div><label style={lbl}>Role</label><select disabled={!canEdit} value={newRole} onChange={e=>setNewRole(e.target.value)} style={{...IN,cursor:'pointer'}}><option value='admin'>Admin</option><option value='director'>Director</option><option value='mep_lead'>MEP lead</option><option value='disc_lead'>Discipline lead</option><option value='bim_lead'>BIM lead</option><option value='viewer'>Viewer</option></select></div><div><label style={lbl}>Scope</label><select disabled={!canEdit} value={newScope} onChange={e=>setNewScope(e.target.value)} style={{...IN,cursor:'pointer'}}><option value='global'>All PumpCalcTool</option></select></div><button disabled={!canEdit||busy} onClick={addRole} style={{padding:'8px 13px',border:'none',borderRadius:8,background:'#007aff',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer'}}>Grant role</button></div><div style={{fontSize:11,color:'#86868b',marginTop:10}}>This mirrors the Resource Planning role taxonomy. Only Admin is currently an elevated PumpCalcTool permission; the remaining role labels are retained for controlled future project-level access.</div></div><div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,overflowX:'auto'}}><div style={{minWidth:720}}><div style={{display:'grid',gridTemplateColumns:'1.2fr 1.4fr 150px 140px 80px',gap:8,padding:'10px 12px',background:'#f5f5f7',fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#86868b'}}><div>Person</div><div>Email</div><div>Role</div><div>Scope</div><div></div></div>{roleRows.filter(r=>r.active!==false).map(r=>{const person=rows.find(x=>(x.email||'').toLowerCase()===(r.email||'').toLowerCase());return <div key={r.id} style={{display:'grid',gridTemplateColumns:'1.2fr 1.4fr 150px 140px 80px',gap:8,padding:'9px 12px',borderTop:'1px solid #f0f0f2',alignItems:'center',fontSize:12}}><div style={{fontWeight:700,color:'#1d1d1f'}}>{person?.name||'—'}</div><div style={{color:'#6e6e73',overflowWrap:'anywhere'}}>{r.email}</div><div>{pill(r.role)}</div><div style={{color:'#6e6e73'}}>{r.scope||'global'}</div><div>{canEdit&&<button disabled={busy||(r.role==='admin'&&(r.email||'').toLowerCase()===currentEmail)} onClick={()=>removeRole(r)} style={{padding:'4px 8px',border:'none',background:'transparent',color:'#b91c1c',fontSize:10,fontWeight:800,cursor:'pointer'}}>Remove</button>}</div></div>})}</div></div></div>}
+    </div>
+  </div>;
+}
+const IN = {width:'100%',minWidth:0,padding:'5px 7px',border:'1px solid #d2d2d7',borderRadius:6,fontSize:11,fontFamily:'inherit'};
+
+// ── TEAM ────────────────────────────────────────────────────────────────────
+// One fetch of the roster, shared by the badge, the sign-off dropdowns and the
+// Team admin screen. Initials are what land on the calculation sheet, so the
+// dropdowns show "Name (INI)" — picking the person, storing the initials.
+const TeamCtx = React.createContext({team:[], me:null, reload:()=>{}});
+function useTeamData(session) {
+  const email = (session && session.user && session.user.email || '').toLowerCase();
+  const [team, setTeam] = React.useState([]);
+  const [roles, setRoles] = React.useState([]);
+  const [ready, setReady] = React.useState(false);
+  const [pendingCount, setPendingCount] = React.useState(0);
+  const load = React.useCallback(async () => {
+    setReady(false);
+    const [teamRes, roleRes, pendingRes] = await Promise.all([
+      sb.from('engineers').select('id,name,email,desig,initials,disc,office,is_admin,active').order('name'),
+      sb.from('engineer_roles').select('id,email,role,scope,active,created_at').order('email'),
+      sb.from('pending_users').select('id',{count:'exact',head:true}).eq('status','pending')
+    ]);
+    setTeam(teamRes.data || []);
+    setRoles(roleRes.data || []);
+    setPendingCount(pendingRes.count || 0);
+    setReady(true);
+  }, []);
+  React.useEffect(() => { if (session) load(); else { setTeam([]); setRoles([]); setReady(false); } }, [load, session]);
+  const me = team.find(t => (t.email||'').toLowerCase() === email) || null;
+  const isAdmin = !!(me && me.active !== false && (me.is_admin || roles.some(r => r.active !== false && r.role === 'admin' && (r.email||'').toLowerCase() === email)));
+  return {team, roles, me, isAdmin, ready, pendingCount, reload:load};
+}
+// Person + date, side by side. Falls back to a free-text input if the roster is
+// empty or the stored value is someone no longer on it, so an old calc never
+// loses its signature just because the person left.
+function SignOff({label, who, when, onWho, onWhen, team, placeholderWho}) {
+  const active = team.filter(t => t.active !== false && t.initials);
+  const known  = !who || active.some(t => t.initials === who);
+  return (
+    <div>
+      <label style={{display:"block",fontSize:10,fontWeight:700,color:"#86868b",textTransform:"uppercase",letterSpacing:"0.06em",marginBottom:5}}>{label}</label>
+      <div style={{display:"flex",gap:6}}>
+        {known ? (
+          <select value={who||""} onChange={e=>onWho(e.target.value)}
+            style={{flex:1,minWidth:0,padding:"7px 8px",border:"1px solid #d2d2d7",borderRadius:8,fontSize:12,background:"#fff",fontFamily:"inherit"}}>
+            <option value="">{placeholderWho||"—"}</option>
+            {active.map(t => <option key={t.id} value={t.initials}>{t.name} ({t.initials})</option>)}
+          </select>
+        ) : (
+          <input value={who||""} onChange={e=>onWho(e.target.value)} title="Not on the current team list"
+            style={{flex:1,minWidth:0,padding:"7px 8px",border:"1px solid #f0a500",borderRadius:8,fontSize:12,fontFamily:"inherit"}} />
+        )}
+        <input type="date" value={when||""} onChange={e=>onWhen(e.target.value)}
+          style={{width:130,padding:"7px 8px",border:"1px solid #d2d2d7",borderRadius:8,fontSize:12,fontFamily:"inherit"}} />
+      </div>
+    </div>
+  );
+}
+
+// Signed-in user block, mirroring the Resource Plan sidebar.
+// Reads from THIS project's own `engineers` table (see pump-engineers.sql) —
+// a periodically refreshed COPY of the Resource Plan roster, because the two
+// apps are separate Supabase projects and cannot read each other's data.
+// If the email is not in the copy (new joiner not yet synced) it degrades to a
+// name derived from the address rather than showing nothing.
+function UserBadge({session, me}) {
+  const email = (session && session.user && session.user.email) || "";
+  const eng = me;
+  const derived = email ? email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "—";
+  const name  = (eng && eng.name)  || derived;
+  const desig = (eng && eng.desig) || "Meinhardt Group";
+  const admin = !!(eng && eng.is_admin);
+  return (
+    <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}} title={email}>
+      <div style={{width:30,height:30,borderRadius:9,flexShrink:0,background:"linear-gradient(135deg,#007aff,#5856d6)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,122,255,.2)"}}>
+        <span style={{fontSize:13,fontWeight:700,color:"#fff"}}>{name.charAt(0).toUpperCase()}</span>
+      </div>
+      <div style={{flex:1,minWidth:0}}>
+        <div style={{fontSize:13,fontWeight:700,color:"#1d1d1f",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",letterSpacing:"-.02em"}}>{name}</div>
+        <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2,flexWrap:"wrap"}}>
+          <span style={{fontSize:9,color:"#8e8e93",lineHeight:1.3}}>{desig}</span>
+          <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:"rgba(0,122,255,.1)",color:"#007aff"}}>{admin?"Admin":"Team"}</span>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function App({session, projectId, projectRow, onBackToProjects, team}) {
   const userId = session.user.id;
   const [proj, setProj] = useState(projectRow.project); // shared across stages: name + client only
   const [pumps, setPumps] = useState([]);
   const [meta, setMeta]   = useState(EMPTY_META);        // PER-STAGE: revision/date/calcBy/checkedBy/reviewedBy
   const [editId, setEditId]   = useState(null);
-  const [tab, setTab]         = useState("setup");
+  const [tab, _setTab]        = useState("setup");
+  // Browser Back used to leave the site entirely from any in-app view, because
+  // switching workspace tabs never touched history — the previous entry was
+  // still whatever page the user arrived from (usually the Resource Plan).
+  // Every navigation now pushes an entry, so Back walks back through the app
+  // first and only leaves once there is nothing left to pop.
+  const setTab = React.useCallback((next, fromPop) => {
+    _setTab(prev => {
+      if (next !== prev && !fromPop) {
+        try { history.pushState({pumpNav:true, projectId, tab:next}, ""); } catch(e){}
+      }
+      return next;
+    });
+  }, [projectId]);
+  React.useEffect(() => {
+    // Seed an entry for the view we land on, so the first Back has somewhere to go.
+    try { history.replaceState({pumpNav:true, projectId, tab}, ""); } catch(e){}
+    const onPop = e => {
+      const st = e.state;
+      if (st && st.pumpNav && st.projectId === projectId && st.tab) setTab(st.tab, true);
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+    // eslint-disable-next-line
+  }, [projectId]);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   // ── Stages — each project can hold several independent stage snapshots ──
@@ -1713,7 +1972,16 @@ function App({session, projectId, projectRow, onBackToProjects}) {
   const currentStage = stages.find(s=>s.id===currentStageId);
   // Combined object handed to CalcSheet/SummaryTable for print headers — merges
   // the shared project info with this stage's own revision/date/sign-off fields.
-  const projForDisplay = {...proj, stage: currentStage?.stage_name, revision:meta.revision, date:meta.date, calcBy:meta.calcBy, checkedBy:meta.checkedBy, reviewedBy:meta.reviewedBy};
+  // Stage value wins; blank falls back to the project default. Everything that
+  // exports or prints reads this one object, so the sheet, the Excel title
+  // block and the on-screen cards can never disagree about who signed.
+  const projForDisplay = {...proj, stage: currentStage?.stage_name, revision:meta.revision, date:meta.date,
+    calcBy:      meta.calcBy      || proj.calcBy      || "",
+    calcDate:    meta.calcDate    || proj.calcDate    || "",
+    checkedBy:   meta.checkedBy   || proj.checkedBy   || "",
+    checkedDate: meta.checkedDate || proj.checkedDate || "",
+    reviewedBy:  meta.reviewedBy  || proj.reviewedBy  || "",
+    reviewedDate:meta.reviewedDate|| proj.reviewedDate|| ""};
 
   if (!stagesReady) {
     return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#86868b",fontSize:13}}>Loading project…</div>;
@@ -1773,6 +2041,12 @@ function App({session, projectId, projectRow, onBackToProjects}) {
             <div style={{display:"grid",gridTemplateColumns:"2fr 1fr",gap:16}}>
               <Field label="Project Name" value={proj.name}   onChange={v=>setProj(p=>({...p,name:v}))} />
               <Field label="Client"       value={proj.client} onChange={v=>setProj(p=>({...p,client:v}))} />
+              <SignOff label="Default prepared by" team={team} who={proj.calcBy} when={proj.calcDate}
+                onWho={v=>setProj(p=>({...p,calcBy:v}))} onWhen={v=>setProj(p=>({...p,calcDate:v}))} />
+              <SignOff label="Default checked by" team={team} who={proj.checkedBy} when={proj.checkedDate}
+                onWho={v=>setProj(p=>({...p,checkedBy:v}))} onWhen={v=>setProj(p=>({...p,checkedDate:v}))} />
+              <SignOff label="Default approved by" team={team} who={proj.reviewedBy} when={proj.reviewedDate}
+                onWho={v=>setProj(p=>({...p,reviewedBy:v}))} onWhen={v=>setProj(p=>({...p,reviewedDate:v}))} />
             </div>
           </div>
 
@@ -1783,9 +2057,23 @@ function App({session, projectId, projectRow, onBackToProjects}) {
             <div style={{display:"grid",gridTemplateColumns:"repeat(5,1fr)",gap:16}}>
               <Field label="Revision"    value={meta.revision}   onChange={v=>setMeta(m=>({...m,revision:v}))} />
               <Field label="Date" type="date" value={meta.date} onChange={v=>setMeta(m=>({...m,date:v}))} />
-              <Field label="Calc By"     value={meta.calcBy}     onChange={v=>setMeta(m=>({...m,calcBy:v}))} />
-              <Field label="Checked By"  value={meta.checkedBy}  onChange={v=>setMeta(m=>({...m,checkedBy:v}))} />
-              <Field label="Reviewed By" value={meta.reviewedBy} onChange={v=>setMeta(m=>({...m,reviewedBy:v}))} />
+            </div>
+            {/* Leaving a signature blank inherits the project default set in
+                Project Info above — so the common case needs filling in once,
+                and a stage that was checked by someone else can still override. */}
+            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:16,marginTop:16}}>
+              <SignOff label="Prepared by" team={team}
+                placeholderWho={proj.calcBy ? "Project default ("+proj.calcBy+")" : "—"}
+                who={meta.calcBy} when={meta.calcDate}
+                onWho={v=>setMeta(m=>({...m,calcBy:v}))} onWhen={v=>setMeta(m=>({...m,calcDate:v}))} />
+              <SignOff label="Checked by" team={team}
+                placeholderWho={proj.checkedBy ? "Project default ("+proj.checkedBy+")" : "—"}
+                who={meta.checkedBy} when={meta.checkedDate}
+                onWho={v=>setMeta(m=>({...m,checkedBy:v}))} onWhen={v=>setMeta(m=>({...m,checkedDate:v}))} />
+              <SignOff label="Approved by" team={team}
+                placeholderWho={proj.reviewedBy ? "Project default ("+proj.reviewedBy+")" : "—"}
+                who={meta.reviewedBy} when={meta.reviewedDate}
+                onWho={v=>setMeta(m=>({...m,reviewedBy:v}))} onWhen={v=>setMeta(m=>({...m,reviewedDate:v}))} />
             </div>
             <div style={{marginTop:22,padding:"14px 18px",background:"#f5f5f7",border:"1px solid #d2d2d7",borderRadius:10,fontSize:11,color:"#424245",lineHeight:1.7}}>
               <b>Reference Data In This Tool:</b> Pipe materials — HDPE SDR-11, PPR SDR-7.4, UPVC Pressure PN16, GI (BS 1387 Medium), Carbon Steel Sch-40 (ASME B36.10).
@@ -2118,14 +2406,14 @@ function RefDataEditor({onBack}) {
   ];
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
-      <div className="app-header" style={{background:"rgba(255,255,255,.88)",backdropFilter:"blur(20px)",borderBottom:"1px solid #d2d2d7",boxShadow:"0 1px 3px rgba(0,0,0,.04)",color:"#1d1d1f",padding:"14px 20px"}}>
+      <div className="app-header" style={{background:"rgba(255,255,255,.88)",backdropFilter:"blur(20px)",borderBottom:"1px solid #d2d2d7",color:"#1d1d1f",padding:"10px 20px"}}>
         <div style={{maxWidth:1100,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",gap:12}}>
           <div>
             <div style={{fontSize:9,letterSpacing:"0.18em",color:"#86868b",textTransform:"uppercase",marginBottom:4}}>MEP Engineering · Meinhardt Group</div>
             <div style={{fontSize:20,fontWeight:900,letterSpacing:"-0.02em"}}>Reference Data</div>
           </div>
           <button onClick={onBack}
-            style={{padding:"8px 16px",background:"white",color:"#1d1d1f",border:"none",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+            style={{padding:"5px 12px",background:"transparent",color:"#8e8e93",border:"none",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer"}}>
             ← All Projects
           </button>
         </div>
@@ -2148,7 +2436,7 @@ function RefDataEditor({onBack}) {
 }
 
 // ─── PROJECTS HOME — folder list, one row per project ──────────────────────────
-function ProjectsHome({session, onOpen, onOpenRefData}) {
+function ProjectsHome({session, me, isAdmin, pendingCount, onOpen, onOpenRefData, onOpenTeam}) {
   const userId = session.user.id;
   const [list, setList]   = useState(null); // null = loading
   const [stageCounts, setStageCounts] = useState({}); // project_id -> [stage_name,...]
@@ -2229,19 +2517,19 @@ function ProjectsHome({session, onOpen, onOpenRefData}) {
 
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
-      <div className="app-header" style={{background:"rgba(255,255,255,.88)",backdropFilter:"blur(20px)",borderBottom:"1px solid #d2d2d7",boxShadow:"0 1px 3px rgba(0,0,0,.04)",color:"#1d1d1f",padding:"14px 20px"}}>
+      <div className="app-header" style={{background:"rgba(255,255,255,.88)",backdropFilter:"blur(20px)",borderBottom:"1px solid #d2d2d7",color:"#1d1d1f",padding:"10px 20px"}}>
         <div style={{maxWidth:1000,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-          <div>
-            <div style={{fontSize:9,letterSpacing:"0.18em",color:"#86868b",textTransform:"uppercase",marginBottom:4}}>MEP Engineering · Meinhardt Group</div>
-            <div style={{fontSize:20,fontWeight:900,letterSpacing:"-0.02em"}}>Pump Sizing Calculator v2 — Projects</div>
-          </div>
-          <div style={{display:"flex",gap:8}}>
+          <div style={{fontSize:15,fontWeight:600,letterSpacing:"-0.01em"}}>Pump Calculator</div>
+          <div style={{display:"flex",gap:14,alignItems:"center"}}>
+            <UserBadge session={session} me={me} />
+            {isAdmin && <button onClick={onOpenTeam}
+              style={{padding:'5px 12px',background:'white',color:'#424245',border:'1px solid #d2d2d7',borderRadius:7,fontSize:11,fontWeight:700,cursor:'pointer'}}>Team & Access{pendingCount>0 ? ` (${pendingCount})` : ''}</button>}
             <button onClick={onOpenRefData}
-              style={{padding:"8px 16px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+              style={{padding:"5px 12px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer"}}>
               📊 Reference Data
             </button>
             <button onClick={()=>sb.auth.signOut()}
-              style={{padding:"8px 16px",background:"white",color:"#1d1d1f",border:"none",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>
+              style={{padding:"5px 12px",background:"transparent",color:"#8e8e93",border:"none",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer"}}>
               Sign Out
             </button>
           </div>
@@ -2311,7 +2599,36 @@ function ProjectsHome({session, onOpen, onOpenRefData}) {
 // ─── ROOT — Supabase auth gate ─────────────────────────────────────────────────
 function RootApp() {
   const [session, setSession] = useState(undefined); // undefined=loading, null=logged out
-  const [openProject, setOpenProject] = useState(null); // full project row currently open, or null
+  const {team, roles, me, isAdmin, ready:teamReady, pendingCount, reload:reloadTeam} = useTeamData(session);
+  const [openProject, _setOpenProject] = useState(null); // full project row currently open, or null
+  // Opening a project pushes a history entry; Back from the project's first
+  // view therefore returns to the project list rather than leaving the site.
+  const setOpenProject = React.useCallback((row) => {
+    _setOpenProject(prev => {
+      const prevId = prev && prev.id, nextId = row && row.id;
+      if (prevId !== nextId) {
+        try { history.pushState({pumpNav:true, projectId:nextId||null, tab:null}, ""); } catch(e){}
+      }
+      return row;
+    });
+  }, []);
+  React.useEffect(() => {
+    const onPop = e => {
+      const st = e.state;
+      // Only act on entries this app created, and only on project-level ones —
+      // tab-level entries are handled inside App so the two don't fight.
+      if (st && st.pumpNav && !st.tab) {
+        _setOpenProject(prev => {
+          const prevId = prev && prev.id;
+          if (prevId === (st.projectId || null)) return prev;
+          if (!st.projectId) return null;
+          return prev; // returning forward into a project isn't restored; list is the safe landing
+        });
+      }
+    };
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
   const [screen, setScreen] = useState("projects"); // "projects" | "refdata"
   const [refDataReady, setRefDataReady] = useState(false);
   const [refDataErr, setRefDataErr] = useState("");
@@ -2340,8 +2657,11 @@ function RootApp() {
     return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#86868b",fontSize:13}}>Loading…</div>;
   }
   if (!session) return <AuthScreen />;
-  if (!refDataReady) {
-    return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#86868b",fontSize:13}}>Loading reference data…</div>;
+  if (!refDataReady || !teamReady) {
+    return <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",color:"#86868b",fontSize:13}}>Loading secure workspace…</div>;
+  }
+  if (!me || me.active === false) {
+    return <AccessPendingScreen session={session} reload={reloadTeam} />;
   }
   if (refDataErr) {
     return (
@@ -2360,14 +2680,17 @@ function RootApp() {
   }
   if (openProject) {
     return (
-      <App key={openProject.id} session={session} projectId={openProject.id}
+      <App key={openProject.id} session={session} projectId={openProject.id} team={team}
         projectRow={openProject} onBackToProjects={()=>setOpenProject(null)} />
     );
   }
   if (screen === "refdata") {
     return <RefDataEditor onBack={()=>setScreen("projects")} />;
   }
-  return <ProjectsHome session={session} onOpen={setOpenProject} onOpenRefData={()=>setScreen("refdata")} />;
+  if (screen === "team") {
+    return <TeamAccessAdmin onBack={()=>setScreen("projects")} session={session} team={team} roles={roles} reload={reloadTeam} canEdit={isAdmin} />;
+  }
+  return <ProjectsHome session={session} me={me} isAdmin={isAdmin} pendingCount={pendingCount} onOpen={setOpenProject} onOpenRefData={()=>setScreen("refdata")} onOpenTeam={()=>setScreen("team")} />;
 }
 
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp />);
