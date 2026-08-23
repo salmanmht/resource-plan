@@ -965,24 +965,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
 
     <!-- Separate application: its own Supabase project (pjxqfzbig…), its own
-         sign-in, deployed independently as /pump.html. It lives BEFORE the
-         Resource Plan login on purpose — nothing about it requires a Resource
-         Plan account, so gating it behind this form would be wrong. -->
-    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e8e8ed;">
-      <div style="text-align:center;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a1a1a6;margin-bottom:10px;">Other Tools</div>
-      <a href="/pump.html" rel="noopener"
-         style="display:flex;align-items:center;gap:10px;padding:10px 13px;border:1px solid #d2d2d7;border-radius:10px;text-decoration:none;color:#1d1d1f;transition:.15s;"
-         onmouseover="this.style.borderColor='#007aff';this.style.background='#f5f9ff'"
-         onmouseout="this.style.borderColor='#d2d2d7';this.style.background='transparent'">
-        <svg aria-hidden="true" focusable="false" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex:0 0 auto;color:#007aff;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
-        <span style="flex:1;min-width:0;">
-          <span style="display:block;font-size:13px;font-weight:600;">Pump Calculator</span>
-          <span style="display:block;font-size:11px;color:#8e8e93;">MEP pump sizing &middot; separate sign-in</span>
-        </span>
-        <span style="font-size:11px;color:#a1a1a6;">&rsaquo;</span>
-      </a>
+         sign-in, deployed independently as /pump.html. Kept before the login on
+         purpose — nothing about it needs a Resource Plan account. -->
+    <div style="text-align:center;margin-top:18px;font-size:11px;">
+      <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
+         onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.89 · 23 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.90 · 23 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1087,7 +1076,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.89 · 23 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.90 · 23 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
