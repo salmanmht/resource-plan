@@ -963,7 +963,26 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       Don't have an account? <span onclick="showSignUp()" style="color:#007aff;cursor:pointer;font-weight:600;">Request Access</span>
     </div>
     <div class="pin-err" id="pin-err" style="margin-top:10px;"></div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.85 · 22 Aug 2026</div>
+
+    <!-- Separate application: its own Supabase project (pjxqfzbig…), its own
+         sign-in, deployed independently as /pump.html. It lives BEFORE the
+         Resource Plan login on purpose — nothing about it requires a Resource
+         Plan account, so gating it behind this form would be wrong. -->
+    <div style="margin-top:20px;padding-top:16px;border-top:1px solid #e8e8ed;">
+      <div style="text-align:center;font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#a1a1a6;margin-bottom:10px;">Other Tools</div>
+      <a href="/pump.html" rel="noopener"
+         style="display:flex;align-items:center;gap:10px;padding:10px 13px;border:1px solid #d2d2d7;border-radius:10px;text-decoration:none;color:#1d1d1f;transition:.15s;"
+         onmouseover="this.style.borderColor='#007aff';this.style.background='#f5f9ff'"
+         onmouseout="this.style.borderColor='#d2d2d7';this.style.background='transparent'">
+        <svg aria-hidden="true" focusable="false" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="flex:0 0 auto;color:#007aff;"><path stroke-linecap="round" stroke-linejoin="round" d="M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z"/></svg>
+        <span style="flex:1;min-width:0;">
+          <span style="display:block;font-size:13px;font-weight:600;">Pump Calculator</span>
+          <span style="display:block;font-size:11px;color:#8e8e93;">MEP pump sizing &middot; separate sign-in</span>
+        </span>
+        <span style="font-size:11px;color:#a1a1a6;">&rsaquo;</span>
+      </a>
+    </div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.89 · 23 Aug 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1068,7 +1087,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.85 · 22 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.89 · 23 Aug 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3365,7 +3384,17 @@ function computeAll(statusFilter,projIds){
   if(minMI===999){minMI=0;maxMI=8;}
   const NMON=maxMI-minMI+1;
   const hrs={};
-  S.engineers.forEach(e=>{hrs[e.id]=Array(NMON).fill(0);});
+  // COST IS ACCUMULATED HERE, at booking level, alongside hours.
+  // Previously dashboards derived money via engCost() = totalHours × getRate(e),
+  // which cannot be right: by the time hours are summed across projects there is
+  // no project left to look up a rate override or JSE multiplier against. A JSE
+  // pool on multiplier 3 showed a third of its real cost on the BIM dashboard.
+  // Doing it in this loop reuses the SAME traversal, status filter, projIds
+  // scope and slot roll-up as hours, so cost and hours can never diverge.
+  const cost={};
+  const _engById={};
+  S.engineers.forEach(e=>{_engById[e.id]=e;});
+  S.engineers.forEach(e=>{hrs[e.id]=Array(NMON).fill(0);cost[e.id]=Array(NMON).fill(0);});
   S.projects.forEach(p=>{
     if(!p.start)return;
     if(projIds&&!projIds.has(p.id))return; // project-scoped figures
@@ -3374,11 +3403,18 @@ function computeAll(statusFilter,projIds){
       if(!wArr)return;
       eid=slotBase(eid); // duplicate-slot hours roll up to the person
       if(!hrs[eid])hrs[eid]=Array(NMON).fill(0);
+      if(!cost[eid])cost[eid]=Array(NMON).fill(0);
+      // Rate and multiplier are per project+person, so resolve once per booking
+      // rather than per week. Both are keyed by the BASE id, matching how
+      // getJseMult is called from the project views.
+      const _e=_engById[eid];
+      const _rate=_e?getProjRate(_e,p):0;
+      const _mult=getJseMult(p,eid);
       wArr.forEach((h,wi)=>{
         if(!h)return;
         const wk=projWeekDate(p.start,wi);
         const mi=dateToMI(wk)-minMI;
-        if(mi>=0&&mi<NMON)hrs[eid][mi]+=h;
+        if(mi>=0&&mi<NMON){ hrs[eid][mi]+=h; cost[eid][mi]+=h*_rate*_mult; }
       });
     });
   });
@@ -3459,7 +3495,7 @@ function computeAll(statusFilter,projIds){
       return c?h/c*100:0;
     });
   });
-  return{hrs,util,billUtil,leaveByMI,mgmtByMI,minMI,maxMI,NMON};
+  return{hrs,cost,util,billUtil,leaveByMI,mgmtByMI,minMI,maxMI,NMON};
 }
 // ── Cross-discipline aware attribution (Overview deep-dive only) ──────────────
 // Splits each engineer's project hours across the discipline they were BOOKED to
@@ -3469,7 +3505,9 @@ function computeAll(statusFilter,projIds){
 // figures stay identical to before; only cross-disc people redistribute.
 function discHoursSplit(engSet,minMI,NMON,statusFilter){
   const ids=new Set(engSet.map(e=>e.id));
-  const total={},perEng={};
+  // costPerEng mirrors perEng but in money, accumulated per booking so it picks
+  // up project rate overrides and JSE multipliers. Same traversal, same filters.
+  const total={},perEng={},costPerEng={};
   S.projects.forEach(p=>{
     if(!p.start)return;
     if(statusFilter&&(Array.isArray(statusFilter)?statusFilter.indexOf(p.status)<0:p.status!==statusFilter))return;
@@ -3482,6 +3520,7 @@ function discHoursSplit(engSet,minMI,NMON,statusFilter){
       const joinMI=e.joinDate?dateToMI(new Date(e.joinDate)):null;
       const endMI=e.endDate?dateToMI(new Date(e.endDate)):null;
       const d=e.team==='BIM'?'BIM':effDisc(e,p);
+      const _rate=getProjRate(e,p), _mult=getJseMult(p,eid);
       arr.forEach((h,wi)=>{
         if(!h)return;
         const mi=dateToMI(projWeekDate(p.start,wi));
@@ -3492,10 +3531,12 @@ function discHoursSplit(engSet,minMI,NMON,statusFilter){
         total[d]=(total[d]||0)+h;
         if(!perEng[eid])perEng[eid]=Array.from({length:NMON},()=>({}));
         perEng[eid][rel][d]=(perEng[eid][rel][d]||0)+h;
+        if(!costPerEng[eid])costPerEng[eid]=Array.from({length:NMON},()=>({}));
+        costPerEng[eid][rel][d]=(costPerEng[eid][rel][d]||0)+h*_rate*_mult;
       });
     });
   });
-  return {total,perEng};
+  return {total,perEng,costPerEng};
 }
 // Per-discipline monthly utilisation as a weighted average. A pure-discipline
 // engineer contributes weight 1 to their home discipline (so their line is
@@ -3638,7 +3679,29 @@ function wipeEmployeeNumbers(silent){
   console.log('Employee No. wipe: cleared',changedIds.length,'engineer(s)');
   return changedIds;
 }
+// DEPRECATED — kept only so any stray caller still returns a number.
+// This multiplies already-aggregated cross-project hours by the engineer's
+// DEFAULT rate, so it silently ignores per-project rate overrides and JSE
+// multipliers. Use sumCost(engineers, cost) with the cost array returned by
+// computeRange()/computeRangeWeekly(), which is accumulated per booking.
 function engCost(e,hrs){return(hrs[e.id]||[]).reduce((a,b)=>a+b,0)*getRate(e);}
+// Booking-level cost for a set of engineers over the computed range.
+function sumCost(engs,cost){
+  if(!cost)return 0;
+  return (engs||[]).reduce(function(a,e){
+    const arr=cost[e.id]||[];
+    return a+arr.reduce(function(x,y){return x+(y||0);},0);
+  },0);
+}
+// Dashboard cost is an estimate whenever getRate() had to use a missing-grade
+// fallback. The badge makes that existing Data Health diagnostic visible where
+// the affected monetary total is displayed.
+function costEstimateBadge(){
+  const missing=window.missingGradeLog||[];
+  if(!missing.length)return '';
+  const n=missing.length;
+  return '<span title="Estimated: '+n+' missing grade rate'+(n===1?'':'s')+' currently uses the fallback rate. See Data Health / Cost Rates." style="margin-left:6px;padding:1px 5px;border-radius:999px;background:#fff4e0;color:#9a5800;font-size:8px;font-weight:800;letter-spacing:.03em;vertical-align:middle;white-space:nowrap;">ESTIMATED</span>';
+}
 // Sum every stored hour — not bounded by declared end date — so beyond-end hours don't vanish
 function projTotalHrs(p){
   let h=0;
@@ -4277,6 +4340,46 @@ function dhSetTab(t){DH_TAB=t;renderHealth();}
 // Team without first being taken off every project (historically delEng() did
 // not cascade-delete project_hours). Because projTotalHrs() sums weeklyHrs raw,
 // ghosts inflate the hrs/cost/fee badges even though no visible row shows them.
+// Bookings that fall AFTER a given date for one engineer.
+// Shared by the end-date save guard and the Data Health "Departed" panel so
+// both report identical numbers. Slot keys (e123#2) roll up to the person,
+// matching how every other calculation treats duplicates.
+function bookingsAfterDate(engId,dateStr){
+  const out={total:0,rows:[]};
+  if(!engId||!dateStr)return out;
+  const cutoff=new Date(dateStr+'T23:59:59');
+  if(isNaN(+cutoff))return out;
+  const all=(S._allProjects||S.projects||[]).filter(p=>p&&p.start&&!String(p.id).startsWith('prp'));
+  all.forEach(p=>{
+    let hrs=0,first=null,last=null;
+    Object.entries(p.weeklyHrs||{}).forEach(([eid,arr])=>{
+      if(slotBase(eid)!==engId||!arr)return;
+      arr.forEach((h,wi)=>{
+        if(!h)return;
+        const wk=projWeekDate(p.start,wi);
+        if(wk>cutoff){ hrs+=h; if(!first||wk<first)first=wk; if(!last||wk>last)last=wk; }
+      });
+    });
+    if(hrs>0){
+      out.total+=hrs;
+      out.rows.push({projId:p.id,projName:(p.no?p.no+' — ':'')+(p.name||p.id),hrs:hrs,first:first,last:last});
+    }
+  });
+  out.rows.sort((a,b)=>b.hrs-a.hrs);
+  return out;
+}
+// Every engineer carrying work past their end date.
+function dhFindPostExit(){
+  const rows=[];
+  (S.engineers||[]).forEach(e=>{
+    if(!e.endDate)return;
+    const fb=bookingsAfterDate(e.id,e.endDate);
+    if(fb.total>0)rows.push({eng:e,total:fb.total,projects:fb.rows});
+  });
+  return rows.sort((a,b)=>b.total-a.total);
+}
+function _fmtWk(d){ try{return d?d.toLocaleDateString('en-GB',{month:'short',year:'numeric'}):'';}catch(_){return '';} }
+
 function dhFindGhosts(){
   const liveIds=new Set(S.engineers.map(e=>e.id));
   const allProjects=(S._allProjects||S.projects||[]).filter(p=>!p.id.toString().startsWith('prp'));
@@ -4310,6 +4413,37 @@ function dhRenderGhosts(){
       h+='<div class="dh-flag"><div class="dh-dot" style="background:#dc2626"></div><div class="dh-ft">'+esc(g.projName)+' — engineer id <code>'+esc(g.engId)+'</code><div class="dh-fd">'+fN(Math.round(g.hrs))+' hrs orphaned</div></div></div>';
     });
     h+='<div style="padding-top:14px;"><button class="btn btn-d btn-sm" onclick="cleanupGhostHours()">Delete all ghost hours ('+ghosts.length+')</button> <span id="ghost-cleanup-status" style="font-size:11px;color:var(--tx3);margin-left:8px;"></span></div>';
+  }
+  h+='</div>';
+  h+=dhRenderPostExit();
+  return h;
+}
+// Work booked to people who have left. Distinct from ghosts: the engineer still
+// EXISTS, so nothing looks broken — the hours just quietly stop being forecast
+// while remaining on the project with nobody to do them. Deliberately no bulk
+// delete: this work usually still needs doing and wants reassigning, not removing.
+function dhRenderPostExit(){
+  const rows=dhFindPostExit();
+  const totalHrs=rows.reduce((a,r)=>a+r.total,0);
+  const projSet=new Set(); rows.forEach(r=>r.projects.forEach(x=>projSet.add(x.projId)));
+  let h='<div class="mrow" style="margin-top:18px;">';
+  h+=dhTile('Departed with bookings',rows.length,rows.length?'bad':'good');
+  h+=dhTile('Unassigned hours',fN(Math.round(totalHrs*10)/10),totalHrs?'warn':'good');
+  h+=dhTile('Projects affected',projSet.size,projSet.size?'warn':'good');
+  h+='</div><div class="spend-card">';
+  if(!rows.length){
+    h+='<div style="padding:22px;text-align:center;color:#16a34a;font-weight:600;">No bookings past an end date \u2014 every booked engineer is still employed for the weeks they are booked.</div>';
+  }else{
+    h+='<div class="dh-gh">Booked after leaving \u2014 needs reassignment</div>';
+    rows.forEach(r=>{
+      h+='<div class="dh-flag"><div class="dh-dot" style="background:#dc2626"></div><div class="dh-ft">'+esc(r.eng.name)+' \u2014 left '+esc(r.eng.endDate)+
+         '<div class="dh-fd">'+(Math.round(r.total*10)/10)+' h still booked across '+r.projects.length+' project'+(r.projects.length===1?'':'s')+'</div>';
+      r.projects.forEach(x=>{
+        h+='<div class="dh-fd" style="margin-left:10px;">\u2022 '+esc(x.projName)+' \u2014 '+(Math.round(x.hrs*10)/10)+' h ('+_fmtWk(x.first)+(x.last&&+x.last!==+x.first?' \u2013 '+_fmtWk(x.last):'')+')</div>';
+      });
+      h+='</div></div>';
+    });
+    h+='<div style="padding:12px 0 2px;font-size:11px;color:var(--tx3);line-height:1.5;">These hours remain in project totals but are excluded from the engineer\u2019s forecast, so Project Detail and the Dashboard will disagree by this amount until the work is reassigned. Reassign it on the project\u2019s booking grid \u2014 there is no bulk action here on purpose, because the work usually still needs doing.</div>';
   }
   h+='</div>';
   return h;
@@ -4517,7 +4651,7 @@ async function discDelete(i){
 function renderHealth(){
   const c=document.getElementById('pc-health'); if(!c)return;
   if(!canSeeAllData()){c.innerHTML='<div style="padding:40px;text-align:center;color:var(--tx3);">Access required.</div>';return;}
-  let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div><div class="dh-tab '+(DH_TAB==='ghosts'?'on':'')+'" onclick="dhSetTab(\'ghosts\')">Ghost Hours'+(function(){const n=dhFindGhosts().length;return n?' ('+n+')':'';})()+'</div></div>';
+  let h='<div class="dh-tabs"><div class="dh-tab '+(DH_TAB==='setup'?'on':'')+'" onclick="dhSetTab(\'setup\')">Setup &amp; Plan</div><div class="dh-tab '+(DH_TAB==='balance'?'on':'')+'" onclick="dhSetTab(\'balance\')">Discipline Balance</div><div class="dh-tab '+(DH_TAB==='ghosts'?'on':'')+'" onclick="dhSetTab(\'ghosts\')">Ghost &amp; Departed'+(function(){const n=dhFindGhosts().length+dhFindPostExit().length;return n?' ('+n+')':'';})()+'</div></div>';
   h+=(DH_TAB==='balance')?dhRenderBalance():(DH_TAB==='ghosts')?dhRenderGhosts():dhRenderSetup();
   c.innerHTML=h;
 }
@@ -5332,9 +5466,9 @@ function wtWeekCapacity(groups){
   if(mon){ sun=new Date(mon); sun.setDate(sun.getDate()+6); }
   let cap=0;
   (groups||[]).forEach(function(g){ g.engs.forEach(function(e){
-    // Someone who hadn't joined yet, or had already left, contributes no
-    // capacity for this week — otherwise a leaver silently drags the whole
-    // team's utilisation down for every week after their exit.
+    // Whole-period employment policy: an engineer contributes the full weekly
+    // capacity when employed for any part of this Monday–Sunday period. The
+    // same boundary is used by computeRangeWeekly() below.
     if(mon){
       if(e.joinDate && new Date(e.joinDate)>sun) return;
       if(e.endDate  && new Date(e.endDate) <mon) return;
@@ -6833,8 +6967,9 @@ function computeRange(statusFilter,projIds,fromMI,toMI){
   const tmi=(toMI!=null?toMI:(DASH_TO_MI!==null?DASH_TO_MI:full.maxMI));
   const NMON=tmi-fmi+1;
   const offset=fmi-full.minMI;  // how many months into full array our window starts
-  // Slice hrs and util arrays; zero out months outside engineer's active window
-  const hrs={},util={},billUtil={};
+  // Whole-period employment policy: count a full month when an engineer was
+  // employed for any part of it; zero only months wholly outside that window.
+  const hrs={},cost={},util={},billUtil={};
   S.engineers.forEach(e=>{
     // Determine active MI range for engineer based on join/end dates
     const joinMI=e.joinDate?dateToMI(new Date(e.joinDate)):null;
@@ -6845,6 +6980,15 @@ function computeRange(statusFilter,projIds,fromMI,toMI){
       if(joinMI!==null&&mi<joinMI)return 0;
       if(endMI!==null&&mi>endMI)return 0;
       return fh[offset+i]||0;
+    });
+    // Cost is sliced with the IDENTICAL window as hours — if a month is zeroed
+    // for hours it must be zeroed for money too, or the two stop agreeing.
+    const fc=(full.cost&&full.cost[e.id])||[];
+    cost[e.id]=Array.from({length:NMON},(_,i)=>{
+      const mi=fmi+i;
+      if(joinMI!==null&&mi<joinMI)return 0;
+      if(endMI!==null&&mi>endMI)return 0;
+      return fc[offset+i]||0;
     });
     const fu=full.util[e.id]||[];
     util[e.id]=Array.from({length:NMON},(_,i)=>{
@@ -6861,7 +7005,7 @@ function computeRange(statusFilter,projIds,fromMI,toMI){
       return fb[offset+i]||0;
     });
   });
-  return{hrs,util,billUtil,minMI:fmi,maxMI:tmi,NMON};
+  return{hrs,cost,util,billUtil,minMI:fmi,maxMI:tmi,NMON};
 }
 
 // ─── WEEKLY GRANULARITY ─────────────────────────────────────
@@ -6921,8 +7065,10 @@ function computeRangeWeekly(statusFilter){
   const holMapEGY=buildHolidayWeekMap(S.holidaysEGY||[]);
 
   // Initialise output
-  const hrs={},util={},billUtil={};
-  S.engineers.forEach(e=>{hrs[e.id]=Array(NWK).fill(0);util[e.id]=Array(NWK).fill(0);billUtil[e.id]=Array(NWK).fill(0);});
+  const hrs={},cost={},util={},billUtil={};
+  const _engById={};
+  S.engineers.forEach(e=>{_engById[e.id]=e;});
+  S.engineers.forEach(e=>{hrs[e.id]=Array(NWK).fill(0);cost[e.id]=Array(NWK).fill(0);util[e.id]=Array(NWK).fill(0);billUtil[e.id]=Array(NWK).fill(0);});
 
   // Accumulate project hours per week
   S.projects.forEach(p=>{
@@ -6931,12 +7077,17 @@ function computeRangeWeekly(statusFilter){
     Object.entries(p.weeklyHrs||{}).forEach(([eid,wArr])=>{
       if(!wArr)return;
       eid=slotBase(eid); if(!hrs[eid])return; // slots roll up to the person
+      // Same booking-level cost basis as computeAll: project rate override and
+      // JSE multiplier, resolved once per booking.
+      const _e=_engById[eid];
+      const _rate=_e?getProjRate(_e,p):0;
+      const _mult=getJseMult(p,eid);
       wArr.forEach((h,wi)=>{
         if(!h)return;
         const wkDate=projWeekDate(p.start,wi);
         // Map this wkDate to our weeks[] array
         const idx=weeks.findIndex(w=>w.getFullYear()===wkDate.getFullYear()&&w.getMonth()===wkDate.getMonth()&&w.getDate()===wkDate.getDate());
-        if(idx>=0)hrs[eid][idx]+=h;
+        if(idx>=0){ hrs[eid][idx]+=h; cost[eid][idx]+=h*_rate*_mult; }
       });
     });
   });
@@ -6954,9 +7105,14 @@ function computeRangeWeekly(statusFilter){
     const baseCap=isJSE?getJseCap():e.cap||45;
     const effCapStatic=isJSE?null:baseCap;
     weeks.forEach((wk,wi)=>{
-      // Zero out weeks outside engineer's active window
-      if(joinDt&&wk<joinDt){hrs[e.id][wi]=0;return;}
-      if(endDt&&wk>endDt){hrs[e.id][wi]=0;return;}
+      // Whole-period employment policy: count a full Monday–Sunday week when
+      // the engineer was employed for any part of it. This matches
+      // wtWeekCapacity(), so capacity and recorded hours use the same boundary.
+      const weekEnd=new Date(wk); weekEnd.setDate(weekEnd.getDate()+6);
+      // Cost must be zeroed with hours, not just hours — otherwise a leaver's
+      // money lingers in a week where their hours have been removed.
+      if(joinDt&&joinDt>weekEnd){hrs[e.id][wi]=0;cost[e.id][wi]=0;return;}
+      if(endDt&&endDt<wk){hrs[e.id][wi]=0;cost[e.id][wi]=0;return;}
       const gwi=gWkIdx(wk);
       const lv=lArr[gwi]||0;
       const mg=mArr[gwi]||0;
@@ -6977,7 +7133,7 @@ function computeRangeWeekly(statusFilter){
     });
   });
 
-  return{hrs,util,billUtil,weeks,minMI:fmi,maxMI:tmi,NMON:NWK};
+  return{hrs,cost,util,billUtil,weeks,minMI:fmi,maxMI:tmi,NMON:NWK};
 }
 
 // Grain-aware wrapper — returns either monthly or weekly data
@@ -6988,7 +7144,7 @@ function computeRangeGrain(statusFilter){
 
 function renderMEP(){
   initDashRange();
-  const{hrs,util,billUtil,minMI,NMON}=computeRange(_msf());
+  const{hrs,cost,util,billUtil,minMI,NMON}=computeRange(_msf());
   // Grain-aware data for KPI sparklines (weekly or monthly)
   const grainData=computeRangeGrain(_msf());
   const N=grainData.NMON; // number of buckets (months or weeks)
@@ -7049,7 +7205,7 @@ function renderMEP(){
   const avgU=wMean(tu,minMI);
   const tb=subUtil(all,billUtil||util,minMI,NMON);
   const avgBill=wMean(tb,minMI);
-  const totH=subHrs(all,hrs);const totC=all.reduce((a,e)=>a+engCost(e,hrs),0);
+  const totH=subHrs(all,hrs);const totC=sumCost(all,cost);
   const dxb=all.filter(e=>e.off==='DXB'),egy=all.filter(e=>e.off==='EGY');
   const discs=MEP_DISCS_BIM.slice(),dClr=MEP_DISC_COLORS_BIM.slice();
   const periodLabel=NMON===1?labelsL[0]:(miLabel(minMI)+' – '+miLabel(minMI+NMON-1));
@@ -7059,10 +7215,10 @@ function renderMEP(){
   const utilSeries=subUtil(all,grainData.util,grainData.minMI,N).map(v=>+v.toFixed(1));
   const billSeries=subUtil(all,grainData.billUtil||grainData.util,grainData.minMI,N).map(v=>+v.toFixed(1));
   const hrsSeries=Array.from({length:N},(_,i)=>Math.round(all.reduce((sum,e)=>sum+((grainData.hrs[e.id]||[])[i]||0),0)));
-  const costSeries=hrsSeries.map((h,i)=>{
-    let c=0;all.forEach(e=>{const eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});
-    return Math.round(c);
-  });
+  // Per-period cost from the booking-level cost array, not hours x default rate.
+  const costSeries=Array.from({length:N},(_,i)=>Math.round(
+    all.reduce((c,e)=>c+(((grainData.cost&&grainData.cost[e.id])||[])[i]||0),0)
+  ));
   const grainLabel=GRAIN==='week'?`${N} weeks`:`${N} months`;
 
   // Delta calculation: compare current range vs same-length window before it
@@ -7132,7 +7288,7 @@ function renderMEP(){
       <div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div>
     </div>
     <div class="mc-int pu">
-      <div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
+      <div class="mc-head"><div class="mc-l">Est. Cost${costEstimateBadge()}</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div>
       <div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div>
       <div class="mc-s">Period total · ${grainLabel}</div>
     </div>
@@ -7776,7 +7932,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
 function kpiDelta(series){var N=series.length;if(N<2)return{pct:0,dir:'flat'};var h=Math.floor(N/2);var fa=series.slice(0,h).reduce(function(a,b){return a+b;},0)/Math.max(1,h);var sa=series.slice(h).reduce(function(a,b){return a+b;},0)/Math.max(1,N-h);if(fa===0)return{pct:0,dir:'flat'};var pc=((sa-fa)/fa)*100;return{pct:pc,dir:Math.abs(pc)<3?'flat':pc>0?'up':'down'};}
 function kpiDeltaBadge(series,metric){var d=kpiDelta(series);var arrow=d.dir==='up'?'\u2197':d.dir==='down'?'\u2198':'\u2192';var sign=d.pct>0?'+':'';var cls;if(metric==='hrs'){cls='background:var(--surf2);color:var(--tx2);';}else{cls=d.dir==='up'?'background:var(--red2);color:var(--red);':d.dir==='down'?'background:var(--grn2);color:var(--grn);':'background:var(--surf2);color:var(--tx3);';}return'<span style="font-size:10px;font-weight:700;padding:2px 6px;border-radius:10px;'+cls+'">'+arrow+' '+sign+d.pct.toFixed(0)+'%</span>';}
 function renderOffice(off,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange(_msf());let sub=mepDiscScope(S.engineers.filter(function(e){return e.off===off;}));
+  const{hrs,cost,util,billUtil,minMI,NMON}=computeRange(_msf());let sub=mepDiscScope(S.engineers.filter(function(e){return e.off===off;}));
   (function(){var t=document.getElementById('ov-title-'+off);if(t){var base={DXB:'Dubai Office',EGY:'Egypt Office',IND:'India Office'}[off]||off;t.textContent=base+(mepDiscActive()?(' \u00b7 '+mepDiscLabel()):'');}})();
   if(typeof syncDiscChips==='function')syncDiscChips();
   if(typeof syncStatChips==='function')syncStatChips();
@@ -7785,10 +7941,10 @@ function renderOffice(off,pcId){
   const grainData=computeRangeGrain();const Nspk=grainData.NMON;
   const grainLabel=GRAIN==='week'?(Nspk+' weeks'):(Nspk+' months');
   const avgBill=wMean(subUtil(sub,billUtil||util,minMI,NMON),minMI);
-  const totC=sub.reduce(function(a,e){return a+engCost(e,hrs);},0);
+  const totC=sumCost(sub,cost);
   const utilSeries=subUtil(sub,grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
   const billSeries=subUtil(sub,grainData.billUtil||grainData.util,grainData.minMI,Nspk).map(function(v){return +v.toFixed(1);});
-  const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){var eh=(grainData.hrs[e.id]||[])[i]||0;c+=eh*getRate(e);});return Math.round(c);});
+  const costSeries=Array.from({length:Nspk},function(_,i){var c=0;sub.forEach(function(e){c+=(((grainData.cost&&grainData.cost[e.id])||[])[i]||0);});return Math.round(c);});
   const offProjs=S.projects.filter(function(pp){return sub.some(function(e){return whHasFor(pp,e.id);});});
   const _offStatusF=_msf();
   const offActive=offProjs.filter(function(pp){return _msfMatch(pp.status);}).length; // same multi-select fix as the MEP card
@@ -7801,7 +7957,7 @@ function renderOffice(off,pcId){
       <div class="mc-int" onclick="goTeamFiltered('BIM','${off}')" title="View the BIM team on the Team page" style="border-top:3px solid #0d9488;cursor:pointer;"><div class="mc-head"><div class="mc-l">BIM Team</div><div class="mc-arrow">→</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(((subMEP.length+subBIM.length)?Math.round(subBIM.length/(subMEP.length+subBIM.length)*100):0),34):''}<div class="mc-v" style="color:#0d9488">${subBIM.length}</div></div></div><div class="mc-s">${subBIM.length} ${off}</div></div>
       <div class="mc-int gr"><div class="mc-head"><div class="mc-l">Avg Utilisation</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,34):''}<div class="mc-v">${avgU.toFixed(1)}%</div></div></div><div class="mc-s">${grainLabel} · avg</div></div>
       <div class="mc-int" style="border-top:3px solid #0891b2;"><div class="mc-head"><div class="mc-l">Billable Util</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgBill)||0,34):''}<div class="mc-v" style="color:#0891b2">${avgBill.toFixed(1)}%</div></div></div><div class="mc-s">Excl. leave &amp; mgmt · ${grainLabel}</div></div>
-      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div><div class="mc-s">Period total · ${grainLabel}</div></div>
+      <div class="mc-int pu"><div class="mc-head"><div class="mc-l">Est. Cost${costEstimateBadge()}</div><button class="money-eye" onclick="event.stopPropagation();toggleMoneyHidden();" title="Hide costs" style="background:none;border:none;cursor:pointer;color:var(--tx3);padding:0;display:inline-flex;align-items:center;"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3-8 10-8 10 8 10 8-3 8-10 8-10-8-10-8z"/><circle cx="12" cy="12" r="3"/></svg></button></div><div class="mc-val-row"><div class="mc-v">${fAED(totC)}</div></div><div class="mc-s">Period total · ${grainLabel}</div></div>
       <div class="mc-int te"><div class="mc-head"><div class="mc-l">${_offActLabel}</div></div><div class="mc-val-row"><div style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge((offProjs.length?Math.round(offActive/offProjs.length*100):0),34):''}<div class="mc-v">${offActive}</div></div></div><div class="mc-s">of ${offProjs.length} total</div></div>
     </div>
     <div class="g2">
@@ -7872,7 +8028,7 @@ function engBookedIntoDisc(e,disc,sf){
   });
 }
 function renderDisc(disc,pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());
+  const{hrs,cost,util,billUtil,minMI,NMON}=computeRange(_dsf());
   let home=S.engineers.filter(e=>e.disc===disc&&e.team!=='BIM');
   let visitors=S.engineers.filter(e=>e.team!=='BIM'&&e.disc!==disc&&(e.crossDisc||isUmbrella(e))&&engBookedIntoDisc(e,disc,_dsf())); // MEP heads visit via bookings
   if(window.DISC_OFF&&window.DISC_OFF!=='all'){home=home.filter(e=>e.off===window.DISC_OFF);visitors=visitors.filter(e=>e.off===window.DISC_OFF);}
@@ -7882,14 +8038,14 @@ function renderDisc(disc,pcId){
   const dxb=sub.filter(e=>e.off==='DXB'),egy=sub.filter(e=>e.off==='EGY');
   const homeDxb=home.filter(e=>e.off==='DXB'),homeEgy=home.filter(e=>e.off==='EGY');
   const avgU=wMean(discUtilWeighted(sub,disc,util,minMI,NMON,split),minMI);
-  const discCost=sub.reduce((a,e)=>{const pe=split.perEng[e.id];if(!pe)return a;let h=0;for(let m=0;m<NMON;m++)h+=(pe[m][disc]||0);return a+h*getRate(e);},0);
+  const discCost=sub.reduce((a,e)=>{const pc=split.costPerEng&&split.costPerEng[e.id];if(!pc)return a;let c=0;for(let m=0;m<NMON;m++)c+=(pc[m][disc]||0);return a+c;},0);
   const cid=disc.toLowerCase().replace('&','');
   document.getElementById(pcId).innerHTML=`
     <div style="font-size:11px;color:var(--tx3);margin-bottom:8px;">Period: <strong style="color:var(--tx1)">${miLabel(minMI)} – ${miLabel(minMI+NMON-1)}</strong> &nbsp;·&nbsp; Change range on Combined MEP dashboard</div>
     <div class="mrow">
       <div class="mc hi"><div class="mc-l">Engineers</div><div class="mc-v">${home.length}</div><div class="mc-s">${homeDxb.length} DXB · ${homeEgy.length} EGY${visitors.length?` · +${visitors.length} cross`:``}</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div></div>
-      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(discCost)}</div></div>
+      <div class="mc pu"><div class="mc-l">Est Cost${costEstimateBadge()}</div><div class="mc-v">${fAED(discCost)}</div></div>
     </div>
     <div class="g2">
       <div class="card"><div class="card-t">Utilisation vs Billable — ${disc}</div><div class="cbox"><canvas id="di-bill-${cid}"></canvas></div></div>
@@ -7931,7 +8087,7 @@ function renderDisc(disc,pcId){
 }
 
 function renderBIM(pcId){
-  const{hrs,util,billUtil,minMI,NMON}=computeRange(_dsf());
+  const{hrs,cost,util,billUtil,minMI,NMON}=computeRange(_dsf());
   let sub=S.engineers.filter(e=>e.team==='BIM');if(window.DISC_OFF&&window.DISC_OFF!=='all')sub=sub.filter(e=>e.off===window.DISC_OFF);document.querySelectorAll('.js-off-switch').forEach(function(el){el.value=window.DISC_OFF||'all';});document.querySelectorAll('.js-status-switch').forEach(function(el){el.value=window.DISC_STATUS||'all';});
   const dxb=sub.filter(e=>e.off==='DXB'),ind=sub.filter(e=>e.off==='IND');
   const avgU=sub.length?subUtil(sub,util,minMI,NMON).reduce((a,b)=>a+b,0)/NMON:0;
@@ -7965,7 +8121,7 @@ function renderBIM(pcId){
     <div class="mrow">
       <div class="mc te"><div class="mc-l">BIM Members</div><div class="mc-v">${dxb.length+jseTotal}</div><div class="mc-s">${dxb.length} DXB · ${jseTotal} IND (JSE)</div></div>
       <div class="mc gr"><div class="mc-l">Avg Util</div><div class="mc-v" style="display:flex;align-items:center;gap:9px;">${window.mhGauge?window.mhGauge(Math.round(avgU)||0,36):''}<span>${avgU.toFixed(1)}%</span></div><div class="mc-s">All BIM</div></div>
-      <div class="mc pu"><div class="mc-l">Est Cost</div><div class="mc-v">${fAED(sub.reduce((a,e)=>a+engCost(e,hrs),0))}</div><div class="mc-s">All BIM</div></div>
+      <div class="mc pu"><div class="mc-l">Est Cost${costEstimateBadge()}</div><div class="mc-v">${fAED(sumCost(sub,cost))}</div><div class="mc-s">All BIM</div></div>
       <div class="mc hi" style="border-top-color:#0d9488;"><div class="mc-l">Sub-Disc Split</div><div style="display:flex;flex-wrap:wrap;gap:3px;margin-top:6px;">${subDiscChips||'<span style="font-size:10px;color:var(--tx3);">—</span>'}</div></div>
     </div>
     <div class="g2">
@@ -13570,6 +13726,21 @@ async function saveEng(){
   const jd=document.getElementById('em-join-date').value;
   if(jd)eng.joinDate=jd;
   const ed=document.getElementById('em-end-date').value;
+  // An end date set AFTER bookings already exist silently strands that work:
+  // the person drops out of forecasts while the hours stay on the project with
+  // nobody to do them. This is how 100.5 h ended up unstaffed across two live
+  // projects. Warn once, at the moment the date is set or changed.
+  if(ed&&eId&&(!_prev||_prev.endDate!==ed)){
+    const fb=bookingsAfterDate(eId,ed);
+    if(fb.total>0){
+      const lines=fb.rows.slice(0,6).map(r=>'   \u2022 '+r.projName+' \u2014 '+(Math.round(r.hrs*10)/10)+' h ('+_fmtWk(r.first)+(r.last&&+r.last!==+r.first?' \u2013 '+_fmtWk(r.last):'')+')');
+      if(fb.rows.length>6)lines.push('   \u2026 and '+(fb.rows.length-6)+' more');
+      const msg=name+' has '+(Math.round(fb.total*10)/10)+' h booked AFTER '+ed+
+        ', across '+fb.rows.length+' project'+(fb.rows.length===1?'':'s')+':\n\n'+lines.join('\n')+
+        '\n\nThose hours stay on the project but will drop out of forecasts, so the work ends up unassigned.\n\nSave the end date anyway?\n\n(Reassign the bookings first if that work still needs doing \u2014 Data Health \u203a Ghost Hours lists them.)';
+      if(!confirm(msg))return;
+    }
+  }
   if(ed)eng.endDate=ed;
   const _allow=readAllowed();
   if(_allow.length){
@@ -13759,7 +13930,43 @@ async function saveProj(){
     if(updated){renderProjDetail(updated);document.getElementById('proj-hdr-title').textContent=updated.no+' — '+updated.name;}
   } else {renderProj();}
 }
-async function delProj(id){if(!confirm('Delete project?'))return;S.projects=S.projects.filter(p=>p.id!==id);try{await sbDel('projects',id);}catch{saveLocal();}renderProj();updSB();toast('Deleted');}
+// Deleting the projects row alone used to leave every booking behind in
+// project_hours: invisible in the app, still present in the table. That is
+// exactly where proj-00000 and proj-4716 came from (105 rows / 1,553 h between
+// them). deleteAllTestProjects() has always cleared hours first; this path
+// never did. Hours go FIRST so a failure leaves the project intact rather than
+// removing the parent and stranding its bookings.
+async function delProj(id){
+  const all=S._allProjects||S.projects||[];
+  const p=all.find(x=>x.id===id)||S.projects.find(x=>x.id===id);
+  const label=p?((p.no?p.no+' \u2014 ':'')+(p.name||id)):String(id);
+  let hrs=0; const people=new Set();
+  if(p&&p.weeklyHrs){
+    Object.entries(p.weeklyHrs).forEach(([eid,arr])=>{
+      const t=(arr||[]).reduce((a,v)=>a+(v||0),0);
+      if(t>0){ hrs+=t; people.add(slotBase(eid)); }
+    });
+  }
+  const warn=hrs>0
+    ? '\n\n\u26a0 This also permanently deletes '+(Math.round(hrs*10)/10)+' booked hours across '+people.size+' engineer'+(people.size===1?'':'s')+'.'
+    : '';
+  if(!confirm('Delete project?\n\n'+label+warn+'\n\nThis cannot be undone.'))return;
+  try{
+    await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(id),'DELETE');
+    await sbDel('projects',id);
+  }catch(e){
+    // Local state untouched until both succeed, so nothing to roll back.
+    console.error('delProj failed',e);
+    toast('Delete failed \u2014 '+String((e&&e.message)||e).slice(0,80));
+    return;
+  }
+  S.projects=S.projects.filter(x=>x.id!==id);
+  if(S._allProjects)S._allProjects=S._allProjects.filter(x=>x.id!==id);
+  // activity_log previously recorded only 'updated hours' and 'updated project',
+  // so a deletion left no trace at all.
+  try{ logActivity('deleted project',label+' \u2014 '+(Math.round(hrs*10)/10)+' h, '+people.size+' engineers'); }catch(_){}
+  renderProj();updSB();toast('Deleted');
+}
 
 // ═══════════════════════════════════════
 // PROPOSALS (Admin Only)
