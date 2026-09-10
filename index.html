@@ -8851,6 +8851,8 @@ const PHOTO_PX=256;                 // stored square edge
 const PHOTO_MAX_BYTES=40*1024;      // re-encode target
 const PHOTO_SRC_MAX=8*1024*1024;    // reject sources bigger than this
 const _ORG_PHOTO_B64={};            // id -> dataURL|null, for PPTX export
+window._ORG_INCLUDE_PHOTOS=true;    // export toggle: include member photos in the PPTX (unchecked = initials only)
+window._ORG_FULLBIM=false;          // export toggle: draw the full BIM team by name (vs BIM managers + tally box)
 
 // FIRST TWO WORDS, deliberately — this is the rule the Team Register and the
 // detail panel already used, so people without a photo keep the exact initials
@@ -9172,7 +9174,9 @@ function getTeamOrgData(){
   const isJSEeng=e=>/^JSE-/.test(String(e.name||''));
   const sel=(typeof TS_SEL!=='undefined')?TS_SEL:{disc:new Set()};
   const discSel=(sel.disc&&sel.disc.size)?sel.disc:null;
-  const bimPicked=!!(discSel&&discSel.has('BIM'));
+  // Show every BIM member by name when BIM is explicitly filtered in, OR when the
+  // export "Full BIM team" toggle is on (otherwise only managers + a tally box).
+  const bimPicked=!!(discSel&&discSel.has('BIM'))||!!window._ORG_FULLBIM;
 
   const all=(S.engineers||[]).filter(e=>e&&!isJSEeng(e)&&filterEngForOrg(e));
   const rank=e=>orgGradeRank(e.grade);
@@ -9207,19 +9211,24 @@ function getTeamOrgData(){
     {name:/^brian\b/i, discs:['HVAC','PH&E']},
     {name:/^amr\b/i,   discs:['ELE','ELV']}
   ];
+  // Keep the branch even when its Technical Director is absent: head becomes null
+  // and the branch's discipline columns connect straight back to the MEP Director
+  // (drawn with a "Reports to Director" connector) instead of being orphaned.
   const branches=ORG_BRANCHES.map(function(rule){
-    const head=roster.find(x=>x!==director&&rule.name.test(String(x.name||'')));
-    return head?{head:head,discs:rule.discs.slice()}:null;
-  }).filter(Boolean);
+    const head=roster.find(x=>x!==director&&rule.name.test(String(x.name||'')))||null;
+    return {head:head,discs:rule.discs.slice()};
+  });
   // Management people who are neither the Director nor a discipline-owning TD.
   const otherHeads=roster.filter(e=>e!==director&&!branches.some(b=>b.head===e))
     .sort((a,b)=>bySeniority(a,b));
-  const structured=!!(director||branches.length||otherHeads.length);
+  // "structured" needs a real anchor (Director or an actual head), otherwise fall
+  // back to the flat layout — branches always has 2 entries now, so don't count it.
+  const structured=!!(director||branches.some(b=>b.head)||otherHeads.length);
 
   // Anyone with a box in the hierarchy must not also appear in a column.
   const placed=new Set();
   if(director)placed.add(director.id);
-  branches.forEach(b=>placed.add(b.head.id));
+  branches.forEach(b=>{ if(b.head)placed.add(b.head.id); });
   otherHeads.forEach(e=>placed.add(e.id));
   roster.forEach(e=>placed.add(e.id));   // management is never a delivery column
   // Tier rows shown between the Director and the columns: Technical Directors with
@@ -9240,7 +9249,9 @@ function getTeamOrgData(){
   let mepCount=0,bimCount=0,bimRest=0,bimRestLabel='';
   const columns=[];
   realDiscs.concat(['BIM']).forEach((disc,i)=>{
-    if(discSel&&!discSel.has(disc))return;
+    // A discipline filter normally hides other columns, but "Full BIM team" must
+    // always surface the BIM column even when the filter doesn't include it.
+    if(discSel&&!discSel.has(disc)&&!(disc==='BIM'&&window._ORG_FULLBIM))return;
     let members;
     if(disc==='BIM'){
       members=all.filter(e=>e.team==='BIM'&&!placed.has(e.id));
@@ -9297,7 +9308,9 @@ function getTeamOrgData(){
   if(structured){
     branches.forEach(b=>{
       const own=columns.filter(c=>b.discs.indexOf(c.disc)>=0);
-      groups.push({head:b.head,label:'',columns:own});
+      // Only draw a branch that actually has discipline columns. head may be null
+      // (no Technical Director) — the renderer then routes it to the Director.
+      if(own.length)groups.push({head:b.head,label:'',columns:own});
     });
     const claimed=new Set(groups.flatMap(g=>g.columns.map(c=>c.disc)));
     const rest=columns.filter(c=>!claimed.has(c.disc));
@@ -9377,12 +9390,21 @@ function openTeamOrgChart(){
           <div style="color:#fff;font-weight:700;font-size:15px;">MEP Team Organization Chart</div>
           <div style="color:#C7D2E0;font-size:10.5px;margin-top:2px;">${esc(d.scope)} · ${d.total} people</div>
         </div>
+        <label style="display:flex;align-items:center;gap:5px;color:#C7D2E0;font-size:11px;cursor:pointer;user-select:none;white-space:nowrap;" title="Include member photos in the exported slide (off = initials only)">
+          <input type="checkbox" id="org-inc-photos" ${window._ORG_INCLUDE_PHOTOS!==false?'checked':''} style="cursor:pointer;margin:0;"> Photos</label>
+        <label style="display:flex;align-items:center;gap:5px;color:#C7D2E0;font-size:11px;cursor:pointer;user-select:none;white-space:nowrap;" title="Draw every BIM member by name instead of managers + a headcount tally">
+          <input type="checkbox" id="org-full-bim" ${window._ORG_FULLBIM?'checked':''} onchange="window._ORG_FULLBIM=this.checked;openTeamOrgChart();" style="cursor:pointer;margin:0;"> Full BIM team</label>
+        <label style="display:flex;align-items:center;gap:5px;color:#C7D2E0;font-size:11px;white-space:nowrap;" title="Paper size for the export (all landscape). Auto = smallest sheet that fits full names.">Paper
+          <select id="org-paper" onchange="window._ORG_PAPER=this.value;" style="font-size:11px;padding:2px 4px;border-radius:5px;border:1px solid #cbd5e1;cursor:pointer;">
+            <option value="Auto">Auto</option><option value="16:9">16:9</option><option value="A3">A3</option><option value="A2">A2</option><option value="A1">A1</option><option value="A0">A0</option>
+          </select></label>
         <button onclick="exportTeamOrgPPTX()" style="background:#fff;color:#10243E;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">&#11015; Export PPTX</button>
         <button onclick="closeTeamOrgChart()" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;">Close</button>
       </div>
       <div style="padding:16px;">${body}</div>
     </div>`;
   document.body.appendChild(ov);
+  const _ps=document.getElementById('org-paper'); if(_ps)_ps.value=window._ORG_PAPER||'Auto';
 }
 
 // ═══════════════════════════════════════
@@ -9404,178 +9426,281 @@ function _orgDrawSlide(pptx,cfg){
   const dePlain=s=>String(s||'').replace(/<[^>]*>/g,'').replace(/&amp;/g,'&').replace(/&lt;/g,'<')
     .replace(/&gt;/g,'>').replace(/&#0?39;/g,"'").replace(/&quot;/g,'"');
   const NAVY='10243E', CONN='94A3B8';
+  // Slide canvas is configurable so a crowded roster can be drawn on a big sheet
+  // (wide columns = full names) instead of being squeezed onto 16:9. Caller passes
+  // cfg.SW/cfg.SH; everything below is derived from these so nothing is hardcoded.
+  const SW=cfg.SW||13.33, SH=cfg.SH||7.5;
+  const CX=SW/2, FOOT_H=0.55, FOOT_Y=SH-FOOT_H, HEAD_H=0.85;
   const s=pptx.addSlide(); s.background={color:'F1F5F9'};
 
-  s.addShape('rect',{x:0,y:0,w:13.33,h:0.85,fill:{color:NAVY}});
-  s.addText(dePlain(cfg.title),{x:0.35,y:0.10,w:10,h:0.4,color:'FFFFFF',bold:true,fontSize:20});
-  s.addText(dePlain(cfg.subtitle||''),{x:0.36,y:0.50,w:10,h:0.28,color:'C7D2E0',fontSize:10,charSpacing:1});
-  try{ if(typeof BRAND_LOGO_URL!=='undefined'&&BRAND_LOGO_URL) s.addImage({data:BRAND_LOGO_URL,x:11.55,y:0.16,w:1.5,h:0.53}); }catch(e){}
+  s.addShape('rect',{x:0,y:0,w:SW,h:HEAD_H,fill:{color:NAVY}});
+  s.addText(dePlain(cfg.title),{x:0.35,y:0.10,w:SW*0.7,h:0.4,color:'FFFFFF',bold:true,fontSize:20});
+  s.addText(dePlain(cfg.subtitle||''),{x:0.36,y:0.50,w:SW*0.7,h:0.28,color:'C7D2E0',fontSize:10,charSpacing:1});
+  try{ if(typeof BRAND_LOGO_URL!=='undefined'&&BRAND_LOGO_URL) s.addImage({data:BRAND_LOGO_URL,x:SW-1.78,y:0.16,w:1.5,h:0.53}); }catch(e){}
 
   const _vline=(cx,y,h)=>s.addShape('rect',{x:cx-0.01,y:y,w:0.02,h:Math.max(h,0.02),fill:{color:CONN},line:{type:'none'}});
   const _hline=(x,y,w)=>s.addShape('rect',{x:x,y:y-0.01,w:Math.max(w,0.02),h:0.02,fill:{color:CONN},line:{type:'none'}});
   const fitPt=(t,wIn,max,min)=>{ const len=Math.max(1,String(t||'').length);
     return Math.max(min,Math.min(max,(wIn*72)/(0.52*len))); };
+  // Abbreviate a designation so it fits a narrow box without overflowing. Words
+  // are shortened first; if still too long the trailing " - DISC" suffix is cut.
+  const _abbr=(dg,maxChars)=>{ let s=String(dg||''); if(s.length<=maxChars)return s;
+    s=s.replace(/\bSenior\b/gi,'Sr').replace(/\bPrincipal\b/gi,'Prin').replace(/\bAssociate\b/gi,'Assoc')
+       .replace(/\bAssistant\b/gi,'Asst').replace(/\bManager\b/gi,'Mgr').replace(/\bEngineer\b/gi,'Eng')
+       .replace(/\bModell?er\b/gi,'Mod').replace(/\bCoordinator\b/gi,'Coord').replace(/\bSpecialist\b/gi,'Spec')
+       .replace(/\bTechnical\b/gi,'Tech').replace(/\bDirector\b/gi,'Dir').replace(/\bJunior\s*\/\s*Grad(uate)?\b/gi,'Grad');
+    if(s.length<=maxChars)return s;
+    s=s.replace(/\s*[-\u2014]\s*[A-Za-z0-9&\/ ]+$/,''); return s; };
 
   function personBox(x,y,w,h,e,ring){
-    s.addShape('roundRect',{x,y,w,h,rectRadius:0.05,fill:{color:'FFFFFF'},line:{color:'E2E8F0',width:1}});
-    const compact=(h<0.5)||(w<1.6);
-    let tx,tw;
-    if(compact){
-      s.addShape('rect',{x:x,y:y,w:0.05,h:h,fill:{color:hx(ring)},line:{type:'none'}});
-      tx=x+0.14; tw=w-0.22;
-    }else{
-      const dia=Math.min(h-0.16,0.40);
-      // Photo if one was prefetched, otherwise the initials ellipse. Any fetch
-      // that failed cached null, so it lands here rather than blanking the box.
-      const _ph=(typeof _ORG_PHOTO_B64!=='undefined')?_ORG_PHOTO_B64[e.id]:null;
-      let _drew=false;
-      if(_ph){
-        try{ s.addImage({data:_ph,x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,rounding:true}); _drew=true; }
-        catch(_e){ _drew=false; }
-      }
-      if(!_drew){
-        s.addText(dePlain(orgInitials(e.name)),{shape:'ellipse',x:x+0.08,y:y+(h-dia)/2,w:dia,h:dia,
-          fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',fontSize:9,bold:true,wrap:false,margin:0});
-      }
-      tx=x+0.08+dia+0.10; tw=w-(0.08+dia+0.10)-0.08;
-    }
-    const nm=dePlain(orgShortName(e.name)), dg=dePlain(orgDesig(e,e.disc));
-    const nameH=compact?0.155:0.21, desigH=compact?0.135:0.185;
+    s.addShape('roundRect',{x,y,w,h,rectRadius:0.05,fill:{color:'FFFFFF'},line:{color:'E2E8F0',width:0.75}});
+    // Avatar is ALWAYS drawn — a prefetched photo when enabled, otherwise the
+    // initials ellipse. Sized to the box so even dense rows keep a face. This is
+    // the fix for column members previously rendering as a bare colour bar.
+    const dia=Math.max(0.18,Math.min(h-0.08,0.42));
+    const ax=x+0.07, ay=y+(h-dia)/2;
+    const _ph=(window._ORG_INCLUDE_PHOTOS!==false&&typeof _ORG_PHOTO_B64!=='undefined')?_ORG_PHOTO_B64[e.id]:null;
+    let _drew=false;
+    if(_ph){ try{ s.addImage({data:_ph,x:ax,y:ay,w:dia,h:dia,rounding:true}); _drew=true; }catch(_e){ _drew=false; } }
+    if(!_drew){ s.addText(dePlain(orgInitials(e.name)),{shape:'ellipse',x:ax,y:ay,w:dia,h:dia,
+      fill:{color:hx(ring)},color:'FFFFFF',align:'center',valign:'middle',
+      fontSize:Math.max(6,Math.min(10,dia*22)),bold:true,wrap:false,margin:0}); }
+    const tx=ax+dia+0.09, tw=w-(0.07+dia+0.09)-0.06;
+    const twoLine=(h>=0.34);
+    // Fit-or-truncate: pick the largest font (down to a floor) that fits, then if
+    // the text STILL can't fit at the floor, hard-truncate with an ellipsis so it
+    // can never spill past the card border — even under PowerPoint's wider fonts.
+    // CW is a conservative average glyph width (fraction of the point size).
+    const CW=0.60;
+    const fitText=(t,wIn,maxPt,minPt)=>{
+      t=String(t||'');
+      let pt=Math.max(minPt,Math.min(maxPt,(wIn*72)/(CW*Math.max(1,t.length))));
+      const maxChars=Math.max(1,Math.floor((wIn*72)/(CW*pt)));
+      if(t.length>maxChars) t=t.slice(0,Math.max(1,maxChars-1)).replace(/\s+$/,'')+'\u2026';
+      return {t,pt};
+    };
+    const full=dePlain(e.name||'');
+    const nm=fitText(full,tw,twoLine?10.5:9,6.5);
+    const nameH=twoLine?Math.min(0.22,h*0.54):h, desigH=twoLine?Math.min(0.18,h*0.42):0;
     const yTop=y+(h-(nameH+desigH))/2;
-    s.addText(nm,{x:tx,y:yTop,w:tw,h:nameH,valign:'middle',wrap:false,margin:0,bold:true,
-      color:'111827',fontSize:fitPt(nm,tw,compact?8:10,5.6)});
-    s.addText(dg,{x:tx,y:yTop+nameH,w:tw,h:desigH,valign:'middle',wrap:false,margin:0,
-      color:'6B7280',fontSize:fitPt(dg,tw,compact?6.4:8.2,4.8)});
+    s.addText(nm.t,{x:tx,y:yTop,w:tw,h:nameH,valign:'middle',wrap:false,margin:0,bold:true,
+      color:'111827',fontSize:nm.pt});
+    if(twoLine){
+      // Abbreviate common words first (keeps meaning), then fit-or-truncate.
+      let dgFull=dePlain(orgDesig(e,e.disc));
+      const dgCap=Math.floor((tw*72)/(CW*6));
+      if(dgFull.length>dgCap) dgFull=_abbr(dgFull,dgCap);
+      const dg=fitText(dgFull,tw,8.5,5.5);
+      s.addText(dg.t,{x:tx,y:yTop+nameH,w:tw,h:desigH,valign:'middle',wrap:false,margin:0,
+        color:'6B7280',fontSize:dg.pt});
+    }
   }
 
-  const M=0.4, GAP=0.16;
-  let y=1.02; const HB={w:3.4,h:0.6};
-  let busY, headerY, headerH=0.36, groupX=null;
-  const groups=cfg.groups||[];
+  // ═══ LAYOUT ENGINE (content-width columns, centered, continuous connectors) ═══
+  const M=0.4, DGAP=0.30, SUBGAP=0.08, GAPY=0.06;
+  const cols=cfg.columns||[];
+  const nCols=cols.length||1;
+  // Deterministic sub-column count per discipline — MUST match _orgSlideSize so
+  // the sheet is sized to exactly what is drawn (no empty space). >15 items -> 2
+  // columns (this is what splits BIM into two), >30 -> 3.
+  const _items=c=>(c.members?c.members.length:0)+(c.officeGroups?c.officeGroups.length:0)+(c.summary?1:0);
+  // Balanced split: keep every column under ~ROWCAP rows so the TALL disciplines
+  // (HVAC, ELE) also wrap into 2 columns — this shortens the sheet and removes the
+  // empty lower-right band, instead of only splitting BIM. Must match _orgSlideSize.
+  const ROWCAP=16;
+  const _sub=c=>Math.max(1,Math.min(3,Math.ceil(_items(c)/ROWCAP)));
+  const subs=cols.map(_sub);
+  const totalSub=subs.reduce((a,b)=>a+b,0)||1;
+  // Fixed, readable card width. Fit to the sheet when possible; only shrink (to a
+  // legible floor) if a forced small paper can't hold the target width.
+  const _gaps=(nCols-1)*DGAP+subs.reduce((a,s)=>a+(s-1)*SUBGAP,0);
+  let SUBW=(SW-2*M-_gaps)/totalSub;
+  SUBW=Math.max(2.7,Math.min(3.15,SUBW));
+  const discW=subs.map(s=>s*SUBW+(s-1)*SUBGAP);
+  const blockW=discW.reduce((a,b)=>a+b,0)+(nCols-1)*DGAP;
+  const startX=Math.max(M,(SW-blockW)/2);            // centre the whole block — kills side waste
+  const discX=[]; { let cx0=startX; for(let i=0;i<nCols;i++){ discX.push(cx0); cx0+=discW[i]+DGAP; } }
+  const discCenter=i=>discX[i]+discW[i]/2;
+
+  let y=0.95; const HB={w:3.4,h:0.5};
+  let busY, headerY, headerH=0.36;
   const structured=!!cfg.structured;
+  // Overlap helper: extend every connector by 0.015" at each end so segments
+  // physically overlap at junctions — the fix for hairline gaps that made the
+  // lines look broken.
+  const OV=0.015;
+  const vseg=(cx,y0,y1)=>{ if(y1>y0) _vline(cx,y0-OV,(y1-y0)+2*OV); };
+  const hseg=(x0,x1,yy)=>{ if(x1>x0) _hline(x0-OV,yy,(x1-x0)+2*OV); };
 
   if(structured){
-    if(cfg.director){ personBox((13.33-HB.w)/2,y,HB.w,HB.h,cfg.director,NAVY); y+=HB.h; _vline(6.665,y,0.16); y+=0.16; }
+    // Map each group to the indices of its discipline columns + its span/centre.
+    const groupInfo=(cfg.groups||[]).map(g=>{
+      const idxs=(g.columns||[]).map(c=>cols.indexOf(c)).filter(i=>i>=0);
+      if(!idxs.length)return null;
+      const x0=Math.min(...idxs.map(i=>discX[i]));
+      const x1=Math.max(...idxs.map(i=>discX[i]+discW[i]));
+      return {head:g.head,idxs,x0,x1,cx:(x0+x1)/2};
+    }).filter(Boolean);
+
+    if(cfg.director){ personBox((SW-HB.w)/2,y,HB.w,HB.h,cfg.director,NAVY); y+=HB.h; }
     (cfg.tiers||[]).forEach(t=>{
-      const n=t.items.length, tw=n*HB.w+(n-1)*0.25, sx=(13.33-tw)/2;
+      const n=t.items.length, tw=n*HB.w+(n-1)*0.25, sx=(SW-tw)/2;
       t.items.forEach((e,k)=>personBox(sx+k*(HB.w+0.25),y,HB.w,HB.h,e,'334155'));
       y+=HB.h+0.14;
     });
-    const totalCols=groups.reduce((a,g)=>a+Math.max(1,g.columns.length),0)||1;
-    const usable=13.33-2*M-(groups.length-1)*0.30;
-    groupX=[]; let gx=M;
-    groups.forEach(g=>{ const w=usable*(Math.max(1,g.columns.length)/totalCols); groupX.push({x:gx,w:w,g:g}); gx+=w+0.30; });
-    if(groupX.length>1){
-      const f=groupX[0].x+groupX[0].w/2, l=groupX[groupX.length-1].x+groupX[groupX.length-1].w/2;
-      _hline(f,y,l-f);
+    // Main bus below the director/TD band, spanning all group centres.
+    const mainBusY=y+0.20;
+    vseg(CX,y,mainBusY);
+    if(groupInfo.length>1){
+      const f=Math.min(...groupInfo.map(g=>g.cx)), l=Math.max(...groupInfo.map(g=>g.cx));
+      hseg(f,l,mainBusY);
     }
-    const BHh=0.55;
-    groupX.forEach(gi=>{
-      const cx=gi.x+gi.w/2;
-      _vline(cx,y,0.14);
-      if(gi.g.head){ const bw=Math.min(3.4,gi.w-0.1); personBox(cx-bw/2,y+0.14,bw,BHh,gi.g.head,'1E3A5F'); }
-      else s.addText('REPORTS TO DIRECTOR',{x:gi.x,y:y+0.14,w:gi.w,h:BHh,align:'center',valign:'middle',
-        fontSize:8.5,color:'64748B',charSpacing:1});
+    // Group heads (or "Reports to Director" for headless branches).
+    const headTopY=mainBusY+0.14, BHh=0.48;
+    let headBottom=headTopY+BHh;
+    groupInfo.forEach(g=>{
+      vseg(g.cx,mainBusY,headTopY);
+      if(g.head){ const bw=Math.min(3.4,Math.max(2.6,g.x1-g.x0-0.1)); personBox(g.cx-bw/2,headTopY,bw,BHh,g.head,'1E3A5F'); }
+      else s.addText('REPORTS TO DIRECTOR',{x:g.x0,y:headTopY,w:g.x1-g.x0,h:BHh,align:'center',valign:'middle',fontSize:8.5,color:'64748B',charSpacing:1});
     });
-    busY=y+0.14+BHh+0.10; headerY=busY+0.14;
+    // Group-level bus + a drop into each discipline header — continuous.
+    busY=headBottom+0.16; headerY=busY+0.16;
+    groupInfo.forEach(g=>{
+      vseg(g.cx,headBottom,busY);
+      const centers=g.idxs.map(i=>discCenter(i));
+      hseg(Math.min(...centers),Math.max(...centers),busY);
+      g.idxs.forEach(i=>vseg(discCenter(i),busY,headerY));
+    });
   }else{
+    if(cfg.director){ personBox((SW-HB.w)/2,y,HB.w,HB.h,cfg.director,NAVY); y+=HB.h; }
     (cfg.tiers||[]).forEach((t,ti)=>{
-      const n=t.items.length, totalW=n*HB.w+(n-1)*0.25, startX=(13.33-totalW)/2;
-      t.items.forEach((e,k)=>personBox(startX+k*(HB.w+0.25),y,HB.w,HB.h,e,NAVY));
-      y+=HB.h;
-      if(ti<(cfg.tiers||[]).length-1){ _vline(6.665,y,0.18); y+=0.18; }
+      const n=t.items.length, tw=n*HB.w+(n-1)*0.25, sx=(SW-tw)/2;
+      t.items.forEach((e,k)=>personBox(sx+k*(HB.w+0.25),y,HB.w,HB.h,e,NAVY));
+      y+=HB.h; if(ti<(cfg.tiers||[]).length-1)y+=0.14;
     });
-    busY=y+0.12;
-    if((cfg.tiers||[]).length){ _vline(6.665,y,0.12); _hline(0.4,busY,12.53); }
-    headerY=busY+0.18;
+    const hasTop=!!(cfg.director||(cfg.tiers||[]).length);
+    if(hasTop){
+      busY=y+0.20; vseg(CX,y,busY);
+      const centers=cols.map((c,i)=>discCenter(i));
+      hseg(Math.min(...centers),Math.max(...centers),busY);
+      headerY=busY+0.16;
+      cols.forEach((c,i)=>vseg(discCenter(i),busY,headerY));
+    }else{ busY=y; headerY=y+0.02; }
   }
 
-  const cols=cfg.columns||[];
-  const nCols=cols.length||1;
-  const colW0=(13.33-2*M-(nCols-1)*GAP)/nCols;
-  const memTop=headerY+headerH+0.12, memBottom=6.85;
+  // ── Member band ──
+  const memTop=headerY+headerH+0.10, memBottom=FOOT_Y-0.07;
   const avail=memBottom-memTop;
-  const MINH=0.30, GAPY=0.05;
-  // An office header occupies a slot in the column, so it has to be counted or
-  // the last person falls off the bottom of the slide.
-  const hdrCount=c=>(c.officeGroups?c.officeGroups.length:0);
-  const plan=cols.map(c=>{
-    const n=c.members.length+(c.summary?1:0)+hdrCount(c);
-    let sub=1;
-    while(sub<4){ const rows=Math.ceil(n/sub); if((avail-(rows-1)*GAPY)/rows>=MINH)break; sub++; }
-    return {rows:Math.ceil(n/sub),sub};
-  });
-  const maxRows=Math.max(1,...plan.map(p=>p.rows));
+  const MINH=0.34;
+  const rowsFor=(c,i)=>Math.ceil(_items(c)/subs[i]);
+  const maxRows=Math.max(1,...cols.map(rowsFor));
   let memH=(avail-(maxRows-1)*GAPY)/maxRows;
-  memH=Math.max(MINH,Math.min(0.74,memH));
+  memH=Math.max(MINH,Math.min(0.66,memH));
 
-  const layout=[];
-  if(structured&&groupX){
-    groupX.forEach(gi=>{
-      const n=Math.max(1,gi.g.columns.length);
-      const cw=(gi.w-(n-1)*GAP)/n;
-      gi.g.columns.forEach((c,k)=>layout.push({c,x:gi.x+k*(cw+GAP),w:cw}));
-    });
-  }else cols.forEach((c,k)=>layout.push({c,x:M+k*(colW0+GAP),w:colW0}));
-
-  layout.forEach(L=>{
-    const c=L.c, x=L.x, colW=L.w, ci=cols.indexOf(c);
-    // Only drop a connector if there is actually something above it — a project
-    // with no umbrella heads has no bus line, and the stub looked like a defect.
-    const hasAbove=structured||((cfg.tiers||[]).length>0);
-    if(hasAbove)_vline(x+colW/2,busY,headerY-busY);
+  cols.forEach((c,i)=>{
+    const x=discX[i], colW=discW[i], sub=subs[i], rows=rowsFor(c,i);
+    // header (its drop is already drawn above)
     s.addShape('roundRect',{x,y:headerY,w:colW,h:headerH,rectRadius:0.05,fill:{color:hx(c.color)},line:{type:'none'}});
     s.addText(dePlain(c.label).toUpperCase()+'  ('+(c.total!=null?c.total:c.members.length)+')',
-      {x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:10.5,align:'center',valign:'middle',charSpacing:1});
-    const pl=plan[ci];
-    const subW=(colW-(pl.sub-1)*0.08)/pl.sub;
+      {x,y:headerY,w:colW,h:headerH,color:'FFFFFF',bold:true,fontSize:11,align:'center',valign:'middle',charSpacing:1});
+    const swid=(colW-(sub-1)*SUBGAP)/sub;
     let slot=0;
-    const place=(fn)=>{ const sc=Math.floor(slot/pl.rows), rw=slot%pl.rows; slot++;
-      fn(x+sc*(subW+0.08),memTop+rw*(memH+GAPY)); };
+    const place=(fn)=>{ const sc=Math.floor(slot/rows), rw=slot%rows; slot++;
+      fn(x+sc*(swid+SUBGAP),memTop+rw*(memH+GAPY)); };
     if(c.officeGroups){
       c.officeGroups.forEach(g=>{
         place((bx,by)=>{
-          s.addShape('rect',{x:bx,y:by+memH*0.28,w:subW,h:memH*0.44,fill:{color:hx(c.color)},line:{type:'none'}});
+          s.addShape('rect',{x:bx,y:by+memH*0.28,w:swid,h:memH*0.44,fill:{color:hx(c.color)},line:{type:'none'}});
           s.addText(dePlain(g.label).toUpperCase()+'  '+g.members.length,
-            {x:bx,y:by+memH*0.28,w:subW,h:memH*0.44,align:'center',valign:'middle',
+            {x:bx,y:by+memH*0.28,w:swid,h:memH*0.44,align:'center',valign:'middle',
              bold:true,color:'FFFFFF',fontSize:Math.max(6,Math.min(8.5,memH*11)),charSpacing:1,margin:0});
         });
-        g.members.forEach(e=>place((bx,by)=>personBox(bx,by,subW,memH,e,c.color)));
+        g.members.forEach(e=>place((bx,by)=>personBox(bx,by,swid,memH,e,c.color)));
       });
     } else {
-      c.members.forEach(e=>place((bx,by)=>personBox(bx,by,subW,memH,e,c.color)));
+      c.members.forEach(e=>place((bx,by)=>personBox(bx,by,swid,memH,e,c.color)));
     }
     if(c.summary){
-      const sc=Math.floor(slot/pl.rows), rw=slot%pl.rows; slot++;
-      const bx=x+sc*(subW+0.08), by=memTop+rw*(memH+GAPY);
-      s.addShape('roundRect',{x:bx,y:by,w:subW,h:memH,rectRadius:0.05,fill:{color:'FFFFFF'},
+      const sc=Math.floor(slot/rows), rw=slot%rows; slot++;
+      const bx=x+sc*(swid+SUBGAP), by=memTop+rw*(memH+GAPY);
+      s.addShape('roundRect',{x:bx,y:by,w:swid,h:memH,rectRadius:0.05,fill:{color:'FFFFFF'},
         line:{color:hx(c.color),width:1.25,dashType:'dash'}});
-      s.addText(dePlain(c.summary),{x:bx+0.06,y:by,w:subW-0.12,h:memH,align:'center',valign:'middle',
+      s.addText(dePlain(c.summary),{x:bx+0.06,y:by,w:swid-0.12,h:memH,align:'center',valign:'middle',
         bold:true,color:hx(c.color),margin:0,
-        fontSize:Math.max(6,Math.min(9,((subW-0.12)*72)/(0.5*String(c.summary).length)))});
+        fontSize:Math.max(6,Math.min(9,((swid-0.12)*72)/(0.5*String(c.summary).length)))});
     }
   });
 
-  s.addShape('rect',{x:0,y:6.95,w:13.33,h:0.55,fill:{color:NAVY}});
-  s.addText(dePlain(cfg.footerLabel||''),{x:0.35,y:6.95,w:6,h:0.55,color:'FFFFFF',bold:true,fontSize:12,valign:'middle',charSpacing:1});
+  s.addShape('rect',{x:0,y:FOOT_Y,w:SW,h:FOOT_H,fill:{color:NAVY}});
+  s.addText(dePlain(cfg.footerLabel||''),{x:0.35,y:FOOT_Y,w:SW*0.45,h:FOOT_H,color:'FFFFFF',bold:true,fontSize:12,valign:'middle',charSpacing:1});
   const runs=[];
   (cfg.footerStats||[]).forEach(function(st,k){
     runs.push({text:String(st[0]),options:{bold:true,fontSize:18,color:'FFFFFF'}});
     runs.push({text:'  '+st[1]+(k<cfg.footerStats.length-1?'      ':''),options:{fontSize:10,color:'C7D2E0'}});
   });
-  if(runs.length)s.addText(runs,{x:6.4,y:6.95,w:6.6,h:0.55,align:'right',valign:'middle'});
+  if(runs.length)s.addText(runs,{x:SW*0.48,y:FOOT_Y,w:SW*0.5-0.35,h:FOOT_H,align:'right',valign:'middle'});
   return s;
 }
+
+// ── Landscape paper sizes (inches, width × height — always W > H) ────────────
+// Auto now returns an EXACT fitted landscape sheet (columns sized to content and
+// the block centred) so the sheet is filled with no empty margins. A fixed choice
+// from the dropdown is honoured as-is. Large columns (BIM) split into 2 sub-columns.
+const ORG_PAPER={
+  '16:9':[13.33,7.5],
+  'A4':  [11.69,8.27],
+  'A3':  [16.54,11.69],
+  'A2':  [23.39,16.54],
+  'A1':  [33.11,23.39],
+  'A0':  [46.81,33.11]
+};
+const ORG_PAPER_LADDER=['A3','A2','A1','A0'];
+
+function _orgSlideSize(d){
+  // Mirrors the LAYOUT ENGINE exactly so the sheet is sized to what is drawn —
+  // this is what removes the empty space: no oversized paper, no stretched cols.
+  const M=0.4, DGAP=0.30, SUBGAP=0.08, GAPY=0.06, rowH=0.52, SUBW=3.05, ROWCAP=16;
+  const cols=d.columns||[];
+  const nCols=Math.max(1,cols.length);
+  const items=c=>(c.members?c.members.length:0)+(c.officeGroups?c.officeGroups.length:0)+(c.summary?1:0);
+  const subFor=c=>Math.max(1,Math.min(3,Math.ceil(items(c)/ROWCAP)));
+  const subs=cols.map(subFor);
+  const totalSub=subs.reduce((a,b)=>a+b,0)||1;
+  const maxRows=Math.max(1,...cols.map((c,i)=>Math.ceil(items(c)/subs[i])));
+  const _gaps=(nCols-1)*DGAP+subs.reduce((a,s)=>a+(s-1)*SUBGAP,0);
+  const needW=2*M+totalSub*SUBW+_gaps;
+  const topEst=d.structured?2.75:((d.tiers&&d.tiers.length)?1.95:1.45);
+  const needH=topEst+maxRows*rowH+(maxRows-1)*GAPY+0.10+0.55+0.20;
+
+  // Respect an explicit paper choice from the dropdown (all landscape).
+  const pick=window._ORG_PAPER||'Auto';
+  if(pick!=='Auto' && ORG_PAPER[pick]){
+    return {SW:ORG_PAPER[pick][0],SH:ORG_PAPER[pick][1],paper:pick};
+  }
+  // Auto: exact fitted LANDSCAPE sheet (filled edge-to-edge). Guarantee W>H.
+  let SW=Math.max(13.33,needW), SH=Math.max(7.5,needH);
+  if(SH>=SW*0.92){ SH=+(SW*0.62).toFixed(2); }        // never portrait / near-square
+  return {SW:+SW.toFixed(2),SH:+SH.toFixed(2),paper:'Auto'};
+}
+window._ORG_PAPER=window._ORG_PAPER||'Auto';
 
 function exportTeamOrgPPTX(){
   ensurePptxGen(async()=>{
     try{
+      // Read the export toggles from the overlay checkboxes (default to on/off).
+      const _cbP=document.getElementById('org-inc-photos');
+      const _cbB=document.getElementById('org-full-bim');
+      window._ORG_INCLUDE_PHOTOS=_cbP?_cbP.checked:true;
+      window._ORG_FULLBIM=_cbB?_cbB.checked:!!window._ORG_FULLBIM;
+      const _sel=document.getElementById('org-paper'); if(_sel)window._ORG_PAPER=_sel.value;
       const d=getTeamOrgData();
       if(!d.columns.length&&!d.tiers.length&&!d.director){ toast('No team members match the current filters.'); return; }
-      try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); }
+      if(window._ORG_INCLUDE_PHOTOS){ try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); } }
       const pptx=new PptxGenJS();
-      pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
+      const sz=_orgSlideSize(d);
+      pptx.defineLayout({name:'OC',width:sz.SW,height:sz.SH}); pptx.layout='OC';
       _orgDrawSlide(pptx,{
+        SW:sz.SW, SH:sz.SH,
         title:'MEP TEAM ORGANIZATION CHART',
         subtitle:String(d.scope||'').toUpperCase()+'  ·  '+d.total+' PEOPLE',
         director:d.director, tiers:d.tiers, groups:d.groups, structured:d.structured,
@@ -9677,13 +9802,20 @@ function openOrgChart(pid){
   ov.onclick=(e)=>{ if(e.target===ov)closeOrgChart(); };
   const sheet=document.createElement('div');
   sheet.style.cssText='background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:1180px;width:100%;margin:auto;';
-  sheet.innerHTML=`<div style="display:flex;justify-content:flex-end;gap:8px;padding:10px 12px;border-bottom:1px solid #e5e7eb;">
+  sheet.innerHTML=`<div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e5e7eb;">
+      <label style="display:flex;align-items:center;gap:5px;color:#334155;font-size:12px;cursor:pointer;user-select:none;margin-right:auto;white-space:nowrap;" title="Include member photos in the exported slide (off = initials only)">
+        <input type="checkbox" id="org-inc-photos-proj" ${window._ORG_INCLUDE_PHOTOS!==false?'checked':''} style="cursor:pointer;margin:0;"> Include photos</label>
+      <label style="display:flex;align-items:center;gap:5px;color:#334155;font-size:12px;white-space:nowrap;" title="Paper size for the export (all landscape). Auto = smallest sheet that fits full names.">Paper
+        <select id="org-paper-proj" onchange="window._ORG_PAPER=this.value;" style="font-size:12px;padding:2px 4px;border-radius:5px;border:1px solid #cbd5e1;cursor:pointer;">
+          <option value="Auto">Auto</option><option value="16:9">16:9</option><option value="A3">A3</option><option value="A2">A2</option><option value="A1">A1</option><option value="A0">A0</option>
+        </select></label>
       <button onclick="exportOrgChartPPTX('${pid}')" style="background:#10243E;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Export PPTX</button>
       <button onclick="closeOrgChart()" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;">Close</button>
     </div>
     <div style="padding:14px;">${buildOrgChartHTML(p)}</div>`;
   ov.appendChild(sheet);
   document.body.appendChild(ov);
+  const _ps=document.getElementById('org-paper-proj'); if(_ps)_ps.value=window._ORG_PAPER||'Auto';
 }
 function closeOrgChart(){ const ex=document.getElementById('orgchart-ov'); if(ex)ex.remove(); }
 // Shared data model for the org chart (used by both the on-screen view and the PPTX export).
@@ -9727,8 +9859,11 @@ function exportOrgChartPPTX(pid){
   const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
   ensurePptxGen(async()=>{
     try{
+      const _cbP=document.getElementById('org-inc-photos-proj');
+      window._ORG_INCLUDE_PHOTOS=_cbP?_cbP.checked:true;
+      const _sel=document.getElementById('org-paper-proj'); if(_sel)window._ORG_PAPER=_sel.value;
       const d=getOrgChartData(p);
-      try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); }
+      if(window._ORG_INCLUDE_PHOTOS){ try{ await _orgPrefetchPhotos(); }catch(_e){ console.warn('photo prefetch',_e); } }
       // Same renderer as the MEP Team chart, so the two are visually identical.
       // Members are re-sorted here to match it: grade, then Dubai, Egypt, India,
       // then name — and no lead is floated to the top.
@@ -9741,8 +9876,10 @@ function exportOrgChartPPTX(pid){
         return {disc:c.disc,label:c.label,color:c.color,members:ms,total:ms.length,summary:''};
       });
       const pptx=new PptxGenJS();
-      pptx.defineLayout({name:'OC',width:13.33,height:7.5}); pptx.layout='OC';
+      const sz=_orgSlideSize({columns:cols,tiers:d.tiers,structured:false});
+      pptx.defineLayout({name:'OC',width:sz.SW,height:sz.SH}); pptx.layout='OC';
       _orgDrawSlide(pptx,{
+        SW:sz.SW, SH:sz.SH,
         title:'PROJECT TEAM ORGANIZATION CHART',
         subtitle:(d.no?d.no+' — ':'')+String(d.name||'').toUpperCase(),
         director:null, tiers:d.tiers, groups:[], structured:false,
