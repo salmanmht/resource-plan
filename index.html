@@ -1597,6 +1597,14 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
       </div>
       <div class="ff full"><label>Full Name *</label><input id="em-name"></div>
+      <div class="ff full" style="padding:2px 0 4px;">
+        <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-weight:600;font-size:12px;">
+          <input type="checkbox" id="em-use-dn" onchange="onDisplayNameToggle()" style="width:15px;height:15px;accent-color:#0d9488;">
+          <span style="color:#0f766e;">Use a display name <span style="font-weight:400;color:var(--tx3);font-size:10px;">— org chart &amp; team cards only</span></span>
+        </label>
+        <input id="em-dn" placeholder="e.g. Salman S." style="display:none;margin-top:6px;">
+        <div id="em-dn-hint" style="display:none;font-size:10px;color:var(--tx3);margin-top:4px;line-height:1.4;">Search, bookings, exports and leave grids always use the full name.</div>
+      </div>
       <div class="ff full"><label>Designation <span style="font-weight:400;color:var(--tx3);font-size:10px;">(auto — Grade Tier + Discipline)</span></label><input id="em-desig" readonly style="background:#f1f5f9;color:var(--tx2);cursor:not-allowed;"></div>
       <div class="ff full"><label>Work Email</label><input type="email" id="em-email" placeholder="e.g. name@meinhardtgroup.com"></div>
       <div class="ff full" style="display:flex;align-items:center;gap:10px;padding:6px 0;">
@@ -8410,7 +8418,7 @@ function renderTeam(){
       <div style="flex:1;min-width:0;">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.25;">${e.name}${isCross?' <span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#eef2f7;color:#1e3a5f;vertical-align:2px;">cross</span>':''}</div>
+            <div style="font-size:13.5px;font-weight:600;color:var(--tx);line-height:1.25;"${e.displayName?' title="'+esc(e.name)+'"':''}>${esc(engDisplayName(e))}${isCross?' <span style="font-size:8px;font-weight:700;padding:1px 6px;border-radius:10px;background:#eef2f7;color:#1e3a5f;vertical-align:2px;">cross</span>':''}</div>
             <div style="font-size:11px;color:var(--tx2);margin-top:3px;">${e.desig||'—'} · <span style="color:var(--tx3);">${offLabel}</span></div>
           </div>
           ${gaugeHtml}
@@ -9146,6 +9154,19 @@ function orgCard(e,disc,color,isLead){
 // One compressed slide: crowded columns wrap into sub-columns and switch to a
 // compact box (no avatar) rather than running off the bottom.
 
+// Optional per-person display name, used on VISUAL surfaces only (org chart cards
+// and Team Register cards). Everything that has to stay searchable or auditable —
+// search, sorting, filters, bookings, Excel exports, leave/tracker grids — keeps
+// reading e.name, so typing any part of the legal name still finds the person.
+// Set from the employee dialog ("Use a display name"); unticking clears it and
+// the automatic shortening below takes over again.
+function engDisplayName(e){
+  if(!e)return '';
+  var d=e.displayName!=null?String(e.displayName).trim():'';
+  return d||String(e.name||'');
+}
+window.engDisplayName=engDisplayName;
+
 // Long names wrap over the designation in a narrow box, so they are shortened to
 // first + last ("Senthil Kumar Sundara Rajan" -> "Senthil Rajan"), and reduced to
 // a last initial if still too long ("Senthilkumar Jayaprakash" -> "Senthilkumar J.").
@@ -9379,14 +9400,14 @@ function openTeamOrgChart(){
       <div style="display:flex;flex-direction:column;gap:6px;">${
         c.officeGroups
           ? c.officeGroups.map(g=>`<div style="font-size:9.5px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:${c.color};opacity:.75;padding:4px 2px 1px;border-top:1px solid ${c.color}33;">${esc(g.label)} <span style="opacity:.7;font-weight:600;">${g.members.length}</span></div>`+
-              g.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')).join('')
-          : c.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(e.name,26)}),c.disc,c.color,false)).join('')}
+              g.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(engDisplayName(e),26)}),c.disc,c.color,false)).join('')).join('')
+          : c.members.map(e=>orgCard(Object.assign({},e,{name:orgShortName(engDisplayName(e),26)}),c.disc,c.color,false)).join('')}
         ${c.summary?`<div style="border:1.5px dashed ${c.color};border-radius:10px;padding:9px 11px;text-align:center;
           font-size:11.5px;font-weight:700;color:${c.color};background:rgba(255,255,255,.6);">${esc(c.summary)}</div>`:''}</div>
     </div>`;
   const LN='#94A3B8';
   const vline=(h)=>`<div style="width:0;height:${h}px;border-left:2px solid ${LN};margin:0 auto;"></div>`;
-  const short=(e)=>Object.assign({},e,{name:orgShortName(e.name,26)});
+  const short=(e)=>Object.assign({},e,{name:orgShortName(engDisplayName(e),26)});
   let body='';
   if(d.structured){
     if(d.director)body+=`<div style="display:flex;justify-content:center;">${orgCard(short(d.director),'MEP','#10243E',false)}</div>`+vline(16);
@@ -9507,7 +9528,9 @@ function _orgDrawSlide(pptx,cfg){
       if(t.length>maxChars) t=t.slice(0,Math.max(1,maxChars-1)).replace(/\s+$/,'')+'\u2026';
       return {t,pt};
     };
-    const full=dePlain(e.name||'');
+    // Honour the per-person display name here too, so the exported slide matches
+    // what the on-screen chart shows. Falls back to the full name automatically.
+    const full=dePlain(engDisplayName(e));
     const nm=fitText(full,tw,twoLine?10.5:9,6.5);
     const nameH=twoLine?Math.min(0.22,h*0.54):h, desigH=twoLine?Math.min(0.18,h*0.42):0;
     const yTop=y+(h-(nameH+desigH))/2;
@@ -13792,7 +13815,11 @@ function openEngModal(){
   if(!adminUnlocked){toast('Admin access required');return;}
   eId=null;
   document.getElementById('eng-title').textContent='Add Team Member';
-  ['em-name','em-desig','em-note','em-email','em-rate','em-join-date','em-end-date'].forEach(id=>document.getElementById(id).value='');
+  ['em-name','em-desig','em-note','em-email','em-rate','em-join-date','em-end-date','em-dn'].forEach(id=>{const el=document.getElementById(id); if(el)el.value='';});
+  // display name off by default on a new record
+  const _dnCb=document.getElementById('em-use-dn'); if(_dnCb)_dnCb.checked=false;
+  const _dnIn=document.getElementById('em-dn'); if(_dnIn)_dnIn.style.display='none';
+  const _dnHt=document.getElementById('em-dn-hint'); if(_dnHt)_dnHt.style.display='none';
   fillDisc();
   document.getElementById('em-disc').value='HVAC';
   document.getElementById('em-off').value='DXB';
@@ -13829,6 +13856,11 @@ function editEng(id){
   eId=id;
   document.getElementById('eng-title').textContent='Edit Team Member';
   document.getElementById('em-name').value=e.name;
+  // display name: ticked only when the record actually carries one
+  const _dn=(e.displayName!=null?String(e.displayName):'').trim();
+  const _dnCb=document.getElementById('em-use-dn'); if(_dnCb)_dnCb.checked=!!_dn;
+  const _dnIn=document.getElementById('em-dn'); if(_dnIn){_dnIn.value=_dn;_dnIn.style.display=_dn?'block':'none';}
+  const _dnHt=document.getElementById('em-dn-hint'); if(_dnHt)_dnHt.style.display=_dn?'block':'none';
   document.getElementById('em-desig').value=e.desig||'';
   document.getElementById('em-note').value=e.note||'';
   document.getElementById('em-email').value=e.email||'';
@@ -13850,6 +13882,26 @@ function editEng(id){
   _fillEngModalPhoto(e);
   document.getElementById('eng-ov').classList.add('open');
 }
+// Show/hide the display-name field. When first ticked it is prefilled with what
+// the automatic shortening would produce, so the admin sees the default and only
+// edits it if they disagree — rather than facing an empty box.
+function onDisplayNameToggle(){
+  const cb=document.getElementById('em-use-dn');
+  const inp=document.getElementById('em-dn');
+  const hint=document.getElementById('em-dn-hint');
+  if(!cb||!inp)return;
+  const on=cb.checked;
+  inp.style.display=on?'block':'none';
+  if(hint)hint.style.display=on?'block':'none';
+  if(on){
+    if(!inp.value.trim()){
+      const full=((document.getElementById('em-name')||{}).value||'').trim();
+      inp.value=(typeof orgShortName==='function'?orgShortName(full,22):full)||full;
+    }
+    try{inp.focus();inp.select();}catch(e){}
+  }
+}
+window.onDisplayNameToggle=onDisplayNameToggle;
 function closeEngModal(){document.getElementById('eng-ov').classList.remove('open');}
 async function saveEng(){
   const name=document.getElementById('em-name').value.trim();if(!name){toast('Name required');return;}
@@ -13875,6 +13927,11 @@ async function saveEng(){
     email:document.getElementById('em-email').value.trim().toLowerCase(),
     team:isBIM?'BIM':'MEP'
   };
+  // Optional display name — cosmetic only. Untick (or blank) and the field is
+  // simply absent from the rebuilt object, so automatic shortening resumes.
+  const _useDn=!!(document.getElementById('em-use-dn')&&document.getElementById('em-use-dn').checked);
+  const _dnVal=((document.getElementById('em-dn')||{}).value||'').trim();
+  if(_useDn&&_dnVal)eng.displayName=_dnVal;
   const rateVal=parseFloat(document.getElementById('em-rate').value);
   // accept 0 as a deliberate non-billable rate. An empty field still
   // yields NaN, which correctly leaves rateOverride unset (= no override).
