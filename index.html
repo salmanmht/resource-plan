@@ -2384,7 +2384,7 @@ async function renderPendingUsers(){
         activeEngs.map(e=>`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
           <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,#007aff,#5856d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:13px;font-weight:700;color:#fff;">${(e.name||'?').charAt(0)}</div>
           <div style="flex:1;min-width:0;">
-            <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${esc(e.name)}</div>
+            <div style="font-size:13px;font-weight:600;color:var(--tx);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"${e.displayName?' title="'+esc(e.name)+'"':''}>${esc(engDisplayName(e))}</div>
             <div style="font-size:11px;color:var(--tx3);">${esc(e.email)}</div>
             <div style="font-size:10px;color:var(--tx3);">${esc(e.desig||'—')} · ${esc(e.off||'DXB')}</div>
           </div>
@@ -4208,7 +4208,7 @@ function dhOverAlloc(){
       const u=monthCap?h/monthCap*100:0;
       if(u>110&&(!worst||u>worst.u))worst={mi:Number(mi),u};
     });
-    if(worst)out.push({t:(e.name||eid)+' — planned '+Math.round(worst.u)+'% in '+miLabel(worst.mi),d:'over capacity',sev:'warn'});
+    if(worst)out.push({t:(engDisplayName(e)||eid)+' — planned '+Math.round(worst.u)+'% in '+miLabel(worst.mi),d:'over capacity',sev:'warn'});
   });
   return out.slice(0,6);
 }
@@ -4859,7 +4859,7 @@ function renderSpend(){
   const engRows=Object.values(r.perEng).sort((a,b)=>b.cost-a.cost);
   h+='<div class="spend-card"><div class="spend-h">By team</div><div class="spend-tblwrap"><table class="tbl"><thead><tr><th>Name</th><th>Office</th><th>Discipline</th><th>Grade</th><th class="num">Hours</th><th class="num">Avg Rate</th><th class="num">Cost</th></tr></thead><tbody>';
   if(!engRows.length)h+='<tr><td colspan="7" style="text-align:center;color:var(--tx3);padding:18px;">No expenditure in this selection.</td></tr>';
-  engRows.forEach(row=>{const e=row.eng;const ar=row.hrs?row.cost/row.hrs:0;const ds=row.discSet?[...row.discSet]:[];const dLbl=e.team==='BIM'?'BIM':(ds.length===0?(e.disc||''):ds.length===1?ds[0]:'Mixed ('+ds.join('/')+')');h+='<tr><td>'+esc(e.name||'')+'</td><td>'+esc(e.off||'')+'</td><td>'+esc(dLbl)+'</td><td>'+esc(e.grade||e.desig||'')+'</td><td class="num">'+fN(Math.round(row.hrs))+'</td><td class="num">'+fAED(ar)+'</td><td class="num">'+fAED(row.cost)+'</td></tr>';});
+  engRows.forEach(row=>{const e=row.eng;const ar=row.hrs?row.cost/row.hrs:0;const ds=row.discSet?[...row.discSet]:[];const dLbl=e.team==='BIM'?'BIM':(ds.length===0?(e.disc||''):ds.length===1?ds[0]:'Mixed ('+ds.join('/')+')');h+='<tr><td>'+esc(engDisplayName(e))+'</td><td>'+esc(e.off||'')+'</td><td>'+esc(dLbl)+'</td><td>'+esc(e.grade||e.desig||'')+'</td><td class="num">'+fN(Math.round(row.hrs))+'</td><td class="num">'+fAED(ar)+'</td><td class="num">'+fAED(row.cost)+'</td></tr>';});
   h+='<tr class="spend-tot"><td colspan="4">Total</td><td class="num">'+fN(Math.round(r.totalHrs))+'</td><td class="num"></td><td class="num">'+fAED(r.totalCost)+'</td></tr>';
   h+='</tbody></table></div></div>';
   h+='<div class="spend-card"><div class="spend-h">Spend by month</div><div style="height:240px;"><canvas id="spend-month-chart"></canvas></div></div>';
@@ -5278,7 +5278,7 @@ function wtBuild(canEdit){
       let rowTotal=0,rowForecast=0;
       html+='<tr class="wt-row'+(canEditRow?'':' wt-row-readonly')+'">';
       const desig=[e.grade,e.subDisc||e.disc].filter(Boolean).join(' · ');
-      html+='<td class="wt-name"><div>'+esc(e.name)+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</div>'+(desig?'<div class="wt-name-sub">'+esc(desig)+'</div>':'')+'</td>';
+      html+='<td class="wt-name"><div>'+esc(engDisplayName(e))+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</div>'+(desig?'<div class="wt-name-sub">'+esc(desig)+'</div>':'')+'</td>';
       html+='<td class="wt-loc">'+wtEngOffLabel(e)+'</td>';
 
       // Tasks cell — description only (no hours)
@@ -5412,7 +5412,7 @@ function wtBuild(canEdit){
         const tNote=act['task_note']||'';
         const lock=editable?'':'<span class="wtm-lock">🔒</span>';
         body+='<div class="wtm-card">';
-        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(e.name)+lock+'</div><div class="wtm-sub">'+(desig?esc(desig)+' · ':'')+wtEngOffLabel(e)+'</div></div><div class="wtm-tot" id="wtm-rt-'+e.id+'">'+(rt||0)+'<span>h</span></div></div>';
+        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(engDisplayName(e))+lock+'</div><div class="wtm-sub">'+(desig?esc(desig)+' · ':'')+wtEngOffLabel(e)+'</div></div><div class="wtm-tot" id="wtm-rt-'+e.id+'">'+(rt||0)+'<span>h</span></div></div>';
         if(editable){
           body+='<textarea class="wtm-note-edit" rows="2" placeholder="task / support description…" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';wtEdit(\''+e.id+'\',\'task_note\',this.value)">'+esc(tNote)+'</textarea>';
         } else if(tNote){
@@ -6790,7 +6790,7 @@ function heatTable(elId,sub,util,hrs,minMI,NMON,mF,billUtil,customColLabels,week
     h+=`<tr style="cursor:${hasExpand?'pointer':'default'}" onclick="${hasExpand?`toggleEngRow('${e.id}','${tId}')`:''}" title="${hasExpand?'Click to see breakdown':''}">
       <td style="text-align:center;font-size:11px;color:var(--acc)" id="eng-chev-${tId}-${e.id}">${hasExpand?(isOpen?'▼':'▶'):'—'}</td>
       <td style="color:var(--tx3)">${i+1}</td>
-      <td style="font-weight:600;white-space:nowrap">${e.name}${(()=>{if(!isJSEe)return '';return _jsePk>0?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;vertical-align:middle;" title="Peak weekly heads in view: booked hours \u00f7 ${_jc}, rounded up">${_jsePk} modeller${_jsePk===1?'':'s'}</span>`:'';})()}</td>
+      <td style="font-weight:600;white-space:nowrap"${e.displayName?` title="${esc(e.name)}"`:''}>${esc(engDisplayName(e))}${(()=>{if(!isJSEe)return '';return _jsePk>0?` <span style="background:#0d9488;color:#fff;font-size:9px;font-weight:700;padding:1px 6px;border-radius:10px;vertical-align:middle;" title="Peak weekly heads in view: booked hours \u00f7 ${_jc}, rounded up">${_jsePk} modeller${_jsePk===1?'':'s'}</span>`:'';})()}</td>
       <td><span class="bdg b-${((e.disc||e.subDisc||'BIM')).toLowerCase().replace('&','').replace(/\s/g,'')}">${e.disc||e.subDisc||'BIM'}</span></td>
       <td><span class="bdg ${e.off==='DXB'?'b-dxb':e.off==='EGY'?'b-egy':e.off==='IND'?'b-ind':'b-gry'}">${e.off}</span></td>
       ${cells}<td style="font-weight:700;text-align:center;">${avg.toFixed(1)}%${isJSEe&&_jsePk>0?`<div style="font-size:8.5px;font-weight:700;color:#0f766e;line-height:1;margin-top:2px;">${_jsePk} peak</div>`:''}</td></tr>`;
@@ -7755,7 +7755,7 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
     engList.forEach(e=>{
       engWeeksInRange(e).forEach(({wi})=>{
         if(!map[wi])map[wi]={names:[],wk:gWeeks[wi]};
-        map[wi].names.push(e.name);
+        map[wi].names.push(engDisplayName(e));
       });
     });
     return map;
@@ -7832,13 +7832,13 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
           totalDays=dEngs.reduce((a,e)=>a+leaveHrsByWk(e)[i]/DAY_HRS,0);
           engsOff=dEngs.filter(e=>leaveHrsByWk(e)[i]>0).map(e=>{
             const days=leaveHrsByWk(e)[i]/DAY_HRS;
-            return`${e.name} (${days<1?days.toFixed(1):Math.round(days)}d)`;
+            return`${engDisplayName(e)} (${days<1?days.toFixed(1):Math.round(days)}d)`;
           });
         } else {
           totalDays=dEngs.reduce((a,e)=>a+leaveHrsByMI(e)[i]/DAY_HRS,0);
           engsOff=dEngs.filter(e=>leaveHrsByMI(e)[i]>0).map(e=>{
             const days=leaveHrsByMI(e)[i]/DAY_HRS;
-            return`${e.name} (${days<1?days.toFixed(1):Math.round(days)}d)`;
+            return`${engDisplayName(e)} (${days<1?days.toFixed(1):Math.round(days)}d)`;
           });
         }
         // Display value: average per engineer
@@ -7874,15 +7874,15 @@ function buildLeaveCard(mode, engs, minMI, NMON, cid){
         let tip;
         if(useWeeklyCols){
           const wk=rangeWeeks[i];
-          tip=days>0?`${e.name}\nW${getISOWeek(wk)} (${wk.getMonth()+1}/${wk.getDate()}): ${days<1?days.toFixed(1):Math.round(days)} days`:`${e.name}\nNo leave`;
+          tip=days>0?`${engDisplayName(e)}\nW${getISOWeek(wk)} (${wk.getMonth()+1}/${wk.getDate()}): ${days<1?days.toFixed(1):Math.round(days)} days`:`${e.name}\nNo leave`;
         } else {
           const wkDetail=engMonthWeekDetail(e,i);
-          tip=wkDetail.length?`${e.name}\n${wkDetail.join('\n')}`:`${e.name}\nNo leave`;
+          tip=wkDetail.length?`${engDisplayName(e)}\n${wkDetail.join('\n')}`:`${engDisplayName(e)}\nNo leave`;
         }
         const inner=days===0?`<span style="font-size:10px;color:#e5e7eb;">·</span>`:`<span style="font-size:11px;font-weight:700;color:${cellFg};">${display}</span>`;
         return`<div style="display:flex;align-items:center;justify-content:center;min-height:26px;padding:3px;border-radius:4px;background:${cellBg};cursor:help;" title="${tip.replace(/"/g,'&quot;')}">${inner}</div>`;
       }).join('');
-      const nameShort=e.name.length>22?e.name.slice(0,21)+'…':e.name;
+      const _dnm=engDisplayName(e); const nameShort=_dnm.length>22?_dnm.slice(0,21)+'…':_dnm;
       return`<div style="display:flex;align-items:center;gap:6px;padding-right:8px;">
         <span style="background:${obg};color:${otx};font-size:8px;font-weight:700;padding:2px 6px;border-radius:8px;">${e.off}</span>
         <span style="font-weight:600;color:var(--tx);font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;" title="${e.name}">${nameShort}</span>
@@ -9190,7 +9190,7 @@ function filterEngForOrg(e){
     const qEl=document.getElementById('ts-q');
     const q=((qEl&&qEl.value)||'').toLowerCase();
     const sel=(typeof TS_SEL!=='undefined')?TS_SEL:{disc:new Set(),off:new Set(),pos:new Set(),proj:new Set()};
-    if(q&&!String(e.name||'').toLowerCase().includes(q)&&!String(e.desig||'').toLowerCase().includes(q))return false;
+    if(q&&!String(e.name||'').toLowerCase().includes(q)&&!String(e.displayName||'').toLowerCase().includes(q)&&!String(e.desig||'').toLowerCase().includes(q))return false;
     if(sel.off&&sel.off.size&&!sel.off.has(e.off))return false;
     if(sel.pos&&sel.pos.size){
       let ok=false;
@@ -9814,7 +9814,7 @@ function buildOrgChartHTML(p){
     tiers.sort((a,b)=>a.r-b.r);
     const headCard=e=>`<div style="background:#fff;border-radius:10px;box-shadow:0 2px 8px rgba(0,0,0,.14);padding:11px 16px;display:flex;align-items:center;gap:11px;min-width:250px;max-width:340px;">
         ${orgAvatar(e,'#1e3a5f')}
-        <div><div style="font-weight:800;font-size:13.5px;color:#0f172a;">${esc(e.name||'')}</div><div style="font-size:11px;color:#64748b;">${orgDesig(e,e.disc)}</div></div>
+        <div><div style="font-weight:800;font-size:13.5px;color:#0f172a;">${esc(engDisplayName(e))}</div><div style="font-size:11px;color:#64748b;">${orgDesig(e,e.disc)}</div></div>
       </div>`;
     const tierRows=tiers.map((t,ti)=>{
       const row=`<div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;">${t.items.map(headCard).join('')}</div>`;
@@ -11342,10 +11342,10 @@ function renderProjDetail(p){
                     const mepV=virts.filter(e=>e.team!=='BIM').sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9));
                     const bimV=virts.filter(e=>e.team==='BIM').sort((a,b)=>(discOrder[a.subDisc]||9)-(discOrder[b.subDisc]||9));
                     let html='',lastD='';
-                    mepV.forEach(e=>{if(e.disc!==lastD){if(lastD)html+='</optgroup>';html+=`<optgroup label="MEP-${esc(e.disc)}">`;lastD=e.disc;}html+=`<option value="${esc(e.id)}">${esc(e.name)}</option>`;});
+                    mepV.forEach(e=>{if(e.disc!==lastD){if(lastD)html+='</optgroup>';html+=`<optgroup label="MEP-${esc(e.disc)}">`;lastD=e.disc;}html+=`<option value="${esc(e.id)}">${esc(engDisplayName(e))}</option>`;});
                     if(lastD)html+='</optgroup>';
                     let lastBD='';
-                    bimV.forEach(e=>{const bd=e.subDisc;if(bd!==lastBD){if(lastBD)html+='</optgroup>';html+=`<optgroup label="BIM-${esc(bd)}">`;lastBD=bd;}html+=`<option value="${esc(e.id)}">${esc(e.name)}</option>`;});
+                    bimV.forEach(e=>{const bd=e.subDisc;if(bd!==lastBD){if(lastBD)html+='</optgroup>';html+=`<optgroup label="BIM-${esc(bd)}">`;lastBD=bd;}html+=`<option value="${esc(e.id)}">${esc(engDisplayName(e))}</option>`;});
                     if(lastBD)html+='</optgroup>';
                     return html||'<option disabled>All grades already added</option>';
                   }
@@ -11360,7 +11360,7 @@ function renderProjDetail(p){
                   _mepOrder.forEach(d=>{ const list=_mepByD[d]; if(!list||!list.length)return;
                     html+=`<optgroup label="MEP-${esc(d)}">`;
                     list.forEach(e=>{ const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id;
-                      html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`; });
+                      html+=`<option value="${esc(val)}">${esc(engDisplayName(e))} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`; });
                     html+='</optgroup>'; });
                   if(bimAvail.length){
                     let lastBimDisc='';
@@ -11368,7 +11368,7 @@ function renderProjDetail(p){
                       const bd=e.subDisc||e.disc;
                       if(bd!==lastBimDisc){ if(lastBimDisc)html+='</optgroup>'; html+=`<optgroup label="BIM-${bd}">`; lastBimDisc=bd; }
                       const dup=assignedIds.has(e.id); const val=dup?nextSlotKey(p,e.id):e.id;
-                      html+=`<option value="${esc(val)}">${esc(e.name)} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`;
+                      html+=`<option value="${esc(val)}">${esc(engDisplayName(e))} — ${esc(e.desig||'')} [${esc(e.off||'DXB')}]${dup?' ⊕ add again':''}</option>`;
                     });
                     if(lastBimDisc)html+='</optgroup>';
                   }
@@ -11859,7 +11859,7 @@ function openReplacePicker(evt,projId,leaverKey){
     const rows=cands.map(e=>{
       const sub=isBIM?(e.desig||'BIM'):((e.disc||'')+(e.desig?' \u00b7 '+e.desig:''));
       return`<div onclick="doReplaceEngineer('${p.id}','${esc(leaverKey)}','${e.id}')" style="display:flex;flex-direction:column;padding:6px 8px;border-radius:6px;cursor:pointer;" onmouseover="this.style.background='#f3f4f6'" onmouseout="this.style.background='transparent'">
-        <span style="font-size:12px;font-weight:600;color:#111827;">${esc(e.name||'')}</span>
+        <span style="font-size:12px;font-weight:600;color:#111827;">${esc(engDisplayName(e))}</span>
         <span style="font-size:9px;color:var(--tx3);">${esc(sub)}${e.off?' \u00b7 '+esc(e.off):''}</span>
       </div>`;
     }).join('');
@@ -13082,7 +13082,7 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     if(_p&&(_nv>0)&&typeof isOnFullLeave==='function'&&isOnFullLeave(engId,_p,wkIdx)){
       inputEl.value=inputEl.defaultValue||'';
       const _e=slotEng(engId);
-      toast('\ud83c\udfd6 '+((_e&&_e.name)||'This person')+' is on full-week leave that week \u2014 you can clear hours here, not add.');
+      toast('\ud83c\udfd6 '+((_e&&engDisplayName(_e))||'This person')+' is on full-week leave that week \u2014 you can clear hours here, not add.');
       return;
     }
   }
@@ -13105,6 +13105,7 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
 // setWeekHrsProj so permissions, colours, totals and saving all behave identically.
 (function(){
   let handle=null, active=null, dragging=false, startWi=0, srcVal=0, rowInputs=[], lastRange=[];
+  let overHandle=false, hideTimer=null;
 
   function ensureHandle(){
     if(handle) return handle;
@@ -13118,6 +13119,25 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     handle.addEventListener('touchstart', startDragTouch, {passive:false});
     return handle;
   }
+  // A handle pinned to a cell that has since been re-rendered away, or scrolled
+  // out of the grid's viewport, used to keep floating over unrelated rows (it
+  // appeared parked over the totals bar). Verify the cell is still live and
+  // actually visible inside every scrolling ancestor before showing anything.
+  function cellVisible(input){
+    if(!input || !document.contains(input)) return false;
+    const r=input.getBoundingClientRect();
+    if(r.width===0 || r.height===0) return false;
+    let el=input.parentElement;
+    while(el && el!==document.body){
+      const st=getComputedStyle(el);
+      if(/(auto|scroll|hidden)/.test(st.overflowX+st.overflowY)){
+        const c=el.getBoundingClientRect();
+        if(r.right<c.left+1 || r.left>c.right-1 || r.bottom<c.top+1 || r.top>c.bottom-1) return false;
+      }
+      el=el.parentElement;
+    }
+    return true;
+  }
   function place(input){
     if(!input || input.readOnly || input.disabled){ hide(); return; }
     // Two families: project week cells (legacy path) and any input tagged .fill-cell
@@ -13125,6 +13145,7 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     const isWeekCell=input.tagName==='INPUT' && input.closest('td.week-cell');
     const isFillCell=input.classList && input.classList.contains('fill-cell');
     if(!isWeekCell && !isFillCell) return;
+    if(!cellVisible(input)){ hide(); return; }
     active=input; ensureHandle();
     const r=input.getBoundingClientRect();
     handle.style.left=(window.scrollX+r.right-11)+'px';
@@ -13248,9 +13269,27 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
     if(!e.target || !e.target.matches) return;
     if(e.target.matches('td.week-cell input[type="number"]') || e.target.matches('input.fill-cell')) place(e.target);
   });
+  // The handle must be visible ONLY while you are actually in that cell. This
+  // used to be a no-op, so once shown it never went away and ended up floating
+  // over every hours grid. Now it hides as soon as focus leaves — unless a drag
+  // is running, or the pointer is on the handle itself (so it stays reachable
+  // in the moment between leaving the cell and grabbing it).
+  function maybeHide(){
+    if(dragging || overHandle) return;
+    if(active && document.activeElement===active) return;
+    hide();
+  }
+  function scheduleHide(){ clearTimeout(hideTimer); hideTimer=setTimeout(maybeHide,120); }
   document.addEventListener('focusout', function(e){
-    // keep handle if moving onto the handle itself; hide shortly otherwise
-    setTimeout(()=>{ if(document.activeElement!==active) { /* keep for hover use */ } }, 0);
+    if(!e.target || !e.target.matches) return;
+    if(e.target.matches('td.week-cell input[type="number"]') || e.target.matches('input.fill-cell')) scheduleHide();
+  });
+  // Keep the handle alive while the pointer is over it.
+  document.addEventListener('mouseover', function(e){
+    if(handle && e.target && (e.target===handle || handle.contains(e.target))) { overHandle=true; clearTimeout(hideTimer); }
+  });
+  document.addEventListener('mouseout', function(e){
+    if(handle && e.target && (e.target===handle || handle.contains(e.target))) { overHandle=false; scheduleHide(); }
   });
   // Reposition on scroll/resize — but ONLY when the handle is actually visible,
   // throttled via rAF, and passive so it never blocks mobile scrolling.
@@ -13585,7 +13624,7 @@ function renderRates(){
       let h='<table class="tbl"><thead><tr><th>Engineer</th><th>Disc</th><th>Office</th><th>Grade</th><th style="width:90px">Override</th><th style="width:90px">Grade Rate</th></tr></thead><tbody>';
       withOv.sort((a,b)=>a.name.localeCompare(b.name)).forEach(e=>{
         const gradeRate=(e.off==='EGY'?S.ratesEGY:S.ratesDXB)[e.grade]||0;
-        h+='<tr><td style="font-weight:600">'+esc(e.name)+'</td><td>'+esc(e.disc)+'</td><td>'+esc(e.off)+'</td><td>'+esc(e.grade)+'</td>';
+        h+='<tr><td style="font-weight:600">'+esc(engDisplayName(e))+'</td><td>'+esc(e.disc)+'</td><td>'+esc(e.off)+'</td><td>'+esc(e.grade)+'</td>';
         h+='<td style="font-weight:700;color:#7c3aed;">'+e.rateOverride+' AED</td>';
         h+='<td style="color:var(--tx3);text-decoration:line-through;">'+gradeRate+' AED</td></tr>';
       });
@@ -14637,7 +14676,7 @@ function lvFilter(list,isBim){
   const q=(window._lvQ||'').trim().toLowerCase();
   const d=window._lvDisc||'all', o=window._lvOff||'all';
   return list.filter(e=>{
-    if(q&&String(e.name||'').toLowerCase().indexOf(q)<0)return false;
+    if(q&&String(e.name||'').toLowerCase().indexOf(q)<0&&String(e.displayName||'').toLowerCase().indexOf(q)<0)return false;
     if(o!=='all'&&e.off!==o)return false;
     if(d!=='all'){
       // 'BIM' in the discipline filter means the whole BIM team (its members carry MEP sub-disciplines)
@@ -14796,7 +14835,7 @@ function renderLeaveMobile(containerId, mepList, bimList, hrsObj){
     const ini=(e.name||'?').split(/\s+/).map(x=>x[0]||'').slice(0,2).join('').toUpperCase();
     return `<div class="lvm-card">
       <div class="lvm-top"><div class="lvm-av">${esc(ini)}</div>
-        <div style="flex:1;min-width:0;"><div class="lvm-nm">${esc(e.name||'')}</div>
+        <div style="flex:1;min-width:0;"><div class="lvm-nm">${esc(engDisplayName(e))}</div>
         <div class="lvm-sub">${esc([e.pos||e.position||'',e.off||''].filter(Boolean).join(' · '))}</div></div>
         <span class="lvm-chip">${esc(discLbl)}</span></div>
       <div class="lvm-st">
@@ -15039,7 +15078,7 @@ function renderMgmtExtraRows(){
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
       <select onchange="selectMgmtExtra(${ri},this.value)" style="flex:1;font-size:11px;padding:5px 8px;border:1px solid var(--bdr);border-radius:6px;">
         <option value="">— Select engineer —</option>
-        ${available.map(e=>`<option value="${e.id}"${r.id===e.id?' selected':''}>${e.name} (${e.disc})</option>`).join('')}
+        ${available.map(e=>`<option value="${e.id}"${r.id===e.id?' selected':''}>${esc(engDisplayName(e))} (${e.disc})</option>`).join('')}
       </select>
       ${r.id?`<button class="btn btn-d btn-xs" onclick="removeMgmtExtra(${ri})">✕</button>`:''}
     </div>`).join('');
@@ -17886,7 +17925,7 @@ const _origNav=typeof nav==='function'?nav:null;
       +'<div class="engd-av" data-photo-slot="'+esc(id)+'" style="background:'+dc.bg+';color:'+dc.fg+';overflow:hidden;">'
         +(engPhoto(e)?('<img src="'+esc(engPhoto(e))+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="var p=this.parentNode;this.remove();p.textContent=\''+String(initials).replace(/['"\\]/g,'')+'\';">'):initials)
       +'</div>'
-      +'<div class="engd-nm">'+esc(e.name||'')+'</div>'
+      +'<div class="engd-nm">'+esc(engDisplayName(e))+'</div>'
       +'<div class="engd-role">'+sub+'</div>'
       +'<div class="engd-hero" style="color:'+chipFg+';">'+Math.round(avg)+'%</div>'
       +'<div class="engd-hsub">Utilisation · '+_rangeLab+'</div>'
@@ -18048,7 +18087,7 @@ const _origNav=typeof nav==='function'?nav:null;
 
     var headerHtml='<div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:0.5px solid #EDF1F6;">'
         +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
-        +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:16px;color:#10243E;line-height:1.25;">'+(e.name||'')+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
+        +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:16px;color:#10243E;line-height:1.25;">'+esc(engDisplayName(e))+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
         +roleChip
         +'<button onclick="closeMyDashboard()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
       +'</div>';
