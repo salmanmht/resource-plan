@@ -4491,6 +4491,10 @@ function renderSettings(){
       +'<span style="width:16px;height:16px;border-radius:4px;background:'+esc(d.color)+';flex-shrink:0;border:1px solid rgba(0,0,0,.1);"></span>'
       +'<div style="flex:1;min-width:0;"><div style="font-size:13px;font-weight:600;">'+esc(d.label)+'</div>'
         +'<div style="font-size:11px;color:var(--tx3);">code: '+esc(d.code)+' · BIM aliases: '+esc((d.bimSub||[]).join(', '))+' · '+n+(n===1?' person':' assigned')+(discOfficeSplit(d.code)?' ('+esc(discOfficeSplit(d.code))+')':'')+(d.umbrella?' · <span style="font-weight:700;color:#10243E;background:#E7EDF6;padding:1px 6px;border-radius:4px;">Management</span>':'')+'</div></div>'
+      +'<div style="display:flex;flex-direction:column;gap:2px;flex-shrink:0;">'
+        +'<button class="btn btn-g btn-sm" onclick="discMove('+i+',-1)" title="Move up"'+(i===0?' disabled style="opacity:.3;cursor:not-allowed;padding:1px 7px;line-height:1.1;"':' style="padding:1px 7px;line-height:1.1;"')+'>&#9650;</button>'
+        +'<button class="btn btn-g btn-sm" onclick="discMove('+i+',1)" title="Move down"'+(i===DISCIPLINE_CONFIG.length-1?' disabled style="opacity:.3;cursor:not-allowed;padding:1px 7px;line-height:1.1;"':' style="padding:1px 7px;line-height:1.1;"')+'>&#9660;</button>'
+      +'</div>'
       +'<button class="btn btn-g btn-sm" onclick="discEdit('+i+')">Edit</button>'
       +'<button class="btn btn-d btn-sm" onclick="discDelete('+i+')" title="'+(n>0?'In use — cannot delete':'Delete')+'"'+(n>0?' style="opacity:.4;cursor:not-allowed;"':'')+'>Delete</button>'
       +'</div>';
@@ -4540,6 +4544,20 @@ function discEdit(i){
   var f=document.getElementById('disc-f-code'); if(f&&isNew)f.focus();
 }
 function discEditCancel(){ var p=document.getElementById('disc-edit-panel'); if(p)p.innerHTML=''; }
+// ── Reorder a discipline (↑/↓). DISCIPLINE_CONFIG order IS the display order
+// everywhere — Team Register sections, org-chart columns, leave/tracker groups and
+// the discipline menus all derive from it via rebuildDiscDerived(). So moving a row
+// here re-sequences the whole app, with no code change needed.
+async function discMove(i,dir){
+  var j=i+dir;
+  if(i<0||j<0||i>=DISCIPLINE_CONFIG.length||j>=DISCIPLINE_CONFIG.length)return;
+  var tmp=DISCIPLINE_CONFIG[i]; DISCIPLINE_CONFIG[i]=DISCIPLINE_CONFIG[j]; DISCIPLINE_CONFIG[j]=tmp;
+  rebuildDiscDerived();
+  renderSettings();
+  var ok=await saveDisciplines();
+  if(ok)toast('Order updated.');
+}
+window.discMove=discMove;
 // safely re-point every engineer + project booking from an old
 // discipline code to a new one, so renaming a code never orphans anyone.
 // Returns true on success, false if the user cancels.
@@ -8415,7 +8433,7 @@ function renderTeam(){
     const vsorted=[...visitors].sort(_srt);
     return`<div style="margin-bottom:20px;">
       <div style="display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:0.5px solid var(--bdr);margin-bottom:10px;">
-        <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${st.badge};color:${st.badgeTxt};">${disc}</span>
+        <span style="font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;background:${st.badge};color:${st.badgeTxt};">${esc((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[disc])||disc)}</span>
         <span style="font-size:11px;color:var(--tx3);">${engs.length} ${disc==='BIM'?'members':'engineers'}${visitors.length?` \u00b7 +${visitors.length} cross`:''}</span>
       </div>
       <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:8px;">
@@ -8437,8 +8455,13 @@ function renderTeam(){
     const engs=S.engineers.filter(e=>e.team!=='BIM'&&e.disc===disc&&filterEng(e));
     html+=makeSection(disc,engs);
   });
-  if(!dsel.size){ // MEP umbrella heads (Directors / cross-discipline) — only when unfiltered
-    const mepHeads=S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&filterEng(e));
+  if(!dsel.size){ // legacy / orphan umbrella heads — only when unfiltered
+    // This catch-all is for people whose discipline code is NOT in the live config
+    // (e.g. the old 'MEP' umbrella). A CONFIGURED management discipline such as
+    // MEP-MANG already rendered its own section in the DISCS loop above, so it must
+    // be excluded here — ticking "Management / department group" sets umbrella:true,
+    // which previously made isUmbrella() true and listed those people a second time.
+    const mepHeads=S.engineers.filter(e=>e.team!=='BIM'&&isUmbrella(e)&&MEP_DISCS.indexOf(e.disc)<0&&filterEng(e));
     html+=makeSection('MEP',mepHeads);
   }
   if(showDisc('BIM')){
@@ -9241,8 +9264,13 @@ function getTeamOrgData(){
   }
 
   const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>!_isMgmtDisc(d));
+  // Colour is looked up BY CODE, not by loop index. `realDiscs` has management
+  // filtered out, so an index lookup into MEP_DISC_COLORS drifts as soon as the
+  // disciplines are reordered in Settings (HVAC would inherit MEP Management's
+  // colour). Reading straight from DISCIPLINE_CONFIG keeps colours stable.
   const colorFor=(disc,i)=>{
     if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed');
+    try{ var _d=DISCIPLINE_CONFIG.find(function(x){return x.code===disc;}); if(_d&&_d.color)return _d.color; }catch(e){}
     return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f';
   };
 
@@ -9731,7 +9759,8 @@ function buildOrgChartHTML(p){
   // Real discipline columns (drop the 'MEP' management column — those people are the heads above). BIM last.
   const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>d!=='MEP');
   const discList=realDiscs.concat(['BIM']);
-  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
+  // Colour by CODE (not loop index) so reordering disciplines in Settings can't shift colours.
+  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); try{ var _d=DISCIPLINE_CONFIG.find(function(x){return x.code===disc;}); if(_d&&_d.color)return _d.color; }catch(e){} return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
   let mepCount=0;
   const cols=discList.map((disc,i)=>{
     const color=colorFor(disc,i);
@@ -9829,7 +9858,8 @@ function getOrgChartData(p){
   const heads=people.filter(e=>isUmbrella(e)&&e.team!=='BIM').sort(bySeniority);
   const tiers=[]; heads.forEach(h=>{const r=rank(h); let t=tiers.find(x=>x.r===r); if(!t){t={r,items:[]};tiers.push(t);} t.items.push(h);}); tiers.sort((a,b)=>a.r-b.r);
   const realDiscs=(typeof MEP_DISCS!=='undefined'?MEP_DISCS.slice():['HVAC','PH&E','ELE','ELV']).filter(d=>d!=='MEP');
-  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
+  // Colour by CODE (not loop index) so reordering disciplines in Settings can't shift colours.
+  const colorFor=(disc,i)=>{ if(disc==='BIM')return (typeof BIM_COLOR!=='undefined'?BIM_COLOR:'#7c3aed'); try{ var _d=DISCIPLINE_CONFIG.find(function(x){return x.code===disc;}); if(_d&&_d.color)return _d.color; }catch(e){} return (typeof MEP_DISC_COLORS!=='undefined'&&MEP_DISC_COLORS[i])||'#1e3a5f'; };
   let mepCount=0; const columns=[];
   realDiscs.concat(['BIM']).forEach((disc,i)=>{
     let members;
