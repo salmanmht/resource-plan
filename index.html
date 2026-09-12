@@ -47,6 +47,27 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 body{font-family:-apple-system,BlinkMacSystemFont,'SF Pro Text','Segoe UI',sans-serif;background:var(--bg);color:var(--tx);font-size:13px;line-height:1.5;letter-spacing:-.01em;}
 .app{display:flex;min-height:100vh;min-height:100dvh;}
+/* ── Restricted (self-service) users ────────────────────────────────────────
+   Money and hours panels are removed from the page for anyone below Associate.
+   The body flag is set by applyRestrictedNav(); the underlying figures are also
+   stripped from memory by _redactForRestricted(), so this is presentation
+   tidiness on top of a real data cut, not the security boundary itself. */
+body.restricted-user .pd-hours-card,
+body.restricted-user .pd-cost-card,
+body.restricted-user .ov-deepdive,
+body.restricted-user .ov-workforce,
+body.restricted-user #hdr-exp-wrap,
+body.restricted-user .proj-hdr-export-btn,
+body.restricted-user .proj-hdr-import-btn,
+body.restricted-user .export-btn{display:none!important;}
+/* Every cost/money tile carries the .pu (purple) accent class, which makes it a
+   single reliable hook for removing cost from the UI entirely — Est. Cost on the
+   Overview, per-discipline and per-sub-discipline cost cards alike. getRate()
+   already returns 0 for these users, so this removes an empty shell rather than
+   hiding a real figure. */
+body.restricted-user .mc.pu,
+body.restricted-user .mc-int.pu,
+body.restricted-user .money-eye{display:none!important;}
 
 /* PIN */
 /* ── PIN SCREEN ─────────────────────────────────────── */
@@ -1117,7 +1138,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="mrow" id="mep-metrics"></div>
       <div class="card"><div class="card-t" id="mep-bill-title">Utilisation vs Billable — Combined MEP</div><div class="cbox"><canvas id="c-mep-bill"></canvas></div></div>
       <!-- Deep Dive Section -->
-      <div class="card" style="padding:0;overflow:hidden;">
+      <div class="card ov-deepdive" style="padding:0;overflow:hidden;">
         <div id="deep-dive-hdr" onclick="toggleDeepDive()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
           <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Deep Dive Analytics</span>
           <span id="deep-dive-chevron" style="font-size:12px;color:var(--tx3);">▶ Click to expand</span>
@@ -1134,7 +1155,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         </div>
       </div>
       <!-- Workforce Pulse Panel (collapsible) -->
-      <div class="card" style="padding:0;overflow:hidden;">
+      <div class="card ov-workforce" style="padding:0;overflow:hidden;">
         <div id="hire-fire-hdr" onclick="toggleHireFire()" style="padding:10px 16px;cursor:pointer;display:flex;align-items:center;justify-content:space-between;background:#f5f5f7;border-bottom:1px solid var(--bdr);user-select:none;">
           <div style="display:flex;align-items:center;gap:10px;">
             <span style="font-weight:700;font-size:12px;color:#1e3a5f;">Workforce Pulse</span>
@@ -1290,7 +1311,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div style="display:flex;gap:4px;align-items:center;">
         <button class="btn btn-g btn-sm" id="trk-undo-btn" onclick="trkUndo()" title="Nothing to undo" disabled style="align-items:center;gap:4px;opacity:.4;cursor:default;"><span class="proj-btn-icon">&#8617;</span><span class="proj-btn-label"> Undo</span></button>
         <button class="btn btn-g btn-sm" id="trk-redo-btn" onclick="trkRedo()" title="Nothing to redo" disabled style="align-items:center;gap:4px;opacity:.4;cursor:default;"><span class="proj-btn-icon">&#8618;</span><span class="proj-btn-label"> Redo</span></button>
-        <button class="btn btn-g btn-sm" onclick="exportTrackerXLSX()" title="Export deadline tracker to Excel" style="align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export</span></button>
+        <button class="btn btn-g btn-sm export-btn" onclick="exportTrackerXLSX()" title="Export deadline tracker to Excel" style="align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export</span></button>
       </div>
     </div>
     <div class="pc">
@@ -1605,6 +1626,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <input id="em-dn" placeholder="e.g. Salman S." style="display:none;margin-top:6px;">
         <div id="em-dn-hint" style="display:none;font-size:10px;color:var(--tx3);margin-top:4px;line-height:1.4;">Search, bookings, exports and leave grids always use the full name.</div>
       </div>
+      <div class="ff full" id="em-access-wrap" style="padding:2px 0 4px;">
+        <label>Data access <span style="font-weight:400;color:var(--tx3);font-size:10px;">— Auto follows the grade tier</span></label>
+        <select id="em-access" onchange="onAccessChange()">
+          <option value="auto">Auto (by grade)</option>
+          <option value="full">Full access</option>
+          <option value="restricted">Restricted — self-service only</option>
+        </select>
+        <div id="em-access-hint" style="font-size:10px;color:var(--tx3);margin-top:4px;line-height:1.4;"></div>
+      </div>
       <div class="ff full"><label>Designation <span style="font-weight:400;color:var(--tx3);font-size:10px;">(auto — Grade Tier + Discipline)</span></label><input id="em-desig" readonly style="background:#f1f5f9;color:var(--tx2);cursor:not-allowed;"></div>
       <div class="ff full"><label>Work Email</label><input type="email" id="em-email" placeholder="e.g. name@meinhardtgroup.com"></div>
       <div class="ff full" style="display:flex;align-items:center;gap:10px;padding:6px 0;">
@@ -1801,6 +1831,71 @@ function isDirector(){ return (S.roles||[]).some(r=>r.role==='director'&&(r.emai
 // Can the current user SEE all data (costs, rates, every project)? Admin (armed or not),
 // director, or admin-in-safe-mode all qualify — safe mode only hides *controls*, not data.
 function canSeeAllData(){ return isRealAdmin() || isDirector(); }
+
+// ═══ RESTRICTED (self-service) USERS ════════════════════════════════════════
+// Everyone below Associate grade gets a read-only, self-only view: own billing +
+// utilisation on Overview, own card on Team, project name + programme only,
+// view-only trackers, and team leave with editing limited to their own row.
+// Grade only SUGGESTS the level — the answer is stored per person (fullAccess /
+// restricted) so that editing a grade tier for a COSTING reason can never
+// silently change someone's data access. Admins, directors and anyone holding a
+// lead role are always unrestricted.
+const UNRESTRICTED_GRADE_RE=/director|technical manager|associate/i;
+function myEngRecord(){
+  try{
+    var em=currentUserEmail().toLowerCase(); if(!em)return null;
+    return (S.engineers||[]).find(function(e){return e&&(e.email||'').toLowerCase()===em;})||null;
+  }catch(e){ return null; }
+}
+function gradeSuggestsRestricted(e){
+  if(!e)return true;
+  return !UNRESTRICTED_GRADE_RE.test(((e.grade||'')+' '+(e.desig||'')));
+}
+function isRestricted(){
+  if(window._previewRestricted)return true;            // admin "preview as" toggle
+  if(isRealAdmin())return false;
+  try{ if(typeof isDirector==='function'&&isDirector())return false; }catch(e){}
+  try{ if(myRoles().length)return false; }catch(e){}   // any lead role = full access
+  var me=myEngRecord();
+  if(!me)return true;                                  // fail closed: unknown user sees least
+  if(me.fullAccess===true)return false;                // explicit per-person override
+  if(me.restricted===true)return true;
+  return gradeSuggestsRestricted(me);
+}
+function myEngId(){ var m=myEngRecord(); return m?m.id:null; }
+// True when this engineer row is the signed-in user (drives own-row-only editing).
+function isSelfEng(e){ var id=myEngId(); return !!(id&&e&&e.id===id); }
+window.isRestricted=isRestricted; window.myEngRecord=myEngRecord;
+window.myEngId=myEngId; window.isSelfEng=isSelfEng;
+
+// Money is REMOVED from the in-memory store for restricted users rather than
+// hidden at each render site. There are dozens of those and a single miss leaks
+// salary data — the display-name change proved how easily one is overlooked.
+// Nothing downstream can render what was never loaded, and DevTools shows an
+// object with no rates in it.
+function _redactForRestricted(){
+  try{
+    if(!isRestricted())return;
+    (S.engineers||[]).forEach(function(e){ if(e){ delete e.rateOverride; } });
+    (S.projects||[]).forEach(function(p){ if(p){ delete p.feeFactor; } });
+    (S.proposals||[]).forEach(function(p){ if(p){ delete p.feeFactor; } });
+    S.ratesDXB=null; S.ratesEGY=null; S.rates=null;
+    window._moneyRedacted=true;
+  }catch(err){ console.warn('redact failed',err); }
+}
+window._redactForRestricted=_redactForRestricted;
+
+// Every export is a way to carry the roster, hours or money out of the app as a
+// file, so each one is blocked at the FUNCTION, not just by hiding its button.
+// A hidden button is still reachable from the console or a stale DOM node.
+function _exportBlocked(){
+  if(typeof isRestricted==='function' && isRestricted()){
+    try{ toast('Exports are not available for your account'); }catch(e){}
+    return true;
+  }
+  return false;
+}
+window._exportBlocked=_exportBlocked;
 // per-person money (rates/cost/fee at the individual + per-week level) is
 // visible only to a real admin with Admin mode armed. Group/discipline/grand TOTALS
 // are NOT gated by this — only individual and per-week money. Also gates export read-outs.
@@ -1859,6 +1954,7 @@ function currentUserEmail(){ return SB_SESSION&&SB_SESSION.user?SB_SESSION.user.
 function myRoles(){ const e=currentUserEmail().toLowerCase(); return (S.roles||[]).filter(r=>r.email.toLowerCase()===e); }
 // Can current user edit a discipline?
 function canEditDisc(disc){
+  if(isRestricted())return false;   // restricted users are read-only everywhere except own leave
   if(adminUnlocked)return true;
   if(isDirector())return true; // directors can edit hours across disciplines
   const roles=myRoles();
@@ -2165,11 +2261,34 @@ async function doForgotPassword(){
     if(err){ err.style.color='#1d7a3e'; err.textContent='If an account exists for '+email+', a password reset link has been emailed.'; }
   }
 }
+// Re-send the signup confirmation link. Offered from the login error when the
+// account exists but was never verified — otherwise that state is a dead end,
+// because approving a user creates their engineer record without touching auth.
+async function resendConfirmation(){
+  const err=document.getElementById('pin-err');
+  const email=(document.getElementById('login-email').value||'').trim();
+  if(!email){ if(err){err.style.color='#c0392b';err.textContent='Enter your email above first.';} return; }
+  try{
+    await fetch(SB_URL+'/auth/v1/resend',{
+      method:'POST',
+      headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({type:'signup',email:email,redirect_to:(location.origin+location.pathname)})
+    });
+  }catch(e){ console.warn('[resend] failed',e); }
+  // Deliberately not reporting server-side failure: whether an address is
+  // registered is not something an unauthenticated visitor should learn.
+  if(err){ err.style.color='#1d7a3e'; err.textContent='If an account exists for '+email+', a new confirmation link has been emailed. Check spam too.'; }
+}
+window.resendConfirmation=resendConfirmation;
 async function doLogin(){
   const email=document.getElementById('login-email').value.trim();
   const pass=document.getElementById('login-pass').value;
   const btn=document.getElementById('login-btn');
   const err=document.getElementById('pin-err');
+  // "Forgot password" / "resend" paint this element green for their success
+  // notice and nothing ever set it back, so a later failure was shown in green
+  // and read as if it had worked. Reset to the error colour on every attempt.
+  if(err)err.style.color='#c0392b';
   if(!email||!pass){err.textContent='Please enter your email and password.';return;}
   btn.disabled=true;btn.textContent='Signing in…';err.textContent='';
   try{
@@ -2180,7 +2299,26 @@ async function doLogin(){
     });
     const d=await r.json();
     if(!r.ok||d.error){
-      err.textContent=d.error_description||d.message||'Login failed. Check your email and password.';
+      // GoTrue returns {error_code, msg} — NOT {message}. Reading `.message`
+      // found nothing and fell through to the generic "check your password",
+      // so a confirmation problem was reported as a wrong password and people
+      // retyped a password that had never been wrong. Read every shape.
+      const code=String(d.error_code||d.code||d.error||'');
+      const raw=d.error_description||d.msg||d.message||'';
+      const unconfirmed=/email[_ ]not[_ ]confirmed/i.test(code)||/email not confirmed|confirm.*email/i.test(raw);
+      if(unconfirmed){
+        // Approving a user creates their engineer record but cannot touch the
+        // auth side, so an unconfirmed account looks approved yet still can't
+        // sign in. Say so, and offer the resend rather than a dead end.
+        err.innerHTML='Your email address hasn\u2019t been confirmed yet. '
+          +'<a href="#" onclick="resendConfirmation();return false;" style="color:#007aff;font-weight:600;">Resend confirmation email</a>'
+          +'<br><span style="font-size:11px;color:var(--tx3);">Already clicked the link? Ask an admin to confirm your account.</span>';
+      } else if(/invalid.*credential|invalid.*grant/i.test(code+' '+raw)){
+        err.textContent='Incorrect email or password.';
+      } else {
+        err.textContent=raw||'Login failed. Please try again.';
+      }
+      console.warn('[login] failed',{status:r.status,code:code,msg:raw});
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
@@ -2297,8 +2435,29 @@ async function doSignUp(){
   if(!email){err.textContent='Email required';return;}
   if(pass.length<6){err.textContent='Password must be at least 6 characters';return;}
   if(pass!==confirm){err.textContent='Passwords do not match';return;}
-  btn.disabled=true;btn.textContent='Creating account...';err.textContent='';
+  btn.disabled=true;btn.textContent='Checking\u2026';err.textContent='';
   try{
+    // ── GATE ─────────────────────────────────────────────────────────────
+    // The address must already belong to somebody on the team register, and
+    // this is checked BEFORE any auth account is created. Creating the account
+    // first is what produced a login with no employee behind it — and approving
+    // that request then INVENTED a placeholder employee (ELE/DXB/Engineer).
+    let matched=false, lookupOk=true;
+    try{
+      const engRes=await sbGet('engineers');
+      matched=engRes.some(row=>{const eng=row.data||row;return eng.email&&eng.email.toLowerCase()===email;});
+    }catch(lookupErr){
+      // Anonymous read blocked by RLS — we genuinely cannot verify. Do NOT
+      // reject a real colleague on the strength of a failed query; fall through
+      // to the pending queue so an admin can decide.
+      lookupOk=false; console.warn('[signup] engineer lookup failed — cannot verify',lookupErr);
+    }
+    if(lookupOk&&!matched){
+      err.innerHTML='This email isn\u2019t on the MEP team register, so an account can\u2019t be created.'
+        +'<br><span style="font-size:11px;color:var(--tx3);">Ask an admin to add your work email to your Team profile first, then try again.</span>';
+      btn.disabled=false;btn.textContent='Create Account';return;
+    }
+    btn.textContent='Creating account\u2026';
     const r=await fetch(SB_URL+'/auth/v1/signup',{
       method:'POST',
       headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
@@ -2306,25 +2465,53 @@ async function doSignUp(){
     });
     const d=await r.json();
     if(!r.ok||d.error){err.textContent=d.error_description||d.msg||'Sign up failed.';btn.disabled=false;btn.textContent='Create Account';return;}
-    // Check if email exists in engineers table
-    const engRes=await sbGet('engineers');
-    const matched=engRes.some(row=>{const eng=row.data||row;return eng.email&&eng.email.toLowerCase()===email;});
+    // The auth account now EXISTS. Everything below is follow-up work, so a
+    // failure here must never be reported as "sign up failed" — that sent people
+    // round the loop re-registering an address that was already taken.
+    //
+    // No session in the response means "Confirm email" is ON in Auth settings:
+    // the account is created but cannot sign in until the link is clicked. That
+    // is the real cause of "sometimes it didn't log in, then later it did".
+    const needsConfirm=!(d.access_token||(d.session&&d.session.access_token));
+    // `matched` was already established by the gate above, before the account
+    // was created. Reaching here unmatched means the lookup itself failed, so
+    // the request goes to the pending queue for an admin to resolve.
+    let pendingFiled=false, pendingErrMsg='';
+    if(!matched){
+      // Plain INSERT, not sbUpsert(). sbUpsert sends resolution=merge-duplicates,
+      // which is an UPSERT and therefore needs UPDATE rights as well — an
+      // anonymous signer-up only has INSERT, so the write was rejected and the
+      // approval queue stayed empty with no error shown anywhere.
+      try{
+        await sbFetch('pending_users','POST',{id:email,data:{email,requested_at:new Date().toISOString(),status:'pending'}},'return=minimal');
+        pendingFiled=true;
+      }catch(pendErr){
+        const m=String((pendErr&&pendErr.message)||pendErr);
+        if(/409|conflict|duplicate/i.test(m)){ pendingFiled=true; }   // already queued — fine
+        else{ pendingErrMsg=m; console.error('[signup] pending_users insert failed',pendErr); }
+      }
+    }
+    document.getElementById('view-signup').style.display='none';
     if(matched){
-      // Email found — log them straight in
-      document.getElementById('view-signup').style.display='none';
       document.getElementById('login-email').value=email;
-      document.getElementById('pin-err').textContent='Account created! Please sign in.';
+      document.getElementById('pin-err').textContent=needsConfirm
+        ? 'Account created. Check your email and click the confirmation link, then sign in.'
+        : 'Account created! Please sign in.';
       document.getElementById('view-login').style.display='';
     } else {
-      // Email not found — save to pending_users and show pending screen
-      await sbUpsert('pending_users',{id:email,data:{email,requested_at:new Date().toISOString(),status:'pending'}});
-      document.getElementById('view-signup').style.display='none';
-      document.getElementById('pending-msg').textContent=`Account created for ${email}. An admin will review your request. You'll be able to sign in once approved.`;
+      document.getElementById('pending-msg').textContent=
+        (pendingFiled
+          ? `Account created for ${email}. An admin will review your request. You'll be able to sign in once approved.`
+          : `Account created for ${email}, but the access request could not be filed (${pendingErrMsg||'permission denied'}). Please contact an admin to be added manually.`)
+        +(needsConfirm?' You must also confirm your email address using the link we sent.':'');
       document.getElementById('view-pending').style.display='';
-      // Update pending badge if admin is logged in (unlikely but safe)
       loadPendingBadge();
     }
-  }catch(e){err.textContent='Connection error. Please try again.';btn.disabled=false;btn.textContent='Create Account';}
+  }catch(e){
+    console.error('[signup] unexpected failure',e);
+    err.textContent='Connection error. Please try again.';
+    btn.disabled=false;btn.textContent='Create Account';
+  }
 }
 
 async function loadPendingBadge(){
@@ -2582,22 +2769,66 @@ async function removeRole(id){
   }catch(e){toast('Error removing role');}
 }
 
+// Approving used to CREATE a brand-new engineer row with invented defaults
+// (ELE / DXB / Engineer / 45h). Most people on the register have no email saved,
+// so a real colleague failed the match, landed here, and approval produced a
+// DUPLICATE of them in the wrong discipline. Approval now links the login to the
+// existing person wherever possible, and only creates a record as a last resort.
 async function approvePendingUser(email){
-  if(!confirm(`Approve ${email}?`))return;
+  const lower=String(email||'').toLowerCase();
   try{
-    // Add to engineers table as a placeholder
+    // 1. Already linked to somebody — nothing to create.
+    const linked=(S.engineers||[]).find(e=>(e.email||'').toLowerCase()===lower);
+    if(linked){
+      await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
+      toast('\u2713 Already linked to '+(linked.name||email)+' \u2014 approved');
+      renderPendingUsers(); loadPendingBadge(); return;
+    }
+    // 2. Look for an existing person with NO email whose name matches the
+    //    address (shahbaz.taj@ -> "shahbaz taj"). This is the common case.
+    const guess=lower.split('@')[0].replace(/[._-]+/g,' ').trim();
+    const parts=guess.split(/\s+/).filter(function(w){return w.length>2;});
+    const candidates=(S.engineers||[]).filter(function(e){
+      if(!e||String(e.email||'').trim())return false;            // only unlinked people
+      if(/^JSE-/.test(String(e.name||'')))return false;          // capacity pools aren't people
+      const n=String(e.name||'').toLowerCase();
+      return parts.length>0 && parts.every(function(w){return n.indexOf(w)>=0;});
+    });
+    let target=null;
+    if(candidates.length===1){
+      if(!confirm('Link '+email+' to the existing team member "'+candidates[0].name+'" ('+(candidates[0].desig||candidates[0].grade||'')+')?\n\nOK = link to this person (recommended)\nCancel = choose another option'))
+        { /* fall through to manual choice */ } else { target=candidates[0]; }
+    } else if(candidates.length>1){
+      const list=candidates.map(function(e,i){return (i+1)+'. '+e.name+' \u2014 '+(e.desig||e.grade||'');}).join('\n');
+      const pick=prompt('Several team members match "'+guess+'" and have no login yet.\n\n'+list+'\n\nEnter a number to link, or leave blank to skip:');
+      const idx=parseInt(pick,10);
+      if(idx>=1&&idx<=candidates.length)target=candidates[idx-1];
+    }
+    if(target){
+      // Link: write the email onto the EXISTING record. No new person.
+      target.email=lower;
+      await sbUpsert('engineers',{id:target.id,data:target});
+      await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString(),linked_to:target.id}});
+      toast('\u2713 '+target.name+' can now sign in');
+      renderPendingUsers(); loadPendingBadge();
+      try{ invalidate('team'); }catch(e){}
+      return;
+    }
+    // 3. Nobody matched. Creating a record is a real decision, not a default —
+    //    a phantom employee inflates headcount and carries a default charge-out
+    //    rate into cost reports, so make the consequence explicit.
+    const name=lower.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,function(c){return c.toUpperCase();});
+    if(!confirm('No existing team member matches '+email+'.\n\nCreate a NEW placeholder profile for "'+name+'"?\n\nIt will be created as Engineer \u00b7 ELE \u00b7 DXB \u00b7 45 h/wk and will count towards headcount until you correct it.\n\nCancel if this person should have been matched to an existing record instead.'))
+      return;
     const id='e'+Date.now();
-    const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase());
-    await sbUpsert('engineers',{id,data:{id,name,email:email.toLowerCase(),disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup'}});
-    // Mark as approved in pending_users
+    await sbUpsert('engineers',{id,data:{id,name,email:lower,disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup'}});
     await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
-    toast(`✓ ${name} approved — profile created, please update their details in Team`);
+    toast('\u2713 '+name+' approved \u2014 placeholder created, please correct their details in Team');
     renderPendingUsers();
     loadPendingBadge();
-    // Reload engineers
     const engs=await sbGet('engineers');
     S.engineers=engs.map(r=>normaliseEng(r.data));
-  }catch(e){toast('Error approving user');}
+  }catch(e){ console.error('[approve] failed',e); toast('Error approving user'); }
 }
 
 async function rejectPendingUser(email){
@@ -2922,6 +3153,10 @@ async function initApp(opts){
     } else {
       adminUnlocked=false; applyAdminNav(false);
     }
+    // Strip money from memory for restricted users. Must run AFTER roles, admin
+    // status and rates are all settled, or isRestricted() would judge on
+    // incomplete state and the rate card would survive.
+    try{ _redactForRestricted(); applyRestrictedNav(); }catch(e){ console.warn('restricted apply failed',e); }
     try{ syncAdminModeBtn(); }catch(e){}
     // Show Annual Leave for disc leads
     const userEmail2=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';
@@ -3572,6 +3807,12 @@ function subHrs(sub,hrs){return sub.reduce((a,e)=>(hrs[e.id]||[]).reduce((b,h)=>
 window.missingGradeLog=window.missingGradeLog||[];
 function getRate(e){
   if(!e)return 0;
+  // Restricted users must never see a cost figure. Deleting the rate cards in
+  // _redactForRestricted() was NOT enough on its own — the lookup below falls
+  // through to a hardcoded 150 AED/hr default, so every cost tile kept rendering
+  // a plausible but fake number. Returning 0 here kills cost at the source, so
+  // anything computed downstream is zero rather than wrong.
+  try{ if(typeof isRestricted==='function' && isRestricted()) return 0; }catch(_r){}
   // Per-engineer override takes priority. 0 is a VALID override (non-billable
   // secondment / internal time). Previously `>0` silently discarded
   // it and fell back to the grade rate, inflating cost.
@@ -4987,7 +5228,22 @@ const DATA_NAV_IDS=['nav-weekly','nav-leave'];
 // Hiding a sidebar icon is cosmetic — nav() enforces these so they can't be reached by a direct
 // nav() call or by the sessionStorage 'lastPage' restore after a reload.
 const ADMIN_ONLY_PAGES=['spend','health','mgmt','holidays','activity'];
-function pageAllowed(p){ return ADMIN_ONLY_PAGES.indexOf(p)<0 || !!adminUnlocked; }
+// Pages a restricted user must never reach — money, system control and audit.
+// Blocked in pageAllowed() as well as hidden in the sidebar, so a stale
+// sessionStorage 'lastPage' or a direct nav() call can't slip through.
+const RESTRICTED_BLOCKED_PAGES=['spend','health','activity','settings','mgmt','holidays','rates','pending','proposals'];
+const RESTRICTED_HIDE_NAV=['nav-spend','nav-health','nav-activity','nav-settings','nav-mgmt','nav-holidays','nav-rates','nav-pending','nav-proposals'];
+function applyRestrictedNav(){
+  var r=false; try{ r=isRestricted(); }catch(e){}
+  try{ document.body.classList.toggle('restricted-user', !!r); }catch(e){}
+  if(r)RESTRICTED_HIDE_NAV.forEach(function(id){ var el=document.getElementById(id); if(el)el.style.display='none'; });
+}
+window.applyRestrictedNav=applyRestrictedNav;
+
+function pageAllowed(p){
+  try{ if(isRestricted()&&RESTRICTED_BLOCKED_PAGES.indexOf(p)>=0)return false; }catch(e){}
+  return ADMIN_ONLY_PAGES.indexOf(p)<0 || !!adminUnlocked;
+}
 function applyAdminNav(show){
   // Control pages: only when admin mode is armed
   ADMIN_NAV_IDS.forEach(id=>{const el=document.getElementById(id);if(el)el.style.display=show?'':'none';});
@@ -7166,10 +7422,24 @@ function renderMEP(){
   const labels=Array.from({length:NMON},(_,i)=>miLabel(minMI+i));
   const labelsL=Array.from({length:NMON},(_,i)=>miLabelL(minMI+i));
   let all=mepDiscScope(S.engineers);
+  // Restricted users see the Overview scoped to themselves, so every tile, chart
+  // and breakdown on the page reports THEIR billing and utilisation only. Scoping
+  // the population once is safer than blanking individual tiles — a tile added
+  // later inherits the restriction instead of quietly leaking team-wide figures.
+  if(isRestricted()){ const _meId=myEngId(); all=all.filter(function(e){return e&&e.id===_meId;}); }
   if(mepOffActive()){all=all.filter(function(e){return window.MEP_OFF.indexOf(e.off)>=0;});}
   if(typeof updateOfficeCounts==='function')updateOfficeCounts();
   (function(){
     function scopeName(){
+      // The page is already scoped to the signed-in engineer, so "Combined MEP"
+      // is actively misleading — the chart is showing ONE person's figures. Name
+      // them instead, so the heading matches the data.
+      try{
+        if(isRestricted()){
+          var _me=myEngRecord();
+          return _me?('My Utilisation \u2014 '+engDisplayName(_me)):'My Utilisation';
+        }
+      }catch(_s){}
       var parts=[];
       if(mepOffActive()){ parts.push(window.MEP_OFF.length===1?({DXB:'Dubai Office',EGY:'Egypt Office',IND:'India Office'}[window.MEP_OFF[0]]||window.MEP_OFF[0]):mepOffLabel()); }
       if(mepDiscActive()){ parts.push(mepDiscLabel()); }
@@ -7209,6 +7479,16 @@ function renderMEP(){
     // `p.status===statusF` never matched a multi-select and the card read 0. _msfMatch handles all cases.
     var base=S.projects.filter(function(p){return _msfMatch(p.status);});
     var total=S.projects.length; // denominator stays the whole company, so the ratio ring stays meaningful
+    // A restricted user's tile must count THEIR projects, not the company's — the
+    // whole-company denominator would otherwise report "1 of 16" and disclose the
+    // size of the portfolio they can't see.
+    try{
+      if(isRestricted()){
+        var _mine=myEngId();
+        var _my=base.filter(function(p){return whHasFor(p,_mine);});
+        return {used:_my.length,total:S.projects.filter(function(p){return whHasFor(p,_mine);}).length};
+      }
+    }catch(_a){}
     if(!mepOffActive() && !mepDiscActive()) return {used:base.length,total:total};
     var used=base.filter(function(p){return all.some(function(e){return whHasFor(p,e.id);});}).length;
     return {used:used,total:total};
@@ -8344,7 +8624,9 @@ function tmsClear(kind){ TS_SEL[kind].clear(); const pop=document.getElementById
 function renderTeam(){
   refreshTeamDiscFilterOptions();
   const hdrBtns=document.getElementById('team-hdr-btns');
-  const _orgBtn='<button class="btn btn-g" onclick="openTeamOrgChart()" title="Team organization chart for the members currently shown (respects the filters above)">&#128451;&#65039; Org Chart</button>';
+  // The org chart renders the WHOLE roster with designations, so it is a hole
+  // straight through the own-card-only rule — hide it for restricted users.
+  const _orgBtn=isRestricted()?'':'<button class="btn btn-g" onclick="openTeamOrgChart()" title="Team organization chart for the members currently shown (respects the filters above)">&#128451;&#65039; Org Chart</button>';
   if(hdrBtns)hdrBtns.innerHTML=(_orgBtn)+(adminUnlocked?`<button class="btn" onclick="normalizeAllDesignations()" style="background:#0c4a6e;color:#fff;" title="Regenerate every engineer's designation from their current Grade Tier + Discipline">&#8635; Normalize Designations</button><button class="btn btn-p" onclick="openEngModal()">+ Add Team Member</button>`:'');
   const q=(document.getElementById('ts-q').value||'').toLowerCase();
   // multi-select filters (tick several). Empty set = "all". Semantics: OR within a
@@ -8391,6 +8673,10 @@ function renderTeam(){
   const engAvgBill=(e)=>{const a=_bu[e.id]||[];if(!_euN)return null;let s=0;for(let m=0;m<_euN;m++)s+=(a[m]||0);return Math.round(s/_euN);};
 
   const filterEng=(e)=>{
+    // Restricted users see their own card and nobody else's. Enforced here, at the
+    // single gate every Team section passes through, rather than at each render
+    // site — one filter cannot be half-applied the way per-screen edits can.
+    if(isRestricted()&&!isSelfEng(e))return false;
     if(q&&!e.name.toLowerCase().includes(q)&&!(e.desig||'').toLowerCase().includes(q))return false;
     if(osel.size&&!osel.has(e.off))return false;
     if(psel2.size){
@@ -8514,9 +8800,14 @@ function toggleProjDir(){PROJ_SORT.dir=(PROJ_SORT.dir===1?-1:1);try{localStorage
 function setProjView(v){PROJ_VIEW=v;try{localStorage.setItem('projView',v);}catch(e){} _projSyncControls(); renderProj();}
 window.setProjSort=setProjSort; window.toggleProjDir=toggleProjDir; window.setProjView=setProjView;
 function renderProj(){
+  // A restricted user's Projects page lists only the projects they are actually
+  // booked on. Applied at the list source so the cards, the count and anything
+  // derived from `list` all inherit it — rather than hiding rows after the fact.
+  const _restrictProj=(function(){ try{ return isRestricted(); }catch(e){ return false; } })();
+  const _myProjId=_restrictProj?myEngId():null;
   const q=(document.getElementById('ps-q').value||'').toLowerCase();
   const sf=document.getElementById('ps-st').value;
-  const list=S.projects.filter(p=>{if(sf!=='all'&&p.status!==sf)return false;if(q&&!(p.name||'').toLowerCase().includes(q)&&!(p.no||'').toLowerCase().includes(q))return false;return true;});
+  const list=S.projects.filter(p=>{if(_restrictProj&&!whHasFor(p,_myProjId))return false;if(sf!=='all'&&p.status!==sf)return false;if(q&&!(p.name||'').toLowerCase().includes(q)&&!(p.no||'').toLowerCase().includes(q))return false;return true;});
   _projSyncControls();
   list.sort(projSortCmp);
 
@@ -8822,8 +9113,15 @@ if(!window._projPollTimer){
   },60000);
 }
 function openProjDetail(id){
-  window._viewingProjId=id;
   const p=S.projects.find(x=>x.id===id);if(!p)return;
+  // The Projects list is already filtered, but the detail view is also reachable
+  // from KPI drill-downs and a restored sessionStorage page. Gate it here — the
+  // single entry point — so a restricted user can only open a project they are
+  // actually booked on.
+  try{
+    if(isRestricted() && !whHasFor(p,myEngId())){ toast('You can only open projects you are booked on'); return; }
+  }catch(_p){}
+  window._viewingProjId=id;
   // fresh open always starts with every discipline collapsed
   window._discCollapsed=window._discCollapsed||{};
   window._discCollapsed[id]={};
@@ -9736,6 +10034,7 @@ function _orgSlideSize(d){
 window._ORG_PAPER=window._ORG_PAPER||'Auto';
 
 function exportTeamOrgPPTX(){
+  if(_exportBlocked())return;
   ensurePptxGen(async()=>{
     try{
       // Read the export toggles from the overlay checkboxes (default to on/off).
@@ -9854,14 +10153,20 @@ function openOrgChart(pid){
   ov.onclick=(e)=>{ if(e.target===ov)closeOrgChart(); };
   const sheet=document.createElement('div');
   sheet.style.cssText='background:#fff;border-radius:12px;box-shadow:0 20px 60px rgba(0,0,0,.35);max-width:1180px;width:100%;margin:auto;';
-  sheet.innerHTML=`<div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e5e7eb;">
+  // Restricted users get the org chart as a VIEW only: no photo toggle, no paper
+  // picker and no export button, so the roster can be read on screen but not
+  // carried out of the app as a file.
+  const _orgRO=(typeof isRestricted==='function')&&isRestricted();
+  const _orgExportCtrls=_orgRO?'':`
       <label style="display:flex;align-items:center;gap:5px;color:#334155;font-size:12px;cursor:pointer;user-select:none;margin-right:auto;white-space:nowrap;" title="Include member photos in the exported slide (off = initials only)">
         <input type="checkbox" id="org-inc-photos-proj" ${window._ORG_INCLUDE_PHOTOS!==false?'checked':''} style="cursor:pointer;margin:0;"> Include photos</label>
       <label style="display:flex;align-items:center;gap:5px;color:#334155;font-size:12px;white-space:nowrap;" title="Paper size for the export (all landscape). Auto = smallest sheet that fits full names.">Paper
         <select id="org-paper-proj" onchange="window._ORG_PAPER=this.value;" style="font-size:12px;padding:2px 4px;border-radius:5px;border:1px solid #cbd5e1;cursor:pointer;">
           <option value="Auto">Auto</option><option value="16:9">16:9</option><option value="A3">A3</option><option value="A2">A2</option><option value="A1">A1</option><option value="A0">A0</option>
         </select></label>
-      <button onclick="exportOrgChartPPTX('${pid}')" style="background:#10243E;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Export PPTX</button>
+      <button onclick="exportOrgChartPPTX('${pid}')" style="background:#10243E;color:#fff;border:none;border-radius:6px;padding:5px 14px;font-size:12px;font-weight:600;cursor:pointer;">⬇ Export PPTX</button>`;
+  sheet.innerHTML=`<div style="display:flex;justify-content:flex-end;align-items:center;gap:10px;padding:10px 12px;border-bottom:1px solid #e5e7eb;">
+      ${_orgExportCtrls}
       <button onclick="closeOrgChart()" style="background:#f1f5f9;border:1px solid #cbd5e1;border-radius:6px;padding:5px 12px;font-size:12px;cursor:pointer;">Close</button>
     </div>
     <div style="padding:14px;">${buildOrgChartHTML(p)}</div>`;
@@ -9909,6 +10214,7 @@ function ensurePptxGen(cb){
   document.head.appendChild(s);
 }
 function exportOrgChartPPTX(pid){
+  if(_exportBlocked())return;
   const p=S.projects.find(x=>x.id===pid); if(!p){toast('Open a project first.');return;}
   ensurePptxGen(async()=>{
     try{
@@ -9986,7 +10292,7 @@ const renderProjList=renderProj;
 // ═══════════════════════════════════════
 // DEADLINES & NOTES  (simplified: two panels only)
 // ═══════════════════════════════════════
-function _trkCanEdit(){ if(adminUnlocked)return true; try{ if(typeof isDirector==='function'&&isDirector())return true; }catch(e){} try{ return (S.projects||[]).some(function(p){return isMepLeadFor(p.id);}); }catch(e){ return false; } }
+function _trkCanEdit(){ if(isRestricted())return false; if(adminUnlocked)return true; try{ if(typeof isDirector==='function'&&isDirector())return true; }catch(e){} try{ return (S.projects||[]).some(function(p){return isMepLeadFor(p.id);}); }catch(e){ return false; } }
 window._trkCanEdit=_trkCanEdit;
 function fmtMsDate(d){
   if(!d)return '';
@@ -10817,6 +11123,7 @@ function _xCell(v,opt){
   return {v:(v==null?'':v),t:'s',s:s};
 }
 function exportTrackerXLSX(){
+  if(_exportBlocked())return;
   try{
     if(typeof XLSX==='undefined'){toast('Export library not loaded');return;}
     const today=todayISO();
@@ -11250,7 +11557,7 @@ function renderProjDetail(p){
         ${kpiView==='combined'&&grandMepCost>0&&grandBimCost>0?`<div style="font-size:9px;color:var(--tx3);margin-top:2px;">MEP: ${fN(Math.round(grandMepCost))} · BIM: ${fN(Math.round(grandBimCost))}</div>`:''}
         <div style="font-size:9px;color:var(--tx3);margin-top:3px;">×${ff2.toFixed(2)} fee factor</div>
       </div>`;
-      return`<div style="margin-bottom:12px;margin-top:10px;background:#f5f5f7;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;">
+      return`<div class="pd-cost-card" style="margin-bottom:12px;margin-top:10px;background:#f5f5f7;border:1px solid var(--bdr);border-radius:10px;overflow:hidden;">
         <div class="cost-sec-hdr" style="padding:8px 14px;background:#f5f5f7;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:6px;">
           <div style="display:flex;align-items:center;flex-wrap:wrap;gap:6px;cursor:pointer;flex:1;min-width:0;" onclick="toggleSection('sec-cost-${p.id}','sec-cost-arrow-${p.id}')">
             <div style="display:flex;align-items:center;gap:6px;flex-shrink:0;">
@@ -11293,7 +11600,7 @@ function renderProjDetail(p){
     })()}
 
     <!-- Weekly hours table -->
-    <div class="card" style="padding:0;overflow:hidden;">
+    <div class="card pd-hours-card" style="padding:0;overflow:hidden;">
       <div style="background:#f5f5f7;padding:6px 12px;border-bottom:1px solid var(--bdr);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;min-height:34px;cursor:pointer;" onclick="toggleSection('sec-weekly-${p.id}','sec-weekly-arrow-${p.id}')">
         <div class="weekly-sec-hdr-inner" style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
           <span id="sec-weekly-arrow-${p.id}" style="font-size:11px;color:#64748b;flex-shrink:0;">${(window._secOpen&&window._secOpen['sec-weekly-'+p.id])?'▼':'▶'}</span>
@@ -11742,7 +12049,7 @@ async function addEngineerToProject(projId,engId){
     if(!projId.toString().startsWith('prp'))pushProj(p);
   }
   renderProjDetail(p);
-  toast(isSlotKey(engId)?`Added ${eng.name} — extra booking; set hours and rename its scope tag`:`Added ${eng.name.split(' ').slice(0,2).join(' ')} — set hours per week`);
+  toast(isSlotKey(engId)?`Added ${engDisplayName(eng)} — extra booking; set hours and rename its scope tag`:`Added ${engDisplayName(eng).split(' ').slice(0,2).join(' ')} — set hours per week`);
   // Persist membership immediately. Hours live in the project_hours table, and
   // pushProj() strips weeklyHrs before saving the project row — so relying on it
   // here writes the placeholder to nothing and the row vanishes on reload. Write
@@ -13859,6 +14166,9 @@ function openEngModal(){
   const _dnCb=document.getElementById('em-use-dn'); if(_dnCb)_dnCb.checked=false;
   const _dnIn=document.getElementById('em-dn'); if(_dnIn)_dnIn.style.display='none';
   const _dnHt=document.getElementById('em-dn-hint'); if(_dnHt)_dnHt.style.display='none';
+  // access level defaults to Auto (grade decides) on a new record
+  const _acNew=document.getElementById('em-access'); if(_acNew)_acNew.value='auto';
+  try{ onAccessChange(); }catch(e){}
   fillDisc();
   document.getElementById('em-disc').value='HVAC';
   document.getElementById('em-off').value='DXB';
@@ -13900,6 +14210,9 @@ function editEng(id){
   const _dnCb=document.getElementById('em-use-dn'); if(_dnCb)_dnCb.checked=!!_dn;
   const _dnIn=document.getElementById('em-dn'); if(_dnIn){_dnIn.value=_dn;_dnIn.style.display=_dn?'block':'none';}
   const _dnHt=document.getElementById('em-dn-hint'); if(_dnHt)_dnHt.style.display=_dn?'block':'none';
+  // access level: explicit flags win, otherwise Auto (grade decides)
+  const _ac=document.getElementById('em-access');
+  if(_ac)_ac.value=(e.fullAccess===true)?'full':(e.restricted===true?'restricted':'auto');
   document.getElementById('em-desig').value=e.desig||'';
   document.getElementById('em-note').value=e.note||'';
   document.getElementById('em-email').value=e.email||'';
@@ -13924,6 +14237,26 @@ function editEng(id){
 // Show/hide the display-name field. When first ticked it is prefilled with what
 // the automatic shortening would produce, so the admin sees the default and only
 // edits it if they disagree — rather than facing an empty box.
+// Live explanation of what the chosen access level means for THIS person, so an
+// admin can see what "Auto" resolves to before saving rather than guessing.
+function onAccessChange(){
+  var sel=document.getElementById('em-access');
+  var hint=document.getElementById('em-access-hint');
+  if(!sel||!hint)return;
+  var grade=((document.getElementById('em-grade')||{}).value)||'';
+  var desig=((document.getElementById('em-desig')||{}).value)||'';
+  var autoRestricted=!UNRESTRICTED_GRADE_RE.test(grade+' '+desig);
+  if(sel.value==='auto'){
+    hint.textContent=autoRestricted
+      ? 'This grade resolves to RESTRICTED — own card, own leave, no costs, view only.'
+      : 'This grade resolves to FULL ACCESS.';
+  } else if(sel.value==='full'){
+    hint.textContent='Always full access, regardless of grade. Use for a lead who sits below Associate.';
+  } else {
+    hint.textContent='Always restricted, regardless of grade.';
+  }
+}
+window.onAccessChange=onAccessChange;
 function onDisplayNameToggle(){
   const cb=document.getElementById('em-use-dn');
   const inp=document.getElementById('em-dn');
@@ -13971,6 +14304,12 @@ async function saveEng(){
   const _useDn=!!(document.getElementById('em-use-dn')&&document.getElementById('em-use-dn').checked);
   const _dnVal=((document.getElementById('em-dn')||{}).value||'').trim();
   if(_useDn&&_dnVal)eng.displayName=_dnVal;
+  // Access level. Stored explicitly so a grade edit made for COSTING reasons can
+  // never silently change someone's data access. 'auto' writes neither flag, so
+  // the grade rule applies and the record stays clean.
+  const _acVal=((document.getElementById('em-access')||{}).value)||'auto';
+  if(_acVal==='full')eng.fullAccess=true;
+  else if(_acVal==='restricted')eng.restricted=true;
   const rateVal=parseFloat(document.getElementById('em-rate').value);
   // accept 0 as a deliberate non-billable rate. An empty field still
   // yields NaN, which correctly leaves rateOverride unset (= no override).
@@ -14498,6 +14837,10 @@ function lvFromDisp(v){ const n=parseFloat(v)||0; return lvUnit()==='d'? n*LV_HR
 function setLeaveUnit(u){ window._lvUnit=(u==='d')?'d':'h'; renderLeave(); }
 // Unit-aware setter used by the leave grids (typing AND drag-fill both route through here).
 function setLeaveHrU(engId, wi, el){
+  // Leave is the ONE write a restricted user has, and only on their own row.
+  // Guarded in the setter (not just the input's readonly attribute) so neither
+  // drag-fill nor a hand-edited DOM can write to somebody else's leave.
+  if(isRestricted()&&engId!==myEngId()){ try{el.value='';}catch(e){} toast('You can only edit your own leave'); return; }
   const hrs=lvFromDisp(el.value);
   if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
   S.leaveHrs[engId][wi]=hrs;
@@ -14559,7 +14902,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
       const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // year total + taken-to-date
       _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
-        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
+        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}"${eng.displayName?` title="${esc(eng.name)}"`:''}>${esc(engDisplayName(eng))}</td>
         <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[eng.disc]||'')}">${eng.disc}</span></td>
         <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
         <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
@@ -14568,7 +14911,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
           const cap=eng.cap||45;
-          const editable=adminUnlocked||canEditDisc(disc);
+          const editable=adminUnlocked||canEditDisc(disc)||(isRestricted()&&isSelfEng(eng));
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           return`<td style="padding:2px;text-align:center">
@@ -14650,6 +14993,7 @@ function mgmtYearSwitcherHTML(){
 }
 
 function exportLeaveXLSX(){
+  if(_exportBlocked())return;
   if(typeof XLSX==='undefined'){toast('Excel library not loaded — please refresh.');return;}
   const yr=window.leaveYear||new Date().getFullYear();
   const weeks=globalWeeks(yr);
@@ -14721,7 +15065,7 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
         const _sp=lvTakenSplit(arr,weeks); const total=_sp.total;
         tot+=_sp.total; taken+=_sp.taken;
         out+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
-          <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
+          <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}"${eng.displayName?` title="${esc(eng.name)}"`:''}>${esc(engDisplayName(eng))}</td>
           <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[discOf(eng)]||'')}">${discOf(eng)}</span></td>
           <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
           <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accent)}">${total>0?_dsp(total):'-'}</td>
@@ -14730,7 +15074,7 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
             const gwi=w.gwi!=null?w.gwi:globalWI(w);
             const v=arr[gwi]||0;
             const cap=eng.cap||45;
-            const editable=adminUnlocked||editDiscFn(disc);
+            const editable=adminUnlocked||editDiscFn(disc)||(isRestricted()&&isSelfEng(eng));
             const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
             const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
             return`<td style="padding:2px;text-align:center">
@@ -14925,7 +15269,7 @@ function renderLeave(){
       <select id="lv-off" onchange="window._lvOff=this.value;renderLeaveGridOnly()">${['all','DXB','EGY','IND'].map(o=>`<option value="${o}"${(window._lvOff||'all')===o?' selected':''}>${o==='all'?'All Offices':o}</option>`).join('')}</select>
       <select id="lv-year" title="Leave year" onchange="setLeaveYear(parseInt(this.value,10))">${_years.map(y=>`<option value="${y}"${window.leaveYear===y?' selected':''}>${y}</option>`).join('')}</select>
       <span style="display:inline-flex;border:1px solid var(--bdr);border-radius:8px;overflow:hidden;flex-shrink:0;"><button onclick="setLeaveUnit('h')" title="Show and enter values in hours" style="padding:4px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:${lvUnit()==='h'?'#1e3a5f':'#fff'};color:${lvUnit()==='h'?'#fff':'var(--tx2)'};">Hours</button><button onclick="setLeaveUnit('d')" title="Show and enter values in days (1 day = 9 hours)" style="padding:4px 10px;font-size:11px;font-weight:700;border:none;cursor:pointer;font-family:inherit;background:${lvUnit()==='d'?'#1e3a5f':'#fff'};color:${lvUnit()==='d'?'#fff':'var(--tx2)'};">Days</button></span><span style="font-size:11px;color:#2A4A6B;white-space:nowrap;" title="Full week = red · Partial = orange · 1 day = 9 hours"><strong style="color:#10243E;">${lvToDisp(totalLeaveHrs)}</strong> ${lvUnitLabel()} · MEP <strong>${lvToDisp(mepLeaveHrs)}</strong> · BIM <strong>${lvToDisp(bimLeaveHrs)}</strong></span>
-      <button onclick="exportLeaveXLSX()" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;white-space:nowrap;">\u2b07 Export</button>`; }
+      <button class="export-btn" onclick="exportLeaveXLSX()" style="padding:4px 10px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;white-space:nowrap;">\u2b07 Export</button>`; }
   renderLeaveGridOnly();
 }
 
@@ -14972,7 +15316,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
       const _sp=lvTakenSplit(arr,weeks); const total=_sp.total; // year total + taken-to-date
       _gTot+=_sp.total; _gTaken+=_sp.taken;
       html+=`<tr data-lvg="${gid}"${gCol?' style="display:none"':''}>
-        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}">${esc(eng.name)}</td>
+        <td style="${lvSticky(0,'var(--surf)','font-weight:500;padding:4px 8px')}"${eng.displayName?` title="${esc(eng.name)}"`:''}>${esc(engDisplayName(eng))}</td>
         <td style="${lvSticky(1,'var(--surf)','padding:4px 6px')}"><span class="bdg b-${(DISC_CLS[eng.subDisc||eng.disc]||'')}">${eng.subDisc||eng.disc}</span></td>
         <td style="${lvSticky(2,'var(--surf)','padding:4px 6px;font-size:10px;color:var(--tx3)')}">${eng.off}</td>
         <td style="${lvSticky(3,'var(--surf)','text-align:center;font-weight:700;color:'+accentColor)}">${total>0?_dsp(total):'-'}</td>
@@ -14983,7 +15327,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const cap=eng.cap||45;
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
-          const editable=adminUnlocked||canEditDisc('BIM');
+          const editable=adminUnlocked||canEditDisc('BIM')||(isRestricted()&&isSelfEng(eng));
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
@@ -15112,6 +15456,7 @@ function removeMgmtExtra(ri){
 }
 
 function setLeaveHr(engId, wi, el){
+  if(isRestricted()&&engId!==myEngId()){ try{el.value='';}catch(e){} toast('You can only edit your own leave'); return; }
   const v=parseFloat(el.value)||0;
   if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
   S.leaveHrs[engId][wi]=v;
@@ -15123,6 +15468,7 @@ function setLeaveHr(engId, wi, el){
 }
 
 function setMgmtHr(engId, wi, el){
+  if(isRestricted()){ try{el.value='';}catch(e){} return; }   // management hours are never theirs to edit
   const v=parseFloat(el.value)||0;
   if(!S.mgmtHrs[engId])S.mgmtHrs[engId]=[];
   S.mgmtHrs[engId][wi]=v;
@@ -15744,6 +16090,7 @@ function runPickerExport(){
 // -- Programme Export/Import (Excel) --
 
 function exportProjXLSX(){
+  if(_exportBlocked())return;
   if(!S.projects.length){toast('No projects to export.');return;}
   const list=document.getElementById('proj-backup-list');
   list.innerHTML=S.projects.map(p=>{
@@ -15771,6 +16118,7 @@ function projBackupSelectAll(val){
 }
 
 function doExportProjXLSX(){
+  if(_exportBlocked())return;
   if(typeof XLSX==='undefined'){toast('Excel library not loaded.');return;}
   const ids=[...document.querySelectorAll('.proj-backup-chk:checked')].map(cb=>cb.value);
   if(!ids.length){toast('Select at least one project.');return;}
@@ -16218,6 +16566,7 @@ async function applyProjImport(){
   toast('✓ Imported '+n+' change(s)'+(d.hrChanges.length?' — hour saves syncing':''));
 }
 function exportStageSummary(projId){
+  if(_exportBlocked())return;
   if(typeof XLSX==='undefined'){toast('Excel library not loaded. Please refresh.');return;}
   const p=S.projects.find(x=>x.id===projId);
   if(!p){toast('Project not found.');return;}
@@ -16577,6 +16926,7 @@ function exportStageSummary(projId){
 }
 
 function exportExcel(opts){
+  if(_exportBlocked())return;
   if(!canSeePersonMoney()){ toast('\u26d4 Export is admin-only \u2014 turn on Admin mode.'); return; }
   if(typeof XLSX==='undefined'){toast('Excel library not loaded. Please refresh.');return;}
   // Default: export everything (preserves existing behaviour)
@@ -17007,6 +17357,7 @@ function exportExcel(opts){
 }
 
 function exportPDF(){
+  if(_exportBlocked())return;
   if(!canSeePersonMoney()){ toast('\u26d4 Export is admin-only \u2014 turn on Admin mode.'); return; }
   // Show hidden print header
   let hdr = document.getElementById('pdf-header');
@@ -17779,6 +18130,11 @@ const _origNav=typeof nav==='function'?nav:null;
   };
   window.openEngDetail=function(id){
     var e=(S&&S.engineers||[]).find(function(x){return x.id===id;}); if(!e)return;
+    // The Team page is already filtered to the signed-in user, but this panel is
+    // also reachable from the leave grid, heatmap rows and the presence list. Gate
+    // it here — the single entry point — so a restricted user can only ever open
+    // their own card, whatever route they arrive by.
+    try{ if(typeof isRestricted==='function' && isRestricted() && !isSelfEng(e)) return; }catch(_g){}
     // when opened from the Team page with a project filter active, scope the gauge
     // AND the allocation list to those projects only (so it matches the card). Elsewhere unscoped.
     var _projScope=(typeof CURRENT_PAGE!=='undefined'&&CURRENT_PAGE==='team'&&typeof TS_SEL!=='undefined'&&TS_SEL.proj&&TS_SEL.proj.size)?TS_SEL.proj:null;
