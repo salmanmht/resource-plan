@@ -857,6 +857,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-row:nth-child(even) td{background:#f3f5f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-row:nth-child(odd) td{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-name{padding:3px 5px!important;font-size:10px!important;font-weight:600;}
+  /* Avatars are screen-only: the printed tracker is deliberately dense (10px
+     text, 3px padding) and photos would push rows taller and eat column width. */
+  body.wt-printing .wt-name [data-photo-slot]{display:none!important;}
   body.wt-printing .wt-name-sub{font-size:8px!important;color:#64748b!important;margin-top:0!important;}
   body.wt-printing .wt-loc{font-size:8px!important;color:#86868b;}
   body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
@@ -992,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.5.90 · 23 Aug 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.1 · 14 Sep 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1055,7 +1058,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <!-- User panel D3 — shown after login -->
   <div id="sb-user" onclick="openMyDashboard()" title="View my dashboard" style="display:none;cursor:pointer;padding:12px 14px 14px;border-bottom:1px solid var(--bdr);">
     <div style="display:flex;align-items:center;gap:10px;">
-      <div style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#007aff,#5856d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,122,255,.2);">
+      <div id="sb-user-av" style="width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#007aff,#5856d6);display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,122,255,.2);overflow:hidden;">
         <span id="sb-user-initial" style="font-size:15px;font-weight:700;color:#fff;">?</span>
       </div>
       <div style="flex:1;min-width:0;">
@@ -1097,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.5.90 · 23 Aug 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.1 · 14 Sep 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1714,6 +1717,15 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <div class="ff"><label>Project Type</label><select id="pw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="pw-loc"></div>
       <div class="ff" style="grid-column:1/-1"><label>Disciplines Involved</label><div id="pw-disc-checks" style="display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px;border:1px solid var(--bdr);border-radius:var(--r);background:#fff;"></div></div>
+      <div class="ff full" id="pw-banner-row" style="display:none;padding:2px 0 4px;">
+        <label>Card Banner <span style="font-weight:400;color:var(--tx3);font-size:10px;">(optional &mdash; the image shown across the top of the project card)</span></label>
+        <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:5px;">
+          <div id="pw-banner-prev" style="width:112px;height:40px;border-radius:7px;background:#f1f5f9;border:1px solid var(--bdr);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:9px;color:var(--tx3);">None</div>
+          <button type="button" class="btn btn-g btn-xs" id="pw-banner-up" style="padding:4px 12px;">Upload&hellip;</button>
+          <button type="button" class="btn btn-g btn-xs" id="pw-banner-rm" style="padding:4px 12px;">Remove</button>
+        </div>
+        <div style="font-size:10px;color:var(--tx3);margin-top:5px;line-height:1.4;">JPG, PNG or WebP &middot; centre-cropped to a wide strip and shrunk. Saves immediately &mdash; no need to press Save.</div>
+      </div>
       <div class="ff"><label>Fee Factor <span style="font-size:10px;color:var(--tx3)">(multiplier on cost, e.g. 1.5 = 150%)</span></label><input type="number" id="pw-fee" step="0.01" min="0.1" max="10" placeholder="1.00" style="width:100%"></div>
     </div>
   </div>
@@ -1774,10 +1786,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
 // ═══════════════════════════════════════
 const SB_URL      = 'https://wgmkqrxivesphvutychm.supabase.co';
 const SB_KEY      = 'sb_publishable_iOYjY5rRVEX9ovhY52-HYQ_JnIWeMPy';
+// Only this domain may request access. Change it here if another Meinhardt
+// office ever needs to sign up — it is read in one place, in doSignUp().
+const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.4.1';
+const APP_VER     = '9.5.1';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -2223,6 +2238,25 @@ function populateSidebarUser(user){
   document.getElementById('sb-user-desig').textContent=displayDesig;
   document.getElementById('sb-user-initial').textContent=displayName.charAt(0).toUpperCase();
   document.getElementById('sb-user-role').textContent=isAdmin(email)?'Admin':'Team';
+  // Show the signed-in person's photo in place of their initial. The initial
+  // stays in the DOM as the fallback: if the image 404s or the person has no
+  // photo, onerror strips the <img> and the letter is revealed again.
+  try{
+    const av=document.getElementById('sb-user-av');
+    if(av){
+      const old=av.querySelector('img'); if(old)old.remove();
+      const url=(typeof engPhoto==='function'&&eng)?engPhoto(eng):'';
+      const ini=av.querySelector('#sb-user-initial');
+      if(url){
+        if(ini)ini.style.display='none';
+        const img=document.createElement('img');
+        img.src=url; img.alt=''; img.loading='lazy';
+        img.style.cssText='width:100%;height:100%;object-fit:cover;display:block;';
+        img.onerror=function(){ this.remove(); if(ini)ini.style.display=''; };
+        av.appendChild(img);
+      } else if(ini){ ini.style.display=''; }
+    }
+  }catch(e){ console.warn('sidebar photo',e); }
 }
 
 function enterApp(){
@@ -2322,6 +2356,39 @@ async function doLogin(){
       btn.disabled=false;btn.textContent='Sign In';return;
     }
     SB_SESSION=d;
+    // ── RULE 4: approved by an admin, or no entry ─────────────────────────
+    // Supabase lets anyone with a valid password in, so the approval gate has
+    // to live here. We are authenticated at this point, so reading `engineers`
+    // works (RLS allows it) — unlike the anonymous check during signup.
+    // Admins are never gated, so an admin can never lock themselves out.
+    if(!(d.user&&isAdmin(d.user.email))){
+      let rec=null, checkOk=true;
+      try{
+        const rows=await sbGet('engineers');
+        const mine=(d.user&&d.user.email||'').toLowerCase();
+        rec=(rows||[]).map(x=>x.data||x).find(e=>e&&(e.email||'').toLowerCase()===mine)||null;
+        if(!rows||!rows.length)checkOk=false;      // empty = read blocked, not "no staff"
+      }catch(gateErr){ checkOk=false; console.warn('[login] approval check failed',gateErr); }
+      // Holding a role IS approval. The flag only exists from the moment the
+      // Approve button was built, so established staff who predate it have no
+      // flag at all — that is what locked out a Technical Director. Anyone
+      // carrying a lead/director role was plainly vetted long ago.
+      let hasRole=false;
+      try{
+        const mine2=(d.user&&d.user.email||'').toLowerCase();
+        hasRole=(S.roles||[]).some(r=>r&&r.email&&r.email.toLowerCase()===mine2);
+      }catch(roleErr){ console.warn('[login] role fallback check failed',roleErr); }
+      // Only block on a DEFINITE answer. If the check itself failed, let them
+      // in rather than locking out the whole company on a bad network call.
+      if(checkOk&&!hasRole&&(!rec||rec.loginApproved!==true)){
+        SB_SESSION=null;
+        try{sessionStorage.removeItem('mep_session');}catch(e){}
+        err.style.color='#c0392b';
+        err.innerHTML='Your access request is waiting for admin approval.'
+          +'<br><span style="font-size:11px;color:var(--tx3);">You\u2019ll be able to sign in once an admin approves it.</span>';
+        btn.disabled=false;btn.textContent='Sign In';return;
+      }
+    }
     // admins now boot in their assigned-role mode; admin powers are armed
     // manually via the sidebar toggle so day-to-day work carries no delete risk.
     {window._isRealAdmin=!!(d.user&&isAdmin(d.user.email));adminUnlocked=false;applyAdminNav(false);try{syncAdminModeBtn();}catch(e){}}
@@ -2433,6 +2500,15 @@ async function doSignUp(){
   const err=document.getElementById('signup-err');
   const btn=document.getElementById('signup-btn');
   if(!email){err.textContent='Email required';return;}
+  // Meinhardt work addresses only. Deliberately checked BEFORE the register RPC
+  // and before any network call: if that RPC is unreachable the register check
+  // falls through to "inconclusive" (so a genuine colleague is never wrongly
+  // refused), and this local rule is what still holds the line in that case.
+  if(email.split('@')[1]!==ALLOWED_SIGNUP_DOMAIN){
+    err.innerHTML='Please sign up with your Meinhardt work email.'
+      +'<br><span style="font-size:11px;color:var(--tx3);">Only @'+ALLOWED_SIGNUP_DOMAIN+' addresses can request access.</span>';
+    return;
+  }
   if(pass.length<6){err.textContent='Password must be at least 6 characters';return;}
   if(pass!==confirm){err.textContent='Passwords do not match';return;}
   btn.disabled=true;btn.textContent='Checking\u2026';err.textContent='';
@@ -2442,21 +2518,30 @@ async function doSignUp(){
     // this is checked BEFORE any auth account is created. Creating the account
     // first is what produced a login with no employee behind it — and approving
     // that request then INVENTED a placeholder employee (ELE/DXB/Engineer).
-    let matched=false, lookupOk=true;
+    // ── RULE 1: no email on the team register, no signup ──────────────────
+    // Checked BEFORE the auth account is created, via a security-definer RPC.
+    // A plain table read cannot work here: an anonymous visitor hits RLS and
+    // PostgREST returns 200 with an EMPTY ARRAY rather than an error, so the
+    // previous version read "[]" as "not on the register" and refused everyone.
+    // The RPC answers a single true/false without exposing the roster.
+    let onRegister=null;                       // true / false / null = couldn't tell
     try{
-      const engRes=await sbGet('engineers');
-      matched=engRes.some(row=>{const eng=row.data||row;return eng.email&&eng.email.toLowerCase()===email;});
-    }catch(lookupErr){
-      // Anonymous read blocked by RLS — we genuinely cannot verify. Do NOT
-      // reject a real colleague on the strength of a failed query; fall through
-      // to the pending queue so an admin can decide.
-      lookupOk=false; console.warn('[signup] engineer lookup failed — cannot verify',lookupErr);
-    }
-    if(lookupOk&&!matched){
+      const rr=await fetch(SB_URL+'/rest/v1/rpc/email_on_register',{
+        method:'POST',
+        headers:{'apikey':SB_KEY,'Content-Type':'application/json'},
+        body:JSON.stringify({p_email:email})
+      });
+      if(rr.ok){ const v=await rr.json(); onRegister=(v===true||v==='true'); }
+      else { console.warn('[signup] register check HTTP '+rr.status); }
+    }catch(chkErr){ console.warn('[signup] register check failed',chkErr); }
+    if(onRegister===false){
       err.innerHTML='This email isn\u2019t on the MEP team register, so an account can\u2019t be created.'
         +'<br><span style="font-size:11px;color:var(--tx3);">Ask an admin to add your work email to your Team profile first, then try again.</span>';
       btn.disabled=false;btn.textContent='Create Account';return;
     }
+    // onRegister === null means the check itself failed. Never reject on an
+    // inconclusive result — let it through to the approval queue for a human.
+    const matched=(onRegister===true);
     btn.textContent='Creating account\u2026';
     const r=await fetch(SB_URL+'/auth/v1/signup',{
       method:'POST',
@@ -2476,37 +2561,31 @@ async function doSignUp(){
     // `matched` was already established by the gate above, before the account
     // was created. Reaching here unmatched means the lookup itself failed, so
     // the request goes to the pending queue for an admin to resolve.
+    // ── RULE 3: EVERY request goes to the admin queue ─────────────────────
+    // No exceptions. Previously a recognised email was sent straight to the
+    // login screen, which is why people appeared "active" without anyone ever
+    // approving them. One path in, one path out.
     let pendingFiled=false, pendingErrMsg='';
-    if(!matched){
-      // Plain INSERT, not sbUpsert(). sbUpsert sends resolution=merge-duplicates,
-      // which is an UPSERT and therefore needs UPDATE rights as well — an
-      // anonymous signer-up only has INSERT, so the write was rejected and the
-      // approval queue stayed empty with no error shown anywhere.
-      try{
-        await sbFetch('pending_users','POST',{id:email,data:{email,requested_at:new Date().toISOString(),status:'pending'}},'return=minimal');
-        pendingFiled=true;
-      }catch(pendErr){
-        const m=String((pendErr&&pendErr.message)||pendErr);
-        if(/409|conflict|duplicate/i.test(m)){ pendingFiled=true; }   // already queued — fine
-        else{ pendingErrMsg=m; console.error('[signup] pending_users insert failed',pendErr); }
-      }
+    // Plain INSERT, not sbUpsert(). sbUpsert sends resolution=merge-duplicates,
+    // which is an UPSERT and therefore needs UPDATE rights as well — an
+    // anonymous signer-up only has INSERT, so the write was rejected and the
+    // approval queue stayed empty with no error shown anywhere.
+    try{
+      await sbFetch('pending_users','POST',{id:email,data:{email,requested_at:new Date().toISOString(),status:'pending'}},'return=minimal');
+      pendingFiled=true;
+    }catch(pendErr){
+      const m=String((pendErr&&pendErr.message)||pendErr);
+      if(/409|conflict|duplicate/i.test(m)){ pendingFiled=true; }   // already queued — fine
+      else{ pendingErrMsg=m; console.error('[signup] pending_users insert failed',pendErr); }
     }
     document.getElementById('view-signup').style.display='none';
-    if(matched){
-      document.getElementById('login-email').value=email;
-      document.getElementById('pin-err').textContent=needsConfirm
-        ? 'Account created. Check your email and click the confirmation link, then sign in.'
-        : 'Account created! Please sign in.';
-      document.getElementById('view-login').style.display='';
-    } else {
-      document.getElementById('pending-msg').textContent=
-        (pendingFiled
-          ? `Account created for ${email}. An admin will review your request. You'll be able to sign in once approved.`
-          : `Account created for ${email}, but the access request could not be filed (${pendingErrMsg||'permission denied'}). Please contact an admin to be added manually.`)
-        +(needsConfirm?' You must also confirm your email address using the link we sent.':'');
-      document.getElementById('view-pending').style.display='';
-      loadPendingBadge();
-    }
+    document.getElementById('pending-msg').textContent=
+      (pendingFiled
+        ? `Request submitted for ${email}. An admin will review it \u2014 you'll be able to sign in once approved.`
+        : `Account created for ${email}, but the access request could not be filed (${pendingErrMsg||'permission denied'}). Please contact an admin.`)
+      +(needsConfirm?' Please also confirm your email address using the link we sent.':'');
+    document.getElementById('view-pending').style.display='';
+    loadPendingBadge();
   }catch(e){
     console.error('[signup] unexpected failure',e);
     err.textContent='Connection error. Please try again.';
@@ -2565,7 +2644,10 @@ async function renderPendingUsers(){
         </div>`).join('');
 
     } else if(_umTab==='active'){
-      const activeEngs=engineers.filter(e=>e.email).sort((a,b)=>a.name.localeCompare(b.name));
+      // RULE 2: "Active" means an approved login, NOT merely having an email on
+      // the record. Listing everyone with an email is what made new joiners look
+      // active before anybody had approved them. Admins always count as active.
+      const activeEngs=engineers.filter(e=>e.email&&(e.loginApproved===true||isAdmin(e.email))).sort((a,b)=>a.name.localeCompare(b.name));
       if(!activeEngs.length){el.innerHTML='<div class="card" style="padding:32px;text-align:center;color:var(--tx3);font-size:13px;font-style:italic;">No engineers with email set yet.</div>';return;}
       el.innerHTML=`<div style="font-size:11px;font-weight:700;color:var(--tx2);text-transform:uppercase;letter-spacing:.04em;margin-bottom:10px;">${activeEngs.length} active user${activeEngs.length>1?'s':''}</div>`+
         activeEngs.map(e=>`<div class="card" style="padding:12px 16px;margin-bottom:8px;display:flex;align-items:center;gap:12px;">
@@ -2780,9 +2862,15 @@ async function approvePendingUser(email){
     // 1. Already linked to somebody — nothing to create.
     const linked=(S.engineers||[]).find(e=>(e.email||'').toLowerCase()===lower);
     if(linked){
+      // RULE 4: approval is what grants the login. Write the flag on the
+      // engineer record — doLogin() refuses anyone without it.
+      linked.loginApproved=true;
+      await sbUpsert('engineers',{id:linked.id,data:linked});
       await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
-      toast('\u2713 Already linked to '+(linked.name||email)+' \u2014 approved');
-      renderPendingUsers(); loadPendingBadge(); return;
+      toast('\u2713 '+(linked.name||email)+' approved \u2014 can now sign in');
+      renderPendingUsers(); loadPendingBadge();
+      try{ invalidate('team'); }catch(e){}
+      return;
     }
     // 2. Look for an existing person with NO email whose name matches the
     //    address (shahbaz.taj@ -> "shahbaz taj"). This is the common case.
@@ -2807,6 +2895,7 @@ async function approvePendingUser(email){
     if(target){
       // Link: write the email onto the EXISTING record. No new person.
       target.email=lower;
+      target.loginApproved=true;            // RULE 4 — approval grants the login
       await sbUpsert('engineers',{id:target.id,data:target});
       await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString(),linked_to:target.id}});
       toast('\u2713 '+target.name+' can now sign in');
@@ -2821,7 +2910,7 @@ async function approvePendingUser(email){
     if(!confirm('No existing team member matches '+email+'.\n\nCreate a NEW placeholder profile for "'+name+'"?\n\nIt will be created as Engineer \u00b7 ELE \u00b7 DXB \u00b7 45 h/wk and will count towards headcount until you correct it.\n\nCancel if this person should have been matched to an existing record instead.'))
       return;
     const id='e'+Date.now();
-    await sbUpsert('engineers',{id,data:{id,name,email:lower,disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup'}});
+    await sbUpsert('engineers',{id,data:{id,name,email:lower,loginApproved:true,disc:'ELE',off:'DXB',team:'MEP',grade:'Engineer',desig:'Engineer - ELE',cap:45,note:'Pending profile setup'}});
     await sbUpsert('pending_users',{id:email,data:{email,status:'approved',approved_at:new Date().toISOString()}});
     toast('\u2713 '+name+' approved \u2014 placeholder created, please correct their details in Team');
     renderPendingUsers();
@@ -5534,7 +5623,15 @@ function wtBuild(canEdit){
       let rowTotal=0,rowForecast=0;
       html+='<tr class="wt-row'+(canEditRow?'':' wt-row-readonly')+'">';
       const desig=[e.grade,e.subDisc||e.disc].filter(Boolean).join(' · ');
-      html+='<td class="wt-name"><div>'+esc(engDisplayName(e))+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</div>'+(desig?'<div class="wt-name-sub">'+esc(desig)+'</div>':'')+'</td>';
+      // Photo + name/designation on one row. engAvatarHTML() already handles the
+      // photo-or-initials fallback (and the onerror swap), so the tracker picks
+      // up any photo change without needing its own loading logic.
+      html+='<td class="wt-name"><div style="display:flex;align-items:center;gap:8px;">'
+        +(typeof engAvatarHTML==='function'?engAvatarHTML(e,26,'#e8f0fe','#1e3a5f',10):'')
+        +'<div style="min-width:0;">'
+        +'<div>'+esc(engDisplayName(e))+(canEditRow?'':' <span style="color:var(--tx3);font-size:9px;font-weight:400;margin-left:4px;">🔒</span>')+'</div>'
+        +(desig?'<div class="wt-name-sub">'+esc(desig)+'</div>':'')
+        +'</div></div></td>';
       html+='<td class="wt-loc">'+wtEngOffLabel(e)+'</td>';
 
       // Tasks cell — description only (no hours)
@@ -5668,7 +5765,12 @@ function wtBuild(canEdit){
         const tNote=act['task_note']||'';
         const lock=editable?'':'<span class="wtm-lock">🔒</span>';
         body+='<div class="wtm-card">';
-        body+='<div class="wtm-top"><div class="wtm-id"><div class="wtm-name">'+esc(engDisplayName(e))+lock+'</div><div class="wtm-sub">'+(desig?esc(desig)+' · ':'')+wtEngOffLabel(e)+'</div></div><div class="wtm-tot" id="wtm-rt-'+e.id+'">'+(rt||0)+'<span>h</span></div></div>';
+        // Mobile card: same avatar helper, sized for touch.
+        body+='<div class="wtm-top"><div class="wtm-id" style="display:flex;align-items:center;gap:9px;">'
+          +(typeof engAvatarHTML==='function'?engAvatarHTML(e,32,'#e8f0fe','#1e3a5f',12):'')
+          +'<div style="min-width:0;"><div class="wtm-name">'+esc(engDisplayName(e))+lock+'</div>'
+          +'<div class="wtm-sub">'+(desig?esc(desig)+' · ':'')+wtEngOffLabel(e)+'</div></div>'
+          +'</div><div class="wtm-tot" id="wtm-rt-'+e.id+'">'+(rt||0)+'<span>h</span></div></div>';
         if(editable){
           body+='<textarea class="wtm-note-edit" rows="2" placeholder="task / support description…" oninput="this.style.height=\'auto\';this.style.height=this.scrollHeight+\'px\';wtEdit(\''+e.id+'\',\'task_note\',this.value)">'+esc(tNote)+'</textarea>';
         } else if(tNote){
@@ -8974,22 +9076,34 @@ function renderProj(){
       const badges=discsOf(p).map(c=>{const col=_DB[c]||['#e5e7eb','#374151'];const lbl=(typeof DISC_LABEL!=='undefined'&&DISC_LABEL[c])||c;return `<span style="font-size:9.5px;font-weight:700;padding:2px 7px;border-radius:5px;background:${col[0]};color:${col[1]};">${esc(lbl)}</span>`;}).join('');
       const badgesHtml=badges?`<div style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:11px;">${badges}</div>`:'';
       const team=teamOf(p), el=elapsedOf(p);
+      // When a banner wash sits behind the card, the interior panels have to go
+      // translucent — an opaque #F5F5F7 box on a tinted background reads as a
+      // patch rather than part of the card. No banner = original solid colours.
+      const _hasBnr=!!projBanner(p);
+      const _tileBg=_hasBnr?'rgba(255,255,255,.55)':'#F5F5F7';
+      const _tileBar=_hasBnr?'rgba(16,36,62,.13)':'#EDF1F6';
+      const _nextBg=_hasBnr?'rgba(255,255,255,.58)':'#F0F6FF';
+      const _nextBd=_hasBnr?'rgba(16,36,62,.12)':'#DCE8FA';
       const ns=nextStageOf(p);
-      const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:#F0F6FF;border:1px solid #DCE8FA;border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Next milestone${ns.progName?`<span style="color:${ns.progColor};"> · ${esc(ns.progName)}</span>`:''}</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
+      const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:${_nextBg};border:1px solid ${_nextBd};border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Next milestone${ns.progName?`<span style="color:${ns.progColor};"> · ${esc(ns.progName)}</span>`:''}</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
       let tll='';try{const d1=new Date(p.start),d2=new Date(p.end);const w=Math.round((d2-d1)/(7*24*3600*1000));tll=_fmtD(d1)+' → '+_fmtD(d2)+' · '+w+'w';}catch(_){}
-      return `<div class="proj-card" style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:15px;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.05);" onclick="openProjDetail('${p.id}')">
+      return `<div class="proj-card" style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:15px;overflow:hidden;position:relative;isolation:isolate;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.05);" onclick="openProjDetail('${p.id}')">
+        ${_hasBnr?`<div aria-hidden="true" style="position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:12px;"><div style="position:absolute;inset:-40px;background-image:url(&quot;${esc(projBanner(p))}&quot;);background-size:cover;background-position:center;filter:blur(34px) saturate(1.7);opacity:.52;"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.60) 0%,rgba(255,255,255,.86) 38%,rgba(255,255,255,.94) 100%);"></div></div>`:''}
+        <div style="position:relative;z-index:1;">
+        ${_hasBnr?`<div style="margin:-15px -15px 12px;height:76px;position:relative;background:#eef2f7;overflow:hidden;"><img src="${esc(projBanner(p))}" alt="" loading="lazy" style="width:100%;height:100%;object-fit:cover;display:block;" onerror="this.parentNode.remove();"><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,0) 55%,rgba(0,0,0,.22) 100%);pointer-events:none;"></div></div>`:''}
         <div style="display:flex;align-items:center;gap:7px;">${statusDot(p)}<span style="font-size:11px;color:var(--tx3);">${p.no||'—'} · ${p.status||'—'}</span>${progDots}<span style="${progDots?'margin-left:8px;':'margin-left:auto;'}font-size:10.5px;color:var(--tx3);">${stg} stage${stg===1?'':'s'}</span></div>
         <div style="font-weight:700;font-size:14.5px;margin:5px 0 2px;line-height:1.2;">${esc(p.name)}</div>
         <div style="font-size:11px;color:var(--tx3);margin-bottom:10px;">${[p.client,p.mepLeadEmail?getMepLeadName(p.mepLeadEmail):''].filter(Boolean).join(' · ')||'—'}</div>
         ${badgesHtml}
         <div style="display:flex;gap:8px;margin-bottom:10px;">
-          <div style="flex:1;background:#F5F5F7;border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${team}</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Team</span></div>
-          <div style="flex:1;background:#F5F5F7;border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${el}%</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Elapsed</span><div style="height:6px;background:#EDF1F6;border-radius:4px;overflow:hidden;margin-top:5px;"><div style="height:6px;width:${el}%;background:#10243E;border-radius:4px;"></div></div></div>
+          <div style="flex:1;background:${_tileBg};border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${team}</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Team</span></div>
+          <div style="flex:1;background:${_tileBg};border-radius:9px;padding:8px 6px;text-align:center;"><b style="font-size:16px;font-weight:700;color:#10243E;display:block;line-height:1;">${el}%</b><span style="font-size:9px;color:#9AA7B5;text-transform:uppercase;letter-spacing:.04em;display:block;margin-top:3px;">Elapsed</span><div style="height:6px;background:${_tileBar};border-radius:4px;overflow:hidden;margin-top:5px;"><div style="height:6px;width:${el}%;background:#10243E;border-radius:4px;"></div></div></div>
         </div>
         ${nextHtml}
         ${miniBar(p)}
         <div style="font-size:10px;color:#9AA7B5;margin-top:6px;">${tll}</div>
         <div style="display:flex;justify-content:space-between;align-items:center;margin-top:11px;padding-top:11px;border-top:1px solid var(--bdr);font-size:11px;color:var(--tx3);"><span>Total hours</span><span style="font-size:18px;font-weight:700;color:#0d7d8a;">${th>0?fN(Math.round(th)):'—'}</span></div>
+        </div>
       </div>`;
     }).join('');
     return `<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:12px;">${cards}</div>`;
@@ -9349,6 +9463,149 @@ function pickEngPhoto(engId){
   inp.onchange=function(){ const f=inp.files&&inp.files[0]; inp.value=''; if(f)uploadEngPhoto(engId,f); };
   inp.click();
 }
+
+// ═══ PROJECT CARD BANNERS ═══════════════════════════════════════════════════
+// A wide header image per project card. This needs its OWN processor rather than
+// reusing _photoProcess(): that one centre-crops to a 256px SQUARE for avatars,
+// which would slice the middle out of a building elevation. Here the crop is a
+// 2.85:1 strip, matching the band the card draws.
+const BANNER_W=800, BANNER_H=280;
+const BANNER_MAX_BYTES=110*1024;    // wider than an avatar, so a larger budget
+function projBanner(p){ return (p&&(p.bannerUrl||p.banner))||''; }
+window.projBanner=projBanner;
+
+function _bannerProcess(file){
+  return new Promise((resolve,reject)=>{
+    const objUrl=URL.createObjectURL(file);
+    const img=new Image();
+    img.onload=()=>{
+      URL.revokeObjectURL(objUrl);
+      try{
+        const nw=img.naturalWidth, nh=img.naturalHeight;
+        if(!nw||!nh){reject(new Error('Image has no dimensions'));return;}
+        // Centre-crop to the banner aspect, keeping as much width as possible.
+        const target=BANNER_W/BANNER_H;
+        let sw=nw, sh=Math.round(nw/target);
+        if(sh>nh){ sh=nh; sw=Math.round(nh*target); }
+        const sx=Math.max(0,(nw-sw)/2), sy=Math.max(0,(nh-sh)/2);
+        const c=document.createElement('canvas'); c.width=BANNER_W; c.height=BANNER_H;
+        const ctx=c.getContext('2d');
+        ctx.fillStyle='#ffffff'; ctx.fillRect(0,0,BANNER_W,BANNER_H);  // flatten PNG alpha
+        try{ctx.imageSmoothingQuality='high';}catch(_){}
+        ctx.drawImage(img,sx,sy,sw,sh,0,0,BANNER_W,BANNER_H);
+        const QS=[0.82,0.72,0.62,0.5,0.4];
+        const step=(type,i)=>{
+          c.toBlob(b=>{
+            if(!b){resolve(null);return;}
+            if(b.size<=BANNER_MAX_BYTES||i>=QS.length-1){resolve({blob:b,type:type});return;}
+            step(type,i+1);
+          },type,QS[i]);
+        };
+        // Same WebP probe as the avatar path: browsers without an encoder hand
+        // back PNG from toBlob instead of erroring, so check the mime.
+        c.toBlob(probe=>{ step((probe&&probe.type==='image/webp')?'image/webp':'image/jpeg',0); },'image/webp',0.82);
+      }catch(err){reject(err);}
+    };
+    img.onerror=()=>{URL.revokeObjectURL(objUrl);reject(new Error('Could not decode image'));};
+    img.src=objUrl;
+  });
+}
+
+// Mutates the EXISTING project object and re-pushes it, rather than rebuilding
+// one from form values — that rebuild pattern is what silently dropped fields in
+// the saveProj bug, and it would trip pushProj's milestone write-guard.
+async function _setProjBannerUrl(projId,url){
+  const p=(S.projects||[]).find(x=>x.id===projId);
+  if(!p){toast('Project not found');return false;}
+  if(url)p.bannerUrl=url; else delete p.bannerUrl;
+  try{ await pushProj(p); }
+  catch(err){ console.error('banner save failed',err); toast('Could not save the banner'); return false; }
+  try{ invalidate('projects'); }catch(e){}
+  try{ _fillProjModalBanner(p); }catch(e){}
+  return true;
+}
+
+async function uploadProjBanner(projId,file){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  if(!(S.projects||[]).some(x=>x.id===projId)){toast('Save the project first, then add a banner');return;}
+  if(!/^image\/(jpeg|jpg|png|webp)$/i.test(file.type||'')){
+    toast('Use a JPG, PNG or WebP — iPhone HEIC files cannot be read');return;
+  }
+  if(file.size>PHOTO_SRC_MAX){
+    toast('That file is '+Math.round(file.size/1048576)+' MB — please use one under 8 MB');return;
+  }
+  toast('Processing image…');
+  let out=null;
+  try{ out=await _bannerProcess(file); }
+  catch(err){ console.error('banner decode failed',err); toast('Could not read that image'); return; }
+  if(!out||!out.blob){ toast('Could not process that image'); return; }
+  const ext=(out.type==='image/webp')?'webp':'jpg';
+  const other=(ext==='webp')?'jpg':'webp';
+  // 'proj-' prefix keeps banners from ever colliding with an engineer id in the
+  // same bucket.
+  const key='proj-'+projId;
+  const base=SB_URL+'/storage/v1/object/'+PHOTO_BUCKET+'/'+encodeURIComponent(key)+'.';
+  try{
+    if(typeof ensureFreshToken==='function')await ensureFreshToken();
+    const tok=(SB_SESSION&&SB_SESSION.access_token)||SB_KEY;
+    const r=await fetch(base+ext,{
+      method:'POST',cache:'no-store',
+      headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'Content-Type':out.type,'x-upsert':'true','X-Bypass-SW':'1'},
+      body:out.blob
+    });
+    if(!r.ok){ throw new Error('HTTP '+r.status+' '+(await r.text().catch(()=>''))); }
+    fetch(base+other,{method:'DELETE',headers:{'apikey':SB_KEY,'Authorization':'Bearer '+tok,'X-Bypass-SW':'1'}}).catch(()=>{});
+  }catch(err){
+    console.error('banner upload failed',err);
+    toast('Upload failed — '+String((err&&err.message)||err).slice(0,80));
+    return;
+  }
+  const pub=SB_URL+'/storage/v1/object/public/'+PHOTO_BUCKET+'/'+encodeURIComponent(key)+'.'+ext+'?v='+Date.now();
+  const ok=await _setProjBannerUrl(projId,pub);
+  if(ok)toast('Banner updated · '+Math.round(out.blob.size/1024)+' KB');
+}
+window.uploadProjBanner=uploadProjBanner;
+
+function pickProjBanner(projId){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  let inp=document.getElementById('proj-banner-input');
+  if(!inp){
+    inp=document.createElement('input');
+    inp.type='file'; inp.id='proj-banner-input';
+    inp.accept='image/jpeg,image/png,image/webp';
+    inp.style.display='none';
+    document.body.appendChild(inp);
+  }
+  inp.value='';
+  inp.onchange=function(){ const f=inp.files&&inp.files[0]; inp.value=''; if(f)uploadProjBanner(projId,f); };
+  inp.click();
+}
+window.pickProjBanner=pickProjBanner;
+
+async function removeProjBanner(projId){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  if(!confirm('Remove this banner?\n\nThe card goes back to plain white.'))return;
+  const ok=await _setProjBannerUrl(projId,'');
+  if(ok)toast('Banner removed');
+}
+window.removeProjBanner=removeProjBanner;
+
+// Populate the modal's banner preview and wire its buttons to this project.
+function _fillProjModalBanner(p){
+  const row=document.getElementById('pw-banner-row'); if(!row)return;
+  row.style.display=(p&&p.id)?'':'none';
+  if(!p||!p.id)return;
+  const prev=document.getElementById('pw-banner-prev');
+  const url=projBanner(p);
+  if(prev)prev.innerHTML=url
+    ? '<img src="'+esc(url)+'" alt="" style="width:100%;height:100%;object-fit:cover;display:block;">'
+    : 'None';
+  const up=document.getElementById('pw-banner-up');
+  const rm=document.getElementById('pw-banner-rm');
+  if(up)up.onclick=function(){pickProjBanner(p.id);};
+  if(rm){ rm.onclick=function(){removeProjBanner(p.id);}; rm.style.display=url?'':'none'; }
+}
+window._fillProjModalBanner=_fillProjModalBanner;
 
 async function removeEngPhoto(engId){
   if(!canEditPhoto(engId)){toast('You can only change your own photo');return;}
@@ -14426,9 +14683,9 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';renderDiscCheckboxes('pw-disc-checks','pw');populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';renderDiscCheckboxes('pw-disc-checks','pw');populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}var _bR=document.getElementById('pw-banner-row');if(_bR)_bR.style.display='none';document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){if(!adminUnlocked){toast('Admin access required');return;}const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';renderDiscCheckboxes('pw-disc-checks','pw');setCheckedDiscs('pw',p.disciplines||[]);setBimAllowed('pw',p.bimExcluded!==true);populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';renderDiscCheckboxes('pw-disc-checks','pw');setCheckedDiscs('pw',p.disciplines||[]);setBimAllowed('pw',p.bimExcluded!==true);populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}try{_fillProjModalBanner(p);}catch(e){}document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
@@ -14911,7 +15168,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
           const cap=eng.cap||45;
-          const editable=adminUnlocked||canEditDisc(disc)||(isRestricted()&&isSelfEng(eng));
+          const editable=adminUnlocked||canEditDisc(disc)||isSelfEng(eng);
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
           return`<td style="padding:2px;text-align:center">
@@ -15074,7 +15331,7 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
             const gwi=w.gwi!=null?w.gwi:globalWI(w);
             const v=arr[gwi]||0;
             const cap=eng.cap||45;
-            const editable=adminUnlocked||editDiscFn(disc)||(isRestricted()&&isSelfEng(eng));
+            const editable=adminUnlocked||editDiscFn(disc)||isSelfEng(eng);
             const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
             const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
             return`<td style="padding:2px;text-align:center">
@@ -15327,7 +15584,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const cap=eng.cap||45;
           const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
           const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
-          const editable=adminUnlocked||canEditDisc('BIM')||(isRestricted()&&isSelfEng(eng));
+          const editable=adminUnlocked||canEditDisc('BIM')||isSelfEng(eng);
           return`<td style="padding:2px;text-align:center">
             <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
@@ -18417,7 +18674,7 @@ const _origNav=typeof nav==='function'?nav:null;
     var projsSection='<div style="padding:0 16px 14px;">'+sect('My projects · MEP Lead')+projRowsHtml+'</div>';
     var _tm=myTeam.map(function(en){var tu=r.util[en.id]||[];var ta=Math.round((tu.reduce(function(a,b){return a+(b||0);},0))/NM)||0;return {en:en,ta:ta};});
     _tm.sort(function(a,b){return b.ta-a.ta;});
-    function _teamRow(o){var en=o.en,ta=o.ta;var tcol=ta>100?'#A32D2D':ta>=85?'#3B6D11':ta>=50?'#854F0B':'#5F6B7A';var dcm=DC[en.disc]||DC['BIM'];var ini=(en.name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();return '<div onclick="closeMyDashboard();openEngDetail(\''+en.id+'\')" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:0.5px solid #EDF1F6;cursor:pointer;"><div style="width:30px;height:30px;border-radius:50%;background:'+dcm.bg+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:'+dcm.fg+';flex:0 0 auto;">'+ini+'</div><div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:#28384A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(en.name||'')+'</div><div style="font-size:11px;color:#9AA7B5;">'+(en.desig||en.disc||'')+'</div></div><span style="flex:0 0 auto;font-size:12px;font-weight:700;color:'+tcol+';">'+ta+'%</span><span style="flex:0 0 auto;color:#C9D3DE;font-size:15px;">&rsaquo;</span></div>';}
+    function _teamRow(o){var en=o.en,ta=o.ta;var tcol=ta>100?'#A32D2D':ta>=85?'#3B6D11':ta>=50?'#854F0B':'#5F6B7A';var dcm=DC[en.disc]||DC['BIM'];var ini=(en.name||'?').split(' ').slice(0,2).map(function(w){return w[0]||'';}).join('').toUpperCase();return '<div onclick="closeMyDashboard();openEngDetail(\''+en.id+'\')" style="display:flex;align-items:center;gap:10px;padding:8px 0;border-top:0.5px solid #EDF1F6;cursor:pointer;">'+(typeof engAvatarHTML==='function'?engAvatarHTML(en,30,dcm.bg,dcm.fg,11):'<div style="width:30px;height:30px;border-radius:50%;background:'+dcm.bg+';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:'+dcm.fg+';flex:0 0 auto;">'+ini+'</div>')+'<div style="flex:1;min-width:0;"><div style="font-size:12.5px;font-weight:600;color:#28384A;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+(en.name||'')+'</div><div style="font-size:11px;color:#9AA7B5;">'+(en.desig||en.disc||'')+'</div></div><span style="flex:0 0 auto;font-size:12px;font-weight:700;color:'+tcol+';">'+ta+'%</span><span style="flex:0 0 auto;color:#C9D3DE;font-size:15px;">&rsaquo;</span></div>';}
     var _vis=_tm.slice(0,5).map(_teamRow).join('');
     var _more=_tm.slice(5);
     var _moreHtml=_more.length?('<div id="myd-team-more" style="display:none;">'+_more.map(_teamRow).join('')+'</div>'+'<button onclick="var m=document.getElementById(\'myd-team-more\');if(m.style.display===\'none\'){m.style.display=\'\';this.textContent=\'Show less\';}else{m.style.display=\'none\';this.textContent=\'Show all (\'+'+_more.length+'+\' more)\';}" style="margin-top:10px;width:100%;border:none;background:#F1F5FA;color:#10243E;font-size:12px;font-weight:600;padding:9px;border-radius:9px;cursor:pointer;">Show all ('+_more.length+' more)</button>'):'';
@@ -18442,7 +18699,11 @@ const _origNav=typeof nav==='function'?nav:null;
     function infoRow(label,val){return '<div style="display:flex;align-items:center;gap:8px;font-size:12.5px;color:#28384A;padding:8px 0;border-top:0.5px solid #EDF1F6;"><span style="color:#6B7A8D;">'+label+'</span><span style="margin-left:auto;font-weight:600;text-align:right;">'+val+'</span></div>';}
 
     var headerHtml='<div style="display:flex;align-items:center;gap:12px;padding:16px;border-bottom:0.5px solid #EDF1F6;">'
-        +'<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>'
+        // Photo when there is one; engAvatarHTML() falls back to these exact
+        // initials (and swaps back on a broken image), so nothing is lost.
+        +(typeof engAvatarHTML==='function'
+            ? engAvatarHTML(e,46,dc.bg,dc.fg,16)
+            : '<div style="width:46px;height:46px;border-radius:50%;background:'+dc.bg+';display:flex;align-items:center;justify-content:center;font-weight:600;font-size:16px;color:'+dc.fg+';flex:0 0 auto;">'+initials+'</div>')
         +'<div style="flex:1;min-width:0;"><div style="font-weight:600;font-size:16px;color:#10243E;line-height:1.25;">'+esc(engDisplayName(e))+'</div><div style="font-size:12px;color:#6B7A8D;margin-top:2px;">'+sub+'</div></div>'
         +roleChip
         +'<button onclick="closeMyDashboard()" aria-label="Close" style="border:none;background:none;font-size:22px;line-height:1;color:#9AA7B5;cursor:pointer;padding:0 2px;">&times;</button>'
