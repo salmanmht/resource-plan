@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.3 · 15 Sep 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.4 · 15 Sep 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.3 · 15 Sep 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.4 · 15 Sep 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1792,7 +1792,7 @@ const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.5.3';
+const APP_VER     = '9.5.4';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -1866,11 +1866,27 @@ function gradeSuggestsRestricted(e){
   if(!e)return true;
   return !UNRESTRICTED_GRADE_RE.test(((e.grade||'')+' '+(e.desig||'')));
 }
+// Roles that ELEVATE somebody out of the restricted (self-service) tier, named
+// explicitly. The old test was "holds any role at all", which silently treats
+// every future role as full access — exactly the trap the 'viewer' option set:
+// it read as the LEAST access and granted the MOST. Anything not on this list
+// now leaves the restricted rules untouched.
+const ELEVATING_ROLES=['admin','director','mep_lead','disc_lead','bim_lead'];
+function hasElevatingRole(email){
+  var em=String(email||'').toLowerCase(); if(!em)return false;
+  try{
+    return (S.roles||[]).some(function(r){
+      return r&&r.email&&r.email.toLowerCase()===em&&ELEVATING_ROLES.indexOf(r.role)>=0;
+    });
+  }catch(e){ return false; }
+}
+window.hasElevatingRole=hasElevatingRole;
+
 function isRestricted(){
   if(window._previewRestricted)return true;            // admin "preview as" toggle
   if(isRealAdmin())return false;
   try{ if(typeof isDirector==='function'&&isDirector())return false; }catch(e){}
-  try{ if(myRoles().length)return false; }catch(e){}   // any lead role = full access
+  try{ if(hasElevatingRole(currentUserEmail()))return false; }catch(e){}
   var me=myEngRecord();
   if(!me)return true;                                  // fail closed: unknown user sees least
   if(me.fullAccess===true)return false;                // explicit per-person override
@@ -2376,7 +2392,7 @@ async function doLogin(){
       let hasRole=false;
       try{
         const mine2=(d.user&&d.user.email||'').toLowerCase();
-        hasRole=(S.roles||[]).some(r=>r&&r.email&&r.email.toLowerCase()===mine2);
+        hasRole=hasElevatingRole(mine2);
       }catch(roleErr){ console.warn('[login] role fallback check failed',roleErr); }
       // Only block on a DEFINITE answer. If the check itself failed, let them
       // in rather than locking out the whole company on a bad network call.
@@ -2684,7 +2700,12 @@ async function renderPendingUsers(){
       // Load fresh from Supabase
       const rolesRows=await sbGet('engineer_roles').catch(()=>[]);
       S.roles=(Array.isArray(rolesRows)?rolesRows:[]).map(r=>r.data||r).filter(Boolean);
-      const ROLE_LABELS={admin:'Admin',director:'Director',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer'};
+      // 'viewer' is no longer offered in the Add Role dropdown — it granted full
+      // access rather than read-only (see ELEVATING_ROLES). Its label, colour and
+      // sort entries stay ONLY so any row already saved in engineer_roles still
+      // renders readably and can be removed with the × button, instead of showing
+      // up as "undefined". It no longer elevates anybody.
+      const ROLE_LABELS={admin:'Admin',director:'Director',mep_lead:'MEP Lead',disc_lead:'Disc Lead',bim_lead:'BIM Lead',viewer:'Viewer (legacy)'};
       const ROLE_COLORS={admin:'#fef3c7;color:#92400e',director:'#ede9fe;color:#6d28d9',mep_lead:'#e0f2fe;color:#0369a1',disc_lead:'#dcfce7;color:#166534',bim_lead:'#fce7f3;color:#9d174d',viewer:'#f1f5f9;color:#374151'};
 
       // Build combined list: engineer_roles + MEP leads from projects
@@ -2718,7 +2739,6 @@ async function renderPendingUsers(){
               <option value="mep_lead">MEP Lead</option>
               <option value="disc_lead" selected>Disc Lead</option>
               <option value="bim_lead">BIM Lead</option>
-              <option value="viewer">Viewer</option>
             </select>
           </div>
           <div>
