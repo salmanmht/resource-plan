@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.1 · 14 Sep 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.3 · 15 Sep 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.1 · 14 Sep 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.3 · 15 Sep 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1792,7 +1792,7 @@ const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.5.1';
+const APP_VER     = '9.5.3';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -14598,6 +14598,10 @@ async function saveEng(){
   } else if(document.getElementById('em-crossdisc').checked)eng.crossDisc=true;
   if(!isBIM)delete eng.subDisc;
   if(_prev&&_prev.photoUrl)eng.photoUrl=_prev.photoUrl;
+  // `eng` is rebuilt from form values, so ANY field without an input is wiped on
+  // save. loginApproved has no input — editing a team member silently revoked
+  // their sign-in (this is what locked Amr out). Carry it across like photoUrl.
+  if(_prev&&_prev.loginApproved===true)eng.loginApproved=true;
   if(eId){const i=S.engineers.findIndex(e=>e.id===eId);S.engineers[i]=eng;}else S.engineers.push(eng);
   await pushEng(eng);closeEngModal();invalidate('team');updSB();toast('Saved & synced ✓');
 }
@@ -14612,9 +14616,18 @@ async function loadOrphanedAuth(){
     if(!r.ok||!j.ok){ host.innerHTML='<div style="font-size:11px;color:#dc2626;padding:8px 0;">Could not check orphans: '+esc(j.error||('HTTP '+r.status))+'</div>'; return; }
     const orphans=j.orphans||[];
     if(!orphans.length){ host.innerHTML=''; return; } // silent when clean
-    // Skip pending-invite emails (they're intentional — auth row created before engineers row)
+    // Skip emails that are genuinely mid-invite (auth row created before the
+    // engineers row). Previously this skipped EVERY row in pending_users
+    // whatever its status, so an APPROVED request whose engineer record was
+    // later deleted stayed hidden — which is precisely what an orphan is. Only
+    // status 'pending' is an invite in flight.
     let pending=[];
-    try{const pr=await sbGet('pending_users');pending=(pr||[]).map(x=>((x.data||x).email||'').toLowerCase()).filter(Boolean);}catch(e){}
+    try{
+      const pr=await sbGet('pending_users');
+      pending=(pr||[]).map(x=>x.data||x)
+        .filter(x=>((x.status||'pending')==='pending'))
+        .map(x=>(x.email||'').toLowerCase()).filter(Boolean);
+    }catch(e){}
     const real=orphans.filter(o=>o.email&&pending.indexOf(o.email.toLowerCase())<0);
     if(!real.length){ host.innerHTML=''; return; }
     host.innerHTML='<div style="font-size:11px;font-weight:700;color:#b45309;text-transform:uppercase;letter-spacing:.04em;margin:16px 0 8px;">\u26a0 Orphaned sign-in accounts ('+real.length+')</div>'
