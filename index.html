@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.6.4 · 15 Sep 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.7.0 · 16 Sep 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.6.4 · 15 Sep 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.7.0 · 16 Sep 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1792,7 +1792,7 @@ const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.5.4';
+const APP_VER     = '9.6.0';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -2674,7 +2674,8 @@ async function renderPendingUsers(){
             <div style="font-size:10px;color:var(--tx3);">${esc(e.desig||'—')} · ${esc(e.off||'DXB')}</div>
           </div>
           ${isAdmin(e.email)?'<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:#dbeafe;color:#1d4ed8;">Admin</span>':''}
-          <button data-eid="${esc(e.id)}" onclick="delEng(this.dataset.eid)" title="Delete user from everywhere (engineer record, hours, roles, sign-in account)" style="border:1px solid #f0997b;background:#fcebeb;color:#a32d2d;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Delete</button>
+          <button data-eid="${esc(e.id)}" onclick="revokeSignIn(this.dataset.eid)" title="Remove their sign-in account and approval. Keeps the person, their project hours and history." style="border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Remove sign-in</button>
+          <button data-eid="${esc(e.id)}" onclick="delEng(this.dataset.eid)" title="PERMANENT: erases the person, every booked hour, roles and sign-in. Cannot be undone — there are no backups on this plan." style="border:1px solid #f0997b;background:#fcebeb;color:#a32d2d;border-radius:6px;padding:5px 11px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Delete…</button>
         </div>`).join('')+
         '<div id="um-orphans-host" style="margin-top:20px;"></div>';
       // fetch orphaned auth accounts (Supabase Auth users with no matching engineers row)
@@ -8834,7 +8835,7 @@ function renderTeam(){
         ${billBar}
         ${adminUnlocked?`<div style="display:flex;gap:6px;margin-top:10px;">
           <button class="btn btn-g btn-xs" onclick="event.stopPropagation();editEng('${e.id}')" style="padding:3px 10px;">Edit</button>
-          <button class="btn btn-d btn-xs" data-eid="${esc(e.id)}" onclick="event.stopPropagation();delEng(this.dataset.eid)" style="padding:3px 10px;">Del</button>
+          <button class="btn btn-d btn-xs" data-eid="${esc(e.id)}" onclick="event.stopPropagation();delEng(this.dataset.eid)" title="PERMANENT: erases this person and every booked hour. Cannot be undone." style="padding:3px 10px;">Delete…</button>
         </div>`:''}
       </div>
     </div>`;
@@ -14673,12 +14674,84 @@ async function deleteOrphanAuth(email){
     else{ toast('\u26d4 '+(j.error||'Delete failed')); }
   }catch(err){ toast('\u26d4 Delete failed \u2014 '+String(err)); }
 }
+// Revoke somebody's ACCESS without touching the person. This is the action that
+// was missing: delEng() bundled "stop them signing in" together with "erase
+// their entire history", so removing a login destroyed three engineer records
+// and every hour they had booked. Nine times out of ten this is what is wanted.
+//   Removes : Supabase Auth account, loginApproved flag, role assignments
+//   Keeps   : engineer record, project hours, leave, everything historical
+async function revokeSignIn(id){
+  if(!adminUnlocked){toast('Admin access required');return;}
+  const eng=S.engineers.find(x=>x.id===id);
+  if(!eng){toast('Person not found');return;}
+  const nm=eng.name||'this user';
+  const em=eng.email||'';
+  if(!em){toast(nm+' has no email, so there is no sign-in to remove');return;}
+  if(!confirm('Remove sign-in access for '+nm+'?\n\n'
+    +'\u2022 Their Supabase sign-in account is deleted\n'
+    +'\u2022 Their approval is revoked\n\n'
+    +'KEPT: their team record, project hours, leave and history.\n\n'
+    +'They can request access again later.'))return;
+  // Auth side first. A failure here must NOT silently leave them able to sign
+  // in, so it is reported rather than swallowed.
+  let authKilled=false, authMsg='';
+  try{
+    const tok=(SB_SESSION&&SB_SESSION.access_token)||'';
+    const r=await fetch(SB_URL+'/functions/v1/delete-user',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+tok,'apikey':SB_KEY},body:JSON.stringify({email:em})});
+    const j=await r.json().catch(()=>({}));
+    if(r.ok&&j.ok){ authKilled=true; }
+    else if(r.status===403){ toast('\u26d4 '+(j.error||'Admin only')); return; }
+    else if(r.status===401){ toast('\u26d4 Sign-in expired \u2014 please refresh'); return; }
+    else { authMsg=j.error||('HTTP '+r.status); console.warn('revokeSignIn: auth delete failed',r.status,j); }
+  }catch(err){ authMsg=String((err&&err.message)||err); console.error('revokeSignIn: auth call failed',err); }
+  // The Edge Function deletes `engineers` rows BY EMAIL, so the record has to be
+  // re-asserted here. upsert, not insert: this restores the row if the function
+  // removed it. Without this, "remove sign-in" would destroy the very record it
+  // is meant to protect.
+  eng.loginApproved=false;
+  try{
+    await sbUpsert('engineers',{id:eng.id,data:eng});
+    // Roles are what let somebody bypass the approval gate, so they go too.
+    if(em)await sbFetch('engineer_roles?data->>email=eq.'+encodeURIComponent(em),'DELETE').catch(()=>{});
+    S.roles=(S.roles||[]).filter(r=>!(r.email&&r.email.toLowerCase()===em.toLowerCase()));
+    if(em)await sbFetch('pending_users?id=eq.'+encodeURIComponent(em),'DELETE').catch(()=>{});
+  }catch(e){ console.error('revokeSignIn: record update failed',e); }
+  invalidate('team');updSB();
+  try{ renderPendingUsers(); }catch(e){}
+  toast(authKilled
+    ? ('\u2713 Sign-in removed for '+nm+' \u2014 their record is untouched')
+    : ('\u26a0 '+nm+' de-approved, but the auth account could not be deleted'+(authMsg?' ('+authMsg+')':'')+' \u2014 remove it in Supabase \u2192 Authentication'));
+}
+window.revokeSignIn=revokeSignIn;
+
 async function delEng(id){
   if(!adminUnlocked){toast('Admin access required');return;}
   const eng=S.engineers.find(x=>x.id===id);
   const nm=eng&&eng.name||'this user';
   const em=eng&&eng.email||'';
-  if(!confirm('Delete '+nm+' from EVERYWHERE?\n\n\u2022 Engineer record\n\u2022 Project hours (all projects)\n\u2022 Role assignments\n\u2022 Sign-in account (Supabase Auth)\n\u2022 Presence & activity\n\nThis cannot be undone.'))return;
+  // TYPE-TO-CONFIRM. A single OK click destroyed three people's records and all
+  // their booked hours, with no database backup on the current plan to recover
+  // from. Requiring the name forces a deliberate act rather than a reflex, and
+  // the hour count makes the cost of the action visible before it happens.
+  const _bk=(function(){try{
+    let n=0;(S._allProjects||S.projects||[]).forEach(p=>{if(!p.weeklyHrs)return;
+      Object.keys(p.weeklyHrs).forEach(k=>{if(k===id||slotBase(k)===id){
+        (p.weeklyHrs[k]||[]).forEach(v=>{n+=(+v||0);});}});});
+    return Math.round(n);
+  }catch(e){return 0;}})();
+  const _typed=prompt('PERMANENTLY DELETE '+nm+'?\n\n'
+    +'This erases, with no way back:\n'
+    +'\u2022 Their team record\n'
+    +(_bk>0?('\u2022 '+_bk+' booked hours across all projects\n'):'\u2022 Project hours (all projects)\n')
+    +'\u2022 Role assignments\n'
+    +'\u2022 Sign-in account\n\n'
+    +'There are NO database backups on the current Supabase plan.\n'
+    +'If you only want to stop them signing in, cancel this and use "Remove sign-in" instead.\n\n'
+    +'Type their name exactly to confirm:\n'+nm);
+  if(_typed===null)return;
+  if(_typed.trim().toLowerCase()!==nm.trim().toLowerCase()){
+    toast('Name did not match \u2014 nothing was deleted');return;
+  }
   // call delete-user Edge Function for full auth-side purge; fall back to
   // local cascade if it fails (function down, offline, or no email on record).
   let authKilled=false;
