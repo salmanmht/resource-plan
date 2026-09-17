@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.7.0 · 16 Sep 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.3 · 16 Sep 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.7.0 · 16 Sep 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.3 · 16 Sep 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1792,7 +1792,7 @@ const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.6.0';
+const APP_VER     = '9.7.3';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -3323,7 +3323,16 @@ async function initApp(opts){
     S.mgmtExtra=re?re.value:[];
     S.mgmtExtraTemp=(S.mgmtExtra||[]).map(id=>({id}));
     // leaveHrs: {engId: [hrs per week indexed from global start]}
-    S.leaveHrs={};leaveRows.forEach(r=>{if(r.id&&r.data)S.leaveHrs[r.id]=r.data;});
+    S.leaveHrs={};S.leavePending={};
+    leaveRows.forEach(r=>{
+      if(!r.id||!r.data)return;
+      // "<engId>::pending" rows are unapproved REQUESTS. They are kept apart from
+      // S.leaveHrs so every existing total, chart and export keeps counting only
+      // approved leave without a single change to those callers.
+      const _pi=String(r.id).indexOf(LV_PENDING_SUFFIX);
+      if(_pi>0) S.leavePending[String(r.id).slice(0,_pi)]=r.data;
+      else S.leaveHrs[r.id]=r.data;
+    });
     S.mgmtHrs={};mgmtRows.forEach(r=>{if(r.id&&r.data)S.mgmtHrs[r.id]=r.data;});
     const holUAE=holRows.find(r=>r.id==='uae');
     const holEGY=holRows.find(r=>r.id==='egy');
@@ -15199,12 +15208,259 @@ function lvToDisp(h){ if(lvUnit()!=='d')return (h||0); const d=(h||0)/LV_HRS_PER
 function lvFromDisp(v){ const n=parseFloat(v)||0; return lvUnit()==='d'? n*LV_HRS_PER_DAY : n; }
 function setLeaveUnit(u){ window._lvUnit=(u==='d')?'d':'h'; renderLeave(); }
 // Unit-aware setter used by the leave grids (typing AND drag-fill both route through here).
+// ═══ LEAVE APPROVAL ═══════════════════════════════════════════════════════
+// Someone who cannot approve their own leave files a REQUEST instead of a
+// booking. Requests sit in S.leavePending until a lead signs them off, so they
+// never reach S.leaveHrs and therefore never count towards Taken, utilisation,
+// cost or any export — none of those callers needed changing.
+const LV_PENDING_SUFFIX='::pending';
+
+// Who may approve for this person? A lead whose scope covers their discipline.
+// canEditDisc() already encodes exactly that rule — including HVAC having two
+// leads, where either one qualifies — so approval reuses it rather than
+// inventing a second, divergent definition of "their lead".
+function lvCanApprove(eng){
+  if(!eng)return false;
+  if(adminUnlocked)return true;
+  try{ if(typeof isDirector==='function'&&isDirector())return true; }catch(e){}
+  try{ return canEditDisc(eng.team==='BIM'?'BIM':(eng.disc||'')); }catch(e){ return false; }
+}
+window.lvCanApprove=lvCanApprove;
+
+// A booking is direct when the editor could have approved it anyway. Otherwise
+// it is a request. This is what keeps leads booking their own team instantly.
+function lvIsDirect(engId){
+  const eng=(S.engineers||[]).find(e=>e.id===engId);
+  return lvCanApprove(eng);
+}
+// Turn a global week index into the same "W12 03-16" label the grid header uses,
+// so an approver reads the weeks they can actually see on screen.
+function lvWeekLabel(gwi){
+  try{
+    const yr=window.leaveYear||2026;
+    const wks=globalWeeks(yr);
+    for(let k=0;k<wks.length;k++){
+      const w=wks[k];
+      const g=(w.gwi!=null)?w.gwi:globalWI(w);
+      if(g===gwi){
+        const d=(w instanceof Date)?w:new Date(w.d||w);
+        const mm=String(d.getMonth()+1).padStart(2,'0'), dd=String(d.getDate()).padStart(2,'0');
+        return 'W'+(k+2)+' '+mm+'-'+dd;
+      }
+    }
+  }catch(e){}
+  return 'Week '+gwi;
+}
+window.lvWeekLabel=lvWeekLabel;
+
+function lvPendingArr(engId){ return (S.leavePending&&S.leavePending[engId])||[]; }
+function lvPendingVal(engId,wi){ return lvPendingArr(engId)[wi]||0; }
+// A cancellation stores 0, which lvPendingVal() cannot tell apart from a week
+// that was never touched — so a requested REMOVAL rendered as though nothing had
+// been asked for. This reports whether the week is part of the request at all.
+function lvPendingHas(engId,wi){ const a=lvPendingArr(engId)[wi]; return !(a===null||a===undefined||a===''); }
+window.lvPendingHas=lvPendingHas;
+window.lvPendingArr=lvPendingArr; window.lvPendingVal=lvPendingVal;
+
+// Everyone with at least one outstanding request, restricted to the people the
+// signed-in user is actually allowed to approve for.
+function lvPendingForMe(){
+  const out=[];
+  try{
+    Object.keys(S.leavePending||{}).forEach(function(engId){
+      const arr=S.leavePending[engId]||[];
+      const eng=(S.engineers||[]).find(e=>e.id===engId);
+      if(!eng||!lvCanApprove(eng))return;
+      // Compare against what is already approved. A request can raise, lower or
+      // cancel a week, so "weeks" counts CHANGES and "net" is the real delta —
+      // summing the requested hours alone overstated cancellations as increases.
+      const cur=S.leaveHrs[engId]||[];
+      let net=0,changes=0,hrs=0;
+      arr.forEach(function(v,i){
+        if(v===null||v===undefined||v==='')return;
+        const nv=+v||0, ov=+cur[i]||0;
+        if(nv===ov)return;
+        changes++; net+=(nv-ov); hrs+=nv;
+      });
+      if(!changes)return;
+      out.push({eng:eng,hrs:hrs,net:net,weeks:changes});
+    });
+  }catch(e){}
+  return out.sort(function(a,b){return String(a.eng.name||'').localeCompare(String(b.eng.name||''));});
+}
+window.lvPendingForMe=lvPendingForMe;
+
+async function pushLeavePending(engId){
+  const data=(S.leavePending&&S.leavePending[engId])||[];
+  // A request is worth filing when it DIFFERS from what is approved — not merely
+  // when it contains positive hours. The old `some(v=>+v>0)` test meant a pure
+  // CANCELLATION (all zeros) counted as an empty request, so the pending row was
+  // DELETED rather than saved. Moving leave from one week to another is two
+  // edits — clear the old, fill the new — and the clear half vanished before the
+  // approver ever saw it, which is why the old hours survived approval.
+  const _cur=S.leaveHrs[engId]||[];
+  let hasAny=false;
+  // forEach skips array holes, so only weeks the user actually touched count.
+  data.forEach(function(v,i){
+    if(v===null||v===undefined||v==='')return;
+    if((+v||0)!==(+_cur[i]||0))hasAny=true;
+  });
+  try{
+    if(hasAny){
+      await sbFetch('leave_hrs','POST',{id:engId+LV_PENDING_SUFFIX,data:data},'resolution=merge-duplicates,return=representation');
+      // Confirm the request AND name who has to act on it. Deliberately inline
+      // rather than a helper: an earlier attempt called one that failed to land,
+      // and the try/catch swallowed the ReferenceError so the toast silently
+      // never fired. Self-contained removes that failure mode entirely.
+      try{
+        const _e=(S.engineers||[]).find(x=>x.id===engId);
+        // Count CHANGES against approved, not positive entries: a cancellation is a
+        // real request but sums to zero, so the old test silently skipped the toast.
+        let _h=0,_w=0,_cancels=0;
+        data.forEach(function(v,i){
+          if(v===null||v===undefined||v==='')return;
+          const nv=+v||0, ov=+_cur[i]||0;
+          if(nv===ov)return;
+          _w++; _h+=(nv-ov); if(nv===0)_cancels++;
+        });
+        let _appr='';
+        if(_e){
+          const _disc=(_e.team==='BIM')?'BIM':(_e.disc||'');
+          const _names=(S.roles||[]).filter(function(r){
+            return r&&r.email
+              && ['disc_lead','bim_lead','mep_lead'].indexOf(r.role)>=0
+              && String(r.scope||'').toUpperCase()===String(_disc).toUpperCase();
+          }).map(function(r){
+            const _m=(S.engineers||[]).find(function(x){return x.email&&x.email.toLowerCase()===r.email.toLowerCase();});
+            return _m?engDisplayName(_m):r.email;
+          });
+          const _uniq=_names.filter(function(n,i){return _names.indexOf(n)===i;});
+          // Two HVAC leads is normal, so they read as alternatives, not a queue.
+          if(_uniq.length===1)_appr=_uniq[0];
+          else if(_uniq.length===2)_appr=_uniq[0]+' or '+_uniq[1];
+          else if(_uniq.length>2)_appr=_uniq.slice(0,-1).join(', ')+' or '+_uniq[_uniq.length-1];
+        }
+        if(_e&&_w>0){
+          toast('\u23f3 Leave request sent \u2014 '+_w+' week'+(_w===1?'':'s')+' changed'
+            +(_cancels?(' ('+_cancels+' removal'+(_cancels===1?'':'s')+')'):'')
+            +' \u00b7 net '+(_h>0?'+':'')+lvToDisp(_h)+' '+lvUnitLabel()
+            +(_appr?' \u00b7 awaiting '+_appr:' \u00b7 no lead assigned, an admin will review'));
+        }
+      }catch(_n){ console.warn('leave request toast',_n); }
+    }else{
+      // Nothing outstanding — drop the row rather than leaving an empty array
+      // behind, so the approvals queue cannot accumulate dead entries.
+      if(S.leavePending)delete S.leavePending[engId];
+      await sbFetch('leave_hrs?id=eq.'+encodeURIComponent(engId+LV_PENDING_SUFFIX),'DELETE').catch(()=>{});
+    }
+  }catch(e){ console.error('Leave request save error:',e); toast('Could not save your leave request'); }
+  try{ lvSyncBadge(); }catch(e){}
+}
+window.pushLeavePending=pushLeavePending;
+
+// Approve: fold the requested hours into the approved array, then clear the
+// request. Written as an ADD rather than an overwrite so an approved booking
+// that already exists in that week is not silently replaced.
+async function lvApprove(engId){
+  const eng=(S.engineers||[]).find(e=>e.id===engId);
+  if(!eng){toast('Person not found');return;}
+  if(!lvCanApprove(eng)){toast('You cannot approve leave for '+(eng.name||'this person'));return;}
+  const req=lvPendingArr(engId).slice();
+  const cur=S.leaveHrs[engId]||[];
+  // Spell out each week as before -> after. A total alone hid the fact that a
+  // request can REPLACE or CANCEL existing leave, not just add to it, so an
+  // approver could not see what they were signing off.
+  const _chg=[];
+  req.forEach(function(v,i){
+    if(v===null||v===undefined||v==='')return;
+    const nv=+v||0, ov=+cur[i]||0;
+    if(nv===ov)return;
+    const wl=(typeof lvWeekLabel==='function')?lvWeekLabel(i):('W'+(i+1));
+    _chg.push('  '+wl+': '+(ov>0?lvToDisp(ov):'0')+' \u2192 '+(nv>0?lvToDisp(nv):'0 (cancelled)'));
+  });
+  if(!_chg.length){toast('Nothing to approve \u2014 the request matches what is already booked');return;}
+  const net=req.reduce(function(a,v,i){
+    if(v===null||v===undefined||v==='')return a;
+    return a+((+v||0)-(+cur[i]||0));
+  },0);
+  if(!confirm('Approve this leave change for '+engDisplayName(eng)+'?\n\n'
+    +_chg.join('\n')+'\n\n'
+    +'Net change: '+(net>0?'+':'')+lvToDisp(net)+' '+lvUnitLabel()))return;
+  if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
+  // REPLACE, never add. This previously did `existing + requested`, so approving
+  // a CHANGE to a week that already had leave doubled it (9h edited to 9h became
+  // 18h). A request states what the week should BE, not what to add to it.
+  //   null/undefined = week untouched by the request -> leave the approved value
+  //   0              = an explicit cancellation      -> clear the approved value
+  //   >0             = the new value                 -> overwrite
+  req.forEach(function(v,i){
+    if(v===null||v===undefined||v==='')return;
+    const nv=+v||0;
+    if(nv>0)S.leaveHrs[engId][i]=nv;
+    else delete S.leaveHrs[engId][i];
+  });
+  S.leavePending[engId]=[];
+  await pushLeave(engId);
+  await pushLeavePending(engId);
+  invalidate('leave');
+  try{ renderLeave(); }catch(e){}
+  toast('\u2713 Leave approved for '+engDisplayName(eng));
+}
+window.lvApprove=lvApprove;
+
+async function lvDecline(engId){
+  const eng=(S.engineers||[]).find(e=>e.id===engId);
+  if(!eng){toast('Person not found');return;}
+  if(!lvCanApprove(eng)){toast('You cannot decline leave for '+(eng.name||'this person'));return;}
+  if(!confirm('Decline the leave request from '+engDisplayName(eng)+'?\n\nTheir requested weeks are cleared. They can request again.'))return;
+  S.leavePending[engId]=[];
+  await pushLeavePending(engId);
+  invalidate('leave');
+  try{ renderLeave(); }catch(e){}
+  toast('Request from '+engDisplayName(eng)+' declined');
+}
+window.lvDecline=lvDecline;
+
+// Count badge on the Annual Leave nav item, mirroring the pending-users badge.
+function lvSyncBadge(){
+  try{
+    const n=lvPendingForMe().length;
+    let b=document.getElementById('leave-badge');
+    const nav=document.getElementById('nav-leave');
+    if(!nav)return;
+    if(!b){
+      b=document.createElement('span');
+      b.id='leave-badge';
+      b.style.cssText='margin-left:auto;min-width:17px;height:17px;padding:0 5px;border-radius:9px;background:#f59e0b;color:#fff;font-size:10px;font-weight:700;display:flex;align-items:center;justify-content:center;';
+      nav.appendChild(b);
+    }
+    b.textContent=n;
+    b.style.display=n>0?'flex':'none';
+  }catch(e){}
+}
+window.lvSyncBadge=lvSyncBadge;
+// Requests are filed from other people's browsers, so without this the badge
+// would only refresh on a full reload. Reads in-memory state — no network cost.
+try{ setInterval(function(){ try{ lvSyncBadge(); }catch(e){} },60000); }catch(e){}
+
 function setLeaveHrU(engId, wi, el){
   // Leave is the ONE write a restricted user has, and only on their own row.
   // Guarded in the setter (not just the input's readonly attribute) so neither
   // drag-fill nor a hand-edited DOM can write to somebody else's leave.
   if(isRestricted()&&engId!==myEngId()){ try{el.value='';}catch(e){} toast('You can only edit your own leave'); return; }
   const hrs=lvFromDisp(el.value);
+  // Not an approver for this person? Then this is a REQUEST, not a booking.
+  if(!lvIsDirect(engId)){
+    if(!S.leavePending)S.leavePending={};
+    if(!S.leavePending[engId])S.leavePending[engId]=[];
+    S.leavePending[engId][wi]=hrs;
+    el.style.background=hrs>0?'#fffbeb':'';
+    el.style.color=hrs>0?'#92400e':'inherit';
+    el.style.border='1px dashed '+(hrs?'#f59e0b':'#e4e6ea');
+    el.title=hrs>0?'Requested \u2014 waiting for your lead to approve':'';
+    clearTimeout(el._t);el._t=setTimeout(()=>pushLeavePending(engId),1500);
+    return;
+  }
   if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
   S.leaveHrs[engId][wi]=hrs;
   const cap=(S.engineers.find(e=>e.id===engId)||{}).cap||45;
@@ -15275,13 +15531,18 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
           const v=arr[gwi]||0;
           const cap=eng.cap||45;
           const editable=adminUnlocked||canEditDisc(disc)||isSelfEng(eng);
-          const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
-          const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+          // An outstanding request shows amber + dashed, and only where there is
+          // no approved value, so approved leave is never visually overwritten.
+          const _pv=(typeof lvPendingVal==='function')?lvPendingVal(eng.id,gwi):0;
+          const _isPend=(typeof lvPendingHas==='function'&&lvPendingHas(eng.id,gwi)&&_pv!==v); const _pTip=_isPend?((_pv>0?('Requested '+_dsp(_pv)+' '+_uLbl):('Requesting removal of '+_dsp(v)+' '+_uLbl))+' — awaiting approval'):'';
+          const bg=_isPend?'#fffbeb':(v>=cap?'#fca5a5':v>0?'#fed7aa':'');
+          const tc=_isPend?'#92400e':(v>=cap?'#7f1d1d':v>0?'#7c2d12':'');
           return`<td style="padding:2px;text-align:center">
-            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
+            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${_isPend?(_pv>0?_dsp(_pv):''):(v?_dsp(v):'')}" placeholder=""
+              ${_pTip?`title="${_pTip}"`:''}
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px ${_isPend?'dashed #f59e0b':'solid '+(v?accentColor:'#e4e6ea')};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
       </tr>`;
@@ -15438,13 +15699,18 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
             const v=arr[gwi]||0;
             const cap=eng.cap||45;
             const editable=adminUnlocked||editDiscFn(disc)||isSelfEng(eng);
-            const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
-            const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+            // Amber + dashed = an UNAPPROVED request, shown only where there is no
+            // approved value so a real booking is never visually overwritten.
+            const _pv=(typeof lvPendingVal==='function')?lvPendingVal(eng.id,gwi):0;
+            const _isPend=(typeof lvPendingHas==='function'&&lvPendingHas(eng.id,gwi)&&_pv!==v); const _pTip=_isPend?((_pv>0?('Requested '+_dsp(_pv)+' '+_uLbl):('Requesting removal of '+_dsp(v)+' '+_uLbl))+' — awaiting approval'):'';
+            const bg=_isPend?'#fffbeb':(v>=cap?'#fca5a5':v>0?'#fed7aa':'');
+            const tc=_isPend?'#92400e':(v>=cap?'#7f1d1d':v>0?'#7c2d12':'');
             return`<td style="padding:2px;text-align:center">
-              <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
+              <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${_isPend?(_pv>0?_dsp(_pv):''):(v?_dsp(v):'')}" placeholder=""
+                ${_pTip?`title="${_pTip}"`:''}
                 class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
                 ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
-                style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accent:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
+                style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px ${_isPend?'dashed #f59e0b':'solid '+(v?accent:'#e4e6ea')};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
             </td>`;
           }).join('')}
         </tr>`;
@@ -15613,9 +15879,28 @@ function renderLeave(){
   const mepLeaveHrs=mepEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
   const bimLeaveHrs=bimEngs.reduce((a,e)=>a+(S.leaveHrs[e.id]||[]).reduce((b,h)=>b+(h||0),0),0);
 
+  // Approvals queue, shown only to people who actually approve for somebody.
+  const _pend=(typeof lvPendingForMe==='function')?lvPendingForMe():[];
+  const _pendHtml=_pend.length?`
+    <div style="background:#fffbeb;border:1px solid #fde68a;border-radius:10px;padding:12px 14px;margin-bottom:14px;">
+      <div style="font-size:11px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:9px;">
+        \u23f3 Leave requests awaiting your approval (${_pend.length})</div>
+      ${_pend.map(x=>`
+        <div style="display:flex;align-items:center;gap:11px;padding:8px 0;border-top:1px solid #fde68a;">
+          ${typeof engAvatarHTML==='function'?engAvatarHTML(x.eng,28,'#fef3c7','#92400e',11):''}
+          <div style="flex:1;min-width:0;">
+            <div style="font-size:12.5px;font-weight:600;color:#1f2937;">${esc(engDisplayName(x.eng))}</div>
+            <div style="font-size:11px;color:#6b7280;">${esc(x.eng.desig||x.eng.disc||'')} \u00b7 ${x.weeks} week${x.weeks===1?'':'s'} changed \u00b7 net ${x.net>0?'+':''}${lvToDisp(x.net)} ${lvUnitLabel()}</div>
+          </div>
+          <button onclick="lvApprove('${esc(x.eng.id)}')" style="border:none;background:#15803d;color:#fff;border-radius:6px;padding:5px 13px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Approve</button>
+          <button onclick="lvDecline('${esc(x.eng.id)}')" style="border:1px solid #cbd5e1;background:#fff;color:#334155;border-radius:6px;padding:5px 13px;font-size:11px;font-weight:700;cursor:pointer;flex-shrink:0;">Decline</button>
+        </div>`).join('')}
+    </div>`:'';
   el.innerHTML=`
+    ${_pendHtml}
     <div id="leave-grid"></div>
     <div id="leave-grid-bim"></div>`;
+  try{ lvSyncBadge(); }catch(e){}
 
   // leave filters render into the page header, matching the other pages
   { const _lf=document.getElementById('leave-filters-slot');
@@ -15688,14 +15973,17 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
           const gwi=w.gwi!=null?w.gwi:globalWI(w);
           const v=arr[gwi]||0;
           const cap=eng.cap||45;
-          const bg=v>=cap?'#fca5a5':v>0?'#fed7aa':'';
-          const tc=v>=cap?'#7f1d1d':v>0?'#7c2d12':'';
+          const _pv=(typeof lvPendingVal==='function')?lvPendingVal(eng.id,gwi):0;
+          const _isPend=(typeof lvPendingHas==='function'&&lvPendingHas(eng.id,gwi)&&_pv!==v); const _pTip=_isPend?((_pv>0?('Requested '+_dsp(_pv)+' '+_uLbl):('Requesting removal of '+_dsp(v)+' '+_uLbl))+' — awaiting approval'):'';
+          const bg=_isPend?'#fffbeb':(v>=cap?'#fca5a5':v>0?'#fed7aa':'');
+          const tc=_isPend?'#92400e':(v>=cap?'#7f1d1d':v>0?'#7c2d12':'');
           const editable=adminUnlocked||canEditDisc('BIM')||isSelfEng(eng);
           return`<td style="padding:2px;text-align:center">
-            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${v?_dsp(v):''}" placeholder=""
+            <input type="number" min="0" max="${_uDay?5:45}" step="0.5" value="${_isPend?(_pv>0?_dsp(_pv):''):(v?_dsp(v):'')}" placeholder=""
+              ${_pTip?`title="${_pTip}"`:''}
               class="fill-cell" data-fillfn="${setFn}" data-eng="${eng.id}" data-wi="${gwi}"
               ${(editable&&gwi>=0)?`oninput="${setFn}('${eng.id}',${gwi},this)"`:`readonly title="${gwi<0?'Before Jan 2026 — outside the planning horizon':''}"`}
-              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px solid ${v?accentColor:'#e4e6ea'};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
+              style="width:40px;font-size:10px;text-align:center;padding:2px;border:1px ${_isPend?'dashed #f59e0b':'solid '+(v?accentColor:'#e4e6ea')};border-radius:3px;background:${bg};color:${tc||'inherit'};${(editable&&gwi>=0)?'':'opacity:.5;cursor:not-allowed;'}">
           </td>`;
         }).join('')}
       </tr>`;
@@ -15821,6 +16109,15 @@ function removeMgmtExtra(ri){
 function setLeaveHr(engId, wi, el){
   if(isRestricted()&&engId!==myEngId()){ try{el.value='';}catch(e){} toast('You can only edit your own leave'); return; }
   const v=parseFloat(el.value)||0;
+  if(!lvIsDirect(engId)){
+    if(!S.leavePending)S.leavePending={};
+    if(!S.leavePending[engId])S.leavePending[engId]=[];
+    S.leavePending[engId][wi]=v;
+    el.style.background=v>0?'#fffbeb':'';
+    el.style.border='1px dashed '+(v?'#f59e0b':'#e4e6ea');
+    clearTimeout(el._t);el._t=setTimeout(()=>pushLeavePending(engId),1500);
+    return;
+  }
   if(!S.leaveHrs[engId])S.leaveHrs[engId]=[];
   S.leaveHrs[engId][wi]=v;
   const cap=S.engineers.find(e=>e.id===engId)?.cap||45;
