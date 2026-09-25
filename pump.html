@@ -210,6 +210,27 @@
   .ppreview-page{position:absolute;top:0;left:0;transform-origin:top left}
   .screen-hide{display:none}
   @media screen and (max-width:900px){.calcwrap{grid-template-columns:1fr}.calcpick{flex-direction:row;overflow-x:auto;position:static;max-height:none}.calcpick-item{width:auto;max-width:230px}}
+  /* ── Phone layout ──────────────────────────────────────────────────────
+     The project row and the reference-data grids were both laid out for a
+     desktop width only. On a phone the four project buttons stayed on one
+     flex line and Delete was pushed off-screen, and the reference grids
+     compressed every column until the inputs were unreadable. Both are laid
+     out with inline styles in JS, so these rules use !important to override
+     them rather than threading a breakpoint through the components. */
+  @media screen and (max-width:700px){
+    /* Project row: title above, then a 2x2 button grid that always fits. */
+    .project-card{flex-direction:column!important;align-items:stretch!important;gap:12px!important;padding:14px!important;}
+    .project-card>div:first-child{width:100%;}
+    .project-card>div:last-child{display:grid!important;grid-template-columns:1fr 1fr;gap:8px;width:100%;flex-shrink:1!important;}
+    .project-card>div:last-child>button{width:100%;padding:10px 8px!important;font-size:12px!important;}
+    /* Open is the primary action — give it the full first row. */
+    .project-card>div:last-child>button:first-child{grid-column:span 2;}
+    /* Reference-data grids scroll sideways instead of crushing the columns. */
+    .refgrid-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;padding-bottom:4px;}
+    .refgrid-scroll>div{min-width:560px;}
+    /* Header actions wrap rather than overflowing the notch area. */
+    .app-header>div{flex-wrap:wrap!important;gap:10px!important;}
+  }
   @media print{
     /* Everything prints, selected or not, and the picker never does. */
     .screen-hide{display:block!important}
@@ -251,44 +272,182 @@ const MEINHARDT_LOGO_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATwAAA
 // the Reference Data editor (see RefDataEditor) work without threading data
 // through every function call.
 // ══════════════════════════════════════════════════════════════════════════
-const DEFAULT_HDPE_PIPES = [
-  {od:20,id:15.4},{od:25,id:19.4},{od:32,id:24.8},{od:40,id:31.0},
-  {od:50,id:38.8},{od:63,id:48.8},{od:75,id:58.0},{od:90,id:69.8},
-  {od:110,id:85.4},{od:125,id:97.0},{od:160,id:124.2},{od:200,id:155.0},
-  {od:250,id:193.8},{od:315,id:244.0},{od:400,id:310.0},
+// Pipe schedules below mirror the Supabase reference release exactly:
+// same material keys, same dimensions. They are the offline fallback used
+// until loadReferenceData() replaces them, so the two must not diverge -
+// a key that exists here but not in the database (or vice versa) makes
+// resolveMatKey() fall through and size the pump on the wrong schedule.
+//
+// ID = OD - 2 x wall. Sources: PPR DIN 8077 (cross-checked against
+// RAKtherm UAE), HDPE ISO 4427 / EN 12201, uPVC EN ISO 1452, steel
+// ASME B36.10M, copper BS EN 1057 Table X, CPVC ASTM F442.
+// Hazen-Williams C and roughness are engineering coefficients assigned per
+// material family, not dimensional standard data - verify before issue.
+const DEFAULT_PPR_PN16_PIPES = [
+  {nb:16,od:16,id:11.6},{nb:20,od:20,id:14.4},{nb:25,od:25,id:18},{nb:32,od:32,id:23.2},
+  {nb:40,od:40,id:29},{nb:50,od:50,id:36.2},{nb:63,od:63,id:45.8},{nb:75,od:75,id:54.4},
+  {nb:90,od:90,id:65.4},{nb:110,od:110,id:79.8},{nb:125,od:125,id:90.8},{nb:140,od:140,id:101.6},
+  {nb:160,od:160,id:116.2},{nb:180,od:180,id:130.8},{nb:200,od:200,id:145.2},{nb:225,od:225,id:163.4},
+  {nb:250,od:250,id:181.6},{nb:280,od:280,id:203.4},
 ];
-const DEFAULT_PPR_PIPES = [
-  {od:16,id:11.6},{od:20,id:14.4},{od:25,id:18.0},{od:32,id:23.2},
-  {od:40,id:29.0},{od:50,id:36.2},{od:63,id:45.8},{od:75,id:54.4},
-  {od:90,id:65.4},{od:110,id:79.8},{od:125,id:90.8},{od:160,id:116.2},
-  {od:200,id:163.6},{od:250,id:204.6},{od:315,id:257.8},
+const DEFAULT_PPR_PN10_PIPES = [
+  {nb:20,od:20,id:16.2},{nb:25,od:25,id:20.4},{nb:32,od:32,id:26.2},{nb:40,od:40,id:32.6},
+  {nb:50,od:50,id:40.8},{nb:63,od:63,id:51.4},{nb:75,od:75,id:61.4},{nb:90,od:90,id:73.6},
+  {nb:110,od:110,id:90},{nb:125,od:125,id:102.2},{nb:140,od:140,id:114.6},{nb:160,od:160,id:130.8},
+  {nb:180,od:180,id:147.2},{nb:200,od:200,id:163.6},{nb:225,od:225,id:184},{nb:250,od:250,id:204.6},
+  {nb:280,od:280,id:229.2},{nb:315,od:315,id:257.8},
 ];
-const DEFAULT_UPVC_PIPES = [
-  {od:20,id:16.2},{od:25,id:20.4},{od:32,id:26.2},{od:40,id:32.6},
-  {od:50,id:40.8},{od:63,id:51.4},{od:75,id:61.2},{od:90,id:73.6},
-  {od:110,id:89.8},{od:125,id:102.0},{od:140,id:114.6},{od:160,id:130.8},
-  {od:200,id:163.4},{od:250,id:204.2},{od:315,id:257.2},
+const DEFAULT_PPR_PN20_PIPES = [
+  {nb:16,od:16,id:10.6},{nb:20,od:20,id:13.2},{nb:25,od:25,id:16.6},{nb:32,od:32,id:21.2},
+  {nb:40,od:40,id:26.6},{nb:50,od:50,id:33.4},{nb:63,od:63,id:42},{nb:75,od:75,id:50},
+  {nb:90,od:90,id:60},{nb:110,od:110,id:73.4},{nb:125,od:125,id:83.4},{nb:140,od:140,id:93.4},
+  {nb:160,od:160,id:106.8},{nb:180,od:180,id:122},{nb:200,od:200,id:133.6},{nb:225,od:225,id:150.2},
 ];
-const DEFAULT_GI_PIPES = [
-  {nb:15,od:21.3,id:16.0},{nb:20,od:26.9,id:21.6},{nb:25,od:33.7,id:27.2},
-  {nb:32,od:42.4,id:35.9},{nb:40,od:48.3,id:41.8},{nb:50,od:60.3,id:53.0},
-  {nb:65,od:76.1,id:68.8},{nb:80,od:88.9,id:80.8},{nb:100,od:114.3,id:105.3},
-  {nb:125,od:139.7,id:130.0},{nb:150,od:165.1,id:155.4},
+const DEFAULT_PPR_PN6_PIPES = [
+  {nb:40,od:40,id:35.4},{nb:50,od:50,id:44.2},{nb:63,od:63,id:55.8},{nb:75,od:75,id:66.4},
+  {nb:90,od:90,id:79.8},{nb:110,od:110,id:97.4},{nb:125,od:125,id:110.8},{nb:140,od:140,id:124},
+  {nb:160,od:160,id:141.8},{nb:180,od:180,id:159.6},{nb:200,od:200,id:177.2},{nb:225,od:225,id:199.4},
+  {nb:250,od:250,id:221.6},{nb:280,od:280,id:248.2},{nb:315,od:315,id:279.2},
 ];
-const DEFAULT_STEEL_PIPES = [
-  {nb:15,od:21.3,id:15.76},{nb:20,od:26.7,id:20.96},{nb:25,od:33.4,id:26.64},
-  {nb:32,od:42.2,id:35.08},{nb:40,od:48.3,id:40.94},{nb:50,od:60.3,id:52.48},
-  {nb:65,od:73.0,id:62.68},{nb:80,od:88.9,id:77.92},{nb:100,od:114.3,id:102.26},
-  {nb:125,od:141.3,id:128.20},{nb:150,od:168.3,id:154.08},{nb:200,od:219.1,id:202.74},
-  {nb:250,od:273.0,id:254.46},{nb:300,od:323.8,id:303.20},
+const DEFAULT_HDPE_PN16_PIPES = [
+  {nb:20,od:20,id:16},{nb:25,od:25,id:20.4},{nb:32,od:32,id:26},{nb:40,od:40,id:32.6},
+  {nb:50,od:50,id:40.8},{nb:63,od:63,id:51.4},{nb:75,od:75,id:61.4},{nb:90,od:90,id:73.6},
+  {nb:110,od:110,id:90},{nb:125,od:125,id:102.2},{nb:140,od:140,id:114.6},{nb:160,od:160,id:130.8},
+  {nb:180,od:180,id:147.2},{nb:200,od:200,id:163.6},{nb:225,od:225,id:184},{nb:250,od:250,id:204.6},
+  {nb:280,od:280,id:229.2},{nb:315,od:315,id:257.8},{nb:355,od:355,id:290.6},{nb:400,od:400,id:327.4},
+];
+const DEFAULT_HDPE_PN10_PIPES = [
+  {nb:25,od:25,id:22},{nb:32,od:32,id:28.2},{nb:40,od:40,id:35.2},{nb:50,od:50,id:44},
+  {nb:63,od:63,id:55.4},{nb:75,od:75,id:66},{nb:90,od:90,id:79.2},{nb:110,od:110,id:96.8},
+  {nb:125,od:125,id:110.2},{nb:140,od:140,id:123.4},{nb:160,od:160,id:141},{nb:180,od:180,id:158.6},
+  {nb:200,od:200,id:176.2},{nb:225,od:225,id:198.2},{nb:250,od:250,id:220.4},{nb:280,od:280,id:246.8},
+  {nb:315,od:315,id:277.6},{nb:355,od:355,id:312.8},{nb:400,od:400,id:352.6},
+];
+const DEFAULT_HDPE_PN8_PIPES = [
+  {nb:32,od:32,id:28.8},{nb:40,od:40,id:36.2},{nb:50,od:50,id:45.2},{nb:63,od:63,id:57},
+  {nb:75,od:75,id:67.8},{nb:90,od:90,id:81.4},{nb:110,od:110,id:99.4},{nb:125,od:125,id:113},
+  {nb:140,od:140,id:126.6},{nb:160,od:160,id:144.6},{nb:180,od:180,id:162.8},{nb:200,od:200,id:180.8},
+  {nb:225,od:225,id:203.4},{nb:250,od:250,id:226.2},{nb:280,od:280,id:253.2},{nb:315,od:315,id:285},
+  {nb:355,od:355,id:321.2},{nb:400,od:400,id:361.8},
+];
+const DEFAULT_HDPE_PN6_PIPES = [
+  {nb:32,od:32,id:29},{nb:40,od:40,id:36.8},{nb:50,od:50,id:46},{nb:63,od:63,id:58},
+  {nb:75,od:75,id:69.2},{nb:90,od:90,id:83},{nb:110,od:110,id:101.6},{nb:125,od:125,id:115.4},
+  {nb:140,od:140,id:129.2},{nb:160,od:160,id:147.6},{nb:180,od:180,id:166.2},{nb:200,od:200,id:184.6},
+  {nb:225,od:225,id:207.8},{nb:250,od:250,id:230.8},{nb:280,od:280,id:258.6},{nb:315,od:315,id:290.8},
+  {nb:355,od:355,id:327.8},{nb:400,od:400,id:369.4},
+];
+const DEFAULT_HDPE_PN20_PIPES = [
+  {nb:20,od:20,id:15.4},{nb:25,od:25,id:19},{nb:32,od:32,id:24.8},{nb:40,od:40,id:31},
+  {nb:50,od:50,id:38.8},{nb:63,od:63,id:48.8},{nb:75,od:75,id:58.2},{nb:90,od:90,id:69.8},
+  {nb:110,od:110,id:85.4},{nb:125,od:125,id:97},{nb:160,od:160,id:124.2},{nb:200,od:200,id:155.2},
+];
+const DEFAULT_HDPE_PN125_PIPES = [
+  {nb:25,od:25,id:21.2},{nb:32,od:32,id:27.2},{nb:40,od:40,id:34},{nb:50,od:50,id:42.6},
+  {nb:63,od:63,id:53.6},{nb:75,od:75,id:63.8},{nb:90,od:90,id:76.6},{nb:110,od:110,id:93.8},
+  {nb:125,od:125,id:106.6},{nb:140,od:140,id:119.4},{nb:160,od:160,id:136.4},{nb:180,od:180,id:153.4},
+  {nb:200,od:200,id:170.6},{nb:225,od:225,id:191.8},{nb:250,od:250,id:213.2},{nb:280,od:280,id:238.8},
+  {nb:315,od:315,id:268.6},
+];
+const DEFAULT_UPVC_PN10_PIPES = [
+  {nb:32,od:32,id:28.8},{nb:40,od:40,id:36.2},{nb:50,od:50,id:45.2},{nb:63,od:63,id:57},
+  {nb:75,od:75,id:67.8},{nb:90,od:90,id:81.4},{nb:110,od:110,id:99.4},{nb:125,od:125,id:113},
+  {nb:140,od:140,id:126.6},{nb:160,od:160,id:144.6},{nb:180,od:180,id:162.8},{nb:200,od:200,id:180.8},
+  {nb:225,od:225,id:203.4},{nb:250,od:250,id:226.2},{nb:280,od:280,id:253.2},{nb:315,od:315,id:285},
+  {nb:355,od:355,id:321.2},{nb:400,od:400,id:361.8},
+];
+const DEFAULT_UPVC_PN16_PIPES = [
+  {nb:25,od:25,id:21.2},{nb:32,od:32,id:27.2},{nb:40,od:40,id:34},{nb:50,od:50,id:42.6},
+  {nb:63,od:63,id:53.6},{nb:75,od:75,id:63.8},{nb:90,od:90,id:76.6},{nb:110,od:110,id:93.8},
+  {nb:125,od:125,id:106.6},{nb:140,od:140,id:119.4},{nb:160,od:160,id:136.4},{nb:180,od:180,id:153.4},
+  {nb:200,od:200,id:170.6},{nb:225,od:225,id:191.8},{nb:250,od:250,id:213.2},{nb:280,od:280,id:238.8},
+  {nb:315,od:315,id:268.6},
+];
+const DEFAULT_UPVC_PN6_PIPES = [
+  {nb:32,od:32,id:29},{nb:40,od:40,id:36.8},{nb:50,od:50,id:46},{nb:63,od:63,id:58},
+  {nb:75,od:75,id:69.2},{nb:90,od:90,id:83},{nb:110,od:110,id:101.6},{nb:125,od:125,id:115.4},
+  {nb:140,od:140,id:129.2},{nb:160,od:160,id:147.6},{nb:180,od:180,id:166.2},{nb:200,od:200,id:184.6},
+  {nb:225,od:225,id:207.8},{nb:250,od:250,id:230.8},{nb:280,od:280,id:258.6},{nb:315,od:315,id:290.8},
+  {nb:355,od:355,id:327.8},{nb:400,od:400,id:369.4},
+];
+const DEFAULT_STEEL_SCH40_PIPES = [
+  {nb:15,od:21.3,id:15.76},{nb:20,od:26.7,id:20.96},{nb:25,od:33.4,id:26.64},{nb:32,od:42.2,id:35.08},
+  {nb:40,od:48.3,id:40.94},{nb:50,od:60.3,id:52.48},{nb:65,od:73,id:62.68},{nb:80,od:88.9,id:77.92},
+  {nb:100,od:114.3,id:102.26},{nb:125,od:141.3,id:128.2},{nb:150,od:168.3,id:154.08},
+  {nb:200,od:219.1,id:202.74},{nb:250,od:273,id:254.46},{nb:300,od:323.8,id:303.18},
+];
+const DEFAULT_STEEL_SCH80_PIPES = [
+  {nb:15,od:21.3,id:13.84},{nb:20,od:26.7,id:18.88},{nb:25,od:33.4,id:24.3},{nb:32,od:42.2,id:32.5},
+  {nb:40,od:48.3,id:38.14},{nb:50,od:60.3,id:49.22},{nb:65,od:73,id:58.98},{nb:80,od:88.9,id:73.66},
+  {nb:100,od:114.3,id:97.18},{nb:150,od:168.3,id:146.36},{nb:200,od:219.1,id:193.7},
+  {nb:250,od:273,id:242.82},{nb:300,od:323.8,id:288.84},
+];
+const DEFAULT_CPVC_FP_PIPES = [
+  {nb:20,od:26.67,id:22.2},{nb:25,od:33.4,id:27.97},{nb:32,od:42.16,id:35.41},{nb:40,od:48.26,id:40.59},
+  {nb:50,od:60.33,id:50.88},{nb:65,od:73,id:61.5},{nb:80,od:88.9,id:74.9},
+];
+const DEFAULT_COPPER_X_PIPES = [
+  {nb:6,od:6,id:4.8},{nb:8,od:8,id:6.8},{nb:10,od:10,id:8.8},{nb:12,od:12,id:10.8},
+  {nb:15,od:15,id:13.6},{nb:22,od:22,id:20.2},{nb:28,od:28,id:26.2},{nb:35,od:35,id:32.6},
+  {nb:42,od:42,id:39.6},{nb:54,od:54,id:51.6},{nb:67,od:66.7,id:64.3},{nb:76,od:76.1,id:73.1},
+  {nb:108,od:108,id:105},{nb:133,od:133,id:130},{nb:159,od:159,id:155},{nb:219,od:219,id:213},
+];
+const DEFAULT_SS_PRESS_PIPES = [
+  {nb:15,od:15,id:13.8},{nb:18,od:18,id:16.6},{nb:22,od:22,id:20.6},{nb:28,od:28,id:26.4},
+  {nb:35,od:35,id:33},{nb:42,od:42,id:39.8},{nb:54,od:54,id:51.6},{nb:76,od:76.1,id:73.1},
+  {nb:89,od:88.9,id:84.9},{nb:108,od:108,id:104},
+];
+const DEFAULT_PEXALPEX_PIPES = [
+  {nb:16,od:16,id:12},{nb:20,od:20,id:16},{nb:25,od:25,id:20},{nb:32,od:32,id:26},{nb:40,od:40,id:33},
+  {nb:50,od:50,id:42},{nb:63,od:63,id:54},
 ];
 const DEFAULT_PIPE_MATERIALS = {
-  HDPE:  {label:"HDPE SDR-11",           table:DEFAULT_HDPE_PIPES,  hwC:150, roughness:0.007,  note:"Plastic — smooth bore"},
-  PPR:   {label:"PPR SDR-7.4",           table:DEFAULT_PPR_PIPES,   hwC:150, roughness:0.007,  note:"Plastic — smooth bore"},
-  UPVC:  {label:"UPVC Pressure PN16",    table:DEFAULT_UPVC_PIPES,  hwC:150, roughness:0.0015, note:"Plastic — smooth bore"},
-  GI:    {label:"GI (BS 1387 Medium)",   table:DEFAULT_GI_PIPES,    hwC:120, roughness:0.15,   note:"Galvanized steel — moderate roughness"},
-  STEEL: {label:"Carbon Steel Sch-40",   table:DEFAULT_STEEL_PIPES, hwC:120, roughness:0.045,  note:"New commercial steel"},
+  PPR:         {material:"PPR",             sdrClass:"SDR 7.4",   label:"PPR PN16 (SDR 7.4)",             table:DEFAULT_PPR_PN16_PIPES,    hwC:150, roughness:0.007, note:"PP-R hot/cold. DIN 8077; ID cross-checked vs RAKtherm UAE."},
+  PPR_PN10:    {material:"PPR",             sdrClass:"SDR 11",    label:"PPR PN10 (SDR 11)",              table:DEFAULT_PPR_PN10_PIPES,    hwC:150, roughness:0.007, note:"PP-R cold water. DIN 8077."},
+  PPR_PN20:    {material:"PPR",             sdrClass:"SDR 6",     label:"PPR PN20 (SDR 6)",               table:DEFAULT_PPR_PN20_PIPES,    hwC:150, roughness:0.007, note:"PP-R hot water / higher pressure. DIN 8077."},
+  PPR_PN6:     {material:"PPR",             sdrClass:"SDR 17.6",  label:"PPR PN6 (SDR 17.6)",             table:DEFAULT_PPR_PN6_PIPES,     hwC:150, roughness:0.007, note:"PP-R low pressure / large bore. DIN 8077."},
+  HDPE:        {material:"HDPE",            sdrClass:"SDR 11",    label:"HDPE PE100 PN16 (SDR 11)",       table:DEFAULT_HDPE_PN16_PIPES,   hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  HDPE_PN10:   {material:"HDPE",            sdrClass:"SDR 17",    label:"HDPE PE100 PN10 (SDR 17)",       table:DEFAULT_HDPE_PN10_PIPES,   hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  HDPE_PN8:    {material:"HDPE",            sdrClass:"SDR 21",    label:"HDPE PE100 PN8 (SDR 21)",        table:DEFAULT_HDPE_PN8_PIPES,    hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  HDPE_PN6:    {material:"HDPE",            sdrClass:"SDR 26",    label:"HDPE PE100 PN6 (SDR 26)",        table:DEFAULT_HDPE_PN6_PIPES,    hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  HDPE_PN20:   {material:"HDPE",            sdrClass:"SDR 9",     label:"HDPE PE100 PN20 (SDR 9)",        table:DEFAULT_HDPE_PN20_PIPES,   hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  HDPE_PN125:  {material:"HDPE",            sdrClass:"SDR 13.6",  label:"HDPE PE100 PN12.5 (SDR 13.6)",   table:DEFAULT_HDPE_PN125_PIPES,  hwC:150, roughness:0.007, note:"PE100 to ISO 4427 / EN 12201. ISO 161-1 S-series wall."},
+  UPVC:        {material:"uPVC",            sdrClass:"SDR 21",    label:"uPVC PN10 (SDR 21)",             table:DEFAULT_UPVC_PN10_PIPES,   hwC:150, roughness:0.0015, note:"PVC-U to EN ISO 1452, design coefficient C=2.0."},
+  UPVC_PN16:   {material:"uPVC",            sdrClass:"SDR 13.6",  label:"uPVC PN16 (SDR 13.6)",           table:DEFAULT_UPVC_PN16_PIPES,   hwC:150, roughness:0.0015, note:"PVC-U to EN ISO 1452, design coefficient C=2.0."},
+  UPVC_PN6:    {material:"uPVC",            sdrClass:"SDR 26",    label:"uPVC PN6 (SDR 26)",              table:DEFAULT_UPVC_PN6_PIPES,    hwC:150, roughness:0.0015, note:"PVC-U to EN ISO 1452, design coefficient C=2.0."},
+  STEEL:       {material:"Steel",           sdrClass:"SCH 40",    label:"Carbon Steel SCH 40",            table:DEFAULT_STEEL_SCH40_PIPES, hwC:120, roughness:0.045, note:"ASTM A53 / ASME B36.10M. C=120 new black steel; use 100 for aged wet systems."},
+  STEEL_S80:   {material:"Steel",           sdrClass:"SCH 80",    label:"Carbon Steel SCH 80",            table:DEFAULT_STEEL_SCH80_PIPES, hwC:120, roughness:0.045, note:"ASTM A53 / ASME B36.10M. C=120 new black steel; use 100 for aged wet systems."},
+  CPVC_FP:     {material:"CPVC",            sdrClass:"SDR 13.5",  label:"CPVC SDR 13.5 fire sprinkler",   table:DEFAULT_CPVC_FP_PIPES,     hwC:150, roughness:0.0015, note:"ASTM F442, BlazeMaster listed average ID. DN20-DN80 only."},
+  COPPER:      {material:"Copper",          sdrClass:"Table X",   label:"Copper Table X (BS EN 1057)",    table:DEFAULT_COPPER_X_PIPES,    hwC:140, roughness:0.0015, note:"Half-hard / hard drawn copper, Table X wall."},
+  SS_PRESS:    {material:"Stainless Steel", sdrClass:"Press-fit", label:"Stainless Press-fit (EN 10312)", table:DEFAULT_SS_PRESS_PIPES,    hwC:150, roughness:0.015, note:"VERIFY WITH SUPPLIER - dimensions vary by press-fit system."},
+  PEXALPEX:    {material:"PEX-AL-PEX",      sdrClass:"Composite", label:"PEX-AL-PEX multilayer",          table:DEFAULT_PEXALPEX_PIPES,    hwC:150, roughness:0.007, note:"VERIFY WITH SUPPLIER - wall thickness is not standardised."},
 };
+// Projects saved before the PN-key release, and the older SDR-key build,
+// both resolve here. Each alias points at the class that key represented,
+// so an existing calculation reproduces its original pipe selection.
+// GI is not in the approved schedule and falls back to carbon steel.
+const LEGACY_MATERIAL_KEYS = {
+  PPR_SDR74:"PPR", PPR_SDR6:"PPR_PN20", PPR_SDR176:"PPR_PN6",
+  HDPE_SDR11:"HDPE", HDPE_SDR17:"HDPE_PN10", HDPE_SDR21:"HDPE_PN8",
+  HDPE_SDR26:"HDPE_PN6", HDPE_SDR9:"HDPE_PN20", HDPE_SDR136:"HDPE_PN125",
+  UPVC_SCH40:"UPVC", UPVC_SDR21:"UPVC", UPVC_SDR136:"UPVC_PN16",
+  CPVC_SCH40:"CPVC_FP", CPVC:"CPVC_FP",
+  STEEL_SCH40:"STEEL", STEEL_SCH80:"STEEL_S80", GI:"STEEL",
+  COPPER_L:"COPPER", SS_FLEX:"SS_PRESS", SS:"SS_PRESS",
+};
+const FALLBACK_MATERIAL_KEY = "HDPE";
+// Resolve any stored pipeType to a key that exists in the CURRENT reference
+// release. Returns null when nothing matches, so callers can block the
+// calculation instead of silently sizing on the wrong schedule.
+function resolveMatKey(key) {
+  if (key && PIPE_MATERIALS[key]) return key;
+  const alias = LEGACY_MATERIAL_KEYS[key];
+  if (alias && PIPE_MATERIALS[alias]) return alias;
+  if (PIPE_MATERIALS[FALLBACK_MATERIAL_KEY]) return FALLBACK_MATERIAL_KEY;
+  const first = Object.keys(PIPE_MATERIALS)[0];
+  return first || null;
+}
+function matOf(key) { const k = resolveMatKey(key); return k ? PIPE_MATERIALS[k] : null; }
 const DEFAULT_MOTOR_KW = [0.37,0.55,0.75,1.1,1.5,2.2,3.0,4.0,5.5,7.5,11,15,18.5,22,30,37,45,55,75,90,110,132,160,185,200,220,250];
 // WSFU table stored directly in l/s (Abu Dhabi UPC)
 const DEFAULT_WSFU_TABLE = [
@@ -333,12 +492,22 @@ async function loadReferenceData() {
     if (mats.data && mats.data.length) {
       const built = {};
       for (const m of mats.data) {
-        built[m.material_key] = { label:m.label, hwC:m.hw_c, roughness:m.roughness, note:m.note, table:[] };
+        built[m.material_key] = { material:m.material || "", sdrClass:m.sdr_class || "",
+          label:m.label, hwC:m.hw_c, roughness:m.roughness, note:m.note, table:[] };
       }
       for (const s of (sizes.data||[])) {
-        if (built[s.material_key]) built[s.material_key].table.push({ od:s.od, id:s.id_mm, nb:s.nb ?? undefined });
+        if (!built[s.material_key]) continue;
+        built[s.material_key].table.push({ od:s.od, id:s.id_mm,
+          nb:(s.nominal_mm ?? s.nb) ?? undefined, wall:s.wall_mm ?? undefined });
       }
-      PIPE_MATERIALS = built;
+      // selectPipe walks the table and takes the first ID at or above the duty,
+      // so an unsorted table would hand back an undersized pipe. Row order in
+      // the database is not guaranteed; sort here rather than trusting it.
+      for (const k of Object.keys(built)) built[k].table.sort((a,b)=>a.id-b.id);
+      // A material with no sizes cannot size anything and must not appear in
+      // the dropdown as a selectable-but-empty option.
+      for (const k of Object.keys(built)) if (!built[k].table.length) delete built[k];
+      if (Object.keys(built).length) PIPE_MATERIALS = built;
     }
     if (motors.data && motors.data.length) MOTOR_KW = motors.data.map(r=>r.kw).sort((a,b)=>a-b);
     if (wsfu.data && wsfu.data.length) WSFU_TABLE = wsfu.data.map(r=>[r.wsfu,r.flow_ls]).sort((a,b)=>a[0]-b[0]);
@@ -381,7 +550,7 @@ const num = (v, dflt) => {
 };
 // Do not silently select the largest schedule size/motor when the duty exceeds
 // the approved reference release. Callers must block and explain the exception.
-const selectPipe  = (di, matKey) => { const t = (PIPE_MATERIALS[matKey]||PIPE_MATERIALS.HDPE).table; return t.find(p=>p.id>=di) || null; };
+const selectPipe  = (di, matKey) => { const m = matOf(matKey); if (!m) return null; return m.table.find(p=>p.id>=di) || null; };
 const selectMotor = kw => MOTOR_KW.find(s=>s>=kw) || null;
 
 // Hazen-Williams friction loss (m)
@@ -518,7 +687,7 @@ function computeFlow(p) {
 // CALCULATION ENGINE
 // ══════════════════════════════════════════════════════════════════════════
 function headLossFor(Q_m3s, D_m, L, p, matKey) {
-  const mat = PIPE_MATERIALS[matKey]||PIPE_MATERIALS.HDPE;
+  const mat = matOf(matKey);
   if (p.headLossMethod==="DW") {
     const r = dwLoss(Q_m3s, D_m, L, Number(p.roughness)||mat.roughness);
     return { hf:r.hf, method:"Darcy-Weisbach", detail:`f=${r.f.toFixed(4)}, Re=${r.Re.toFixed(0)}`, v:r.v };
@@ -574,8 +743,8 @@ function calculate(p) {
   const pumpE=Number(p.pumpEff), motE=Number(p.motorEff);
   const fitPc=num(p.fittingsPct, 50);
   const L=num(p.pipeRun,0), Hs=num(p.staticHead,0), Hr=num(p.residualPressure,0);
-  const matKey=p.pipeType||"HDPE";
-  const mat = PIPE_MATERIALS[matKey]||PIPE_MATERIALS.HDPE;
+  const matKey=resolveMatKey(p.pipeType);
+  const mat = matOf(matKey);
 
   let totalFlowLs, steps;
   try { ({ totalFlowLs, steps } = computeFlow(p)); }
@@ -712,7 +881,7 @@ const DEFS = {
   tp:         {type:"tp",         name:"Transfer Pump",           tag:"TP",      pipeType:"PPR",  headLossMethod:"HW", pipeSizingBasis:"design", tankCapacity:12.5,  operatingTime:1,                       configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:2, minVelocity:0, hwCoeff:150, staticHead:22,  residualPressure:10, pipeRun:50,  fittingsPct:50, pumpEff:0.7, motorEff:0.7},
   hex:        {type:"hex",        name:"HEX Circulation Pump",    tag:"CCWS-P",  pipeType:"PPR",  headLossMethod:"HW", pipeSizingBasis:"design", coolingCapacity:68, inletTemp:34, outletTemp:20,            configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:2, minVelocity:0, hwCoeff:150, staticHead:5,   residualPressure:5,  pipeRun:15,  fittingsPct:50, equipmentDp:10, pumpEff:0.7, motorEff:0.7},
   booster:    {type:"booster",    name:"Booster Pump",            tag:"BP",      pipeType:"PPR",  headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"direct", directFlow:2.0, wsfu:284, loadingUnits:400, safetyPct:10, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:2, minVelocity:0, hwCoeff:150, staticHead:0,   residualPressure:25, pipeRun:300, fittingsPct:50, pumpEff:0.7, motorEff:0.7},
-  sewage:     {type:"sewage",     name:"Sewage Transfer Pump",    tag:"SP",      pipeType:"GI",   headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"direct", directFlow:5.0, population:200, lpcd:150, peakFactor:3, safetyPct:20, wetWellVolume:2.0, solidsPassage:50, configPreset:"2D1S", numDuty:2, numStandby:1, sharingMode:"assist", maxVelocity:2.5, minVelocity:0.7, hwCoeff:120, staticHead:8, residualPressure:0, pipeRun:40, fittingsPct:50, pumpEff:0.65, motorEff:0.85},
+  sewage:     {type:"sewage",     name:"Sewage Transfer Pump",    tag:"SP",      pipeType:"STEEL",   headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"direct", directFlow:5.0, population:200, lpcd:150, peakFactor:3, safetyPct:20, wetWellVolume:2.0, solidsPassage:50, configPreset:"2D1S", numDuty:2, numStandby:1, sharingMode:"assist", maxVelocity:2.5, minVelocity:0.7, hwCoeff:120, staticHead:8, residualPressure:0, pipeRun:40, fittingsPct:50, pumpEff:0.65, motorEff:0.85},
   irrigation: {type:"irrigation", name:"Irrigation Pump",         tag:"IRR-P",   pipeType:"UPVC", headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"area", irrigatedArea:1000, applicationRate:6, directFlow:2.0, safetyPct:10, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:1.5, minVelocity:0, hwCoeff:150, staticHead:5, residualPressure:15, pipeRun:150, fittingsPct:40, pumpEff:0.65, motorEff:0.85},
 };
 
@@ -982,9 +1151,10 @@ async function buildPumpWorkbook(ExcelJSLib, proj, pumps, stageName, issueMeta={
     const res = calculate(p);
     if (!res || res.error) throw new Error(`Cannot export ${p.name || `pump ${idx+1}`}: ${(res && res.errors || ['invalid calculation']).join(' ')}`);
     const set = res.set;
-    const matKey = p.pipeType || "HDPE";
-    const mat = PIPE_MATERIALS[matKey] || PIPE_MATERIALS.HDPE;
-    const rng = pipeRanges[matKey] || pipeRanges.HDPE;
+    const matKey = resolveMatKey(p.pipeType);
+    const mat = matOf(matKey);
+    const rng = pipeRanges[matKey];
+    if (!mat || !rng) throw new Error(`Cannot export ${p.name || `pump ${idx+1}`}: pipe material "${p.pipeType}" is not in the current approved reference release.`);
     const wsName = xlSheetName(p.tag || p.name || `Pump ${idx+1}`, used);
     const ws = wb.addWorksheet(wsName);
     ws.columns = [{width:46},{width:16},{width:11},{width:52}];
@@ -1314,7 +1484,7 @@ function PumpForm({pump, onChange}) {
   const u = (f,v) => onChange({...pump,[f]:v});
   const g2={display:"grid",gridTemplateColumns:"1fr 1fr",gap:12};
   const g3={display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:12};
-  const mat = PIPE_MATERIALS[pump.pipeType]||PIPE_MATERIALS.HDPE;
+  const mat = matOf(pump.pipeType);
 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:18}}>
@@ -1322,7 +1492,8 @@ function PumpForm({pump, onChange}) {
         <Field label="Pump Name"       value={pump.name}     onChange={v=>u("name",v)} />
         <Field label="Tag"             value={pump.tag||""}  onChange={v=>u("tag",v)} />
         <Sel   label="Pipe Material"   value={pump.pipeType} onChange={v=>u("pipeType",v)}
-          options={Object.entries(PIPE_MATERIALS).map(([k,m])=>({value:k,label:m.label}))} />
+          options={Object.entries(PIPE_MATERIALS).map(([k,m])=>({value:k,
+            label:(m.material?m.material+"  ·  ":"")+(m.sdrClass||m.label)}))} />
       </div>
       <div style={g2}>
         <Sel   label="Head Loss Method" value={pump.headLossMethod||"HW"} onChange={v=>u("headLossMethod",v)}
@@ -1503,7 +1674,7 @@ function CalcSheet({pump, idx, proj}) {
   const res = useMemo(()=>{ try{return calculate(pump);}catch(e){return {error:true,errors:[e.message||'Calculation failed.']};} },[pump]);
   if (!res) return null;
   if (res.error) return <div className="calc-card-blocked"><h3>{String(idx+1).padStart(2,"0")}. {pump.name} — calculation blocked</h3><ul>{res.errors.map((e,i)=><li key={i}>{e}</li>)}</ul></div>;
-  const mat = PIPE_MATERIALS[res.matKey]||PIPE_MATERIALS.HDPE;
+  const mat = matOf(res.matKey);
   const inferSection = (step, current) => {
     if (step.s) return step.s;
     const label = String(step.label||'').toLowerCase();
@@ -1568,7 +1739,7 @@ function SummaryTable({pumps, proj}) {
               <td style={{padding:"8px 12px",color:"#86868b",fontWeight:600}}>{i+1}</td>
               <td style={{padding:"8px 12px",fontWeight:700,color:"#1d1d1f",fontFamily:"var(--app-sans)",fontSize:11}}>{p.name}</td>
               <td style={{padding:"8px 12px",color:"#1d1d1f",fontWeight:800}}>{p.tag||"—"}</td>
-              <td style={{padding:"8px 12px",color:"#86868b"}}>{(PIPE_MATERIALS[p.pipeType]||{}).label} {r.pipe.od}mm</td>
+              <td style={{padding:"8px 12px",color:"#86868b"}}>{(matOf(p.pipeType)||{}).label} {r.pipe.od}mm</td>
               <td style={{padding:"8px 12px",color:"#86868b"}}>{p.headLossMethod==="DW"?"D-W":"H-W"}</td>
               <td style={{padding:"8px 12px",fontWeight:800,color:"#1d1d1f",fontSize:13}}>{r.flowLsPerPump.toFixed(2)}</td>
               <td style={{padding:"8px 12px",color:"#424245"}}>{r.flowTotal.toFixed(2)}</td>
@@ -1633,7 +1804,7 @@ function ScheduleToolbar({query,setQuery,status,setStatus,type,setType,method,se
 function StatusChip({status}) { return <span className={`status-chip ${status.key}`}>{status.key==='pass'?'✓':status.key==='review'?'!':'×'} {status.label}</span>; }
 function ScheduleReviewTable({items, density, selectedId, onSelect}) {
   if (!items.length) return <div className="empty-schedule">No pump systems match the current filters.</div>;
-  const row = item => { const {p,result:r,status,index} = item; const pipe=(PIPE_MATERIALS[p.pipeType]||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
+  const row = item => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
     <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left"><div className="system-main">{p.name}</div><div className="system-sub">{TYPE_LBL[p.type]||'Pump system'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
     <td><div className="pipe-main">{pipe.label||'—'}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.pipe.od} mm OD`}</div></td><td><span className="method-chip">{p.headLossMethod==='DW'?'D–W':'H–W'}</span></td>
     <td className="num strong">{r.error?'—':r.flowLsPerPump.toFixed(2)}</td><td className="num">{r.error?'—':r.flowTotal.toFixed(2)}</td><td className="num strong">{r.error?'—':r.totalH}</td><td className="num strong">{r.error?'—':r.pwrSel}</td>
@@ -1642,13 +1813,13 @@ function ScheduleReviewTable({items, density, selectedId, onSelect}) {
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><thead><tr className="labels"><th className="row-no sticky-left">No.</th><th className="system sticky-left">System</th><th className="tag sticky-left">Tag</th><th>Pipe</th><th>Method</th><th className="num">Q / pump<br/>(L/s)</th><th className="num">System flow<br/>(L/s)</th><th className="num">Head<br/>(m)</th><th className="num">Motor<br/>(kW)</th><th>Arrangement</th><th className="num">Total no.</th><th className="sticky-right">State</th></tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||TYPE_LBL[p.type]}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></div></div>})}</div></>;
 }
 function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
-  if (!item) return null; const {p,result:r,status,index}=item; const mat=PIPE_MATERIALS[p.pipeType]||{};
+  if (!item) return null; const {p,result:r,status,index}=item; const mat=matOf(p.pipeType)||{};
   return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Pump inspection"><header><div><div className="schedule-eyebrow">Pump system {index+1} · {TYPE_LBL[p.type]}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit pump</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
 }
 function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet}) {
   const [query,setQuery]=useState(''),[statusFilter,setStatusFilter]=useState('all'),[typeFilter,setTypeFilter]=useState('all'),[methodFilter,setMethodFilter]=useState('all'),[density,setDensity]=useState('comfortable'),[selectedId,setSelectedId]=useState(null);
   const items=useMemo(()=>pumps.map((p,index)=>{let result;try{result=calculate(p);}catch(e){result={error:true,errors:[e.message||'Calculation failed.']};}return {p,index,result,status:scheduleReviewStatus(p,result)};}),[pumps]);
-  const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,TYPE_LBL[item.p.type],(PIPE_MATERIALS[item.p.pipeType]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
+  const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,TYPE_LBL[item.p.type],(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
   const selected=items.find(x=>x.p.id===selectedId)||null; const savedClass=saveStatus==='error'?'error':saveStatus==='saving'?'saving':'';
   return <div className="schedule-review"><div className="schedule-context"><div><div className="schedule-eyebrow">Project / {stageName||'Active stage'}</div><div className="schedule-title">Pump Schedule</div><div className="schedule-subtitle">{pumps.length} system{pumps.length===1?'':'s'} · Review the active stage before export or issue</div></div><div className="schedule-context-status"><span className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'} · Rev {proj.revision||'—'}</div></div><ScheduleHealthStrip items={items} activeFilter={statusFilter} onFilter={setStatusFilter}/><section className="schedule-card"><div className="schedule-card-head"><div><h2>Schedule review</h2><p>{visible.length} shown · A4 landscape export uses the active stage</p></div><StatusChip status={{key:items.some(x=>x.status.key==='blocked')?'blocked':items.some(x=>x.status.key==='review')?'review':'pass',label:items.some(x=>x.status.key==='blocked')?'Action required':items.some(x=>x.status.key==='review')?'Review stage':'Ready'}} /></div><ScheduleToolbar query={query} setQuery={setQuery} status={statusFilter} setStatus={setStatusFilter} type={typeFilter} setType={setTypeFilter} method={methodFilter} setMethod={setMethodFilter} density={density} setDensity={setDensity}/><ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/></section><PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/></div>;
 }
@@ -1728,7 +1899,7 @@ function issueParamRows(p,res) {
     ['Pump arrangement',res.config,'', 'Duty and standby configuration'],
     ['Duty pumps',res.set.duty,'No.','Running at design flow'],
     ['Standby pumps',res.set.standby,'No.','Installed, idle'],
-    ['Pipe material',(PIPE_MATERIALS[p.pipeType]||PIPE_MATERIALS.HDPE).label,'','Approved reference schedule'],
+    ['Pipe material',(matOf(p.pipeType)||{}).label,'','Approved reference schedule'],
     ['Maximum velocity',Number(p.maxVelocity),'m/s','Design input'],
     ['Pipe run',Number(p.pipeRun)||0,'m','Design input'],
     ['Static head',Number(p.staticHead)||0,'m','Design input'],
@@ -1760,7 +1931,7 @@ function formulaTraceForPump(p,res) {
     ...(safety>0?[{purpose:'Apply flow safety factor',formula:`Qdesign = Qtotal × (1 + ${safety}/100)`,result:`${res.designFlow.toFixed(2)} L/s`,note:'Applies to the design flow used for duty and head-loss calculations.'}]:[]),
     {purpose:'Determine flow per duty pump',formula:res.set.sharing==='full'?'Qpump = Qdesign (Duty / Standby)':'Qpump = Qdesign ÷ number of duty pumps (Duty / Assist)',result:`${res.flowLsPerPump.toFixed(2)} L/s`,note:`${res.config}; ${res.set.installed} pumps installed.`},
     {purpose:'Calculate required internal diameter',formula:'Di = √(4Q ÷ πv)',result:`${res.reqDi.toFixed(1)} mm`,note:`Required diameter at the approved maximum velocity.`},
-    {purpose:'Select approved pipe size',formula:'Select first approved pipe with internal diameter ≥ Di',result:`${res.pipe.od} mm OD × ${res.pipe.id} mm ID`,note:`Selected from the approved ${PIPE_MATERIALS[res.matKey].label} pipe schedule.`},
+    {purpose:'Select approved pipe size',formula:'Select first approved pipe with internal diameter ≥ Di',result:`${res.pipe.od} mm OD × ${res.pipe.id} mm ID`,note:`Selected from the approved ${(matOf(res.matKey)||{}).label} pipe schedule.`},
     {purpose:'Check actual pipe velocity',formula:'v = Q ÷ (πD² ÷ 4)',result:`Peak ${res.velPeak.toFixed(2)} m/s; design ${res.velDesign.toFixed(2)} m/s`,note:`Design velocity is checked against the ${Number(p.maxVelocity).toFixed(2)} m/s maximum.`},
     {purpose:'Calculate pipe friction loss',formula:method,result:`${res.hf.toFixed(4)} m`,note:`${p.headLossMethod==='DW'?'Darcy-Weisbach with Swamee-Jain friction factor':'Hazen-Williams'} at design flow.`},
     {purpose:'Calculate fittings and valve loss',formula:`hfittings = hf × ${Number(p.fittingsPct)||0} ÷ 100`,result:`${res.hf_fit.toFixed(4)} m`,note:'Allowance applied to the calculated straight-pipe friction loss.'},
@@ -2295,6 +2466,30 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
       setSaveStatus("saved");
     }
   };
+  // ── Manual save ────────────────────────────────────────────────────────
+  // Autosave is debounced and is skipped entirely while a stage is locked, so
+  // a failed or suppressed write is invisible. This button forces an immediate
+  // ordered write and surfaces the real outcome — including the raw Postgres
+  // error text — instead of leaving the sidebar showing a stale "Saved".
+  const [manualSave, setManualSave] = useState("");
+  const saveNow = async () => {
+    if (stageLocked) {
+      setManualSave("Blocked — stage is " + stageStatusLabel(meta) + ". It must be reopened before it can be saved.");
+      return;
+    }
+    setManualSave("Saving…");
+    setSaveStatus("saving");
+    try {
+      await flushProjectSave();
+      await flushPumpsSave();
+      setManualSave("Saved at " + new Date().toLocaleTimeString());
+    } catch (e) {
+      setSaveStatus("error");
+      setManualSave("SAVE FAILED: " + (e.message || e));
+      console.error("Manual save failed", e);
+    }
+  };
+
   const exitProject = async () => {
     try { await flushProjectSave(); await flushPumpsSave(); } catch(e) { alert('Latest changes could not be saved: '+(e.message||e)); return; }
     onBackToProjects(); setSidebarOpen(false);
@@ -2456,6 +2651,15 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           </nav>
           <div className="sidebar-status"><span className={`sidebar-status-dot ${saveStatus==="saving"?"saving":saveStatus==="error"?"error":""}`}/>{saveStatus==="saving"?"Saving…":saveStatus==="error"?"Save failed":"All changes saved"}</div>
           <div className="sidebar-actions">
+            <button className="sidebar-action full" onClick={saveNow}
+              style={{background:"#007aff",color:"#fff",borderColor:"#007aff"}}>⤓ Save Now</button>
+            {manualSave && (
+              <div className="sidebar-action full" style={{background:"transparent",border:"none",padding:"2px 4px",
+                fontSize:9,fontWeight:600,lineHeight:1.4,textAlign:"left",cursor:"default",overflowWrap:"anywhere",
+                color:(manualSave.indexOf("SAVE FAILED")===0||manualSave.indexOf("Blocked")===0)?"#ff3b30":"#16803a"}}>
+                {manualSave}
+              </div>
+            )}
             <button className="sidebar-action export" onClick={issueExcel}>↓ Export Excel</button>
             <button className="sidebar-action print" onClick={()=>window.print()}>▣ Print / PDF</button>
             <button className="sidebar-signout full" onClick={signOut}>Sign out</button>
@@ -2515,10 +2719,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 onWho={v=>setMeta(m=>({...m,reviewedBy:v}))} onWhen={v=>setMeta(m=>({...m,reviewedDate:v}))} />
             </div>
             <div style={{marginTop:22,padding:"14px 18px",background:"#f5f5f7",border:"1px solid #d2d2d7",borderRadius:10,fontSize:11,color:"#424245",lineHeight:1.7}}>
-              <b>Reference Data In This Tool:</b> Pipe materials — HDPE SDR-11, PPR SDR-7.4, UPVC Pressure PN16, GI (BS 1387 Medium), Carbon Steel Sch-40 (ASME B36.10).
+              <b>Reference Data In This Tool:</b> Pipe materials — PPR PN6 / PN10 / PN16 / PN20 (DIN 8077), HDPE PE100 PN6 / PN8 / PN10 / PN12.5 / PN16 / PN20 (ISO 4427), uPVC PN6 / PN10 / PN16 (EN ISO 1452), Carbon Steel SCH 40 / SCH 80 (ASME B36.10M), CPVC SDR 13.5 fire sprinkler (ASTM F442), Copper Table X (BS EN 1057), Stainless press-fit, PEX-AL-PEX.
               Head loss — Hazen-Williams or Darcy-Weisbach (Swamee-Jain friction factor), selectable per pump.
               Pump systems — Tank Recirculation, Filter Feed, Transfer, HEX Circulation, Booster, Sewage/Drainage, Irrigation.
-              <br/><i>Note: GI and UPVC pipe dimensions are indicative catalogue values — verify against the manufacturer's current data sheet before issuing for construction.</i>
+              <br/><i>Note: internal diameters are calculated as OD − 2 × wall thickness from the published standard for each pressure class. Hazen-Williams C and roughness are engineering coefficients assigned per material family, not standard dimensional data. Stainless press-fit and PEX-AL-PEX dimensions are indicative — confirm both against the manufacturer's current data sheet before issuing for construction.</i>
             </div>
             <div style={{display:"flex",gap:10,marginTop:22}}>
               <button onClick={()=>setTab("pumps")}
@@ -2690,26 +2894,33 @@ function RefTable({columns, rows, setRows, onDeleteRow, newRowTemplate, disableK
     }
     setRows(rs => rs.filter((_,idx)=>idx!==i));
   };
+  // The header row and the data rows share one grid template, so they must sit
+  // inside the SAME horizontally-scrolling box — scrolling them separately
+  // would let the labels drift out of line with the inputs on a phone.
   return (
     <div>
-      <div style={{...g, marginBottom:6}}>
-        {columns.map(c=><div key={c.key} style={{...lbl,marginBottom:0}}>{c.label}</div>)}
-        <div/>
-      </div>
-      <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:440,overflowY:"auto",paddingRight:4}}>
-        {rows.map((r,i)=>(
-          <div key={r.id||r._key} style={g}>
-            {columns.map(c=>(
-              <input key={c.key} type={c.type||"text"} step={c.step} value={r[c.key]??""}
-                disabled={disableKeyFor && c.key===disableKeyFor && !r._isNew}
-                onChange={e=>update(i,c.key,e.target.value)}
-                style={{...inp, opacity:(disableKeyFor && c.key===disableKeyFor && !r._isNew)?0.55:1}} />
-            ))}
-            <button onClick={()=>removeRow(i)}
-              style={{background:"none",border:"none",color:"#d2d2d7",fontSize:15,cursor:"pointer"}}
-              onMouseOver={e=>e.target.style.color="#ef4444"} onMouseOut={e=>e.target.style.color="#d2d2d7"}>✕</button>
+      <div className="refgrid-scroll">
+        <div>
+          <div style={{...g, marginBottom:6}}>
+            {columns.map(c=><div key={c.key} style={{...lbl,marginBottom:0}}>{c.label}</div>)}
+            <div/>
           </div>
-        ))}
+          <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:440,overflowY:"auto",paddingRight:4}}>
+            {rows.map((r,i)=>(
+              <div key={r.id||r._key} style={g}>
+                {columns.map(c=>(
+                  <input key={c.key} type={c.type||"text"} step={c.step} value={r[c.key]??""}
+                    disabled={disableKeyFor && c.key===disableKeyFor && !r._isNew}
+                    onChange={e=>update(i,c.key,e.target.value)}
+                    style={{...inp, opacity:(disableKeyFor && c.key===disableKeyFor && !r._isNew)?0.55:1}} />
+                ))}
+                <button onClick={()=>removeRow(i)}
+                  style={{background:"none",border:"none",color:"#d2d2d7",fontSize:15,cursor:"pointer"}}
+                  onMouseOver={e=>e.target.style.color="#ef4444"} onMouseOut={e=>e.target.style.color="#d2d2d7"}>✕</button>
+              </div>
+            ))}
+          </div>
+        </div>
       </div>
       <button onClick={addRow}
         style={{marginTop:12,padding:"7px 16px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:8,fontSize:12,fontWeight:700,cursor:"pointer"}}>
@@ -2719,15 +2930,20 @@ function RefTable({columns, rows, setRows, onDeleteRow, newRowTemplate, disableK
   );
 }
 
-function RefTableTab({title, note, tableName, conflictKey, columns, numericKeys, newRowTemplate, transformIn, disableKeyFor}) {
+function RefTableTab({title, note, tableName, conflictKey, columns, numericKeys, newRowTemplate, transformIn, disableKeyFor, filterColumn, filterValue}) {
   const [rows, setRows] = useState(null);
   const [status, setStatus] = useState(""); // "", "saving", "saved", "error:<msg>"
 
   const load = useCallback(async () => {
-    const { data, error } = await sb.from(tableName).select("*").order("sort_order");
+    // The filter is applied in the QUERY, not after loading. Filtering only in
+    // the view would still save every row back under the selected material,
+    // which is how foreign dimensions ended up stored against the wrong key.
+    let q = sb.from(tableName).select("*");
+    if (filterColumn && filterValue) q = q.eq(filterColumn, filterValue);
+    const { data, error } = await q.order("sort_order");
     if (error) { setStatus("error:"+error.message); return; }
     setRows((data||[]).map(transformIn || (r=>r)));
-  }, [tableName]);
+  }, [tableName, filterColumn, filterValue]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -2763,34 +2979,49 @@ function RefTableTab({title, note, tableName, conflictKey, columns, numericKeys,
 }
 
 function PipeSizesTab() {
-  const [material, setMaterial] = useState("HDPE");
-  const [materialOptions, setMaterialOptions] = useState(Object.keys(PIPE_MATERIALS));
+  // "" = the whole schedule in one sheet. A specific key narrows the query.
+  const [material, setMaterial] = useState("");
+  const [mats, setMats] = useState([]);
 
   useEffect(() => {
-    sb.from("ref_pipe_materials").select("material_key").order("sort_order").then(({data})=>{
-      if (data && data.length) setMaterialOptions(data.map(r=>r.material_key));
-    });
+    sb.from("ref_pipe_materials").select("material_key,material,sdr_class,label")
+      .order("sort_order").then(({data})=>{ if (data) setMats(data); });
   }, []);
+
+  const opt = [{value:"",label:"All materials — full schedule"}].concat(
+    mats.map(m=>({value:m.material_key,
+      label:(m.material||m.material_key)+(m.sdr_class?"  ·  "+m.sdr_class:"")})));
+  const sel = mats.find(m=>m.material_key===material);
+
+  const cols = [
+    {key:"nominal_mm", label:"Nominal (mm)", type:"number", width:"0.9fr"},
+    {key:"od",         label:"OD (mm)",      type:"number", width:"0.9fr"},
+    {key:"wall_mm",    label:"Wall (mm)",    type:"number", width:"0.9fr"},
+    {key:"id_mm",      label:"ID (mm)",      type:"number", width:"0.9fr"},
+  ];
+  // Without a material selected the key is editable, otherwise a row could not
+  // be told apart from the one above it in the combined sheet.
+  if (!material) cols.unshift({key:"material_key", label:"Material Key", width:"1.4fr"});
 
   return (
     <div>
-      <div style={{marginBottom:16, maxWidth:280}}>
-        <Sel label="Material" value={material} onChange={setMaterial}
-          options={materialOptions.map(k=>({value:k,label:k}))} />
+      <div style={{marginBottom:16, maxWidth:360}}>
+        <Sel label="Material / SDR / Class" value={material} onChange={setMaterial} options={opt} />
       </div>
       <RefTableTab
-        key={material}
-        title={`Pipe Sizes — ${material}`}
-        note="OD / ID in mm. NB (nominal bore) is optional, used for GI and Steel."
+        key={material||"__all__"}
+        title={sel ? `Pipe Sizes — ${sel.material||sel.material_key}  ·  ${sel.sdr_class||"—"}`
+                   : "Pipe Schedule — all materials"}
+        note={sel
+          ? `${sel.label}. Nominal size, OD, wall and ID in mm, from the approved reference workbook.`
+          : "Every material and class in one sheet. SDR / class is a property of the material key — set it on the Pipe Materials tab."}
         tableName="ref_pipe_sizes"
         conflictKey="id"
-        numericKeys={["od","id_mm","nb"]}
-        newRowTemplate={{material_key:material, nb:"", od:"", id_mm:""}}
-        columns={[
-          {key:"nb", label:"NB (mm)", type:"number", width:"0.8fr"},
-          {key:"od", label:"OD (mm)", type:"number", width:"0.8fr"},
-          {key:"id_mm", label:"ID (mm)", type:"number", width:"0.8fr"},
-        ]}
+        filterColumn={material ? "material_key" : null}
+        filterValue={material || null}
+        numericKeys={["od","id_mm","nominal_mm","wall_mm","nb"]}
+        newRowTemplate={{material_key:material, nominal_mm:"", od:"", wall_mm:"", id_mm:""}}
+        columns={cols}
       />
     </div>
   );
@@ -2800,18 +3031,20 @@ function PipeMaterialsTab() {
   return (
     <RefTableTab
       title="Pipe Materials"
-      note="Key is the internal code used everywhere else in the tool (dropdown values, pipe-size linking) — add a new key here to create a brand-new selectable pipe material."
+      note="Key is the internal code used everywhere else in the tool. One key = one pressure class, so a calculation can never select across two SDRs. Material and SDR / Class are what the schedule sheet groups by."
       tableName="ref_pipe_materials"
       conflictKey="material_key"
       numericKeys={["hw_c","roughness"]}
       disableKeyFor="material_key"
-      newRowTemplate={{material_key:"", label:"", hw_c:150, roughness:0.01, note:""}}
+      newRowTemplate={{material_key:"", material:"", sdr_class:"", label:"", hw_c:150, roughness:0.01, note:""}}
       columns={[
-        {key:"material_key", label:"Key", width:"0.8fr"},
-        {key:"label", label:"Label", width:"1.4fr"},
-        {key:"hw_c", label:"H-W C", type:"number", width:"0.6fr"},
+        {key:"material_key", label:"Key", width:"1.1fr"},
+        {key:"material", label:"Material", width:"0.9fr"},
+        {key:"sdr_class", label:"SDR / Class", width:"0.8fr"},
+        {key:"label", label:"Label", width:"1.3fr"},
+        {key:"hw_c", label:"H-W C", type:"number", width:"0.5fr"},
         {key:"roughness", label:"Roughness (mm)", type:"number", step:"0.001", width:"0.8fr"},
-        {key:"note", label:"Note", width:"1.4fr"},
+        {key:"note", label:"Note", width:"1.2fr"},
       ]}
     />
   );
