@@ -23,7 +23,7 @@ const SHELL_ASSETS = [
 // Pages on this origin that are NOT the Resource Plan. Deployed independently,
 // so they stay entirely outside this worker: no caching, no offline fallback,
 // no shared update lifecycle. Add future sibling apps here.
-const STANDALONE_PAGES = ['/pump.html'];
+const STANDALONE_PAGES = ['/pump.html', '/spec.html'];
 
 function isStandalone(pathname){
   return STANDALONE_PAGES.some(p => pathname === p || pathname.startsWith(p.replace('.html','') + '/'));
