@@ -8,6 +8,7 @@
 <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
 <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/docx@9.6.1/dist/index.iife.js"></script>
 <style>
   :root { --rp-bg:#f5f5f7; --rp-surface:#fff; --rp-border:#d2d2d7; --rp-text:#1d1d1f; --rp-muted:#86868b; --rp-accent:#007aff; --rp-accent-soft:#e8f0fe; --rp-danger:#ff3b30; --rp-radius:10px; --rp-radius-large:14px; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -599,6 +600,77 @@
     .spec-body{padding:3mm 5mm!important}
   }
 </style>
+<style>
+  /* ── Spec v1.1: paged issue books ── */
+  .sd{font-size:10pt;line-height:1.32;color:#000}
+  .sd,.sd *,#root .sd,#root .sd *,#root .spg-f,#root .spg-f *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:0!important}
+  .sd .b{display:block}
+  .sd .stitle{font-weight:700;font-size:12.5pt;text-transform:uppercase;padding:0 0 3.5mm;line-height:1.25}
+  .sd .pt{font-weight:700;font-size:11pt;padding:4mm 0 1.5mm}
+  .sd .ar{padding:2.6mm 0 1mm 15mm;text-indent:-15mm;text-transform:uppercase}
+  .sd .ar>span:first-child{display:inline-block;width:15mm;text-indent:0}
+  .sd .l0,.sd .l1,.sd .l2,.sd .l3{padding-top:.5mm;padding-bottom:.7mm}
+  .sd .l0{padding-left:15mm;text-indent:-9mm}.sd .l1{padding-left:23mm;text-indent:-8mm}.sd .l2{padding-left:31mm;text-indent:-8mm}.sd .l3{padding-left:39mm;text-indent:-8mm}
+  .sd .l0>span:first-child{display:inline-block;width:9mm;text-indent:0}
+  .sd .l1>span:first-child,.sd .l2>span:first-child,.sd .l3>span:first-child{display:inline-block;width:8mm;text-indent:0}
+  .sd .eos{text-align:center;font-weight:700;padding-top:6mm}
+  .sd .unres{background:#ffe2e2;color:#b42318}
+  .sd .ctoc{display:flex;align-items:baseline;font-size:9.5pt;padding:.25mm 0}
+  .sd .ctoc.p{font-weight:700;font-size:10.5pt;padding-top:1mm}
+  .sd .ctoc .n{width:16mm;padding-left:4mm;flex:0 0 auto}.sd .ctoc .t{flex:1}.sd .ctoc .pn{width:12mm;text-align:right}
+  .sd .toc{display:flex;align-items:baseline;padding:1.3mm 0}.sd .toc.ind{padding-left:8mm}
+  .sd .toc .dots{flex:1;border-bottom:1.2px dotted #000;margin:0 1.2mm;min-width:4mm}.sd .toc .pn{min-width:7mm;text-align:right}
+  .sd .h1{font-size:22pt;color:#1f4e8c;padding:1mm 0 6mm}
+  .sd .h2{font-weight:700;font-size:11pt;padding:5mm 0 2mm}
+  .sd .p{padding:1mm 0}
+  .sd .cv1{font-size:20pt;font-weight:700;text-align:center}.sd .cv2{font-size:12pt;text-align:center}
+  .sd .cv3{font-size:16pt;font-weight:700;text-align:center}.sd .cv4{font-size:13pt;font-weight:700;text-align:center}
+  .sd .trow{display:flex;font-size:9pt;margin-top:-1px}
+  .sd .trow>div{border:1px solid #888;margin-left:-1px;padding:1.1mm 1.8mm;box-sizing:border-box}
+  .sd .trow>div:first-child{margin-left:0}
+  .sd .trow.head>div{background:#e8edf3;font-weight:700}
+  .book-wrap{width:100%;overflow:hidden}
+  .book-scale{transform-origin:top left}
+  .spg{position:relative;width:210mm;height:297mm;background:#fff;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.14);margin:0 0 8mm}
+  .spg-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font:900 120pt Arial;color:rgba(220,40,40,.08);transform:rotate(-40deg);pointer-events:none;z-index:1}
+  .spg-h{position:absolute;left:20mm;right:20mm;top:9mm;height:17mm;display:flex;align-items:flex-end;justify-content:space-between;border-bottom:1.3px solid #000;padding-bottom:2mm}
+  .spg-h img.c{max-height:11mm;max-width:60mm;object-fit:contain;display:block}.spg-h img.m{max-height:7.5mm;max-width:50mm;object-fit:contain;display:block}
+  .spg-nologo{font:italic 8pt Arial;color:#aaa}
+  .spg-b{position:absolute;left:20mm;width:170mm;top:30mm;height:242mm;overflow:hidden}
+  .spg-f{position:absolute;left:20mm;right:20mm;bottom:8mm;height:15mm;font:9pt/1.3 Arial!important;color:#000}
+  .spg-f .ln{height:0;border-top:1.3px solid #000}
+  .spg-f .row{display:flex;justify-content:space-between;padding-top:1.3mm}.spg-f .r{text-align:right}.spg-f small{font-size:7pt;color:#555}
+  /* Systems page */
+  .sys-top{display:flex;align-items:flex-end;gap:14px;flex-wrap:wrap;margin-bottom:8px}.sys-top>div:first-child{flex:1;min-width:200px}
+  .sys-count{font-size:11px;color:#424245;background:#fff;border:1px solid #e1e1e6;border-radius:8px;padding:7px 10px}.sys-count a{color:#007aff;font-weight:700;text-decoration:none}
+  .sys-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}.sys-chips span{font-size:10px;background:#e8f0fe;color:#1559a6;border-radius:999px;padding:3px 9px;font-weight:600}
+  .sys-wrap{display:grid;grid-template-columns:280px minmax(0,1fr);gap:14px;align-items:start}
+  .sys-list{max-height:calc(100dvh - 210px)!important}
+  .sys-dot{width:7px;height:7px;border-radius:50%;background:#ff9500;flex:0 0 auto;margin-top:5px}
+  .sys-row{display:flex;align-items:center;gap:12px;min-height:40px;border-bottom:1px solid #f0f0f2;padding-right:4px}
+  .sys-row:last-child{border-bottom:0}.sys-row.sub{background:#fafafb}
+  .sys-t{flex:1;font-size:12.5px;color:#1d1d1f;min-width:0}.sys-t small{display:block;font-size:10px;color:#86868b}
+  .sys-row select,.sys-row input[type=text],.sys-row input[type=number]{width:300px;max-width:52%;height:30px;padding:0 9px!important;font-size:12px!important}
+  .sw{position:relative;display:inline-block;width:38px;height:22px;flex:0 0 auto;cursor:pointer}
+  .sw input{opacity:0;width:0;height:0;position:absolute}
+  .sw span{position:absolute;inset:0;background:#d2d2d7;border-radius:22px;transition:.15s}
+  .sw span:before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:#fff;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:.15s}
+  .sw input:checked+span{background:#34c759}.sw input:checked+span:before{transform:translateX(16px)}
+  .sw input:disabled+span{opacity:.5;cursor:not-allowed}
+  @media screen and (max-width:900px){.sys-wrap{grid-template-columns:1fr}.sys-list{max-height:260px!important}}
+  @media print{
+    @page{size:A4;margin:0}
+    html,body{background:#fff!important}
+    .issue-content{padding:0!important;max-width:none!important;margin:0!important}
+    .calcwrap{display:block!important}
+    .book-wrap{overflow:visible!important}
+    .book-scale{transform:none!important;height:auto!important;width:auto!important}
+    .spg{box-shadow:none!important;margin:0!important;break-after:page;page-break-after:always}
+    .spg-anchor:last-child .spg{break-after:auto;page-break-after:auto}
+    .spg,.spg *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+  }
+</style>
+
 </head>
 <body>
 <div id="root"></div>
@@ -930,7 +1002,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.0.0 · Build 2026.10.06.01";
+const BUILD_LABEL = "Spec v1.2.0 · Build 2026.10.06.03";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -944,6 +1016,22 @@ const PF_GROUPS = {elec:'Electrical supply', auth:'Authorities', code:'Codes, st
 // ── Library (filled by loadLibrary) ────────────────────────────────────────
 let LIB = [], OPTS = [], OPTMAP = {}, COUNTRIES = {}, ITEMS = {items:[], vendors:[]};
 let LIB_ERROR = "";
+const ISSUE_GRP = 'Issue documents';
+const MFR_ON  = "Refer to the List of Manufacturers & Suppliers (Annexure A).";
+const MFR_OFF = "Refer to the Employer's approved vendor list.";
+const BUILTIN_OPTS = [
+  {k:'items_sched', t:'Add product schedule to sections', d:true},
+  {k:'annex_a', t:'Issue Annexure A – List of Manufacturers & Suppliers', d:true},
+  {k:'mfr_ref', t:'2.1 Manufacturers wording', type:'txt', d:MFR_ON, dep:'annex_a', sub:1},
+  {k:'mfr_ref_off', t:'2.1 Manufacturers wording', type:'txt', d:MFR_OFF, dep:'!annex_a', sub:1},
+  {k:'annex_b', t:'Issue Annexure B – List of Spare Parts', d:true},
+];
+const ISSUE_KEYS = BUILTIN_OPTS.map(b => b.k);
+// Annexure B (spare parts) lives in the library as section "<div> 9998".
+const isAnnexNum = n => /\s?9998$/.test(String(n).replace(/\s/g,'').slice(-4)) || /9998$/.test(String(n));
+const fmtNum = n => String(n || '').replace(/^(\d{2})\s?(\d{2})(\d{2})/, '$1 $2 $3');
+const SMALL_WORDS = new Set(['a','an','and','as','at','by','for','from','in','of','on','or','the','to','with']);
+const titleCase = t => String(t || '').toLowerCase().split(/(\s+|-|\/)/).map((w, i) => (i > 0 && SMALL_WORDS.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join('').replace(/\b(Grp|Ppr|Hdpe|Upvc|Lpg|Sng|Uv|Fm|Ul|Bms|Vfd|Ats)\b/g, m => m.toUpperCase());
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
 const actv = a => (a||[]).filter(x => x.active !== false);
 
@@ -979,6 +1067,14 @@ function applyLibrary(secs, opts, locs, items, vendors) {
     if (o.default_value !== null && o.default_value !== undefined) it.d = o.default_value;
     if (o.dep) it.dep = o.dep; if (o.sub) it.sub = o.sub;
     gi[o.grp].items.push(it);
+  });
+  // Built-in issue-document switches (no SQL needed; a library row with the same key overrides).
+  let ig = groups.find(g => g.grp === ISSUE_GRP);
+  BUILTIN_OPTS.forEach(b => {
+    const ex = groups.flatMap(g => g.items).find(i => i.k === b.k);
+    if (ex) { if (b.k === 'items_sched') ex.t = b.t; return; }
+    if (!ig) { ig = {col:2, grp:ISSUE_GRP, items:[]}; groups.push(ig); }
+    ig.items.push({...b});
   });
   OPTS = groups; buildOptMap();
   const C = {};
@@ -1050,92 +1146,415 @@ function fill(text, T) {
   });
 }
 function clauseLbl(l, n) { return l === 0 ? String.fromCharCode(65 + n) + '.' : l === 1 ? (n + 1) + '.' : l === 2 ? String.fromCharCode(97 + n) + '.' : (n + 1) + ')'; }
+
+// ── Section generation ─────────────────────────────────────────────────────
 function itemArticles(S, o, T) {
-  if (!evalCond('items_sched', o) && OPTMAP.items_sched) return [];
+  if (!evalCond('items_sched', o)) return [];
   const its = actv(ITEMS.items).filter(i => i.section_num === S.num && evalCond(i.include_when || '', o));
-  const vs = actv(ITEMS.vendors).filter(v => v.section_num === S.num && evalCond(v.include_when || '', o));
-  const out = [];
-  if (its.length) out.push({title:'PRODUCT SCHEDULE', lines:its.map(i => {
+  if (!its.length) return [];
+  return [{title:'PRODUCT SCHEDULE', lines:its.map(i => {
     const p = [i.rating, i.jointing ? 'jointing: ' + i.jointing : '', i.standards ? 'to ' + i.standards : '', i.application ? 'application: ' + i.application : ''].filter(x => x && x !== '—').join('; ');
     return `<b>${esc(i.item)}:</b> ${esc(i.material)}${p ? '; ' + fill(p, T) : ''}.` + (i.status === 'TBC' ? ' <span class="unres tbc">[TBC]</span>' : '');
-  })});
-  if (vs.length) out.push({title:'MANUFACTURERS', lines:['Subject to compliance with requirements, provide products by one of the following, or approved equal:', ...vs.map(v => {
-    const mk = String(v.makers || '').split(';').map(x => x.trim()).filter(Boolean);
-    const tbc = v.status === 'TBC' || !mk.length || /^TBC/i.test(mk[0]);
-    return `<b>${esc(v.item)}:</b> ` + (tbc ? `<span class="unres tbc">[${esc(mk.join(', ') || 'TBC')} – vendor list TBC]</span>` : esc(mk.join(', ')) + '.');
-  })]});
-  return out;
+  })}];
 }
-function genSection(S, o, T) {
-  let h = `<p class="sh">SECTION ${esc(S.num)}</p><p class="stl">${esc(String(S.title).toUpperCase())}</p>`;
+const partLabel = (t, n) => { const m = String(t).match(/^PART\s*\d+\s*[-–—:.]?\s*(.*)$/i); return `PART ${n} - ${(m ? m[1] : t).toUpperCase()}`; };
+const mfrWording = (o, T) => evalCond('annex_a', o) ? (String(T.mfr_ref || '').trim() || MFR_ON) : (String(T.mfr_ref_off || '').trim() || MFR_OFF);
+const hasLibMfrArticle = S => S.parts.some(P => P.arts.some(A => /^MANUFACTURER/i.test(A.title.trim())));
+function genSection(S, o, T, annex) {
+  let h = `<p class="stitle">${annex ? esc(annex) : 'SECTION ' + esc(fmtNum(S.num)) + ' – ' + esc(String(S.title).toUpperCase())}</p>`;
   let pn = 0;
   S.parts.forEach(P => {
     if (!evalCond(P.cond, o)) return;
-    pn++; h += `<p class="pt">${fill(P.title, T)}</p>`;
+    pn++; h += `<p class="pt">${fill(partLabel(P.title, pn), T)}</p>`;
     let an = 0;
+    const products = /PRODUCTS/i.test(P.title) && !annex;
+    if (products) { an++; h += `<p class="ar"><span>${pn}.${an}</span>MANUFACTURERS</p><p class="l0"><span>A.</span>${esc(mfrWording(o, T))}</p>`; }
     P.arts.forEach(A => {
       if (!evalCond(A.cond, o)) return;
+      if (products && /^MANUFACTURER/i.test(A.title.trim())) return;   // 2.1 is generated
       const cnt = [0,0,0,0], out = [];
       A.items.forEach(it => {
         if (!evalCond(it.cond, o)) return;
         const l = Math.min(it.lvl, 3), n = cnt[l]++; for (let j = l + 1; j < 4; j++) cnt[j] = 0;
         out.push(`<p class="l${l}"><span>${clauseLbl(l, n)}</span>${fill(it.text, T)}</p>`);
       });
-      an++; h += `<p class="ar"><span>${pn}.${an}</span>${fill(A.title, T)}</p>` + out.join('');
+      an++; h += `<p class="ar"><span>${pn}.${an}</span>${fill(String(A.title).toUpperCase(), T)}</p>` + out.join('');
     });
-    if (/PRODUCTS/i.test(P.title)) itemArticles(S, o, T).forEach(X => {
+    if (products) itemArticles(S, o, T).forEach(X => {
       an++; h += `<p class="ar"><span>${pn}.${an}</span>${esc(X.title)}</p>` + X.lines.map((l, n) => `<p class="l0"><span>${clauseLbl(0, n)}</span>${l}</p>`).join('');
     });
   });
-  return h + `<p class="eos">END OF SECTION ${esc(S.num)}</p>`;
+  return h;
 }
 const unresCount = html => (String(html).match(/class="unres/g) || []).length;
 const tbcCount = html => (String(html).match(/class="unres tbc"/g) || []).length;
 const blankState = () => ({opts:defaultOpts(), excl:{}, edits:{}, reviewed:{}});
-const NEW_SECTION_TEMPLATE = `# PART 1 GENERAL
-= SECTION INCLUDES
-- 
-= REFERENCE STANDARDS
-- 
-= SUBMITTALS
-- Product Data: 
-- Shop Drawings: 
-= QUALITY ASSURANCE
-- 
-# PART 2 PRODUCTS
-= 
-- 
-# PART 3 EXECUTION
-= INSTALLATION
-- Install to manufacturer's instructions and {{PLUMB_CODE}}.
-= FIELD QUALITY CONTROL
-- 
-`;
-function convertCSI(txt) {
-  const out = []; let num = '', title = '', last = null;
-  const lines = String(txt).replace(/\r/g,'').split('\n').map(l => l.replace(/\u00a0/g,' ').trim()).filter(Boolean);
-  for (let i = 0; i < lines.length; i++) {
-    const l = lines[i]; let m;
-    if ((m = l.match(/^SECTION\s+(\d{2})\s?(\d{2})\s?(\d{2}(?:\.\d+)?)/i))) { num = `${m[1]} ${m[2]}${m[3]}`; if (lines[i+1] && !/^PART/i.test(lines[i+1])) title = lines[++i].toUpperCase(); continue; }
-    if (/^END OF SECTION/i.test(l)) continue;
-    if ((m = l.match(/^PART\s+(\d+)\s*[-–—.:]?\s*(.*)$/i))) { out.push(`# PART ${m[1]} ${m[2].toUpperCase()}`); last = null; continue; }
-    if ((m = l.match(/^\d+\.\d+\s+(.+)$/))) { out.push('= ' + m[1].toUpperCase()); last = null; continue; }
-    if ((m = l.match(/^[A-Z]\.\s*\t?\s*(.+)$/))) { out.push('- ' + m[1]); last = out.length - 1; continue; }
-    if ((m = l.match(/^\d+\.\s*\t?\s*(.+)$/))) { out.push('  - ' + m[1]); last = out.length - 1; continue; }
-    if ((m = l.match(/^[a-z]\.\s*\t?\s*(.+)$/))) { out.push('    - ' + m[1]); last = out.length - 1; continue; }
-    if ((m = l.match(/^\d+\)\s*(.+)$/))) { out.push('      - ' + m[1]); last = out.length - 1; continue; }
-    if (last !== null) out[last] += ' ' + l; else if (!title && !out.length) title = l.toUpperCase(); else out.push('- ' + l);
-  }
-  return {num, title, body:out.join('\n') + '\n'};
-}
-function downloadBlob(data, name, type) {
-  const b = new Blob(['\ufeff', data], {type}); const a = document.createElement('a');
-  a.href = URL.createObjectURL(b); a.download = name; document.body.appendChild(a); a.click();
-  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
-}
-const SPEC_CSS = `body{font-family:Arial,sans-serif;font-size:10pt}.sh{text-align:center;font-weight:bold;margin:0}.stl{text-align:center;font-weight:bold;margin:0 0 12pt}.pt{font-weight:bold;margin:12pt 0 4pt}.ar{font-weight:bold;margin:8pt 0 3pt}.l0{margin:2pt 0 2pt 0.55in;text-indent:-0.35in}.l1{margin:2pt 0 2pt 0.9in;text-indent:-0.35in}.l2{margin:2pt 0 2pt 1.25in;text-indent:-0.35in}.l3{margin:2pt 0 2pt 1.6in;text-indent:-0.35in}.l0>span:first-child,.l1>span:first-child,.l2>span:first-child,.l3>span:first-child{display:inline-block;width:0.35in;text-indent:0}.ar>span:first-child{display:inline-block;width:0.45in}.eos{text-align:center;font-weight:bold;margin-top:12pt}table.h{border-collapse:collapse;width:100%;margin-bottom:10pt}table.h td{border:1px solid #000;padding:3pt 5pt;font-size:8.5pt;vertical-align:top}td.band{background:#0876ba;color:#fff;font-weight:bold}td.logo{width:22%}table.t{border-collapse:collapse;width:100%}table.t th,table.t td{border:1px solid #999;padding:3pt 5pt;font-size:9pt;text-align:left}table.t th{background:#e8edf3}.unres{background:#ffd6d6}p.draft{color:#c62828;font-weight:bold;text-align:center;border:1px solid #c62828;padding:3pt}@page{size:A4;margin:2cm}`;
 
-// ── Small UI helpers ───────────────────────────────────────────────────────
+// ── Annexures ──────────────────────────────────────────────────────────────
+const ANNEX_B_TITLE = {'21':'LIST OF SPARE PARTS FOR FIRE FIGHTING', '22':'LIST OF SPARE PARTS FOR PLUMBING', '23':'LIST OF SPARE PARTS FOR HVAC'};
+const annexBTitle = d => ANNEX_B_TITLE[d] || ('LIST OF SPARE PARTS – DIVISION ' + d);
+const ANNEX_B_BODY = d => `# PART 1 GENERAL
+= SECTION INCLUDES AND RELATED REQUIREMENTS
+- MEP Schedule of Project Requirements.
+- Division ${d} sections of this specification.
+= SUBMITTALS
+- See MEP Schedule of Project Requirements for submittal procedures.
+- The Contractor shall provide the spare parts for the Division ${d} installations at the time the Taking-Over Certificate is issued.
+- All spare parts shall be categorised and labelled as required by the MEP Schedule of Project Requirements.
+- Provide a detailed schedule listing the spare part description, quantity, part name, part number, supplier name and supplier contact details.
+= ATTIC STOCK AND SPARE PARTS
+- No minimum quantity of attic stock or spare parts is defined under the Building Construction Contract.
+- The Contractor shall submit a proposed list of attic stock and spare parts for all services as part of the material submittals. The list shall include, as a minimum:
+  - Description of each item.
+  - Quantity proposed.
+  - Unit price.
+  - Associated system or equipment.
+  - Minimum Authority requirements.
+- The proposed list shall be reviewed and confirmed by the Employer's project management and facilities management teams.
+- Upon approval, the Contractor shall procure the approved items separately from the respective system vendors or manufacturers.
+`;
+function annexBSection(d) {
+  const L = LIB.find(x => x.num === `${d} 9998`);
+  return L || sectionFromRow({num:`${d} 9998`, title:annexBTitle(d), include_when:null, body:ANNEX_B_BODY(d)});
+}
+const ANNEX_A_NOTES = [
+  'Manufacturers are listed without any order of preference.',
+  'Provide products from the manufacturers listed, or approved equal, subject to compliance with the specification and the requirements of the Authorities Having Jurisdiction.',
+  "Equivalent makes are acceptable subject to the Engineer's review and written approval.",
+  'Inclusion of a manufacturer in this list does not constitute acceptance or approval of any product. All products shall comply with the specification and be approved in writing by the Engineer.',
+];
+function annexARowsLive(secs, o) {
+  const nums = new Set(secs.map(S => S.num));
+  return actv(ITEMS.vendors).filter(v => nums.has(v.section_num) && evalCond(v.include_when || '', o)).map(v => {
+    const S = secs.find(x => x.num === v.section_num), mk = String(v.makers || '').split(';').map(x => x.trim()).filter(Boolean);
+    return {sec:v.section_num, title:S ? S.title : '', item:v.item, makers:mk.join(', '), tbc:v.status === 'TBC' || !mk.length || /^TBC/i.test(mk[0] || '')};
+  });
+}
+
+// ── HTML → blocks ──────────────────────────────────────────────────────────
+function parseBlocks(html, key) {
+  const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
+  const out = []; let n = 0;
+  const firstSpan = el => { const f = el.firstElementChild; return f && f.tagName === 'SPAN' && el.firstChild === f ? f : null; };
+  [...doc.body.firstChild.childNodes].forEach(el => {
+    if (el.nodeType === 3) { const t = el.textContent.trim(); if (t) out.push({t:'cl', lvl:0, lbl:'', html:esc(t)}); return; }
+    if (el.nodeType !== 1) return;
+    const c = el.className || '', txt = el.textContent.replace(/\u00a0/g, ' ').trim();
+    if (/\b(stitle|sh|stl|eos)\b/.test(c)) return;
+    if (!txt) return;
+    if (/\bpt\b/.test(c)) { out.push({t:'part', text:txt, id:`${key}:h${n++}`, keepNext:true}); return; }
+    if (/\bar\b/.test(c)) { const f = firstSpan(el); const no = f ? f.textContent.trim() : ''; out.push({t:'art', no, text:(f ? txt.slice(f.textContent.length) : txt).trim(), id:`${key}:h${n++}`, keepNext:true}); return; }
+    const m = c.match(/\bl([0-3])\b/);
+    const f = firstSpan(el); let inner = el.innerHTML; if (f) inner = inner.slice(inner.indexOf('</span>') + 7);
+    out.push({t:'cl', lvl:m ? +m[1] : 0, lbl:f ? f.textContent.trim() : '', html:inner});
+  });
+  return out;
+}
+
+// ── Book model: one book per Division ──────────────────────────────────────
+// ctx: {div, proj, meta, stageName, opts, T, secs, bodyOf, annexA (rows), annexBHtml, closure, closed}
+function buildBook(ctx) {
+  const {div, proj, meta, stageName, opts, secs, closure} = ctx;
+  const divTitle = `DIVISION ${div}${DIVNAMES[div] ? ' – ' + DIVNAMES[div].toUpperCase() : ''}`;
+  const divFooter = `Division ${div}${DIVNAMES[div] ? ' – ' + DIVNAMES[div] : ''}`;
+  const rev = meta.revision || '01', revLine = `Rev ${rev} – ${stageName || ''}`;
+  const status = closure.status === 'closed' ? 'ISSUED' : closure.status === 'awaiting_approver' ? 'IN REVIEW' : 'DRAFT';
+  const T = ctx.T, docs = [];
+  let tid = 0;
+  const table = (head, rows, widths) => { const id = 't' + (tid++); const o = []; if (head) o.push({t:'trow', tid:id, head:true, cells:head, widths}); rows.forEach(r => o.push({t:'trow', tid:id, cells:r, widths})); return o; };
+  const nm = ini => { const t = (ctx.team || []).find(x => (x.initials || '').toUpperCase() === String(ini || '').toUpperCase()); return ini ? (t ? `${t.name} (${t.initials})` : ini) : '—'; };
+  // Front matter
+  const fm = [
+    {t:'space', h:34},
+    {t:'p', html:esc(proj.name || 'Project'), cls:'cv1'},
+    {t:'p', html:esc(proj.no || ''), cls:'cv2'},
+    {t:'space', h:22},
+    {t:'p', html:'TECHNICAL SPECIFICATIONS', cls:'cv3'},
+    {t:'p', html:esc(divTitle), cls:'cv4'},
+    {t:'space', h:20},
+    ...table(null, [
+      ['Client', esc(proj.client || '')], ['Consultant', esc(proj.consultant || '')],
+      ['Location', esc([proj.city, T.COUNTRY].filter(Boolean).join(', '))],
+      ['Stage', esc(stageName || '')], ['Revision', esc(rev)], ['Date', esc(meta.date || '')], ['Status', status],
+    ].map(r => [`<b>${r[0]}</b>`, r[1]]), [30, 70]),
+    {t:'pb'},
+    {t:'h2', text:'DOCUMENT CONTROL'},
+    ...table(['Rev', 'Date', 'Stage', 'Prepared', 'Checked', 'Approved', 'Status'],
+      [[esc(rev), esc(meta.date || ''), esc(stageName || ''), esc(meta.calcBy || '—'), esc(meta.checkedBy || '—'), esc(meta.reviewedBy || '—'), status]],
+      [8, 15, 17, 15, 15, 15, 15]),
+    {t:'h2', text:'SIGN-OFF RECORD'},
+    ...table(['Role', 'Name', 'Date'], [
+      ['Prepared by (Engineer)', esc(nm(meta.calcBy)), esc(meta.calcDate || '')],
+      ['Checked by (Lead)', esc(nm(meta.checkedBy)), esc(closure.lead_signed_at ? fmtDay(closure.lead_signed_at) : '')],
+      ['Approved by (Associate / Approver)', esc(nm(meta.reviewedBy)), esc(closure.closed_at ? fmtDay(closure.closed_at) : '')],
+    ], [40, 40, 20]),
+    {t:'h2', text:'PROJECT DESIGN BASIS'},
+    ...table(null, PF_FIELDS.map(([, k, t]) => [`<b>${esc(t)}</b>`, (proj.pf || {})[k] ? esc(proj.pf[k]) : `<span class="unres">[${k}]</span>`]), [40, 60]),
+  ];
+  const sys = [];
+  sysGroups().filter(g => g.div === div).forEach(g => g.items.forEach(i => {
+    if (i.dep && !evalCond(i.dep, opts)) return; const v = opts[i.k];
+    if (!i.type && !v) return; if (i.type === 'sel' && v === 'none') return; if (i.type && (v === '' || v === undefined)) return;
+    sys.push([esc(g.grp), esc(i.t), i.type ? esc(T[i.k]) : 'Yes']);
+  }));
+  if (sys.length) fm.push({t:'h2', text:'SYSTEMS INCLUDED'}, ...table(['Group', 'Item', 'Selection'], sys, [28, 42, 30]));
+  fm.push({t:'pb'}, {t:'h1', text:'Table Of Contents'});
+  secs.forEach(S => fm.push({t:'toc', text:`SECTION ${fmtNum(S.num)} – ${String(S.title).toUpperCase()}`, ref:'doc:' + S.num}));
+  if (evalCond('annex_a', opts)) fm.push({t:'toc', ind:true, text:'ANNEXURE A – LIST OF MANUFACTURERS & SUPPLIERS', ref:'doc:A'});
+  if (evalCond('annex_b', opts)) fm.push({t:'toc', ind:true, text:'ANNEXURE B – ' + annexBTitle(div), ref:'doc:B'});
+  docs.push({key:'front', label:'Cover, document control and contents', f1:divFooter, f2:'Table of Contents', rev:revLine, blocks:fm});
+  // Sections
+  secs.forEach(S => {
+    const body = parseBlocks(ctx.bodyOf(S), S.num);
+    const toc = [];
+    body.forEach(b => { if (b.t === 'part') toc.push({t:'ctoc', lvl:0, text:b.text, ref:b.id}); if (b.t === 'art') toc.push({t:'ctoc', lvl:1, no:b.no, text:b.text, ref:b.id}); });
+    docs.push({key:S.num, label:`${fmtNum(S.num)} ${titleCase(S.title)}`, f1:'Section ' + fmtNum(S.num), f2:titleCase(S.title), rev:revLine,
+      blocks:[{t:'stitle', text:`SECTION ${fmtNum(S.num)} – ${String(S.title).toUpperCase()}`}, ...toc, {t:'pb'}, ...body, {t:'eos', text:'END OF SECTION ' + fmtNum(S.num)}]});
+  });
+  // Annexure A
+  if (evalCond('annex_a', opts)) {
+    const rows = ctx.annexA || [];
+    const bl = [{t:'stitle', text:'ANNEXURE A – LIST OF MANUFACTURERS & SUPPLIERS'}, {t:'p', html:`<b>${esc(divTitle)}</b>`},
+      ...ANNEX_A_NOTES.map((x, i) => ({t:'cl', lvl:0, lbl:clauseLbl(0, i), html:esc(x)})), {t:'space', h:3}];
+    if (rows.length) bl.push(...table(['Section', 'Item / scope', 'Manufacturers'], rows.map(r => [`<b>${esc(fmtNum(r.sec))}</b><br>${esc(titleCase(r.title))}`, esc(r.item), r.tbc ? `<span class="unres tbc">[${esc(r.makers || 'TBC')} – vendor list TBC]</span>` : esc(r.makers)]), [26, 30, 44]));
+    else bl.push({t:'p', html:'No manufacturer list entries for the selected systems.'});
+    bl.push({t:'eos', text:'END OF ANNEXURE A'});
+    docs.push({key:'A', label:'Annexure A – Manufacturers & Suppliers', f1:'Annexure A', f2:'List of Manufacturers & Suppliers', rev:revLine, blocks:bl});
+  }
+  if (evalCond('annex_b', opts)) {
+    const body = parseBlocks(ctx.annexBHtml, 'B');
+    docs.push({key:'B', label:'Annexure B – Spare parts', f1:'Annexure B', f2:titleCase(annexBTitle(div)), rev:revLine,
+      blocks:[{t:'stitle', text:'ANNEXURE B – ' + annexBTitle(div)}, ...body, {t:'eos', text:'END OF ANNEXURE B'}]});
+  }
+  return {div, divTitle, docs, draft:closure.status !== 'closed', status};
+}
+
+// ── Block → HTML ───────────────────────────────────────────────────────────
+function blockHTML(b, P) {
+  const pg = r => P ? P(r) : '';
+  switch (b.t) {
+    case 'stitle': return `<div class="b stitle">${esc(b.text)}</div>`;
+    case 'part': return `<div class="b pt">${esc(b.text)}</div>`;
+    case 'art': return `<div class="b ar"><span>${esc(b.no)}</span>${esc(b.text)}</div>`;
+    case 'cl': return `<div class="b l${b.lvl}"><span>${esc(b.lbl)}</span>${b.html}</div>`;
+    case 'eos': return `<div class="b eos">${esc(b.text)}</div>`;
+    case 'ctoc': return b.lvl ? `<div class="b ctoc a"><span class="n">${esc(b.no)}</span><span class="t">${esc(b.text)}</span><span class="pn">${pg(b.ref)}</span></div>`
+                              : `<div class="b ctoc p"><span class="t">${esc(b.text)}</span><span class="pn">${pg(b.ref)}</span></div>`;
+    case 'toc': return `<div class="b toc${b.ind ? ' ind' : ''}"><span class="t">${esc(b.text)}</span><span class="dots"></span><span class="pn">${pg(b.ref)}</span></div>`;
+    case 'h1': return `<div class="b h1">${esc(b.text)}</div>`;
+    case 'h2': return `<div class="b h2">${esc(b.text)}</div>`;
+    case 'p': return `<div class="b p ${b.cls || ''}">${b.html}</div>`;
+    case 'space': return `<div class="b" style="height:${b.h}mm"></div>`;
+    case 'trow': return `<div class="b trow${b.head ? ' head' : ''}">${b.cells.map((c, i) => `<div style="width:${b.widths[i]}%">${c}</div>`).join('')}</div>`;
+    default: return '';
+  }
+}
+const KEEP = {stitle:1, part:1, art:1, h1:1, h2:1};
+
+// ── Pagination (A4, mm based so screen, PDF and Word share one layout) ─────
+function layoutBook(book) {
+  const box = document.createElement('div');
+  box.className = 'sd'; box.style.cssText = 'position:absolute;left:-10000px;top:0;width:170mm;visibility:hidden';
+  const cap = document.createElement('div'); cap.style.height = '242mm'; box.appendChild(cap);
+  const all = [];
+  book.docs.forEach(d => d.blocks.forEach(b => { if (b.t !== 'pb') all.push(b); }));
+  box.insertAdjacentHTML('beforeend', all.map(b => `<div style="display:flow-root">${blockHTML(b, () => '000')}</div>`).join(''));
+  document.body.appendChild(box);
+  const CAP = cap.getBoundingClientRect().height - 12;   // small reserve so Word never overflows a PDF page
+  const kids = box.children; all.forEach((b, i) => { b._h = kids[i + 1].getBoundingClientRect().height; });
+  document.body.removeChild(box);
+  const pages = [], pos = {};
+  book.docs.forEach(d => {
+    const dp = []; let cur = null, rem = 0;
+    const heads = {};
+    const newPage = () => { cur = {doc:d, blocks:[]}; dp.push(cur); rem = CAP; };
+    newPage();
+    const bl = d.blocks;
+    for (let i = 0; i < bl.length; i++) {
+      const b = bl[i];
+      if (b.t === 'pb') { newPage(); continue; }
+      if (b.t === 'trow' && b.head) heads[b.tid] = b;
+      let need = b._h;
+      if (KEEP[b.t]) { let j = i + 1; while (j < bl.length && KEEP[bl[j].t]) { need += bl[j]._h; j++; } if (j < bl.length && bl[j].t !== 'pb') need += Math.min(bl[j]._h, 60); }
+      if (b.t === 'trow' && b.head && i + 1 < bl.length && bl[i + 1].tid === b.tid) need += bl[i + 1]._h;
+      if (b.t === 'eos' && need > rem && cur.blocks.length > 1) {   // keep END OF SECTION with the last clause
+        const last = cur.blocks.pop(); rem += last._h; newPage(); cur.blocks.push(last); rem -= last._h; if (last.id) pos[last.id] = {dp:dp.length};
+      } else if (need > rem && cur.blocks.length) {
+        newPage();
+        if (b.t === 'trow' && !b.head && heads[b.tid]) { cur.blocks.push(heads[b.tid]); rem -= heads[b.tid]._h; }
+      }
+      cur.blocks.push(b); rem -= b._h;
+      if (b.id) pos[b.id] = {dp:dp.length};
+    }
+    dp.forEach((p, i) => { p.dp = i + 1; p.dn = dp.length; p.bp = pages.length + i + 1; });
+    pos['doc:' + d.key] = {dp:1, bp:pages.length + 1};
+    pages.push(...dp);
+  });
+  return {pages, pos, total:pages.length};
+}
+
+function PageHTML({page, book, logos}) {
+  const d = page.doc;
+  const P = r => { const x = book.layout.pos[r]; if (!x) return ''; return r.startsWith('doc:') ? x.bp : x.dp; };
+  const html = page.blocks.map(b => blockHTML(b, P)).join('');
+  return <div className="spg">
+    {book.draft && <div className="spg-wm">DRAFT</div>}
+    <div className="spg-h"><span>{logos.client ? <img className="c" src={logos.client} alt=""/> : <i className="spg-nologo">Client logo</i>}</span><img className="m" src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/></div>
+    <div className="spg-b sd" dangerouslySetInnerHTML={{__html:html}}/>
+    <div className="spg-f"><div className="ln"/>
+      <div className="row"><div>{d.f1}<br/>{d.f2}</div><div className="r">Page {page.dp} of {page.dn}<br/><small>{d.rev}</small></div></div></div>
+  </div>;
+}
+function BookPreview({book, logos, jump, onPage}) {
+  const ref = useRef(null); const [w, setW] = useState(900);
+  useEffect(() => { const el = ref.current; if (!el) return; const f = () => setW(el.clientWidth); f(); const ro = new ResizeObserver(f); ro.observe(el); return () => ro.disconnect(); }, []);
+  useEffect(() => {
+    if (!onPage) return; let raf = 0, last = -1;
+    const f = () => { cancelAnimationFrame(raf); raf = requestAnimationFrame(() => {
+      const els = document.querySelectorAll('.spg-anchor'); const mid = window.innerHeight * 0.35; let k = 0;
+      els.forEach((el, i) => { if (el.getBoundingClientRect().top <= mid) k = i; });
+      if (k !== last) { last = k; onPage(k); }
+    }); };
+    window.addEventListener('scroll', f, {passive:true}); f();
+    return () => { window.removeEventListener('scroll', f); cancelAnimationFrame(raf); };
+  }, [onPage, book]);
+  useEffect(() => { if (jump == null) return; const el = document.getElementById('spg-' + jump); if (el) el.scrollIntoView({behavior:'smooth', block:'start'}); }, [jump]);
+  const PW = 794, sc = Math.min(1, (w - 8) / PW);
+  return <div ref={ref} className="book-wrap">
+    <div className="book-scale" style={{transform:`scale(${sc})`, width:PW, height:book.layout.total * (1123 + 30) * sc}}>
+      {book.layout.pages.map((p, i) => <div key={i} id={'spg-' + i} className="spg-anchor"><PageHTML page={p} book={book} logos={logos}/></div>)}
+    </div>
+  </div>;
+}
+
+// ── Word (.docx) ───────────────────────────────────────────────────────────
+function loadImg(src) { return new Promise((res, rej) => { const im = new Image(); im.onload = () => res(im); im.onerror = rej; im.src = src; }); }
+async function pngOf(src, maxW = 900) {
+  const im = await loadImg(src);
+  let w = im.naturalWidth || 600, h = im.naturalHeight || 200; if (w > maxW) { h = h * maxW / w; w = maxW; }
+  const c = document.createElement('canvas'); c.width = Math.round(w); c.height = Math.round(h);
+  c.getContext('2d').drawImage(im, 0, 0, c.width, c.height);
+  const b64 = c.toDataURL('image/png').split(',')[1], bin = atob(b64), u = new Uint8Array(bin.length);
+  for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return {data:u, w:c.width, h:c.height};
+}
+function watermarkPng() {
+  const c = document.createElement('canvas'); c.width = 1100; c.height = 1100; const g = c.getContext('2d');
+  g.translate(550, 550); g.rotate(-Math.PI / 4.5); g.fillStyle = 'rgba(220,40,40,0.13)'; g.font = '900 230px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText('DRAFT', 0, 0);
+  const bin = atob(c.toDataURL('image/png').split(',')[1]), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+  return u;
+}
+async function buildDocx(book, docKeys, logos) {
+  const D = window.docx;
+  if (!D) throw new Error('Word library did not load. Check the internet connection and reload the page.');
+  const {Document, Packer, Paragraph, TextRun, ImageRun, Header, Footer, Table, TableRow, TableCell, WidthType, BorderStyle, AlignmentType, TabStopType, PageNumber, ShadingType} = D;
+  const W = 9638, MM = 56.7, FONT = 'Arial';
+  const X = pt => ({line:Math.round(pt * 1.32 * 20), lineRule:'exact'});   // same line pitch as the PDF layout
+  const mlogo = await pngOf(MEINHARDT_LOGO_SRC); const clogo = logos.client ? await pngOf(logos.client).catch(() => null) : null;
+  const wm = book.draft ? watermarkPng() : null;
+  const sz = (lg, hpx) => ({width:Math.round(lg.w * hpx / lg.h), height:hpx});
+  const runs = (html, base = {}) => {
+    const out = [], root = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html').body.firstChild;
+    const walk = (n, st) => {
+      if (n.nodeType === 3) { const t = n.textContent.replace(/\u00a0/g, ' '); if (t) out.push(new TextRun({text:t, font:FONT, ...base, ...st})); return; }
+      if (n.nodeType !== 1) return;
+      if (n.tagName === 'BR') { out.push(new TextRun({break:1, font:FONT, ...base})); return; }
+      const s = {...st}; if (/^(B|STRONG)$/.test(n.tagName)) s.bold = true; if (/^(I|EM)$/.test(n.tagName)) s.italics = true;
+      if (/\bunres\b/.test(n.className || '')) s.color = 'B42318';
+      n.childNodes.forEach(c => walk(c, s));
+    };
+    root.childNodes.forEach(c => walk(c, {}));
+    return out;
+  };
+  const P = r => { const x = book.layout.pos[r]; if (!x) return ''; return String(r.startsWith('doc:') ? x.bp : x.dp); };
+  const L = {0:[15, 9], 1:[23, 8], 2:[31, 8], 3:[39, 8]};
+  const none = {style:BorderStyle.NONE, size:0, color:'FFFFFF'};
+  const cellB = c => ({top:c, bottom:c, left:c, right:c});
+  const thin = {style:BorderStyle.SINGLE, size:4, color:'888888'};
+  const para = (b, brk) => {
+    const pb = brk ? {pageBreakBefore:true} : {};
+    switch (b.t) {
+      case 'stitle': return new Paragraph({...pb, spacing:{after:198, line:Math.round(12.5 * 1.25 * 20), lineRule:'exact'}, children:[new TextRun({text:b.text, bold:true, size:25, font:FONT})]});
+      case 'part': return new Paragraph({...pb, spacing:{before:227, after:85, ...X(11)}, children:[new TextRun({text:b.text, bold:true, size:22, font:FONT})]});
+      case 'art': return new Paragraph({...pb, spacing:{before:147, after:57, ...X(10)}, indent:{left:Math.round(15 * MM), hanging:Math.round(15 * MM)}, children:[new TextRun({text:b.no + '\t' + b.text, size:20, font:FONT})]});
+      case 'cl': { const [l, hg] = L[b.lvl] || L[0]; return new Paragraph({...pb, spacing:{before:28, after:40, ...X(10)}, indent:{left:Math.round(l * MM), hanging:Math.round(hg * MM)}, children:[new TextRun({text:(b.lbl || '') + '\t', size:20, font:FONT}), ...runs(b.html, {size:20})]}); }
+      case 'eos': return new Paragraph({...pb, alignment:AlignmentType.CENTER, spacing:{before:340, ...X(10)}, children:[new TextRun({text:b.text, bold:true, size:20, font:FONT})]});
+      case 'ctoc': return b.lvl
+        ? new Paragraph({...pb, spacing:{before:14, after:14, ...X(9.5)}, tabStops:[{type:TabStopType.LEFT, position:227}, {type:TabStopType.LEFT, position:Math.round(20 * MM)}, {type:TabStopType.RIGHT, position:W}], children:[new TextRun({text:`\t${b.no}\t${b.text}\t${P(b.ref)}`, size:19, font:FONT})]})
+        : new Paragraph({...pb, spacing:{before:71, after:14, ...X(10.5)}, tabStops:[{type:TabStopType.RIGHT, position:W}], children:[new TextRun({text:`${b.text}\t${P(b.ref)}`, size:21, bold:true, font:FONT})]});
+      case 'toc': return new Paragraph({...pb, spacing:{before:74, after:74, ...X(10)}, indent:b.ind ? {left:Math.round(8 * MM)} : undefined, tabStops:[{type:TabStopType.RIGHT, position:W, leader:'dot'}], children:[new TextRun({text:`${b.text}\t${P(b.ref)}`, size:20, font:FONT})]});
+      case 'h1': return new Paragraph({...pb, spacing:{before:57, after:340, ...X(22)}, children:[new TextRun({text:b.text, size:44, color:'1F4E8C', font:FONT})]});
+      case 'h2': return new Paragraph({...pb, spacing:{before:283, after:113, ...X(11)}, children:[new TextRun({text:b.text, bold:true, size:22, font:FONT})]});
+      case 'p': { const big = {cv1:[40, true], cv2:[24, false], cv3:[32, true], cv4:[26, true]}[b.cls]; return new Paragraph({...pb, alignment:big ? AlignmentType.CENTER : undefined, spacing:{before:57, after:57, ...X(big ? big[0] / 2 : 10)}, children:runs(b.html, {size:big ? big[0] : 20, bold:big ? big[1] : undefined})}); }
+      case 'space': return new Paragraph({...pb, spacing:{before:Math.round(b.h * MM)}, children:[]});
+      default: return new Paragraph({children:[]});
+    }
+  };
+  const tableOf = rows => new Table({width:{size:W, type:WidthType.DXA}, columnWidths:rows[0].widths.map(p => Math.round(W * p / 100)),
+    rows:rows.map(r => new TableRow({tableHeader:!!r.head, cantSplit:true, children:r.cells.map((c, i) => new TableCell({width:{size:Math.round(W * r.widths[i] / 100), type:WidthType.DXA}, borders:cellB(thin),
+      shading:r.head ? {type:ShadingType.CLEAR, color:'auto', fill:'E8EDF3'} : undefined, margins:{top:62, bottom:62, left:102, right:102},
+      children:[new Paragraph({spacing:X(9), children:runs(c, {size:18, bold:r.head || undefined})})]}))}))});
+  const header = () => new Header({children:[new Paragraph({spacing:{line:240, lineRule:'auto'}, tabStops:[{type:TabStopType.RIGHT, position:W}], border:{bottom:{style:BorderStyle.SINGLE, size:10, color:'000000', space:4}},
+    children:[
+      ...(clogo ? [new ImageRun({type:'png', data:clogo.data, transformation:sz(clogo, 42)})] : [new TextRun({text:' ', font:FONT})]),
+      new TextRun({text:'\t', font:FONT}),
+      new ImageRun({type:'png', data:mlogo.data, transformation:sz(mlogo, 28)}),
+      ...(wm ? [new ImageRun({type:'png', data:wm, transformation:{width:620, height:620}, floating:{horizontalPosition:{relative:'page', align:'center'}, verticalPosition:{relative:'page', align:'center'}, behindDocument:true, allowOverlap:true}})] : []),
+    ]})]});
+  const footer = d => new Footer({children:[new Table({width:{size:W, type:WidthType.DXA}, columnWidths:[Math.round(W * .35), Math.round(W * .35), Math.round(W * .30)], borders:{top:none, bottom:none, left:none, right:none, insideHorizontal:none, insideVertical:none},
+    rows:[
+      new TableRow({height:{value:60, rule:'exact'}, children:[
+        new TableCell({columnSpan:3, borders:{...cellB(none), top:{style:BorderStyle.SINGLE, size:10, color:'000000'}}, children:[new Paragraph({spacing:{line:40, lineRule:'exact'}, children:[new TextRun({text:'', size:2})]})]}),
+      ]}),
+      new TableRow({children:[
+        new TableCell({columnSpan:2, borders:cellB(none), children:[new Paragraph({spacing:{line:240, lineRule:'auto'}, children:[new TextRun({text:d.f1, size:18, font:FONT})]}), new Paragraph({spacing:{line:240, lineRule:'auto'}, children:[new TextRun({text:d.f2, size:18, font:FONT})]})]}),
+        new TableCell({borders:cellB(none), children:[
+          new Paragraph({spacing:{line:240, lineRule:'auto'}, alignment:AlignmentType.RIGHT, children:[new TextRun({children:['Page ', PageNumber.CURRENT, ' of ', PageNumber.TOTAL_PAGES_IN_SECTION], size:18, font:FONT})]}),
+          new Paragraph({spacing:{line:240, lineRule:'auto'}, alignment:AlignmentType.RIGHT, children:[new TextRun({text:d.rev, size:14, color:'555555', font:FONT})]})]}),
+      ]}),
+    ]})]});
+  const sections = book.docs.filter(d => !docKeys || docKeys.includes(d.key)).map(d => {
+    // Word follows the PDF pagination exactly: every PDF page starts a new Word page,
+    // so the contents and Table of Contents page numbers are correct in both.
+    const children = []; let brk = false, tbl = null;
+    const flush = () => { if (tbl) { children.push(tableOf(tbl)); tbl = null; } };
+    book.layout.pages.filter(p => p.doc === d).forEach((pg, k) => {
+      flush(); brk = k > 0;
+      pg.blocks.forEach(b => {
+        if (b.t === 'trow') { if (tbl && tbl[0].tid !== b.tid) flush(); if (!tbl) { if (brk) { children.push(new Paragraph({pageBreakBefore:true, spacing:{line:20, lineRule:'exact', before:0, after:0}, children:[]})); brk = false; } tbl = []; } tbl.push(b); return; }
+        flush(); children.push(para(b, brk)); brk = false;
+      });
+    });
+    flush();
+    return {properties:{page:{size:{width:11906, height:16838}, margin:{top:Math.round(30 * MM), bottom:Math.round(25 * MM), left:Math.round(20 * MM), right:Math.round(20 * MM), header:Math.round(10 * MM), footer:Math.round(9 * MM)}, pageNumbers:{start:1}}},
+      headers:{default:header()}, footers:{default:footer(d)}, children};
+  });
+  const doc = new Document({creator:'Meinhardt MEP Specifications', title:book.divTitle, styles:{default:{document:{run:{font:FONT, size:20}, paragraph:{spacing:{line:264, lineRule:'exact'}}}}}, sections});
+  return await Packer.toBlob(doc);
+}
+function saveBlob(blob, name) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800); }
+
+// ── Systems groups (by Division) ───────────────────────────────────────────
+function grpDiv(g) {
+  if (g.grp === ISSUE_GRP) return 'X';
+  if (/fire|suppress|sprinkler|standpipe|hydrant|extinguish/i.test(g.grp) || g.items.some(i => /^fp_/.test(i.k))) return '21';
+  if (/hvac|chiller|air[- ]|duct|ventilat/i.test(g.grp)) return '23';
+  return '22';
+}
+function sysGroups() {
+  const out = [], issue = {grp:ISSUE_GRP, items:[]};
+  OPTS.forEach(g => {
+    const items = g.items.filter(i => !ISSUE_KEYS.includes(i.k));
+    if (items.length && g.grp !== ISSUE_GRP) { const ng = {...g, items}; ng.div = grpDiv(ng); out.push(ng); }
+  });
+  ISSUE_KEYS.forEach(k => { if (OPTMAP[k]) issue.items.push(OPTMAP[k]); });
+  const order = {'21':1, '22':2, '23':3};
+  out.sort((a, b) => (order[a.div] || 9) - (order[b.div] || 9));
+  issue.div = 'X'; out.push(issue);
+  return out;
+}
+const DIV_LABEL = d => d === 'X' ? 'Issue documents' : `Division ${d}${DIVNAMES[d] ? ' – ' + DIVNAMES[d] : ''}`;
+
 function Modal({title, onClose, children, wide}) {
   return <div className="ai-back" onClick={onClose}><div className="ai-modal" style={{width:wide?'min(960px,96vw)':'min(620px,94vw)',maxHeight:'90vh',overflow:'auto'}} onClick={e=>e.stopPropagation()}>
     <div style={{display:'flex',alignItems:'center',gap:8,marginBottom:8}}><h3 style={{flex:1}}>{title}</h3><button className="ai-x" onClick={onClose} style={{width:28,height:28,border:0,background:'#f5f5f7',borderRadius:7,cursor:'pointer'}}>✕</button></div>
@@ -1146,60 +1565,12 @@ function Chip({k, children}) { return <span className={`status-chip ${k}`}>{chil
 function DocView({html, editable, onChange, docKey}) {
   const ref = useRef(null);
   useEffect(() => { if (ref.current && document.activeElement !== ref.current) ref.current.innerHTML = html; }, [html, docKey]);
-  return <div ref={ref} className="spec-doc spec-edit" contentEditable={!!editable} suppressContentEditableWarning spellCheck
+  return <div ref={ref} className="spec-doc spec-edit sd" contentEditable={!!editable} suppressContentEditableWarning spellCheck
     onInput={e => onChange && onChange(e.currentTarget.innerHTML)} />;
 }
 
 // ── Issue sheet (screen + print) ───────────────────────────────────────────
-function SpecIssueSheet({proj, stageName, meta, sec, body}) {
-  const c = closureOf(meta), closed = c.status === 'closed';
-  const cells = [
-    ['Revision', meta.revision || '01'], ['Stage', stageName || '—'],
-    ['Prepared / Date', (meta.calcBy || '—') + (meta.calcDate ? ' · ' + meta.calcDate : '')],
-    ['Checked / Approved', (meta.checkedBy || '—') + ' / ' + (meta.reviewedBy || '—')],
-  ];
-  const wm = closed ? null : 'DRAFT — NOT FOR ISSUE · ' + stageStatusLabel(meta).toUpperCase();
-  return <section className="issue-sheet calc-page spec-sheet">
-    {wm && <div className="issue-draft-band">{wm}</div>}
-    {wm && <div className="issue-watermark" aria-hidden="true">DRAFT</div>}
-    <div className="issue-header">
-      <div className="issue-logos">
-        <img className="mep-meinhardt-logo" src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/>
-        {proj.clientLogo ? <img className="mep-client-issue-logo" src={proj.clientLogo} alt="Client logo"/> : <span className="issue-client-label">Client logo not uploaded</span>}
-      </div>
-      <div>
-        <div className="issue-band">Project <span className="issue-band-value">{proj.name || '—'}{proj.no ? ' · ' + proj.no : ''}</span></div>
-        <div className="issue-band">{sec.num === '00' ? 'Document' : 'Section ' + sec.num} <span className="issue-band-value">{sec.title}</span></div>
-        <div className="issue-meta-grid">{cells.map((x,i) => <div key={i}><span>{x[0]}</span><b>{x[1]}</b></div>)}</div>
-      </div>
-    </div>
-    <div className="spec-doc spec-body" dangerouslySetInnerHTML={{__html: body}}/>
-    {closed && <div className="issue-closure">ISSUED · Lead sign-off {c.lead_signed_by || '—'}{c.lead_signed_at ? ' (' + fmtDay(c.lead_signed_at) + ')' : ''} · Approver sign-off {c.mep_lead_signed_by || '—'}{c.closed_at ? ' (' + fmtDay(c.closed_at) + ')' : ''}</div>}
-  </section>;
-}
-function coverBody(proj, state, secs) {
-  const T = tokens(proj, state.opts), divs = [...new Set(secs.map(S => S.div))];
-  const rows = [['Client', proj.client], ['Consultant', proj.consultant], ['Location', [proj.city, T.COUNTRY].filter(Boolean).join(', ')], ['Project no.', proj.no]];
-  const sys = [];
-  OPTS.forEach(g => g.items.forEach(i => { if (i.dep && !evalCond(i.dep, state.opts)) return; const v = state.opts[i.k]; if (!i.type && !v) return; if (i.type === 'sel' && v === 'none') return; if (i.type && (v === '' || v === undefined)) return; sys.push([g.grp, i.t, i.type ? T[i.k] : 'Yes']); }));
-  return `<p class="sh" style="font-size:15pt;margin-top:24px">TECHNICAL SPECIFICATIONS</p><p class="stl">${divs.map(d => 'DIVISION ' + d + (DIVNAMES[d] ? ' – ' + DIVNAMES[d].toUpperCase() : '')).join(' &amp; ')}</p>`
-    + `<table class="t">${rows.map(r => `<tr><th style="width:30%">${r[0]}</th><td>${esc(r[1] || '')}</td></tr>`).join('')}</table>`
-    + `<p class="pt">PROJECT DESIGN BASIS</p><table class="t">${PF_FIELDS.map(([g,k,t]) => `<tr><th style="width:40%">${t}</th><td>${(proj.pf||{})[k] ? esc(proj.pf[k]) : '<span class="unres">[' + k + ']</span>'}</td></tr>`).join('')}</table>`
-    + `<p class="pt">SYSTEMS INCLUDED</p><table class="t"><tr><th>Group</th><th>Item</th><th>Selection</th></tr>${sys.map(r => `<tr><td>${esc(r[0])}</td><td>${esc(r[1])}</td><td>${esc(r[2])}</td></tr>`).join('')}</table>`
-    + `<p class="pt">TABLE OF CONTENTS</p><table class="t"><tr><th style="width:22%">Section</th><th>Title</th></tr>${secs.map(S => `<tr><td>${esc(S.num)}</td><td>${esc(S.title)}</td></tr>`).join('')}</table>`;
-}
-function wordPack(proj, stageName, meta, parts) {
-  const c = closureOf(meta), draft = c.status !== 'closed';
-  const body = parts.map((p, i) => {
-    const hdr = `<table class="h"><tr><td class="logo" rowspan="3"><b>MEINHARDT</b></td><td class="band" colspan="4">PROJECT: ${esc(proj.name || '')}${proj.no ? ' · ' + esc(proj.no) : ''}</td></tr>`
-      + `<tr><td class="band" colspan="4">${p.num === '00' ? 'DOCUMENT' : 'SECTION ' + esc(p.num)} — ${esc(String(p.title).toUpperCase())}</td></tr>`
-      + `<tr><td><b>Revision</b><br>${esc(meta.revision || '01')}</td><td><b>Stage</b><br>${esc(stageName || '')}</td><td><b>Prepared</b><br>${esc(meta.calcBy || '—')}</td><td><b>Checked / Approved</b><br>${esc(meta.checkedBy || '—')} / ${esc(meta.reviewedBy || '—')}</td></tr></table>`;
-    return (i ? '<br style="page-break-before:always" clear="all">' : '') + (draft ? '<p class="draft">DRAFT — NOT FOR ISSUE</p>' : '') + hdr + p.body;
-  }).join('');
-  return `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>${esc(proj.name || 'Specification')}</title><style>${SPEC_CSS}</style></head><body>${body}</body></html>`;
-}
 
-// ── Project access (members) ───────────────────────────────────────────────
 function SpecProjectAccess({projectId, team, roles, session, canManage}) {
   const [members, setMembers] = useState([]); const [email, setEmail] = useState(''); const [role, setRole] = useState('reviewer'); const [msg, setMsg] = useState('');
   const roleNames = {admin:'Admin', engineer:'Engineer', lead:'Lead', associate:'Associate', viewer:'Viewer'};
@@ -1223,12 +1594,15 @@ function SpecProjectAccess({projectId, team, roles, session, canManage}) {
 // ══════════════════════════════════════════════════════════════════════════
 // PROJECT WORKSPACE
 // ══════════════════════════════════════════════════════════════════════════
+
 function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const projectId = projectRow.id, userId = session.user.id;
   const [proj, setProj] = useState(() => ({name:projectRow.name, ...(projectRow.project || {})}));
   const [stages, setStages] = useState([]); const [stageId, setStageId] = useState(null); const [ready, setReady] = useState(false);
   const [state, setState] = useState(blankState()); const [meta, setMeta] = useState(EMPTY_META);
-  const [tab, setTab] = useState('setup'); const [cur, setCur] = useState(null); const [pick, setPick] = useState('00');
+  const [tab, setTab] = useState('setup'); const [cur, setCur] = useState(null); const [pick, setPick] = useState('front');
+  const [bookDiv, setBookDiv] = useState(null); const [jump, setJump] = useState(null); const [busyX, setBusyX] = useState(''); const [viewPg, setViewPg] = useState(0);
+  const [sysGrp, setSysGrp] = useState(0); const [sysQ, setSysQ] = useState('');
   const [q, setQ] = useState(''); const [saveStatus, setSaveStatus] = useState('saved'); const [manualSave, setManualSave] = useState('');
   const [sidebarOpen, setSidebarOpen] = useState(false); const [logoMsg, setLogoMsg] = useState('');
   const email = (session.user.email || '').toLowerCase();
@@ -1309,28 +1683,38 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const T = useMemo(() => tokens(viewProj, vOpts), [viewProj, vOpts]);
   const included = useMemo(() => {
     if (locked && Array.isArray(viewState.issued_list)) return viewState.issued_list;
-    return LIB.filter(S => evalCond(S.cond, vOpts) && !viewState.excl[S.num]);
+    return LIB.filter(S => !isAnnexNum(S.num) && evalCond(S.cond, vOpts) && !viewState.excl[S.num]);
   }, [vOpts, viewState, locked]);
-  const candidates = useMemo(() => LIB.filter(S => evalCond(S.cond, vOpts)), [vOpts]);
+  const candidates = useMemo(() => LIB.filter(S => !isAnnexNum(S.num) && evalCond(S.cond, vOpts)), [vOpts]);
+  const libSecs = LIB.filter(S => !isAnnexNum(S.num)).length;
+  const divs = useMemo(() => [...new Set(included.map(S => S.div))].sort(), [included]);
+  const frozenAnnex = locked && viewState.issued_annex ? viewState.issued_annex : null;
+  const annexA = useCallback(d => frozenAnnex && frozenAnnex.A && frozenAnnex.A[d] ? frozenAnnex.A[d] : annexARowsLive(included.filter(S => S.div === d), vOpts), [frozenAnnex, included, vOpts]);
+  const annexBHtml = useCallback(d => frozenAnnex && frozenAnnex.B && frozenAnnex.B[d] !== undefined ? frozenAnnex.B[d] : genSection(annexBSection(d), vOpts, T, 'ANNEXURE B – ' + annexBTitle(d)), [frozenAnnex, vOpts, T]);
   const bodyOf = useCallback(S => {
     if (locked && viewState.issued_html && viewState.issued_html[S.num] !== undefined) return viewState.issued_html[S.num];
     if (viewState.edits[S.num]) return viewState.edits[S.num];
     const L = LIB.find(x => x.num === S.num); return L ? genSection(L, vOpts, T) : '<p>Section no longer in the library.</p>';
   }, [locked, viewState, vOpts, T]);
-  const health = useMemo(() => {
+  const health0 = useMemo(() => {
     let rev = 0, ed = 0, unres = 0, tbc = 0;
     included.forEach(S => { const h = bodyOf(S); if (viewState.reviewed[S.num]) rev++; if (viewState.edits[S.num]) ed++; unres += unresCount(h); tbc += tbcCount(h); });
     return {n:included.length, rev, ed, unres, tbc};
   }, [included, bodyOf, viewState]);
-  const coverUnres = unresCount(coverBody(viewProj, viewState, included));
+  const annexTbc = useMemo(() => evalCond('annex_a', vOpts) ? divs.reduce((a, d) => a + annexA(d).filter(r => r.tbc).length, 0) : 0, [divs, annexA, vOpts]);
+  const health = {...health0, tbc:health0.tbc + annexTbc, unres:health0.unres + annexTbc};
+  const coverUnres = PF_FIELDS.filter(([, k]) => !String((viewProj.pf || {})[k] || '').trim()).length;
   const stageReady = health.n > 0 && health.rev === health.n && health.unres === 0 && coverUnres === 0;
-  const blockReason = !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s) in the sections.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
+  const blockReason = !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s)${annexTbc ? ` (${annexTbc} in Annexure A)` : ''}.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
   useEffect(() => { if (!cur || !included.find(S => S.num === cur)) setCur(included[0] ? included[0].num : null); }, [included]);
 
   const setOpt = (k, v) => !locked && setState(s => ({...s, opts:{...s.opts, [k]:v}}));
   const toggleExcl = (num, inc) => !locked && setState(s => { const e = {...s.excl}; if (inc) delete e[num]; else e[num] = 1; return {...s, excl:e}; });
   const setReviewed = (num, v) => !locked && setState(s => { const r = {...s.reviewed}; if (v) r[num] = 1; else delete r[num]; return {...s, reviewed:r}; });
   const setEdit = (num, html) => !locked && setState(s => ({...s, edits:{...s.edits, [num]:html}}));
+  const isOldFmt = num => { const e = viewState.edits[num]; return !!e && (!/class="stitle"/.test(e) || !/>MANUFACTURERS</.test(e.split(/PART 2/i)[1] || '') ); };
+  const oldFmt = included.filter(S => isOldFmt(S.num)).map(S => S.num);
+  const regenOld = () => { if (locked || !oldFmt.length) return; if (!window.confirm(`Regenerate ${oldFmt.length} section(s) edited in the old format from the library?\n\n${oldFmt.join(', ')}\n\nProject edits in these sections will be discarded.`)) return; setState(s => { const e = {...s.edits}, r = {...s.reviewed}; oldFmt.forEach(n => { delete e[n]; delete r[n]; }); return {...s, edits:e, reviewed:r}; }); };
   const discardEdit = num => { if (locked || !window.confirm('Discard project edits for ' + num + ' and regenerate from the library?')) return; setState(s => { const e = {...s.edits}; delete e[num]; return {...s, edits:e}; }); };
   const setPf = (k, v) => !locked && setProj(p => ({...p, pf:{...(p.pf || {}), [k]:v}}));
   const loadLocation = () => { if (locked) return; if (Object.keys(proj.pf || {}).length && !window.confirm('Replace the design-basis fields with the defaults for ' + proj.city + '?')) return; setProj(p => ({...p, pf:profileFor(p.country, p.city)})); };
@@ -1354,8 +1738,8 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     if (!window.confirm(`Lead sign-off for Rev ${meta.revision || '01'}?\n\nThe specification text is frozen as it is now, and the stage is locked until the Associate / Approver signs or returns it.`)) return;
     const issued_html = {}, issued_list = included.map(S => ({num:S.num, title:S.title, div:S.div}));
     included.forEach(S => { issued_html[S.num] = bodyOf(S); });
-    issued_html['00'] = coverBody(proj, state, included);
-    const frozen = {...state, issued_html, issued_list};
+    const issued_annex = {A:{}, B:{}}; divs.forEach(d => { issued_annex.A[d] = annexA(d); issued_annex.B[d] = annexBHtml(d); });
+    const frozen = {...state, issued_html, issued_list, issued_annex};
     try { await flushProject(); await flushStage(frozen, meta); } catch (e) { return alert('Save failed before sign-off: ' + (e.message || e)); }
     setState(frozen);
     await wfCall('spec_wf_submit', {}, 'Lead sign-off failed');
@@ -1365,10 +1749,22 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const reopenStage = async () => { const r = window.prompt('Reopen this closed stage as a new revision?\n\nReason (required):', ''); if (r === null) return; if (!r.trim()) return alert('A reason is required.'); await wfCall('spec_wf_reopen', {p_reason:r.trim()}, 'Reopen failed'); };
 
   // ── exports ──
-  const packParts = () => [{num:'00', title:'COVER, DESIGN BASIS AND CONTENTS', body: locked && viewState.issued_html && viewState.issued_html['00'] ? viewState.issued_html['00'] : coverBody(viewProj, viewState, included)}, ...included.map(S => ({num:S.num, title:S.title, body:bodyOf(S)}))];
   const fileBase = x => ((viewProj.no || 'PRJ') + '_' + (stageName || '') + '_' + x + '_Rev' + (meta.revision || '01') + (closure.status === 'closed' ? '' : '_DRAFT')).replace(/[^\w\-]+/g, '_');
-  const exportWord = async () => { try { await flushProject(); await flushStage(); } catch (e) {} downloadBlob(wordPack(viewProj, stageName, meta, packParts()), fileBase('Specifications') + '.doc', 'application/msword'); };
-  const exportWordOne = () => { const p = packParts().find(x => x.num === pick); if (p) downloadBlob(wordPack(viewProj, stageName, meta, [p]), fileBase(p.num) + '.doc', 'application/msword'); };
+  const makeBook = d => { const bk = buildBook({div:d, proj:viewProj, meta, stageName, opts:vOpts, T, secs:included.filter(S => S.div === d), bodyOf, annexA:annexA(d), annexBHtml:annexBHtml(d), closure, team}); bk.layout = layoutBook(bk); return bk; };
+  const curDiv = divs.includes(bookDiv) ? bookDiv : divs[0];
+  const book = useMemo(() => (tab === 'issue' && curDiv) ? makeBook(curDiv) : null, [tab, curDiv, viewProj, meta, stageName, vOpts, T, included, bodyOf, annexA, annexBHtml, closure, team]);
+  const logos = {client:viewProj.clientLogo || ''};
+  const exportDocx = async (d, keys, tag) => {
+    setBusyX('Building Word file…');
+    try { try { await flushProject(); await flushStage(); } catch (e) {}
+      const bk = d === curDiv && book ? book : makeBook(d);
+      const blob = await buildDocx(bk, keys, logos);
+      saveBlob(blob, fileBase('Div' + d + (tag ? '_' + tag : '')) + '.docx'); setBusyX('');
+    } catch (e) { setBusyX(''); alert('Word export failed: ' + (e.message || e)); }
+  };
+  const printDiv = d => { setBookDiv(d); setTab('issue'); setTimeout(() => window.print(), 600); };
+  const onViewPage = useCallback(k => { setViewPg(k); const p = book && book.layout.pages[k]; if (p && p.doc.key !== pick) setPick(p.doc.key); }, [book, pick]);
+  useEffect(() => { const el = document.querySelector('.calcpick-item.on'); if (el && el.scrollIntoView) el.scrollIntoView({block:'nearest'}); }, [pick]);
 
   if (!ready) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#86868b',fontSize:13}}>Loading project…</div>;
   const ordered = [...stages].sort((a,b) => (a.sort_order||0) - (b.sort_order||0)), latest = ordered[ordered.length - 1];
@@ -1403,9 +1799,12 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
           <a href="pump.html" className="sbx-applink"><span className="ic">▥</span><span className="tx">Pump Calculator</span><span className="pill">↗</span></a>
         </nav>
         {tab === 'issue' && <><div className="sbx-label">Export</div><div className="sbx-export">
-          <button className="xl2" onClick={exportWordOne}>↓ Word — current sheet</button>
-          <button className="xl" onClick={exportWord}>↓ Word — full specification</button>
-          <button className="pdf" onClick={() => window.print()}>▣ Print / PDF — all {included.length + 1}</button>
+          {book && <button className="xl2" disabled={!!busyX} onClick={() => exportDocx(curDiv, [pick], pick)}>↓ Word — current document</button>}
+          {divs.map(d => <React.Fragment key={d}>
+            <button className="xl" disabled={!!busyX} onClick={() => exportDocx(d, null, '')}>↓ Word — Division {d}</button>
+            <button className="pdf" disabled={!!busyX} onClick={() => printDiv(d)}>▣ PDF — Division {d}</button>
+          </React.Fragment>)}
+          {busyX && <div className="sbx-msg" style={{color:'#007aff'}}>{busyX}</div>}
         </div></>}
       </div>
       <div className="sbx-foot">
@@ -1417,7 +1816,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     <div className={`sidebar-backdrop no-print ${sidebarOpen ? 'open' : ''}`} onClick={() => setSidebarOpen(false)}/>
     <main className="pump-main">
       <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={() => setSidebarOpen(true)}>☰</button><div className="pump-mobile-title">{proj.name || 'Specification'} <span className="mobile-stage">{stageName || ''}</span></div><div className="pump-mobile-save">{saveStatus === 'saving' ? 'Saving…' : 'Saved'}</div></div>
-      <div className="app-content sidebar-content" style={{maxWidth:tab === 'sections' ? 1560 : 1180, margin:'0 auto'}}>
+      <div className={'app-content sidebar-content' + (tab === 'issue' ? ' issue-content' : '')} style={{maxWidth:tab === 'sections' || tab === 'systems' ? 1560 : 1180, margin:'0 auto'}}>
         {locked && tab !== 'issue' && <div className="no-print" style={{marginBottom:12,padding:'9px 11px',background:'#fff4e0',border:'1px solid #fed7aa',borderRadius:8,fontSize:11,color:'#9a3412'}}>This stage is {stageStatusLabel(meta).toLowerCase()}. Selections and text are read-only; the issued text is frozen. Only an administrator can reopen a closed stage.</div>}
 
         {tab === 'setup' && <div className="setup-card no-print"><fieldset disabled={locked} style={{border:0,padding:0,margin:0,minWidth:0}}>
@@ -1454,19 +1853,49 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
           <details className="setup-more"><summary>Project review access</summary><div style={{marginTop:10}}><SpecProjectAccess projectId={projectId} team={team} roles={roles} session={session} canManage={isAdmin || projectRow.user_id === userId}/></div></details>
         </fieldset></div>}
 
-        {tab === 'systems' && <div className="no-print">
-          <div className="schedule-context" style={{marginBottom:10}}><div><div className="schedule-eyebrow">Stage 2 · {stageName}</div><div className="schedule-title">Systems and options</div><div className="schedule-subtitle">Selections decide which sections, clauses, materials and manufacturers go into the specification.</div></div>
-            {!locked && <button className="schedule-action" onClick={() => { if (window.confirm('Reset all selections to the library defaults?')) setState(s => ({...s, opts:defaultOpts()})); }}>Reset to defaults</button>}</div>
-          <fieldset disabled={locked} style={{border:0,padding:0,margin:0,minWidth:0}}><div className="spec-optcols">{[0,1,2].map(col => <div key={col}>{OPTS.filter(g => Math.min(Math.max(+g.col || 0, 0), 2) === col).map(g => <div key={g.grp} className="pf-sec" style={{marginBottom:10,background:'#fff'}}>
-            <h5 style={{marginBottom:6}}>{g.grp}</h5>
-            {g.items.map(i => { const en = !i.dep || evalCond(i.dep, state.opts), v = state.opts[i.k]; return <div key={i.k} className={'spec-opt' + (en ? '' : ' dis')} style={{paddingLeft:(i.sub || 0) * 18}}>
-              {!i.type ? <label style={{display:'flex',gap:8,alignItems:'center',cursor:'pointer',fontSize:'11.5px!important'}}><input type="checkbox" disabled={!en} checked={!!v} onChange={e => setOpt(i.k, e.target.checked)}/><span className="spec-opt-t">{i.t}</span></label>
-              : <><span className="spec-opt-t">{i.t}</span>{i.type === 'sel' ? <select disabled={!en} value={v ?? ''} onChange={e => setOpt(i.k, e.target.value)}>{(i.o || []).map(x => { const [a, b] = Array.isArray(x) ? x : [x, x]; return <option key={a} value={a}>{b}</option>; })}</select> : <input type={i.type === 'num' ? 'number' : 'text'} disabled={!en} value={v ?? ''} onChange={e => setOpt(i.k, e.target.value)}/>}</>}
-            </div>; })}
-          </div>)}</div>)}</div></fieldset>
-          <div className="schedule-card" style={{marginTop:6}}><div className="schedule-card-head"><div><h2>Resulting sections</h2><p>{candidates.length} of {LIB.length} library sections selected by these options</p></div></div>
-            <div style={{padding:12,display:'flex',flexWrap:'wrap',gap:6}}>{candidates.map(S => <span key={S.num} className="method-chip" style={{fontSize:10,padding:'4px 8px'}}><b style={{marginRight:5}}>{S.num}</b>{S.title}{S.cond ? ' · P' : ' · G'}</span>)}</div></div>
-        </div>}
+        {tab === 'systems' && (() => {
+          const G = sysGroups(), gi = Math.min(sysGrp, G.length - 1), g = G[gi];
+          const shown = i => !i.dep || evalCond(i.dep, state.opts);
+          const isOn = i => !i.type && !!state.opts[i.k];
+          const changed = i => JSON.stringify(state.opts[i.k]) !== JSON.stringify(optDefault(i));
+          const q = sysQ.trim().toLowerCase();
+          const list = q ? G.flatMap(x => x.items.filter(i => (i.t + ' ' + x.grp).toLowerCase().includes(q)).map(i => ({i, grp:x.grp}))) : g.items.map(i => ({i}));
+          const chips = []; G.forEach(x => x.items.forEach(i => { if (i.type === 'sel' && shown(i) && state.opts[i.k] && state.opts[i.k] !== 'none') chips.push(i.t + ': ' + T[i.k]); }));
+          const row = ({i, grp}) => !shown(i) ? null : <div key={i.k} className={'sys-row' + (i.sub ? ' sub' : '')} style={{paddingLeft:12 + (i.sub || 0) * 22}}>
+            <div className="sys-t">{i.t}{grp && <small>{grp}</small>}</div>
+            {!i.type ? <label className="sw"><input type="checkbox" disabled={locked} checked={!!state.opts[i.k]} onChange={e => setOpt(i.k, e.target.checked)}/><span/></label>
+            : i.type === 'sel' ? <select disabled={locked} value={state.opts[i.k] ?? ''} onChange={e => setOpt(i.k, e.target.value)}>{(i.o || []).map(x => { const [a, b] = Array.isArray(x) ? x : [x, x]; return <option key={a} value={a}>{b}</option>; })}</select>
+            : <input disabled={locked} type={i.type === 'num' ? 'number' : 'text'} value={state.opts[i.k] ?? ''} onChange={e => setOpt(i.k, e.target.value)}/>}
+          </div>;
+          let lastDiv = null;
+          return <div className="no-print">
+            <div className="sys-top">
+              <div><div className="schedule-eyebrow">Stage 2 · {stageName}</div><div className="schedule-title">Systems and options</div></div>
+              <input className="piw-search" style={{maxWidth:280}} value={sysQ} onChange={e => setSysQ(e.target.value)} placeholder="Search options (e.g. pump)"/>
+              <div className="sys-count">{candidates.length} of {libSecs} library sections selected — <a href="#" onClick={e => { e.preventDefault(); setTab('sections'); }}>View sections →</a></div>
+              {!locked && <button className="schedule-action" onClick={() => { if (window.confirm('Reset all selections to the library defaults?')) setState(s => ({...s, opts:defaultOpts()})); }}>Reset to defaults</button>}
+            </div>
+            {chips.length > 0 && <div className="sys-chips">{chips.slice(0, 16).map((c, k) => <span key={k}>{c}</span>)}</div>}
+            <div className="sys-wrap">
+              <aside className="piw-list sys-list"><div className="piw-items">
+                {G.map((x, k) => { const sw = x.items.filter(i => !i.type && shown(i)); const on = sw.filter(isOn).length; const head = x.div !== lastDiv; lastDiv = x.div;
+                  return <React.Fragment key={x.grp}>{head && <div className="spec-div">{DIV_LABEL(x.div)}</div>}
+                    <div className={'piw-item' + (!q && k === gi ? ' on' : '')} onClick={() => { setSysGrp(k); setSysQ(''); }}>
+                      <span className="piw-txt"><b>{x.grp}</b><em>{sw.length ? `${on} of ${sw.length} on` : `${x.items.length} setting${x.items.length === 1 ? '' : 's'}`}</em></span>
+                      {x.items.some(changed) && <span className="sys-dot" title="Changed from defaults"/>}
+                    </div></React.Fragment>; })}
+              </div></aside>
+              <section className="piw-form">
+                <div className="piw-form-head"><div className="piw-form-title">{q ? <b>Search results ({list.length})</b> : <><span className="piw-chip">{DIV_LABEL(g.div)}</span><b>{g.grp}</b></>}</div>
+                  {!q && <div className="piw-nav"><button disabled={gi <= 0} onClick={() => setSysGrp(gi - 1)}>‹</button><span>{gi + 1} / {G.length}</span><button disabled={gi >= G.length - 1} onClick={() => setSysGrp(gi + 1)}>›</button></div>}</div>
+                <fieldset disabled={locked} style={{border:0,padding:0,margin:0,minWidth:0}}>
+                  {list.length ? list.map(row) : <div className="piw-empty">No options match.</div>}
+                </fieldset>
+                {!q && g.div === 'X' && <div style={{fontSize:10,color:'#86868b',marginTop:10,lineHeight:1.5}}>Annexure A lists the manufacturers for the selected systems, per Division. Every section's 2.1 MANUFACTURERS refers to it; when Annexure A is not issued, the second wording is used. Annexure B text is edited in Library › Sections (entries "21 9998", "22 9998").</div>}
+              </section>
+            </div>
+          </div>;
+        })()}
 
         {tab === 'sections' && <div className="no-print">
           <div className="schedule-health" style={{marginBottom:10}}>
@@ -1478,13 +1907,14 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
           </div>
           <div className="piw" style={{gridTemplateColumns:'270px minmax(0,1fr)'}}>
             <aside className="piw-list">
-              <div className="piw-list-head"><div className="piw-h"><b>Sections</b><span>{included.length}</span></div><input className="piw-search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search number or title"/></div>
+              <div className="piw-list-head"><div className="piw-h"><b>Sections</b><span>{included.length}</span></div><input className="piw-search" value={q} onChange={e => setQ(e.target.value)} placeholder="Search number or title"/>
+                {oldFmt.length > 0 && !locked && <button onClick={regenOld} style={{marginTop:8,width:'100%',border:'1px solid #f5c27a',background:'#fff4e0',color:'#a76200',borderRadius:8,padding:'6px 8px',fontSize:10.5,fontWeight:800,cursor:'pointer'}}>↺ Regenerate old-format sections ({oldFmt.length})</button>}</div>
               <div className="piw-items">
                 {filtered.map((S, i) => { const h = bodyOf(S), u = unresCount(h); const showDiv = i === 0 || filtered[i - 1].div !== S.div; return <React.Fragment key={S.num}>
                   {showDiv && <div className="spec-div">Division {S.div}{DIVNAMES[S.div] ? ' – ' + DIVNAMES[S.div] : ''}</div>}
                   <div className={'piw-item' + (cur === S.num ? ' on' : '')} onClick={() => setCur(S.num)} title={S.title}>
                     <input type="checkbox" checked disabled={locked} onClick={e => e.stopPropagation()} onChange={() => toggleExcl(S.num, false)} title="Untick to exclude this section"/>
-                    <span className="piw-txt"><b>{S.title}</b><em>{S.num}{viewState.edits[S.num] ? ' · edited' : ''}</em></span>
+                    <span className="piw-txt"><b>{S.title}</b><em>{S.num}{viewState.edits[S.num] ? ' · edited' : ''}</em>{isOldFmt(S.num) && <span className="status-chip review" style={{marginTop:3,alignSelf:'flex-start'}}>old format</span>}</span>
                     {u ? <Chip k="blocked">{u}</Chip> : viewState.reviewed[S.num] ? <Chip k="pass">✓</Chip> : <Chip k="draft">–</Chip>}
                   </div></React.Fragment>; })}
                 {notIncluded.length > 0 && <div className="spec-div">Excluded</div>}
@@ -1511,13 +1941,16 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
         </div>}
 
         {tab === 'issue' && <div>
-          <div className="calc-export-bar no-print"><div className="calc-export-note">{closure.status === 'closed' ? 'Stage issued — sheets show the frozen text and the sign-off record.' : 'Stage not closed — every sheet carries a DRAFT watermark until Lead and Approver sign-off are complete.'}{!stageReady && closure.status === 'draft' && <><br/><b style={{color:'#a76200'}}>Not ready for sign-off: {blockReason}</b></>}</div></div>
-          <div className="calcwrap">
-            <div className="calcpick no-print">{packParts().map((p, i) => <button key={p.num} onClick={() => setPick(p.num)} className={'calcpick-item' + (pick === p.num ? ' on' : '')}><span className="calcpick-no">{i}</span><span className="calcpick-body"><b>{p.title}</b><span>{p.num === '00' ? 'Cover' : p.num}</span></span></button>)}</div>
-            <div className="calcsplit">{packParts().map(p => { const sel = pick === p.num; return <div key={p.num} className={(sel ? 'calcsplit-pane' : 'screen-hide') + ' calc-page'}>
-              <PrintPreview active={sel} measureKey={sel ? p.body.length + (meta.revision || '') + closure.status : p.num}><SpecIssueSheet proj={viewProj} stageName={stageName} meta={meta} sec={p} body={p.body}/></PrintPreview>
-            </div>; })}</div>
-          </div>
+          <div className="calc-export-bar no-print"><div className="calc-export-note">{closure.status === 'closed' ? 'Stage issued — pages show the frozen text and the sign-off record.' : 'Stage not closed — every page carries a DRAFT watermark until Lead and Approver sign-off are complete.'} One book per Division: cover, document control, contents, sections, then annexures.{!stageReady && closure.status === 'draft' && <><br/><b style={{color:'#a76200'}}>Not ready for sign-off: {blockReason}</b></>}</div></div>
+          {!book ? <div className="piw-empty big no-print">No sections included.</div> : <div className="calcwrap">
+            <div className="calcpick no-print">
+              {divs.length > 1 && <div className="pf-seg" style={{marginBottom:6}}>{divs.map(d => <button key={d} className={d === curDiv ? 'on' : ''} onClick={() => { setBookDiv(d); setPick('front'); }}>Div {d}</button>)}</div>}
+              {book.docs.map((d, i) => { const first = book.layout.pages.findIndex(p => p.doc === d); const n = book.layout.pages.filter(p => p.doc === d).length;
+                return <button key={d.key} onClick={() => { setPick(d.key); setJump(first + 0.0001 * Math.random()); }} className={'calcpick-item' + (pick === d.key ? ' on' : '')}><span className="calcpick-no">{first + 1}</span><span className="calcpick-body"><b>{d.label}</b><span>{pick === d.key && book.layout.pages[viewPg] && book.layout.pages[viewPg].doc === d ? `page ${book.layout.pages[viewPg].dp} of ${n}` : `${n} page${n === 1 ? '' : 's'}`}</span></span></button>; })}
+              <div style={{fontSize:10,color:'#86868b',padding:'4px 2px'}}>{book.layout.total} pages · Division {curDiv}</div>
+            </div>
+            <div className="book-print"><BookPreview book={book} logos={logos} jump={jump == null ? null : Math.floor(jump)} onPage={onViewPage}/></div>
+          </div>}
         </div>}
       </div>
     </main>
@@ -1527,6 +1960,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
 // ══════════════════════════════════════════════════════════════════════════
 // LIBRARY ADMIN — sections, items, vendors, options, locations
 // ══════════════════════════════════════════════════════════════════════════
+
 const ITEM_FIELDS = [['code','Code'],['section_num','Section no.'],['grp','Group'],['item','Item'],['material','Material / option'],['rating','Rating / class'],['jointing','Jointing'],['standards','Standards'],['application','Application / limits'],['include_when','Include when (blank = always)'],['status','Status',['Verified','Draft','TBC']],['source','Source'],['sort','Sort','num'],['active','Active','bool']];
 const VEN_FIELDS = [['code','Code'],['section_num','Section no.'],['item','Item / scope'],['makers','Manufacturers (separate with ;)'],['include_when','Include when (blank = always)'],['status','Status',['Verified','Draft','TBC']],['source','Source'],['sort','Sort','num'],['active','Active','bool']];
 const OPT_FIELDS = [['key','Key'],['grp','Group'],['col','Screen column (0-2)','num'],['label','Label'],['type','Type (blank = checkbox, sel, num, txt)'],['choices','Choices (JSON)','json'],['default_value','Default (JSON)','json'],['dep','Enabled when (condition)'],['sub','Indent level','num'],['sort','Sort','num'],['active','Active','bool']];
@@ -1596,7 +2030,7 @@ function SectionEditor({S, onClose, onSaved, canEdit, who}) {
     <div style={{fontSize:10,color:'#86868b',margin:'8px 0'}}>Format: <code># PART 1 GENERAL</code> · <code>= ARTICLE</code> · <code>- paragraph</code> (2 spaces per sub-level) · line prefix <code>[if:key]</code>, <code>[if:a|b]</code>, <code>[if:a&amp;b]</code>, <code>[if:key=value]</code> · fields <code>{'{{CD}} {{WATER}} {{V3}}'}</code>. Numbering is automatic.</div>
     <div style={{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}}>
       <textarea disabled={!canEdit} value={f.body} onChange={e => setF({...f, body:e.target.value})} spellCheck={false} style={{...inp,height:'52vh',fontFamily:'ui-monospace,Menlo,Consolas,monospace',fontSize:11.5,whiteSpace:'pre'}}/>
-      <div className="spec-doc spec-edit" style={{height:'52vh',overflow:'auto'}} dangerouslySetInnerHTML={{__html:preview}}/>
+      <div className="spec-doc spec-edit sd" style={{height:'52vh',overflow:'auto'}} dangerouslySetInnerHTML={{__html:preview}}/>
     </div>
     {unknown.length > 0 && <div className="ai-msg bad" style={{marginTop:8}}>Unknown option key(s): {unknown.join(', ')} — add them under Project options or those clauses will never be included.</div>}
     {msg && <div className="ai-msg bad" style={{marginTop:8}}>{msg}</div>}
@@ -1640,11 +2074,15 @@ function LibraryAdmin({onBack, canEdit, who}) {
           <input value={f} onChange={e => setF(e.target.value)} placeholder="Filter…"/>
           {(tab === 'items' || tab === 'vendors') && <select value={stat} onChange={e => setStat(e.target.value)}><option value="">All status</option><option>Verified</option><option>Draft</option><option>TBC</option></select>}
           <span className="toolbar-spacer"/>
+          {canEdit && tab === 'sections' && (() => { const miss = [...new Set(LIB.filter(S => !isAnnexNum(S.num)).map(S => S.div))].filter(d => !LIB.find(x => x.num === `${d} 9998`));
+            return miss.length ? <button className="schedule-action" onClick={async () => { if (!window.confirm('Add Annexure B (spare parts) entries for Division ' + miss.join(', ') + ' to the library? You can edit the text afterwards.')) return;
+              const {error} = await sb.from('spec_sections').upsert(miss.map(d => ({num:`${d} 9998`, title:annexBTitle(d), division:d, include_when:null, body:ANNEX_B_BODY(d), sort:99980 + (+d), active:true, updated_by:who})), {onConflict:'num'});
+              if (error) setMsg('Could not add: ' + error.message); else reload(); }}>＋ Annexure B entries ({miss.join(', ')})</button> : null; })()}
           {canEdit && <button className="schedule-action" onClick={() => setEdit(tab === 'sections' ? {sec:null} : {row:tab === 'items' ? {code:'IT-' + String((rows.items || []).length + 1).padStart(4, '0'), status:'Draft', active:true} : tab === 'vendors' ? {code:'VN-' + String((rows.vendors || []).length + 1).padStart(3, '0'), status:'Draft', active:true} : {active:true}, isNew:true})}>＋ New</button>}
         </div>
         <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 230px)'}}>
           {tab === 'sections' ? <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels"><th>Section</th><th>Title</th><th>Class</th><th>Included when</th><th>Clauses</th><th>Last change</th><th></th></tr></thead><tbody>
-            {LIB.filter(S => !f || (S.num + ' ' + S.title).toLowerCase().includes(f.toLowerCase())).map(S => { const cl = S.parts.reduce((a, P) => a + P.arts.reduce((b, A) => b + A.items.length, 0), 0); const unk = condKeys(S.cond).filter(k => !OPTMAP[k]); return <tr key={S.num} onClick={() => setEdit({sec:S})}><td className="tag-code">{S.num}</td><td>{S.title}</td><td>{S.cond ? <Chip k="review">Project-specific</Chip> : <Chip k="pass">General</Chip>}</td><td style={{fontSize:10}}>{condLabel(S.cond) || 'every project'}{unk.length ? <div style={{color:'#d8332b'}}>unknown key: {unk.join(', ')}</div> : null}</td><td className="num">{cl}</td><td style={{fontSize:10}}>{S.updated ? fmtDay(S.updated) + ' ' + (S.by || '') : ''}</td><td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>; })}
+            {LIB.filter(S => !f || (S.num + ' ' + S.title).toLowerCase().includes(f.toLowerCase())).map(S => { const cl = S.parts.reduce((a, P) => a + P.arts.reduce((b, A) => b + A.items.length, 0), 0); const unk = condKeys(S.cond).filter(k => !OPTMAP[k]); return <tr key={S.num} onClick={() => setEdit({sec:S})}><td className="tag-code">{S.num}</td><td>{S.title}</td><td>{isAnnexNum(S.num) ? <Chip k="draft">Annexure B</Chip> : S.cond ? <Chip k="review">Project-specific</Chip> : <Chip k="pass">General</Chip>}{hasLibMfrArticle(S) && !isAnnexNum(S.num) ? <div style={{fontSize:9,color:'#a76200',marginTop:3}} title="2.1 MANUFACTURERS is generated automatically">Own MANUFACTURERS article ignored</div> : null}</td><td style={{fontSize:10}}>{condLabel(S.cond) || 'every project'}{unk.length ? <div style={{color:'#d8332b'}}>unknown key: {unk.join(', ')}</div> : null}</td><td className="num">{cl}</td><td style={{fontSize:10}}>{S.updated ? fmtDay(S.updated) + ' ' + (S.by || '') : ''}</td><td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>; })}
             {(rows.inactive || []).length > 0 && <tr><td colSpan={7} style={{background:'#f5f5f7',fontSize:10,fontWeight:800}}>DEACTIVATED ({rows.inactive.length}) — open and save to restore</td></tr>}
             {(rows.inactive || []).map(r => <tr key={'x' + r.num} style={{opacity:.55}} onClick={async () => { const {data} = await sb.from('spec_sections').select('*').eq('num', r.num).single(); setEdit({sec:sectionFromRow(data)}); }}><td className="tag-code">{r.num}</td><td>{r.title}</td><td><Chip k="draft">Inactive</Chip></td><td colSpan={3}/><td><button className="schedule-action">Open</button></td></tr>)}
           </tbody></table>
@@ -1757,6 +2195,7 @@ function RootApp() {
   return <SpecHome session={session} me={me} isAdmin={isAdmin} roles={roles} canEditLib={canEditLib} onOpen={r => setOpen(r)} onOpenLibrary={() => setScreen('library')}/>;
 }
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp/>);
+
 
 </script>
 </body>
