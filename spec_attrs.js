@@ -40,7 +40,11 @@
     var groups = React.useMemo(function () { var g = {}; rows.forEach(function (r) { (g[r.item] = g[r.item] || []).push(r); }); return g; }, [rows]);
     var nCheck = ROWS.filter(function (r) { return r.status === 'Check'; }).length;
     var btn = {padding:'6px 12px', background:'#fff', color:'#424245', border:'1px solid #d2d2d7', borderRadius:8, fontSize:11, fontWeight:700, cursor:'pointer'};
-    var card = function (l, v, n, k) { return h('div', {className:'health-card ' + (k || 'capacity'), style:{cursor:'default'}}, h('div', {className:'h-label'}, l), h('div', {className:'h-value'}, v), h('div', {className:'h-note'}, n)); };
+    var setAll = function (f) { setItem(f.item || ''); setKind(f.kind || ''); setSt(f.status || ''); setQ(''); setOpen({}); };
+    var isOn = function (f) { return (f.item || '') === item && (f.kind || '') === kind && (f.status || '') === st && !q; };
+    var card = function (l, v, n, k, f) { var on = isOn(f); return h('div', {className:'health-card ' + (k || 'capacity'), onClick:function () { setAll(on ? {} : f); }, title:on ? 'Click to show all' : 'Click to show these rows',
+      style:{cursor:'pointer', outline:on ? '2px solid #007aff' : 'none', outlineOffset:1, transform:on ? 'translateY(-1px)' : 'none'}}, h('div', {className:'h-label'}, l), h('div', {className:'h-value'}, v), h('div', {className:'h-note'}, n)); };
+    var filtered = !!(item || kind || st || q);
     return h('div', {className:'global-page', style:{minHeight:'100vh', background:'#f5f5f7'}},
       h('div', {className:'app-header'}, h('div', {style:{maxWidth:1400, margin:'0 auto', display:'flex', justifyContent:'space-between', alignItems:'center', gap:12}},
         h('div', null, h('div', {style:{fontSize:9, letterSpacing:'.15em', textTransform:'uppercase', color:'#86868b', fontWeight:800}}, 'MEP Specifications'), h('div', {style:{fontSize:19, fontWeight:800, letterSpacing:'-.03em'}}, 'Item attributes')),
@@ -50,11 +54,14 @@
         !LOADED ? h('div', {className:'ai-msg bad'}, 'Item attributes are not set up yet' + (ERR ? ' (' + ERR + ')' : '') + '. Run spec_item_attrs_schema.sql, then spec_item_attrs_seed_valves.sql, in Supabase SQL Editor.') :
         h('div', null,
           h('div', {className:'schedule-health', style:{marginBottom:10}},
-            card('Attributes', ROWS.length, items.length + ' item groups'),
-            card('Verified', ROWS.length - nCheck, 'text read in the cited source', 'pass'),
-            card('To check', nCheck, 'conflicting or unclear - decide first', nCheck ? 'review' : 'pass'),
-            card('From your specs', ROWS.filter(function (r) { return r.kind !== 'Manufacturer'; }).length, 'your own specifications'),
-            card('Manufacturer data', ROWS.filter(function (r) { return r.kind !== 'Your spec'; }).length, 'reference only, per product')),
+            card('Attributes', ROWS.length, items.length + ' item groups - click to show all', 'capacity', {}),
+            card('Verified', ROWS.length - nCheck, 'source says this - click to show', 'pass', {status:'Verified'}),
+            card('To check', nCheck, 'conflicting or unclear - click to see what to decide', nCheck ? 'review' : 'pass', {status:'Check'}),
+            card('From your specs', ROWS.filter(function (r) { return r.kind === 'Your spec'; }).length, 'taken from your own specifications', 'capacity', {kind:'Your spec'}),
+            card('Manufacturer data', ROWS.filter(function (r) { return r.kind === 'Manufacturer'; }).length, 'reference only, per product', 'capacity', {kind:'Manufacturer'})),
+          filtered && h('div', {style:{display:'flex', alignItems:'center', gap:10, margin:'0 0 8px', padding:'7px 12px', background:st === 'Check' ? '#fff4e0' : '#eef4ff', border:'1px solid ' + (st === 'Check' ? '#f5c27a' : '#cfe0ff'), borderRadius:8, fontSize:12, color:'#424245'}},
+            h('span', {style:{flex:1}}, h('b', null, rows.length + ' of ' + ROWS.length + ' attributes'), ' shown' + (st === 'Check' ? '. Each amber note under the options says what to decide. Your answers go on the "To decide" sheet.' : '.')),
+            h('button', {className:'schedule-action', onClick:function () { setAll({}); }}, 'Show all')),
           h('div', {className:'schedule-card'},
             h('div', {className:'schedule-toolbar'},
               h('input', {value:q, onChange:function (e) { setQ(e.target.value); }, placeholder:'Search attribute, option, standard, source'}),
@@ -69,13 +76,13 @@
               Object.keys(groups).length === 0 ? h('div', {className:'empty-schedule'}, 'No attributes match.') :
               Object.keys(groups).map(function (name) {
                 var list = groups[name];
-                var isOpen = open[name] !== undefined ? open[name] : !!(item || q), nc = list.filter(function (r) { return r.status === 'Check'; }).length;
+                var isOpen = open[name] !== undefined ? open[name] : filtered, nc = list.filter(function (r) { return r.status === 'Check'; }).length;
                 return h('div', {key:name, style:{borderBottom:'1px solid #e8e8ed'}},
                   h('div', {onClick:function () { var o = Object.assign({}, open); o[name] = !isOpen; setOpen(o); }, style:{display:'flex', alignItems:'center', gap:10, padding:'10px 14px', cursor:'pointer', background:isOpen ? '#f5f9ff' : '#fff'}},
                     h('span', {style:{width:14, fontSize:11, color:'#86868b'}}, isOpen ? '\u25BE' : '\u25B8'), h('b', {style:{fontSize:13, flex:1}}, name),
                     h('span', {style:{fontSize:10, color:'#86868b'}}, list.length + ' attributes'), nc ? h('span', {style:chipStyle('Check')}, nc + ' to check') : null),
                   isOpen && h('table', {className:'schedule-table', style:{minWidth:900, tableLayout:'auto'}},
-                    h('thead', null, h('tr', {className:'labels'}, ['Component', 'Attribute', 'Options / values', 'Standards', 'Where read', 'Status'].map(function (x, i) { return h('th', {key:i}, x); }))),
+                    h('thead', null, h('tr', {className:'labels'}, ['Component', 'Attribute', 'Options / values', 'Standards', 'Source', 'Status'].map(function (x, i) { return h('th', {key:i}, x); }))),
                     h('tbody', null, list.map(function (r) { return h('tr', {key:r.id, style:{cursor:'default'}},
                       h('td', {style:{fontSize:10.5, whiteSpace:'nowrap'}}, r.component),
                       h('td', {style:{fontWeight:700, minWidth:150}}, r.attribute, r.type ? h('div', {style:{fontSize:9, color:'#86868b', fontWeight:500}}, r.type) : null),
@@ -84,7 +91,7 @@
                       h('td', {style:{fontSize:10, maxWidth:150, whiteSpace:'normal'}}, r.standards),
                       h('td', {style:{fontSize:10, maxWidth:260, whiteSpace:'normal'}}, h('span', {style:kindStyle(r.kind)}, r.kind), h('div', {style:{marginTop:3}}, r.source)),
                       h('td', null, h('span', {style:chipStyle(r.status)}, r.status))); })))); })),
-            h('div', {style:{padding:'8px 12px', fontSize:10, color:'#86868b'}}, rows.length + ' of ' + ROWS.length + ' attributes shown. Read-only. Verified = the cited source says this. Check = conflicting or unclear, decide before use. Manufacturer rows describe that product only.')))));
+            h('div', {style:{padding:'8px 12px', fontSize:10, color:'#86868b'}}, rows.length + ' of ' + ROWS.length + ' attributes shown. Read-only. Verified = the source shown says this. Check = conflicting or unclear, decide before use. Manufacturer rows describe that product only. Click a box above to filter.')))));
   }
 
   function install() {
@@ -100,8 +107,8 @@
     }
     window.__specAttrsWrap = LibraryWithAttrs;
     (0, eval)('LibraryAdmin = window.__specAttrsWrap');
-    window.SPEC_ATTRS = {installed:true, version:'1.1'};
-    console.info('spec_attrs 1.1 installed');
+    window.SPEC_ATTRS = {installed:true, version:'1.2'};
+    console.info('spec_attrs 1.2 installed');
   }
   var tries = 0;
   var t = setInterval(function () {
