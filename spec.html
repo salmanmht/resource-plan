@@ -705,6 +705,28 @@
   @media screen and (max-width:700px){.lib-wrap{padding:12px}.lib-tabs{gap:14px}.lib-menu{min-width:260px}}
 </style>
 
+<style>
+  /* ── Selections (choices) ── */
+  .chx-card{background:#fff;border:1px solid #e1e1e6;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04);overflow:hidden}
+  .chx-head{display:flex;align-items:center;gap:10px;padding:11px 14px;cursor:pointer;flex-wrap:wrap}.chx-head:hover{background:#fafafb}
+  .chx-head b{font-size:13px;color:#1d1d1f}.chx-caret{width:12px;font-size:11px;color:#86868b}.chx-sub{font-size:10.5px;color:#86868b}
+  .chx-body{padding:4px 14px 14px;border-top:1px solid #f0f0f2}
+  .chx-note{font-size:11px;color:#8a4b00;background:#fff4e0;border-radius:8px;padding:7px 10px;margin:8px 0}.chx-note.red{color:#b42318;background:#fff0ee}
+  .chx-var{border:1px solid #e1e1e6;border-radius:10px;margin-top:10px;background:#fcfcfd}
+  .chx-vh{display:flex;gap:8px;align-items:center;padding:8px 10px;border-bottom:1px solid #ececf0;flex-wrap:wrap}
+  .chx-vh input{flex:1;min-width:220px;height:30px;padding:0 9px!important;font-size:12px!important}.chx-vh select{height:30px;padding:0 8px!important;font-size:11.5px!important}
+  .chx-t{width:100%;border-collapse:collapse}.chx-t td{padding:8px 10px;border-bottom:1px solid #f0f0f2;vertical-align:top;font-size:11.5px}.chx-t tr:last-child td{border-bottom:0}
+  .chx-l{width:190px;font-weight:700;color:#1d1d1f}.chx-s{min-width:340px}.chx-s select{width:100%;height:30px;padding:0 8px!important;font-size:12px!important}
+  .chx-b{width:54px}.chx-c{width:150px;white-space:nowrap}
+  .chx-lock{margin-left:6px;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:#e8f0fe;color:#1559a6;border-radius:5px;padding:1px 5px}
+  .chx-id{color:#6e6e73;font-size:11px;font-style:italic}
+  .chx-hint{font-size:10.5px;color:#6e6e73;margin-top:4px;line-height:1.4}.chx-hint.warn{color:#a76200}.chx-hint.bad{color:#d8332b;font-weight:700}
+  .chx-src{font-size:9.5px;color:#007aff;cursor:help;text-decoration:underline dotted}
+  .chx-oth{display:flex;flex-direction:column;gap:5px;margin-top:6px}.chx-oth input{height:30px;padding:0 9px!important;font-size:12px!important}
+  .chx-ok{border:1px solid #b7e4c7;background:#f0fbf4;color:#16803a;border-radius:7px;padding:4px 9px;font-size:10.5px;font-weight:800;cursor:pointer}
+  .chx-pr{border:1px solid #f5c27a;background:#fff4e0;color:#a76200;border-radius:7px;padding:4px 9px;font-size:10.5px;font-weight:800;cursor:pointer}
+  .chx-ok:disabled,.chx-pr:disabled{opacity:.55;cursor:not-allowed}
+</style>
 </head>
 <body>
 <div id="root"></div>
@@ -876,7 +898,7 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
   let leadBlock='';
   if (draft) {
     if (!logoReady) leadBlock='Client logo is required.';
-    else if (!valid) leadBlock='All sections must be reviewed, with no unresolved fields or TBC items.';
+    else if (!valid) leadBlock='All sections must be reviewed, with no unresolved fields or TBC items, and every choice chosen and confirmed.';
     else if (!preparer) leadBlock='Set "Prepared by" on Setup first.';
     else if (isDiscLead && preparer===myIni) leadBlock='You prepared this stage — another Lead must sign.';
   }
@@ -1036,7 +1058,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.5.0 · Build 2026.10.07.02";
+const BUILD_LABEL = "Spec v1.6.0 · Build 2026.10.07.03";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -1233,7 +1255,7 @@ function genSection(S, o, T, annex) {
 }
 const unresCount = html => (String(html).match(/class="unres/g) || []).length;
 const tbcCount = html => (String(html).match(/class="unres tbc"/g) || []).length;
-const blankState = () => ({opts:defaultOpts(), excl:{}, edits:{}, reviewed:{}});
+const blankState = () => ({opts:defaultOpts(), excl:{}, edits:{}, reviewed:{}, sel:{}});
 const NEW_SECTION_TEMPLATE = `# PART 1 GENERAL
 = SECTION INCLUDES
 - 
@@ -1751,7 +1773,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     const name = window.prompt('New stage name (e.g. Concept, SD, DD, Tender, IFC):', ''); if (!name) return;
     const copy = window.confirm(`Start "${name}" as a copy of the current stage selections and edits?\n\nOK = copy · Cancel = start from library defaults`);
     try { await flushStage(); } catch (e) {}
-    const st = copy ? {opts:{...viewState.opts}, excl:{...viewState.excl}, edits:{...viewState.edits}, reviewed:{}} : blankState();
+    const st = copy ? {opts:{...viewState.opts}, excl:{...viewState.excl}, edits:{...viewState.edits}, reviewed:{}, sel:JSON.parse(JSON.stringify(viewState.sel || {}))} : blankState();
     const mt = {...EMPTY_META, calcBy:meta.calcBy || '', revision:'01'};
     const maxSort = stages.reduce((m, s) => Math.max(m, s.sort_order || 0), -1);
     const {data, error} = await sb.from('spec_project_stages').insert({project_id:projectId, user_id:userId, stage_name:name, sort_order:maxSort + 1, state:st, meta:mt}).select('id,stage_name,sort_order').single();
@@ -1779,9 +1801,13 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     if (viewState.edits[S.num]) return viewState.edits[S.num];
     const L = LIB.find(x => x.num === S.num); return L ? genSection(L, vOpts, T) : '<p>Section no longer in the library.</p>';
   }, [locked, viewState, vOpts, T]);
-  if (window.SPEC_AUTO) SPEC_AUTO.excl = viewState.excl || {};
+  if (window.SPEC_AUTO) { SPEC_AUTO.excl = viewState.excl || {}; SPEC_AUTO.sel = viewState.sel || {}; SPEC_AUTO.dp = {plumbing:Number(viewProj.dpPlumb) || 0, fire:Number(viewProj.dpFire) || 0}; }
+  useEffect(() => () => { if (window.SPEC_AUTO) { SPEC_AUTO.sel = {}; SPEC_AUTO.dp = {}; } }, []);
+  const choiceStale = num => { const r = viewState.reviewed[num]; if (locked || !r) return false; const was = (typeof r === 'object' && r.ch) || ''; return was !== SPEC_AUTO.choiceSig(num, viewState.sel || {}); };
+  const chSt = SPEC_AUTO.choiceStatus(new Set(included.map(S => S.num)), viewState.sel || {}, vOpts);
+  const chPending = chSt.unset + chSt.unconf + chSt.blocked;
   const staleItems = num => { const r = viewState.reviewed[num]; if (locked || !r || typeof r !== 'object' || !r.items || !SPEC_AUTO.itemSig) return []; const now = SPEC_AUTO.itemSig(num, vOpts); return Object.keys(now).filter(c => r.items[c] !== now[c]); };
-  const isRev = num => !!viewState.reviewed[num] && !staleItems(num).length;
+  const isRev = num => !!viewState.reviewed[num] && !staleItems(num).length && !choiceStale(num);
   const health0 = useMemo(() => {
     let rev = 0, ed = 0, unres = 0, tbc = 0;
     included.forEach(S => { const h = bodyOf(S); if (isRev(S.num)) rev++; if (viewState.edits[S.num]) ed++; unres += unresCount(h); tbc += tbcCount(h); });
@@ -1791,13 +1817,13 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const health = {...health0, tbc:health0.tbc + annexTbc, unres:health0.unres + annexTbc};
   const coverUnres = PF_FIELDS.filter(([, k]) => !String((viewProj.pf || {})[k] || '').trim()).length;
   const locBad = locMismatch(viewProj);
-  const stageReady = health.n > 0 && health.rev === health.n && health.unres === 0 && coverUnres === 0 && locBad.length === 0;
-  const blockReason = locBad.length ? `Design-basis fields do not match ${viewProj.city || 'the selected location'} (${locBad.join(', ')}) — Setup › Load location defaults.` : !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s)${annexTbc ? ` (${annexTbc} in Annexure A)` : ''}.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
+  const stageReady = health.n > 0 && health.rev === health.n && health.unres === 0 && coverUnres === 0 && locBad.length === 0 && chPending === 0;
+  const blockReason = chPending ? `${chPending} choice(s) on the Selections tab are not chosen, not confirmed or not allowed.` : locBad.length ? `Design-basis fields do not match ${viewProj.city || 'the selected location'} (${locBad.join(', ')}) — Setup › Load location defaults.` : !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s)${annexTbc ? ` (${annexTbc} in Annexure A)` : ''}.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
   useEffect(() => { if (!cur || !included.find(S => S.num === cur)) setCur(included[0] ? included[0].num : null); }, [included]);
 
   const setOpt = (k, v) => !locked && setState(s => ({...s, opts:{...s.opts, [k]:v}}));
   const toggleExcl = (num, inc) => !locked && setState(s => { const e = {...s.excl}; if (inc) delete e[num]; else e[num] = 1; return {...s, excl:e}; });
-  const setReviewed = (num, v) => !locked && setState(s => { const r = {...s.reviewed}; if (v) r[num] = {at:new Date().toISOString(), items:SPEC_AUTO.itemSig ? SPEC_AUTO.itemSig(num, s.opts) : {}}; else delete r[num]; return {...s, reviewed:r}; });
+  const setReviewed = (num, v) => !locked && setState(s => { const r = {...s.reviewed}; if (v) r[num] = {at:new Date().toISOString(), items:SPEC_AUTO.itemSig ? SPEC_AUTO.itemSig(num, s.opts) : {}, ch:SPEC_AUTO.choiceSig(num, s.sel || {})}; else delete r[num]; return {...s, reviewed:r}; });
   const setEdit = (num, html) => !locked && setState(s => ({...s, edits:{...s.edits, [num]:html}}));
   const isOldFmt = num => { const e = viewState.edits[num]; return !!e && (!/class="stitle"/.test(e) || !/>MANUFACTURERS</.test(e.split(/PART 2/i)[1] || '') ); };
   const oldFmt = included.filter(S => isOldFmt(S.num)).map(S => S.num);
@@ -1891,7 +1917,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
         </div>
         <div className="sbx-label">Workspace</div>
         <nav className="sbx-nav">
-          {[['setup','⚙','Setup'],['systems','☑','Systems'],['sections','§','Sections'],['issue','◈','Issue sheets']].map(([k, ic, l]) => <button key={k} className={tab === k ? 'active' : ''} onClick={() => { setTab(k); setSidebarOpen(false); }}><span className="ic">{ic}</span><span className="tx">{l}</span>{k === 'sections' && <span className="pill">{included.length}</span>}</button>)}
+          {[['setup','⚙','Setup'],['systems','☑','Systems'],['choices','◧','Selections'],['sections','§','Sections'],['issue','◈','Issue sheets']].map(([k, ic, l]) => <button key={k} className={tab === k ? 'active' : ''} onClick={() => { setTab(k); setSidebarOpen(false); }}><span className="ic">{ic}</span><span className="tx">{l}</span>{k === 'sections' && <span className="pill">{included.length}</span>}{k === 'choices' && chSt.items > 0 && <span className="pill">{chSt.items}</span>}</button>)}
           <a href="pump.html" className="sbx-applink"><span className="ic">▥</span><span className="tx">Pump Calculator</span><span className="pill">↗</span></a>
         </nav>
         {tab === 'issue' && <><div className="sbx-label">Export</div><div className="sbx-export">
@@ -1943,6 +1969,11 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
             </div>
             <div style={{fontSize:10,color:'#a76200',background:'#fff4e0',borderRadius:8,padding:'7px 10px',margin:'10px 0'}}>Location defaults are starting values. Confirm code editions, authority names and supply data with the AHJ and utility before issue. These fields fill the {'{{FIELD}}'} tags in every section.</div>
             <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14}}>{Object.entries(PF_GROUPS).map(([g, title]) => <div key={g}><div style={{...lbl,fontSize:10,marginBottom:6}}>{title}</div>{PF_FIELDS.filter(f => f[0] === g).map(([, k, t]) => <div key={k} style={{marginBottom:7}}><Field label={t} value={(proj.pf || {})[k] || ''} onChange={v => setPf(k, v)}/></div>)}</div>)}</div>
+          </div>
+          <div style={{display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:14,marginTop:14,paddingTop:12,borderTop:'1px solid #ececf0'}}>
+            <Field label="Design pressure – plumbing (bar)" type="number" step="0.5" min="0" value={proj.dpPlumb ?? ''} onChange={v => setProj(p => ({...p, dpPlumb:v}))} note="Valve and pipe ratings below this are blocked on the Selections tab."/>
+            <Field label="Design pressure – fire protection (bar)" type="number" step="0.5" min="0" value={proj.dpFire ?? ''} onChange={v => setProj(p => ({...p, dpFire:v}))} note="Highest system pressure, e.g. pump shut-off plus static head."/>
+            <div/>
           </div>
           <div className="setup-logo">
             <div className="client-brand-preview">{proj.clientLogo ? <img src={proj.clientLogo} alt="Client logo"/> : <span style={{fontSize:10,color:'#86868b'}}>No logo</span>}</div>
@@ -1996,6 +2027,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
           </div>;
         })()}
 
+        {tab === 'choices' && <SPEC_AUTO.SelectionsPanel state={state} setState={setState} opts={vOpts} included={included} T={T} locked={locked} isLead={isDiscLead} editedNums={new Set(Object.keys(viewState.edits || {}))}/>}
         {tab === 'sections' && <div className="no-print">
           <div className="schedule-health" style={{marginBottom:10}}>
             <div className="health-card capacity"><div className="h-label">Sections included</div><div className="h-value">{health.n}</div><div className="h-note">{candidates.length - included.length} excluded by you</div></div>
@@ -2014,7 +2046,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
                   <div className={'piw-item' + (cur === S.num ? ' on' : '')} onClick={() => setCur(S.num)} title={S.title}>
                     <input type="checkbox" checked disabled={locked} onClick={e => e.stopPropagation()} onChange={() => toggleExcl(S.num, false)} title="Untick to exclude this section"/>
                     <span className="piw-txt"><b>{S.title}</b><em>{S.num}{viewState.edits[S.num] ? ' · edited' : ''}</em>{isOldFmt(S.num) && <span className="status-chip review" style={{marginTop:3,alignSelf:'flex-start'}}>old format</span>}</span>
-                    {u ? <Chip k="blocked">{u}</Chip> : staleItems(S.num).length ? <Chip k="review">item updated</Chip> : viewState.reviewed[S.num] ? <Chip k="pass">✓</Chip> : <Chip k="draft">–</Chip>}
+                    {u ? <Chip k="blocked">{u}</Chip> : staleItems(S.num).length ? <Chip k="review">item updated</Chip> : choiceStale(S.num) ? <Chip k="review">choices changed</Chip> : viewState.reviewed[S.num] ? <Chip k="pass">✓</Chip> : <Chip k="draft">–</Chip>}
                   </div></React.Fragment>; })}
                 {notIncluded.length > 0 && <div className="spec-div">Excluded</div>}
                 {notIncluded.map(S => <div key={S.num} className="piw-item" style={{opacity:.55}}><input type="checkbox" checked={false} disabled={locked} onChange={() => toggleExcl(S.num, true)}/><span className="piw-txt"><b>{S.title}</b><em>{S.num}</em></span></div>)}
@@ -2361,6 +2393,7 @@ function RootApp() {
     const reg = Object.keys(AU.std).sort((a, b) => b.length - a.length);
     actv(ITEMS.items).filter(i => i.section_num === S.num && evalCond(i.include_when || '', o)).forEach(i =>
       String(i.standards || '').split(';').map(x => x.trim()).filter(Boolean).forEach(s => { const c = reg.find(k => s === k || s.startsWith(k + ' ')); if (c) add(c); }));
+    choiceStds(S).forEach(add);
     if (AU.itemsLoaded) includedItems(S, o).forEach(it => { const rv = AU.itemRev[it.code]; if (!rv) return;
       String(rv.standards || '').split(/[;,\n]/).map(x => x.trim()).filter(Boolean).forEach(add); });
     const cc = countryCode(T);
@@ -2459,6 +2492,7 @@ function RootApp() {
         art(fill(String(A.title).toUpperCase(), T), out.join(''));
       });
       if (products && !tok2) itemBlocks(S, o, T, inc, false).forEach(X => art(esc(X.title), X.clauses.join('')));
+      if (products) choiceArticles(S, o, T).forEach(X => art(esc(X.title), X.html));
       if (execution && !tok3) itemBlocks(S, o, T, inc, true).forEach(X => art(esc(X.title), X.clauses.join('')));
       if (products) scheduleArticles(S, o, T).forEach(X => art(esc(X.title), X.lines.map((l, n) => `<p class="l0"><span>${clauseLbl(0, n)}</span>${l}</p>`).join('')));
     });
@@ -2572,7 +2606,7 @@ function RootApp() {
       const out = {};
       for (const [k, , t] of cfg.fields) {
         let x = v[k];
-        if (t === 'json') { if (String(x).trim() === '') x = (k === 'data' || k === 'editions') ? {} : null; else { try { x = JSON.parse(x); } catch (e) { setMsg(k + ': invalid JSON'); return; } } }
+        if (t === 'json') { if (String(x).trim() === '') x = (k === 'data' || k === 'editions' || k === 'picks') ? {} : null; else { try { x = JSON.parse(x); } catch (e) { setMsg(k + ': invalid JSON'); return; } } }
         else if (t === 'num') x = Number(x) || 0;
         else if (t === 'bool') x = !!x;
         else if (t === 'text') x = String(x ?? '').replace(/\r/g, '');
@@ -3325,7 +3359,7 @@ function RootApp() {
     }
     async function build(who) {
       const T = {};
-      const names = ['spec_sections', 'spec_items', 'spec_item_revs', 'spec_vendors', 'spec_options', 'spec_locations', 'spec_relations', 'spec_standards', 'spec_section_standards', 'spec_blocks', 'spec_item_attrs'];
+      const names = ['spec_sections', 'spec_items', 'spec_item_revs', 'spec_vendors', 'spec_options', 'spec_locations', 'spec_relations', 'spec_standards', 'spec_section_standards', 'spec_blocks', 'spec_item_attrs', 'spec_choice_items', 'spec_choice_defs', 'spec_choice_opts'];
       const got = await Promise.all(names.map(fetchTable));
       names.forEach((n, i) => { T[n] = got[i]; });
       if (T.spec_sections.error && T.spec_items.error) throw new Error('The library could not be read: ' + T.spec_sections.error);
@@ -3393,11 +3427,15 @@ function RootApp() {
         S.loc = {name:'Locations', headers:['Country code', 'Country', 'City', ...keys], widths:[10, 22, 18, ...keys.map(() => 24)], rows, freeze:true, freezeCols:3}; }
       { const rows = lst(T.spec_item_attrs.rows).map(a => [a.family, a.item, a.component, a.attribute, a.type, a.options, a.standards, a.source, a.kind, a.status, a.notes]);
         S.attrs = {name:'Item attributes', headers:['Family', 'Item', 'Component', 'Attribute', 'Type', 'Options / values', 'Standards', 'Source', 'Kind', 'Status', 'Note'], widths:[14, 24, 14, 26, 10, 90, 22, 50, 12, 9, 50], rows, freeze:true, freezeCols:2}; }
-      const order = ['items', 'specs', 'hist', 'attrs', 'secs', 'clauses', 'rel', 'std', 'sstd', 'blocks', 'vend', 'vend1', 'opt', 'loc'];
+      { const ci = {}; lst(T.spec_choice_items.rows).forEach(x => { ci[x.item_key] = x; }); const dd = {}; lst(T.spec_choice_defs.rows).forEach(x => { dd[x.item_key + '|' + x.choice_key] = x; });
+        const rows = lst(T.spec_choice_opts.rows).sort((a, b) => byNum(a.item_key, b.item_key) || (a.sort || 0) - (b.sort || 0)).map(o => { const it = ci[o.item_key] || {}, d = dd[o.item_key + '|' + o.choice_key] || {}; return [o.item_key, nice(it.section_num), d.label || o.choice_key, d.selector, d.code_critical ? 'Lead only' : '', o.label, o.clause, o.standards, o.cost, o.rating_bar, cl(o.block_when), o.block_level, o.status, o.source, o.notes]; });
+        S.choices = {name:'Choice catalogue', headers:['Item', 'Section', 'Choice', 'Selected by', 'Code-critical', 'Option', 'Clause printed in the specification', 'Standards', 'Cost tag', 'Rating (bar)', 'Rule when', 'Rule level', 'Status', 'Source', 'Note'], widths:[30, 9, 24, 14, 10, 32, 70, 16, 8, 8, 20, 8, 9, 50, 50], rows, freeze:true, freezeCols:2}; }
+      const order = ['items', 'specs', 'hist', 'attrs', 'choices', 'secs', 'clauses', 'rel', 'std', 'sstd', 'blocks', 'vend', 'vend1', 'opt', 'loc'];
       const desc = {items:'One row per library item: ref, category, material, rating, standards, owner, review date and specification status.',
         specs:'Readable text of each item\'s published specification (and any draft awaiting approval): Part 2 and Part 3 clauses.',
         hist:'Every revision of every item specification with reason, author, approver and the library wording.',
         attrs:'The attribute catalogue: the choices that change an item\'s specification, with the source of each.',
+        choices:'The choice catalogue: every choice and option, the clause it prints, its standards, cost tag, rating and rules.',
         secs:'One row per section: class, conditions, counts, which lists are automatic, hard-coded location words.',
         clauses:'One row per clause of every section, with part, article, level, condition and fields used (library wording, all clauses on).',
         rel:'Related Requirements links between sections.', std:'Standards register with edition and where each is cited.', sstd:'Which standards each section cites.',
@@ -3432,6 +3470,7 @@ function RootApp() {
 
   const LIB_TAB_GROUPS = [
     ['Content', [['sections', 'Sections'], ['itemspecs', 'Item specifications'], ['items', 'Items'], ['itemmgmt', 'Item management'], ['attrs', 'Item attributes']]],
+    ['Choices', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets']]],
     ['Reference', [['relations', 'Related links'], ['standards', 'Standards'], ['secstd', 'Section standards'], ['blocks', 'Common text'], ['vendors', 'Manufacturers']]],
     ['Settings', [['options', 'Project options'], ['locations', 'Locations']]],
   ];
@@ -3456,7 +3495,7 @@ function RootApp() {
     const stChip = s => s === 'Verified' ? <Chip k="pass">Verified</Chip> : s === 'TBC' ? <Chip k="blocked">TBC</Chip> : <Chip k="draft">Draft</Chip>;
     const cfg = LIB_TABLES[tab];
     const list = cfg ? (rows[tab] || []).filter(fl).filter(r => !stat || r.status === stat) : [];
-    const counts = {sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
+    const counts = {chitems:(rows.chitems || []).length, chdefs:(rows.chdefs || []).length, chopts:(rows.chopts || []).length, presets:(rows.presets || []).length, sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
     const ownToolbar = tab === 'itemspecs' || tab === 'itemmgmt' || tab === 'attrs';
     const go = k => { setTab(k); setStat(''); setF(''); setMore(false); };
     const cell = (k, r) => {
@@ -3466,6 +3505,7 @@ function RootApp() {
       if (k === 'include_when' || k === 'dep') return condLabel(x) || 'always';
       if (k === 'to_num') { const L = LIB.find(z => z.num === x); return <span>{x}<div style={{fontSize:9.5,color:'#86868b'}}>{L ? titleCase(L.title) : (r.label || 'not in library')}</div></span>; }
       if (k === 'code' && tab === 'secstd') return <span>{x}{!AU.std[x] && <div style={{fontSize:9.5,color:'#b91c1c'}}>not in register</div>}</span>;
+      if (typeof x === 'string' && x.length > 150 && k !== 'body') return x.slice(0, 150) + '…';
       if (k === 'body') { const t = String(x || ''); return <span style={{fontFamily:'ui-monospace,Menlo,Consolas,monospace',fontSize:10}}>{t.length > 160 ? t.slice(0, 160) + '…' : t}</span>; }
       if (x && typeof x === 'object') return Object.keys(x).length ? JSON.stringify(x) : '';
       return String(x ?? '');
@@ -3479,7 +3519,8 @@ function RootApp() {
       if (error) setMsg('Could not add: ' + error.message); else reload();
     };
     const newRow = () => setEdit(tab === 'sections' ? {sec:null} : {row:tab === 'items' ? {code:'IT-' + String((rows.items || []).length + 1).padStart(4, '0'), status:'Draft', active:true} : tab === 'vendors' ? {code:'VN-' + String((rows.vendors || []).length + 1).padStart(3, '0'), status:'Draft', active:true} : {active:true}, isNew:true});
-    const canNew = canEdit && !ownToolbar && (tab === 'sections' || !(cfg && cfg.auto && !AU.loaded));
+    const cfgOk = !cfg || !cfg.auto || (cfg.chx ? CH.loaded : AU.loaded);
+    const canNew = canEdit && !ownToolbar && (tab === 'sections' || cfgOk);
     const moreItems = canEdit ? [
       tab === 'sections' && AU.loaded && {l:'Convert typed lists to automatic', d:'Move typed related sections, standards and repeated articles into library data', f:() => { setMore(false); setConv(true); }},
       tab === 'sections' && missAnnex.length > 0 && {l:'Add Annexure B entries (' + missAnnex.join(', ') + ')', d:'Create the spare-parts annexure text for each Division', f:addAnnex},
@@ -3504,6 +3545,7 @@ function RootApp() {
         {!canEdit && <div className="lib-alert warn">You can view the library. Only Admin, Lead or Associate can change it; every change is kept in history.</div>}
         {nDrafts > 0 && canEdit && tab !== 'itemspecs' && <div className="lib-alert amber"><span style={{flex:1}}>{nDrafts} item specification draft{nDrafts === 1 ? '' : 's'} awaiting approval.</span><button className="schedule-action" onClick={() => go('itemspecs')}>Review</button></div>}
         {AU.missing && <div className="lib-alert red">{AU.missing}</div>}
+        {CH.missing && tab.startsWith('ch') && <div className="lib-alert red">{CH.missing}</div>}
         {msg && <div className="ai-msg bad" style={{marginBottom:10}}>{msg}</div>}
         <div className="lib-tabs">{LIB_TAB_GROUPS.map(([g, ts]) => <div key={g} className="lib-tg"><div className="lib-tgl">{g}</div><div className="lib-tgb">{ts.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => go(k)}>{l}<span>{counts[k]}</span></button>)}</div></div>)}</div>
         <div className="schedule-card">
@@ -3529,7 +3571,7 @@ function RootApp() {
             : tab === 'itemspecs' ? <ItemSpecsTab canEdit={canEdit} who={who} myEmail={myEmail} onChanged={reload}/>
             : tab === 'itemmgmt' ? <ItemMgr.ItemManagerPanel canEdit={canEdit} who={who} onChanged={reload}/>
             : tab === 'attrs' ? <AttrsPanel/>
-            : cfg && cfg.auto && !AU.loaded ? <div className="empty-schedule">{AU.missing || 'Automation tables not loaded.'}</div>
+            : !cfgOk ? <div className="empty-schedule">{(cfg.chx ? CH.missing : AU.missing) || 'Tables not loaded.'}</div>
             : <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels">{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k, l]) => <th key={k}>{l.replace(/\s*\(.*$/, '').replace(/\s*–.*$/, '')}</th>)}{tab === 'blocks' && <th>Used in</th>}<th></th></tr></thead><tbody>
               {list.map((r, i) => <tr key={i} onClick={() => setEdit({row:r, isNew:false})} style={{opacity:r.active === false ? .5 : 1}}>{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k]) => <td key={k} style={{fontSize:10.5,maxWidth:320,whiteSpace:'normal'}}>{cell(k, r)}</td>)}{tab === 'blocks' && <td className="num">{usedBy(r.key)}</td>}<td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>)}
               {!list.length && <tr><td colSpan={20} className="empty-schedule">No rows.</td></tr>}
@@ -3555,14 +3597,218 @@ function RootApp() {
       help:'Which standards each section cites. Reference Standards also adds any register standard named in the section\'s Items (product schedule).'};
     LIB_TABLES.blocks = {table:'spec_blocks', key:'key', fields:BLK_FIELDS, title:'Common text', auto:true, audit:true,
       help:'Text written once and used in many sections with a line {{>KEY}}. Change it here and every section that uses it updates.'};
+    LIB_TABLES.chitems = {table:'spec_choice_items', key:'item_key', fields:CH_ITEM_FIELDS, title:'Choice item', auto:true, chx:true, audit:true,
+      help:'An item whose specification is built from choices (e.g. Ball valve - fire protection), the section it prints in, and clauses common to every variant.'};
+    LIB_TABLES.chdefs = {table:'spec_choice_defs', key:'item_key,choice_key', fields:CH_DEF_FIELDS, title:'Choice', auto:true, chx:true, audit:true,
+      help:'The choices of an item (Body, Seat, Pressure rating…). "Architect / ID" choices are never picked by the engineer: the specification prints one standard line. Code-critical choices can only be changed by a Lead.'};
+    LIB_TABLES.chopts = {table:'spec_choice_opts', key:'item_key,choice_key,opt_key', fields:CH_OPT_FIELDS, title:'Option', auto:true, chx:true, audit:true,
+      help:'The options of a choice and the exact clause each prints. A rating below the project design pressure is blocked automatically; a rule can also block or warn when a project option is on.'};
+    LIB_TABLES.presets = {table:'spec_presets', key:'key', fields:CH_PRESET_FIELDS, title:'Preset', auto:true, chx:true, audit:true,
+      help:'A preset fills a variant in one click: it picks the option tagged with its cost level for each engineer choice (code-critical choices are left for a Lead), or the explicit picks you list.'};
     addBuiltin();
     genSection = function (S, o, T, annex) { try { return genSectionAuto(S, o, T, annex); } catch (e) { console.error('spec_auto: genSection', e); return orig.genSection(S, o, T, annex); } };
-    loadLibrary = async function () { addBuiltin(); const ok = await orig.loadLibrary(); try { await loadAuto(); } catch (e) { AU.missing = 'Automation data could not be loaded: ' + (e.message || e); } addBuiltin(); return ok; };
+    loadLibrary = async function () { addBuiltin(); const ok = await orig.loadLibrary(); try { await loadAuto(); } catch (e) { AU.missing = 'Automation data could not be loaded: ' + (e.message || e); } try { await loadChoices(); } catch (e) { CH.loaded = false; CH.missing = 'Choices could not be loaded: ' + (e.message || e); } addBuiltin(); return ok; };
     LibraryAdmin = LibraryAdminX;
     AU.installed = true;
-    if (LIB.length) loadAuto();
+    if (LIB.length) { loadAuto(); loadChoices(); }
     console.info('spec_auto ' + AU.version + ' installed');
   }
+  // ══ CHOICES: selections per item, variants, presets, limits (phase 1) ══════
+  const CH = AU.ch = {items:[], defs:{}, opts:{}, presets:[], loaded:false, missing:''};
+  AU.sel = {}; AU.dp = {};
+  const ID_LINE = 'Finish, material, model and manufacturer: as selected by the Architect / Interior Designer in the finishes schedule, subject to the requirements of this section.';
+  const OTHER = '__other';
+  async function loadChoices() {
+    const q = t => sb.from(t).select('*').order('sort').range(0, 9999);
+    const [i, d, o, p] = await Promise.all([q('spec_choice_items'), q('spec_choice_defs'), q('spec_choice_opts'), q('spec_presets')]);
+    const err = i.error || d.error || o.error || p.error;
+    if (err) { CH.items = []; CH.defs = {}; CH.opts = {}; CH.presets = []; CH.loaded = false; CH.missing = 'Choice tables are not set up (' + err.message + '). Run spec_choices_migration.sql, then spec_choices_seed_valves.sql, in Supabase.'; return; }
+    CH.items = actv(i.data); CH.defs = {}; CH.opts = {};
+    actv(d.data).forEach(x => { (CH.defs[x.item_key] = CH.defs[x.item_key] || []).push(x); });
+    actv(o.data).forEach(x => { const k = x.item_key + '|' + x.choice_key; (CH.opts[k] = CH.opts[k] || []).push(x); });
+    CH.presets = actv(p.data); CH.missing = ''; CH.loaded = true;
+  }
+  const chDefs = it => CH.defs[it.item_key] || [];
+  const chOpts = (it, c) => CH.opts[it.item_key + '|' + c.choice_key] || [];
+  const chOpt = (it, c, key) => chOpts(it, c).find(x => x.opt_key === key);
+  const chLines = t => String(t || '').split('\n').map(x => x.trim().replace(/^-\s*/, '')).filter(Boolean);
+  // a rule on an option: rating below the project design pressure, or a project-option condition
+  function optBlock(it, o, opts) {
+    const dp = (AU.dp || {})[it.pgroup] || 0, bar = Number(o.rating_bar) || 0;
+    if (bar > 0 && dp > 0 && bar < dp) return {level:'Block', reason:`Rated ${bar} bar, below the project design pressure of ${dp} bar.`};
+    if (o.block_when && evalCond(o.block_when, opts || {})) return {level:o.block_level === 'Warn' ? 'Warn' : 'Block', reason:o.block_reason || 'Not allowed for the selected systems.'};
+    return {level:null, reason:''};
+  }
+  const variantTitle = (v, i, n) => (v.label || '').trim() || (n > 1 ? 'Type ' + (i + 1) : '');
+  function choiceLines(it, variants, o, T) {
+    const lines = [], defs = chDefs(it), multi = variants.length > 1 || variants.some(v => (v.label || '').trim());
+    variants.forEach((v, vi) => {
+      const lv = multi ? 1 : 0, vt = variantTitle(v, vi, variants.length);
+      if (multi) lines.push({lvl:0, html:'<b>' + esc(vt) + '</b>'});
+      defs.forEach(c => {
+        if (c.selector === 'Architect / ID') { lines.push({lvl:lv, html:esc(String(c.clause || '').trim() || ID_LINE)}); return; }
+        const p = (v.picks || {})[c.choice_key], where = esc(it.label) + (vt ? ' – ' + esc(vt) : '') + ': ' + esc(c.label);
+        if (!p) { lines.push({lvl:lv, html:`<span class="unres">[${where} – not chosen]</span>`}); return; }
+        if (p === OTHER) { const ot = (v.other || {})[c.choice_key]; lines.push({lvl:lv, html:(ot && String(ot.text || '').trim()) ? esc(String(ot.text).trim()) : `<span class="unres">[${where} – "Other" text missing]</span>`}); return; }
+        const op = chOpt(it, c, p);
+        lines.push({lvl:lv, html:op ? fill(op.clause, T) : `<span class="unres">[${where} – option no longer in the catalogue]</span>`});
+      });
+    });
+    const com = chLines(it.common);
+    if (com.length) { if (multi) lines.push({lvl:0, html:'<b>Common to all types</b>'}); com.forEach(t => lines.push({lvl:multi ? 1 : 0, html:fill(t, T)})); }
+    return lines;
+  }
+  function linesHtml(lines) {
+    const cnt = [0, 0, 0, 0];
+    return lines.map(x => { const l = Math.min(x.lvl, 3), n = cnt[l]++; for (let j = l + 1; j < 4; j++) cnt[j] = 0; return `<p class="l${l}"><span>${clauseLbl(l, n)}</span>${x.html}</p>`; }).join('');
+  }
+  function choiceArticles(S, o, T) {
+    if (!CH.loaded) return [];
+    const out = [];
+    CH.items.filter(i => i.section_num === S.num).forEach(it => {
+      const vs = (AU.sel || {})[it.item_key]; if (!vs || !vs.length) return;
+      out.push({title:String(it.label).toUpperCase(), html:linesHtml(choiceLines(it, vs, o, T))});
+    });
+    return out;
+  }
+  function choiceStds(S) {
+    const codes = [];
+    if (!CH.loaded) return codes;
+    CH.items.filter(i => i.section_num === S.num).forEach(it => {
+      const vs = (AU.sel || {})[it.item_key] || [];
+      vs.forEach(v => chDefs(it).forEach(c => { const p = (v.picks || {})[c.choice_key]; if (!p || p === OTHER) return; const op = chOpt(it, c, p); String((op && op.standards) || '').split(/[;,]/).map(x => x.trim()).filter(Boolean).forEach(s => { if (AU.std[s] && !codes.includes(s)) codes.push(s); }); }));
+    });
+    return codes;
+  }
+  // status of every engineer choice in the project (drives the sign-off block)
+  function choiceStatus(nums, sel, o) {
+    const r = {items:0, variants:0, choices:0, unset:0, unconf:0, blocked:0, other:0};
+    if (!CH.loaded) return r;
+    CH.items.forEach(it => {
+      if (!nums.has(it.section_num)) return;
+      const vs = (sel || {})[it.item_key]; if (!vs || !vs.length) return;
+      r.items++; r.variants += vs.length;
+      vs.forEach(v => chDefs(it).forEach(c => {
+        if (c.selector !== 'Engineer') return;
+        r.choices++;
+        const p = (v.picks || {})[c.choice_key];
+        if (!p) { r.unset++; return; }
+        if (p === OTHER) { r.other++; if (!(v.conf || {})[c.choice_key]) r.unconf++; return; }
+        const op = chOpt(it, c, p);
+        if (!op) { r.unset++; return; }
+        if (optBlock(it, op, o).level === 'Block') r.blocked++;
+        if (!(v.conf || {})[c.choice_key]) r.unconf++;
+      }));
+    });
+    return r;
+  }
+  AU.choiceSig = (num, sel) => { const a = CH.items.filter(i => i.section_num === num).map(i => [i.item_key, ((sel || {})[i.item_key] || []).map(v => [v.label || '', v.picks || {}, v.other || {}])]).filter(x => x[1].length); return a.length ? JSON.stringify(a) : ''; };
+  AU.choiceStatus = choiceStatus;
+  function presetPicks(it, p, o) {
+    const out = {};
+    chDefs(it).forEach(c => {
+      if (c.selector !== 'Engineer' || c.code_critical) return;
+      const ok = chOpts(it, c).filter(x => optBlock(it, x, o).level !== 'Block');
+      const ex = (p.picks || {})[it.item_key + '|' + c.choice_key];
+      let pick = ex && ok.find(x => x.opt_key === ex);
+      if (!pick && p.tier) pick = ok.find(x => x.cost === p.tier);
+      if (!pick) pick = ok[0];
+      if (pick) out[c.choice_key] = pick.opt_key;
+    });
+    return out;
+  }
+  // ── Project › Selections ────────────────────────────────────────────────
+  function SelectionsPanel({state, setState, opts, included, T, locked, isLead, editedNums}) {
+    const [open, setOpen] = useState({}), [show, setShow] = useState({}), [q, setQ] = useState('');
+    if (!CH.loaded) return <div className="setup-card no-print"><div className="schedule-title" style={{marginBottom:8}}>Selections</div><div className="ai-msg bad">{CH.missing || 'Choice tables are not loaded.'}</div></div>;
+    const nums = new Set(included.map(S => S.num)), sel = state.sel || {}, dp = AU.dp || {};
+    const items = CH.items.filter(i => nums.has(i.section_num) && (!q || (i.label + ' ' + i.item_key).toLowerCase().includes(q.toLowerCase())));
+    const outside = CH.items.filter(i => !nums.has(i.section_num)).length;
+    const st = choiceStatus(nums, sel, opts);
+    const labels = [...new Set([...Object.values(sel).flat().map(v => v.label).filter(Boolean), 'FOH', 'BOH'])];
+    const setVars = (key, fn) => { if (locked) return; setState(s => { const cur = (s.sel || {})[key] || [], next = fn(cur), n = {...(s.sel || {})}; if (next.length) n[key] = next; else delete n[key]; return {...s, sel:n}; }); };
+    const patch = (key, id, fn) => setVars(key, cur => cur.map(v => v.id === id ? fn(v) : v));
+    const addVar = key => setVars(key, cur => [...cur, {id:Math.random().toString(36).slice(2, 8), label:'', picks:{}, other:{}, conf:{}}]);
+    const delVar = (key, id) => { if (window.confirm('Remove this variant and its choices?')) setVars(key, cur => cur.filter(v => v.id !== id)); };
+    const pick = (it, v, c, val) => patch(it.item_key, v.id, x => ({...x, picks:{...x.picks, [c.choice_key]:val}, conf:{...x.conf, [c.choice_key]:false}}));
+    const canConf = (c, v) => !locked && ((!c.code_critical && (v.picks || {})[c.choice_key] !== OTHER) || isLead);
+    const confirm = (it, v, c, val) => patch(it.item_key, v.id, x => ({...x, conf:{...x.conf, [c.choice_key]:val}}));
+    const confirmAll = (it, v) => patch(it.item_key, v.id, x => { const conf = {...x.conf}; chDefs(it).forEach(c => { const p = (x.picks || {})[c.choice_key]; if (c.selector !== 'Engineer' || !p) return; const op = p === OTHER ? null : chOpt(it, c, p); if (p !== OTHER && (!op || optBlock(it, op, opts).level === 'Block')) return; if (canConf(c, x)) conf[c.choice_key] = true; }); return {...x, conf}; });
+    const applyPreset = (it, v, key) => { const p = CH.presets.find(x => x.key === key); if (!p) return; const picks = presetPicks(it, p, opts); patch(it.item_key, v.id, x => { const conf = {...x.conf}; Object.keys(picks).forEach(k => { conf[k] = false; }); return {...x, picks:{...x.picks, ...picks}, conf}; }); };
+    const card = (l, v, n, k) => <div className={'health-card ' + (k || 'capacity')} style={{cursor:'default'}}><div className="h-label">{l}</div><div className="h-value">{v}</div><div className="h-note">{n}</div></div>;
+    const chip = (k, t, title) => <span className={'status-chip ' + k} title={title}>{t}</span>;
+    return <div className="no-print">
+      <div className="sys-top"><div><div className="schedule-eyebrow">Selections</div><div className="schedule-title">Choices, variants and presets</div></div>
+        <input className="piw-search" style={{maxWidth:260}} value={q} onChange={e => setQ(e.target.value)} placeholder="Search items"/></div>
+      <div className="schedule-health" style={{marginBottom:10}}>
+        {card('Items in use', st.items, `${st.variants} variant${st.variants === 1 ? '' : 's'}`)}
+        {card('To confirm', st.unconf + st.unset, st.unset ? `${st.unset} not chosen yet` : 'proposed, not confirmed', st.unconf + st.unset ? 'review' : 'pass')}
+        {card('Not allowed', st.blocked, 'below design pressure or code rule', st.blocked ? 'blocked' : 'pass')}
+        {card('"Other" (Lead review)', st.other, 'typed text, not from the catalogue', st.other ? 'review' : 'pass')}
+        {card('Design pressure', `${dp.plumbing || '—'} / ${dp.fire || '—'}`, 'plumbing / fire, bar (Setup)', dp.plumbing || dp.fire ? 'capacity' : 'review')}
+      </div>
+      <datalist id="chxlabels">{labels.map(l => <option key={l} value={l}/>)}</datalist>
+      {items.length === 0 && <div className="piw-empty big">No catalogue items belong to the sections in this project.</div>}
+      {items.map(it => {
+        const vs = sel[it.item_key] || [], isOpen = open[it.item_key] !== undefined ? open[it.item_key] : vs.length > 0;
+        const defs = chDefs(it), edited = editedNums.has(it.section_num);
+        const stI = choiceStatus(new Set([it.section_num]), {[it.item_key]:vs}, opts), pend = stI.unset + stI.unconf;
+        return <div key={it.item_key} className="chx-card">
+          <div className="chx-head" onClick={() => setOpen({...open, [it.item_key]:!isOpen})}>
+            <span className="chx-caret">{isOpen ? '▾' : '▸'}</span><b>{it.label}</b><span className="chx-sub">{it.item_key} · section {fmtNum(it.section_num)}</span>
+            {it.status === 'Check' && chip('review', 'check source', it.note || '')}
+            <span style={{flex:1}}/>
+            {vs.length > 0 && chip('draft', vs.length + (vs.length === 1 ? ' variant' : ' variants'))}
+            {vs.length > 0 && (pend ? chip('review', pend + ' to confirm') : stI.blocked ? chip('blocked', 'not allowed') : chip('pass', 'confirmed'))}
+            {!locked && <button className="schedule-action" onClick={e => { e.stopPropagation(); addVar(it.item_key); setOpen({...open, [it.item_key]:true}); }}>{vs.length ? '+ Add variant' : '+ Use in this project'}</button>}
+          </div>
+          {isOpen && <div className="chx-body">
+            {it.note && <div className="chx-note">{it.note}</div>}
+            {edited && vs.length > 0 && <div className="chx-note red">Section {fmtNum(it.section_num)} has project edits, so this article is not printed there. Open Sections › "↺ Library text" to regenerate it.</div>}
+            {vs.length === 0 && <div style={{fontSize:11,color:'#86868b',padding:'6px 2px'}}>Not used in this project yet. Add a variant to include it in the specification.</div>}
+            {vs.map((v, vi) => <div key={v.id} className="chx-var">
+              <div className="chx-vh">
+                <input list="chxlabels" disabled={locked} value={v.label} onChange={e => patch(it.item_key, v.id, x => ({...x, label:e.target.value}))} placeholder={vs.length > 1 ? 'Variant name (e.g. FOH, BOH, Type A)' : 'Variant name (optional – e.g. FOH, BOH, Type A)'}/>
+                {!locked && CH.presets.length > 0 && <select value="" onChange={e => applyPreset(it, v, e.target.value)}><option value="">Apply preset…</option>{CH.presets.map(p => <option key={p.key} value={p.key}>{p.label}</option>)}</select>}
+                {!locked && <button className="schedule-action" onClick={() => confirmAll(it, v)}>Confirm all</button>}
+                {!locked && <button className="schedule-action" style={{color:'#b91c1c'}} onClick={() => delVar(it.item_key, v.id)}>Remove</button>}
+              </div>
+              <table className="chx-t"><tbody>
+                {defs.map(c => {
+                  if (c.selector === 'Architect / ID') return <tr key={c.choice_key}><td className="chx-l">{c.label}</td><td colSpan={3} className="chx-id">By the Architect / Interior Designer (finishes schedule). The specification prints one standard line; nothing to choose here.</td></tr>;
+                  const p = (v.picks || {})[c.choice_key], op = p && p !== OTHER ? chOpt(it, c, p) : null, bl = op ? optBlock(it, op, opts) : {level:null};
+                  const cs = !p ? 'none' : (op && bl.level === 'Block') ? 'blocked' : (v.conf || {})[c.choice_key] ? 'ok' : 'prop';
+                  const lockSel = locked || (c.code_critical && !isLead);
+                  return <tr key={c.choice_key}>
+                    <td className="chx-l">{c.label}{c.code_critical && <span className="chx-lock" title="Code-critical: only a Lead can change it">Lead</span>}</td>
+                    <td className="chx-s"><select disabled={lockSel} value={p || ''} onChange={e => pick(it, v, c, e.target.value)}>
+                      <option value="">— choose —</option>
+                      {chOpts(it, c).map(x => { const b = optBlock(it, x, opts); return <option key={x.opt_key} value={x.opt_key} disabled={b.level === 'Block'}>{x.label}{x.status === 'Check' ? ' (check)' : ''}{b.level === 'Block' ? ' — not allowed' : b.level === 'Warn' ? ' — warning' : ''}</option>; })}
+                      {c.allow_other && <option value={OTHER}>Other (type it)…</option>}
+                    </select>
+                    {p === OTHER && <div className="chx-oth"><input disabled={lockSel} value={((v.other || {})[c.choice_key] || {}).text || ''} onChange={e => patch(it.item_key, v.id, x => ({...x, other:{...x.other, [c.choice_key]:{...((x.other || {})[c.choice_key] || {}), text:e.target.value}}, conf:{...x.conf, [c.choice_key]:false}}))} placeholder="Clause text as it should print"/><input disabled={lockSel} value={((v.other || {})[c.choice_key] || {}).reason || ''} onChange={e => patch(it.item_key, v.id, x => ({...x, other:{...x.other, [c.choice_key]:{...((x.other || {})[c.choice_key] || {}), reason:e.target.value}}}))} placeholder="Reason (client request, availability…)"/></div>}
+                    {op && op.notes && <div className="chx-hint">{op.notes}</div>}
+                    {op && bl.level && <div className={'chx-hint ' + (bl.level === 'Block' ? 'bad' : 'warn')}>{bl.level === 'Block' ? 'Not allowed: ' : 'Warning: '}{bl.reason}</div>}
+                    {c.choice_key === 'rating' && !dp[it.pgroup] && <div className="chx-hint warn">Set the {it.pgroup} design pressure on Setup so ratings can be checked.</div>}
+                    </td>
+                    <td className="chx-b">{op && (op.source || op.standards) ? <span className="chx-src" title={'Source: ' + (op.source || '') + (op.standards ? '\nStandards: ' + op.standards : '')}>source</span> : null}</td>
+                    <td className="chx-c">{cs === 'none' ? chip('blocked', 'not chosen') : cs === 'blocked' ? chip('blocked', 'not allowed') : cs === 'ok' ? <button className="chx-ok" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, false)} title="Confirmed – click to unconfirm">✓ Confirmed</button> : <button className="chx-pr" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, true)} title={canConf(c, v) ? 'Click to confirm' : 'Only a Lead can confirm this'}>Proposed</button>}{p === OTHER && chip('review', 'Lead review')}</td>
+                  </tr>; })}
+              </tbody></table>
+            </div>)}
+            {vs.length > 0 && <div style={{marginTop:6}}><a href="#" style={{fontSize:11,fontWeight:700,color:'#007aff'}} onClick={e => { e.preventDefault(); setShow({...show, [it.item_key]:!show[it.item_key]}); }}>{show[it.item_key] ? 'Hide' : 'Show'} specification text</a>
+              {show[it.item_key] && <div className="spec-doc sd" style={{border:'1px solid #e1e1e6',borderRadius:8,padding:'10px 14px',marginTop:6,background:'#fff'}} dangerouslySetInnerHTML={{__html:`<p class="ar"><span>x.x</span>${esc(String(it.label).toUpperCase())}</p>` + linesHtml(choiceLines(it, vs, opts, T))}}/>}</div>}
+          </div>}
+        </div>; })}
+      {outside > 0 && <div style={{fontSize:10.5,color:'#86868b',marginTop:8}}>{outside} catalogue item{outside === 1 ? '' : 's'} belong to sections that are not in this project and are hidden.</div>}
+    </div>;
+  }
+  AU.SelectionsPanel = SelectionsPanel;
+  const CH_ITEM_FIELDS = [['item_key','Key (e.g. Ball valve - fire protection)'],['label','Prints as (article heading)'],['section_num','Section no.'],['pgroup','Pressure group',['fire','plumbing']],['common','Common clauses (one per line, printed for every variant)','text'],['note','Note'],['status','Status',['Verified','Check']],['source','Source'],['sort','Sort','num'],['active','Active','bool']];
+  const CH_DEF_FIELDS = [['item_key','Item key'],['choice_key','Choice key'],['label','Label'],['selector','Selected by',['Architect / ID','Engineer']],['code_critical','Code-critical (Lead only)','bool'],['allow_other','Allow "Other (type it)"','bool'],['clause','Architect / ID: own wording (blank = standard line)','text'],['sort','Sort','num'],['active','Active','bool']];
+  const CH_OPT_FIELDS = [['item_key','Item key'],['choice_key','Choice key'],['opt_key','Option key'],['label','Label (dropdown text)'],['clause','Clause printed in the specification','text'],['standards','Standards cited (separate with ;)'],['cost','Cost tag (Low / Medium / High, blank = none)'],['rating_bar','Rating in bar (0 = not a rating)','num'],['block_when','Rule: when this project option is on (condition)'],['block_level','Rule level (Block / Warn)'],['block_reason','Rule reason'],['status','Status',['Verified','Check']],['source','Source'],['notes','Notes'],['sort','Sort','num'],['active','Active','bool']];
+  const CH_PRESET_FIELDS = [['key','Key'],['label','Label'],['tier','Picks options tagged (Low / Medium / High)'],['picks','Explicit picks (JSON: {"Item key|choice_key":"opt_key"})','json'],['note','Note'],['sort','Sort','num'],['active','Active','bool']];
+
   AU.itemSig = (num, o) => { const m = {}; if (AU.itemsLoaded) includedItems({num}, o).forEach(it => { const r = AU.itemRev[it.code]; if (r) m[it.code] = r.rev; }); return m; };
   AU._test = {analyse, parseRel, parseStd, markXrefs, genSectionAuto, loadAuto, install};
   try { install(); } catch (e) { console.error('spec_auto: install failed – page runs without automation', e); }
