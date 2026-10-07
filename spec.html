@@ -671,6 +671,40 @@
   }
 </style>
 
+<style>
+  /* ── Library screen v2: one header, grouped tabs ── */
+  .lib-wrap{max-width:1640px;margin:0 auto;padding:16px 22px 30px}
+  .lib-head{background:rgba(255,255,255,.92);backdrop-filter:blur(18px);border-bottom:1px solid #d2d2d7;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .lib-head .lib-wrap{padding-top:12px;padding-bottom:12px}
+  .lib-head-in{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+  .lib-eyebrow{font-size:9px;letter-spacing:.15em;text-transform:uppercase;color:#86868b;font-weight:800}
+  .lib-title{font-size:19px;font-weight:800;letter-spacing:-.03em;color:#1d1d1f}
+  .lib-head-act{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+  .lib-btn{padding:7px 14px;background:#fff;color:#424245;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;font-weight:700;cursor:pointer}
+  .lib-btn:hover{border-color:#b9b9c0;background:#fafafb}
+  .lib-btn.green{background:#167344;border-color:#167344;color:#fff}.lib-btn.green:hover{background:#0f5c36}.lib-btn:disabled{opacity:.6;cursor:default}
+  .lib-note{font-size:11px;color:#424245;background:#fff;border:1px solid #d2d2d7;border-radius:8px;padding:5px 10px;max-width:420px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .lib-note.bad{color:#b42318;border-color:#f5b5ae;background:#fff6f5}
+  .lib-alert{border-radius:10px;padding:9px 14px;font-size:12px;margin-bottom:12px;display:flex;gap:10px;align-items:center}
+  .lib-alert.warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412}.lib-alert.amber{background:#fff4e0;border:1px solid #f5c27a;color:#8a4b00}.lib-alert.red{background:#fff0ee;border:1px solid #f5b5ae;color:#b42318}
+  .lib-tabs{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:14px;padding:11px 16px 12px;background:#fff;border:1px solid #e1e1e6;border-radius:14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .lib-tgl{font-size:9px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;color:#86868b;margin-bottom:6px}
+  .lib-tgb{display:flex;gap:4px;flex-wrap:wrap}
+  .lib-tgb button{border:0;background:#f5f5f7;border-radius:8px;padding:6px 9px;font-size:11.5px;font-weight:650;color:#424245;cursor:pointer;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .lib-tgb button:hover{background:#ececf0}
+  .lib-tgb button.on{background:#007aff;color:#fff}
+  .lib-tgb button span{font-size:9.5px;font-weight:800;background:rgba(0,0,0,.07);border-radius:20px;padding:1px 6px;min-width:18px;text-align:center}
+  .lib-tgb button.on span{background:rgba(255,255,255,.25)}
+  .lib-new{border:0;background:#007aff;color:#fff;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer}.lib-new:hover{background:#0068d9}
+  .lib-more{position:relative}
+  .lib-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:320px;background:#fff;border:1px solid #d2d2d7;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:5px;display:flex;flex-direction:column}
+  .lib-menu button{border:0;background:transparent;text-align:left;padding:9px 11px;border-radius:7px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
+  .lib-menu button:hover{background:#f0f4ff}.lib-menu b{font-size:12px;color:#1d1d1f}.lib-menu small{font-size:10.5px;color:#6e6e73;line-height:1.35}
+  .lib-help{padding:8px 14px;font-size:10.5px;color:#6e6e73;border-bottom:1px solid #e8e8ed;background:#fafafb}
+  .lib-foot{padding:8px 14px;font-size:10px;color:#86868b;border-top:1px solid #f0f0f2}
+  @media screen and (max-width:700px){.lib-wrap{padding:12px}.lib-tabs{gap:14px}.lib-menu{min-width:260px}}
+</style>
+
 </head>
 <body>
 <div id="root"></div>
@@ -1002,7 +1036,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.4.0 · Build 2026.10.07.01";
+const BUILD_LABEL = "Spec v1.5.0 · Build 2026.10.07.02";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -1200,6 +1234,44 @@ function genSection(S, o, T, annex) {
 const unresCount = html => (String(html).match(/class="unres/g) || []).length;
 const tbcCount = html => (String(html).match(/class="unres tbc"/g) || []).length;
 const blankState = () => ({opts:defaultOpts(), excl:{}, edits:{}, reviewed:{}});
+const NEW_SECTION_TEMPLATE = `# PART 1 GENERAL
+= SECTION INCLUDES
+- 
+= RELATED REQUIREMENTS
+- {{AUTO:RELATED}}
+= REFERENCE STANDARDS
+- {{AUTO:STANDARDS}}
+= SUBMITTALS
+- Product Data: 
+- Shop Drawings: 
+= QUALITY ASSURANCE
+- 
+# PART 2 PRODUCTS
+= {{AUTO:ITEMS}}
+# PART 3 EXECUTION
+= INSTALLATION
+- Install to manufacturer's instructions and {{PLUMB_CODE}}.
+= FIELD QUALITY CONTROL
+- 
+`;
+// Paste-from-Word converter: PART 1 / 1.1 / A. / 1. / a. / 1) become library markup.
+function convertCSI(txt) {
+  const out = []; let num = '', title = '', last = null;
+  const lines = String(txt).replace(/\r/g,'').split('\n').map(l => l.replace(/\u00a0/g,' ').trim()).filter(Boolean);
+  for (let i = 0; i < lines.length; i++) {
+    const l = lines[i]; let m;
+    if ((m = l.match(/^SECTION\s+(\d{2})\s?(\d{2})\s?(\d{2}(?:\.\d+)?)/i))) { num = `${m[1]} ${m[2]}${m[3]}`; if (lines[i+1] && !/^PART/i.test(lines[i+1])) title = lines[++i].toUpperCase(); continue; }
+    if (/^END OF SECTION/i.test(l)) continue;
+    if ((m = l.match(/^PART\s+(\d+)\s*[-–—.:]?\s*(.*)$/i))) { out.push(`# PART ${m[1]} ${m[2].toUpperCase()}`); last = null; continue; }
+    if ((m = l.match(/^\d+\.\d+\s+(.+)$/))) { out.push('= ' + m[1].toUpperCase()); last = null; continue; }
+    if ((m = l.match(/^[A-Z]\.\s*\t?\s*(.+)$/))) { out.push('- ' + m[1]); last = out.length - 1; continue; }
+    if ((m = l.match(/^\d+\.\s*\t?\s*(.+)$/))) { out.push('  - ' + m[1]); last = out.length - 1; continue; }
+    if ((m = l.match(/^[a-z]\.\s*\t?\s*(.+)$/))) { out.push('    - ' + m[1]); last = out.length - 1; continue; }
+    if ((m = l.match(/^\d+\)\s*(.+)$/))) { out.push('      - ' + m[1]); last = out.length - 1; continue; }
+    if (last !== null) out[last] += ' ' + l; else if (!title && !out.length) title = l.toUpperCase(); else out.push('- ' + l);
+  }
+  return {num, title, body:out.join('\n') + '\n'};
+}
 
 // ── Annexures ──────────────────────────────────────────────────────────────
 const ANNEX_B_TITLE = {'21':'LIST OF SPARE PARTS FOR FIRE FIGHTING', '22':'LIST OF SPARE PARTS FOR PLUMBING', '23':'LIST OF SPARE PARTS FOR HVAC'};
@@ -2815,8 +2887,8 @@ function RootApp() {
       <div className="ai-row" style={{marginTop:12}}><span style={{flex:1}}/>{busy && <span className="ai-note">{busy}</span>}<button onClick={onClose}>Cancel</button><button className="pri" disabled={!!busy || !sel.length} onClick={apply}>Create {sel.length} items</button></div>
     </Modal>;
   }
-  function ItemSpecsTab({canEdit, who, myEmail, filter, onChanged}) {
-    const [open, setOpen] = useState(null), [sec, setSec] = useState(''), [st, setSt] = useState(''), [conv, setConv] = useState(false);
+  function ItemSpecsTab({canEdit, who, myEmail, onChanged}) {
+    const [open, setOpen] = useState(null), [sec, setSec] = useState(''), [st, setSt] = useState(''), [conv, setConv] = useState(false), [filter, setFilter] = useState('');
     if (!AU.itemsLoaded) return <div className="empty-schedule">{AU.itemsMissing || 'Item specifications not loaded.'}</div>;
     const items = actv(ITEMS.items);
     const status = it => AU.itemDraft[it.code] ? 'draft' : AU.itemRev[it.code] ? 'published' : 'none';
@@ -2827,12 +2899,13 @@ function RootApp() {
     const pending = items.filter(it => AU.itemDraft[it.code]).length, withText = items.filter(it => AU.itemRev[it.code]).length;
     const done = async () => { setOpen(null); setConv(false); await onChanged(); };
     return <>
-      <div className="schedule-toolbar" style={{background:'#fff'}}>
+      <div className="schedule-toolbar">
+        <input value={filter} onChange={e => setFilter(e.target.value)} placeholder="Search item, section, standard…"/>
         <select value={sec} onChange={e => setSec(e.target.value)}><option value="">All sections</option>{secs.map(n => { const L = LIB.find(x => x.num === n); return <option key={n} value={n}>{n} {L ? titleCase(L.title) : ''}</option>; })}</select>
         <select value={st} onChange={e => setSt(e.target.value)}><option value="">All</option><option value="published">Published</option><option value="draft">Draft awaiting approval</option><option value="none">No specification text</option></select>
         <span style={{fontSize:11,color:'#424245'}}>{withText} of {items.length} items have their own specification{pending ? <b style={{color:'#a76200'}}> · {pending} draft{pending === 1 ? '' : 's'} awaiting approval</b> : ''}</span>
         <span className="toolbar-spacer"/>
-        {canEdit && <button className="schedule-action" onClick={() => setConv(true)}>⚙ Split section articles into items</button>}
+        {canEdit && <button className="schedule-action" onClick={() => setConv(true)}>Split section articles into items</button>}
       </div>
       <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels"><th>Item</th><th>Section</th><th>Name / heading</th><th>Specification</th><th>Standards</th><th>Last change</th><th></th></tr></thead><tbody>
         {rows.map(it => { const cur = AU.itemRev[it.code], dr = AU.itemDraft[it.code]; return <tr key={it.code} onClick={() => setOpen(it)}>
@@ -2849,25 +2922,543 @@ function RootApp() {
     </>;
   }
 
+  // ── Item management (categories, refs, owners, review dates, drafts) ────
+  const ItemMgr = (function () {
+    const h = React.createElement;
+    const CATS = {
+      'Piping':                     {code:'PIP', subs:['Steel','Galvanised steel','HDPE','Ductile iron','GRE','PP-R / PP-RCT','PE-X','PVC-U','PP','Copper','Stainless steel','Gas','Drainage','Other']},
+      'Fittings':                   {code:'FIT', subs:['Threaded','Grooved','Flanged','Other']},
+      'Valves':                     {code:'VAL', subs:['Butterfly','Gate','Ball','Check','Pressure reducing','Strainer','Alarm / control','Deluge / pre-action','Landing','Other']},
+      'Pumps':                      {code:'PMP', subs:['Fire pump','Booster set','Transfer','Recirculation','Sump / sewage','Jockey','Controller','Other']},
+      'Tanks & Vessels':            {code:'TNK', subs:['GRP','Polyethylene','Steel','LPG','Day tank','Other']},
+      'Water Heating':              {code:'WHT', subs:['Electric heater','Boiler','Calorifier','Heat exchanger','Solar','Other']},
+      'Water Treatment':            {code:'WTR', subs:['Softener','Filtration','UV','Chlorination','Other']},
+      'Insulation':                 {code:'INS', subs:['Elastomeric','Polyolefin','Mineral fibre','Acoustic','Other']},
+      'Fire Protection Equipment':  {code:'FPE', subs:['Sprinkler','Hose cabinet','Fire department connection','Extinguisher','Flow / tamper switch','Foam','Clean agent','Other']},
+      'Drainage & Specialties':     {code:'DRN', subs:['Floor / roof drain','Cleanout / manhole','Interceptor','Trap / trap primer','Backflow / hammer arrestor','Hose bibb','Air admittance valve','Other']},
+      'Supports & Accessories':     {code:'SUP', subs:['Hangers','Escutcheon','Isolator / flexible connector','Expansion joint','Identification','Other']},
+      'Instruments':                {code:'GAU', subs:['Pressure gauge','Thermometer','Meter','Other']},
+      'Gas Equipment':              {code:'GAS', subs:['Detection','Regulator','Other']},
+      'Other':                      {code:'OTH', subs:['Other']},
+    };
+    const TT = it => [it.grp, it.item, it.material, it.jointing, it.application].filter(Boolean).join(' ').toLowerCase();
+    const has = (t, re) => re.test(t);
+    function classify(it) {
+      const t = TT(it), nm = String(it.item || '').toLowerCase(), mat = String(it.material || '').toLowerCase();
+      const R = (c, s) => ({category:c, subcategory:s});
+      if (has(nm, /insulation|lagging/)) return R('Insulation', has(t, /elastomeric/) ? 'Elastomeric' : has(t, /polyolefin/) ? 'Polyolefin' : has(t, /mineral|fibre/) ? 'Mineral fibre' : has(t, /acoustic|barrier/) ? 'Acoustic' : 'Other');
+      if (has(nm, /gas detection/)) return R('Gas Equipment', 'Detection');
+      if (has(nm, /regulator/) && has(t, /gas|lpg/)) return R('Gas Equipment', 'Regulator');
+      if (has(nm, /^gas pipe|gas pipe/)) return R('Piping', 'Gas');
+      if (has(nm, /lpg tank/)) return R('Tanks & Vessels', 'LPG');
+      if (has(nm, /softener|filter|\buv\b|chlorination|carbon/)) return R('Water Treatment', has(nm, /softener/) ? 'Softener' : has(nm, /filter|carbon/) ? 'Filtration' : has(nm, /uv/) ? 'UV' : 'Chlorination');
+      if (has(nm, /pump|booster|controller/)) return R('Pumps', has(nm, /controller/) ? 'Controller' : has(nm, /jockey/) ? 'Jockey' : has(nm, /booster/) ? 'Booster set' : has(nm, /transfer/) ? 'Transfer' : has(nm, /recirc/) ? 'Recirculation' : has(nm, /sump|sewage/) ? 'Sump / sewage' : has(t, /fire/) || has(t, /nfpa 20/) ? 'Fire pump' : 'Other');
+      if (has(nm, /day tank/)) return R('Tanks & Vessels', 'Day tank');
+      if (has(nm, /tank/)) return R('Tanks & Vessels', has(t, /grp/) ? 'GRP' : has(t, /polyethylene|\bpe\b/) ? 'Polyethylene' : has(t, /steel/) ? 'Steel' : 'Other');
+      if (has(nm, /water heater|boiler|calorifier|heat exchanger|solar/)) return R('Water Heating', has(nm, /boiler/) ? 'Boiler' : has(nm, /calorifier/) ? 'Calorifier' : has(nm, /exchanger/) ? 'Heat exchanger' : has(nm, /solar/) ? 'Solar' : 'Electric heater');
+      if (has(nm, /gauge|thermometer|meter/)) return R('Instruments', has(nm, /gauge/) ? 'Pressure gauge' : has(nm, /thermo/) ? 'Thermometer' : 'Meter');
+      if (has(nm, /sprinkler|hose cabinet|fire department|extinguisher|flow switch|tamper switch|foam|clean agent|proportioner/))
+        return R('Fire Protection Equipment', has(nm, /sprinkler/) ? 'Sprinkler' : has(nm, /hose cabinet/) ? 'Hose cabinet' : has(nm, /department/) ? 'Fire department connection' : has(nm, /extinguisher/) ? 'Extinguisher' : has(nm, /switch/) ? 'Flow / tamper switch' : has(nm, /foam|proportioner/) ? 'Foam' : 'Clean agent');
+      if (has(nm, /drain|cleanout|manhole|interceptor|trap|air admittance|hose bibb|backflow|hammer/))
+        return R('Drainage & Specialties', has(nm, /floor|roof|drain/) && !has(nm, /interceptor/) ? 'Floor / roof drain' : has(nm, /cleanout|manhole/) ? 'Cleanout / manhole' : has(nm, /interceptor/) ? 'Interceptor' : has(nm, /trap/) ? 'Trap / trap primer' : has(nm, /backflow|hammer/) ? 'Backflow / hammer arrestor' : has(nm, /bibb/) ? 'Hose bibb' : 'Air admittance valve');
+      if (has(nm, /valve|strainer/)) return R('Valves', has(nm, /butterfly/) ? 'Butterfly' : has(nm, /gate/) ? 'Gate' : has(nm, /ball/) ? 'Ball' : has(nm, /check/) ? 'Check' : has(nm, /pressure[- ]reducing|regulating|prv/) ? 'Pressure reducing' : has(nm, /strainer/) ? 'Strainer' : has(nm, /alarm|zone control/) ? 'Alarm / control' : has(nm, /deluge|pre-?action|dry-?pipe/) ? 'Deluge / pre-action' : has(nm, /landing/) ? 'Landing' : 'Other');
+      if (has(nm, /hanger|support|escutcheon|isolator|flexible connector|expansion joint|marker|identification/))
+        return R('Supports & Accessories', has(nm, /hanger|support/) ? 'Hangers' : has(nm, /escutcheon/) ? 'Escutcheon' : has(nm, /isolator|flexible/) ? 'Isolator / flexible connector' : has(nm, /expansion/) ? 'Expansion joint' : 'Identification');
+      if (has(nm, /fitting/)) return R('Fittings', has(t, /grooved/) ? 'Grooved' : has(t, /threaded/) ? 'Threaded' : has(t, /flange/) ? 'Flanged' : 'Other');
+      if (has(nm, /pipe|piping|main/)) {
+        const m = mat + ' ' + String(it.grp || '').toLowerCase();
+        const s = has(m, /pp-rct|pp-r|ppr/) ? 'PP-R / PP-RCT' : has(m, /hdpe|pe100/) ? 'HDPE' : has(m, /ductile/) ? 'Ductile iron' : has(m, /\bgre\b/) ? 'GRE' : has(m, /pe-x|pex/) ? 'PE-X' : has(m, /pvc|upvc/) ? 'PVC-U' : has(m, /stainless/) ? 'Stainless steel' : has(m, /copper/) ? 'Copper' : has(m, /galvanised/) ? 'Galvanised steel' : has(m, /steel/) ? 'Steel' : has(m, /\bpp\b|polypropylene/) ? 'PP' : has(String(it.grp || '').toLowerCase(), /drainage/) ? 'Drainage' : 'Other';
+        return R('Piping', s);
+      }
+      return R('Other', 'Other');
+    }
+    const divOf = n => String(n || '').replace(/\s/g, '').slice(0, 2);
+    const today = () => new Date().toISOString().slice(0, 10);
+    const byNum = (a, b) => String(a).localeCompare(String(b), undefined, {numeric:true});
+    const items = () => actv(ITEMS.items);
+    const hasCols = () => ITEMS.items.length > 0 && ('category' in ITEMS.items[0]);
+    const specState = it => AU.itemDraft[it.code] ? 'draft' : AU.itemRev[it.code] ? 'published' : 'none';
+    function draftFromItem(it) {
+      const L = [], add = (k, v) => { if (v && String(v).trim() && String(v).trim() !== '—') L.push(`- ${k}: ${String(v).trim().replace(/\.$/, '')}.`); };
+      add('Material', it.material); add('Rating / class', it.rating); add('Jointing', it.jointing); add('Application', it.application);
+      const reg = Object.keys(AU.std || {}).sort((a, b) => b.length - a.length), codes = [];
+      String(it.standards || '').split(';').map(x => x.trim()).filter(Boolean).forEach(s => { const c = reg.find(k => s === k || s.startsWith(k + ' ')); if (c && !codes.includes(c)) codes.push(c); });
+      if (it.standards) L.push(`- Comply with ${String(it.standards).split(';').map(x => x.trim()).filter(Boolean).join('; ')}.`);
+      return {part2:L.join('\n') + '\n', standards:codes.join('; ') || null, ok:L.length > 0};
+    }
+    function ClassifyDialog({onClose, onDone, who}) {
+      const [rows, setRows] = useState(() => items().filter(i => !i.category).sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0)).map(i => ({it:i, ...classify(i), on:true})));
+      const [busy, setBusy] = useState(''), [err, setErr] = useState('');
+      const sel = rows.filter(r => r.on);
+      const apply = async () => {
+        setErr('');
+        try {
+          for (let k = 0; k < sel.length; k++) {
+            setBusy(`Saving ${k + 1} of ${sel.length}…`);
+            const r = sel[k], {error} = await sb.from('spec_items').update({category:r.category, subcategory:r.subcategory || null, updated_by:who}).eq('code', r.it.code);
+            if (error) throw new Error(r.it.code + ': ' + error.message);
+          }
+          setBusy(''); onDone();
+        } catch (e) { setBusy(''); setErr(e.message + ' — rows saved before this point are kept; reopen to continue.'); }
+      };
+      const set = (k, patch) => setRows(rows.map((r, j) => j === k ? {...r, ...patch} : r));
+      return h(Modal, {title:'Auto-classify items', onClose, wide:true},
+        h('div', {style:{fontSize:12,lineHeight:1.55,color:'#424245'}}, `Suggested Category and Subcategory for ${rows.length} items without one, from their names and materials. Change any suggestion, untick what you want to skip, then save. "Other" means no rule matched — please set it.`),
+        h('div', {style:{fontSize:11,margin:'8px 0'}}, h('b', null, sel.length), ` of ${rows.length} ticked · `, h('a', {href:'#', onClick:e => { e.preventDefault(); setRows(rows.map(r => ({...r, on:true}))); }}, 'tick all'), ' · ', h('a', {href:'#', onClick:e => { e.preventDefault(); setRows(rows.map(r => ({...r, on:r.category !== 'Other'}))); }}, 'untick "Other"')),
+        h('div', {className:'schedule-table-wrap', style:{maxHeight:'48vh', minHeight:0, border:'1px solid #e1e1e6', borderRadius:8}},
+          h('table', {className:'schedule-table', style:{minWidth:0, tableLayout:'auto'}},
+            h('thead', null, h('tr', {className:'labels'}, ['', 'Section', 'Item', 'Category', 'Subcategory'].map((x, i) => h('th', {key:i}, x)))),
+            h('tbody', null, rows.map((r, k) => h('tr', {key:r.it.code, style:{opacity:r.on ? 1 : .45}},
+              h('td', null, h('input', {type:'checkbox', checked:r.on, onChange:e => set(k, {on:e.target.checked})})),
+              h('td', {className:'tag-code'}, r.it.section_num),
+              h('td', null, r.it.item, r.it.material && r.it.material !== r.it.item ? h('div', {style:{fontSize:9.5,color:'#86868b'}}, r.it.material) : null),
+              h('td', null, h('select', {value:r.category, onChange:e => set(k, {category:e.target.value, subcategory:(CATS[e.target.value].subs.includes(r.subcategory) ? r.subcategory : 'Other')}), style:{padding:'3px 6px',fontSize:11}}, Object.keys(CATS).map(c => h('option', {key:c}, c)))),
+              h('td', null, h('select', {value:r.subcategory || 'Other', onChange:e => set(k, {subcategory:e.target.value}), style:{padding:'3px 6px',fontSize:11}}, (CATS[r.category] || CATS.Other).subs.map(s => h('option', {key:s}, s))))))))),
+        err && h('div', {className:'ai-msg bad', style:{marginTop:8}}, err),
+        h('div', {className:'ai-row', style:{marginTop:12}}, h('span', {style:{flex:1}}), busy && h('span', {className:'ai-note'}, busy), h('button', {onClick:onClose}, 'Cancel'), h('button', {className:'pri', disabled:!!busy || !sel.length, onClick:apply}, `Save ${sel.length} classifications`)));
+    }
+    function RefsDialog({onClose, onDone, who}) {
+      const plan = useMemo(() => {
+        const all = items(), used = {}, out = [];
+        all.forEach(i => { const m = String(i.ref || '').match(/^(\d{2})-([A-Z]{3})-(\d{3})$/); if (m) { const k = m[1] + '-' + m[2]; used[k] = Math.max(used[k] || 0, +m[3]); } });
+        all.filter(i => !i.ref && i.category).sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0)).forEach(i => {
+          const k = divOf(i.section_num) + '-' + ((CATS[i.category] || CATS.Other).code); used[k] = (used[k] || 0) + 1;
+          out.push({it:i, ref:k + '-' + String(used[k]).padStart(3, '0')});
+        });
+        return out;
+      }, []);
+      const skipped = items().filter(i => !i.ref && !i.category).length;
+      const [busy, setBusy] = useState(''), [err, setErr] = useState('');
+      const apply = async () => {
+        try {
+          for (let k = 0; k < plan.length; k++) { setBusy(`Saving ${k + 1} of ${plan.length}…`); const {error} = await sb.from('spec_items').update({ref:plan[k].ref, updated_by:who}).eq('code', plan[k].it.code); if (error) throw new Error(plan[k].it.code + ': ' + error.message); }
+          setBusy(''); onDone();
+        } catch (e) { setBusy(''); setErr(e.message); }
+      };
+      return h(Modal, {title:'Generate readable item refs', onClose, wide:true},
+        h('div', {style:{fontSize:12,lineHeight:1.55,color:'#424245'}}, 'Refs follow Division – Category – Number, e.g. ', h('b', null, '22-VAL-001'), '. The internal code (IT-0105) stays as the key, so revisions, drafts and history are not affected. Existing refs are kept; numbering continues after the highest one.'),
+        skipped > 0 && h('div', {className:'ai-msg bad', style:{marginTop:6}}, `${skipped} item(s) have no Category yet and are skipped — run Auto-classify first.`),
+        h('div', {className:'schedule-table-wrap', style:{maxHeight:'44vh', minHeight:0, border:'1px solid #e1e1e6', borderRadius:8, marginTop:8}},
+          h('table', {className:'schedule-table', style:{minWidth:0, tableLayout:'auto'}}, h('thead', null, h('tr', {className:'labels'}, ['New ref', 'Code', 'Section', 'Item', 'Category'].map((x, i) => h('th', {key:i}, x)))),
+            h('tbody', null, plan.map(p => h('tr', {key:p.it.code}, h('td', {className:'tag-code'}, p.ref), h('td', {className:'tag-code'}, p.it.code), h('td', {className:'tag-code'}, p.it.section_num), h('td', null, p.it.item), h('td', null, p.it.category, p.it.subcategory ? ' › ' + p.it.subcategory : '')))))),
+        err && h('div', {className:'ai-msg bad', style:{marginTop:8}}, err),
+        h('div', {className:'ai-row', style:{marginTop:12}}, h('span', {style:{flex:1}}), busy && h('span', {className:'ai-note'}, busy), h('button', {onClick:onClose}, 'Cancel'), h('button', {className:'pri', disabled:!!busy || !plan.length, onClick:apply}, `Create ${plan.length} refs`)));
+    }
+    function DraftsDialog({onClose, onDone, who}) {
+      const list = useMemo(() => items().filter(i => specState(i) === 'none').sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0)).map(i => ({it:i, d:draftFromItem(i)})), []);
+      const ready = list.filter(x => x.d.ok), empty = list.length - ready.length;
+      const [busy, setBusy] = useState(''), [err, setErr] = useState('');
+      const apply = async () => {
+        setErr('');
+        try {
+          for (let k = 0; k < ready.length; k += 40) {
+            setBusy(`Creating drafts ${Math.min(k + 40, ready.length)} of ${ready.length}…`);
+            const rows = ready.slice(k, k + 40).map(x => ({item_code:x.it.code, part2:x.d.part2, part3:'', standards:x.d.standards, reason:'Generated from the item data (material, rating, jointing, standards) — review and edit before approval', created_by:who}));
+            const {error} = await sb.from('spec_item_revs').insert(rows); if (error) throw new Error(error.message);
+          }
+          setBusy(''); onDone();
+        } catch (e) { setBusy(''); setErr(e.message + ' — drafts created before this point are kept; reopen to continue.'); }
+      };
+      return h(Modal, {title:'Create draft specifications', onClose, wide:true},
+        h('div', {style:{fontSize:12,lineHeight:1.55,color:'#424245'}}, `${list.length} items have no specification text. This creates one `, h('b', null, 'draft'), ' for each from its existing data: material, rating, jointing, application and standards. Nothing is published: a Lead / Associate (not you) reviews, edits and approves each draft under Library › Item specifications. Most will need editing — they are a starting point, not finished clauses.'),
+        empty > 0 && h('div', {className:'ai-msg bad', style:{marginTop:6}}, `${empty} item(s) have no data to build a draft from and are skipped (write their text in Item specifications).`),
+        h('div', {className:'schedule-table-wrap', style:{maxHeight:'42vh', minHeight:0, border:'1px solid #e1e1e6', borderRadius:8, marginTop:8}},
+          h('table', {className:'schedule-table', style:{minWidth:0, tableLayout:'auto'}}, h('thead', null, h('tr', {className:'labels'}, ['Section', 'Item', 'Draft Part 2 (preview)'].map((x, i) => h('th', {key:i}, x)))),
+            h('tbody', null, ready.map(x => h('tr', {key:x.it.code}, h('td', {className:'tag-code'}, x.it.section_num), h('td', null, x.it.item), h('td', {style:{fontSize:10,whiteSpace:'pre-wrap',fontFamily:'ui-monospace,Menlo,Consolas,monospace'}}, x.d.part2)))))),
+        err && h('div', {className:'ai-msg bad', style:{marginTop:8}}, err),
+        h('div', {className:'ai-row', style:{marginTop:12}}, h('span', {style:{flex:1}}), busy && h('span', {className:'ai-note'}, busy), h('button', {onClick:onClose}, 'Cancel'), h('button', {className:'pri', disabled:!!busy || !ready.length, onClick:apply}, `Create ${ready.length} drafts`)));
+    }
+    function ItemManagerPanel({canEdit, who, onChanged}) {
+      const [ver, setVer] = useState(0), [msg, setMsg] = useState(''), [dlg, setDlg] = useState(null);
+      const [q, setQ] = useState(''), [div, setDiv] = useState(''), [cat, setCat] = useState(''), [st, setSt] = useState(''), [rv, setRv] = useState('');
+      const bump = () => setVer(x => x + 1);
+      const reload = async () => { try { await loadLibrary(); } catch (e) {} setDlg(null); bump(); if (onChanged) onChanged(); };
+      const all = items(), cols = hasCols(), td = today();
+      const overdue = it => it.review_due && String(it.review_due).slice(0, 10) < td;
+      const rows = all.filter(it => (!div || divOf(it.section_num) === div) && (!cat || (cat === '(none)' ? !it.category : it.category === cat)) && (!st || specState(it) === st) && (!rv || (rv === 'overdue' ? overdue(it) : !it.review_due))
+        && (!q || [it.code, it.ref, it.item, it.material, it.category, it.subcategory, it.section_num, it.standards].join(' ').toLowerCase().includes(q.toLowerCase()))).sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0));
+      const divs = [...new Set(all.map(i => divOf(i.section_num)))].sort();
+      const stats = {total:all.length, cat:all.filter(i => i.category).length, ref:all.filter(i => i.ref).length, spec:all.filter(i => specState(i) !== 'none').length, draft:all.filter(i => specState(i) === 'draft').length, over:all.filter(overdue).length, none:all.filter(i => specState(i) === 'none').length};
+      const save = async (it, patch) => {
+        setMsg(''); const {error} = await sb.from('spec_items').update({...patch, updated_by:who}).eq('code', it.code);
+        if (error) { setMsg(it.code + ': ' + (/column|schema/i.test(error.message) ? 'database columns missing — run spec_item_management_v2.sql in Supabase.' : error.message)); return false; }
+        Object.assign(it, patch); bump(); return true;
+      };
+      const bulkDue = async () => {
+        const d = window.prompt(`Set the next review date for the ${rows.filter(i => !i.review_due).length} listed items that have none (YYYY-MM-DD):`, new Date(Date.now() + 365 * 864e5).toISOString().slice(0, 10)); if (!d) return;
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(d)) return setMsg('Use the format YYYY-MM-DD.');
+        for (const it of rows.filter(i => !i.review_due)) { if (!(await save(it, {review_due:d}))) break; }
+      };
+      const exportCsv = () => {
+        const F = ['ref', 'code', 'section_num', 'category', 'subcategory', 'item', 'material', 'owner', 'review_due', 'standards'];
+        const csv = [F.join(',')].concat(rows.map(r => F.map(k => '"' + String(r[k] ?? '').replace(/"/g, '""') + '"').join(','))).join('\n');
+        const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + csv], {type:'text/csv'})); a.download = 'spec_items.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+      };
+      const inp1 = {padding:'3px 6px', fontSize:11, border:'1px solid #d2d2d7', borderRadius:6, width:'100%', background:'#fff'};
+      const card = (l, v, n, k, f) => h('div', {className:'health-card ' + (k || 'capacity'), onClick:f ? () => { setQ(''); setDiv(''); setCat(f.cat || ''); setSt(f.st || ''); setRv(f.rv || ''); } : undefined, style:{cursor:f ? 'pointer' : 'default'}}, h('div', {className:'h-label'}, l), h('div', {className:'h-value'}, v), h('div', {className:'h-note'}, n));
+      return h('div', null,
+        !cols && h('div', {className:'ai-msg bad', style:{margin:'10px 12px'}}, 'The new item columns are not in the database yet. Run spec_item_management_v2.sql in Supabase › SQL Editor, then reload this page.'),
+        msg && h('div', {className:'ai-msg bad', style:{margin:'10px 12px'}}, msg),
+        h('div', {className:'schedule-health', style:{padding:'12px 12px 4px'}},
+          card('Items', stats.total, `${stats.cat} categorised · ${stats.ref} with ref`, 'capacity', {}),
+          card('Have a specification', stats.spec, `${stats.none} still schedule-line only`, stats.none ? 'review' : 'pass', {st:'none'}),
+          card('Drafts awaiting approval', stats.draft, 'click to list', stats.draft ? 'review' : 'pass', {st:'draft'}),
+          card('Review overdue', stats.over, 'past their review date', stats.over ? 'blocked' : 'pass', {rv:'overdue'}),
+          card('No category', stats.total - stats.cat, 'needed for refs and vendor lists', stats.total - stats.cat ? 'blocked' : 'pass', {cat:'(none)'})),
+        h('div', {className:'schedule-toolbar'},
+          h('input', {value:q, onChange:e => setQ(e.target.value), placeholder:'Search ref, name, material, standard…'}),
+          h('select', {value:div, onChange:e => setDiv(e.target.value)}, h('option', {value:''}, 'All divisions'), divs.map(d => h('option', {key:d, value:d}, 'Division ' + d + (DIVNAMES[d] ? ' – ' + DIVNAMES[d] : '')))),
+          h('select', {value:cat, onChange:e => setCat(e.target.value)}, h('option', {value:''}, 'All categories'), h('option', {value:'(none)'}, '(no category)'), Object.keys(CATS).map(c => h('option', {key:c}, c))),
+          h('select', {value:st, onChange:e => setSt(e.target.value)}, h('option', {value:''}, 'Any specification'), h('option', {value:'published'}, 'Published'), h('option', {value:'draft'}, 'Draft awaiting approval'), h('option', {value:'none'}, 'No specification text')),
+          h('select', {value:rv, onChange:e => setRv(e.target.value)}, h('option', {value:''}, 'Any review date'), h('option', {value:'overdue'}, 'Overdue'), h('option', {value:'none'}, 'No review date')),
+          h('span', {className:'toolbar-spacer'}),
+          canEdit && cols && h('button', {className:'schedule-action', onClick:() => setDlg('classify'), title:'Suggest Category / Subcategory for items without one'}, 'Auto-classify'),
+          canEdit && cols && h('button', {className:'schedule-action', onClick:() => setDlg('refs')}, 'Generate refs'),
+          canEdit && AU.itemsLoaded && h('button', {className:'schedule-action', onClick:() => setDlg('drafts')}, `Draft specifications (${stats.none})`),
+          canEdit && cols && h('button', {className:'schedule-action', onClick:bulkDue}, 'Set review date'),
+          h('button', {className:'schedule-action', onClick:exportCsv}, 'CSV')),
+        h('div', {className:'schedule-table-wrap', style:{maxHeight:'calc(100vh - 380px)'}},
+          h('table', {className:'schedule-table', style:{minWidth:1250, tableLayout:'auto'}},
+            h('thead', null, h('tr', {className:'labels'}, ['Ref', 'Code', 'Section', 'Item', 'Category', 'Subcategory', 'Owner', 'Review due', 'Specification', 'Standards'].map((x, i) => h('th', {key:i}, x)))),
+            h('tbody', null, rows.map(it => { const cur = AU.itemRev[it.code], dr = AU.itemDraft[it.code], ro = !canEdit || !cols;
+              const subs = (CATS[it.category] || {subs:[]}).subs;
+              return h('tr', {key:it.code, style:{cursor:'default'}},
+                h('td', {style:{minWidth:96}}, h('input', {defaultValue:it.ref || '', key:it.code + ':' + (it.ref || ''), disabled:ro, placeholder:'—', style:{...inp1, fontFamily:'ui-monospace,Menlo,Consolas,monospace', fontWeight:700}, onBlur:e => { const el = e.target, v = el.value.trim().toUpperCase() || null; if (v !== (it.ref || null)) save(it, {ref:v}).then(ok => { if (!ok) el.value = it.ref || ''; }); }})),
+                h('td', {className:'tag-code'}, it.code), h('td', {className:'tag-code'}, it.section_num),
+                h('td', {style:{minWidth:200}}, it.item, it.material && it.material !== it.item ? h('div', {style:{fontSize:9.5, color:'#86868b'}}, it.material) : null),
+                h('td', {style:{minWidth:150}}, h('select', {value:it.category || '', disabled:ro, style:inp1, onChange:e => save(it, {category:e.target.value || null, subcategory:null})}, h('option', {value:''}, '—'), Object.keys(CATS).map(c => h('option', {key:c}, c)))),
+                h('td', {style:{minWidth:150}}, h('select', {value:it.subcategory || '', disabled:ro || !it.category, style:inp1, onChange:e => save(it, {subcategory:e.target.value || null})}, h('option', {value:''}, '—'), subs.map(x => h('option', {key:x}, x)), it.subcategory && !subs.includes(it.subcategory) ? h('option', {key:'c'}, it.subcategory) : null)),
+                h('td', {style:{width:70}}, h('input', {defaultValue:it.owner || '', key:it.code + ':o' + (it.owner || ''), disabled:ro, placeholder:'—', style:inp1, onBlur:e => { const v = e.target.value.trim().toUpperCase() || null; if (v !== (it.owner || null)) save(it, {owner:v}); }})),
+                h('td', {style:{width:128}}, h('input', {type:'date', defaultValue:it.review_due ? String(it.review_due).slice(0, 10) : '', key:it.code + ':d' + (it.review_due || ''), disabled:ro, style:{...inp1, ...(overdue(it) ? {borderColor:'#ff3b30', background:'#fff6f5'} : {})}, onBlur:e => { const v = e.target.value || null; if (v !== (it.review_due ? String(it.review_due).slice(0, 10) : null)) save(it, {review_due:v}); }}), overdue(it) && h('div', {style:{fontSize:9, color:'#d8332b', fontWeight:700, marginTop:2}}, 'review overdue')),
+                h('td', null, cur ? h(Chip, {k:'pass'}, 'Rev ' + cur.rev) : h(Chip, {k:'draft'}, 'schedule line only'), ' ', dr ? h(Chip, {k:'review'}, 'Draft rev ' + dr.rev) : null),
+                h('td', {style:{fontSize:10, maxWidth:220}}, (cur && cur.standards) || it.standards || ''));
+            }), !rows.length && h('tr', null, h('td', {colSpan:10, className:'empty-schedule'}, 'No items match.'))))),
+        h('div', {style:{padding:'8px 12px', fontSize:10, color:'#86868b'}}, `${rows.length} of ${all.length} items shown · edits save as you leave each field and are kept in the item history · approve draft specifications under Item specifications`),
+        dlg === 'classify' && h(ClassifyDialog, {onClose:() => setDlg(null), onDone:reload, who}),
+        dlg === 'refs' && h(RefsDialog, {onClose:() => setDlg(null), onDone:reload, who}),
+        dlg === 'drafts' && h(DraftsDialog, {onClose:() => setDlg(null), onDone:reload, who}));
+    }
+    return {ItemManagerPanel, classify, CATS};
+  })();
+
+  // ── Item attributes (catalogue of choices per item, with sources) ───────
+  function AttrsPanel() {
+    const [rows, setRows] = useState([]), [busy, setBusy] = useState(true), [err, setErr] = useState('');
+    const [item, setItem] = useState(''), [kind, setKind] = useState(''), [st, setSt] = useState(''), [q, setQ] = useState(''), [open, setOpen] = useState({});
+    useEffect(() => { let c = false; (async () => {
+      const r = await sb.from('spec_item_attrs').select('*').order('sort').range(0, 19999);
+      if (c) return;
+      if (r.error) { setErr(r.error.message); setRows([]); } else { setErr(''); setRows((r.data || []).filter(x => x.active !== false)); }
+      setBusy(false);
+    })(); return () => { c = true; }; }, []);
+    const items = useMemo(() => [...new Set(rows.map(r => r.item))], [rows]);
+    const list = useMemo(() => rows.filter(r => (!item || r.item === item) && (!kind || r.kind === kind) && (!st || r.status === st) &&
+      (!q || [r.item, r.component, r.attribute, r.options, r.standards, r.source, r.notes].join(' ').toLowerCase().includes(q.toLowerCase()))), [rows, item, kind, st, q]);
+    const groups = useMemo(() => { const g = {}; list.forEach(r => { (g[r.item] = g[r.item] || []).push(r); }); return g; }, [list]);
+    const nCheck = rows.filter(r => r.status === 'Check').length;
+    const filtered = !!(item || kind || st || q);
+    const setAll = f => { setItem(f.item || ''); setKind(f.kind || ''); setSt(f.status || ''); setQ(''); setOpen({}); };
+    const isOn = f => (f.item || '') === item && (f.kind || '') === kind && (f.status || '') === st && !q;
+    const opts = s => String(s || '').split(' | ').map(x => x.trim()).filter(Boolean);
+    const csv = () => {
+      const F = ['family', 'item', 'component', 'attribute', 'type', 'options', 'standards', 'source', 'kind', 'status', 'notes'];
+      const t = [F.join(',')].concat(list.map(r => F.map(k => '"' + String(r[k] == null ? '' : r[k]).replace(/"/g, '""') + '"').join(','))).join('\n');
+      const a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['\ufeff' + t], {type:'text/csv'})); a.download = 'item_attributes.csv'; document.body.appendChild(a); a.click(); setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+    };
+    const chip = k => ({display:'inline-block', fontSize:9, fontWeight:800, borderRadius:999, padding:'2px 8px', background:k === 'Verified' ? '#e8faf0' : '#fff4e0', color:k === 'Verified' ? '#208a45' : '#a76200'});
+    const kindS = k => ({display:'inline-block', fontSize:9, fontWeight:700, borderRadius:6, padding:'2px 6px', background:k === 'Your spec' ? '#e8f0fe' : k === 'Manufacturer' ? '#f1f1f3' : '#eef7ee', color:k === 'Your spec' ? '#1559a6' : k === 'Manufacturer' ? '#555' : '#2f6b3a'});
+    const card = (l, v, n, k, f) => { const on = isOn(f); return <div className={'health-card ' + (k || 'capacity')} onClick={() => setAll(on ? {} : f)} title={on ? 'Click to show all' : 'Click to show these rows'} style={{cursor:'pointer', outline:on ? '2px solid #007aff' : 'none', outlineOffset:1}}><div className="h-label">{l}</div><div className="h-value">{v}</div><div className="h-note">{n}</div></div>; };
+    if (busy) return <div className="piw-empty big">Loading attributes…</div>;
+    if (err) return <div className="ai-msg bad" style={{margin:12}}>Item attributes are not set up yet ({err}). Run spec_item_attrs_schema.sql, then spec_item_attrs_seed_valves.sql, in Supabase › SQL Editor.</div>;
+    return <div>
+      <div className="schedule-health" style={{padding:'12px 12px 4px'}}>
+        {card('Attributes', rows.length, items.length + ' item groups', 'capacity', {})}
+        {card('Verified', rows.length - nCheck, 'source says this', 'pass', {status:'Verified'})}
+        {card('To check', nCheck, 'click to see what to decide', nCheck ? 'review' : 'pass', {status:'Check'})}
+        {card('From your specs', rows.filter(r => r.kind === 'Your spec').length, 'your own specifications', 'capacity', {kind:'Your spec'})}
+        {card('Manufacturer data', rows.filter(r => r.kind === 'Manufacturer').length, 'reference only, per product', 'capacity', {kind:'Manufacturer'})}
+      </div>
+      {filtered && <div style={{display:'flex', alignItems:'center', gap:10, margin:'4px 12px 8px', padding:'7px 12px', background:st === 'Check' ? '#fff4e0' : '#eef4ff', border:'1px solid ' + (st === 'Check' ? '#f5c27a' : '#cfe0ff'), borderRadius:8, fontSize:12, color:'#424245'}}>
+        <span style={{flex:1}}><b>{list.length} of {rows.length} attributes</b> shown{st === 'Check' ? '. Each amber note says what to decide.' : '.'}</span>
+        <button className="schedule-action" onClick={() => setAll({})}>Show all</button></div>}
+      <div className="schedule-toolbar">
+        <input value={q} onChange={e => setQ(e.target.value)} placeholder="Search attribute, option, standard, source…"/>
+        <select value={item} onChange={e => setItem(e.target.value)}><option value="">All items</option>{items.map(i => <option key={i}>{i}</option>)}</select>
+        <select value={kind} onChange={e => setKind(e.target.value)}><option value="">Any source</option><option>Your spec</option><option>Manufacturer</option><option>Both</option></select>
+        <select value={st} onChange={e => setSt(e.target.value)}><option value="">Any status</option><option>Verified</option><option>Check</option></select>
+        <span className="toolbar-spacer"/>
+        <button className="schedule-action" onClick={() => { const o = {}; Object.keys(groups).forEach(k => { o[k] = true; }); setOpen(o); }}>Expand all</button>
+        <button className="schedule-action" onClick={() => setOpen({})}>Collapse all</button>
+        <button className="schedule-action" onClick={csv}>CSV</button>
+      </div>
+      <div style={{maxHeight:'calc(100vh - 400px)', overflow:'auto'}}>
+        {Object.keys(groups).length === 0 ? <div className="empty-schedule">No attributes match.</div> : Object.keys(groups).map(name => {
+          const L = groups[name], isOpen = open[name] !== undefined ? open[name] : filtered, nc = L.filter(r => r.status === 'Check').length;
+          return <div key={name} style={{borderBottom:'1px solid #e8e8ed'}}>
+            <div onClick={() => setOpen({...open, [name]:!isOpen})} style={{display:'flex', alignItems:'center', gap:10, padding:'10px 14px', cursor:'pointer', background:isOpen ? '#f5f9ff' : '#fff'}}>
+              <span style={{width:14, fontSize:11, color:'#86868b'}}>{isOpen ? '▾' : '▸'}</span><b style={{fontSize:13, flex:1}}>{name}</b>
+              <span style={{fontSize:10, color:'#86868b'}}>{L.length} attributes</span>{nc > 0 && <span style={chip('Check')}>{nc} to check</span>}</div>
+            {isOpen && <table className="schedule-table" style={{minWidth:900, tableLayout:'auto'}}><thead><tr className="labels">{['Component', 'Attribute', 'Options / values', 'Standards', 'Source', 'Status'].map((x, i) => <th key={i}>{x}</th>)}</tr></thead>
+              <tbody>{L.map(r => <tr key={r.id} style={{cursor:'default'}}>
+                <td style={{fontSize:10.5, whiteSpace:'nowrap'}}>{r.component}</td>
+                <td style={{fontWeight:700, minWidth:150}}>{r.attribute}{r.type && <div style={{fontSize:9, color:'#86868b', fontWeight:500}}>{r.type}</div>}</td>
+                <td style={{minWidth:380, whiteSpace:'normal'}}><ul style={{margin:0, paddingLeft:16}}>{opts(r.options).map((o, i) => <li key={i} style={{marginBottom:2, fontSize:11}}>{o}</li>)}</ul>
+                  {r.notes && <div style={{marginTop:4, fontSize:10, color:r.status === 'Check' ? '#a76200' : '#6e6e73', background:r.status === 'Check' ? '#fff4e0' : '#f5f5f7', borderRadius:6, padding:'4px 7px'}}>{r.notes}</div>}</td>
+                <td style={{fontSize:10, maxWidth:150, whiteSpace:'normal'}}>{r.standards}</td>
+                <td style={{fontSize:10, maxWidth:260, whiteSpace:'normal'}}><span style={kindS(r.kind)}>{r.kind}</span><div style={{marginTop:3}}>{r.source}</div></td>
+                <td><span style={chip(r.status)}>{r.status}</span></td></tr>)}</tbody></table>}
+          </div>; })}
+      </div>
+      <div style={{padding:'8px 12px', fontSize:10, color:'#86868b'}}>{list.length} of {rows.length} attributes shown · read-only · Verified = the source shown says this · Check = conflicting or unclear, decide before use · manufacturer rows describe that product only</div>
+    </div>;
+  }
+
+  // ── Excel export of the whole library ────────────────────────────────────
+  const XlsxExport = (function () {
+    const MAXCELL = 32000;
+    const byNum = (a, b) => String(a || '').localeCompare(String(b || ''), undefined, {numeric:true});
+    const divOf = n => String(n || '').replace(/\s/g, '').slice(0, 2);
+    const nice = n => String(n || '').replace(/^(\d{2})\s?(\d{2})(\d{2})/, '$1 $2 $3');
+    const day = d => d ? String(d).slice(0, 10) : '';
+    const stamp = d => d ? String(d).replace('T', ' ').slice(0, 16) : '';
+    const cl = c => c ? condLabel(c) : '';
+    const clbl = (l, n) => l === 0 ? String.fromCharCode(65 + (n % 26)) + '.' : l === 1 ? (n + 1) + '.' : l === 2 ? String.fromCharCode(97 + (n % 26)) + '.' : (n + 1) + ')';
+    const clean = s => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, '');
+    const xe = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    const colName = n => { let s = ''; n++; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+    const cap = s => { s = clean(s); if (s.length > MAXCELL) return s.slice(0, MAXCELL) + ' … [truncated at ' + MAXCELL + ' characters]'; return s; };
+    const fieldsOf = t => [...new Set([...String(t || '').matchAll(/\{\{\s*([A-Za-z0-9_.>:]+)\s*\}\}/g)].map(m => m[1]))];
+    const kindOf = t => { const s = String(t || ''); return /\{\{\s*AUTO:RELATED/.test(s) ? 'Automatic: related sections' : /\{\{\s*AUTO:STANDARDS/.test(s) ? 'Automatic: reference standards' : /\{\{\s*AUTO:ITEMS/.test(s) ? 'Automatic: item specifications' : /\{\{\s*>/.test(s) ? 'Common text' : 'Text'; };
+    const lst = a => (a || []).filter(x => x && x.active !== false);
+    async function fetchTable(name) {
+      try { const r = await sb.from(name).select('*').range(0, 19999); if (r.error) return {rows:[], error:r.error.message}; return {rows:r.data || [], error:null}; }
+      catch (e) { return {rows:[], error:String((e && e.message) || e)}; }
+    }
+    function parseBody(body) {
+      const parts = []; let P = null, A = null;
+      String(body || '').split('\n').forEach(raw => {
+        if (!raw.trim()) return;
+        const ind = raw.match(/^ */)[0].length; let s = raw.trim(), cond = '';
+        const m = s.match(/^\[if:([^\]]+)\]\s*/); if (m) { cond = m[1]; s = s.slice(m[0].length); }
+        if (s.startsWith('# ')) { P = {title:s.slice(2).trim(), cond, arts:[]}; parts.push(P); A = null; return; }
+        if (s.startsWith('= ')) { if (!P) { P = {title:'(no part)', cond:'', arts:[]}; parts.push(P); } A = {title:s.slice(2).trim(), cond, clauses:[]}; P.arts.push(A); return; }
+        if (s.startsWith('- ')) {
+          if (!A) { if (!P) { P = {title:'(no part)', cond:'', arts:[]}; parts.push(P); } A = {title:'(no article)', cond:'', clauses:[]}; P.arts.push(A); }
+          A.clauses.push({lvl:Math.floor(ind / 2), text:s.slice(2), cond});
+        }
+      });
+      parts.forEach((P, pi) => { P.no = pi + 1; P.arts.forEach((A, ai) => { A.no = (pi + 1) + '.' + (ai + 1); const c = [0, 0, 0, 0]; A.clauses.forEach(k => { const l = Math.min(k.lvl, 3); k.lbl = clbl(l, c[l]++); for (let j = l + 1; j < 4; j++) c[j] = 0; }); }); });
+      return parts;
+    }
+    function renderClauses(text) {
+      const c = [0, 0, 0, 0], out = [];
+      String(text || '').split('\n').forEach(raw => {
+        if (!raw.trim()) return;
+        const ind = raw.match(/^ */)[0].length; let s = raw.trim(), cond = '';
+        const m = s.match(/^\[if:([^\]]+)\]\s*/); if (m) { cond = m[1]; s = s.slice(m[0].length); }
+        if (!s.startsWith('- ')) { out.push(s); return; }
+        const l = Math.min(Math.floor(ind / 2), 3); const n = c[l]++; for (let j = l + 1; j < 4; j++) c[j] = 0;
+        out.push('  '.repeat(l) + clbl(l, n) + ' ' + (cond ? '[when ' + cl(cond) + '] ' : '') + s.slice(2));
+      });
+      return out.join('\n');
+    }
+    const nClauses = t => String(t || '').split('\n').filter(l => /^\s*(\[if:[^\]]+\]\s*)?- /.test(l)).length;
+    function cellXml(ref, c) {
+      let v = c, s = 0;
+      if (c && typeof c === 'object' && 'v' in c) { v = c.v; s = c.s || 0; }
+      if (v === null || v === undefined || v === '') return `<c r="${ref}" s="${s}"/>`;
+      if (typeof v === 'number' && isFinite(v)) return `<c r="${ref}" s="${s}"><v>${v}</v></c>`;
+      if (typeof v === 'boolean') v = v ? 'Yes' : 'No';
+      return `<c r="${ref}" s="${s}" t="inlineStr"><is><t xml:space="preserve">${xe(cap(v))}</t></is></c>`;
+    }
+    function sheetXml(sh, selected) {
+      const hasH = !!sh.headers, rows = sh.rows || [];
+      const n = Math.max(hasH ? sh.headers.length : 0, (sh.widths || []).length, ...rows.map(r => r.length), 1);
+      let x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">';
+      const total = (hasH ? 1 : 0) + rows.length;
+      x += `<dimension ref="A1:${colName(n - 1)}${Math.max(total, 1)}"/>`;
+      x += `<sheetViews><sheetView workbookViewId="0"${selected ? ' tabSelected="1"' : ''}${sh.noGrid ? ' showGridLines="0"' : ''}>`;
+      if (sh.freeze && hasH) x += `<pane xSplit="${sh.freezeCols || 0}" ySplit="1" topLeftCell="${colName(sh.freezeCols || 0)}2" activePane="${sh.freezeCols ? 'bottomRight' : 'bottomLeft'}" state="frozen"/>`;
+      x += '</sheetView></sheetViews><sheetFormatPr defaultRowHeight="13"/>';
+      x += '<cols>' + Array.from({length:n}, (_, i) => `<col min="${i + 1}" max="${i + 1}" width="${(sh.widths && sh.widths[i]) || 16}" customWidth="1"/>`).join('') + '</cols><sheetData>';
+      let r = 1;
+      if (hasH) { x += `<row r="1" ht="30" customHeight="1">` + sh.headers.map((hh, i) => cellXml(colName(i) + 1, {v:hh, s:1})).join('') + '</row>'; r = 2; }
+      rows.forEach(row => { x += `<row r="${r}">` + row.map((c, i) => cellXml(colName(i) + r, c)).join('') + '</row>'; r++; });
+      x += '</sheetData>';
+      if (hasH && sh.filter !== false && rows.length) x += `<autoFilter ref="A1:${colName(n - 1)}${total}"/>`;
+      return x + '</worksheet>';
+    }
+    const STYLES = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">' +
+      '<fonts count="5"><font><sz val="9"/><name val="Arial"/></font><font><b/><sz val="9"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FF1E3A5F"/><name val="Arial"/></font><font><i/><sz val="9"/><color rgb="FF6E6E73"/><name val="Arial"/></font><font><b/><sz val="9"/><name val="Arial"/></font></fonts>' +
+      '<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1E3A5F"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFEEF2F7"/><bgColor indexed="64"/></patternFill></fill></fills>' +
+      '<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left style="thin"><color rgb="FFD2D2D7"/></left><right style="thin"><color rgb="FFD2D2D7"/></right><top style="thin"><color rgb="FFD2D2D7"/></top><bottom style="thin"><color rgb="FFD2D2D7"/></bottom><diagonal/></border></borders>' +
+      '<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs>' +
+      '<cellXfs count="7">' +
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '<xf numFmtId="0" fontId="1" fillId="2" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>' +
+      '<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>' +
+      '<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '<xf numFmtId="0" fontId="4" fillId="0" borderId="1" xfId="0" applyFont="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '<xf numFmtId="0" fontId="4" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0" applyFont="1" applyAlignment="1"><alignment vertical="top" wrapText="1"/></xf>' +
+      '</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+    async function loadZip() {
+      if (window.JSZip) return window.JSZip;
+      await new Promise((res, rej) => {
+        const s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js';
+        s.onload = res; s.onerror = () => rej(new Error('The Excel helper (JSZip) could not be loaded. Check the internet connection and try again.'));
+        document.head.appendChild(s);
+      });
+      return window.JSZip;
+    }
+    const safeName = (s, used) => { let n = String(s).replace(/[\[\]:*?\/\\]/g, ' ').slice(0, 31).trim() || 'Sheet'; let k = n, i = 2; while (used.has(k.toLowerCase())) k = n.slice(0, 28) + ' ' + (i++); used.add(k.toLowerCase()); return k; };
+    async function writeXlsx(sheets) {
+      const JSZip = await loadZip(), zip = new JSZip(), used = new Set();
+      const names = sheets.map(s => safeName(s.name, used));
+      zip.file('[Content_Types].xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>' + sheets.map((_, i) => `<Override PartName="/xl/worksheets/sheet${i + 1}.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>`).join('') + '</Types>');
+      zip.file('_rels/.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>');
+      zip.file('xl/workbook.xml', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets>' + names.map((n, i) => `<sheet name="${xe(n)}" sheetId="${i + 1}" r:id="rId${i + 1}"/>`).join('') + '</sheets></workbook>');
+      zip.file('xl/_rels/workbook.xml.rels', '<?xml version="1.0" encoding="UTF-8" standalone="yes"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">' + sheets.map((_, i) => `<Relationship Id="rId${i + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet${i + 1}.xml"/>`).join('') + `<Relationship Id="rId${sheets.length + 1}" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>`);
+      zip.file('xl/styles.xml', STYLES);
+      sheets.forEach((s, i) => zip.file(`xl/worksheets/sheet${i + 1}.xml`, sheetXml(s, i === 0)));
+      return zip.generateAsync({type:'blob', mimeType:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', compression:'DEFLATE'});
+    }
+    async function build(who) {
+      const T = {};
+      const names = ['spec_sections', 'spec_items', 'spec_item_revs', 'spec_vendors', 'spec_options', 'spec_locations', 'spec_relations', 'spec_standards', 'spec_section_standards', 'spec_blocks', 'spec_item_attrs'];
+      const got = await Promise.all(names.map(fetchTable));
+      names.forEach((n, i) => { T[n] = got[i]; });
+      if (T.spec_sections.error && T.spec_items.error) throw new Error('The library could not be read: ' + T.spec_sections.error);
+      const missing = names.filter(n => T[n].error).map(n => n + ' (' + T[n].error + ')');
+      const secs = T.spec_sections.rows.slice().sort((a, b) => byNum(a.num, b.num));
+      const secBy = {}; secs.forEach(s => { secBy[s.num] = s; });
+      const sTitle = n => (secBy[n] ? secBy[n].title : '');
+      const items = T.spec_items.rows.slice().sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0) || byNum(a.code, b.code));
+      const revs = T.spec_item_revs.rows.slice().sort((a, b) => byNum(a.item_code, b.item_code) || a.rev - b.rev);
+      const live = {}, draft = {}; revs.forEach(r => { if (r.status === 'approved') live[r.item_code] = r; if (r.status === 'draft') draft[r.item_code] = r; });
+      const itemBy = {}; items.forEach(i => { itemBy[i.code] = i; });
+      const stds = T.spec_standards.rows.slice().sort((a, b) => byNum(a.code, b.code));
+      const stdBy = {}; stds.forEach(s => { stdBy[s.code] = s; });
+      const td = new Date().toISOString().slice(0, 10);
+      const S = {};
+      { const rows = items.map(i => { const lv = live[i.code], dr = draft[i.code];
+          return [i.ref, i.code, divOf(i.section_num), nice(i.section_num), sTitle(i.section_num), i.category, i.subcategory, i.grp, i.item, i.material, i.rating, i.jointing, i.standards, i.application,
+            cl(i.include_when), i.include_when, i.status, i.source, i.owner, day(i.review_due), i.review_due && day(i.review_due) < td ? 'OVERDUE' : '',
+            lv ? 'Published' : dr ? 'Draft only' : 'Schedule line only', lv ? lv.rev : '', lv ? lv.approved_by : '', lv ? day(lv.approved_at) : '', lv ? lv.reason : '',
+            lv ? lv.standards : '', lv ? nClauses(lv.part2) : '', lv ? nClauses(lv.part3) : '', dr ? 'Draft rev ' + dr.rev : '', i.active === false ? 'No' : 'Yes', i.sort]; });
+        S.items = {name:'Items', headers:['Ref', 'Code', 'Div', 'Section', 'Section title', 'Category', 'Subcategory', 'Group', 'Item', 'Material / option', 'Rating / class', 'Jointing', 'Standards (item data)', 'Application / limits', 'Included when', 'Included when (option keys)', 'Status', 'Source', 'Owner', 'Review due', 'Review', 'Specification', 'Published rev', 'Approved by', 'Approved on', 'Last revision reason', 'Standards (specification)', 'Part 2 clauses', 'Part 3 clauses', 'Pending draft', 'Active', 'Sort'],
+          widths:[12, 9, 5, 9, 28, 16, 16, 14, 28, 32, 18, 22, 26, 26, 30, 18, 9, 10, 8, 11, 9, 14, 8, 9, 11, 28, 24, 8, 8, 12, 7, 6], rows, freeze:true, freezeCols:2}; }
+      { const rows = []; items.forEach(i => { [live[i.code], draft[i.code]].filter(Boolean).forEach(r => rows.push([i.ref, i.code, nice(i.section_num), sTitle(i.section_num), i.category, i.subcategory, i.item + (i.material && i.material !== i.item ? ' – ' + i.material : ''), r.heading, r.rev, r.status === 'approved' ? 'Published' : 'Draft', renderClauses(r.part2), renderClauses(r.part3), r.standards, r.reason, r.created_by, day(r.created_at), r.approved_by, day(r.approved_at), cl(i.include_when)])); });
+        S.specs = {name:'Item specifications', headers:['Ref', 'Code', 'Section', 'Section title', 'Category', 'Subcategory', 'Item', 'Article heading', 'Rev', 'Status', 'Part 2 – Products (clauses)', 'Part 3 – Execution (clauses)', 'Standards cited', 'Reason for revision', 'Written by', 'Written on', 'Approved by', 'Approved on', 'Included when'],
+          widths:[12, 9, 9, 24, 16, 16, 28, 20, 5, 10, 80, 50, 22, 30, 9, 11, 9, 11, 28], rows, freeze:true, freezeCols:2}; }
+      { const rows = revs.slice().sort((a, b) => byNum(a.item_code, b.item_code) || b.rev - a.rev).map(r => { const i = itemBy[r.item_code] || {}; return [i.ref, r.item_code, nice(i.section_num), i.item, r.rev, r.status, r.reason, r.reject_note, r.created_by, stamp(r.created_at), r.approved_by, stamp(r.approved_at), r.heading, r.standards, r.part2, r.part3]; });
+        S.hist = {name:'Item spec history', headers:['Ref', 'Code', 'Section', 'Item', 'Rev', 'Status', 'Reason', 'Rejected because', 'Written by', 'Written on', 'Approved by', 'Approved on', 'Heading', 'Standards', 'Part 2 (library text)', 'Part 3 (library text)'],
+          widths:[12, 9, 9, 28, 5, 11, 32, 24, 9, 15, 9, 15, 20, 22, 60, 40], rows, freeze:true, freezeCols:2}; }
+      const parsed = {}; secs.forEach(s => { parsed[s.num] = parseBody(s.body); });
+      { const relN = {}, stdN = {}, itN = {}; lst(T.spec_relations.rows).forEach(r => { relN[r.from_num] = (relN[r.from_num] || 0) + 1; }); lst(T.spec_section_standards.rows).forEach(r => { stdN[r.section_num] = (stdN[r.section_num] || 0) + 1; }); lst(items).forEach(i => { itN[i.section_num] = (itN[i.section_num] || 0) + 1; });
+        const hardRe = /\b(Dubai|DCD|DEWA|Abu Dhabi|ADCD|Sharjah|SEWA|UAE|Riyadh|Saudi|KSA|SBC|Qatar|QCD|Kahramaa|Oman|Muscat)\b/g;
+        const rows = secs.map(s => { const P = parsed[s.num], body = String(s.body || ''), auto = [/\{\{AUTO:ITEMS/.test(body) && 'Items', /\{\{AUTO:RELATED/.test(body) && 'Related', /\{\{AUTO:STANDARDS/.test(body) && 'Standards', /\{\{\s*>/.test(body) && 'Common text'].filter(Boolean);
+          const hard = [...new Set((body.replace(/\{\{[^}]*\}\}/g, '').match(hardRe) || []))];
+          return [nice(s.num), s.division || divOf(s.num), s.title, /9998$/.test(s.num) ? 'Annexure B' : s.include_when ? 'Project-specific' : 'General', cl(s.include_when), s.include_when, P.reduce((a, p) => a + p.arts.length, 0), P.reduce((a, p) => a + p.arts.reduce((b, q) => b + q.clauses.length, 0), 0), itN[s.num] || 0, relN[s.num] || 0, stdN[s.num] || 0, auto.join(', '), hard.join(', '), s.active === false ? 'No' : 'Yes', stamp(s.updated_at), s.updated_by, s.sort]; });
+        S.secs = {name:'Sections', headers:['Section', 'Div', 'Title', 'Class', 'Included when', 'Included when (option keys)', 'Articles', 'Clauses', 'Items', 'Related links', 'Standards linked', 'Automatic lists', 'Hard-coded location words', 'Active', 'Last change', 'By', 'Sort'],
+          widths:[10, 5, 40, 14, 40, 22, 8, 8, 7, 8, 9, 22, 18, 7, 15, 8, 6], rows, freeze:true, freezeCols:3}; }
+      { const rows = []; secs.forEach(s => parsed[s.num].forEach(P => P.arts.forEach(A => A.clauses.forEach(k => rows.push([nice(s.num), s.title, 'PART ' + P.no + ' – ' + P.title.replace(/^PART\s*\d+\s*[-–—:.]?\s*/i, ''), A.no, A.title, k.lbl, k.lvl + 1, kindOf(k.text), k.text, fieldsOf(k.text).join(', '), cl(k.cond || A.cond || P.cond), k.cond || A.cond || P.cond])))));
+        S.clauses = {name:'Section clauses', headers:['Section', 'Section title', 'Part', 'Article', 'Article title', 'Clause', 'Level', 'Type', 'Clause text (library wording)', 'Fields used', 'Condition', 'Condition (option keys)'],
+          widths:[10, 30, 22, 7, 28, 7, 6, 18, 90, 20, 30, 20], rows, freeze:true, freezeCols:1}; }
+      { const rows = lst(T.spec_relations.rows).sort((a, b) => byNum(a.from_num, b.from_num) || byNum(a.to_num, b.to_num)).map(r => [nice(r.from_num), sTitle(r.from_num), nice(r.to_num), secBy[r.to_num] ? sTitle(r.to_num) : r.label, secBy[r.to_num] ? 'In library' : 'Other discipline', cl(r.include_when), r.sort]);
+        S.rel = {name:'Related links', headers:['Section', 'Section title', 'Refers to', 'Title of related section', 'Where', 'Only when', 'Sort'], widths:[10, 36, 10, 40, 16, 30, 6], rows, freeze:true}; }
+      { const bySec = {}, byItem = {}; lst(T.spec_section_standards.rows).forEach(r => { (bySec[r.code] = bySec[r.code] || new Set()).add(r.section_num); });
+        const codes = Object.keys(stdBy).sort((a, b) => b.length - a.length);
+        lst(items).forEach(i => { const txt = [i.standards, (live[i.code] || {}).standards].filter(Boolean).join(';'); txt.split(';').map(x => x.trim()).filter(Boolean).forEach(t => { const c = codes.find(k => t === k || t.startsWith(k + ' ')); if (c) (byItem[c] = byItem[c] || new Set()).add(i.code); }); });
+        const rows = stds.map(s => [s.code, s.title, s.edition, s.editions && Object.keys(s.editions).length ? Object.entries(s.editions).map(([k, v]) => k + ': ' + v).join('; ') : '', s.org, s.notes, bySec[s.code] ? bySec[s.code].size : 0, byItem[s.code] ? byItem[s.code].size : 0, s.active === false ? 'No' : 'Yes', stamp(s.updated_at), s.updated_by]);
+        S.std = {name:'Standards', headers:['Code', 'Title', 'Default edition', 'Edition by country', 'Organisation', 'Notes', 'Cited by sections', 'Cited by items', 'Active', 'Last change', 'By'], widths:[16, 56, 18, 26, 14, 24, 9, 9, 7, 15, 8], rows, freeze:true}; }
+      { const rows = lst(T.spec_section_standards.rows).sort((a, b) => byNum(a.section_num, b.section_num) || byNum(a.code, b.code)).map(r => [nice(r.section_num), sTitle(r.section_num), r.code, stdBy[r.code] ? stdBy[r.code].title : '(not in register)', stdBy[r.code] ? stdBy[r.code].edition : '', cl(r.include_when)]);
+        S.sstd = {name:'Section standards', headers:['Section', 'Section title', 'Standard', 'Standard title', 'Edition', 'Only when'], widths:[10, 36, 16, 56, 14, 30], rows, freeze:true}; }
+      { const rows = lst(T.spec_blocks.rows).sort((a, b) => byNum(a.key, b.key)).map(b => { const re = new RegExp('\\{\\{\\s*>\\s*' + String(b.key).replace(/[.\-]/g, '\\$&') + '\\s*\\}\\}'); return [b.key, b.title, secs.filter(s => re.test(s.body || '')).length, renderClauses(b.body), stamp(b.updated_at), b.updated_by]; });
+        S.blocks = {name:'Common text', headers:['Key', 'Title', 'Used in sections', 'Text', 'Last change', 'By'], widths:[34, 26, 9, 90, 15, 8], rows, freeze:true}; }
+      { const vs = T.spec_vendors.rows.slice().sort((a, b) => byNum(a.section_num, b.section_num) || (a.sort || 0) - (b.sort || 0));
+        S.vend = {name:'Vendors', headers:['Code', 'Div', 'Section', 'Section title', 'Item / scope', 'Manufacturers', 'Included when', 'Status', 'Source', 'Active'], widths:[9, 5, 9, 32, 34, 60, 28, 9, 9, 7],
+          rows:vs.map(v => [v.code, divOf(v.section_num), nice(v.section_num), sTitle(v.section_num), v.item, v.makers, cl(v.include_when), v.status, v.source, v.active === false ? 'No' : 'Yes']), freeze:true};
+        const one = []; vs.forEach(v => String(v.makers || '').split(';').map(x => x.trim()).filter(Boolean).forEach(m => one.push([divOf(v.section_num), nice(v.section_num), sTitle(v.section_num), v.item, m, cl(v.include_when), v.status, v.source, v.active === false ? 'No' : 'Yes'])));
+        S.vend1 = {name:'Vendors (one per row)', headers:['Div', 'Section', 'Section title', 'Item / scope', 'Manufacturer', 'Included when', 'Status', 'Source', 'Active'], widths:[5, 9, 32, 34, 24, 28, 9, 9, 7], rows:one, freeze:true}; }
+      { const conds = [];
+        secs.forEach(s => { conds.push(s.include_when); (String(s.body || '').match(/\[if:[^\]]+\]/g) || []).forEach(m => conds.push(m.slice(4, -1))); });
+        items.forEach(i => conds.push(i.include_when)); T.spec_vendors.rows.forEach(v => conds.push(v.include_when)); T.spec_relations.rows.forEach(r => conds.push(r.include_when)); T.spec_section_standards.rows.forEach(r => conds.push(r.include_when)); T.spec_options.rows.forEach(o => conds.push(o.dep));
+        const use = k => { const re = new RegExp('(^|[^A-Za-z0-9_])' + k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '([^A-Za-z0-9_]|$)'); return conds.filter(c => c && re.test(c)).length; };
+        const ch = c => Array.isArray(c) ? c.map(x => Array.isArray(x) ? (x[0] === x[1] ? x[0] : x[0] + ' = ' + x[1]) : x).join('; ') : '';
+        const rows = T.spec_options.rows.slice().sort((a, b) => (a.sort || 0) - (b.sort || 0)).map(o => [o.key, o.grp, o.label, o.type || 'Yes / No', ch(o.choices), o.default_value === null || o.default_value === undefined ? '' : typeof o.default_value === 'object' ? JSON.stringify(o.default_value) : String(o.default_value), o.dep ? cl(o.dep) : '', o.sub || 0, use(o.key), o.active === false ? 'No' : 'Yes', o.sort]);
+        S.opt = {name:'Project options', headers:['Key', 'Group', 'Label', 'Type', 'Choices', 'Default', 'Enabled when', 'Indent', 'Used in conditions', 'Active', 'Sort'], widths:[18, 22, 44, 11, 40, 14, 26, 6, 9, 7, 6], rows, freeze:true}; }
+      { const keys = []; T.spec_locations.rows.forEach(l => Object.keys(l.data || {}).forEach(k => { if (!keys.includes(k)) keys.push(k); }));
+        const rows = T.spec_locations.rows.slice().sort((a, b) => (a.sort || 0) - (b.sort || 0)).map(l => [l.country_code, l.country_name, l.city === '*' ? '* (country base)' : l.city, ...keys.map(k => (l.data || {})[k])]);
+        S.loc = {name:'Locations', headers:['Country code', 'Country', 'City', ...keys], widths:[10, 22, 18, ...keys.map(() => 24)], rows, freeze:true, freezeCols:3}; }
+      { const rows = lst(T.spec_item_attrs.rows).map(a => [a.family, a.item, a.component, a.attribute, a.type, a.options, a.standards, a.source, a.kind, a.status, a.notes]);
+        S.attrs = {name:'Item attributes', headers:['Family', 'Item', 'Component', 'Attribute', 'Type', 'Options / values', 'Standards', 'Source', 'Kind', 'Status', 'Note'], widths:[14, 24, 14, 26, 10, 90, 22, 50, 12, 9, 50], rows, freeze:true, freezeCols:2}; }
+      const order = ['items', 'specs', 'hist', 'attrs', 'secs', 'clauses', 'rel', 'std', 'sstd', 'blocks', 'vend', 'vend1', 'opt', 'loc'];
+      const desc = {items:'One row per library item: ref, category, material, rating, standards, owner, review date and specification status.',
+        specs:'Readable text of each item\'s published specification (and any draft awaiting approval): Part 2 and Part 3 clauses.',
+        hist:'Every revision of every item specification with reason, author, approver and the library wording.',
+        attrs:'The attribute catalogue: the choices that change an item\'s specification, with the source of each.',
+        secs:'One row per section: class, conditions, counts, which lists are automatic, hard-coded location words.',
+        clauses:'One row per clause of every section, with part, article, level, condition and fields used (library wording, all clauses on).',
+        rel:'Related Requirements links between sections.', std:'Standards register with edition and where each is cited.', sstd:'Which standards each section cites.',
+        blocks:'Common text blocks used by several sections.', vend:'Vendor list as stored (section / item, manufacturers separated by ;).', vend1:'Same vendor list with one manufacturer per row, for filtering and pivots.',
+        opt:'Project options (the switches on the Systems page) with default and how many conditions use each.', loc:'Country and city defaults (authorities, codes, supply data).'};
+      const out = order.map(k => S[k]);
+      const nTrunc = out.reduce((a, sh) => a + sh.rows.reduce((b, r) => b + r.reduce((c, x) => { const v = (x && typeof x === 'object' && 'v' in x) ? x.v : x; return c + (typeof v === 'string' && v.length > MAXCELL ? 1 : 0); }, 0), 0), 0);
+      const sum = [
+        [{v:'MEP Specification Library – export', s:2}],
+        [{v:'Generated ' + new Date().toLocaleString() + (who ? ' by ' + who : '') + ' · ' + BUILD_LABEL, s:3}],
+        [''],
+        [{v:'Sheet', s:5}, {v:'Rows', s:5}, {v:'What it contains', s:5}],
+        ...order.map(k => [{v:S[k].name, s:4}, S[k].rows.length, desc[k]]),
+        [''],
+        [{v:'Notes', s:5}, {v:'', s:5}, {v:'', s:5}],
+        [{v:'Wording', s:4}, '', 'Text keeps the library wording, including {{FIELDS}} (filled from each project\'s location) and {{AUTO:…}} / {{>…}} automatic lists. Section numbers are shown as 22 10 05.'],
+        [{v:'Numbering', s:4}, '', 'Clause numbering on "Section clauses" counts every clause as included. A project\'s own numbering depends on its option selections.'],
+        [{v:'Conditions', s:4}, '', '"Included when" shows the option labels; the next column shows the option keys used in the database.'],
+        ...(missing.length ? [[{v:'Not available', s:4}, '', 'These tables could not be read, so related sheets are empty: ' + missing.join('; ')]] : []),
+        ...(nTrunc ? [[{v:'Truncated', s:4}, '', nTrunc + ' cell(s) were longer than Excel allows (32,000 characters) and were shortened.']] : []),
+      ];
+      out.unshift({name:'Summary', rows:sum, widths:[26, 8, 100], noGrid:true});
+      const blob = await writeXlsx(out);
+      return {blob, name:'MEP_Spec_Library_Export_' + td + '.xlsx', summary:items.length + ' items · ' + secs.length + ' sections · ' + S.clauses.rows.length + ' clauses' + (missing.length ? ' · ' + missing.length + ' table(s) unavailable' : '')};
+    }
+    function download(blob, name) {
+      const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; document.body.appendChild(a); a.click();
+      setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 800);
+    }
+    return {build, download};
+  })();
+
+  const LIB_TAB_GROUPS = [
+    ['Content', [['sections', 'Sections'], ['itemspecs', 'Item specifications'], ['items', 'Items'], ['itemmgmt', 'Item management'], ['attrs', 'Item attributes']]],
+    ['Reference', [['relations', 'Related links'], ['standards', 'Standards'], ['secstd', 'Section standards'], ['blocks', 'Common text'], ['vendors', 'Manufacturers']]],
+    ['Settings', [['options', 'Project options'], ['locations', 'Locations']]],
+  ];
   function LibraryAdminX({onBack, canEdit, who}) {
     const [tab, setTab] = useState('sections'); const [ver, setVer] = useState(0); const [edit, setEdit] = useState(null); const [f, setF] = useState(''); const [stat, setStat] = useState('');
     const [rows, setRows] = useState({}); const [msg, setMsg] = useState(''); const [conv, setConv] = useState(false); const [myEmail, setMyEmail] = useState('');
+    const [more, setMore] = useState(false); const [attrN, setAttrN] = useState(0); const [exp, setExp] = useState({busy:false, msg:'', err:false});
     useEffect(() => { try { sb.auth.getSession().then(({data}) => setMyEmail(((data && data.session && data.session.user.email) || '').toLowerCase())); } catch (e) {} }, []);
+    useEffect(() => { if (!more) return; const c = () => setMore(false); document.addEventListener('click', c); return () => document.removeEventListener('click', c); }, [more]);
     const reload = useCallback(async () => {
       setMsg('');
       await loadLibrary();
       const res = {};
       for (const [k, c] of Object.entries(LIB_TABLES)) { const {data, error} = await sb.from(c.table).select('*').order('sort').range(0, 9999); if (error && !c.auto) setMsg(c.table + ': ' + error.message); res[k] = data || []; }
       const {data: secs} = await sb.from('spec_sections').select('id,num,title,include_when,active,updated_at,updated_by').order('num'); res.inactive = (secs || []).filter(s => s.active === false);
+      try { const a = await sb.from('spec_item_attrs').select('id').range(0, 19999); setAttrN(a.error ? 0 : (a.data || []).length); } catch (e) { setAttrN(0); }
       setRows(res); setVer(x => x + 1);
     }, []);
     useEffect(() => { reload(); }, [reload]);
     const done = async () => { setEdit(null); setConv(false); await reload(); };
     const fl = s => !f || JSON.stringify(s).toLowerCase().includes(f.toLowerCase());
-    const tabs = [['sections','Sections'],['itemspecs','Item specifications'],['relations','Related links'],['standards','Standards'],['secstd','Section standards'],['blocks','Common text'],['items','Items'],['vendors','Manufacturers'],['options','Project options'],['locations','Locations']];
     const stChip = s => s === 'Verified' ? <Chip k="pass">Verified</Chip> : s === 'TBC' ? <Chip k="blocked">TBC</Chip> : <Chip k="draft">Draft</Chip>;
     const cfg = LIB_TABLES[tab];
     const list = cfg ? (rows[tab] || []).filter(fl).filter(r => !stat || r.status === stat) : [];
+    const counts = {sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
+    const ownToolbar = tab === 'itemspecs' || tab === 'itemmgmt' || tab === 'attrs';
+    const go = k => { setTab(k); setStat(''); setF(''); setMore(false); };
     const cell = (k, r) => {
       const x = r[k];
       if (k === 'status') return stChip(x);
@@ -2880,30 +3471,54 @@ function RootApp() {
       return String(x ?? '');
     };
     const usedBy = key => LIB.filter(S => new RegExp('\\{\\{\\s*>\\s*' + key.replace(/[.\-]/g, '\\$&') + '\\s*\\}\\}').test(S.body)).length;
+    const missAnnex = [...new Set(LIB.filter(S => !isAnnexNum(S.num)).map(S => S.div))].filter(d => !LIB.find(x => x.num === `${d} 9998`));
+    const addAnnex = async () => {
+      setMore(false);
+      if (!window.confirm('Add Annexure B (spare parts) entries for Division ' + missAnnex.join(', ') + ' to the library? You can edit the text afterwards.')) return;
+      const {error} = await sb.from('spec_sections').upsert(missAnnex.map(d => ({num:`${d} 9998`, title:annexBTitle(d), division:d, include_when:null, body:ANNEX_B_BODY(d), sort:99980 + (+d), active:true, updated_by:who})), {onConflict:'num'});
+      if (error) setMsg('Could not add: ' + error.message); else reload();
+    };
+    const newRow = () => setEdit(tab === 'sections' ? {sec:null} : {row:tab === 'items' ? {code:'IT-' + String((rows.items || []).length + 1).padStart(4, '0'), status:'Draft', active:true} : tab === 'vendors' ? {code:'VN-' + String((rows.vendors || []).length + 1).padStart(3, '0'), status:'Draft', active:true} : {active:true}, isNew:true});
+    const canNew = canEdit && !ownToolbar && (tab === 'sections' || !(cfg && cfg.auto && !AU.loaded));
+    const moreItems = canEdit ? [
+      tab === 'sections' && AU.loaded && {l:'Convert typed lists to automatic', d:'Move typed related sections, standards and repeated articles into library data', f:() => { setMore(false); setConv(true); }},
+      tab === 'sections' && missAnnex.length > 0 && {l:'Add Annexure B entries (' + missAnnex.join(', ') + ')', d:'Create the spare-parts annexure text for each Division', f:addAnnex},
+    ].filter(Boolean) : [];
+    const runExport = async () => {
+      setExp({busy:true, msg:'Reading the library…', err:false});
+      try { const r = await XlsxExport.build(who); XlsxExport.download(r.blob, r.name); setExp({busy:false, msg:'Saved ' + r.name + ' — ' + r.summary, err:false}); }
+      catch (e) { setExp({busy:false, msg:'Export failed: ' + ((e && e.message) || e), err:true}); }
+      setTimeout(() => setExp(s => s.busy ? s : {busy:false, msg:'', err:false}), 14000);
+    };
+    const nDrafts = Object.keys(AU.itemDraft).length;
     return <div className="global-page" style={{minHeight:'100vh',background:'#f5f5f7'}}>
-      <div className="app-header"><div style={{maxWidth:1280,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}>
-        <div><div style={{fontSize:9,letterSpacing:'.15em',textTransform:'uppercase',color:'#86868b',fontWeight:800}}>MEP Specifications</div><div style={{fontSize:19,fontWeight:800,letterSpacing:'-.03em'}}>Specification library</div></div>
-        <button onClick={onBack} style={{padding:'6px 12px',background:'#fff',color:'#424245',border:'1px solid #d2d2d7',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer'}}>← All projects</button></div></div>
-      <div style={{maxWidth:1280,margin:'0 auto',padding:'18px 20px'}}>
-        {!canEdit && <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#9a3412',marginBottom:12}}>You can view the library. Only Admin, Lead or Associate can change it; every change is kept in history.</div>}
-        {(() => { const n = Object.keys(AU.itemDraft).length; return n && canEdit && tab !== 'itemspecs' ? <div style={{background:'#fff4e0',border:'1px solid #f5c27a',borderRadius:10,padding:'9px 14px',fontSize:12,color:'#8a4b00',marginBottom:12,display:'flex',gap:10,alignItems:'center'}}><span style={{flex:1}}>{n} item specification draft{n === 1 ? '' : 's'} awaiting approval.</span><button className="schedule-action" onClick={() => setTab('itemspecs')}>Review</button></div> : null; })()}
-        {AU.missing && <div style={{background:'#fff0ee',border:'1px solid #f5b5ae',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#b42318',marginBottom:12}}>{AU.missing}</div>}
+      <div className="lib-head"><div className="lib-wrap lib-head-in">
+        <div><div className="lib-eyebrow">MEP Specifications</div><div className="lib-title">Specification library</div></div>
+        <div className="lib-head-act">
+          {exp.msg && <span className={'lib-note' + (exp.err ? ' bad' : '')}>{exp.msg}</span>}
+          <button className="lib-btn green" disabled={exp.busy} onClick={runExport} title="Export items, specifications, sections, clauses, standards, vendors, attributes and options to one Excel file">{exp.busy ? 'Exporting…' : 'Export to Excel'}</button>
+          <button className="lib-btn" onClick={onBack}>← All projects</button>
+        </div>
+      </div></div>
+      <div className="lib-wrap">
+        {!canEdit && <div className="lib-alert warn">You can view the library. Only Admin, Lead or Associate can change it; every change is kept in history.</div>}
+        {nDrafts > 0 && canEdit && tab !== 'itemspecs' && <div className="lib-alert amber"><span style={{flex:1}}>{nDrafts} item specification draft{nDrafts === 1 ? '' : 's'} awaiting approval.</span><button className="schedule-action" onClick={() => go('itemspecs')}>Review</button></div>}
+        {AU.missing && <div className="lib-alert red">{AU.missing}</div>}
         {msg && <div className="ai-msg bad" style={{marginBottom:10}}>{msg}</div>}
+        <div className="lib-tabs">{LIB_TAB_GROUPS.map(([g, ts]) => <div key={g} className="lib-tg"><div className="lib-tgl">{g}</div><div className="lib-tgb">{ts.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => go(k)}>{l}<span>{counts[k]}</span></button>)}</div></div>)}</div>
         <div className="schedule-card">
-          <div className="schedule-toolbar">
-            <div className="density-switch" style={{flexWrap:'wrap'}}>{tabs.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => { setTab(k); setStat(''); }}>{l}</button>)}</div>
+          {!ownToolbar && <div className="schedule-toolbar">
             <input value={f} onChange={e => setF(e.target.value)} placeholder="Filter…"/>
             {(tab === 'items' || tab === 'vendors') && <select value={stat} onChange={e => setStat(e.target.value)}><option value="">All status</option><option>Verified</option><option>Draft</option><option>TBC</option></select>}
             <span className="toolbar-spacer"/>
-            {canEdit && tab === 'sections' && AU.loaded && <button className="schedule-action" onClick={() => setConv(true)} title="Move typed Related Requirements, Reference Standards and repeated articles into library data">⚙ Convert typed lists to automatic</button>}
-            {canEdit && tab === 'sections' && (() => { const miss = [...new Set(LIB.filter(S => !isAnnexNum(S.num)).map(S => S.div))].filter(d => !LIB.find(x => x.num === `${d} 9998`));
-              return miss.length ? <button className="schedule-action" onClick={async () => { if (!window.confirm('Add Annexure B (spare parts) entries for Division ' + miss.join(', ') + ' to the library? You can edit the text afterwards.')) return;
-                const {error} = await sb.from('spec_sections').upsert(miss.map(d => ({num:`${d} 9998`, title:annexBTitle(d), division:d, include_when:null, body:ANNEX_B_BODY(d), sort:99980 + (+d), active:true, updated_by:who})), {onConflict:'num'});
-                if (error) setMsg('Could not add: ' + error.message); else reload(); }}>＋ Annexure B entries ({miss.join(', ')})</button> : null; })()}
-            {canEdit && tab !== 'itemspecs' && (tab === 'sections' || !(cfg && cfg.auto && !AU.loaded)) && <button className="schedule-action" onClick={() => setEdit(tab === 'sections' ? {sec:null} : {row:tab === 'items' ? {code:'IT-' + String((rows.items || []).length + 1).padStart(4, '0'), status:'Draft', active:true} : tab === 'vendors' ? {code:'VN-' + String((rows.vendors || []).length + 1).padStart(3, '0'), status:'Draft', active:true} : {active:true}, isNew:true})}>＋ New</button>}
-          </div>
-          {cfg && cfg.help && <div style={{padding:'8px 12px',fontSize:10.5,color:'#6e6e73',borderBottom:'1px solid #e8e8ed',background:'#fafafb'}}>{cfg.help}</div>}
-          <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 250px)'}}>
+            {moreItems.length > 0 && <div className="lib-more" onClick={e => e.stopPropagation()}>
+              <button className="schedule-action" onClick={() => setMore(!more)}>More ▾</button>
+              {more && <div className="lib-menu">{moreItems.map((m, i) => <button key={i} onClick={m.f}><b>{m.l}</b><small>{m.d}</small></button>)}</div>}
+            </div>}
+            {canNew && <button className="lib-new" onClick={newRow}>+ New</button>}
+          </div>}
+          {!ownToolbar && cfg && cfg.help && <div className="lib-help">{cfg.help}</div>}
+          <div className="schedule-table-wrap" style={{maxHeight:ownToolbar ? 'none' : 'calc(100vh - 290px)', overflow:ownToolbar ? 'visible' : 'auto'}}>
             {tab === 'sections' ? <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels"><th>Section</th><th>Title</th><th>Class</th><th>Included when</th><th>Clauses</th><th>Automatic</th><th>Last change</th><th></th></tr></thead><tbody>
               {LIB.filter(S => !f || (S.num + ' ' + S.title).toLowerCase().includes(f.toLowerCase())).map(S => { const cl = S.parts.reduce((a, P) => a + P.arts.reduce((b, A) => b + A.items.length, 0), 0); const unk = condKeys(S.cond).filter(k => !OPTMAP[k]);
                 const auto = [/\{\{AUTO:ITEMS/.test(S.body) && 'Items', /\{\{AUTO:RELATED\}\}/.test(S.body) && 'Related', /\{\{AUTO:STANDARDS\}\}/.test(S.body) && 'Standards', /\{\{\s*>/.test(S.body) && 'Common text'].filter(Boolean);
@@ -2911,14 +3526,16 @@ function RootApp() {
               {(rows.inactive || []).length > 0 && <tr><td colSpan={8} style={{background:'#f5f5f7',fontSize:10,fontWeight:800}}>DEACTIVATED ({rows.inactive.length}) — open and save to restore</td></tr>}
               {(rows.inactive || []).map(r => <tr key={'x' + r.num} style={{opacity:.55}} onClick={async () => { const {data} = await sb.from('spec_sections').select('*').eq('num', r.num).single(); setEdit({sec:sectionFromRow(data)}); }}><td className="tag-code">{r.num}</td><td>{r.title}</td><td><Chip k="draft">Inactive</Chip></td><td colSpan={4}/><td><button className="schedule-action">Open</button></td></tr>)}
             </tbody></table>
-            : tab === 'itemspecs' ? <ItemSpecsTab canEdit={canEdit} who={who} myEmail={myEmail} filter={f} onChanged={reload}/>
+            : tab === 'itemspecs' ? <ItemSpecsTab canEdit={canEdit} who={who} myEmail={myEmail} onChanged={reload}/>
+            : tab === 'itemmgmt' ? <ItemMgr.ItemManagerPanel canEdit={canEdit} who={who} onChanged={reload}/>
+            : tab === 'attrs' ? <AttrsPanel/>
             : cfg && cfg.auto && !AU.loaded ? <div className="empty-schedule">{AU.missing || 'Automation tables not loaded.'}</div>
             : <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels">{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k, l]) => <th key={k}>{l.replace(/\s*\(.*$/, '').replace(/\s*–.*$/, '')}</th>)}{tab === 'blocks' && <th>Used in</th>}<th></th></tr></thead><tbody>
               {list.map((r, i) => <tr key={i} onClick={() => setEdit({row:r, isNew:false})} style={{opacity:r.active === false ? .5 : 1}}>{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k]) => <td key={k} style={{fontSize:10.5,maxWidth:320,whiteSpace:'normal'}}>{cell(k, r)}</td>)}{tab === 'blocks' && <td className="num">{usedBy(r.key)}</td>}<td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>)}
               {!list.length && <tr><td colSpan={20} className="empty-schedule">No rows.</td></tr>}
             </tbody></table>}
           </div>
-          <div style={{padding:'8px 12px',fontSize:10,color:'#86868b'}}>{LIB.length} sections · {(rows.relations || []).length} related links · {(rows.standards || []).length} standards · {(rows.blocks || []).length} common text blocks · {Object.keys(AU.itemRev).length} item specifications · {(rows.items || []).length} items · {(rows.vendors || []).length} manufacturer rows · {Object.keys(COUNTRIES).length} countries</div>
+          {!ownToolbar && <div className="lib-foot">{LIB.length} sections · {counts.relations} related links · {counts.standards} standards · {counts.blocks} common text blocks · {counts.itemspecs} item specifications · {counts.items} items · {counts.vendors} manufacturer rows · {Object.keys(COUNTRIES).length} countries</div>}
         </div>
       </div>
       {edit && edit.sec !== undefined && <SectionEditorX key={'s' + ver} S={edit.sec} onClose={() => setEdit(null)} onSaved={done} canEdit={canEdit} who={who}/>}
@@ -2953,8 +3570,5 @@ function RootApp() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp/>);
 </script> 
-<script src="spec_items_v2.js?v=1"></script>
-<script src="spec_export.js?v=1"></script>
-<script src="spec_attrs.js?v=1"></script>
 </body> 
 </html>
