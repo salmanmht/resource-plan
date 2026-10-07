@@ -1058,7 +1058,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.6.0 · Build 2026.10.07.03";
+const BUILD_LABEL = "Spec v1.7.0 · Build 2026.10.07.04";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -1081,6 +1081,7 @@ const BUILTIN_OPTS = [
   {k:'mfr_ref', t:'2.1 Manufacturers wording', type:'txt', d:MFR_ON, dep:'annex_a', sub:1},
   {k:'mfr_ref_off', t:'2.1 Manufacturers wording', type:'txt', d:MFR_OFF, dep:'!annex_a', sub:1},
   {k:'annex_b', t:'Issue Annexure B – List of Spare Parts', d:true},
+  {k:'annex_c', t:'Issue Annexure C – Schedule of Equipment Warranty (where the library has one for the project country)', d:true},
 ];
 const ISSUE_KEYS = BUILTIN_OPTS.map(b => b.k);
 // Annexure B (spare parts) lives in the library as section "<div> 9998".
@@ -1407,6 +1408,8 @@ function buildBook(ctx) {
   secs.forEach(S => fm.push({t:'toc', text:`SECTION ${fmtNum(S.num)} – ${String(S.title).toUpperCase()}`, ref:'doc:' + S.num}));
   if (evalCond('annex_a', opts)) fm.push({t:'toc', ind:true, text:'ANNEXURE A – LIST OF MANUFACTURERS & SUPPLIERS', ref:'doc:A'});
   if (evalCond('annex_b', opts)) fm.push({t:'toc', ind:true, text:'ANNEXURE B – ' + annexBTitle(div), ref:'doc:B'});
+  const warItems = (ctx.annexC || []).filter(r => r.row_type !== 'note'), warNotes = (ctx.annexC || []).filter(r => r.row_type === 'note'), hasC = evalCond('annex_c', opts) && warItems.length > 0;
+  if (hasC) fm.push({t:'toc', ind:true, text:'ANNEXURE C – SCHEDULE OF EQUIPMENT WARRANTY', ref:'doc:C'});
   docs.push({key:'front', label:'Cover, document control and contents', f1:divFooter, f2:'Table of Contents', rev:revLine, blocks:fm});
   // Sections
   secs.forEach(S => {
@@ -1430,6 +1433,18 @@ function buildBook(ctx) {
     const body = parseBlocks(ctx.annexBHtml, 'B');
     docs.push({key:'B', label:'Annexure B – Spare parts', f1:'Annexure B', f2:titleCase(annexBTitle(div)), rev:revLine,
       blocks:[{t:'stitle', text:'ANNEXURE B – ' + annexBTitle(div)}, ...body, {t:'eos', text:'END OF ANNEXURE B'}]});
+  }
+  if (hasC) {
+    const yrs = y => { const n = Number(y); return n ? n + (n === 1 ? ' Year' : ' Years') : ''; };
+    const rowsC = []; let lastG = null, no = 0;
+    warItems.forEach(r => {
+      if ((r.group_label || '') !== lastG) { lastG = r.group_label || ''; if (lastG) rowsC.push(['', `<b>${esc(lastG)}</b>`, '', '', '', '', '']); }
+      no++; rowsC.push([String(no), esc(r.description), esc(yrs(r.warranty_years)), esc(r.employer_inspection || '-'), esc(r.fat || '-'), r.service_life_years ? String(r.service_life_years) : '', esc(r.remarks || '')]);
+    });
+    const bl = [{t:'stitle', text:'ANNEXURE C – SCHEDULE OF EQUIPMENT WARRANTY'}, {t:'p', html:`<b>${esc(divTitle)}</b>`},
+      ...table(['Sl. No.', 'Description', 'Warranty duration from the TOC', 'Factory inspection – Employer', 'Factory inspection – FAT or third party or random sample test (X)', 'Service life (years)', 'Remarks'], rowsC, [6, 31, 13, 11, 17, 10, 12]),
+      {t:'space', h:3}, ...warNotes.map((r, i) => ({t:'cl', lvl:0, lbl:clauseLbl(0, i), html:esc(r.description)})), {t:'eos', text:'END OF ANNEXURE C'}];
+    docs.push({key:'C', label:'Annexure C – Equipment warranty', f1:'Annexure C', f2:'Schedule of Equipment Warranty', rev:revLine, blocks:bl});
   }
   return {div, divTitle, docs, draft:closure.status !== 'closed', status};
 }
@@ -1795,14 +1810,15 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const divs = useMemo(() => [...new Set(included.map(S => S.div))].sort(), [included]);
   const frozenAnnex = locked && viewState.issued_annex ? viewState.issued_annex : null;
   const annexA = useCallback(d => frozenAnnex && frozenAnnex.A && frozenAnnex.A[d] ? frozenAnnex.A[d] : annexARowsLive(included.filter(S => S.div === d), vOpts), [frozenAnnex, included, vOpts]);
+  const annexC = useCallback(d => frozenAnnex && frozenAnnex.C && frozenAnnex.C[d] ? frozenAnnex.C[d] : SPEC_AUTO.warrantyRows(d), [frozenAnnex, viewProj.country, locked]);
   const annexBHtml = useCallback(d => frozenAnnex && frozenAnnex.B && frozenAnnex.B[d] !== undefined ? frozenAnnex.B[d] : genSection(annexBSection(d), vOpts, T, 'ANNEXURE B – ' + annexBTitle(d)), [frozenAnnex, vOpts, T]);
   const bodyOf = useCallback(S => {
     if (locked && viewState.issued_html && viewState.issued_html[S.num] !== undefined) return viewState.issued_html[S.num];
     if (viewState.edits[S.num]) return viewState.edits[S.num];
     const L = LIB.find(x => x.num === S.num); return L ? genSection(L, vOpts, T) : '<p>Section no longer in the library.</p>';
   }, [locked, viewState, vOpts, T]);
-  if (window.SPEC_AUTO) { SPEC_AUTO.excl = viewState.excl || {}; SPEC_AUTO.sel = viewState.sel || {}; SPEC_AUTO.dp = {plumbing:Number(viewProj.dpPlumb) || 0, fire:Number(viewProj.dpFire) || 0}; }
-  useEffect(() => () => { if (window.SPEC_AUTO) { SPEC_AUTO.sel = {}; SPEC_AUTO.dp = {}; } }, []);
+  if (window.SPEC_AUTO) { SPEC_AUTO.excl = viewState.excl || {}; SPEC_AUTO.sel = viewState.sel || {}; SPEC_AUTO.dp = {plumbing:Number(viewProj.dpPlumb) || 0, fire:Number(viewProj.dpFire) || 0}; SPEC_AUTO.ctry = [String(viewProj.country || '').toLowerCase(), String((COUNTRIES[viewProj.country] || {}).name || '').toLowerCase()]; }
+  useEffect(() => () => { if (window.SPEC_AUTO) { SPEC_AUTO.sel = {}; SPEC_AUTO.dp = {}; SPEC_AUTO.ctry = null; } }, []);
   const choiceStale = num => { const r = viewState.reviewed[num]; if (locked || !r) return false; const was = (typeof r === 'object' && r.ch) || ''; return was !== SPEC_AUTO.choiceSig(num, viewState.sel || {}); };
   const chSt = SPEC_AUTO.choiceStatus(new Set(included.map(S => S.num)), viewState.sel || {}, vOpts);
   const chPending = chSt.unset + chSt.unconf + chSt.blocked;
@@ -1860,7 +1876,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     if (!window.confirm(`Lead sign-off for Rev ${meta.revision || '01'}?\n\nThe specification text is frozen as it is now, and the stage is locked until the Associate / Approver signs or returns it.`)) return;
     const issued_html = {}, issued_list = included.map(S => ({num:S.num, title:S.title, div:S.div}));
     included.forEach(S => { issued_html[S.num] = bodyOf(S); });
-    const issued_annex = {A:{}, B:{}}; divs.forEach(d => { issued_annex.A[d] = annexA(d); issued_annex.B[d] = annexBHtml(d); });
+    const issued_annex = {A:{}, B:{}, C:{}}; divs.forEach(d => { issued_annex.A[d] = annexA(d); issued_annex.B[d] = annexBHtml(d); issued_annex.C[d] = annexC(d); });
     const frozen = {...state, issued_html, issued_list, issued_annex};
     try { await flushProject(); await flushStage(frozen, meta); } catch (e) { return alert('Save failed before sign-off: ' + (e.message || e)); }
     setState(frozen);
@@ -1872,9 +1888,9 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
 
   // ── exports ──
   const fileBase = x => ((viewProj.no || 'PRJ') + '_' + (stageName || '') + '_' + x + '_Rev' + (meta.revision || '01') + (closure.status === 'closed' ? '' : '_DRAFT')).replace(/[^\w\-]+/g, '_');
-  const makeBook = d => { const bk = buildBook({div:d, proj:viewProj, meta, stageName, opts:vOpts, T, secs:included.filter(S => S.div === d), bodyOf, annexA:annexA(d), annexBHtml:annexBHtml(d), closure, team}); bk.layout = layoutBook(bk); return bk; };
+  const makeBook = d => { const bk = buildBook({div:d, proj:viewProj, meta, stageName, opts:vOpts, T, secs:included.filter(S => S.div === d), bodyOf, annexA:annexA(d), annexBHtml:annexBHtml(d), annexC:annexC(d), closure, team}); bk.layout = layoutBook(bk); return bk; };
   const curDiv = divs.includes(bookDiv) ? bookDiv : divs[0];
-  const book = useMemo(() => (tab === 'issue' && curDiv) ? makeBook(curDiv) : null, [tab, curDiv, viewProj, meta, stageName, vOpts, T, included, bodyOf, annexA, annexBHtml, closure, team]);
+  const book = useMemo(() => (tab === 'issue' && curDiv) ? makeBook(curDiv) : null, [tab, curDiv, viewProj, meta, stageName, vOpts, T, included, bodyOf, annexA, annexBHtml, annexC, closure, team]);
   const logos = {client:viewProj.clientLogo || ''};
   const exportDocx = async (d, keys, tag) => {
     setBusyX('Building Word file…');
@@ -3470,7 +3486,7 @@ function RootApp() {
 
   const LIB_TAB_GROUPS = [
     ['Content', [['sections', 'Sections'], ['itemspecs', 'Item specifications'], ['items', 'Items'], ['itemmgmt', 'Item management'], ['attrs', 'Item attributes']]],
-    ['Choices', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets']]],
+    ['Choices', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets'], ['warranty', 'Warranty annexure']]],
     ['Reference', [['relations', 'Related links'], ['standards', 'Standards'], ['secstd', 'Section standards'], ['blocks', 'Common text'], ['vendors', 'Manufacturers']]],
     ['Settings', [['options', 'Project options'], ['locations', 'Locations']]],
   ];
@@ -3495,7 +3511,7 @@ function RootApp() {
     const stChip = s => s === 'Verified' ? <Chip k="pass">Verified</Chip> : s === 'TBC' ? <Chip k="blocked">TBC</Chip> : <Chip k="draft">Draft</Chip>;
     const cfg = LIB_TABLES[tab];
     const list = cfg ? (rows[tab] || []).filter(fl).filter(r => !stat || r.status === stat) : [];
-    const counts = {chitems:(rows.chitems || []).length, chdefs:(rows.chdefs || []).length, chopts:(rows.chopts || []).length, presets:(rows.presets || []).length, sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
+    const counts = {chitems:(rows.chitems || []).length, chdefs:(rows.chdefs || []).length, chopts:(rows.chopts || []).length, presets:(rows.presets || []).length, warranty:(rows.warranty || []).length, sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
     const ownToolbar = tab === 'itemspecs' || tab === 'itemmgmt' || tab === 'attrs';
     const go = k => { setTab(k); setStat(''); setF(''); setMore(false); };
     const cell = (k, r) => {
@@ -3603,6 +3619,8 @@ function RootApp() {
       help:'The choices of an item (Body, Seat, Pressure rating…). "Architect / ID" choices are never picked by the engineer: the specification prints one standard line. Code-critical choices can only be changed by a Lead.'};
     LIB_TABLES.chopts = {table:'spec_choice_opts', key:'item_key,choice_key,opt_key', fields:CH_OPT_FIELDS, title:'Option', auto:true, chx:true, audit:true,
       help:'The options of a choice and the exact clause each prints. A rating below the project design pressure is blocked automatically; a rule can also block or warn when a project option is on.'};
+    LIB_TABLES.warranty = {table:'spec_warranty', key:'row_type,countries,division,description', fields:WAR_FIELDS, title:'Warranty row', auto:true, chx:true, audit:true, canDelete:true,
+      help:'Annexure C – Schedule of Equipment Warranty. Rows print only in projects of the country named here. "item" rows form the table; "note" rows print under it. Run spec_choices_v2_migration.sql first.'};
     LIB_TABLES.presets = {table:'spec_presets', key:'key', fields:CH_PRESET_FIELDS, title:'Preset', auto:true, chx:true, audit:true,
       help:'A preset fills a variant in one click: it picks the option tagged with its cost level for each engineer choice (code-critical choices are left for a Lead), or the explicit picks you list.'};
     addBuiltin();
@@ -3618,7 +3636,19 @@ function RootApp() {
   AU.sel = {}; AU.dp = {};
   const ID_LINE = 'Finish, material, model and manufacturer: as selected by the Architect / Interior Designer in the finishes schedule, subject to the requirements of this section.';
   const OTHER = '__other';
+  // Country filter: an item or warranty row belongs to a country when its "countries" text names the project's country
+  // code or any word of its name (e.g. 'KSA,Saudi' or 'UAE,Emirates'). Blank or ALL = every country.
+  AU.ctry = null;
+  const ctryOk = txt => {
+    const t = String(txt || '').trim(); if (!t || /^all$/i.test(t)) return true;
+    const c = AU.ctry; if (!c) return true;
+    return t.split(',').map(x => x.trim().toLowerCase()).filter(Boolean).some(tok => tok === 'all' || tok === c[0] || (c[1] && c[1].includes(tok)));
+  };
+  const chAll = () => CH.items.filter(i => ctryOk(i.countries));
+  CH.warranty = [];
+  AU.warrantyRows = div => CH.warranty.filter(r => String(r.division || '22') === String(div) && ctryOk(r.countries)).sort((a, b) => (a.sort || 0) - (b.sort || 0));
   async function loadChoices() {
+    try { const w = await sb.from('spec_warranty').select('*').order('sort').range(0, 9999); CH.warranty = w.error ? [] : actv(w.data); } catch (e) { CH.warranty = []; }
     const q = t => sb.from(t).select('*').order('sort').range(0, 9999);
     const [i, d, o, p] = await Promise.all([q('spec_choice_items'), q('spec_choice_defs'), q('spec_choice_opts'), q('spec_presets')]);
     const err = i.error || d.error || o.error || p.error;
@@ -3665,7 +3695,7 @@ function RootApp() {
   function choiceArticles(S, o, T) {
     if (!CH.loaded) return [];
     const out = [];
-    CH.items.filter(i => i.section_num === S.num).forEach(it => {
+    chAll().filter(i => i.section_num === S.num).forEach(it => {
       const vs = (AU.sel || {})[it.item_key]; if (!vs || !vs.length) return;
       out.push({title:String(it.label).toUpperCase(), html:linesHtml(choiceLines(it, vs, o, T))});
     });
@@ -3674,7 +3704,7 @@ function RootApp() {
   function choiceStds(S) {
     const codes = [];
     if (!CH.loaded) return codes;
-    CH.items.filter(i => i.section_num === S.num).forEach(it => {
+    chAll().filter(i => i.section_num === S.num).forEach(it => {
       const vs = (AU.sel || {})[it.item_key] || [];
       vs.forEach(v => chDefs(it).forEach(c => { const p = (v.picks || {})[c.choice_key]; if (!p || p === OTHER) return; const op = chOpt(it, c, p); String((op && op.standards) || '').split(/[;,]/).map(x => x.trim()).filter(Boolean).forEach(s => { if (AU.std[s] && !codes.includes(s)) codes.push(s); }); }));
     });
@@ -3684,7 +3714,7 @@ function RootApp() {
   function choiceStatus(nums, sel, o) {
     const r = {items:0, variants:0, choices:0, unset:0, unconf:0, blocked:0, other:0};
     if (!CH.loaded) return r;
-    CH.items.forEach(it => {
+    chAll().forEach(it => {
       if (!nums.has(it.section_num)) return;
       const vs = (sel || {})[it.item_key]; if (!vs || !vs.length) return;
       r.items++; r.variants += vs.length;
@@ -3702,7 +3732,7 @@ function RootApp() {
     });
     return r;
   }
-  AU.choiceSig = (num, sel) => { const a = CH.items.filter(i => i.section_num === num).map(i => [i.item_key, ((sel || {})[i.item_key] || []).map(v => [v.label || '', v.picks || {}, v.other || {}])]).filter(x => x[1].length); return a.length ? JSON.stringify(a) : ''; };
+  AU.choiceSig = (num, sel) => { const a = chAll().filter(i => i.section_num === num).map(i => [i.item_key, ((sel || {})[i.item_key] || []).map(v => [v.label || '', v.picks || {}, v.other || {}])]).filter(x => x[1].length); return a.length ? JSON.stringify(a) : ''; };
   AU.choiceStatus = choiceStatus;
   function presetPicks(it, p, o) {
     const out = {};
@@ -3722,8 +3752,10 @@ function RootApp() {
     const [open, setOpen] = useState({}), [show, setShow] = useState({}), [q, setQ] = useState('');
     if (!CH.loaded) return <div className="setup-card no-print"><div className="schedule-title" style={{marginBottom:8}}>Selections</div><div className="ai-msg bad">{CH.missing || 'Choice tables are not loaded.'}</div></div>;
     const nums = new Set(included.map(S => S.num)), sel = state.sel || {}, dp = AU.dp || {};
-    const items = CH.items.filter(i => nums.has(i.section_num) && (!q || (i.label + ' ' + i.item_key).toLowerCase().includes(q.toLowerCase())));
-    const outside = CH.items.filter(i => !nums.has(i.section_num)).length;
+    const items = chAll().map((i, k) => ({i, k})).filter(x => nums.has(x.i.section_num) && (!q || (x.i.label + ' ' + x.i.item_key).toLowerCase().includes(q.toLowerCase()))).sort((a, b) => String(a.i.section_num).localeCompare(String(b.i.section_num)) || a.k - b.k).map(x => x.i);
+    const outside = CH.items.filter(i => !nums.has(i.section_num) || !ctryOk(i.countries)).length;
+    const unused = items.filter(i => !(sel[i.item_key] || []).length);
+    const addMany = list => { if (locked || !list.length) return; setState(s => { const n = {...(s.sel || {})}; list.forEach(it => { if (!(n[it.item_key] || []).length) n[it.item_key] = [{id:Math.random().toString(36).slice(2, 8), label:'', picks:{}, other:{}, conf:{}}]; }); return {...s, sel:n}; }); };
     const st = choiceStatus(nums, sel, opts);
     const labels = [...new Set([...Object.values(sel).flat().map(v => v.label).filter(Boolean), 'FOH', 'BOH'])];
     const setVars = (key, fn) => { if (locked) return; setState(s => { const cur = (s.sel || {})[key] || [], next = fn(cur), n = {...(s.sel || {})}; if (next.length) n[key] = next; else delete n[key]; return {...s, sel:n}; }); };
@@ -3748,8 +3780,12 @@ function RootApp() {
         {card('Design pressure', `${dp.plumbing || '—'} / ${dp.fire || '—'}`, 'plumbing / fire, bar (Setup)', dp.plumbing || dp.fire ? 'capacity' : 'review')}
       </div>
       <datalist id="chxlabels">{labels.map(l => <option key={l} value={l}/>)}</datalist>
-      {items.length === 0 && <div className="piw-empty big">No catalogue items belong to the sections in this project.</div>}
-      {items.map(it => {
+      {!locked && unused.length > 0 && <div style={{display:'flex',alignItems:'center',gap:10,margin:'0 0 10px',padding:'8px 12px',background:'#eef4ff',border:'1px solid #cfe0ff',borderRadius:8,fontSize:12,color:'#424245'}}><span style={{flex:1}}><b>{unused.length}</b> item{unused.length === 1 ? '' : 's'} not used yet{q ? ' (matching your search)' : ''}. Add them all, then choose the options for each.</span><button className="schedule-action" onClick={() => addMany(unused)}>＋ Use all {unused.length} items</button></div>}
+      {items.length === 0 && <div className="piw-empty big">No catalogue items belong to the sections and country of this project.</div>}
+      {items.map((it, ix) => { const secHead = ix === 0 || items[ix - 1].section_num !== it.section_num; const secUnused = items.filter(x => x.section_num === it.section_num && !(sel[x.item_key] || []).length);
+        return <React.Fragment key={it.item_key}>
+        {secHead && <div style={{display:'flex',alignItems:'center',gap:10,margin:'14px 2px 6px'}}><span className="spec-div" style={{padding:0,flex:1}}>Section {fmtNum(it.section_num)}{(included.find(S => S.num === it.section_num) || {}).title ? ' – ' + titleCase(included.find(S => S.num === it.section_num).title) : ''}</span>{!locked && secUnused.length > 1 && <button className="schedule-action" onClick={() => addMany(secUnused)}>＋ Use all in this section ({secUnused.length})</button>}</div>}
+        {(() => {
         const vs = sel[it.item_key] || [], isOpen = open[it.item_key] !== undefined ? open[it.item_key] : vs.length > 0;
         const defs = chDefs(it), edited = editedNums.has(it.section_num);
         const stI = choiceStatus(new Set([it.section_num]), {[it.item_key]:vs}, opts), pend = stI.unset + stI.unconf;
@@ -3799,14 +3835,15 @@ function RootApp() {
             {vs.length > 0 && <div style={{marginTop:6}}><a href="#" style={{fontSize:11,fontWeight:700,color:'#007aff'}} onClick={e => { e.preventDefault(); setShow({...show, [it.item_key]:!show[it.item_key]}); }}>{show[it.item_key] ? 'Hide' : 'Show'} specification text</a>
               {show[it.item_key] && <div className="spec-doc sd" style={{border:'1px solid #e1e1e6',borderRadius:8,padding:'10px 14px',marginTop:6,background:'#fff'}} dangerouslySetInnerHTML={{__html:`<p class="ar"><span>x.x</span>${esc(String(it.label).toUpperCase())}</p>` + linesHtml(choiceLines(it, vs, opts, T))}}/>}</div>}
           </div>}
-        </div>; })}
-      {outside > 0 && <div style={{fontSize:10.5,color:'#86868b',marginTop:8}}>{outside} catalogue item{outside === 1 ? '' : 's'} belong to sections that are not in this project and are hidden.</div>}
+        </div>; })()}</React.Fragment>; })}
+      {outside > 0 && <div style={{fontSize:10.5,color:'#86868b',marginTop:8}}>{outside} catalogue item{outside === 1 ? '' : 's'} belong to other sections or other countries and are hidden.</div>}
     </div>;
   }
   AU.SelectionsPanel = SelectionsPanel;
-  const CH_ITEM_FIELDS = [['item_key','Key (e.g. Ball valve - fire protection)'],['label','Prints as (article heading)'],['section_num','Section no.'],['pgroup','Pressure group',['fire','plumbing']],['common','Common clauses (one per line, printed for every variant)','text'],['note','Note'],['status','Status',['Verified','Check']],['source','Source'],['sort','Sort','num'],['active','Active','bool']];
+  const CH_ITEM_FIELDS = [['item_key','Key (e.g. Ball valve - fire protection)'],['label','Prints as (article heading)'],['section_num','Section no.'],['pgroup','Pressure group',['fire','plumbing']],['countries','Countries (blank = all; e.g. KSA,Saudi or UAE,Emirates)'],['common','Common clauses (one per line, printed for every variant)','text'],['note','Note'],['status','Status',['Verified','Check']],['source','Source'],['sort','Sort','num'],['active','Active','bool']];
   const CH_DEF_FIELDS = [['item_key','Item key'],['choice_key','Choice key'],['label','Label'],['selector','Selected by',['Architect / ID','Engineer']],['code_critical','Code-critical (Lead only)','bool'],['allow_other','Allow "Other (type it)"','bool'],['clause','Architect / ID: own wording (blank = standard line)','text'],['sort','Sort','num'],['active','Active','bool']];
   const CH_OPT_FIELDS = [['item_key','Item key'],['choice_key','Choice key'],['opt_key','Option key'],['label','Label (dropdown text)'],['clause','Clause printed in the specification','text'],['standards','Standards cited (separate with ;)'],['cost','Cost tag (Low / Medium / High, blank = none)'],['rating_bar','Rating in bar (0 = not a rating)','num'],['block_when','Rule: when this project option is on (condition)'],['block_level','Rule level (Block / Warn)'],['block_reason','Rule reason'],['status','Status',['Verified','Check']],['source','Source'],['notes','Notes'],['sort','Sort','num'],['active','Active','bool']];
+  const WAR_FIELDS = [['row_type','Row type',['note','item']],['countries','Countries (e.g. KSA,Saudi; ALL = every country)'],['division','Division (e.g. 22)'],['group_label','Group heading (e.g. PLUMBING)'],['description','Description (equipment, or the note text)','text'],['warranty_years','Warranty from the Taking Over Certificate (years)','num'],['employer_inspection','Factory inspection by Employer (X or -)'],['fat','FAT / third party / random sample test (X or -)'],['service_life_years','Service life (years)','num'],['remarks','Remarks'],['sort','Sort','num'],['active','Active','bool']];
   const CH_PRESET_FIELDS = [['key','Key'],['label','Label'],['tier','Picks options tagged (Low / Medium / High)'],['picks','Explicit picks (JSON: {"Item key|choice_key":"opt_key"})','json'],['note','Note'],['sort','Sort','num'],['active','Active','bool']];
 
   AU.itemSig = (num, o) => { const m = {}; if (AU.itemsLoaded) includedItems({num}, o).forEach(it => { const r = AU.itemRev[it.code]; if (r) m[it.code] = r.rev; }); return m; };
