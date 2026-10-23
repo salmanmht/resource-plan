@@ -565,6 +565,62 @@
   .piw-nav .ai-panel span{min-width:0;text-align:left;font-size:inherit;color:inherit;font-weight:inherit}
   .piw-nav .ai-panel .ai-model{font:700 10px ui-monospace,Menlo,Consolas,monospace;color:#86868b}
   .piw-nav .ai-panel .ai-note{font-size:10px;color:#a76200}
+  /* ── Sump / drainage pit form ── */
+  .sump-fig{background:#fff;border:1px solid #e5e5ea;border-radius:10px;padding:6px 8px}
+  .sump-fig svg{display:block;width:100%;max-width:760px;height:auto;margin:0 auto}
+  .sump-fig-empty{padding:14px 16px;border-radius:10px;background:#fff0ee;color:#b91c1c;font-size:11.5px;line-height:1.5}
+  .sump-src{border:1px solid #e5e5ea;border-radius:10px;background:#fff;padding:9px 10px;margin-bottom:8px}
+  .sump-src-head{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+  .sump-src-no{font-size:13px;color:#1e3a5f}
+  .sump-src-name{flex:1 1 180px;min-width:0;height:28px;padding:0 9px!important;font-size:12px!important;border:1px solid #d2d2d7;border-radius:8px!important}
+  .sump-src-q{margin-left:auto;font-weight:800;font-size:12px;color:#1559a6;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .sump-src-q em{font-style:normal;font-size:8.5px;font-weight:800;text-transform:uppercase;letter-spacing:.05em;background:#e8f0fe;color:#1559a6;border-radius:5px;padding:2px 6px}
+  .sump-add{display:flex;gap:6px;flex-wrap:wrap}
+  /* ── Classic calculation sheet — ONE colour (Meinhardt blue); everything else black on white ── */
+  .cs-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;background:#fff;border:1px solid #d2d2d7;border-radius:10px}
+  .cs-chk{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#424245;cursor:pointer}
+  .cs-key{font-size:10.5px;color:#6e6e73;margin-left:auto}
+  .cs-wrap{position:relative;background:#fff;color:#000;margin:2px;font-family:Arial,Helvetica,sans-serif!important}
+  .cs-wrap *{font-family:Arial,Helvetica,sans-serif!important;letter-spacing:0!important}
+  .cs-wrap .issue-watermark{color:rgba(0,0,0,.06)}
+  table.cs{width:100%;border-collapse:collapse;table-layout:fixed;font-size:11px;line-height:1.25;border:1.5px solid #000;background:transparent}
+  table.cs thead{display:table-header-group}
+  .cs td{padding:0;vertical-align:middle;color:#000}
+  .cs-draft{background:#fff;color:#000;font-weight:800;font-size:10px;letter-spacing:.08em!important;text-align:center;padding:3px!important;border-bottom:1px solid #000}
+  .cs-logo{border:1px solid #000;background:#fff;text-align:center;padding:5px 4px!important}
+  .cs-logo img{display:block;margin:0 auto}
+  .cs-logo-c{max-height:34px;max-width:92%;width:auto;margin-bottom:6px!important}
+  .cs-logo-m{max-height:32px;max-width:92%;width:auto}
+  .cs-nologo{display:block;font-size:9px;margin-bottom:6px}
+  .cs-bl{background:#0b73ba;color:#fff!important;font-weight:700;padding:4px 8px!important;border-right:1px solid #fff;border-bottom:1px solid #fff}
+  .cs-hl td,.cs-hv td{border:1px solid #000;padding:4px 6px!important;overflow-wrap:anywhere}
+  .cs-hl td{font-weight:700;white-space:nowrap}
+  .cs-basis-h{font-weight:700;padding:6px 6px 2px!important;font-size:11px}
+  .cs-basis-t{font-weight:700;padding:3px 0 5px 6px!important}
+  .cs-basis-tag{margin-left:28px}
+  .cs-basis td{padding:2px 10px 4px 6px!important;line-height:1.35}
+  .cs-gap td{height:6px}
+  .cs-lb{padding:1px 8px 1px 4px!important;border-bottom:1px dotted #000}
+  .cs-lb.r{text-align:right}
+  .cs-lb.l{text-align:left;padding-left:8px!important}
+  .cs .b{font-weight:700}
+  .cs-fx{font-family:ui-monospace,Menlo,Consolas,monospace!important;font-size:8.5px;font-weight:400;margin-top:1px;overflow-wrap:anywhere;text-align:left}
+  .cs-lb.r .cs-fx{text-align:right}
+  .cs-vl{border:1px solid #000;text-align:center;padding:1px 6px!important;white-space:nowrap}
+  .cs-vl.sm{font-size:9px;padding:1px 3px!important}
+  .cs-sec{font-weight:700;padding:5px 6px 2px!important;border-bottom:1px solid #000}
+  .cs-text{padding:1px 8px!important}.cs-text.r{text-align:right}.cs-text.fx{font-size:10px}
+  .cs-text.b{font-weight:700}.cs-text.it{font-style:italic}
+  .cs-fig{text-align:center;padding:2px 18px!important}
+  .cs-fig svg{display:block;margin:0 auto;height:340px;width:auto;max-width:100%}
+  .cs-banner{background:#0b73ba;color:#fff!important;font-weight:700;font-size:13px;text-align:center;padding:6px 10px!important}
+  .cs-closure{padding:6px 8px!important;font-size:9px;font-weight:700;border-top:1px solid #000}
+  @media print{
+    table.cs thead{display:table-header-group}
+    .cs-row,.cs-sec-row,.cs-basis,.cs-fig-row,.cs-banner-row{break-inside:avoid;page-break-inside:avoid}
+    .cs-wrap,.cs-wrap *{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}
+    .cs-bar{display:none!important}
+  }
 </style>
 </head>
 <body>
@@ -583,7 +639,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.14.0 · Build 2026.10.06.01";
+const BUILD_LABEL = "v1.16.1 · Build 2026.10.23.03";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 const MEINHARDT_LOGO_SRC = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAATwAAABNCAYAAAA7DNjWAAAKqmlDQ1BJQ0MgUHJvZmlsZQAAeJyVlwdUk9kSgO//p4eEAAmhSAm9SW8BpITQQpcOohKSAKGEEAgqdmRxBVYUFRGs6IKIgo0ia0FEsS2KimJdkEVFWRcLNlTeDxzC7r7z3jtvcubMl8ncmbn/uTdnfgDIClyxOB1WACBDlCMJ8/VkxMTGMXAvARb50IAKgLi8bDErNDQQIDJj/y4f7gJo0t42n8z177//V1HkC7J5AEChCCfys3kZCJ9E9CVPLMkBALUX8estyRFPcifCNAnSIMJ9k5w8zSOTnDjFaDAVExHGRpgGAJ7E5UqSASAxED8jl5eM5CF5IGwl4gtFCIsRdsvIyOQjfBRhYyQG8ZEm8zMT/5In+W85E2U5udxkGU/vZUrwXsJscTp32f/5OP63ZKRLZ2oYIkpKkfiFIVYJeWZ9aZkBMhYlBofMsJA/FT/FKVK/yBnmZbPjZpjP9QqQrU0PDpzhJKEPR5YnhxMxw4Js7/AZlmSGyWolSdisGeZKZutK0yJl/hQBR5Y/LyUieoZzhVHBM5ydFh4wG8OW+SXSMFn/ApGv52xdH9neM7L/sl8hR7Y2JyXCT7Z37mz/AhFrNmd2jKw3vsDLezYmUhYvzvGU1RKnh8riBem+Mn92brhsbQ5yIGfXhsqeYSrXP3SGARtkgnREJYABApFvXgDkCJbmTG6EnSleJhEmp+QwWMgNEzA4Ip7FXIaNlY0DAJP3dfo4vKNP3UOIfnXWJ6Igx9gKuSMls77EYwC0PEbKOs76DOkAUN4BcCaVJ5XkTvum7hIGEAEF+SdQA1pADxgDc2ADHIAL8ADewB+EgAgQCxYBHkgBGUjnS8AKsBYUgmKwCWwDlWAP2A8OgiPgOGgBp8F5cAlcAzdBL3gI+sEQeAVGwQcwDkEQDiJDVEgN0oYMIDPIBmJCbpA3FAiFQbFQApQMiSAptAJaBxVDZVAltA+qg45Bp6Dz0BWoB7oPDUDD0FvoC4yCSTAN1oQNYUuYCbPgADgCXggnw1lwHlwAb4Qr4Gr4MNwMn4evwb1wP/wKHkMBlByKjtJBmaOYKDYqBBWHSkJJUKtQRahyVDWqAdWG6kLdRvWjRlCf0Vg0Fc1Am6Nd0H7oSDQPnYVehS5BV6IPopvRnejb6AH0KPo7hozRwJhhnDEcTAwmGbMEU4gpx9RgmjAXMb2YIcwHLBZLxxphHbF+2FhsKnY5tgS7C9uIbcf2YAexYzgcTg1nhnPFheC4uBxcIW4H7jDuHO4Wbgj3CS+H18bb4H3wcXgRPh9fjj+EP4u/hX+OHycoEAwIzoQQAp+wjFBKOEBoI9wgDBHGiYpEI6IrMYKYSlxLrCA2EC8SHxHfycnJ6co5yc2XE8qtkauQOyp3WW5A7jNJiWRKYpPiSVLSRlItqZ10n/SOTCYbkj3IceQc8kZyHfkC+Qn5kzxV3kKeI8+XXy1fJd8sf0v+NYVAMaCwKIsoeZRyygnKDcqIAkHBUIGtwFVYpVClcErhnsKYIlXRWjFEMUOxRPGQ4hXFF0o4JUMlbyW+UoHSfqULSoNUFFWPyqbyqOuoB6gXqUM0LM2IxqGl0oppR2jdtFFlJWU75SjlpcpVymeU++kouiGdQ0+nl9KP0+/Sv6hoqrBUBCobVBpUbql8VJ2j6qEqUC1SbVTtVf2ixlDzVktT26zWovZYHa1uqj5ffYn6bvWL6iNzaHNc5vDmFM05PueBBqxhqhGmsVxjv8Z1jTFNLU1fTbHmDs0LmiNadC0PrVStrVpntYa1qdpu2kLtrdrntF8ylBksRjqjgtHJGNXR0PHTkers0+nWGdc10o3Uzddt1H2sR9Rj6iXpbdXr0BvV19YP0l+hX6//wIBgwDRIMdhu0GXw0dDIMNpwvWGL4QsjVSOOUZ5RvdEjY7Kxu3GWcbXxHROsCdMkzWSXyU1T2NTeNMW0yvSGGWzmYCY022XWMxcz12muaG713HvmJHOWea55vfmABd0i0CLfosXitaW+ZZzlZssuy+9W9lbpVgesHlorWftb51u3Wb+1MbXh2VTZ3LEl2/rYrrZttX1jZ2YnsNtt12dPtQ+yX2/fYf/NwdFB4tDgMOyo75jguNPxHpPGDGWWMC87YZw8nVY7nXb67OzgnON83PlPF3OXNJdDLi/mGc0TzDswb9BV15Xrus+1343hluC2163fXced617t/tRDz4PvUePxnGXCSmUdZr32tPKUeDZ5fmQ7s1ey271QXr5eRV7d3krekd6V3k98dH2Sfep9Rn3tfZf7tvth/AL8Nvvd42hyeJw6zqi/o/9K/84AUkB4QGXA00DTQElgWxAc5B+0JehRsEGwKLglBIRwQraEPA41Cs0K/WU+dn7o/Kr5z8Ksw1aEdYVTwxeHHwr/EOEZURrxMNI4UhrZEUWJio+qi/oY7RVdFt0fYxmzMuZarHqsMLY1DhcXFVcTN7bAe8G2BUPx9vGF8XcXGi1cuvDKIvVF6YvOLKYs5i4+kYBJiE44lPCVG8Kt5o4lchJ3Jo7y2LztvFd8D/5W/rDAVVAmeJ7kmlSW9CLZNXlL8nCKe0p5yoiQLawUvkn1S92T+jEtJK02bSI9Or0xA5+RkHFKpCRKE3VmamUuzewRm4kLxf1ZzlnbskYlAZKabCh7YXZrDg0ZjK5LjaU/SAdy3XKrcj8tiVpyYqniUtHS68tMl21Y9jzPJ+/n5ejlvOUdK3RWrF0xsJK1ct8qaFXiqo7VeqsLVg+t8V1zcC1xbdraX/Ot8svy36+LXtdWoFmwpmDwB98f6gvlCyWF99a7rN/zI/pH4Y/dG2w37NjwvYhfdLXYqri8+GsJr+TqT9Y/Vfw0sTFpY3epQ+nuTdhNok13N7tvPlimWJZXNrglaEvzVsbWoq3vty3edqXcrnzPduJ26fb+isCK1h36Ozbt+FqZUtlb5VnVuFNj54adH3fxd93a7bG7YY/mnuI9X/YK9/bt893XXG1YXb4fuz93/7MDUQe6fmb+XFejXlNc861WVNt/MOxgZ51jXd0hjUOl9XC9tH74cPzhm0e8jrQ2mDfsa6Q3Fh8FR6VHXx5LOHb3eMDxjhPMEw0nDU7ubKI2FTVDzcuaR1tSWvpbY1t7Tvmf6mhzaWv6xeKX2tM6p6vOKJ8pPUs8W3B24lzeubF2cfvI+eTzgx2LOx5eiLlwp3N+Z/fFgIuXL/lcutDF6jp32fXy6SvOV05dZV5tueZwrfm6/fWmX+1/bep26G6+4Xij9abTzbaeeT1nb7nfOn/b6/alO5w713qDe3vuRt7tuxd/r7+P3/fifvr9Nw9yH4w/XPMI86joscLj8icaT6p/M/mtsd+h/8yA18D1p+FPHw7yBl/9nv3716GCZ+Rn5c+1n9e9sHlxethn+ObLBS+HXolfjY8U/qH4x87Xxq9P/unx5/XRmNGhN5I3E29L3qm9q31v975jLHTsyYeMD+Mfiz6pfTr4mfm560v0l+fjS77ivlZ8M/nW9j3g+6OJjIkJMVfCnRoFUIjCSUkAvK0FgBwLAPUmAMQF0/P0lEDT7wBTBP4TT8/cU4JMLvvbAYhYA0AwYncj1hBRigcAkyNRhAeAbW1lOjP7Ts3pk4JF3lj2Ok1Srx2lAvxDpmf4v/T9Twsms9qBf9p/ASf1AxIKzfCxAAArrklEQVR4nO2deXwV5b3/P88sZ83JvhMICUsIhLDLblkVEFFccF+rXazXau+ttbe3vdX29tbe/tqqra1WsbihoFRFFhEEZN8h7GFLIJB9Ozn7mZnv748DFDCZmbMfNO/X6/DSZDLPc2ae+c73+a6MiNBNN910802Ai/cEuummm25iRbfA66abbr4xdAu8brrp5htDt8DrpptuvjF0C7xuuunmG4MQ7wkAgKIQJFnRPE7gOXAci8iYRABjgbEVHZ5qnmMAY1AUBdFwbDMAHMfA2PnvpygAaV+TLuE4gAXeZ3quLWMsMH7oI15E7zXlzo8ZKRQizXvDWGDcSNPZ2Oz8eLhwVdnF/4KiEPQsI8YABoZQphyYE/1rfK2xgIvjMI0BiQiykpgRHoF7zHV6zeIu8BQiNLQ60NDm1Lx6PbKSWZrNHNaCvXQBEBGa2l1wuL2qf8NxHPIybDAIPBrbXHB5fCGP3xUizyM/0waePz+3DjvI0aH9BHcBS01jLCkJCgE1je1QNBanQRSQm54EnuPg9UswGUJfGj5JRn2LA7LStaBljMFmMSIzxRLyOJciKwrsTi/8krpw5ziGjGRLSAKkK4gAp9sHt1e67OeMMYgCB54PvHg4BlhNBgBAm9MDSWOuQOAlbzIIMIg8OBYQfFrC6AJOtw8en6R7CXGMwWQUYBD483Omi8/apWMSAXaXD612N4gI+kR37BD4wPMqCvxXfxeH+VyG3enFPb9ZQodPNWge+4sHJ9HDs4YzQydfRC+yQth59CwV5qSyrFQLnl+4gd5fsx9qb0Gr2YD3f3k7SntlsZ+/voaWbz0WEU3oUgqyk7Hs+XtZRnJAAPgWvUu+D94LaHohYHr8KRJn38wcXgkzn36LOpzqQnpgUTYW/vw2Joo8Pt54hO6aOpgJfGgWj2M1zXT7L96Hw931mILA4f7rh+K5h6dE5FLanV7c+exiOlSlvo4yUyzY/PKjzGwUIzEsAMDj8+P5dzfQgpV7O/09YwHNvTg/DWv/9BADgHt//QEdONkAPXGwoihgdGkP3HfdUAwuzmG56UkQBfV7oxDhdws30oKVe3WNcelc05ItmDS0ELNG90dRXhrLy7AhyWy4RPsDDAKH3y/aRCu2VMLrl3WfPxZkp1mx+Lk7WJ/89K/8Lq4Czy/JOFLdSHsrz6HF7tY83ueXQGGo0UQEl8ePlz7cit8/dj0AwO7w4lyzQ3VRpFhN8PpkKERod3hwrske8hy6wmoxXKadkMsJpbEBkENbTOTxAERQFEJDq1Pz+uZl2uCVZDDGsLvyHKaNKEZehi2ksV1eCQ1tTrR2dD2mQeTRoSIQg8UnyWi2u1DTqH5viPRtt/Xg9vrBMQaFAIfbpzo2YwxJ5n8J2cY2F8422nVv/RtaHfhyXzUGFWXRTeNLMWf8AJaXkQS1l1JgrXaoatqdUdvcgaraFnyw7iCy05Jo6vBiDOydhcnDilhOWhIsJhEGkcczd09kaUkmWrByr+7vEgs4noOvCyEcV4Hn9Pjx67e+1CXsAoSnDMgKobKmmdbuPRXWeWJDmIpPiH+uEKG6vh3r9p6iO6YMZqGYD6JgItMeM4pHd4ZfkvFlRTWN6J9/XlvUcc4w7onT7YPT7cO5Jjt2HD6L1btP0stP3sAyU6ya2l6wSHLAPGB3enGuqQP7jtchxWrE4D459PP7J2FEST6zmgwoyErGz++fxIry0uiZV1ej1e7SZS+OJ3Hz0ipEOHmuhTZUVMVsTLfXj1+/uR4utz/kcyTGOyy6tHS48dqy3fD6JO2Dv6HUtTiwaO1B1W17tLA7vVixtRLzfrmIzjVHfrdxJUQEu8uLrQfP4Jb/Woh/+9My2nu8logIBpHHvdcNYQt+Ohf5mcm67YvxIm4Cz+704g+LtsDpCV34BINfknH8bAtt3F8dspGVCJrG/68DsqzgSHUjTpxt+fp/2RDwSTKWbDhMFSfr4jK+QgSfX8Keylr824vLqandFf0xFYJfUuD0+PHJpiP4/h+W4pWlO6nD5YVB4PGtIb3Zn5+8AXmZtotOmkQkLjOTZAXHz7bQ6p3HIcdABSYiuH0S/vedL9Ecg8VxtUMgtHa48crSnV3aQr7JNLQ6seiL/XCGsVMIFyLA6fFh/Z5TWL71GPmk2NwnIoLD7cO+Y3X4+Wtr8LdPdlJdiwNmo4DrR/Vlz3/vOmQkWyIabhRJ4iLw3D4J/1i5B/WtzpiMpxBwrqkDq3aciMl4XwfcXgmfbqmE3aUesvNNQ1EIi9cdpP0nGxJC2+9w+fCL+WvQEKNn6QLK+ZCun776Of60eAu5vH6IAoe7ppSxx+ZeA5Mhcl7wSBJzgUcEHK9ppsVrD8RsTIfLi2ff+IIcrtjbW0KCCFGJbg6S5nYnVu86Ef+JJBC1zR14/4v9UYnFDAWigBf+lU92UjwEsCwr+OvH2/Ffr39Bbp8EjnH4t7mjWXnf3E7j4OJNzAWew+3Fe1/sR1uHJybjSbKC6vo2WrP7VNDu+SsJ2P5is6hIluLuIfH4JLyweCvand1aHhCw3S1ef4iOVDclVJaB1ydh/vLdqKxpjsv4dqcXb322F68t20Uenx9pNhNeeHwmMlISb2sbU4GnKISTta303poDiJXNwe3148//3I6IGHYJsVvodPGfmEKXpEj5JQWVNc2oqm1NnKc7jrR2uPHmyj0Jt81XiNBid+P9tQcoXrFwze0u/GrBehyqbiRZIQzrl8senjUMJjHuuQ2XEVOB5/XL+GjDYdQ0tsdszKq6Nlry5aGgos27Ik4yKOZc6khyuL148cOtEbl+Vztvf15BlTXNCXktvD4/Xvt0J9odsdk5dUZLuwvf/f0nsDu9EHgeP7x1LMsNMXg9WsRU4J0810JvrdoXM2Ov3enF/OW7YY/glizxlnrkufT2SJKCz7YfR3V97F5SiUhtcwfe+mxvxGITGQPY+WIRah+9wcoEoLXDgy2HzgS9RC8UjriseEUIKEQ4XNWIPyzeTG6fH6lJJnx3zkjYLIaQzxlpYqZvOj0+fLL5CM41dcRkPFkhnKxtoUVrD8Afoe0zz3EoyErGoKLsiEg+AqCctysW5KQgnBzhSEGX/AsEFnGb04M1u0/SwzOHsUQPLI0GfknB4nUH6VRta8QyCaaP7Iu+BZma2qLb68eBk/U422iHR0PY+vwSVm0/gVmj++ueh8BzGF9eiJ7ZKVCIIMsEl8eHmoZ2nGvuCGR4ePy6tVqX1493Pq/AvdOHoG+PdNw5dTB7f+0BOquR8hdJ0m1mGMTOn6WYCDwiwpmGdrz7eQXc3tjELnn9Ej5cfwh1LY6IndMgcHhs7mjcMaUMkUhPIlLOP0CBPEuLKTFd+R6vHy98sBV3ThkMa4LOMZq0Odx4+aPt6Iigl/9/HpmqawE5PT6s31tNP311FQ6ealR1vMkKYf2+U0E5+A0ij5/cNQEzR/djwL/i+46ebqJD1Y1YtrUSK7Ydg8frh1+SdZ27qrYVf1i0mf7wgxksP8OG3zw6LTI2dJ0kmY1It3VehScmAs8vKfh0cyUdP9sSi+EAACfOttD85bsjun3meQ4lPTOYnJ8WmYRRootyk+O4QM29BERWCNV1rdh+uIYmDytKzElGCSLCe18coJpGe1xsdxajiMnDerNfPzKNHv2/j1Gv8gIPOAXb0OHyIknvNvLKGn4MsJhEDC7OYQMKs3DjuBJU1bbRf7yyCpv3V8OtMzPq441H8NN7JqIwJxWThvRmcgyvHcdYl7ulmNjwzjS2Y+EX+2NWRsbh9mHJhkNBFCXQj8BzMBoEGEU+/I9BgFEMfESei0phyqDpIvLG7ZWwYOXehE8OjzQ1jXa8+OFWze1ktGCMwWwUMb6sF5swuFDzeEmS0erQv+47E0McYzCIPKwmEalJJpQWZrL5P76JPfvwFPTIStZ13ha7C/OX7ya31w+jQYDFKHb6MYp84J1PXX8YAJHnujzHlR+TQegyHCbqGp5PkvHJpqNUebopJm9IhQin69vwxvI9cVukVzWs84dAkhUs3XwUNY129M5NjfWs4oIkB3Ymdc0dMUmBVCPZasSkYb3x0YbDqttaIqDd4aGe2SkRe3saDQJ6Zifj+3NGsTSrkf7z72vQ1O5U3d5KsoJ3Pq/A9+aMgtXctbbZ0ObCpopq8qtcX8aA0sIsDOmTG/Z3irrAq291YNG6AzGrKuGXZHy08UhMjaRfJ7oq3R2oJejDRxsP05O3jU0AVTT6NNtd+O27G+BMgKyKC1V8jQYeLo+68HVH4UUfqOdnwH3XD2NeSaEnX1quWbG5ptGOypomysuwsa40rgMn6+jh5z+CU0U+8DyHp++eiMHFOWHvgqK6pZVkBR9tOEIHT2pXM44UVbVteGPFnrCzKr6pBLLaOn91+yUFr326KyEEQLQhAhau3k/N7a5EyPIDAP1mjyjOVxQ43D11MHtwxjBNv50kK3hj5V4NZYddLMqq9onU7jCqAq+hzYkP1h2M2QPi8vqxZMMhqm3uSJhF+nVCVhScOteKL/dVf+2v7un6Nry4JH62u87wy4p2pg8RRDF6jzXHGFKSTPjpvdeyAb2yNKZC+HJvVVA2xWgTtSsjywqWb62k/SfrYxJoTADqmjuwcM0BVfX4aoAAwCCCWa3/+lg6+1i++jEHPuCFqJQe9vplvPXZ3oim2NH5UvSXfmRFCfITOS1AVhQs2XCY6jTKowca6kRkSE0kWcG5pg7tmFIGJJkMUZ0Vxxh6Zafg8VtGa9a+a2xzoq7FQYmSnRI1G16rw4N3Pq+A3RmjIgGSjMXrD9LxmqaYjBdNGGMwTJsBoV8JQIFCAuS/IhxAUQDXFbFNigxyB96mXP/SQKvGCCMrCpZuOYrqujYU5aVFLDqnw+W92OpQzxZGki//fZPdRVf+LFQaWpz4f+9v1owqyEyxwBLBZkBqtDk8WL/3lKbzhOM4pCdHphOcGjzP4b7rhrAXP9hKlWe6fuY8XgnbDtZgSJ/csDrhRYqozEAhwuc7jtP+E/WamgDPc0izmdHa4Q7LE3a2yY5Faw/C61NfpALPoXduGlKTTCGPFQv4fv0Z17v4/P91Ui6K0Hnf2gvX22wOWf3QEhtujx/vrqmgn917rf7cJxVaOtz497+spAspgLoE3hXryuuTcLq+Ley5EIC3V1dQc7tTtSmNzWLEHZPLYLMYo15Qwun2YeX2Y7R+b5XqvWGMIc1mQoo1+mubIRAjeM/0cvzyjbVd3i+FCGv2nMR91w/5+gq8docXryzdiXYd2p3ZIODJ28bguQXrQm3QBa9fxuJ1B+nYmWbNzklGUcDjt4yG2SgmdkyZaAATY5+DyDGmGQB93qCPJ24dA5vZGLaW5/L4sWrH8YhmxYRKXbMDL3y4VbXSM8cYivLSMGd8CTMZhJDaFLR1uOHW0TPW45NQcbKOfjF/rWZcKc8xlPbKgihwMekgxnMMt147EL99Z4NqBtWBkw3ocPmQZjNHfU5aRFzgEQEb91fToapGXQIlI8WKmyeW4rkF60Ies9nuwgfrDqFDo2wPY4GelbdMLA35EQ2ikXuQJ+5aIQsoc9oLOJgmzV0hijyK89Kw++i5Lo9RiHC4ugFr95yiG8eVMBaVCxIf3vpsLzW0OFQFhihw+M6NI5CfqS8ItzOWbDhM6/dWaWqH1fVt2HHkrK6iBRxjGD+4V8hzChbGGEoLs9iAwkzae6yuSy3P7vSgqd1JvXIiFxsYKhEXeB0uL363cCPadJSpsVmMeObuCUixmhhCdKbLCmHRFwfocHWj5rEWo4hn7pmIlBC3s5KsoKndBYc78vXQUqwmpNnMnfYZPXamGR9vPExe/6WLnsFmMVwUNRzHMGpAAUYPLAhrUSWZDXhgxlAs31oJl4rmQgS8sXwPZo3uD06I+zoOGyJCY7sLf/xgi+aLuqhHOmaPK2HhpALuO1GPjzcd0TTj+CVFd/ELUeAwoVw7GyOSMMYwdXgxKo7Xo6v0MYfbh5YOTyCTMs5LJaICjwDsPnaOKs80ad4knmPIy7ThpgkDwqrA0dDqwKK1BzRLbvM8h9wMG2Zc04+pNS9WQ5IVPP/uBtpQUR3S36sxobwQv3l0Wqdzq6prpZeWbLvc+8xwWUyWKHD4jzsnYvTAgrDmIfIcBvXOZr2yU+jIaXUH0Lq9p3DsbDMN6JUZUv/aRIIAvL5sNzW1OVXth1azAY/ddA2yUq1hadNevwSn2xcxswrHGDJTrRhcnBPbG8GAMQMLVAWZzy/jbJMdsqKoNg7XGicSRFTgebwSnl2wHq06yrebjCIemDEUOelJITcgkRXCJ5uO0uHqRs2tgVHg8b05o9ArJyWksYCAwDt5rhW7VLZ7oVKQnQKfX+7U6+f1y2hzeFS37KLAw+WNTDhOTloS7pk+BM/+Y63qA9nu8OCtVfvw3EOTwSVAaatQISK0tLvx539u0whDYchNT8Ks0f1YrLyzehEEDjdPKEV2qjW2AxNQXpzDeJ6jrtaKQoSq2lb45dAFHh+hiIOIxi3sP1lPh081QNKhgudn2vDwzOFhaQZtHW68sXy3ZsltBiA92Yy7p5Vf3WpIjDAZBdw4vgTJVqPmsYvXBtIGEyTMKiRkhfDXT7ZTfYtD9XsIPIcnbxuLAp0J9LHEbBTx8KzhMR+XMaBXbiosJnUHW1VdG/whFg9hCLxsIvHwRkzguTx+PLtgHdocHk1jXJLZgDsmlyHNFrr7XFEIy7ZWUmVNk2Zgs8VkwHfmjEJmSvTjk74OcIyhICuZXVOqvT0+Xd+O5Vsru3y7JzoKEepbnZi/fI+mPa1nTgpmjO7HEq0bl8kg4LZvDUTfHulxeaEbBB49s5JV095qmzsSIioiYgLv6Jkm2n7oDC43rHcyIGPokZWMR24YwYxhNPhodXjw0pKtmkUZeY5DdpoVD1w/lHVVBbWbr2IzG/GDuYHwHTX8koy3Vu2D1y9dleXvJVnB/OW7qaquVfU4s1HE43OvQV5GUkJ14uK5QFGBH942Nm4FZBlj6JWdrGpna7K74A817iyCRETgSbKC/3tvk66KsKLAYdaY/ijIDs2Wxlgg2XjtnpN08qx2yW1R4DD32oEoyE68bUgiYxB5DO2by/RoxRsrqlFd354w6UN6ofPdvl5dulMzRiA9xYKbxpcyq8bWLZYwxmA1G/CTuyfE3llxBbkZNlUNz+70qcY2xoqICLxDVQ20eucJXe7zguwUPHHrmC7LxXSFKHDokWkDxzHYXT786s31utrl5WXY8ORtY65yH2J8SLeZce91QzSPc3sl/O3j7RFrcBMrfH4Zf16yjeqa1fusCDyHH94yGnkZSTGamT6sJhE3TShJCNt0ktmg6rX2SzL8GuWkYkHYAs/nl/Hq0p0XcyHVMBtFzB5bEnDpBzlOeZ88TBpWxDjGsGl/NdU0tGtqd1aTAbPG9EdmiiXsgNxvIgaRx4MzhrIMDS1PIcLK7cfQ4fLFJMI/EihKwHa3aO0BzXWUl2HDbZMGhWWCiSTc+RSyh2cNx2+/M53ZLNrOpWjDc9xX0x8vQVEUSAmwpQ37Dp6qa8X7aw9q2u4YY8hOs+I7N45gwTaCMYoCnrh1NGxmI5weH37y6mrN1ouMMeSkW/HErWOYlh2qm84ReA7ZaUko6ZWJzftPqx578lwrPt95nG6fXBb0m4XnGSwmA8J5cIkIHp+kKrwYAsn1DIFK3H//dCcdq2lWPa9B4PHI7BHITou/7Y6xwHySrSbcMaUMP7vvWyw7LcZhKF1AGlHFyvmKOPEmbIH32qe7ye70aIYlCDzDDWP7ozg/PegxBhZl4+aJpUwUeKzfV0U19W26bHeThxejKC8t6PG6+RdWswHP3D0BN/9soeqCVRTCXz7egdnjSoIfw2TAvKmDw6qK7fVJWLG1EjUNXffPZRxDVqoVPM/Q3O7GgpV7Nc+blWrFIzeMYInQUY7jOJT3ycX3b74Gd08rZwYhpm2lVelwe9ULPhCgEKKVmKmbsARe5ZlmLFxTocvdnJthw7dnjeiyX2RXiAKPp+aNhdkowunx4bk31+tK1s7PTMYPbx0DIYEWxdWIwDFcU1rA+vXIoKMqZYAA4ODJepyubw86RCXJbMBP7hzPwglbsLu82H+ijtQEXrLFiF99eyr8koKXlmwlrWIFHMfwwIyhSE0yaTylXXQ+UiHdZkZBVjJkhdDS4Ybb49fI3+Xx5O1jcf91Q1CYl8aMCRZxUN/iUL0CHGPg+fjblUIWeLJCWLz+IDW1uTRVVaNBwA1j+qNvQXrQgcbD++dhzrgSJnAcNh45S/tP1Gk6R4yigCnDilCUlxb/K6yX+Gv7ncIYg81ixIwx/XCsRr0ajd3pxUsfbsWd0wYHNYbAc2GX6xJ4TrWRuSjwKO2dhVEDerCmdicWrzuouY56ZCbjezeNYoLAYfOBM9TU7gJ1cqO8PgmnatuCmu+dU8owsbwQpBCWbjmKf6zQbjrV7vSiT4/0hDPRKESoqmtXLXDBa9yfWBGywKtvdeCvH22HT4dnNjXJhHunD0FykDYanmN44tYxSDIb4Jdk/O87GzRzZhkCFVEevXEEklS6JYUCY4BR5HWdN1j5JQp8YrRp7ASTQcBjN13D5i/bTVoVaZZvO4YbxpUknPy2WYx4+q4JsJpFvPjhFjqh0SOZYwzzJpchI9kCt8ePx/64FPtPNnQt8IN01pT3yWXlfXIBAAU5KbR47UFVgeeXZGzaX43GNldY6ZHRwOOVUFXfpvoytJjEoHd30SBkgff2qn2aidZAQGjdNGEAyvsEHyc0ckABbhw/gHEch037q2jnkZqvVLq9EoHnMGV4cVTikkwGAS//aDbzeNXfxAQEbaC1mg1xCxzVggHITU/CmIEF+HznCdVjG1oc2LCvOiFiri4g8BwG9c7CpKFFrLndhTeW79H8m5z0JDw1bywzGnh8vvMEnapthRKlxlAlPTNZSWEmbT9Uo2oeOl3fjuXbKum7N44Mq+BGJCECjtU0k1fjmchOsyIRvNxBz4CIUNvswPzlu6HWS/ICmalW3DllMIIN2DSIPJ64bQwsRgFer4SXlmyD0+PXFLDZ6Ul4cOZQzQyBUOA5Dhk6ymeHot0kxvLtnAvNoB+aORxr95xSfSj9soI3VuyGT8NrH0vSk8348Z3jwTGGv368gxra1ItVMMZw++RBSLdZ0O704jdvf6la4DJcDCKPH80bh4d/+0/V6AOX14+lm4/irimDQy5xFnEYsOXgGc0ugcV56WFpeAIfmSckaIs+EfDRxsN04myLphYj8Bxmju6HoX1zgwo05hjDkD65mDthAOMYQ8XJOlq1/bim1iAKPKYOL8awfnlRK1fEGNP8cCF8LvxtoiLwHGaM7sf0bKda7O6EyJsEAmticHEOxg0uZA1tDrz52V5N211migU/vmM8EwUOh041ni93Fr3vwwCMG9STJVuMqmYNWVaw51gtzjS2J4zFQJYVfLHnpKosOF8oFOE4WkIuK3UFQZ/F5fXjT4u36Or7arMYcfe08qBLO3Mcw0/umQiTQQBjDH9cvAUuHW/YtGQz7p5eHpOa/t80GAvYYeaML433VIIiPdmMJ28fC5OBx9urKuhck3pWBQDMm1yGzFQrZFnBz15bHZMm8rnpSZgzoRSihlBosbsxf8XehKhOQwS0drixascJVfsdzzH075mBcIouRKqqdlACT1YUvPN5BVXVtWlecI4xzBzdDyP65wc1U55jGDOoJ6aP7MMYY9h+uIZW7TihqU3yPIfrRvbBNQN6JK6adJUjChweuWF4VMwF0UAUOIwa0APjy3qxMw12vLZsl6ZJJCPVgqduH8sMIo9dlbW0/2R9TJq6M8bw+NzRmi9rv1/G+j2n0NAW//4fChHe/nwfOTRy6FOSTMjPVK+mEit0CzwiQrvDi9eX7dKVM5tqM+GBGcNgs+i33TEECoMGmsMEPLOvL9utK20t3WbGnVPKdNVw6yY0OMZQlJ/GYtk3IRwyUiz4/k2jwDGGd1dXkFahWcaAW88XmnB7/fjj4s1wemJX668gK5n1L8hQ3b4FQkBase1QTVxrNRAFes6+9dk+zRdCTpoVOWnW+Es7BCHwZIXw2Y7jtENHtV+OMUwsL8SwfrlB1Q7juIDtbtaY/gxgOFbTHMh11FEufvKwIowZ1ItFqjJqN51jEHjcM32IZmezeCPwHCaU98a4sp7sdEM76bHdWc1GPHXbWCbyPCprmmnVjhMx9TbbLAZ8W4cGbXd68crSXXFzDBERfJKMd9dU0J5jtarHMgZMLC9ESoIoIrqkw4U8xRc+2KIr3ijJbMAP5o4O2nZnNAj46b0TYTGKIBBe+HAbOdw+Ta9nstWEe68bkjAX9euMwHOYO2EAy82wxXsqqmSnJeG7s0eAYxwWrzsILdsdYwx3TR2Movx0gAF/XrI9qp7Zrpgxuh/LTVevyiIrCg5V1aOmyR6jWV0OAaiqbcUf3t+seazA87hxXEnCmEF0CTxZISzfWkkVJ+o0j2UMGDOo54U697onIgg8xgzsiXFlvRgAHKpqpI83Htb09nEcw7VDCnFNaY+Qm/N0ExwWkwHzJpclrFfZIPKYOqIYw0vy2fGzLfTWKm3tzmYx4ntzRsEg8Kg4UU+fbj4aF09zWpIJE4cUqjatJgIaW134cP0hinV1GuV8/4+n/7ZKs6wWAGSlWlDSMzOsDm+RRFNCEAFOjx+vLN0Jt0ZwIQAkmY348V0TkJZs1u1XYQywGkX8+x3jkG4zwy/JmL9ij67mPjaLEd++YQTSE6DJ7zcFnme4Z3p5pw2HEoF0mxnfnjUcIs/hwy8P4myj+oPJcxxunjAAQ/rmMllRsHB1Bdo63JoOjmhgNAj47o0jkazhvPD4/Hjzs73QchhEEoUIrR0e/G7hRvps+3HNxlkcY5hQXoistPA6vEUSTYEnKwp2HT1HX+6t0nXCof1yUVaUzYLJm+MYQ1lxNiYNK2JEhLoWB95cuVvXghtd2gOjBvRIuD4DX2c4xjCsXx4bWZqfEJ63S2GMYc6EUowoyWdHzzTT26sqNLU7UeTx1O1jwXEMtc0duoPqo0VpYRbr3ytD9RhZITS0OnHkTFNMpDIRweuT8NqyXfTCh1s0y8EBgU5q379pFGzmxDE1aWZaeHwSfvP2l5oNToBAnNYvHpgctLZlMYl47qEpMBkE+CUFf/xgC+lp9ZhsMeKJW8fqyn7oJrJwjOGhGcOwqeI0FI10v1iSm56E+68fAklW8MG6g6hvVQ/fEHgOt08ahNLeWYwBWLH9OCVbTUHZnGSF4HB5dVXg1oPFJOLWiQOx71itatsEu8uLFz/cin88MzdigbmdIckKmtpc+M/XVtMnm47oDsLunZuGAb2ygq5uHk1UBZ4UiOymXUfP6kqXKi3MwuDibKYVPHklIs+jvE8uA4CaRjs+3nBYM+6OMYbyvrkY1i+PiTEqAaUQwenxx6SUuchzMBsTI+G6M4gI143qy/IzbVTTaE+I4o4mA49bvjUQAwuz2fGzLfT+2gOq94oxhiSLAY/OHnExz3NUSQ/89Uc3BlW52euT8I+Ve/DRhsNhfwcgsMWeM2EAe2XpTjpS3djlcT6/jLW7T6K+1YEemZHt2UIEuH1+tNjd2H74LC1cXYHVu06gzaGtiACB6uZP3zU+7Co4kUZV4Dk9Pjy/cKOuL2k0CPjlQ1OQlqTfdncBg8jDIPLw+mXMX7GbTtWqd5ACAon8T981AVmpsdPuZJmweO0BOlzVEPWxkixGPDp7BMuP8EKOFIwx5GXYMHfiQPzln9ugJEB9lJQkE+6bPgQGkcd7a/bjbKO6F5PnGaaOKMbYQT0vLtlh/XKDVkecHh/W7jkV0QuQn2HDNaUFOHG2uUuNiojQ4fJiY0U1zZtcFnZBAa9fvlg1WpIVbD9cQ39ftgt7K2txRqXO4JUwBhRkJWP2uJKEq9vXpcCTFUJ1XTtt2Fel60SDemdhzMCCkFshEoAWuwtvr9qnb7yibAzvnxdTz6xPkrBi2zEs21IZ9bFy0qyYO7GU8jOTE2c/0Al3Ty/Hq5/ugiTHznjeGRwD7ppajkFF2exwdQN9sP6gZg8Fk0HEj24fH4GYQoZIFzQ0igLunFKGlduOoUFlW+7ySHjhw224eUIpjCqeXT3sOVZLP/rLSpxrtqPd6YXfJ8Mvy7rMWZci8jz+875rA8pPhGy8kbq6XV4hh9uLZ99cpyuP0CgKeOr2cWH1JPD6JLy6dCdpvZUBwGIU8eM7xyMjObbNeYgC24hYxGf5JCUhtolalBVls1ED8mlTxemYpGB1hdkoYvrIYuaXFLy9qiJQgVfl8okCj+tG9cGQPjkRKrUU2XXIGDBqQA9WVpRF69qcXW6xFVJQeboJR2uaqTzMkmhen4Sq2lY0tAbGC9VLPXZwL8weW8IiWW3cIHKqPTP00umMJFnB2aYO2rivStdD179XBmaM7hdyjX1FITS3u/DeF/t1xT4V5qViYnkhU4tV6iY2WIwiHpwxLO62RlHgYTEZUFXXSh9tPKJaTJMxBqtJxBO3jIE1wkViI0lqkgnTRvZVdaAEwsZ8+OeXh8J+QRIFqp/IihKysMtNT8JvvzMdKVb1yi/BzYsgcFxE1LxOJZTL68fv3tukKw6O4xgeu/ka2CzqfSnV8MsKFq07QEdOq/dMAAJFAn5277VI7/bM6iIWsWQzR/djyVZj3Gv6+fwy/v7pTpxrVLc38RzDqAE9MLasZ7ynrIrAc5gzrgT5WepZLV6/jAUr96LDHRkvcajwHMOTt4/F0L7BpZTGkq8IPEUh1DZ14NNNR3SdoLQwC7deO5CJfIi2OyLYnR787WPt7u8A0L8gA9NG9Emojk2JDBFFvV9GZooF8yYPiruWd/RMMy3dXAlJQ9Oxmg347wcnh1WuKFYU5qayiYMLVe2MRISmNie2HqqJqw1k7rUD8ejskUHF4Maar0gNh8eHlz/aTu1Obc+sKHB4cMYwJFtNIffs9PplLF53kKrr2zSPNYoCfjD3GiRbTQkTuZ3oxCJZQOA53D2tPK75kh0uH17+5zY0t7tUtVpR4DCqJB9lRdlXxQqyGEXcMK6/ZoVjr1/GG8v3xCUdThQ4TBvZB//zyDSWkhS6LIgFlwk8hQhnGtoDHi4dwYWFOal4YMawkD2zikJod3rx8kfbdcW29cpJwbzJZcxs7LbdJRpD++axovw0BJM/HSkUIlTXt9GK7cdUHUqMBVIf/+uBSYlTIl0DjmMYO7AnG9g7S/Ul75dlrNpxHKfr9YePRAKTQUB5n1z85anZrE+P9ISvonPZ6nR7/Fi09iC0+nVe4IGZwxCO7cYvy/hi1wk6qsN2BwZ8Z87I7np3CYrRIOCJW8bAFIdGLZKs4PfvbYRWMjvHcSjplYmRJcEVpY03mSlWzB5bAlHlZUIEuL1+rNh2LGbbWo5jGF9eiA+evYP1yUtLeGEHXCLwiAhVdW20YOUeXd6e4vx0PHD90JCzHIiAFrsH//P2l7rU8AG9MnHnlMHdFVESFAZg6ohiFo7zKlQOVTXQF3tOaXa0S7Ea8ZtHpyVMqSK9CDyH60b1RZZG2SifJOP1Zbs0+9uGC8cxZCSb8e93jMdfnpzNCrJTwF0lz+XFWbo8gY5Idc3a2h3PMcybUobcdFvIrmevX8KmA6d1ZVUE8h3LkJliQXeBz8QlL8OGWWP6x9R54fT48f8WbUajRstQUeBRWpgVaCh1VVjv/gVjQFF+Gps2oljVZKAohMozzdhVeS4qWh7PcUizmTGqpAeefXgqnr5rAivpGajQfLVcUQ4IaFunG+z0xoo9uqogZKZY8djNo1g4rdNa7G787t2NcHm0g3hzM5LwvTmjEi5NpZvLEXgOj944EtYY9dclIpw410Jrd5+CVq9gm8UQKFt2lZYRS7YYcePY/jBrxJ76JBnvf3HgvLMqAoG6jEHgORhFHmnJZjx+y2i8/sxc/GDuNSwzJVahYZETpwIAePwSVu44Bj2eUsYY7p85FDmp6uq1Gj6/jO1HztKBU/W6jr/vuiFIT47OQk3kXIag5xbul4nAxSgrymbZ6UnU7vBqZ16E6UL2+mX8asE6NGn0meU5DgN6ZWLS0N5RVER0fJcwvi7HGEYP7Mn6FGTQPpWy6pIkY9G6g/jvByaBgh7w8uMFnkNmigXF+emYNrIYD80cxtKTLTAbRBBFJPFB1wwZO79UIjCeAAB+vwS3x495kwZpToBjDN+eOZwJAheyrYYA1DS047ZJAzXXvMBxeOSGEcwg8BG3DTHGMHpgAfySrFodw2wQkJlqYaLA41tDe8fEcZKaZEJGsoUBQM/sZNwxpUzVNsNzDIOLc77yc6NBwO2Ty+D0qKcIFuakRkQzs5hE/Pf9k7By+zHVApECz2FESX5YYxEReuek4o4pg1Xvn8BzuGnCACRFqS6bwDGMKOmBe68b0uUxjAF56eGVxU9PNuM/5o3DZzuOdz0OAt+3oc2JUSU9YJ/ugZpJ3iDwFyut5KYnsVu/NZAcbh8sJgMKc1PRt0c6hvbNZRnJFqQkGSNuUuqRYcMdUwar7iw5xjBAoz6gXtiFhhwuj1+X84AxhF1/TpIVuLx+XQ1SOMaQajNFpdAkUSBn2KsxD55jsJoNEDgOTo9P8/hIIPAcLOfLQ3l9Epxev0azY8BsEGG5QmgFQn88mtVpDQIPi0mMSF01ty/wAlUTQowFQhqsptBTu7zn85q11i3PMZiNAkyG6Gy1FSJ4vJJm72SB58Iul+TxSnBovLwYAi8eWSF4/ZKqUsGxQCC2URQuu54GkYfVZIi659Xrl+B0a6wVABazQXM7rwdGdF7xDUJlDPcSXPxuMRpPDdKpm184Qu/xYXPFMLo2J0Rf0YLpwl5Aa8rnj4vUV9O1VYnEOHrWbZRv2UVnSRDrKKzxdBzDEPzaBi65njFa5kDs1gpwXuB100033XwT+P/5sZF2dgOu8gAAAABJRU5ErkJggg==";
@@ -885,8 +941,8 @@ function lookupFU(p){
   }
   return interpolateApproved(f.units, t, `${c.unit} (${c.label})`);
 }
-const ceil1  = x => Math.ceil(x);
-const ceil01 = x => Math.ceil(x * 10) / 10;
+const ceil1  = x => Math.ceil(x - 1e-9);
+const ceil01 = x => Math.ceil(x * 10 - 1e-9) / 10;
 // Numeric field reader that respects a deliberate 0. Plain `Number(v)||dflt`
 // silently replaces a user-entered 0 with the default, which is wrong for
 // fields like Safety Factor and Fittings Allowance where 0 is a valid choice.
@@ -925,7 +981,7 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", custom:"Custom",
 };
 
 // ── Pump set arrangements ────────────────────────────────────────────────────
@@ -1145,6 +1201,7 @@ function safeCalculate(p) {
   catch (e) { console.error('calculate() threw', e); return calcError([e && e.message ? e.message : 'Calculation failed.']); }
 }
 function calculate(p) {
+  if (p.type === "sump") return calculateSump(p);
   const set = pumpSetOf(p);
   const inputErrors = validatePumpInputs(p, set);
   if (inputErrors.length) return calcError(inputErrors);
@@ -1339,6 +1396,943 @@ const DEFS = {
   irrigation: {type:"irrigation", name:"Irrigation Pump",         tag:"IRR-P",   pipeType:"UPVC", headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"area", irrigatedArea:1000, applicationRate:6, directFlow:2.0, safetyPct:10, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:1.5, maxLossPaM:300, minVelocity:0, hwCoeff:150, staticHead:5, residualPressure:15, pipeRun:150, fittingsPct:40, pumpEff:0.65, motorEff:0.88, motorMarginPct:15},
   custom:     {type:"custom",     name:"Custom Pump",             tag:"CP",      pipeType:"PPR",  headLossMethod:"HW", pipeSizingBasis:"design", customInputs:[{key:"V",label:"Tank volume",value:20,unit:"m³"},{key:"t",label:"Operating time",value:2,unit:"h"}], flowFormula:"V * 1000 / (t * 3600)", flowUnit:"L/s", customHeads:[{label:"Equipment ΔP",value:0}], safetyPct:0, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full", maxVelocity:2, maxLossPaM:300, minVelocity:0, hwCoeff:150, staticHead:5, residualPressure:10, pipeRun:30, fittingsPct:50, pumpEff:0.7, motorEff:0.88, motorMarginPct:15},
 };
+// ══════════════════════════════════════════════════════════════════════════
+// SUMP / DRAINAGE PIT  — pit sizing, operating levels, pump selection
+// Pump type "sump". Re-uses the common reference data (pipe materials, motor
+// ratings), the head-loss functions and the issue-sheet / Excel pipeline.
+// Method follows the Meinhardt sump sheets (PH-xx-PSSP / TSSP): governing inflow
+// → required operating volume → pump-down depth → float levels → pit depth →
+// pump head and motor.
+// <SUMP-CORE-BEGIN>
+const SUMP_MAX_PUMPS = 10;
+const SUMP_SRC_LBL = {tank:"Tank drain", du:"Drainage units", spr:"Sprinkler discharge", manual:"Manual flow"};
+const SUMP_SRC_NEW = {
+  tank:   () => ({kind:"tank",   name:"Water Tank Drain", vol:132, pct:50, hrs:4}),
+  du:     () => ({kind:"du",     name:"Drainage units collected", du:73, k:0.7}),
+  spr:    () => ({kind:"spr",    n:9, of:12, q1:1.64}),
+  manual: () => ({kind:"manual", name:"Other inflow", q:5}),
+};
+// CEILING to 0.1 m, protected against floating-point noise (2.6000000001 must not become 2.7).
+const ceilTenth = x => Math.ceil(x*10 - 1e-9)/10;
+const sxEsc = s => String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+
+function sumpSourceFlow(s) {
+  if (s.kind === "tank") { const vol = Number(s.vol)*Number(s.pct)/100, min = Number(s.hrs)*60; return {q: vol*1000/(min*60), vol, min}; }
+  if (s.kind === "du")   return {q: Number(s.k)*Math.sqrt(Number(s.du))};
+  if (s.kind === "spr")  return {q: Number(s.n)*Number(s.q1)};
+  return {q: Number(s.q)};
+}
+function sumpInletDepth(p) {
+  const ov = Number(p.ilOverride);
+  if (p.ilOverride !== "" && p.ilOverride !== undefined && p.ilOverride !== null && Number.isFinite(ov) && ov > 0)
+    return {IL: ov, user: true, basis: "user-defined"};
+  const st = num(p.ilStart,0), run = num(p.ilRun,0), fall = Math.max(1, num(p.ilFall,90)), al = num(p.ilAllow,10);
+  const gain = run/fall;
+  return {IL: (st + gain)*(1 + al/100), user:false, st, run, fall, al, gain,
+    basis: `start invert ${st.toFixed(2)} m + ${run.toFixed(0)} m run at 1 in ${fall.toFixed(0)}, +${al.toFixed(0)}%`};
+}
+// Pump set for a sump: duty (lead) + assist + standby. Every working pump (duty + assist)
+// shares the inflow and has its own start float; assist pumps start after the duty pump(s).
+// Standby pumps are installed, idle and rated for the full pump duty.
+const SUMP_SETS = [
+  {k:"1D1A",   l:"1D + 1A",       lead:1, assist:1, standby:0},
+  {k:"1D1S",   l:"1D + 1S",       lead:1, assist:0, standby:1},
+  {k:"1D",     l:"1D",            lead:1, assist:0, standby:0},
+  {k:"1D1A1S", l:"1D + 1A + 1S",  lead:1, assist:1, standby:1},
+  {k:"1D2A",   l:"1D + 2A",       lead:1, assist:2, standby:0},
+  {k:"1D2A1S", l:"1D + 2A + 1S",  lead:1, assist:2, standby:1},
+  {k:"custom", l:"Custom"},
+];
+function sumpSetOf(p) {
+  let lead = Number(p.numDuty ?? 1), standby = Number(p.numStandby ?? 0), assist;
+  if (p.numAssist === undefined || p.numAssist === null || p.numAssist === "") {
+    if ((p.sharingMode || "assist") === "assist" && lead > 1) { assist = lead - 1; lead = 1; } else assist = 0;
+  } else assist = Number(p.numAssist);
+  const working = lead + assist;
+  return {lead, assist, standby, duty: working, installed: working + standby, sharing: working > 1 ? "assist" : "full"};
+}
+const sumpConfigStr = s => `${s.lead}D` + (s.assist ? ` + ${s.assist}A` : "") + (s.standby ? ` + ${s.standby}S` : "");
+const sumpSetText = s => `${s.lead} duty` + (s.assist ? `, ${s.assist} assist` : "") + `, ${s.standby} standby`;
+
+function calculateSump(p) {
+  const set = sumpSetOf(p);
+  const errors = [];
+  const rp = (v, l) => { if (!isPositive(v)) errors.push(`${l} must be greater than zero.`); };
+  const rn = (v, l) => { if (!isNonNegative(v)) errors.push(`${l} must be zero or greater.`); };
+
+  if (!Number.isInteger(set.lead) || set.lead < 1) errors.push("Duty pumps must be a whole number of at least 1.");
+  if (!Number.isInteger(set.assist) || set.assist < 0) errors.push("Assist pumps must be a whole number of 0 or more.");
+  if (!Number.isInteger(set.standby) || set.standby < 0) errors.push("Standby pumps must be a whole number of 0 or more.");
+  if (set.installed > SUMP_MAX_PUMPS) errors.push(`A sump section can show at most ${SUMP_MAX_PUMPS} installed pumps.`);
+
+  const srcs = Array.isArray(p.sumpSources) ? p.sumpSources : [];
+  if (!srcs.length) errors.push("Add at least one inflow source (tank drain, drainage units, sprinkler or manual flow).");
+  srcs.forEach((s, i) => {
+    const L = `Inflow ${String.fromCharCode(97+i)}`;
+    if (s.kind === "tank") { rp(s.vol, `${L} tank volume`); if (!(Number(s.pct) > 0 && Number(s.pct) <= 100)) errors.push(`${L} drained percentage must be between 1 and 100.`); rp(s.hrs, `${L} emptying time`); }
+    else if (s.kind === "du") { rn(s.du, `${L} discharge units`); rp(s.k, `${L} K factor`); }
+    else if (s.kind === "spr") { rn(s.n, `${L} operating sprinklers`); rp(s.q1, `${L} flow per sprinkler`); }
+    else if (s.kind === "manual") rp(s.q, `${L} manual inflow`);
+    else errors.push(`${L} has an unknown inflow type.`);
+  });
+
+  rp(p.pitL, "Sump length"); rp(p.pitW, "Sump width");
+  const sand = p.sandTrap !== false;
+  if (sand) { rp(p.trapL, "Sand trap length"); rp(p.trapW, "Sand trap width"); rn(p.trapSetdown, "Sand trap setdown"); }
+  if (!(Number(p.starts) >= 1 && Number(p.starts) <= 60)) errors.push("Pump starts per hour must be between 1 and 60.");
+  const dry = p.install === "dry";
+  if (dry) { rp(p.pumpCLht, "Pump centreline height above floor"); rn(p.suctionLoss, "Suction-side loss"); }
+  rn(p.alarmInlet, "Inlet alarm band"); rn(p.alarmHigh, "High-level alarm band"); rp(p.submergence, "Minimum submergence");
+  rn(p.ilStart, "Inlet start invert"); rn(p.ilRun, "Inlet run length"); rp(p.ilFall, "Inlet fall (1 in …)"); rn(p.ilAllow, "Inlet allowance");
+  const crit = sizingCriterionOf(p), useV = crit !== "pressure", useP = crit !== "velocity";
+  if (useV) rp(p.maxVelocity, "Maximum flow velocity");
+  if (useP) rp(p.maxLossPaM, "Maximum friction loss");
+  rn(p.pipeRun, "Pipe run"); rn(p.dischargeHt, "Discharge height above SSL"); rn(p.residualPressure, "Residual pressure");
+  rn(p.fittingsPct, "Fittings allowance"); rn(p.headSafetyPct ?? 10, "Head safety factor");
+  rp(p.pumpEff, "Pump efficiency"); rp(p.motorEff, "Motor efficiency");
+  if (Number(p.pumpEff) > 1) errors.push("Pump efficiency must be 1.00 or less.");
+  if (Number(p.motorEff) > 1) errors.push("Motor efficiency must be 1.00 or less.");
+
+  const matKey = resolveMatKey(p.pipeType);
+  const mat = matKey ? PIPE_MATERIALS[matKey] : null;
+  if (!mat) errors.push(`Pipe schedule "${p.pipeType||"—"}" is not in Reference Data. Select a pipe material and class for this pump.`);
+  else if (!mat.table || !mat.table.length) errors.push(`Pipe schedule "${mat.label||matKey}" has no sizes in Reference Data.`);
+  if (errors.length) return calcError(errors);
+
+  // ── 1. Inflow — governing case is the greatest, never the sum ──
+  const sources = srcs.map((s, i) => { const f = sumpSourceFlow(s); return {...s, ...f, letter: String.fromCharCode(97+i)}; });
+  const Q = Math.max(...sources.map(s => s.q));
+  if (!(Q > 0)) return calcError(["Governing inflow must be greater than zero."]);
+  const letters = sources.map(s => s.letter).join(", ").replace(/, ([^,]*)$/, " & $1");
+  const governing = sources.find(s => s.q === Q);
+
+  // ── 2. Inlet invert depth below SSL ──
+  const inl = sumpInletDepth(p), IL = inl.IL;
+
+  // ── 3. Operating volume and pump-down depth ──
+  const work = set.duty;                                         // working pumps = duty + assist
+  const stages = work;                                           // one start float per working pump
+  const starts = Number(p.starts), cycle = 60/starts;
+  const qWork = Q/work;
+  const vol = cycle*60*qWork/1000;                               // m³
+  const L = Number(p.pitL), W = Number(p.pitW), area = L*W;
+  const pdRaw = vol/area, pd = Math.max(0.1, ceilTenth(pdRaw));
+
+  // ── 4. Float levels, depth below SSL ──
+  const aIn = num(p.alarmInlet,0), aHL = num(p.alarmHigh,0), sub = Number(p.submergence);
+  const hCL = dry ? Number(p.pumpCLht) : 0, sucLoss = dry ? num(p.suctionLoss,0) : 0;
+  const lv = [];
+  lv.push({k:"IL", d: IL, label: "Inlet Alarm", band: null});
+  const dHL = IL + aIn;                lv.push({k:"HL", d: dHL, label: "H/L Alarm", band: aIn});
+  let d = dHL + aHL;
+  for (let k = stages; k >= 1; k--) { lv.push({k:"P"+k, d, label: `Pump P${k} Start-Float ${k+1}`, band: (k === stages ? aHL : pd), pn:k}); d += pd; }
+  const dStop = d;
+  lv.push({k:"STOP", d: dStop, label: stages === 1 ? "Pump P1 Stop-Float 1" : stages === 2 ? "Pump P1/P2 Stop-Float 1" : `Pumps P1–P${stages} Stop-Float 1`, band: pd});
+  let dBot = dStop + sub;
+  if (dry) { lv.push({k:"CL", d: dBot, label: "Pump Centreline", band: sub}); dBot += hCL; }
+  lv.push({k:"BOT", d: dBot, label: dry ? "Pit Floor" : "Submerge Level", band: dry ? hCL : sub});
+  const sumpDepth = dBot;
+
+  // ── 5. Sand trap and selected pit depth ──
+  const tL = Number(p.trapL), tW = Number(p.trapW), setdown = num(p.trapSetdown,0);
+  const trapDepth = IL + setdown;
+  const selDepth = ceilTenth(Math.max(sumpDepth, sand ? trapDepth : 0));
+  const governsDepth = sand && ceilTenth(trapDepth) > ceilTenth(sumpDepth) ? "sand trap" : "sump";
+  if (selDepth - dBot > 0.0049) {
+    lv.push({k:"FLOOR", d: selDepth, label: "Pit Floor", band: selDepth - dBot});
+    if (dry) lv.find(l => l.k === "BOT").label = "Pump Base Level";
+  }
+
+  // ── 6. Pump set, pipe, head, power ──
+  const qSel = ceilTenth(Q/work);
+  const Qh = qSel*work/1000;
+  const maxV = Number(p.maxVelocity), maxLoss = Number(p.maxLossPaM);
+  const reqDi = useV ? Math.sqrt((4*Qh)/(Math.PI*maxV))*1000 : null;
+  const gradOf = (Dmm, Qm3s) => headLossFor(Qm3s, Dmm/1000, 1, p, matKey).hf * PA_PER_M;
+  const sched = mat.table.slice().sort((a,b) => a.id - b.id);
+  let pipe = null, governs = "", pipeUser = false;
+  const ovOD = Number(p.pipeOdOverride);
+  if (p.pipeOdOverride !== "" && p.pipeOdOverride !== undefined && p.pipeOdOverride !== null && Number.isFinite(ovOD) && ovOD > 0) {
+    pipe = sched.find(c => Number(c.od) === ovOD) || null;
+    if (!pipe) return calcError([`The selected ${ovOD} mm pipe is not in the ${mat.label} schedule. Choose "Auto" or another size.`]);
+    pipeUser = true;
+  } else {
+    for (const cand of sched) {
+      const vOk = !useV || v2(Qh/(Math.PI/4*Math.pow(cand.id/1000,2))) <= maxV;
+      const pOk = !useP || gradOf(cand.id, Qh) <= maxLoss;
+      if (vOk && pOk) { pipe = cand; break; }
+    }
+  }
+  if (!pipe) {
+    const big = sched[sched.length-1];
+    const why = useP && big && gradOf(big.id,Qh) > maxLoss ? `friction loss ${gradOf(big.id,Qh).toFixed(0)} Pa/m on the largest size still exceeds ${maxLoss} Pa/m` : `required internal diameter ${reqDi?reqDi.toFixed(1):"—"} mm exceeds the largest size`;
+    return calcError([`No ${mat.label} pipe in the approved schedule satisfies the sizing limits: ${why}. Add a schedule size or revise the limits.`]);
+  }
+  { const prev = sched[sched.indexOf(pipe)-1];
+    if (pipeUser) governs = "user-selected size";
+    else if (!prev) governs = "smallest available size";
+    else { const vF = useV && v2(Qh/(Math.PI/4*Math.pow(prev.id/1000,2))) > maxV, pF = useP && gradOf(prev.id,Qh) > maxLoss;
+           governs = vF && pF ? "velocity and friction loss" : vF ? "velocity" : pF ? "friction loss" : "—"; } }
+  const area_p = Math.PI/4*Math.pow(pipe.id/1000,2);
+  const vel = Qh/area_p, gradDesign = gradOf(pipe.id, Qh);
+  const gradOk = !useP || gradDesign <= maxLoss + 1e-9, vOk = !useV || v2(vel) <= maxV;
+
+  const Lp = num(p.pipeRun,0), hl = headLossFor(Qh, pipe.id/1000, Lp, p, matKey), hf = hl.hf;
+  const fitPc = num(p.fittingsPct,50), hfFit = hf*fitPc/100;
+  const Hdis = num(p.dischargeHt,0), Hs = selDepth + Hdis, Hr = num(p.residualPressure,0);
+  const sf = num(p.headSafetyPct,10), rawH = Hs + Hr + hf + hfFit + sucLoss;
+  const totalH = ceilTenth(rawH*(1 + sf/100));
+  const pumpE = Number(p.pumpEff), motE = Number(p.motorEff), g = 9.81;
+  const qPump = qSel/1000;
+  const pwrReq = (g*qPump*totalH)/(pumpE*motE);                  // per sump sheet: Q·g·H ÷ (ηp × ηm)
+  const pwrShaft = (g*qPump*totalH)/pumpE;
+  const pwrSel = selectMotor(pwrReq);
+  if (!pwrSel) return calcError([`Required motor rating ${pwrReq.toFixed(3)} kW exceeds the approved standard motor schedule. Add an approved motor rating or revise the design.`]);
+
+  const config = sumpConfigStr(set), setText = sumpSetText(set);
+  const sizeStr = `${L.toFixed(2)} × ${W.toFixed(2)} × ${selDepth.toFixed(2)} m`;
+  const sump = {
+    sources, Q, letters, governing, inl, IL, work, stages, installed: set.installed, duty: set.duty, lead: set.lead, assist: set.assist, standby: set.standby, dry, hCL, sucLoss,
+    starts, cycle, qWork, vol, L, W, area, pdRaw, pd, aIn, aHL, sub, levels: lv,
+    sumpDepth, sand, tL, tW, setdown, trapDepth, selDepth, governsDepth, sizeStr,
+    Hdis, Hs, sf, rawH, Qh, qSel, pwrReq,
+  };
+
+  // ── Live working (right-hand panel) ──
+  const steps = [];
+  sources.forEach((s, i) => {
+    const lbl = s.kind === "spr" ? `Sprinkler discharge  [${s.n} × ${s.q1} L/s]` : s.kind === "du" ? `${s.name||"Drainage units"}  [K√DU = ${s.k}√${s.du}]`
+      : s.kind === "tank" ? `${s.name||"Tank drain"}  [${(+s.vol).toFixed(1)} m³ × ${s.pct}% ÷ ${s.hrs} h]` : (s.name||"Manual inflow");
+    steps.push({...(i===0?{s:"Inflow"}:{}), label:`${s.letter}. ${lbl}`, value:`${s.q.toFixed(2)} L/s`});
+  });
+  steps.push({label: sources.length > 1 ? `Governing Inflow  (greatest of ${letters})` : "Governing Inflow", value:`${Q.toFixed(2)} L/s`, hl:true});
+  steps.push(
+    {s:"Inlet", label:`Inlet Depth below SSL  (${inl.basis})`, value:`${IL.toFixed(3)} m`},
+    {s:"Pit Sizing", label:"Pump Installation", value: dry ? "Dry — pumps in adjoining dry pump room" : "Wet — submersible pumps in the sump"},
+    {label:`Pump Set  (${config})`, value:`${set.installed} installed · ${setText}`},
+    {label:"Working Pumps / Starts per Hour", value:`${work} / ${starts}`},
+    {label:"Min. Cycle Time  [60 ÷ starts]", value:`${cycle.toFixed(2)} min`},
+    {label:`Flow per Working Pump  [Q ÷ ${work}]`, value:`${qWork.toFixed(2)} L/s`},
+    {label:"Required Operating Volume  [t × 60 × Qp ÷ 1000]", value:`${vol.toFixed(4)} m³`},
+    {label:`Pump-down Depth  [V ÷ (${L.toFixed(2)} × ${W.toFixed(2)}), up to 0.1 m]`, value:`${pdRaw.toFixed(4)} → ${pd.toFixed(2)} m`},
+  );
+  if (sand) steps.push({label:`Sand Trap Depth  [IL + ${setdown.toFixed(2)} setdown]`, value:`${trapDepth.toFixed(3)} m  (${tL.toFixed(2)} × ${tW.toFixed(2)} × ${ceilTenth(trapDepth).toFixed(1)})`});
+  steps.push(
+    {label:"Total Sump Depth  [IL + alarms + pump bands + submergence]", value:`${sumpDepth.toFixed(3)} m`},
+    {label:`Selected Pit Size  (${governsDepth} depth governs)`, value:sizeStr, hl:true},
+    {s:"Operating Levels (below SSL)", label:"Top of pit (SSL)", value:"±0.000 m"},
+  );
+  lv.forEach(l => steps.push({label:l.label, value:`− ${l.d.toFixed(2)} m`}));
+  steps.push(
+    {s:"Pipe Sizing", label:"Pipe Material", value:mat.label},
+    {label:"Sizing Criterion", value:SIZING_LBL[crit]},
+    {label:"Flow per Pump  [rounded up to 0.1 L/s]", value:`${qSel.toFixed(2)} L/s`},
+  );
+  if (useV) steps.push({label:"Required Internal Diameter  [Di = √(4Q / π·v)]", value:`${reqDi.toFixed(1)} mm`});
+  steps.push(
+    {label:"Selected Pipe  (OD × wall × ID)", value:`${pipe.od} mm OD${pipe.wall!==undefined?` × ${pipe.wall} mm wall`:""} × ${pipe.id} mm ID`},
+    {label:"Size Governed By", value:governs},
+    {label:"Flow Velocity", value:`${vel.toFixed(2)} m/s`, flag: useV ? (vOk ? "ok" : "warn") : undefined},
+    {label:"Friction Gradient  [i = hf / L]", value:`${gradDesign.toFixed(0)} Pa/m`, flag: useP ? (gradOk ? "ok" : "warn") : undefined},
+    {s:"Head Loss", label:"Method", value:`${hl.method}  (${hl.detail})`},
+    {label:"Pipe Run Length", value:`${Lp} m`},
+    {label:"Friction Loss", value:`${hf.toFixed(4)} m`},
+    {label:`Fittings & Valves  (${fitPc}% of hf)`, value:`${hfFit.toFixed(4)} m`},
+    {label:`Static Head  [${selDepth.toFixed(2)} pit + ${Hdis} discharge height]`, value:`${Hs.toFixed(2)} m`},
+    {label:"Residual Pressure", value:`${Hr} m`},
+    ...(dry ? [{label:"Suction-side Loss  (suction pipework and valves)", value:`${sucLoss} m`}] : []),
+    {s:"Total Head", label:"Sum of Heads (pre-safety)", value:`${rawH.toFixed(4)} m`},
+    {label:`Total Pump Head  [× ${(1+sf/100).toFixed(2)}, up to 0.1 m]`, value:`${totalH.toFixed(1)} m`, hl:true},
+    {s:"Motor Power", label:`Required Power  [Q × 9.81 × H ÷ (ηp ${(pumpE*100).toFixed(0)}% × ηm ${(motE*100).toFixed(0)}%)]`, value:`${pwrReq.toFixed(3)} kW`},
+    {label:"Selected Standard Motor", value:`${pwrSel} kW`, hl:true},
+  );
+
+  return {valid:true, sump,
+    flowLsPerPump: qSel, flowTotal: Q, designFlow: Qh*1000, reqDi, pipe, vel, velPeak: vel, velDesign: vel, sizingBasis:"design", safetyPct: sf,
+    crit, maxLoss, gradDesign, gradOk, governs, hf, hf_fit: hfFit, totalH, pwrShaft, pwrReq, pwrInput: pwrShaft/motE, motorMarginPct: 0, pwrSel,
+    dutyPoints: [], matKey, set, config, setText, connectedKw: pwrSel*set.duty, installedKw: pwrSel*set.installed,
+    velOk: vOk && gradOk, pipeUser,
+    selStr: `Provide ${sizeStr} internal sump · Select Pumpset (${config}): ${qSel.toFixed(2)} L/s Each @ ${totalH.toFixed(1)} m Head, ${pwrSel} kW Each — ${set.installed} No. installed`,
+    steps};
+}
+
+// ── Sump section drawing — SVG string, drawn from the calculated levels ──
+// Black and white line drawing. Levels are evenly spaced (as on the Meinhardt sump sheet) so
+// labels never collide; the inlet pipe and every control level move with the inputs.
+// Wet = submersibles in the sump; dry = pumps in an adjoining room with flooded suction.
+// Text carries inline !important sizes so print CSS cannot shrink it.
+function sumpFigure(s, caption) {
+  const lv = s.levels, n = lv.length, S = n - 1, dry = s.dry, NP = s.installed;
+  const pitL = 330, pitR = 640, y0 = 64;
+  const gapD = 42, roomW = dry ? NP*gapD + 34 : 0, roomR = pitR + roomW, labX = pitR + 8 + roomW;
+  const W = dry ? Math.round(labX + 215 - 90) : 730;
+  const k = dry ? Math.min(1.3, W/730) : 1;
+  const yIL = y0 + Math.min(170, 40 + s.IL*26);
+  const segH = Math.max(46, Math.min(52, (470 - yIL)/S));
+  const ys = lv.map((l, i) => yIL + i*segH);
+  const yBot = ys[n-1], H = Math.round(yBot + 92);
+  const role = i => i < s.lead ? "D" : i < s.duty ? "A" : "S";
+  const T = (x, y, txt, px, o={}) => { const f = o.rot ? px : +(px*k).toFixed(1);
+    return `<text x="${x}" y="${y}"${o.anchor?` text-anchor="${o.anchor}"`:""} font-size="${f}" style="font-size:${f}px!important"${o.bold?' font-weight="700"':""}${o.rot?` transform="rotate(-90 ${x} ${y})"`:""}${o.ul?' text-decoration="underline"':""}>${sxEsc(txt)}</text>`; };
+  const arrow = (x, y1, y2) => `<line x1="${x}" y1="${y1+1}" x2="${x}" y2="${y2-1}" stroke="#000" stroke-width="1"/>`
+    + `<path d="M${x-3} ${y1+7} L${x} ${y1+1} L${x+3} ${y1+7}" fill="none" stroke="#000" stroke-width="1.1"/>`
+    + `<path d="M${x-3} ${y2-7} L${x} ${y2-1} L${x+3} ${y2-7}" fill="none" stroke="#000" stroke-width="1.1"/>`;
+  const pumpSym = (x, y, i) => { const st = role(i) === "S";
+    return `<circle cx="${x}" cy="${y}" r="14" fill="#fff" stroke="#000" stroke-width="1.4"${st?' stroke-dasharray="3 2"':""}/><path d="M${x} ${y-9} L${x+9} ${y+8} L${x-9} ${y+8}z" fill="${st?"#fff":"#000"}" stroke="#000" stroke-width="1"/>`; };
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="90 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" fill="#000">`;
+  o += `<rect x="90" y="0" width="${W}" height="${H}" fill="#fff"/>`;
+  o += T(450, 22, "Top Level", 12, {anchor:"middle", bold:true, ul:true});
+  o += `<line x1="405" y1="34" x2="495" y2="34" stroke="#000"/><path d="M443 38 h14 l-7 9z" fill="#fff" stroke="#000"/>`;
+  o += `<rect x="${pitR-130}" y="${y0-34}" width="130" height="34" fill="#fff" stroke="#000"/>` + T(pitR-65, y0-12, "SSL (+0.000)", 12, {anchor:"middle", bold:true});
+  const right = dry ? roomR : pitR;
+  o += `<line x1="${pitL}" y1="${y0}" x2="${right}" y2="${y0}" stroke="#000" stroke-width="1.3" stroke-dasharray="4 3"/>`;
+  o += `<polyline points="${pitL},${y0} ${pitL},${yBot} ${right},${yBot} ${right},${y0}" fill="none" stroke="#000" stroke-width="3.2"/>`;
+  if (dry) {
+    o += `<line x1="${pitR}" y1="${y0}" x2="${pitR}" y2="${yBot}" stroke="#000" stroke-width="3.2"/>`;
+    o += T(pitL+12, y0+18, "WET WELL", 10.5, {bold:true});
+    o += T(pitR + roomW/2, y0-10, "DRY PUMP ROOM", 10.5, {anchor:"middle", bold:true});
+  }
+  o += `<polygon points="140,${yIL-46} ${pitL},${yIL-8} ${pitL},${yIL+10} 140,${yIL-28}" fill="#fff" stroke="#000" stroke-width="1.2"/>`;
+  const arrX = pitL + 34, hasFloor = lv.some(l => l.k === "FLOOR");
+  lv.forEach((l, i) => {
+    const y = ys[i], dashed = (l.k !== "BOT" || hasFloor) && l.k !== "FLOOR";
+    if (dashed) o += `<line x1="${pitL}" y1="${y}" x2="${pitR}" y2="${y}" stroke="#000" stroke-width="1.1" stroke-dasharray="9 3 2 3"/>`;
+    if (dry && dashed) o += `<line x1="${pitR}" y1="${y}" x2="${roomR}" y2="${y}" stroke="#000" stroke-width=".8" stroke-dasharray="2 4"/>`;
+    if (l.k === "BOT" && !dry) o += T(labX, ys[i-1]+19, "Submerge Level", 11.5, {bold:true});
+    else if (l.k === "FLOOR") o += T(labX, y-4, "Pit Floor", 11.5, {bold:true});
+    else o += T(labX, y+4, l.label, 11.5, {bold:true, ul: l.k === "STOP"});
+    if (l.k !== "IL") {
+      o += `<rect x="100" y="${y-11}" width="132" height="22" fill="#fff" stroke="#000"/>` + T(166, y+4, `- ${l.d.toFixed(2)} M`, 11.5, {anchor:"middle", bold:true});
+      o += `<line x1="232" y1="${y}" x2="${pitL}" y2="${y}" stroke="#000" stroke-width=".8"/>`;
+    }
+    if (i > 0) { const yp = ys[i-1]; o += arrow(arrX, yp, y) + T(arrX-8, (yp+y)/2, `${l.band.toFixed(2)} m`, 9.5, {anchor:"middle", bold:true, rot:true}); }
+  });
+  o += T(pitL+120, yIL-9, "IL =", 11.5, {bold:true});
+  o += `<rect x="${pitL+158}" y="${yIL-26}" width="100" height="22" fill="#fff" stroke="#000" stroke-width="1.5"/>` + T(pitL+208, yIL-11, `- ${s.IL.toFixed(2)} M`, 11.5, {anchor:"middle", bold:true});
+  if (!dry) {
+    const gap = Math.min(40, (pitR - pitL - 50)/Math.max(1, NP-1)), py = yBot - 17, fz = gap < 34 ? 9 : 11;
+    for (let i = 0; i < NP; i++) { const x = pitR - 30 - (NP-1-i)*gap;
+      o += T(x, py-19, `P${i+1}/${role(i)}`, fz, {anchor:"middle"}) + pumpSym(x, py, i); }
+  } else {
+    const yCL = ys[lv.findIndex(l => l.k === "CL")], xs = Array.from({length:NP}, (_, i) => pitR + 17 + gapD/2 + gapD*i);
+    const yRis = y0 + 22;
+    o += `<rect x="${pitR-16}" y="${yCL-4}" width="${xs[NP-1] - (pitR-16)}" height="8" fill="#fff" stroke="#000" stroke-width="1.1"/>`;
+    o += `<path d="M${pitR-16} ${yCL-9} L${pitR-26} ${yCL-14} L${pitR-26} ${yCL+14} L${pitR-16} ${yCL+9}z" fill="#fff" stroke="#000" stroke-width="1.1"/>`;
+    xs.forEach((x, i) => {
+      o += `<line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#000" stroke-width="5"/><line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#fff" stroke-width="2.4"/>`;
+      o += `<rect x="${x-9}" y="${yCL+14}" width="18" height="${Math.max(2, yBot-yCL-14)}" fill="#fff" stroke="#000" stroke-width="1"/>`;
+      o += pumpSym(x, yCL, i);
+      o += T(x, yBot+14, `P${i+1}/${role(i)}`, NP > 6 ? 9 : 10.5, {anchor:"middle"});
+    });
+    o += `<line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#000" stroke-width="5"/><line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#fff" stroke-width="2.4"/>`;
+    o += `<path d="M${roomR+22} ${yRis-5} L${roomR+30} ${yRis} L${roomR+22} ${yRis+5}z" fill="#000"/>` + T(roomR+36, yRis+4, "To discharge", 11, {bold:true});
+  }
+  const capR = dry ? roomR : pitR;
+  o += `<rect x="${pitL-20}" y="${yBot+34}" width="${capR-pitL+40}" height="20" fill="#fff" stroke="#000"/>` + T((pitL+capR)/2, yBot+48, caption || "SUMP PIT", 11.5, {anchor:"middle", bold:true});
+  const lg = ["D duty", s.assist ? "A assist" : "", s.standby ? "S standby (dashed)" : ""].filter(Boolean).join("   ·   ");
+  o += T((pitL+capR)/2, yBot+72, lg, 10, {anchor:"middle"});
+  o += `</svg>`;
+  return {svg:o, w:W, h:H};
+}
+function sumpDesignBasis(p) {
+  const system = (p && (p.name || TYPE_LBL[p.type])) || "Sump";
+  return [
+    `${system} is assessed using the current coordinated project information and design inputs.`,
+    "Pit inflow is the greatest of the cases considered (tank drain, drainage units, sprinkler discharge); the cases are alternatives and are not added together.",
+    "Operating volume follows from the minimum pump cycle time at the flow per working pump (duty and assist pumps share the inflow); float levels are set downward from the inlet invert.",
+    ...(p && p.install === "dry" ? ["Pumps are installed dry in an adjoining pump room with flooded suction; NPSH available is to be confirmed against the NPSH required of the selected pump."] : []),
+    `${p && p.headLossMethod === "DW" ? "Darcy-Weisbach" : "Hazen-Williams"} friction loss, pipe sizes and motor ratings use the approved in-application reference schedules.`,
+  ];
+}
+// SVG → PNG data URL, so the sump section can be placed in the Excel export.
+function svgToPngDataUrl(svg, w, h, scale=2) {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.createElement("canvas"); c.width = w*scale; c.height = h*scale;
+      const x = c.getContext("2d"); x.fillStyle = "#fff"; x.fillRect(0,0,c.width,c.height); x.drawImage(img,0,0,c.width,c.height);
+      resolve(c.toDataURL("image/png"));
+    };
+    img.onerror = () => reject(new Error("The sump section drawing could not be rendered for Excel."));
+    img.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(svg);
+  });
+}
+// <SUMP-CORE-END>
+
+DEFS.sump = {type:"sump", name:"Sump Pump", tag:"SP", pitCaption:"", pipeType:"HDPE", headLossMethod:"HW", pipeSizingBasis:"design",
+  sumpSources:[SUMP_SRC_NEW.tank(), SUMP_SRC_NEW.spr()],
+  ilStart:1.2, ilRun:80, ilFall:90, ilAllow:10, ilOverride:"",
+  sandTrap:true, trapL:2.2, trapW:2.5, trapSetdown:1.37,
+  pitL:2.2, pitW:3.1, starts:10, alarmInlet:0.1, alarmHigh:0.1, submergence:0.2,
+  install:"wet", pumpCLht:0.3, suctionLoss:0.3,
+  configPreset:"1D1A", numDuty:1, numAssist:1, numStandby:0, sharingMode:"assist",
+  maxVelocity:1.85, maxLossPaM:300, minVelocity:0, hwCoeff:150, pipeOdOverride:"",
+  pipeRun:50, dischargeHt:17.5, residualPressure:5, fittingsPct:50, headSafetyPct:10, pumpEff:0.7, motorEff:0.7, motorMarginPct:0};
+
+// ══════════════════════════════════════════════════════════════════════════
+// CLASSIC CALCULATION SHEET  — the Meinhardt "calculation sheet" layout
+// One row model drives THREE outputs: the on-screen preview, the printed PDF and a
+// formula-driven Excel workbook. Every calculated row carries its Excel formula
+// (placeholders {id} = another row's value cell, {@table.COL} = a reference table
+// written beside the sheet, {#COL} = same row of that table). The preview shows the
+// engine's values; Excel recomputes them from the formulas, and the two are verified
+// to agree for every pump type.
+// One colour only: Meinhardt blue for the header bands and the closing banner.
+// Everything else is black on white; inputs and key results are bold.
+// <CLASSIC-CORE-BEGIN>
+const SheetPrefs = {
+  style: (()=>{ try { return localStorage.getItem("mep_sheet_style") || "classic"; } catch(e) { return "classic"; } })(),
+  fx:    (()=>{ try { return localStorage.getItem("mep_sheet_fx") === "1"; } catch(e) { return false; } })(),
+};
+const CL_MON = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+function clDate(s) { if (!s) return ""; const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(s)); return m ? `${+m[3]}-${CL_MON[+m[2]-1]}-${m[1]}` : String(s); }
+const clDp = r => r.dp === undefined ? 2 : r.dp;
+function clFmt(r) {
+  const v = r.value;
+  if (v === null || v === undefined || v === "") return "";
+  if (typeof v === "string") return v;
+  if (!Number.isFinite(v)) return "—";
+  if (r.pct) return (v*100).toFixed(0) + "%";
+  const s = v.toFixed(clDp(r));
+  if (!r.unit) return s;
+  return s + (r.unit === "%" ? "%" : " " + r.unit);
+}
+function clNumFmt(r) {
+  if (typeof r.value === "string") return "General";
+  if (r.pct) return "0%";
+  const dp = clDp(r), base = dp > 0 ? "0." + "0".repeat(dp) : "0";
+  if (!r.unit) return base;
+  return r.unit === "%" ? `${base}"%"` : `${base}" ${String(r.unit).replace(/"/g,"")}"`;
+}
+function clFxText(r, byId) {
+  if (!r.xl) return "";
+  return "= " + r.xl.replace(/\{(@?#?[\w.]+)\}/g, (m, k) => {
+    if (k[0] === "@") return k.slice(1).split(".")[0] + " table";
+    if (k[0] === "#") return "row";
+    const t = byId[k]; return t ? "[" + String(t.label || k).replace(/\s*\(.*?\)\s*$/, "").replace(/\s+/g," ").trim() + "]" : k;
+  });
+}
+
+function clBuilder() {
+  const rows = [], byId = {}, tables = {}; let al = "r";
+  const push = o => { rows.push(o); if (o.id) { if (byId[o.id]) throw new Error("Duplicate sheet row id " + o.id); byId[o.id] = o; } return o; };
+  return {rows, byId, tables, banner: null,
+    align(v) { al = v; },
+    section(title, o={}) { return push({t:"section", title, ...o}); },
+    text(text, o={}) { return push({t:"text", text, ...o}); },
+    gap() { return push({t:"gap"}); },
+    inp(id, label, value, o={}) { return push({t:"row", id, label, value, input:true, al, ...o}); },
+    calc(id, label, value, xl, o={}) { return push({t:"row", id, label, value, xl, al, ...o}); },
+    fig(svg, w, h) { return push({t:"figure", svg, w, h}); },
+  };
+}
+
+// The custom pump's flow formula, translated to an Excel expression over the input cells.
+function clExprToExcel(src, symId) {
+  const s = String(src || ""); let i = 0;
+  const peek = () => { while (i < s.length && /\s/.test(s[i])) i++; return s[i]; };
+  const FN = {sqrt:a=>`SQRT(${a[0]})`, abs:a=>`ABS(${a[0]})`, min:a=>`MIN(${a.join(",")})`, max:a=>`MAX(${a.join(",")})`, pow:a=>`POWER(${a[0]},${a[1]})`,
+    ceil:a=>`CEILING(${a[0]},1)`, floor:a=>`FLOOR(${a[0]},1)`, round:a=>`ROUND(${a[0]},0)`, log:a=>`LOG10(${a[0]})`, ln:a=>`LN(${a[0]})`, exp:a=>`EXP(${a[0]})`};
+  function expr() { let v = term(); for (;;) { const c = peek(); if (c === "+" || c === "-" || c === "−") { i++; const t = term(); v = `${v}${c === "−" ? "-" : c}${t}`; } else return v; } }
+  function term() { let v = power(); for (;;) { const c = peek(); if (c === "*" || c === "×" || c === "/" || c === "÷") { i++; const t = power(); v = `${v}${c === "×" ? "*" : c === "÷" ? "/" : c}${t}`; } else return v; } }
+  function power() { const b = unary(); if (peek() === "^") { i++; return `${b}^${power()}`; } return b; }
+  function unary() { const c = peek(); if (c === "-" || c === "−") { i++; return `-${unary()}`; } if (c === "+") { i++; return unary(); } return atom(); }
+  function atom() {
+    const c = peek();
+    if (c === "(") { i++; const v = expr(); i++; return `(${v})`; }
+    let m = /^(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?/.exec(s.slice(i)); if (m) { i += m[0].length; return m[0]; }
+    m = /^[A-Za-z_][A-Za-z0-9_]*/.exec(s.slice(i));
+    if (m) { i += m[0].length; const name = m[0];
+      if (peek() === "(") { const f = FN[name.toLowerCase()]; i++; const args = []; if (peek() !== ")") { args.push(expr()); while (peek() === ",") { i++; args.push(expr()); } } i++; return f(args); }
+      if (symId[name]) return `{${symId[name]}}`;
+      const lc = name.toLowerCase(); if (lc === "pi") return "PI()"; if (lc === "g") return "9.81";
+      throw new Error("Unknown symbol " + name); }
+    throw new Error("Bad formula");
+  }
+  return expr();
+}
+
+// ── Shared: pipe selection, pressure loss, electrical power ────────────────────
+// The pipe material is named ONCE, in the "Selected Available Pipe Size" row.
+function clPipeHead(B, p, res, o) {
+  const sump = !!o.sump, mat = matOf(res.matKey);
+  const useV = res.crit !== "pressure", useP = res.crit !== "velocity", isDW = p.headLossMethod === "DW";
+  const Cval = Number(p.hwCoeff) || mat.hwC, eps = Number(p.roughness) || mat.roughness;
+  const sched = mat.table.slice().sort((a,b) => a.id - b.id);
+  const Qh = o.QhVal, D = res.pipe.id/1000, Lrun = num(p.pipeRun,0);
+  B.align("r");
+  if (useV) B.inp("maxV", "Maximum Velocity of Flow", Number(p.maxVelocity), {unit:"m/s", dp:2});
+  if (useP) B.inp("maxL", "Maximum Friction Loss", Number(p.maxLossPaM), {unit:"Pa/m", dp:0});
+  B.calc("Qsz", "Flow Used for Pipe Sizing", o.QszVal, o.QszXl, {unit:"m3/sec", dp:4});
+  if (useV) B.calc("Dreq", "Calculated Pipe Internal Diameter (mm)", res.reqDi, "SQRT(4*{Qsz}/(PI()*{maxV}))*1000", {unit:"dia.", dp:2});
+  if (sump) B.inp("pOvr", "Pipe Size Chosen by Designer (OD mm, blank = automatic)", res.pipeUser ? res.pipe.od : null, {unit:"dia.", dp:0, hideBlank:true});
+  const pos = sump ? "IF(ISNUMBER({pOvr}),MATCH({pOvr},{@pipe.OD},0),MATCH(1,{@pipe.OK},0))" : "MATCH(1,{@pipe.OK},0)";
+  B.calc("OD", `Selected Available Pipe Size ${mat.label} (mm)`, res.pipe.od, `INDEX({@pipe.OD},${pos})`, {unit:"dia.", dp:1, key:true});
+  B.calc("ID", "Internal Diameter of Selected Pipe (mm)", res.pipe.id, `INDEX({@pipe.ID},${pos})`, {unit:"mm", dp:2});
+  B.tables.pipe = {sched, isDW, useV, useP, label: mat.label, C: Cval, eps};
+  B.gap();
+  B.section("Pumped main pipe pressure loss calculation of the system:");
+  B.text(isDW ? "Darcy-Weisbach formula for friction loss: hf = f x (L / D) x (v^2 / 2g), f by Swamee-Jain" : "Hazan & William formula for Frictionloss (hf )= (10.7xQ^1.85 xL)/(C^1.85 x D^4.87)", {cls:"fx"});
+  B.align("l");
+  B.calc("Qh", "Flow Rate (Q)", Qh, o.QhXl, {unit:"m3/sec", dp:4});
+  B.calc("Di", "Dia of Selected Pipe (Di)", res.pipe.id, "{ID}", {unit:"mm", dp:2});
+  let hfXl, gradXl;
+  const dw = isDW ? dwLoss(Qh, D, Lrun, eps) : null;
+  if (!isDW) {
+    B.inp("C", "Friction loss Coefficient for pipe (C)", Cval, {dp:0});
+    B.calc("v", "Flow velocity", res.vel, "{Qh}/(PI()/4*({Di}/1000)^2)", {unit:"m/s", dp:2});
+    hfXl = "10.7*({Qh}/{C})^1.852*{L}/({Di}/1000)^4.87";
+    gradXl = "10.7*({Qh}/{C})^1.852/({Di}/1000)^4.87*9810";
+  } else {
+    B.inp("eps", "Pipe roughness (e)", eps, {unit:"mm", dp:3});
+    B.calc("v", "Flow velocity", dw.v, "{Qh}/(PI()/4*({Di}/1000)^2)", {unit:"m/s", dp:2});
+    B.calc("Re", "Reynolds number", dw.Re, "{v}*({Di}/1000)/1.004E-6", {dp:0});
+    B.calc("f", "Friction factor (f)", dw.f, "IF({Re}<2300,64/{Re},0.25/LOG10({eps}/1000/(3.7*{Di}/1000)+5.74/{Re}^0.9)^2)", {dp:4});
+    hfXl = "{f}*({L}/({Di}/1000))*({v}^2/(2*9.81))";
+    gradXl = "{f}*(1/({Di}/1000))*({v}^2/(2*9.81))*9810";
+  }
+  B.calc("grad", "Friction gradient at design flow", res.gradDesign, gradXl, {unit:"Pa/m", dp:0});
+  o.statics(B);
+  B.inp("Hr", "Residual pressure", num(p.residualPressure,0), {unit:"m", dp:1, bold:true});
+  B.inp("L", "Approximate Pipe Run length", Lrun, {unit:"m", dp:1, bold:true});
+  B.calc("hf", "Pressure drop through pipe", res.hf, hfXl, {unit:"m", dp:2});
+  const fitPc = num(p.fittingsPct,50);
+  B.inp("fit", "Fittings & valves allowance", fitPc, {unit:"%", dp:0});
+  B.calc("hff", "Pressure drop through valves & fittings", res.hf_fit, "{hf}*{fit}/100", {unit:"m", dp:2});
+  const extra = o.extras(B);
+  B.calc("sum", "Sum of heads (before safety factor)", o.rawH, "{Hs}+{Hr}+{hf}+{hff}" + extra.map(e => `+{${e}}`).join(""), {unit:"m", dp:2});
+  B.inp("hs", o.hsLabel, o.hsVal, {unit:"%", dp:0});
+  const hRound = o.round;       // 1 m for the standard pump types, 0.1 m for sumps
+  B.calc("H", "Total pump head (including factor of safety " + o.hsVal + "%)", res.totalH, `CEILING({sum}*(1+{hs}/100)-1E-10,${hRound})`, {unit:"m", dp: hRound < 1 ? 1 : 0, key:true, bold:true});
+  const bar = ceilTenth(+(res.totalH*0.0980665).toFixed(6));
+  B.calc("Hbar", "", bar, "CEILING(ROUND({H}*0.0980665,6),0.1)", {unit:"Bar", dp:1});
+  B.gap();
+  B.section("Electrical power load calculation of Each Pump");
+  B.align("l");
+  B.inp("g", "Gravity", 9.81, {unit:"m/sec2", dp:2});
+  B.calc("Qp", "Flow rate", res.flowLsPerPump/1000, `{${o.qpId}}/1000`, {unit:"m3/sec", dp:4});
+  B.calc("Hp", "Head of the pump", res.totalH, "{H}", {unit:"m", dp: hRound < 1 ? 1 : 0});
+  const pumpE = Number(p.pumpEff), motE = Number(p.motorEff);
+  B.inp("ep", "Efficiency of pump", pumpE, {pct:true, bold:true});
+  if (sump) {
+    B.inp("em", "Efficiency of Motor", motE, {pct:true, bold:true});
+    B.calc("Pm", "Power required for each pump", res.pwrReq, "{g}*{Qp}*{Hp}/({ep}*{em})", {unit:"kW", dp:2, bold:true});
+  } else {
+    B.calc("Ps", "Pump shaft power", res.pwrShaft, "{g}*{Qp}*{Hp}/{ep}", {unit:"kW", dp:2});
+    B.inp("mm", "Motor margin over shaft power", res.motorMarginPct, {unit:"%", dp:0});
+    B.calc("Pm", "Required motor rating", res.pwrReq, "{Ps}*(1+{mm}/100)", {unit:"kW", dp:2, bold:true});
+    B.inp("em", "Efficiency of Motor", motE, {pct:true, bold:true});
+    B.calc("Pe", "Electrical input at duty point", res.pwrInput, "{Ps}/{em}", {unit:"kW", dp:2});
+  }
+  B.calc("Psel", "Selected Power for each pump", res.pwrSel, 'INDEX({@motor.KW},COUNTIF({@motor.KW},"<"&{Pm})+1)', {unit:"kW", dp:2, bold:true, box:true});
+  B.calc("Pcon", "Connected motor load (duty pumps running)", res.connectedKw, `{Psel}*{${o.ndId}}`, {unit:"kW", dp:2});
+  B.calc("Pins", "Installed motor capacity (incl. standby)", res.installedKw, `{Psel}*({${o.ndId}}+{${o.nsId}})`, {unit:"kW", dp:2});
+  B.tables.motor = {kw: MOTOR_KW.slice()};
+  return {bar};
+}
+
+// ── Standard pump types ───────────────────────────────────────────────────────
+function clPumpRows(B, p, res) {
+  const set = res.set, type = p.type;
+  const hasSafety = ["booster","sewage","irrigation","custom"].includes(type);
+  const eng = computeFlow(p).totalFlowLs;
+  B.align("r");
+  if (type === "rcp") {
+    const vol = Number(p.tankCapacity), pc = Number(p.recirculationPct), t = Number(p.operatingTime), volR = vol*pc/100;
+    B.inp("tank", "Tank Capacity", vol, {unit:"m³", dp:1});
+    B.inp("pc", "Volume to be recirculated", pc, {unit:"%", dp:0});
+    B.inp("t", "Recirculation Time", t, {unit:"hr", dp:1});
+    B.calc("volR", "Volume to Recirculate", volR, "{tank}*{pc}/100", {unit:"m³", dp:2});
+    B.calc("qh", "System Flow Rate", volR/t, "{volR}/{t}", {unit:"Cum/hr", dp:2});
+    B.calc("Qraw", "Total System Flow", eng, "{volR}*1000/{t}/3600", {unit:"l/s", dp:2, key:true});
+  } else if (type === "ffp" || type === "tp") {
+    const vol = Number(p.tankCapacity), t = Number(p.operatingTime);
+    B.inp("tank", "Tank Capacity", vol, {unit:"m³", dp:1});
+    B.inp("t", type === "ffp" ? "Filtration Time" : "Transfer Time", t, {unit:"hr", dp:1});
+    B.calc("qh", "System Flow Rate", vol/t, "{tank}/{t}", {unit:"Cum/hr", dp:2});
+    B.calc("Qraw", "Total System Flow", eng, "{tank}*1000/{t}/3600", {unit:"l/s", dp:2, key:true});
+  } else if (type === "hex") {
+    const kw = Number(p.coolingCapacity), ti = Number(p.inletTemp), to = Number(p.outletTemp);
+    B.inp("cool", "Cooling Capacity", kw, {unit:"kW", dp:1});
+    B.inp("Tin", "Inlet Temperature", ti, {unit:"°C", dp:1});
+    B.inp("Tout", "Outlet Temperature", to, {unit:"°C", dp:1});
+    B.calc("dT", "Temperature difference (dT)", ti - to, "{Tin}-{Tout}", {unit:"°C", dp:1});
+    B.calc("Qraw", "Total System Flow  Q = kW / (4.18 x dT)", eng, "{cool}/(4.18*{dT})", {unit:"l/s", dp:2, key:true});
+  } else if (type === "booster") {
+    if (isFuMode(p)) {
+      const f = fuOf(p), c = FU_CODES[f.code], t = c.table;
+      B.tables.fu = {U: t.map(x => x[0]), F: t.map(x => x[1]), label: c.label, unit: c.unit};
+      B.inp("fu", `Total ${c.unit} — ${c.label}`, f.units, {dp:0});
+      const m = "MIN(MATCH({fu},{@fu.U},1),ROWS({@fu.U})-1)";
+      B.calc("Qraw", "Peak Flow from Fixture-unit Table", eng,
+        `INDEX({@fu.F},${m})+({fu}-INDEX({@fu.U},${m}))*(INDEX({@fu.F},${m}+1)-INDEX({@fu.F},${m}))/(INDEX({@fu.U},${m}+1)-INDEX({@fu.U},${m}))`, {unit:"l/s", dp:2, key:true});
+      if (fuExtrapInfo(p)) B.text(`EXTRAPOLATED: ${f.units} ${c.unit} is above the table maximum (${t[t.length-1][0]}). Flow extended along the last table segment — not a code value.`, {warn:true, al:"r"});
+    } else B.inp("Qraw", "Peak Flow (direct input)", Number(p.directFlow), {unit:"l/s", dp:2, key:true});
+  } else if (type === "sewage") {
+    if (p.flowMode === "population") {
+      const pop = Number(p.population), lp = Number(p.lpcd), pf = Number(p.peakFactor);
+      B.inp("pop", "Population Served", pop, {unit:"persons", dp:0});
+      B.inp("lpcd", "Per-capita Flow", lp, {unit:"L/p/day", dp:0});
+      B.inp("pf", "Peak Factor", pf, {dp:1});
+      B.calc("Qraw", "Peak Sewage Flow", eng, "{pop}*{lpcd}*{pf}/86400", {unit:"l/s", dp:2, key:true});
+    } else B.inp("Qraw", "Peak Flow (direct input)", Number(p.directFlow), {unit:"l/s", dp:2, key:true});
+  } else if (type === "irrigation") {
+    if (p.flowMode === "area") {
+      const ar = Number(p.irrigatedArea), rt = Number(p.applicationRate);
+      B.inp("area", "Irrigated Area", ar, {unit:"m²", dp:0});
+      B.inp("rate", "Application Rate", rt, {unit:"mm/hr", dp:1});
+      B.calc("Qraw", "Peak Irrigation Flow", eng, "{area}*{rate}/3600", {unit:"l/s", dp:2, key:true});
+    } else B.inp("Qraw", "Peak Flow (direct input)", Number(p.directFlow), {unit:"l/s", dp:2, key:true});
+  } else if (type === "custom") {
+    const symId = {}, ins = p.customInputs || [];
+    ins.forEach((c, i) => { const id = "ci" + i; symId[String(c.key).trim()] = id; B.inp(id, `${c.label || c.key}  (${c.key})`, Number(c.value), {unit:c.unit || "", dp:3}); });
+    const f = customFlowLs(p), unit = p.flowUnit || "L/s", fac = {"L/s":"1","L/min":"1/60","L/h":"1/3600","m³/h":"1000/3600","m³/s":"1000"}[unit] || "1";
+    const ex = clExprToExcel(p.flowFormula, symId);
+    if (unit === "L/s") B.calc("Qraw", `Total System Flow  Q = ${p.flowFormula}`, f.ls, ex, {unit:"l/s", dp:2, key:true});
+    else { B.calc("craw", `Flow  Q = ${p.flowFormula}`, f.raw, ex, {unit, dp:3}); B.calc("Qraw", "Total System Flow", f.ls, `{craw}*(${fac})`, {unit:"l/s", dp:2, key:true}); }
+  }
+  B.calc("flowTotal", "Total System Flow (rounded up to 0.1 l/s)", res.flowTotal, "CEILING({Qraw}-1E-10,0.1)", {unit:"l/s", dp:2, key:true});
+  let QD = "flowTotal";
+  if (hasSafety) {
+    B.inp("sf", "Flow safety factor", res.safetyPct, {unit:"%", dp:0});
+    B.calc("Qd", "Design Flow (incl. safety factor)", res.designFlow, "IF({sf}>0,CEILING({flowTotal}*(1+{sf}/100)-1E-10,0.1),{flowTotal})", {unit:"l/s", dp:2, key:true});
+    QD = "Qd";
+  }
+  B.gap();
+  B.inp("nd", "Number of Pumps in Operation (duty)", set.duty, {dp:0});
+  B.inp("ns", "Number of Standby Pumps", set.standby, {dp:0});
+  B.text(set.sharing === "full" ? "Duty / Standby — each pump is sized for 100% of the design flow" : `Duty / Assist — the duty pumps share the design flow (each ${(100/set.duty).toFixed(0)}%)`, {italic:true, al:"r"});
+  B.calc("qp", "Pump Flow Rate (each duty pump)", res.flowLsPerPump, set.sharing === "full" ? `{${QD}}` : `CEILING({${QD}}/{nd}-1E-10,0.1)`, {unit:"l/s", dp:2, key:true, bold:true});
+  if (type === "sewage" && Number(p.wetWellVolume) > 0) {
+    const ww = Number(p.wetWellVolume), cyc = (4*ww*1000)/res.flowLsPerPump;
+    B.inp("ww", "Wet Well Effective Volume", ww, {unit:"m³", dp:2});
+    B.calc("cyc", "Minimum cycle time  t = 4V/Q", cyc, "4*{ww}*1000/{qp}", {unit:"s", dp:0});
+    B.calc("sph", "Starts per hour", 3600/cyc, "3600/{cyc}", {unit:"/hr", dp:1});
+    B.calc("sphc", "Starts per hour check (15/hr limit)", 3600/cyc > 15 ? "REVIEW" : "OK", 'IF({sph}>15,"REVIEW","OK")', {});
+  }
+  B.gap();
+  const sizeOnPeak = res.sizingBasis === "peak";
+  const minV = Number(p.minVelocity) || 0;
+  const extraH = ((type === "ffp" || type === "hex") ? (Number(p.equipmentDp) || 0) : 0) + (type === "custom" ? (p.customHeads || []).reduce((a, h) => a + (Number(h.value) || 0), 0) : 0);
+  const rawHg = num(p.staticHead,0) + num(p.residualPressure,0) + res.hf + res.hf_fit + extraH;
+  clPipeHead(B, p, res, {
+    sump:false, QszVal:(sizeOnPeak ? res.flowTotal : res.designFlow)/1000, QszXl: sizeOnPeak ? "{flowTotal}/1000" : `{${QD}}/1000`,
+    QhVal:res.designFlow/1000, QhXl:`{${QD}}/1000`, qpId:"qp", ndId:"nd", nsId:"ns", round:1, hsLabel:"Head safety factor", hsVal:10,
+    rawH:rawHg, statics(B2){ B2.inp("Hs", "Static head", num(p.staticHead,0), {unit:"m", dp:1, bold:true}); },
+    extras(B2){ const ids = [];
+      if (type === "ffp" || type === "hex") { B2.inp("Hx", type === "ffp" ? "Filter equipment pressure drop" : "HEX equipment pressure drop", Number(p.equipmentDp) || 0, {unit:"m", dp:1}); ids.push("Hx"); }
+      if (type === "custom") (p.customHeads || []).forEach((h, i) => { B2.inp("ch" + i, h.label || "Extra head item", Number(h.value) || 0, {unit:"m", dp:2}); ids.push("ch" + i); });
+      return ids; },
+  });
+  if (minV > 0) {
+    // minimum self-cleansing velocity is checked at peak demand (as in the calculation engine)
+    const i = B.rows.findIndex(r => r.id === "grad");
+    const peakV = res.velPeak;
+    const ins = [
+      {t:"row", id:"minV", label:"Minimum self-cleansing velocity", value:minV, input:true, al:"l", unit:"m/s", dp:2},
+      {t:"row", id:"vpk", label:"Velocity at peak demand", value:peakV, al:"l", unit:"m/s", dp:2, xl:"{flowTotal}/1000/(PI()/4*({Di}/1000)^2)"},
+      {t:"row", id:"vchk", label:"Minimum velocity check", value:peakV >= minV ? "OK" : "REVIEW", al:"l", xl:'IF({vpk}>={minV},"OK","REVIEW")'},
+    ];
+    B.rows.splice(i + 1, 0, ...ins); ins.forEach(x => { B.byId[x.id] = x; });
+  }
+  const cfg = `${set.duty}D` + (set.standby ? `+${set.standby}S` : "");
+  const bar = B.byId.Hbar.value;
+  B.banner = {
+    text: `Select the Pumpset (${cfg}), ${res.flowLsPerPump.toFixed(1)} L/s Each, ${res.totalH.toFixed(0)} m Head (${bar.toFixed(1)} Bar), and ${res.pwrSel} kW Each Say`,
+    xl: '"Select the Pumpset ("&{nd}&"D"&IF({ns}>0,"+"&{ns}&"S","")&"), "&TEXT({qp},"0.0")&" L/s Each, "&TEXT({H},"0")&" m Head ("&TEXT({Hbar},"0.0")&" Bar), and "&{Psel}&" kW Each Say"',
+  };
+}
+
+// ── Sump / drainage pit ───────────────────────────────────────────────────────
+function clSumpRows(B, p, res) {
+  const s = res.sump, dry = s.dry, set = res.set;
+  B.align("l");
+  B.section("1.  Flow");
+  (p.sumpSources || []).forEach((src, i) => {
+    const x = s.sources[i], L = x.letter;
+    B.text(`${L}.  ${x.kind === "spr" ? "Sprinkler Discharge" : (x.name || SUMP_SRC_LBL[x.kind])}`, {bold:true});
+    if (x.kind === "tank") {
+      B.inp("vol" + L, "Total water storage volume", Number(src.vol), {unit:"m³", dp:1});
+      B.inp("pct" + L, "Volume drained", Number(src.pct), {unit:"%", dp:0});
+      B.inp("hrs" + L, "Emptying time", Number(src.hrs), {unit:"hrs", dp:1});
+      B.calc("vu" + L, "Water storage volume used", x.vol, `{vol${L}}*{pct${L}}/100`, {unit:"m³", dp:1});
+      B.calc("tm" + L, "Emptying time", x.min, `{hrs${L}}*60`, {unit:"minutes", dp:0});
+      B.calc("Q" + L, "Emptying flowrate", x.q, `{vu${L}}*1000/{tm${L}}/60`, {unit:"l/s", dp:2, key:true});
+    } else if (x.kind === "du") {
+      B.inp("du" + L, "Total discharge units collected (DU)", Number(src.du), {dp:0});
+      B.inp("k" + L, "K factor as per BS standard", Number(src.k), {dp:2});
+      B.calc("Q" + L, "Flow from soil and waste pipe  Q = K x SQRT(DU)", x.q, `{k${L}}*SQRT({du${L}})`, {unit:"l/s", dp:2, key:true});
+    } else if (x.kind === "spr") {
+      B.inp("n" + L, `Sprinklers operating${src.of ? " (out of " + src.of + " in the wet area)" : ""}`, Number(src.n), {dp:0});
+      B.inp("q1" + L, "Flow per sprinkler", Number(src.q1), {unit:"l/s", dp:2});
+      B.calc("Q" + L, "Sprinkler discharge", x.q, `{n${L}}*{q1${L}}`, {unit:"l/s", dp:2, key:true});
+    } else B.inp("Q" + L, "Manual inflow", Number(src.q), {unit:"l/s", dp:2, key:true});
+  });
+  B.gap();
+  B.section("2.  Pit Sizing");
+  B.calc("Qg", `Total Flow Rate (greater of ${s.letters})`, s.Q, `MAX(${s.sources.map(x => `{Q${x.letter}}`).join(",")})`, {unit:"l/s", dp:2, key:true, bold:true});
+  const user = s.inl.user;
+  B.inp("ilSt", "Inlet start invert at source", num(p.ilStart,0), {unit:"m", dp:2});
+  B.inp("ilRun", "Gravity run to the pit", num(p.ilRun,0), {unit:"m", dp:1});
+  B.inp("ilFall", "Pipe fall  (1 in ...)", Math.max(1, num(p.ilFall,90)), {dp:0});
+  B.inp("ilAl", "Invert allowance", num(p.ilAllow,10), {unit:"%", dp:0});
+  B.inp("ilOvr", "Inlet depth override (blank = calculated)", user ? s.IL : null, {unit:"m", dp:2, hideBlank:true});
+  B.calc("IL", "Depth of inlet pipe below SSL", s.IL, "IF(AND(ISNUMBER({ilOvr}),{ilOvr}>0),{ilOvr},({ilSt}+{ilRun}/{ilFall})*(1+{ilAl}/100))", {unit:"m", dp:3, key:true, bold:true});
+  B.gap();
+  B.inp("lead", "Duty pumps", set.lead, {dp:0});
+  B.inp("assist", "Assist pumps", set.assist, {dp:0});
+  B.inp("standby", "Standby pumps", set.standby, {dp:0});
+  B.calc("work", "No of Working Pumps (duty + assist)", s.work, "{lead}+{assist}", {dp:0, bold:true});
+  B.text(`Pump installation: ${dry ? "DRY — pumps in an adjoining dry pump room, flooded suction" : "WET — submersible pumps in the sump"}`, {italic:true});
+  B.inp("starts", "Number of pump starts per hour", s.starts, {unit:"/hr", dp:0});
+  B.calc("cycle", "Intervals of pump starts/stop (minimum cycle time)", s.cycle, "60/{starts}", {unit:"minutes", dp:2});
+  B.calc("qW", "Flow per working pump", s.qWork, "{Qg}/{work}", {unit:"l/s", dp:2});
+  B.calc("vol", "Required sump volume", s.vol, "{cycle}*60*{qW}/1000", {unit:"m³", dp:3, key:true, bold:true});
+  B.gap();
+  B.inp("pitL", "Sump length", s.L, {unit:"m", dp:2});
+  B.inp("pitW", "Sump width", s.W, {unit:"m", dp:2});
+  B.calc("area", "Area of sump pit considered", s.area, "{pitL}*{pitW}", {unit:"m²", dp:2});
+  B.calc("pdRaw", "Pump-down depth required  (volume / area)", s.pdRaw, "{vol}/{area}", {unit:"m", dp:4});
+  B.calc("pd", "Depth of pump down volume (rounded up to 0.1 m)", s.pd, "MAX(0.1,CEILING({pdRaw}-1E-10,0.1))", {unit:"m", dp:2, bold:true});
+  B.gap();
+  B.inp("aIn", "Alarm - Inlet pipe", s.aIn, {unit:"m", dp:2});
+  B.inp("aHL", "Alarm - High level (Float " + (s.work + 2) + ")", s.aHL, {unit:"m", dp:2});
+  B.inp("sub", dry ? "Min. water above pump centreline" : "Submerged - pumps OFF - Float 1", s.sub, {unit:"m", dp:2});
+  if (dry) B.inp("hCL", "Pump centreline height above floor", s.hCL, {unit:"m", dp:2});
+  B.gap();
+  B.text("Operating levels (depth below SSL)", {bold:true});
+  const lvl = k => s.levels.find(l => l.k === k);
+  B.calc("lIL", "Inlet alarm  (IL)", lvl("IL").d, "{IL}", {unit:"m", dp:3});
+  B.calc("lHL", "H/L Alarm", lvl("HL").d, "{lIL}+{aIn}", {unit:"m", dp:3});
+  for (let k = s.stages; k >= 1; k--) {
+    const l = lvl("P" + k);
+    B.calc("lP" + k, `Pump P${k} Start - Float ${k + 1}`, l.d, k === s.stages ? "{lHL}+{aHL}" : `{lP${k + 1}}+{pd}`, {unit:"m", dp:3});
+  }
+  B.calc("lSTOP", lvl("STOP").label, lvl("STOP").d, "{lP1}+{pd}", {unit:"m", dp:3});
+  if (dry) B.calc("lCL", "Pump centreline", lvl("CL").d, "{lSTOP}+{sub}", {unit:"m", dp:3});
+  B.calc("lBOT", "Total depth of sump pit required", s.sumpDepth, dry ? "{lCL}+{hCL}" : "{lSTOP}+{sub}", {unit:"m", dp:3, key:true, bold:true});
+  B.gap();
+  if (s.sand) {
+    B.inp("tL", "Sand trap length", s.tL, {unit:"m", dp:2});
+    B.inp("tW", "Sand trap width", s.tW, {unit:"m", dp:2});
+    B.inp("set", "Setdown for trap collection", s.setdown, {unit:"m", dp:2});
+    B.calc("trap", "Total depth of sand trap pit required", s.trapDepth, "{IL}+{set}", {unit:"m", dp:3, key:true});
+    B.calc("trapSz", "Size of sand trap pit is:", `${s.tL.toFixed(2)} x ${s.tW.toFixed(2)} x ${ceilTenth(s.trapDepth).toFixed(2)} m`,
+      'TEXT({tL},"0.00")&" x "&TEXT({tW},"0.00")&" x "&TEXT(CEILING({trap}-1E-10,0.1),"0.00")&" m"', {});
+  }
+  B.calc("selDepth", "Selected pit depth (greater of sump and sand trap, rounded up to 0.1 m)", s.selDepth, `CEILING(MAX({lBOT}${s.sand ? ",{trap}" : ""})-1E-10,0.1)`, {unit:"m", dp:2, bold:true});
+  B.calc("sumpSz", "Size of sump is:", `${s.L.toFixed(2)} x ${s.W.toFixed(2)} x ${s.selDepth.toFixed(2)} m`, 'TEXT({pitL},"0.00")&" x "&TEXT({pitW},"0.00")&" x "&TEXT({selDepth},"0.00")&" m"', {bold:true, box:true});
+  const f = sumpFigure(s, p.pitCaption || p.name || "");
+  B.fig(f.svg, f.w, f.h);
+  B.section("3.  Pump Sizing");
+  B.align("r");
+  B.calc("qSel", "Flow on Each Pump (rounded up to 0.1 l/s)", s.qSel, "CEILING({Qg}/{work}-1E-10,0.1)", {unit:"l/s", dp:2, key:true, bold:true});
+  clPipeHead(B, p, res, {
+    sump:true, QszVal:s.Qh, QszXl:"{qSel}*{work}/1000", QhVal:s.Qh, QhXl:"{Qsz}", qpId:"qSel", ndId:"work", nsId:"standby", round:0.1,
+    hsLabel:"Head safety factor", hsVal:s.sf, rawH:s.rawH,
+    statics(B2) {
+      B2.inp("Hdis", "Discharge height above SSL", s.Hdis, {unit:"m", dp:1, bold:true});
+      B2.calc("Hs", "Static head (selected pit depth + discharge height)", s.Hs, "{selDepth}+{Hdis}", {unit:"m", dp:1, bold:true});
+    },
+    extras(B2) { if (!dry) return []; B2.inp("suc", "Suction-side loss (suction pipework and valves)", s.sucLoss, {unit:"m", dp:2}); return ["suc"]; },
+  });
+  const cfg = `${set.lead}D` + (set.assist ? `+${set.assist}A` : "") + (set.standby ? `+${set.standby}S` : "");
+  const bar = B.byId.Hbar.value;
+  B.banner = {
+    text: `Select the Pumpset (${cfg}), ${s.qSel.toFixed(1)} L/s Each, ${res.totalH.toFixed(1)} m Head (${bar.toFixed(1)} Bar), and ${res.pwrSel} kW Each Say`,
+    xl: '"Select the Pumpset ("&{lead}&"D"&IF({assist}>0,"+"&{assist}&"A","")&IF({standby}>0,"+"&{standby}&"S","")&"), "&TEXT({qSel},"0.0")&" L/s Each, "&TEXT({H},"0.0")&" m Head ("&TEXT({Hbar},"0.0")&" Bar), and "&{Psel}&" kW Each Say"',
+  };
+}
+
+// ── The sheet document ────────────────────────────────────────────────────────
+function clBuildDoc(proj, pump, meta, stageName) {
+  const res = safeCalculate(pump);
+  const title = String(pump.name || TYPE_LBL[pump.type] || "Calculation");
+  if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
+  const B = clBuilder();
+  if (pump.type === "sump") clSumpRows(B, pump, res); else clPumpRows(B, pump, res);
+  const closure = closureOf(meta);
+  return {
+    blocked:false, type: pump.type, res, rows:B.rows, byId:B.byId, tables:B.tables, banner:B.banner,
+    header:{project:String(proj.name || "—"), title:title.toUpperCase(), revision:String(proj.revision || "01"), stage:String(stageName || "—"),
+      calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
+      reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
+    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "custom" ? "Custom Pump" : `${TYPE_LBL[pump.type] || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    closure: closure.status === "closed" ? closure : null,
+    watermark: closure.status === "closed" ? null : ("DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
+  };
+}
+
+// ── Excel writer: live formulas, reference tables beside the sheet ───────────
+async function clWriteSheet(wb, ws, doc, proj) {
+  const COLW = [22,10,24,11,14,11,14,13,22];
+  ws.columns = COLW.map(w => ({width:w}));
+  ws.views = [{showGridLines:false}];
+  ws.pageSetup = {paperSize:9, orientation:"portrait", fitToPage:true, fitToWidth:1, fitToHeight:0,
+    margins:{left:0.35, right:0.35, top:0.4, bottom:0.4, header:0.2, footer:0.2}};
+  const F = (o={}) => ({name:"Arial", size:10, ...o});
+  const BLK = "FF000000", BLUE = "FF0B73BA", WHITE = "FFFFFFFF";            // the only two colours used
+  const S1 = {style:"thin", color:{argb:BLK}}, SD = {style:"dotted", color:{argb:BLK}}, SW = {style:"thin", color:{argb:WHITE}};
+  const bset = (c, sides) => { c.border = Object.assign({}, c.border || {}, sides); };
+  const box = c => bset(c, {top:S1, left:S1, bottom:S1, right:S1});
+  const fill = (c, argb) => { c.fill = {type:"pattern", pattern:"solid", fgColor:{argb}}; };
+  const mrg = (r1, c1, r2, c2) => { if (r2 > r1 || c2 > c1) ws.mergeCells(r1, c1, r2, c2); return ws.getCell(r1, c1); };
+  const H = doc.header;
+  // ── header
+  [1,2].forEach(i => ws.getRow(i).height = 22); [3,4].forEach(i => ws.getRow(i).height = 20);
+  mrg(1, 1, 4, 1);
+  for (let r = 1; r <= 4; r++) box(ws.getCell(r, 1));
+  const band = (r, label, val) => {
+    const a = ws.getCell(r, 2); a.value = label; a.font = F({bold:true, color:{argb:WHITE}}); a.alignment = {vertical:"middle"};
+    const b = mrg(r, 3, r, 9); b.value = val; b.font = F({bold:true, color:{argb:WHITE}}); b.alignment = {vertical:"middle"};
+    for (let c = 2; c <= 9; c++) { const x = ws.getCell(r, c); fill(x, BLUE); bset(x, {right:SW, bottom:SW}); }
+  };
+  band(1, "PROJECT", H.project); band(2, "TITLE", H.title);
+  const labs = [["Revision",H.revision],["Stage",H.stage],["Calc by",H.calcBy],["Date",H.calcDate],["Checked by",H.checkedBy],["Date",H.checkedDate],["Reviewed by",H.reviewedBy],["Date",H.reviewedDate]];
+  labs.forEach(([l, v], i) => {
+    const a = ws.getCell(3, 2 + i); a.value = l; a.font = F({bold:true}); a.alignment = {vertical:"middle"}; box(a);
+    const b = ws.getCell(4, 2 + i); b.value = v; b.font = F(); b.alignment = {vertical:"middle"}; box(b);
+  });
+  await addLogoToWorkbook(wb, ws, proj.clientLogoUrl, {tl:{col:0.12, row:0.18}, ext:{width:104, height:36}});
+  await addLogoToWorkbook(wb, ws, MEINHARDT_LOGO_SRC, {tl:{col:0.12, row:2.15}, ext:{width:112, height:35}});
+  // ── design basis
+  let r = 5;
+  const h1 = mrg(r, 1, r, 9); h1.value = "DESIGN BASIS STATEMENT"; h1.font = F({bold:true}); ws.getRow(r).height = 20; h1.alignment = {vertical:"middle"}; r++;
+  const h2 = mrg(r, 2, r, 9); h2.value = `${doc.basis.lead}      ${doc.basis.tag}`.trimEnd(); h2.font = F({bold:true}); ws.getRow(r).height = 20; h2.alignment = {vertical:"middle"}; r++;
+  doc.basis.items.forEach((t, i) => {
+    const c = mrg(r, 2, r, 9); c.value = `${i + 1}. ${t}`; c.font = F(); c.alignment = {wrapText:true, vertical:"top"};
+    ws.getRow(r).height = Math.max(18, 14*Math.ceil(String(t).length/118) + 4); r++;
+  });
+  ws.getRow(r).height = 8; r++;
+  // ── pass 1: assign rows
+  const rowOf = {}, figRows = {};
+  doc.rows.forEach(x => {
+    x.xlRow = r; if (x.id) rowOf[x.id] = r;
+    if (x.t === "figure") { const px = Math.round(620*x.h/x.w); figRows[r] = Math.ceil(px/20); r += figRows[r]; }
+    else r += 1;
+  });
+  const bannerRow = r + 1; r = bannerRow + 1;
+  // ── reference tables (outside the print area)
+  const T0 = 7, tr = {};
+  const T = doc.tables;
+  if (T.pipe) { const n = T.pipe.sched.length, rg = c => `$${c}$${T0}:$${c}$${T0 + n - 1}`; tr.pipe = {OD:rg("K"), WALL:rg("L"), ID:rg("M"), V:rg("N"), RE:rg("O"), F:rg("P"), GRAD:rg("Q"), OK:rg("R"), cols:{OD:"K", WALL:"L", ID:"M", V:"N", RE:"O", F:"P", GRAD:"Q", OK:"R"}}; }
+  if (T.motor) { const n = T.motor.kw.length; tr.motor = {KW:`$T$${T0}:$T$${T0 + n - 1}`}; }
+  if (T.fu) { const n = T.fu.U.length; tr.fu = {U:`$V$${T0}:$V$${T0 + n - 1}`, F:`$W$${T0}:$W$${T0 + n - 1}`}; }
+  const resolve = (tpl, rowCtx) => String(tpl).replace(/\{([^}]+)\}/g, (m, k) => {
+    if (k[0] === "@") { const [t, c] = k.slice(1).split("."); if (!tr[t] || !tr[t][c]) throw new Error("Unknown table " + k); return tr[t][c]; }
+    if (k[0] === "#") return `${rowCtx.cols[k.slice(1)]}${rowCtx.r}`;
+    if (!(k in rowOf)) throw new Error("Unknown sheet reference " + k);
+    return `$I$${rowOf[k]}`;
+  });
+  const setFormula = (cell, xl, value, rowCtx) => {
+    const f = resolve(xl, rowCtx);
+    cell.value = (typeof value === "number" && Number.isFinite(value)) || typeof value === "string" ? {formula:f, result:value} : {formula:f};
+  };
+  // ── pass 2: write
+  for (const x of doc.rows) {
+    const rr = x.xlRow;
+    if (x.t === "gap") { ws.getRow(rr).height = 7; continue; }
+    if (x.t === "text") {
+      const c = mrg(rr, 1, rr, 9); c.value = x.text;
+      c.font = F({bold:!!(x.bold || x.warn), italic:!!x.italic, size: x.cls === "fx" ? 9 : 10});
+      c.alignment = {horizontal: x.al === "r" ? "right" : "left", vertical:"middle", wrapText:true, indent: 1};
+      ws.getRow(rr).height = x.warn ? 30 : 16; continue;
+    }
+    if (x.t === "section") {
+      const a = mrg(rr, 1, rr, 9); a.value = x.title; a.font = F({bold:true}); a.alignment = {vertical:"middle", indent:0};
+      for (let c = 1; c <= 9; c++) bset(ws.getCell(rr, c), {bottom:S1});
+      ws.getRow(rr).height = 18; continue;
+    }
+    if (x.t === "figure") {
+      { const prev = ws.getRow(rr - 1); if (prev && prev.addPageBreak) prev.addPageBreak(); }   // keep the drawing on one printed page
+      try {
+        const png = await svgToPngDataUrl(x.svg, x.w, x.h, 2);
+        const wPx = 620, hPx = Math.round(wPx*x.h/x.w);
+        for (let i = 0; i < figRows[rr]; i++) ws.getRow(rr + i).height = 15;
+        const id = wb.addImage({base64:png, extension:"png"});
+        ws.addImage(id, {tl:{col:1.2, row:rr - 1 + 0.2}, ext:{width:wPx, height:hPx}});
+      } catch (e) { const c = mrg(rr, 1, rr, 9); c.value = "Sump section drawing could not be embedded: " + (e.message || e); c.font = F({bold:true}); }
+      continue;
+    }
+    // value row — a dotted rule runs under every row, the value sits in a solid box
+    const lab = mrg(rr, 1, rr, 8); lab.value = x.label || "";
+    lab.font = F({bold:!!x.bold}); lab.alignment = {horizontal: x.al === "l" ? "left" : "right", vertical:"middle", wrapText:true, indent: 1};
+    for (let c = 1; c <= 8; c++) bset(ws.getCell(rr, c), {bottom:SD});
+    ws.getRow(rr).height = String(x.label || "").length > 110 ? 28 : 17;
+    const vc = ws.getCell(rr, 9);
+    if (x.xl) setFormula(vc, x.xl, x.value, {r:rr});
+    else vc.value = (x.value === null || x.value === undefined || x.value === "") ? null : x.value;
+    vc.numFmt = clNumFmt(x);
+    vc.font = F({bold: !!(x.bold || x.input || x.key || x.pct)});
+    vc.alignment = {horizontal:"center", vertical:"middle", shrinkToFit: typeof x.value === "string" && x.value.length > 16};
+    box(vc);
+  }
+  // ── banner (same blue as the header)
+  const bn = mrg(bannerRow, 1, bannerRow, 9);
+  setFormula(bn, doc.banner.xl, doc.banner.text, {r:bannerRow});
+  bn.font = F({bold:true, size:12, color:{argb:WHITE}}); bn.alignment = {horizontal:"center", vertical:"middle", wrapText:true};
+  for (let c = 1; c <= 9; c++) fill(ws.getCell(bannerRow, c), BLUE);
+  ws.getRow(bannerRow).height = 26;
+  let endRow = bannerRow;
+  if (doc.closure) {
+    const c = doc.closure, z = mrg(bannerRow + 1, 1, bannerRow + 1, 9);
+    z.value = `ISSUED · Lead sign-off ${c.lead_signed_by || "—"}${c.lead_signed_at ? " (" + fmtDay(c.lead_signed_at) + ")" : ""} · Approver sign-off ${c.mep_lead_signed_by || "—"}${c.closed_at ? " (" + fmtDay(c.closed_at) + ")" : ""}`;
+    z.font = F({bold:true, size:8}); endRow++;
+  } else if (doc.watermark) {
+    const z = mrg(bannerRow + 1, 1, bannerRow + 1, 9); z.value = doc.watermark;
+    z.font = F({bold:true}); z.alignment = {horizontal:"center"}; endRow++;
+    ws.headerFooter = {oddHeader:'&C&"Arial,Bold"&12DRAFT — NOT FOR ISSUE', oddFooter:'&C&"Arial"&8Draft — not signed off'};
+  }
+  // ── outer frame: a solid line down both sides and along the bottom of the whole sheet
+  for (let rr = 1; rr <= endRow; rr++) { bset(ws.getCell(rr, 1), {left:S1}); bset(ws.getCell(rr, 9), {right:S1}); }
+  for (let c = 1; c <= 9; c++) bset(ws.getCell(endRow, c), {bottom:S1});
+  ws.pageSetup.printArea = `A1:I${endRow}`;
+  ws.pageSetup.printTitlesRow = "1:4";
+  // ── reference tables + key
+  const note = (cell, t) => { const c = ws.getCell(cell); c.value = t; c.font = F({size:9, italic:true}); };
+  note("K1", "Bold values are inputs and key results — change an input and the whole sheet recalculates."); note("K2", "Click any value to see its formula.");
+  note("K3", "The tables below are the reference data this sheet selects from (outside the print area). Do not delete.");
+  const th = (cell, t) => { const c = ws.getCell(cell); c.value = t; c.font = F({bold:true, size:9, color:{argb:WHITE}}); fill(c, BLUE); c.alignment = {horizontal:"center", wrapText:true}; };
+  const num$ = (rowN, col, v, fmt) => { const c = ws.getCell(`${col}${rowN}`); c.value = v; c.font = F({size:9}); if (fmt) c.numFmt = fmt; return c; };
+  if (T.pipe) {
+    const t = T.pipe; ws.getCell("K5").value = `Pipe schedule — ${t.label}`; ws.getCell("K5").font = F({bold:true, size:9});
+    ["OD (mm)","Wall (mm)","ID (mm)","v (m/s)","Re","f","Gradient (Pa/m)","Fits (1/0)"].forEach((h, i) => th(String.fromCharCode(75 + i) + "6", h));
+    const Qsz = doc.byId.Qsz.value, maxV = doc.byId.maxV ? doc.byId.maxV.value : null, maxL = doc.byId.maxL ? doc.byId.maxL.value : null;
+    t.sched.forEach((s, i) => {
+      const rr = T0 + i, ctx = {r:rr, cols:tr.pipe.cols}, D = s.id/1000;
+      const v = Qsz/(Math.PI/4*D*D);
+      let Re = null, f = null, grad;
+      if (t.isDW) { Re = v*D/1.004e-6; f = Re < 2300 ? 64/Re : 0.25/Math.pow(Math.log10(t.eps/1000/(3.7*D) + 5.74/Math.pow(Re, 0.9)), 2); grad = f*(1/D)*(v*v/(2*9.81))*9810; }
+      else grad = 10.7*Math.pow(Qsz/t.C, 1.852)/Math.pow(D, 4.87)*9810;
+      const ok = ((!t.useV) || Math.round(v*100)/100 <= maxV) && ((!t.useP) || grad <= maxL) ? 1 : 0;
+      num$(rr, "K", s.od); num$(rr, "L", s.wall === undefined ? null : s.wall); num$(rr, "M", s.id);
+      const fc = (col, xl, val, fmt) => { const c = ws.getCell(`${col}${rr}`); setFormula(c, xl, val, ctx); c.font = F({size:9}); if (fmt) c.numFmt = fmt; };
+      fc("N", "{Qsz}/(PI()/4*({#ID}/1000)^2)", v, "0.00");
+      if (t.isDW) { fc("O", "{#V}*({#ID}/1000)/1.004E-6", Re, "0"); fc("P", "IF({#RE}<2300,64/{#RE},0.25/LOG10({eps}/1000/(3.7*{#ID}/1000)+5.74/{#RE}^0.9)^2)", f, "0.0000"); fc("Q", "{#F}*(1/({#ID}/1000))*({#V}^2/(2*9.81))*9810", grad, "0"); }
+      else fc("Q", "10.7*({Qsz}/{C})^1.852/({#ID}/1000)^4.87*9810", grad, "0");
+      fc("R", `IF(AND(${t.useV ? "ROUND({#V},2)<={maxV}" : "TRUE"},${t.useP ? "{#GRAD}<={maxL}" : "TRUE"}),1,0)`, ok, "0");
+    });
+  }
+  if (T.motor) { ws.getCell("T5").value = "Standard motors"; ws.getCell("T5").font = F({bold:true, size:9}); th("T6", "kW"); T.motor.kw.forEach((k, i) => num$(T0 + i, "T", k)); }
+  if (T.fu) { ws.getCell("V5").value = `${T.fu.label} (${T.fu.unit} to l/s)`; ws.getCell("V5").font = F({bold:true, size:9}); th("V6", T.fu.unit); th("W6", "l/s"); T.fu.U.forEach((u, i) => { num$(T0 + i, "V", u); num$(T0 + i, "W", T.fu.F[i]); }); }
+  [11,12,13,14,15,16,17,18,20,22,23].forEach(c => { ws.getColumn ? (ws.getColumn(c).width = 11) : 0; });
+  return {rowOf, bannerRow, endRow};
+}
+async function buildFormulaWorkbook(ExcelJSLib, proj, pumps, stageName, issueMeta={}) {
+  const wb = new ExcelJSLib.Workbook();
+  wb.creator = "Meinhardt Group — MEP Calculator"; wb.created = new Date();
+  wb.calcProperties = Object.assign(wb.calcProperties || {}, {fullCalcOnLoad:true});
+  const used = new Set();
+  for (let i = 0; i < pumps.length; i++) {
+    const p = pumps[i], doc = clBuildDoc(proj, p, issueMeta, stageName);
+    if (doc.blocked) throw new Error(`Cannot export ${p.name || `pump ${i+1}`}: ${doc.errors.join(" ")}`);
+    const ws = wb.addWorksheet(xlSheetName(`${String(i+1).padStart(2,"0")} ${p.tag || p.name || "Calc"}`, used));
+    await clWriteSheet(wb, ws, doc, proj);
+  }
+  return wb;
+}
+// <CLASSIC-CORE-END>
+
 // ─── SMALL UI COMPONENTS ──────────────────────────────────────────────────────
 const lbl = {fontSize:9,fontWeight:700,color:"#86868b",textTransform:"uppercase",letterSpacing:"0.05em",display:"block",marginBottom:3};
 const inp  = {border:"1px solid #d2d2d7",borderRadius:6,padding:"5px 9px",fontSize:12.5,color:"#1d1d1f",background:"white",width:"100%",outline:"none",transition:"border-color 0.15s"};
@@ -1606,6 +2600,12 @@ async function buildPumpWorkbook(ExcelJSLib, proj, pumps, stageName, issueMeta={
   const used = new Set();
   for (let i=0;i<pumps.length;i++) {
     const p=pumps[i];
+    if (p.type==='sump') {
+      const cd=clBuildDoc(proj,p,issueMeta,stageName);
+      if (cd.blocked) throw new Error(`Cannot export ${p.name||`pump ${i+1}`}: ${cd.errors.join(" ")}`);
+      await clWriteSheet(wb,wb.addWorksheet(xlSheetName(`${String(i+1).padStart(2,"0")} ${p.tag||p.name||"Calc"}`,used)),cd,proj);
+      continue;
+    }
     const doc=buildIssueDoc(proj,p,issueMeta,stageName);
     if (doc.blocked) throw new Error(`Cannot export ${p.name||`pump ${i+1}`}: ${doc.errors.join(" ")}`);
     const ws=wb.addWorksheet(xlSheetName(`${String(i+1).padStart(2,"0")} ${p.tag||p.name||"Calc"}`,used));
@@ -1618,7 +2618,7 @@ async function exportWorkbook(proj, pumps, stageName, issueMeta={}, suffix="") {
   if (!proj.clientLogoUrl) { alert("Upload the project client logo before issuing an Excel export."); return; }
   if (typeof ExcelJS === "undefined") { alert("Excel library did not load — check your internet connection and reload."); return; }
   try {
-    const wb = await buildPumpWorkbook(ExcelJS, proj, pumps, stageName, issueMeta);
+    const wb = SheetPrefs.style === "detailed" ? await buildPumpWorkbook(ExcelJS, proj, pumps, stageName, issueMeta) : await buildFormulaWorkbook(ExcelJS, proj, pumps, stageName, issueMeta);
     const buf = await wb.xlsx.writeBuffer();
     const blob = new Blob([buf], {type:"application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"});
     const safe = (s)=>String(s||"").replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"_");
@@ -1656,7 +2656,7 @@ function LiveCalcPanel({pump}) {
           ))}
         </div>
         <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5}}>
-          {res.set.installed} pumps installed · {res.set.duty} duty, {res.set.standby} standby
+          {res.set.installed} pumps installed · {res.setText || `${res.set.duty} duty, ${res.set.standby} standby`}
           <br/>Pipe: {res.pipe.od} mm OD{res.pipe.wall!==undefined?` × ${res.pipe.wall} mm wall`:""} · Velocity{" "}
           <span style={{color:res.velOk?"#4ade80":"#f87171",fontWeight:700}}>
             {res.vel.toFixed(2)} m/s {res.velOk?"✓":"✗"}
@@ -2122,6 +3122,7 @@ const DEMO = [
   {id:_id++,...DEFS.booster, name:"CCW Booster Pump",            tag:"CCW-BP", directFlow:4.73, residualPressure:25, pipeRun:300},
   {id:_id++,...DEFS.sewage,     name:"Basement Sewage Pump",     tag:"SP-01"},
   {id:_id++,...DEFS.irrigation, name:"Landscape Irrigation Pump",tag:"IRR-P-01"},
+  {id:_id++,...DEFS.sump,       name:"Basement 3 Parking Sump",  tag:"PH-B3-PSSP-1", pitCaption:"BASEMENT 3 - SUMP PIT"},
 ];
 
 const EMPTY_META = {revision:"01", date:new Date().toISOString().slice(0,10), calcBy:"", calcDate:"", checkedBy:"", checkedDate:"", reviewedBy:"", reviewedDate:"", designBasis:[], closure:{status:"draft"}};
@@ -2194,6 +3195,7 @@ function PrintPreview({children, active, measureKey}) {
 function stageStatusLabel(meta) { const s=closureOf(meta).status||'draft'; return s==='awaiting_approver'?'Awaiting Associate / Approver':s==='closed'?'Closed':'Draft'; }
 function isDraftStatus(st) { return !st || st==='draft' || st==='reopened'; }
 function defaultDesignBasis(p) {
+  if (p && p.type === 'sump') return sumpDesignBasis(p);
   const system = (p && (p.name || TYPE_LBL[p.type])) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
   const method = p?.headLossMethod==='DW' ? 'Darcy-Weisbach method is used for friction-loss calculation.' : 'Hazen-Williams method is used for friction-loss calculation.';
@@ -2330,6 +3332,277 @@ function buildIssueDoc(proj, pump, meta, stageName) {
     // Anything not formally closed is a draft and is marked as such on every output.
     watermark: closure.status === 'closed' ? null : ('DRAFT \u2014 NOT FOR ISSUE \u00b7 ' + stageStatusLabel(meta).toUpperCase())
   };
+}
+
+// ─── SUMP FORM ────────────────────────────────────────────────────────────────
+// Inflow sources: any mix of tank drains, drainage units, sprinkler discharge and
+// a manual flow. The governing case is the greatest — never the sum.
+function SumpSourcesEditor({pump, onPatch}) {
+  const src = Array.isArray(pump.sumpSources) ? pump.sumpSources : [];
+  const flowOf = s => { try { const v = sumpSourceFlow(s).q; return Number.isFinite(v) ? v : NaN; } catch(e) { return NaN; } };
+  const flows = src.map(flowOf), ok = flows.filter(Number.isFinite);
+  const gov = ok.length ? Math.max(...ok) : NaN;
+  const set = (i, o) => onPatch({sumpSources: src.map((s,j)=> j===i ? {...s, ...o} : s)});
+  const del = i => onPatch({sumpSources: src.filter((_,j)=>j!==i)});
+  return (
+    <div className="cfe">
+      {src.map((s,i)=>(
+        <div className="sump-src" key={i}>
+          <div className="sump-src-head">
+            <b className="sump-src-no">{String.fromCharCode(97+i)}.</b>
+            <span className="piw-chip">{SUMP_SRC_LBL[s.kind]||"Inflow"}</span>
+            {s.kind!=="spr" && <input className="sump-src-name" value={s.name||""} onChange={e=>set(i,{name:e.target.value})} placeholder="Description" />}
+            <span className="sump-src-q">{Number.isFinite(flows[i]) ? `${flows[i].toFixed(2)} L/s` : "—"}{src.length>1 && Number.isFinite(gov) && flows[i]===gov && <em>governs</em>}</span>
+            <button type="button" className="cfe-x" onClick={()=>del(i)} title="Remove inflow">✕</button>
+          </div>
+          <div className="pf-row pf-grid">
+            {s.kind==="tank" && <>
+              <N label="Tank volume" unit="m³" value={s.vol} onChange={v=>set(i,{vol:v})} min={0.1} />
+              <N label="Volume drained" unit="%" value={s.pct} onChange={v=>set(i,{pct:v})} min={1} max={100} />
+              <N label="Emptying time" unit="h" value={s.hrs} onChange={v=>set(i,{hrs:v})} min={0.1} />
+            </>}
+            {s.kind==="du" && <>
+              <N label="Discharge units" unit="DU" value={s.du} onChange={v=>set(i,{du:v})} min={0} />
+              <N label="K factor" value={s.k} onChange={v=>set(i,{k:v})} min={0.1} step={0.05} hint="Per BS standard, e.g. 0.7 for intermittent use" />
+            </>}
+            {s.kind==="spr" && <>
+              <N label="Sprinklers operating" value={s.n} onChange={v=>set(i,{n:v})} min={0} step={1} />
+              <N label="Total in wet area" value={s.of} onChange={v=>set(i,{of:v})} min={0} step={1} req={false} />
+              <N label="Flow per sprinkler" unit="L/s" value={s.q1} onChange={v=>set(i,{q1:v})} min={0.01} />
+            </>}
+            {s.kind==="manual" && <N label="Inflow" unit="L/s" value={s.q} onChange={v=>set(i,{q:v})} min={0.01} />}
+          </div>
+        </div>
+      ))}
+      <div className="sump-add">
+        {Object.keys(SUMP_SRC_LBL).map(k=><button key={k} type="button" className="cfe-add" onClick={()=>onPatch({sumpSources:[...src, SUMP_SRC_NEW[k]()]})}>＋ {SUMP_SRC_LBL[k]}</button>)}
+      </div>
+      <div className="cfe-foot"><span>Governing inflow — the greatest case, not the sum: <b>{Number.isFinite(gov) ? `${gov.toFixed(2)} L/s` : "—"}</b></span></div>
+    </div>
+  );
+}
+
+function SumpForm({pump, onChange}) {
+  const u  = (f,v) => onChange({...pump,[f]:v});
+  const uu = (o)   => onChange({...pump,...o});
+  // ── pipe family / class — same reference data and selectors as every other pump ──
+  const matKey = resolveMatKey(pump.pipeType) || "";
+  const mat    = (matKey && PIPE_MATERIALS[matKey]) || {};
+  const famOf  = m => m.material || m.label || "";
+  const families = [];
+  for (const m of Object.values(PIPE_MATERIALS)) { const f=famOf(m); if (f && !families.includes(f)) families.push(f); }
+  const curFam  = famOf(mat);
+  const classes = Object.entries(PIPE_MATERIALS).filter(([,m])=>famOf(m)===curFam);
+  const pickFamily = (f) => { const k = Object.keys(PIPE_MATERIALS).find(k=>famOf(PIPE_MATERIALS[k])===f); if (k) uu({pipeType:k, pipeOdOverride:""}); };
+  const tbl = mat.table || [];
+  const lo = tbl[0], hi = tbl[tbl.length-1];
+  // ── pump set: duty + assist + standby ──
+  const set = sumpSetOf(pump);
+  const preset = pump.configPreset || "custom";
+  const pickSet = (k) => {
+    const q = SUMP_SETS.find(x=>x.k===k);
+    if (!q || k==="custom") { uu({configPreset:"custom", numDuty:set.lead, numAssist:set.assist, numStandby:set.standby}); return; }
+    uu({configPreset:k, numDuty:q.lead, numAssist:q.assist, numStandby:q.standby, sharingMode:q.assist?"assist":"full"});
+  };
+  const cs = (o) => uu({configPreset:"custom", numDuty:set.lead, numAssist:set.assist, numStandby:set.standby, ...o});
+  const eachPct = Math.round(100/Math.max(1,set.duty));
+  const dry = pump.install === "dry";
+  // ── live result + section drawing ──
+  const res = useMemo(()=>safeCalculate(pump),[pump]);
+  const fig = useMemo(()=>res && res.sump ? sumpFigure(res.sump, pump.pitCaption || pump.name || "") : null, [res, pump.pitCaption, pump.name]);
+  const inl = sumpInletDepth(pump);
+  const sand = pump.sandTrap !== false;
+  const isDW = pump.headLossMethod==="DW";
+  return (
+    <div className="pf">
+      <div className="pf-row pf-id">
+        <T label="Pump name" value={pump.name} onChange={v=>u("name",v)} />
+        <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. PH-B3-PSSP-1" />
+      </div>
+      <T label="Drawing caption" value={pump.pitCaption||""} onChange={v=>u("pitCaption",v)} placeholder="e.g. BASEMENT 3 - SUMP PIT (blank = pump name)" />
+
+      <section className="pf-sec">
+        <h5><i>▤</i>Sump section <em>{res && res.sump ? `${res.sump.sizeStr} · ${res.sump.installed} pump${res.sump.installed>1?"s":""} · inlet −${res.sump.IL.toFixed(2)} m` : "complete the inputs to draw"}</em></h5>
+        {fig ? <div className="sump-fig" dangerouslySetInnerHTML={{__html:fig.svg}} />
+             : <div className="sump-fig-empty">{res && res.errors ? res.errors.join(" ") : "Calculation could not be produced."}</div>}
+      </section>
+
+      {/* 1 · Pump set and installation */}
+      <section className="pf-sec">
+        <h5><i>1</i>Pump set <em>{sumpConfigStr(set)} · {set.duty} working pump{set.duty>1?"s":""} {set.duty>1?`share the flow (${eachPct}% each)`:"take the full flow"}{set.standby>0?` · ${set.standby} standby, full rated`:" · no standby"} · {set.installed} shown on the section</em></h5>
+        <div className="pf-row pf-set">
+          <Seg value={SUMP_SETS.some(q=>q.k===preset)?preset:"custom"} onChange={pickSet} options={SUMP_SETS.map(q=>({value:q.k,label:q.l,title:q.k==="custom"?"Set duty, assist and standby counts":undefined}))} />
+          {preset==="custom" && <>
+            <N label="Duty" value={pump.numDuty ?? set.lead} onChange={v=>cs({numDuty:v})} min={1} max={SUMP_MAX_PUMPS} step={1} hint="Lead pump(s), start first" />
+            <N label="Assist" value={pump.numAssist ?? set.assist} onChange={v=>cs({numAssist:v})} min={0} max={SUMP_MAX_PUMPS} step={1} hint="Start at a higher level and share the flow" />
+            <N label="Standby" value={pump.numStandby ?? set.standby} onChange={v=>cs({numStandby:v})} min={0} max={SUMP_MAX_PUMPS} step={1} hint="Installed, idle, rated for the full pump duty" />
+          </>}
+        </div>
+        <div className="pf-row pf-grid" style={{marginTop:10}}>
+          <div style={{gridColumn:"span 2"}}><Seg label="Installation" value={dry?"dry":"wet"} onChange={v=>u("install",v)} options={[{value:"wet",label:"Wet — submersible",title:"Pumps stand in the sump"},{value:"dry",label:"Dry — pump room",title:"Pumps in an adjoining dry room, flooded suction from the wet well"}]} /></div>
+          {dry && <>
+            <N label="Pump centreline above floor" unit="m" value={pump.pumpCLht ?? ""} onChange={v=>u("pumpCLht",v)} min={0.05} hint="Pit floor = pump centreline + this height" />
+            <N label="Suction-side loss" unit="m" value={pump.suctionLoss ?? ""} onChange={v=>u("suctionLoss",v)} req={false} hint="Suction pipework and valves, added to total head" />
+          </>}
+        </div>
+        {dry && <div className="cfe-help">Dry installation: the sump becomes a wet well; the pump room beside it keeps the pumps below the stop level (flooded suction). Confirm NPSH available against the NPSH required of the selected pump.</div>}
+      </section>
+
+      {/* 2 · Inflow */}
+      <section className="pf-sec">
+        <h5><i>2</i>Inflow sources <em>the greatest case governs</em></h5>
+        <SumpSourcesEditor pump={pump} onPatch={uu} />
+      </section>
+
+      {/* 3 · Inlet and pits */}
+      <section className="pf-sec">
+        <h5><i>3</i>Inlet &amp; pits <em>inlet depth {inl.IL.toFixed(3)} m below SSL</em></h5>
+        <div className="pf-row pf-grid">
+          <N label="Start invert at source" unit="m" value={pump.ilStart} onChange={v=>u("ilStart",v)} />
+          <N label="Gravity run to pit" unit="m" value={pump.ilRun} onChange={v=>u("ilRun",v)} />
+          <N label="Fall 1 in" value={pump.ilFall} onChange={v=>u("ilFall",v)} min={1} step={1} />
+          <N label="Allowance" unit="%" value={pump.ilAllow} onChange={v=>u("ilAllow",v)} max={100} />
+          <N label="Override inlet depth" unit="m" value={pump.ilOverride ?? ""} onChange={v=>u("ilOverride",v)} req={false} hint="Blank = calculated from the invert, run and fall" />
+        </div>
+        <div className="pf-row pf-grid" style={{marginTop:10}}>
+          <Seg label="Sand trap pit" value={sand?"on":"off"} onChange={v=>u("sandTrap",v==="on")} options={[{value:"on",label:"On"},{value:"off",label:"Off"}]} />
+          {sand && <>
+            <N label="Trap length" unit="m" value={pump.trapL} onChange={v=>u("trapL",v)} min={0.5} />
+            <N label="Trap width" unit="m" value={pump.trapW} onChange={v=>u("trapW",v)} min={0.5} />
+            <N label="Setdown for trap" unit="m" value={pump.trapSetdown} onChange={v=>u("trapSetdown",v)} />
+          </>}
+        </div>
+        <div className="pf-row pf-grid" style={{marginTop:10}}>
+          <N label="Sump length" unit="m" value={pump.pitL} onChange={v=>u("pitL",v)} min={0.5} />
+          <N label="Sump width" unit="m" value={pump.pitW} onChange={v=>u("pitW",v)} min={0.5} />
+        </div>
+      </section>
+
+      {/* 4 · Controls */}
+      <section className="pf-sec">
+        <h5><i>4</i>Float levels <em>pump-down depth {res && res.sump ? res.sump.pd.toFixed(2) : "—"} m per start band · calculated from inflow</em></h5>
+        <div className="pf-row pf-grid">
+          <N label="Starts per hour" unit="/h" value={pump.starts} onChange={v=>u("starts",v)} min={1} max={60} step={1} hint="Per pump" />
+          <N label="Inlet alarm band" unit="m" value={pump.alarmInlet} onChange={v=>u("alarmInlet",v)} />
+          <N label="High-level alarm band" unit="m" value={pump.alarmHigh} onChange={v=>u("alarmHigh",v)} />
+          <N label={dry?"Min. water above pump CL":"Min. submergence"} unit="m" value={pump.submergence} onChange={v=>u("submergence",v)} min={0.05} hint={dry?"Water kept above the pump centreline at the stop level":"Water kept above the pit floor at the stop level"} />
+        </div>
+      </section>
+
+      {/* 5 · Pipe */}
+      <section className="pf-sec">
+        <h5><i>5</i>Pipe <em>{mat.label||"—"}{tbl.length>0 && ` · ${tbl.length} sizes · ID ${lo.id}–${hi.id} mm`}</em>
+          <span className="pf-h-ctl"><Seg value={sizingCriterionOf(pump)} onChange={v=>uu({sizingCriterion:v, ...(v!=='velocity'&&!(Number(pump.maxLossPaM)>0)?{maxLossPaM:300}:{})})}
+            options={[{value:"velocity",label:"Velocity",title:"Size on maximum velocity"},{value:"pressure",label:"Δp",title:"Size on maximum friction loss (Pa/m)"},{value:"both",label:"Both",title:"Both limits — the stricter governs"}]} /></span></h5>
+        <div className="pf-row pf-grid">
+          <S label="Material" value={curFam} onChange={pickFamily} options={(curFam?[]:[{value:"",label:`⚠ ${pump.pipeType||"—"} — not in Reference Data`}]).concat(families.map(f=>({value:f,label:f})))} />
+          <S label="SDR / class" value={matKey} onChange={v=>uu({pipeType:v, pipeOdOverride:""})} options={classes.length?classes.map(([k,m])=>({value:k,label:m.sdrClass||m.label||k})):[{value:"",label:"Select material first"}]} />
+          {sizingCriterionOf(pump)!=='pressure' && <N label="Max velocity" unit="m/s" value={pump.maxVelocity} onChange={v=>u("maxVelocity",v)} min={0.1} max={5} />}
+          {sizingCriterionOf(pump)!=='velocity' && <N label="Max friction loss" unit="Pa/m" value={pump.maxLossPaM ?? ""} onChange={v=>u("maxLossPaM",v)} min={1} max={5000} step={10} hint="Typical 150–400 Pa/m" />}
+          <S label="Pipe size" value={String(pump.pipeOdOverride ?? "")} onChange={v=>u("pipeOdOverride",v)} options={[{value:"",label:res&&res.pipe&&!res.pipeUser?`Auto — ${res.pipe.od} mm`:"Auto"}].concat(tbl.map(c=>({value:String(c.od),label:`${c.od} mm (ID ${c.id})`})))} />
+          <N label="Pipe run" unit="m" value={pump.pipeRun} onChange={v=>u("pipeRun",v)} />
+        </div>
+      </section>
+
+      {/* 6 · Head and power */}
+      <section className="pf-sec">
+        <h5><i>6</i>Head &amp; power <em>static head = selected pit depth + discharge height</em></h5>
+        <div className="pf-row pf-grid">
+          <N label="Discharge height above SSL" unit="m" value={pump.dischargeHt} onChange={v=>u("dischargeHt",v)} />
+          <N label="Residual pressure" unit="m" value={pump.residualPressure} onChange={v=>u("residualPressure",v)} />
+          <N label="Fittings" unit="%" value={pump.fittingsPct} onChange={v=>u("fittingsPct",v)} max={200} hint="On straight-pipe friction" />
+          <N label="Head safety factor" unit="%" value={pump.headSafetyPct ?? ""} onChange={v=>u("headSafetyPct",v)} max={100} req={false} hint="Blank = 0%" />
+          <N label="Pump efficiency" value={pump.pumpEff} onChange={v=>u("pumpEff",v)} min={0.1} max={1} step={0.01} hint="0.10–1.00" />
+          <N label="Motor efficiency" value={pump.motorEff} onChange={v=>u("motorEff",v)} min={0.1} max={1} step={0.01} hint="Power = Q·g·H ÷ (pump η × motor η), as on the sump calculation sheet" />
+        </div>
+      </section>
+
+      <details className="pf-adv">
+        <summary>Advanced <em>{isDW?`Darcy ε ${pump.roughness ?? mat.roughness} mm`:`H-W C ${pump.hwCoeff||mat.hwC}`}</em></summary>
+        <div className="pf-row pf-grid">
+          <Seg label="Friction" value={isDW?"DW":"HW"} onChange={v=>u("headLossMethod",v)} options={[{value:"HW",label:"Hazen-Williams"},{value:"DW",label:"Darcy"}]} />
+          {isDW
+            ? <N label="Roughness ε" unit="mm" value={pump.roughness ?? mat.roughness} onChange={v=>u("roughness",v)} step={0.001} hint={`Default ${mat.roughness} mm`} />
+            : <N label="H-W C" value={pump.hwCoeff ?? mat.hwC} onChange={v=>u("hwCoeff",v)} min={60} max={160} hint={`Default ${mat.hwC}`} />}
+        </div>
+      </details>
+    </div>
+  );
+}
+
+// ─── CLASSIC CALCULATION SHEET (preview + print) ──────────────────────────────
+// Same row model as the Excel export (see clBuildDoc). One colour: Meinhardt blue on the
+// header bands and the closing banner; everything else black on white. Bold = input or key
+// result. A dotted rule runs under every row and a solid frame surrounds the sheet.
+// "Show formulas" prints the Excel formula under each label.
+const CS_COLS = [12,8.5,13.5,8,11,10.5,11,11,14.5];
+function ClassicSheet({proj,stageName,pump,meta,showFx}) {
+  const doc = clBuildDoc(proj, pump, meta, stageName);
+  if (doc.blocked) return (
+    <div className="issue-sheet">
+      <div className="issue-section-title">Calculation blocked — {doc.title}</div>
+      <div style={{padding:14,fontSize:11,color:'#000'}}>{doc.errors.join(' ')}</div>
+    </div>);
+  const h = doc.header;
+  return (
+    <section className={"cs-wrap calc-page"+(doc.watermark?" is-draft":"")}>
+      {doc.watermark && <div className="issue-watermark" aria-hidden="true">DRAFT</div>}
+      <table className="cs">
+        <colgroup>{CS_COLS.map((w,i)=><col key={i} style={{width:w+"%"}}/>)}</colgroup>
+        <thead>
+          {doc.watermark && <tr><td colSpan={9} className="cs-draft">{doc.watermark}</td></tr>}
+          <tr>
+            <td rowSpan={4} className="cs-logo">
+              {proj.clientLogoUrl ? <img className="cs-logo-c" src={proj.clientLogoUrl} alt={`${proj.client||'Client'} logo`}/> : <span className="cs-nologo">Client logo not uploaded</span>}
+              <img className="cs-logo-m" src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/>
+            </td>
+            <td className="cs-bl">PROJECT</td><td colSpan={7} className="cs-bl">{h.project}</td>
+          </tr>
+          <tr><td className="cs-bl">TITLE</td><td colSpan={7} className="cs-bl">{h.title}</td></tr>
+          <tr className="cs-hl">
+            <td>Revision</td><td>Stage</td><td>Calc by</td><td>Date</td><td>Checked by</td><td>Date</td><td>Reviewed by</td><td>Date</td>
+          </tr>
+          <tr className="cs-hv">
+            <td>{h.revision}</td><td>{h.stage}</td><td>{h.calcBy}</td><td>{h.calcDate}</td><td>{h.checkedBy}</td><td>{h.checkedDate}</td><td>{h.reviewedBy}</td><td>{h.reviewedDate}</td>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td colSpan={9} className="cs-basis-h">DESIGN BASIS STATEMENT</td></tr>
+          <tr><td></td><td colSpan={8} className="cs-basis-t"><b>{doc.basis.lead}</b><span className="cs-basis-tag">{doc.basis.tag}</span></td></tr>
+          {doc.basis.items.map((t,i)=><tr key={"b"+i} className="cs-basis"><td></td><td colSpan={8}>{i+1}. {t}</td></tr>)}
+          <tr className="cs-gap"><td colSpan={9}/></tr>
+          {doc.rows.map((r,i)=>{
+            if (r.t==='gap') return <tr key={i} className="cs-gap"><td colSpan={9}/></tr>;
+            if (r.t==='text') return <tr key={i}><td colSpan={9} className={"cs-text"+(r.cls==='fx'?" fx":"")+(r.warn?" b":"")+(r.bold?" b":"")+(r.italic?" it":"")+(r.al==='r'?" r":"")}>{r.text}</td></tr>;
+            if (r.t==='section') return <tr key={i} className="cs-sec-row"><td colSpan={9} className="cs-sec">{r.title}</td></tr>;
+            if (r.t==='figure') return <tr key={i} className="cs-fig-row"><td colSpan={9} className="cs-fig" dangerouslySetInnerHTML={{__html:r.svg}}/></tr>;
+            if (r.hideBlank && (r.value===null || r.value===undefined || r.value==='')) return null;
+            const tip = r.xl ? clFxText(r, doc.byId) : "";
+            return (
+              <tr key={i} className="cs-row">
+                <td colSpan={8} className={"cs-lb "+(r.al==='l'?"l":"r")+(r.bold?" b":"")} title={tip}>
+                  {r.label}{showFx && tip && <div className="cs-fx">{tip}</div>}
+                </td>
+                <td className={"cs-vl"+(typeof r.value==="string"&&r.value.length>16?" sm":"")+((r.bold||r.input||r.key||r.pct)?" b":"")} title={tip}>{clFmt(r)}</td>
+              </tr>);
+          })}
+          <tr className="cs-gap"><td colSpan={9}/></tr>
+          <tr className="cs-banner-row"><td colSpan={9} className="cs-banner">{doc.banner.text}</td></tr>
+          {doc.closure && <tr><td colSpan={9} className="cs-closure">ISSUED · Lead sign-off {doc.closure.lead_signed_by||'—'}{doc.closure.lead_signed_at?' ('+fmtDay(doc.closure.lead_signed_at)+')':''} · Approver sign-off {doc.closure.mep_lead_signed_by||'—'}{doc.closure.closed_at?' ('+fmtDay(doc.closure.closed_at)+')':''}</td></tr>}
+        </tbody>
+      </table>
+    </section>);
+}
+function SheetStyleBar({style, setStyle, fx, setFx}) {
+  return (
+    <div className="cs-bar no-print">
+      <div className="pf-seg">
+        <button type="button" className={style==='classic'?'on':''} onClick={()=>setStyle('classic')} title="Meinhardt calculation sheet — exports to Excel with live formulas">Classic sheet</button>
+        <button type="button" className={style==='detailed'?'on':''} onClick={()=>setStyle('detailed')} title="Parameters and calculation trace — exports values">Detailed trace</button>
+      </div>
+      {style==='classic' && <label className="cs-chk"><input type="checkbox" checked={fx} onChange={e=>setFx(e.target.checked)}/> Show formulas</label>}
+      <span className="cs-key">{style==='classic' ? "Bold values are inputs and key results · the Excel export keeps every formula live" : "Sump pumps always use the classic sheet"}</span>
+    </div>);
 }
 
 function IssueSheet({proj,stageName,pump,index,meta}) {
@@ -2699,7 +3972,11 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [meta, setMeta]   = useState(EMPTY_META);        // PER-STAGE: revision/date/calcBy/checkedBy/approvedBy
   const [editId, setEditId]   = useState(null);
   const [pumpQuery, setPumpQuery] = useState("");
-  const [printPick, setPrintPick] = useState(null);   // which calculation the sheets tab is showing
+  const [printPick, setPrintPick] = useState(null);
+  const [sheetStyle, setSheetStyleS] = useState(SheetPrefs.style);
+  const [showFx, setShowFxS] = useState(SheetPrefs.fx);
+  const setSheetStyle = v => { SheetPrefs.style = v; try { localStorage.setItem("mep_sheet_style", v); } catch(e){} setSheetStyleS(v); };
+  const setShowFx = v => { SheetPrefs.fx = v; try { localStorage.setItem("mep_sheet_fx", v ? "1" : "0"); } catch(e){} setShowFxS(v); };   // which calculation the sheets tab is showing
   React.useEffect(() => {
     // Keep a valid selection: first load, and after a pump is deleted.
     if (!pumps.length) { if (printPick!==null) setPrintPick(null); return; }
@@ -3189,7 +4466,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                     </div>
                   </div>
                   {stageLocked&&<LockedNotice/>}
-                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}><PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /></fieldset>
+                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>{editing.type==="sump" ? <SumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : <PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} />}</fieldset>
                 </>); })() : (
                 <div className="piw-empty big">Select a pump from the list, or add a new one.</div>
               )}
@@ -3221,6 +4498,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 hidden with .screen-hide, which is display:none on screen and
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
+            <SheetStyleBar style={sheetStyle} setStyle={setSheetStyle} fx={showFx} setFx={setShowFx} />
             <div className="calcwrap">
             <div className="calcpick no-print">
               {pumps.map((p,i)=>(
@@ -3240,8 +4518,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 return (
                   <React.Fragment key={p.id}>
                     <div className={(sel?"calcsplit-pane":"screen-hide")+" calc-page"}>
-                      <PrintPreview active={sel} measureKey={sel ? JSON.stringify([p, issueMeta.revision, issueMeta.closure?.status]) : p.id}>
-                        <IssueSheet proj={projForDisplay} stageName={issueStageName} pump={p} index={i} meta={issueMeta} />
+                      <PrintPreview active={sel} measureKey={sel ? JSON.stringify([p, issueMeta.revision, issueMeta.closure?.status, sheetStyle, showFx, projForDisplay.clientLogoUrl]) : p.id}>
+                        {(sheetStyle==="classic" || p.type==="sump") ? <ClassicSheet proj={projForDisplay} stageName={issueStageName} pump={p} meta={issueMeta} showFx={showFx} /> : <IssueSheet proj={projForDisplay} stageName={issueStageName} pump={p} index={i} meta={issueMeta} />}
                       </PrintPreview>
                     </div>
                   </React.Fragment>
