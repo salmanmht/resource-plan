@@ -995,7 +995,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.3 · 16 Sep 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.4 · 27 Oct 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1100,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.3 · 16 Sep 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.4 · 27 Oct 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -1792,7 +1792,7 @@ const ALLOWED_SIGNUP_DOMAIN = 'meinhardtgroup.com';
 // single version constant. The deployed file is polled and this value
 // compared against the running copy to drive the "new version" toast (Item 4).
 // BUMP THIS on every deploy, together with the two visible version strings.
-const APP_VER     = '9.7.3';
+const APP_VER     = '9.7.4';
 // ═══════════════════════════════════════
 // MASTER DISCIPLINE CONFIG
 // Single source of truth. To add a discipline, add ONE line here and it flows
@@ -11697,6 +11697,7 @@ function renderProjDetail(p){
             ${locked?'':
               `<button class="btn btn-g btn-sm" onclick="addProjProgramme('${p.id}')" title="Add a parallel programme / workstream (e.g. Outdoor cooling) — bookings and stages can then be filed to it">+ Programme</button>
                <button class="btn btn-g btn-sm" onclick="addProjStage('${p.id}')">+ Add Stage</button>
+               <button onclick="toggleStageCascade('${p.id}')" title="${stageCascadeOn(p.id)?'ON — changing a stage date also shifts every stage below it (durations and gaps kept). Click to turn off.':'OFF — changing a stage date changes only that stage. Click to also shift the stages below it.'}" style="display:flex;align-items:center;gap:4px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid ${stageCascadeOn(p.id)?'#2563eb':'#cbd5e1'};background:${stageCascadeOn(p.id)?'#eff6ff':'#f8fafc'};color:${stageCascadeOn(p.id)?'#1d4ed8':'#64748b'};cursor:pointer;">&#8649; Shift following: ${stageCascadeOn(p.id)?'ON':'OFF'}</button>
                <button class="btn btn-g btn-sm" onclick="addProjNoteRow('${p.id}')">+ Add Row</button>`
             }`;
           })()}
@@ -12062,9 +12063,69 @@ function setProjStageName(projId,si,val){
   p.stages[si].name=val;
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
 }
+// ── Optional cascade: "Shift following stages" ─────────────────────────────
+// OFF by default, per project, per browser session (never saved to the DB, so
+// nobody else's programme starts cascading unexpectedly). When ON, a date change
+// on a stage shifts every dated stage BELOW it in the list by the same number of
+// calendar days — durations and the gaps between stages are preserved. On a
+// project with parallel workstreams only stages in the same workstream move.
+window._stageCascade=window._stageCascade||{};
+function stageCascadeOn(projId){ return !!window._stageCascade[projId]; }
+function toggleStageCascade(projId){
+  window._stageCascade[projId]=!window._stageCascade[projId];
+  const p=S.projects.find(x=>x.id===projId); if(p)renderProjDetail(p);
+  toast(window._stageCascade[projId]?'Shift following stages: ON — date changes will move the stages below':'Shift following stages: OFF — only the edited stage changes');
+}
+function _isoAddDays(iso,d){
+  const t=new Date(iso+'T00:00:00Z'); if(isNaN(t))return iso;
+  t.setUTCDate(t.getUTCDate()+d); return t.toISOString().slice(0,10);
+}
+function _isoDiffDays(a,b){ // b − a, in whole days
+  const x=Date.parse(a+'T00:00:00Z'), y=Date.parse(b+'T00:00:00Z');
+  if(isNaN(x)||isNaN(y))return 0; return Math.round((y-x)/86400000);
+}
+function _fmtShortDate(iso){ try{return new Date(iso+'T00:00:00Z').toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'numeric',timeZone:'UTC'});}catch(e){return iso;} }
+// Stages below si that a cascade would move (dated, same workstream when parallel).
+function _cascadeTargets(p,si){
+  const par=(typeof hasParallelProg==='function')&&hasParallelProg(p);
+  const prog=par?stageProg(p,p.stages[si]):null;
+  const out=[];
+  for(let i=si+1;i<p.stages.length;i++){
+    const st=p.stages[i]; if(!st||!st.from||!st.to)continue;
+    if(par&&stageProg(p,st)!==prog)continue;
+    out.push(i);
+  }
+  return out;
+}
+// Ask, then shift. Returns false if the user cancelled (caller should abort).
+function _applyCascade(p,si,delta){
+  if(!stageCascadeOn(p.id)||!delta)return true;
+  const tg=_cascadeTargets(p,si); if(!tg.length)return true;
+  const sign=delta>0?'+':'\u2212', abs=Math.abs(delta);
+  const wk=(abs%7===0)?(' ('+sign+(abs/7)+' wk'+(abs/7===1?'':'s')+')'):'';
+  const list=tg.slice(0,8).map(i=>{const st=p.stages[i];return '  \u2022 '+(st.name||'Stage')+':  '+_fmtShortDate(st.from)+' \u2192 '+_fmtShortDate(_isoAddDays(st.from,delta));}).join('\n')+(tg.length>8?('\n  \u2026and '+(tg.length-8)+' more'):'');
+  const ok=confirm('Shift '+tg.length+' following stage'+(tg.length===1?'':'s')+' by '+sign+abs+' day'+(abs===1?'':'s')+wk+'?\n\n'+list+'\n\nDurations and gaps between stages are kept.\n\nOK = shift them too   \u00b7   Cancel = change this stage only');
+  if(!ok)return true; // user wants this stage only — still apply the single edit
+  tg.forEach(i=>{const st=p.stages[i];st.from=_isoAddDays(st.from,delta);st.to=_isoAddDays(st.to,delta);});
+  toast('Shifted '+tg.length+' following stage'+(tg.length===1?'':'s')+' by '+sign+abs+' day'+(abs===1?'':'s'));
+  return true;
+}
 function setProjStageDate(projId,si,field,val){
   const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
-  p.stages[si][field]=val;
+  const st=p.stages[si];
+  if(stageCascadeOn(projId)&&val&&st.from&&st.to){
+    if(field==='from'){
+      // Cascade ON: moving the start moves the WHOLE stage (duration kept) and everything below it.
+      const delta=_isoDiffDays(st.from,val);
+      if(delta){ st.from=val; st.to=_isoAddDays(st.to,delta); _applyCascade(p,si,delta); }
+    } else {
+      // Extending / shortening the end pushes / pulls the stages below by the same amount.
+      const delta=_isoDiffDays(st.to,val);
+      st.to=val; _applyCascade(p,si,delta);
+    }
+  } else {
+    st[field]=val;
+  }
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),1200);
   renderProjDetail(p);
 }
@@ -12081,7 +12142,10 @@ function setProjStageWeeks(projId,si,val){
   const from=new Date(st.from);
   if(isNaN(from)){toast('Stage From date is invalid.');renderProjDetail(p);return;}
   const to=new Date(from);to.setDate(to.getDate()+n*7-1);
-  st.to=to.toISOString().slice(0,10);
+  const newTo=to.toISOString().slice(0,10);
+  const delta=st.to?_isoDiffDays(st.to,newTo):0;
+  st.to=newTo;
+  _applyCascade(p,si,delta); // no-op unless "Shift following" is ON
   clearTimeout(p._t);p._t=setTimeout(()=>pushProj(p),800);
   renderProjDetail(p);
 }
