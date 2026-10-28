@@ -1008,6 +1008,127 @@
   .piw-acts button:hover:not(:disabled){background:#007aff;color:#fff}.piw-acts button.del:hover{background:#ff3b30;color:#fff}.piw-acts button:disabled{opacity:.3;cursor:default}
   .piw-item:hover .piw-txt,.piw-item.on .piw-txt{padding-right:86px}
   @media screen and (max-width:700px){.piw-acts{opacity:1}.piw-txt{padding-right:86px}}
+  /* ── v1.53 compact sidebar ── */
+  .pump-sidebar.sbx{background:#fbfbfd}
+  .pump-sidebar.sbx .sbx-head{padding:10px 14px;gap:9px}
+  .pump-sidebar.sbx .sbx-icon{width:26px;height:26px;border-radius:8px;font-size:13px}
+  .pump-sidebar.sbx .sbx-head-txt b{font-size:12.5px}
+  .pump-sidebar.sbx .sbx-body{padding:8px 10px 10px;display:flex;flex-direction:column;gap:2px}
+  .pump-sidebar.sbx .sbx-label{padding:8px 4px 4px;font-size:8.5px}
+  .sbx-label-row{display:flex;align-items:center;justify-content:space-between}
+  .sbx-ic-acts{display:flex;gap:3px;text-transform:none;letter-spacing:0}
+  .sbx-ic-acts button{width:22px;height:20px;border:1px solid #e1e1e6;background:#fff;border-radius:6px;font-size:10.5px;color:#6e6e73;cursor:pointer;padding:0;line-height:1}
+  .sbx-ic-acts button:hover:not(:disabled){border-color:#007aff;color:#007aff}.sbx-ic-acts button.danger:hover:not(:disabled){border-color:#ff3b30;color:#ff3b30}
+  .sbx-ic-acts button:disabled{opacity:.35;cursor:not-allowed}
+  .pump-sidebar.sbx .sbx-card{padding:8px 10px;border-radius:10px;box-shadow:none}
+  .sbx-proj{margin-top:2px}
+  .sbx-proj-top{display:flex;align-items:center;justify-content:space-between;gap:6px;margin-bottom:5px}
+  .pump-sidebar.sbx .sbx-logos{padding:0;margin:0;border:0;gap:6px;min-width:0}
+  .pump-sidebar.sbx .sbx-logos img{height:14px;max-width:78px}
+  .pump-sidebar.sbx .sbx-link{margin:0;font-size:10.5px;white-space:nowrap}
+  .pump-sidebar.sbx .sbx-proj-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pump-sidebar.sbx .sbx-proj-meta{font-size:9.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sbx-chips{flex-direction:row!important;flex-wrap:wrap;gap:4px!important}
+  .sbx-chips button{width:auto!important;flex:0 1 auto;padding:4px 8px!important;font-size:11px!important;border-radius:999px!important;border:1px solid #e1e1e6!important;gap:5px!important;max-width:100%}
+  .sbx-chips button.on{border-color:#9cc3f5!important}
+  .sbx-chips i{width:15px!important;height:15px!important;font-size:8.5px!important}
+  .sbx-chips small{font-size:7px!important;padding:1px 4px!important}
+  .pump-sidebar.sbx .sbx-signoff{margin-top:7px;padding-top:7px}
+  .wfc{gap:0!important}
+  .wfc-sum{display:flex;align-items:center;gap:6px;width:100%;border:0;background:transparent;padding:0;cursor:pointer;text-align:left}
+  .wfc-t{font-size:9px;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#86868b;flex:1;white-space:nowrap}
+  .wfc-dots{display:inline-flex;gap:3px}
+  .wfc-d{width:7px;height:7px;border-radius:50%;background:#d2d2d7;display:inline-block}.wfc-d.on{background:#34c759}.wfc-d.now{background:#ff9500}
+  .wfc .stage-status{font-size:8.5px!important;padding:2px 7px!important}
+  .wfc-car{font-size:10px;color:#86868b;width:10px;text-align:center}
+  .wfc-body{display:flex;flex-direction:column;gap:6px;margin-top:7px}
+  .pump-sidebar.sbx .sbx-nav{gap:1px}
+  .pump-sidebar.sbx .sbx-nav button,.pump-sidebar.sbx .sbx-nav a{padding:6px 9px!important;font-size:11.5px!important;border-radius:8px}
+  .pump-sidebar.sbx .sbx-nav .ic{font-size:12px}
+  .pump-sidebar.sbx .sbx-export button{padding:7px 10px;font-size:10.5px}
+  .pump-sidebar.sbx .sbx-foot{padding:8px 10px 10px;gap:6px}
+  .sbx-foot-3{grid-template-columns:1fr auto auto!important}
+  .sbx-foot-3 .sbx-save{padding:7px 8px;font-size:11.5px}
+  .sbx-foot-3 .sbx-out{padding:7px 9px;font-size:10.5px}
+  .sbx-icon-btn{font-size:13px!important;padding:6px 9px!important}
+  .pump-sidebar.sbx .save-issue{padding:6px 8px;font-size:10px}
+  /* ── v1.54 project list ── */
+  .pl-page{min-height:100vh;background:#f5f5f7}
+  .pl-head{position:sticky;top:0;z-index:50;background:rgba(255,255,255,.9);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-bottom:1px solid #e5e5ea}
+  .pl-head-in{max-width:1180px;margin:0 auto;padding:10px 24px;display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+  .pl-brand{display:flex;align-items:center;gap:10px;margin-right:auto}.pl-brand b{display:block;font-size:14.5px;font-weight:800;letter-spacing:-.02em;color:#1d1d1f}.pl-brand .build-pill{margin-top:2px}
+  .pl-logo{width:32px;height:32px;border-radius:10px;background:linear-gradient(160deg,#007aff,#0055d4);color:#fff;display:flex;align-items:center;justify-content:center;font-size:15px;box-shadow:0 3px 10px rgba(0,122,255,.25)}
+  .pl-nav{display:flex;gap:2px;background:#f1f1f3;border-radius:10px;padding:3px}
+  .pl-nav button,.pl-nav a{border:0;background:transparent;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:650;color:#424245;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .pl-nav button:hover,.pl-nav a:hover{background:#fff;color:#007aff;box-shadow:0 1px 2px rgba(0,0,0,.08)}
+  .pl-badge{font-style:normal;background:#ff3b30;color:#fff;border-radius:999px;font-size:9.5px;font-weight:800;padding:1px 6px}
+  .pl-user{display:flex;align-items:center;gap:8px}
+  .pl-out{width:32px;height:32px;border-radius:50%;border:1px solid #e1e1e6;background:#fff;color:#86868b;font-size:14px;cursor:pointer}.pl-out:hover{color:#ff3b30;border-color:#ffc9c5}
+  .pl-main{max-width:1180px;margin:0 auto;padding:26px 24px 40px}
+  .pl-top{display:flex;align-items:flex-end;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-bottom:18px}
+  .pl-top h1{font-size:24px;font-weight:800;letter-spacing:-.03em;color:#1d1d1f;margin:0}.pl-top p{font-size:12px;color:#86868b;margin:2px 0 0}
+  .pl-top-act{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .pl-search{height:36px;width:230px;border:1px solid #d2d2d7!important;border-radius:10px!important;padding:0 12px!important;font-size:12.5px!important;background:#fff}
+  .pl-btn{height:36px;border-radius:10px;padding:0 16px;font-size:12.5px;font-weight:750;cursor:pointer;white-space:nowrap}
+  .pl-btn.pri{background:#007aff;border:1px solid #007aff;color:#fff;box-shadow:0 2px 8px rgba(0,122,255,.25)}.pl-btn.pri:hover{background:#0068d9}
+  .pl-btn.ghost{background:#fff;border:1px solid #d2d2d7;color:#424245}.pl-btn.ghost:hover{border-color:#007aff;color:#007aff}
+  .pl-btn:disabled{opacity:.55;cursor:default}
+  .pl-err{font-size:12px;color:#b91c1c;background:#fff0ee;border:1px solid #ffcccb;border-radius:10px;padding:9px 12px;margin-bottom:14px}
+  .pl-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:14px}
+  .pl-card{background:#fff!important;border:1px solid #e1e1e6!important;border-radius:14px!important;padding:16px!important;display:flex!important;flex-direction:column!important;gap:12px!important;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s;box-shadow:0 1px 3px rgba(0,0,0,.04)!important}
+  .pl-card:hover{transform:translateY(-2px);border-color:#9cc3f5!important;box-shadow:0 8px 24px rgba(0,0,0,.08)!important}
+  .pl-card-top{display:flex;align-items:flex-start;gap:12px}
+  .pl-ic{width:42px;height:42px;flex:0 0 42px;border-radius:12px;background:linear-gradient(160deg,#e8f0fe,#d6e6ff);color:#1559a6;font-weight:800;font-size:14px;display:flex;align-items:center;justify-content:center;letter-spacing:.02em}
+  .pl-card-t{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  .pl-card-t b{font-size:15px;font-weight:800;color:#1d1d1f;letter-spacing:-.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .pl-card-t span{font-size:11.5px;color:#86868b}
+  .pl-more{position:relative}
+  .pl-dots{width:30px;height:30px;border:0;background:transparent;border-radius:8px;font-size:18px;color:#86868b;cursor:pointer;line-height:1}.pl-dots:hover{background:#f1f1f3;color:#1d1d1f}
+  .pl-menu-back{position:fixed;inset:0;z-index:60}
+  .pl-menu{position:absolute;right:0;top:34px;z-index:61;background:#fff;border:1px solid #e1e1e6;border-radius:11px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:4px;min-width:160px}
+  .pl-menu button{display:block;width:100%;text-align:left;border:0;background:transparent;padding:8px 11px;font-size:12px;font-weight:600;color:#424245;border-radius:7px;cursor:pointer}
+  .pl-menu button:hover:not(:disabled){background:#f0f4fb;color:#007aff}.pl-menu button.bad{color:#d8332b}.pl-menu button.bad:hover:not(:disabled){background:#fff0ee;color:#b91c1c}.pl-menu button:disabled{opacity:.4;cursor:not-allowed}
+  .pl-stages{display:flex;flex-wrap:wrap;gap:5px}
+  .pl-stages span{font-size:10.5px;font-weight:700;color:#424245;background:#f5f5f7;border:1px solid #ececf0;border-radius:999px;padding:3px 9px}
+  .pl-card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid #f0f0f2}
+  .pl-tags{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
+  .pl-tag{font-size:10px;font-weight:750;border-radius:999px;padding:2px 8px;white-space:nowrap}
+  .pl-tag.sh{background:#e8f0fe;color:#1559a6}.pl-tag.adm{background:#fff4e0;color:#8a4b00}.pl-tag.you{background:#ff9500;color:#fff}.pl-tag.wait{background:#fff4e0;color:#a76200}.pl-tag.ok{background:#e8faf0;color:#16803a}
+  .pl-open{border:0;background:#007aff;color:#fff;border-radius:9px;padding:7px 14px;font-size:12px;font-weight:750;cursor:pointer;white-space:nowrap;flex:0 0 auto}.pl-open:hover{background:#0068d9}
+  .pl-empty{background:#fff;border:1px dashed #d2d2d7;border-radius:16px;padding:46px 20px;text-align:center;color:#86868b;font-size:13px;display:flex;flex-direction:column;align-items:center;gap:8px}
+  .pl-empty b{color:#1d1d1f;font-size:15px}.pl-empty-ic{width:52px;height:52px;border-radius:15px;background:linear-gradient(160deg,#007aff,#0055d4);color:#fff;font-size:24px;display:flex;align-items:center;justify-content:center;margin-bottom:4px}
+  @media screen and (max-width:760px){.pl-head-in{padding:10px 14px}.pl-nav{order:3;width:100%;overflow-x:auto}.pl-main{padding:18px 14px}.pl-search{width:100%}.pl-top-act{width:100%}.pl-grid{grid-template-columns:1fr}}
+  /* ── v1.55 compact schedule ── */
+  .sch2{gap:8px!important}
+  .sch-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+  .sch-title{display:flex;flex-direction:column;min-width:0}.sch-title b{font-size:18px;font-weight:800;letter-spacing:-.03em;color:#1d1d1f;line-height:1.15}
+  .sch-title span{font-size:10.5px;color:#86868b;display:flex;align-items:center;gap:5px;margin-top:2px}.sch-title .save-dot{margin-left:2px}
+  .sch-kpis{display:flex;gap:6px;flex-wrap:wrap}
+  .sch-kpi{display:flex;align-items:baseline;gap:6px;border:1px solid #e1e1e6;background:#fff;border-radius:10px;padding:6px 12px;cursor:pointer;font:inherit;transition:border-color .12s,box-shadow .12s}
+  .sch-kpi b{font-size:16px;font-weight:800;color:#1d1d1f;font-variant-numeric:tabular-nums;letter-spacing:-.02em}.sch-kpi span{font-size:10px;font-weight:700;color:#86868b;text-transform:uppercase;letter-spacing:.06em}
+  .sch-kpi:hover:not(:disabled){border-color:#9cc3f5}.sch-kpi:disabled{cursor:default}
+  .sch-kpi.pass b{color:#16803a}.sch-kpi.review b{color:#a76200}.sch-kpi.blocked b{color:#d8332b}.sch-kpi.kw b{color:#1559a6}
+  .sch-kpi.on{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12)}
+  .sch-bar{display:flex;align-items:center;gap:6px;padding:7px 10px;border-bottom:1px solid #e8e8ed;background:#fafafb;flex-wrap:wrap}
+  .sch-bar select,.sch-bar .sch-search{height:30px;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;background:#fff;padding:0 9px}
+  .sch-bar .sch-search{flex:0 1 300px;min-width:180px}
+  .sch-clear{border:0;background:transparent;color:#007aff;font-size:11px;font-weight:700;cursor:pointer;padding:0 4px}
+  .sch-count{font-size:10.5px;color:#86868b;white-space:nowrap;margin-left:4px}
+  .sch-max{height:30px;border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:8px;padding:0 11px;font-size:11px;font-weight:750;cursor:pointer;white-space:nowrap}.sch-max:hover{border-color:#007aff;color:#007aff}
+  .sch2 .schedule-card{border-radius:12px;display:flex;flex-direction:column}
+  .sch2 .schedule-table-wrap{max-height:calc(100dvh - 150px)!important;min-height:240px}
+  .sch2 .schedule-table th{padding:6px 8px!important;font-size:8.5px!important}
+  .sch2 .schedule-table.compact td{padding:3px 8px!important;height:28px}
+  .sch2 .schedule-table.compact .system-sub,.sch2 .schedule-table.compact .pipe-sub{display:none}
+  .sch2 .schedule-table.compact .system-main{font-size:10.5px!important}
+  .sch2 .schedule-table.compact .pipe-main{font-size:10px}
+  .sch2 .schedule-table.compact .schedule-action{padding:2px 7px!important}
+  .sch2 .schedule-table.compact .status-chip{padding:1px 6px!important}
+  .sch-full{position:fixed;inset:0;z-index:400;background:#f5f5f7;padding:10px 14px;display:flex;flex-direction:column}
+  .sch-full .schedule-card{flex:1 1 auto;min-height:0}
+  .sch-full .schedule-table-wrap{flex:1 1 auto;max-height:none!important;min-height:0}
+  @media screen and (max-width:900px){.sch-head{flex-direction:column;align-items:stretch}.sch-bar .sch-search{flex:1 1 100%}}
+  @media print{.sch-bar,.sch-kpis,.sch-max{display:none!important}.sch-full{position:static!important}}
   .nc-lvtag{font-size:11px;font-weight:800;color:#0b4f8a;background:#e8f0fe;border-radius:6px;padding:3px 8px;white-space:nowrap}
 </style>
 </head>
@@ -1027,7 +1148,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.51.1 · Build 2026.10.28.03";
+const BUILD_LABEL = "v1.55.0 · Build 2026.10.28.08";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 const MEINHARDT_LOGO_SRC = "data:image/png;base64,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";
@@ -5996,7 +6117,7 @@ function StatusChip({status}) { return <span className={`status-chip ${status.ke
 function ScheduleReviewTable({items, density, selectedId, onSelect}) {
   if (!items.length) return <div className="empty-schedule">No equipment matches the current filters.</div>;
   const row = item => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
-    <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left"><div className="system-main">{p.name}</div><div className="system-sub">{TYPE_LBL[p.type]||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
+    <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left" title={`${p.name} — ${TYPE_LBL[p.type]||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{TYPE_LBL[p.type]||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
     {p.type==='grease'
       ? <><td><div className="pipe-main">Grease separator</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.set.installed} × ${r.nsLabel}`}</div></td><td className="ctr"><span className="method-chip">EN 1825</span></td></>
       : p.type==='water'
@@ -6012,11 +6133,45 @@ function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
   return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Equipment inspection"><header><div><div className="schedule-eyebrow">Item {index+1} · {TYPE_LBL[p.type]}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : r.grease ? <><div className="drawer-summary"><div className="drawer-metric"><span>Waste flow</span><b>{r.grease.Qs.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Selected</span><b>{r.grease.nsLabel}</b></div><div className="drawer-metric"><span>Separators</span><b>{r.grease.n} No.</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>BS EN 1825-2</b></div><div className="drawer-line"><span>F&amp;B areas connected</span><b>{r.grease.count}</b></div><div className="drawer-line"><span>Total area</span><b>{r.grease.tot.A.toFixed(0)} m²</b></div><div className="drawer-line"><span>Total persons / meals per day</span><b>{r.grease.tot.P.toFixed(1)} / {r.grease.mealsDay.toFixed(0)}</b></div><div className="drawer-line"><span>NS per separator</span><b>{r.grease.perGI.toFixed(2)}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.water ? <><div className="drawer-summary"><div className="drawer-metric"><span>Peak flow</span><b>{r.water.Qsrc.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Main pipe</span><b>{r.water.mainSec?`${r.water.mainSec.pipe.od} mm`:'—'}</b></div><div className="drawer-metric"><span>Min residual</span><b>{r.water.minMargin.toFixed(1)} m</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Demand data</span><b>{r.water.dem.label}</b></div><div className="drawer-line"><span>Sections / fixtures</span><b>{r.water.nSec} / {r.water.totN.toFixed(0)}</b></div><div className="drawer-line"><span>Total {r.water.dem.unit}</span><b>{r.water.totLU.toFixed(0)}</b></div><div className="drawer-line"><span>Critical node</span><b>{r.water.crit?r.water.crit.node:'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD{r.pipe.wall!==undefined?` × ${r.pipe.wall} mm wall`:""}</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit inputs</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
 }
 function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet}) {
-  const [query,setQuery]=useState(''),[statusFilter,setStatusFilter]=useState('all'),[typeFilter,setTypeFilter]=useState('all'),[methodFilter,setMethodFilter]=useState('all'),[density,setDensity]=useState('comfortable'),[selectedId,setSelectedId]=useState(null);
+  // v1.55: compact schedule — one header line with the counts, one toolbar line, one-line rows, the table fills the window, full-screen mode
+  const [query,setQuery]=useState(''),[statusFilter,setStatusFilter]=useState('all'),[typeFilter,setTypeFilter]=useState('all'),[methodFilter,setMethodFilter]=useState('all'),[selectedId,setSelectedId]=useState(null);
+  const [density,setDensityS]=useState(()=>{ try { return localStorage.getItem("mep_sch_density")==="comfortable"?"comfortable":"compact"; } catch(e){ return "compact"; } });
+  const setDensity=v=>{ setDensityS(v); try { localStorage.setItem("mep_sch_density",v); } catch(e){} };
+  const [full,setFull]=useState(false);
+  useEffect(()=>{ if(!full) return; const k=e=>{ if(e.key==="Escape") setFull(false); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[full]);
   const items=useMemo(()=>pumps.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[pumps]);
   const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,TYPE_LBL[item.p.type],(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
-  const selected=items.find(x=>x.p.id===selectedId)||null; const savedClass=saveStatus==='error'?'error':saveStatus==='saving'?'saving':'';
-  return <div className="schedule-review"><div className="schedule-context"><div><div className="schedule-eyebrow">Project / {stageName||'Active stage'}</div><div className="schedule-title">Equipment Schedule</div><div className="schedule-subtitle">{pumps.length} item{pumps.length===1?'':'s'} · Review the active stage before export or issue</div></div><div className="schedule-context-status"><span className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'} · Rev {proj.revision||'—'}</div></div><ScheduleHealthStrip items={items} activeFilter={statusFilter} onFilter={setStatusFilter}/><section className="schedule-card"><div className="schedule-card-head"><div><h2>Schedule review</h2><p>{visible.length} shown · A4 landscape export uses the active stage</p></div><StatusChip status={{key:items.some(x=>x.status.key==='blocked')?'blocked':items.some(x=>x.status.key==='review')?'review':'pass',label:items.some(x=>x.status.key==='blocked')?'Action required':items.some(x=>x.status.key==='review')?'Review stage':'Ready'}} /></div><ScheduleToolbar query={query} setQuery={setQuery} status={statusFilter} setStatus={setStatusFilter} type={typeFilter} setType={setTypeFilter} method={methodFilter} setMethod={setMethodFilter} density={density} setDensity={setDensity}/><ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/></section><PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/></div>;
+  const selected=items.find(x=>x.p.id===selectedId)||null, savedClass=saveStatus==='error'?'error':saveStatus==='saving'?'saving':'';
+  const counts=items.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
+  const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0);
+  const kpi=(key,cls,label,val)=><button type="button" key={key} className={"sch-kpi "+cls+(statusFilter===key?" on":"")} onClick={()=>key&&setStatusFilter(statusFilter===key&&key!=="all"?"all":key)} disabled={!key} title={key?`Show ${label.toLowerCase()} only`:""}><b>{val}</b><span>{label}</span></button>;
+  const nf=[statusFilter,typeFilter,methodFilter].filter(v=>v!=="all").length+(query.trim()?1:0);
+  return <div className={"schedule-review sch2"+(full?" sch-full":"")}>
+    <div className="sch-head">
+      <div className="sch-title"><b>Equipment Schedule</b><span>{stageName||'Active stage'} · Rev {proj.revision||'—'} · <i className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'}</span></div>
+      <div className="sch-kpis">
+        {kpi("all","all","Items",items.length)}
+        {kpi("pass","pass","Pass",counts.pass)}
+        {kpi("review","review","Review",counts.review)}
+        {kpi("blocked","blocked","Blocked",counts.blocked)}
+        {kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
+      </div>
+    </div>
+    <section className="schedule-card">
+      <div className="sch-bar no-print">
+        <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search system, tag, pipe or type…" />
+        <select aria-label="Filter by equipment type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All types</option><TypeOptions/></select>
+        <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select>
+        {nf>0 && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');}}>✕ Clear filters</button>}
+        <span className="sch-count">{visible.length} of {items.length} shown</span>
+        <span style={{flex:1}}/>
+        <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
+        <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
+      </div>
+      <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>
+    </section>
+    <PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/>
+  </div>;
 }
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -9376,8 +9531,18 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
   }
   const hist=Array.isArray(c.history)?c.history:[];
   const btn=(bg,fg,bd)=>({padding:'7px 10px',border:bd||'none',borderRadius:8,background:bg,color:fg,fontSize:11,fontWeight:800,cursor:'pointer'});
-  return <div className="wf no-print">
-    <div className="wf-top"><h3>Sign-off · Rev {meta.revision||'01'}</h3><span className={`stage-status ${draft?'draft':status}`}>{stageStatusLabel(meta)}</span></div>
+  // v1.53: one summary line; the detail opens on click, and opens by itself when this user has something to sign
+  const canAct=(draft&&isDiscLead&&!leadBlock)||(awaiting&&isApprover&&!approverBlock)||(draft&&(c.returned||c.reopen_reason));
+  const [wfOpen,setWfOpen]=React.useState(!!canAct);
+  const dot=(on,now)=><i className={"wfc-d"+(on?" on":now?" now":"")}/>;
+  return <div className={"wf wfc no-print"+(wfOpen?" open":"")}>
+    <button type="button" className="wfc-sum" onClick={()=>setWfOpen(v=>!v)} aria-expanded={wfOpen} title="Show or hide the sign-off details">
+      <span className="wfc-t">Sign-off · Rev {meta.revision||'01'}</span>
+      <span className="wfc-dots" title="Prepared · Lead · Approver">{dot(!!meta.calcBy)}{dot(awaiting||closed,!awaiting&&!closed)}{dot(closed,awaiting)}</span>
+      <span className={`stage-status ${draft?'draft':status}`}>{draft?'Draft':awaiting?'Awaiting':'Closed'}</span>
+      <span className="wfc-car">{wfOpen?'▾':'▸'}</span>
+    </button>
+    {wfOpen && <div className="wfc-body">
     <ol className="wf-steps">
       <li className={meta.calcBy?'done':''}><b>Prepared</b><span>{meta.calcBy?nameOf(meta.calcBy):'Not set'}</span></li>
       <li className={awaiting||closed?'done':'now'}><b>Lead</b><span>{(awaiting||closed)&&c.lead_signed_by?`${c.lead_signed_by} · ${fmtDay(c.lead_signed_at)}`:'Pending'}</span></li>
@@ -9400,6 +9565,7 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
     {hist.length>0 && <details className="wf-hist"><summary>History ({hist.length})</summary>
       <ul>{hist.slice().reverse().map((h,i)=><li key={i}><b>{h.action}</b> — {h.by||h.email} · {fmtWhen(h.at)}{h.note?<em>“{h.note}”</em>:null}</li>)}</ul>
     </details>}
+    </div>}
   </div>;
 }
 function LockedNotice() { return <div style={{marginBottom:12,padding:'9px 11px',background:'#fff4e0',border:'1px solid #fed7aa',borderRadius:8,fontSize:11,color:'#9a3412'}}>This stage is under formal review or closed. Calculation inputs and stage submission data are read-only. Only an administrator can reopen a closed stage.</div>; }
@@ -9844,6 +10010,28 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
     stageBaseline(ps); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null); setSaveStatus("saved");
   };
+  // v1.52: Refresh — load the latest saved version of this stage from the database, keeping the calculation that is open
+  const [refreshing, setRefreshing] = useState(false), [refreshMsg, setRefreshMsg] = useState("");
+  const refreshNow = async () => {
+    if (!currentStageId || refreshing) return;
+    // v1.52.1: ask only if this window really holds something not yet in the database (the old check read a finished timer as "pending")
+    const pending = savedPumpsRef.current != null && stableStr(pumps) !== savedPumpsRef.current;
+    if (pending && !window.confirm("You have changes that are still being saved.\n\nRefresh now and discard them? (Cancel, then Save Now, to keep them.)")) return;
+    setRefreshing(true); setRefreshMsg("");
+    try {
+      const keep = editId;
+      const { data, error } = await sb.from("project_stages").select("pumps,meta").eq("id", currentStageId).single();
+      if (error) throw error;
+      const ps = (data && data.pumps) || [];
+      if (ps.length) _id = Math.max(_id, ...ps.map(p => p.id)) + 1;
+      if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
+      const before = pumps.length;
+      stageBaseline(ps); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta));
+      setEditId(ps.some(p => p.id === keep) ? keep : (ps[0]?.id ?? null)); setSaveStatus("saved");
+      setRefreshMsg(`Refreshed ${new Date().toLocaleTimeString()} · ${ps.length} calculation${ps.length === 1 ? "" : "s"}${ps.length !== before ? ` (was ${before})` : ""}`);
+    } catch (e) { setRefreshMsg("Refresh failed: " + (e.message || e)); }
+    finally { setRefreshing(false); }
+  };
   const keepMine = async () => {
     if (!window.confirm(`Overwrite the saved stage with YOUR ${pumps.length} calculation${pumps.length===1?"":"s"}?\n\nThe other person's changes (${(saveIssue&&saveIssue.remoteCount)||0} calculations in the database) will be lost.`)) return;
     setSaveStatus("saving");
@@ -10097,27 +10285,26 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           </div>
           <div className="sbx-body">
             {/* ── 2. Project ── */}
-            <div className="sbx-label">Project</div>
-            <div className="sbx-card">
-              <div className="sbx-logos"><img src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/>{proj.clientLogoUrl?<><i/><img src={proj.clientLogoUrl} alt="Client"/></>:<em>No client logo</em>}</div>
-              <div className="sbx-proj-name">{proj.name||"Untitled Project"}</div>
+            <div className="sbx-card sbx-proj">
+              <div className="sbx-proj-top"><div className="sbx-logos"><img src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/>{proj.clientLogoUrl?<><i/><img src={proj.clientLogoUrl} alt="Client"/></>:<em>No client logo</em>}</div>
+                <button className="sbx-link" onClick={exitProject} title="Back to all projects">← All</button></div>
+              <div className="sbx-proj-name" title={proj.name||""}>{proj.name||"Untitled Project"}</div>
               <div className="sbx-proj-meta">{proj.client||"No client"} · Rev {projForDisplay.revision||"—"} · {projForDisplay.date||"—"}</div>
-              <button className="sbx-link" onClick={exitProject}>← All projects</button>
             </div>
             {/* ── 3. Stage + sign-off ── */}
-            <div className="sbx-label">Stage</div>
+            <div className="sbx-label sbx-label-row"><span>Stage</span>
+              <span className="sbx-ic-acts">
+                <button type="button" onClick={addStage} title="New stage">＋</button>
+                <button type="button" disabled={stageLocked} onClick={()=>currentStage&&renameStage(currentStage)} title={stageLocked?"Closed stage cannot be renamed":"Rename stage"}>✎</button>
+                {stages.length>1 && <button type="button" className="danger" disabled={stageLocked} onClick={()=>currentStage&&deleteStage(currentStage)} title={stageLocked?"Closed stage cannot be deleted":"Delete stage"}>🗑</button>}
+              </span></div>
             <div className={`sbx-card sbx-stage ${onOldStage?"old":""}`}>
-              <div className="sbx-stage-list">
+              <div className="sbx-stage-list sbx-chips">
                 {stagesOrdered.map((stg,i)=><button key={stg.id} onClick={()=>{switchStage(stg.id);setSidebarOpen(false);}} className={stg.id===currentStageId?"on":""}>
                   <i>{i+1}</i><span>{stg.stage_name}</span>{stg.id===latestStage?.id&&<small>Latest</small>}
                 </button>)}
               </div>
               {onOldStage&&<div className="sbx-warn">⚠ You are on an older stage<button onClick={()=>switchStage(latestStage.id)}>Go to {latestStage.stage_name} →</button></div>}
-              <div className="sbx-stage-actions">
-                <button onClick={addStage} title="New stage">＋ New</button>
-                <button disabled={stageLocked} onClick={()=>currentStage&&renameStage(currentStage)} title={stageLocked?"Closed stage cannot be renamed":"Rename stage"}>✎ Rename</button>
-                {stages.length>1 && <button className="danger" disabled={stageLocked} onClick={()=>currentStage&&deleteStage(currentStage)} title={stageLocked?"Closed stage cannot be deleted":"Delete stage"}>🗑 Delete</button>}
-              </div>
               <div className="sbx-signoff">
                 <StageClosurePanel meta={meta} team={team} me={me} isDiscLead={isDiscLead} isApprover={isApprover} isAdmin={isAdmin} onLead={signLead} onReturn={returnStage} onApprover={signApprover} onReopen={reopenStage} busy={saveStatus==='saving'} valid={stageReadyForIssue} logoReady={!!proj.clientLogoUrl} />
               </div>
@@ -10146,17 +10333,19 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               : <><b>{saveIssue.kind==="conflict"?"Not saved — someone else changed this stage.":"Someone else saved this stage."}</b> The database has {saveIssue.remoteCount} calculation{saveIssue.remoteCount===1?"":"s"}; this window has {saveIssue.mineCount}.
                 <div className="save-issue-act"><button type="button" onClick={reloadStage}>↻ Reload saved</button><button type="button" className="bad" onClick={keepMine}>Keep mine</button></div></>}
             </div>}
+            {refreshMsg && <div className="sbx-msg" style={{color:refreshMsg.indexOf("failed")>0?"#ff3b30":"#16803a"}}>{refreshMsg}</div>}
             {manualSave && <div className="sbx-msg" style={{color:(manualSave.indexOf("SAVE FAILED")===0||manualSave.indexOf("Blocked")===0)?"#ff3b30":"#16803a"}}>{manualSave}</div>}
-            <div className="sbx-foot-row">
-              <button className="sbx-save" onClick={saveNow}>⤓ Save Now</button>
-              <button className="sbx-out" onClick={signOut}>Sign out</button>
+            <div className="sbx-foot-row sbx-foot-3">
+              <button className="sbx-save" onClick={saveNow} title="Save now">⤓ Save</button>
+              <button className="sbx-out" onClick={refreshNow} disabled={refreshing || !currentStageId} title="Refresh — load the latest saved version of this stage (other people's changes); the open calculation stays open">{refreshing ? "…" : "↻ Refresh"}</button>
+              <button className="sbx-out sbx-icon-btn" onClick={signOut} title="Sign out" aria-label="Sign out">⏻</button>
             </div>
           </div>
         </aside>
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps" ? 1560 : tab==="pipe" ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -10842,92 +11031,66 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
     refresh();
   };
 
+  // v1.54: project list — cleaner header, search, card grid, actions in a menu
+  const [pq,setPq]=useState(""), [pmenu,setPmenu]=useState(null);
+  const ago=d=>{ const t=new Date(d), m=Math.round((Date.now()-t)/60000); if(!isFinite(m)) return "—"; if(m<1) return "just now"; if(m<60) return m+" min ago"; const h=Math.round(m/60); if(h<24) return h+" h ago"; const dd=Math.round(h/24); if(dd<7) return dd+" day"+(dd===1?"":"s")+" ago"; return t.toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}); };
+  const shown=(list||[]).filter(r=>!pq.trim()||String(r.name||"").toLowerCase().includes(pq.trim().toLowerCase()));
+  const locked=row=>!!(wfInfo[row.id]&&(wfInfo[row.id].closed||wfInfo[row.id].awaiting.length));
   return (
-    <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
-      <div className="app-header" style={{background:"rgba(255,255,255,.88)",backdropFilter:"blur(20px)",borderBottom:"1px solid #d2d2d7",color:"#1d1d1f",padding:"10px 20px"}}>
-        <div style={{maxWidth:1000,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:12}}>
-          <div style={{display:"flex",alignItems:"center",gap:8}}><div style={{fontSize:15,fontWeight:600,letterSpacing:"-0.01em"}}>Equipment Calculator</div><span className="build-pill" title="Running build">{BUILD_LABEL}</span></div>
-          <div style={{display:"flex",gap:14,alignItems:"center"}}>
-            <UserBadge session={session} me={me} />
-            {isAdmin && <button onClick={onOpenTeam}
-              style={{padding:'5px 12px',background:'white',color:'#424245',border:'1px solid #d2d2d7',borderRadius:7,fontSize:11,fontWeight:700,cursor:'pointer'}}>Team & Access{pendingCount>0 ? ` (${pendingCount})` : ''}</button>}
-            <a href="spec.html" style={{padding:"5px 12px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:7,fontSize:11,fontWeight:600,textDecoration:"none"}}>§ Specifications</a>
-            {isAdmin && <button onClick={onOpenRefData}
-              style={{padding:"5px 12px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer"}}>
-              📊 Reference Data
-            </button>}
-            <button onClick={()=>sb.auth.signOut()}
-              style={{padding:"5px 12px",background:"transparent",color:"#8e8e93",border:"none",borderRadius:7,fontSize:11,fontWeight:600,cursor:"pointer"}}>
-              Sign Out
-            </button>
+    <div className="global-page pl-page">
+      <header className="pl-head">
+        <div className="pl-head-in">
+          <div className="pl-brand"><div className="pl-logo">▥</div><div><b>Equipment Calculator</b><span className="build-pill" title="Running build">{BUILD_LABEL}</span></div></div>
+          <nav className="pl-nav">
+            {isAdmin && <button type="button" onClick={onOpenTeam}>👥 Team &amp; Access{pendingCount>0 && <i className="pl-badge">{pendingCount}</i>}</button>}
+            <a href="spec.html">§ Specifications</a>
+            {isAdmin && <button type="button" onClick={onOpenRefData}>▤ Reference Data</button>}
+          </nav>
+          <div className="pl-user"><UserBadge session={session} me={me} /><button type="button" className="pl-out" onClick={()=>sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
+        </div>
+      </header>
+      <main className="pl-main">
+        <div className="pl-top">
+          <div><h1>Projects</h1><p>{list===null?"Loading…":`${list.length} project${list.length===1?"":"s"}`}</p></div>
+          <div className="pl-top-act">
+            <input className="pl-search" value={pq} onChange={e=>setPq(e.target.value)} placeholder="Search projects…" aria-label="Search projects" />
+            <button type="button" className="pl-btn ghost" disabled={busy} onClick={()=>newProject(true)} title="A new project filled with sample calculations">＋ From sample</button>
+            <button type="button" className="pl-btn pri" disabled={busy} onClick={()=>newProject(false)}>＋ New project</button>
           </div>
         </div>
-      </div>
-
-      <div style={{maxWidth:1000,margin:"0 auto",padding:"28px"}}>
-        <div style={{display:"flex",gap:10,marginBottom:22}}>
-          <button disabled={busy} onClick={()=>newProject(false)}
-            style={{padding:"10px 22px",background:"#007aff",color:"white",border:"none",borderRadius:9,fontSize:13,fontWeight:700,cursor:busy?"default":"pointer",opacity:busy?0.6:1}}>
-            + New Project
-          </button>
-          <button disabled={busy} onClick={()=>newProject(true)}
-            style={{padding:"10px 18px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:9,fontSize:13,fontWeight:700,cursor:busy?"default":"pointer",opacity:busy?0.6:1}}>
-            + New Project from Sample Data
-          </button>
-        </div>
-
-        {err && <div style={{fontSize:12,color:"#ff3b30",marginBottom:14}}>{err}</div>}
-
-        {list===null ? (
-          <div style={{color:"#86868b",fontSize:13}}>Loading projects…</div>
-        ) : !list.length ? (
-          <div style={{background:"white",borderRadius:16,border:"1px solid #d2d2d7",padding:40,textAlign:"center",color:"#86868b",fontSize:13}}>
-            No projects yet — create one above to get started.
-          </div>
-        ) : (
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {list.map(row=>(
-              <div key={row.id} className="project-card"
-                style={{background:"white",borderRadius:12,border:"1px solid #d2d2d7",padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:14}}>
-                <div style={{cursor:"pointer",flex:1}} onClick={()=>openProject(row.id)}>
-                  <div style={{fontSize:14,fontWeight:800,color:"#1d1d1f"}}>📁 {row.name}{row.user_id !== userId && <span className={"ph-owner" + (sharedIds.has(row.id) ? " sh" : "")}>{sharedIds.has(row.id) ? "Shared with you" : "Admin view · another user's project"}</span>}</div>
-                  <div style={{fontSize:11,color:"#86868b",marginTop:3}}>
-                    {(stageCounts[row.id]||[]).length || 0} stage{(stageCounts[row.id]||[]).length===1?"":"s"}
-                    {(stageCounts[row.id]||[]).length ? <> — {stageCounts[row.id].join(", ")}</> : null}
-                    {" "}· Updated {new Date(row.updated_at).toLocaleString()}
-                  </div>
-                  {wfInfo[row.id] && (wfInfo[row.id].awaiting.length>0 || wfInfo[row.id].closed>0) && <div className="ph-chips">
-                    {wfInfo[row.id].awaitingMine>0 && <span className="ph-chip you">● Your sign-off needed ({wfInfo[row.id].awaitingMine})</span>}
-                    {wfInfo[row.id].awaiting.length>0 && <span className="ph-chip wait">Awaiting Associate / Approver: {wfInfo[row.id].awaiting.join(", ")}</span>}
-                    {wfInfo[row.id].closed>0 && <span className="ph-chip ok">🔒 {wfInfo[row.id].closed} issued</span>}
+        {err && <div className="pl-err">{err}</div>}
+        {list===null ? <div className="pl-empty">Loading projects…</div>
+        : !list.length ? <div className="pl-empty"><div className="pl-empty-ic">▥</div><b>No projects yet</b><span>Create your first project to start adding calculations.</span><button type="button" className="pl-btn pri" onClick={()=>newProject(false)}>＋ New project</button></div>
+        : !shown.length ? <div className="pl-empty"><b>No project matches “{pq}”</b></div>
+        : <div className="pl-grid">
+            {shown.map(row=>{ const st=stageCounts[row.id]||[], wf=wfInfo[row.id], mine=row.user_id===userId;
+              return <div key={row.id} className="pl-card project-card" onClick={()=>openProject(row.id)}>
+                <div className="pl-card-top">
+                  <div className="pl-ic">{String(row.name||"P").trim().slice(0,2).toUpperCase()}</div>
+                  <div className="pl-card-t"><b title={row.name}>{row.name||"Untitled Project"}</b>
+                    <span>{st.length} stage{st.length===1?"":"s"} · updated {ago(row.updated_at)}</span></div>
+                  {mine && <div className="pl-more" onClick={e=>e.stopPropagation()}>
+                    <button type="button" className="pl-dots" onClick={()=>setPmenu(pmenu===row.id?null:row.id)} aria-label="Project actions" title="Rename, duplicate, delete">⋯</button>
+                    {pmenu===row.id && <><div className="pl-menu-back" onClick={()=>setPmenu(null)}/><div className="pl-menu">
+                      <button type="button" onClick={()=>{setPmenu(null);renameProject(row);}}>✎ Rename</button>
+                      <button type="button" onClick={()=>{setPmenu(null);duplicateProject(row);}}>⧉ Duplicate</button>
+                      <button type="button" className="bad" disabled={locked(row)} title={locked(row)?"Projects with issued or in-review stages cannot be deleted":""} onClick={()=>{setPmenu(null);deleteProject(row);}}>🗑 Delete</button>
+                    </div></>}
                   </div>}
                 </div>
-                <div style={{display:"flex",gap:7,flexShrink:0}}>
-                  <button onClick={()=>openProject(row.id)}
-                    style={{padding:"7px 16px",background:"#007aff",color:"white",border:"none",borderRadius:10,fontSize:11,fontWeight:700,cursor:"pointer"}}>
-                    Open
-                  </button>
-                  {row.user_id === userId && <>
-                    <button onClick={()=>renameProject(row)}
-                      style={{padding:"7px 14px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:7,fontSize:11,fontWeight:700,cursor:"pointer"}}>
-                      Rename
-                    </button>
-                    <button onClick={()=>duplicateProject(row)}
-                      style={{padding:"7px 14px",background:"white",color:"#424245",border:"1px solid #d2d2d7",borderRadius:7,fontSize:11,fontWeight:700,cursor:"pointer"}}>
-                      Duplicate
-                    </button>
-                    <button onClick={()=>deleteProject(row)}
-                      title={wfInfo[row.id]&&(wfInfo[row.id].closed||wfInfo[row.id].awaiting.length)?"Projects with issued or in-review stages cannot be deleted":"Delete project"}
-                      style={{padding:"7px 14px",background:"white",color:"#ff3b30",border:"1px solid #fecaca",borderRadius:7,fontSize:11,fontWeight:700,cursor:"pointer",opacity:(wfInfo[row.id]&&(wfInfo[row.id].closed||wfInfo[row.id].awaiting.length))?0.4:1}}>
-                      Delete
-                    </button>
-                  </>}
+                {st.length>0 && <div className="pl-stages">{st.map((n,i)=><span key={i}>{n}</span>)}</div>}
+                <div className="pl-card-foot">
+                  <div className="pl-tags">
+                    {!mine && <span className={"pl-tag "+(sharedIds.has(row.id)?"sh":"adm")}>{sharedIds.has(row.id)?"Shared with you":"Admin view"}</span>}
+                    {wf && wf.awaitingMine>0 && <span className="pl-tag you">● Your sign-off ({wf.awaitingMine})</span>}
+                    {wf && wf.awaiting.length>0 && <span className="pl-tag wait">Awaiting approver</span>}
+                    {wf && wf.closed>0 && <span className="pl-tag ok">🔒 {wf.closed} issued</span>}
+                  </div>
+                  <button type="button" className="pl-open" onClick={e=>{e.stopPropagation();openProject(row.id);}}>Open →</button>
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
+              </div>; })}
+          </div>}
+      </main>
     </div>
   );
 }
