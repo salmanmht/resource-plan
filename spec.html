@@ -696,6 +696,15 @@
   .lib-tgb button span{font-size:9.5px;font-weight:800;background:rgba(0,0,0,.07);border-radius:20px;padding:1px 6px;min-width:18px;text-align:center}
   .lib-tgb button.on span{background:rgba(255,255,255,.25)}
   .lib-new{border:0;background:#007aff;color:#fff;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer}.lib-new:hover{background:#0068d9}
+  .lib-nav{background:#fff;border:1px solid #e1e1e6;border-radius:12px;margin-bottom:10px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .lib-nav-main{display:flex;align-items:center;gap:2px;padding:4px 8px 0;border-bottom:1px solid #eeeef1}
+  .lib-nav-main>button,.lib-setup{border:0;background:transparent;padding:9px 14px 8px;font-size:13px;font-weight:700;color:#6e6e73;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+  .lib-nav-main>button:hover,.lib-setup:hover{color:#1d1d1f}
+  .lib-nav-main>button.on,.lib-setup.on{color:#007aff;border-bottom-color:#007aff}
+  .lib-nav-sub{padding:6px 10px}
+  .lib-badge{display:inline-block;margin-left:6px;min-width:17px;padding:1px 5px;border-radius:9px;background:#ff3b30;color:#fff;font-size:10px;font-weight:800;line-height:15px;text-align:center;vertical-align:1px}
+  .lib-nav-sub button{padding:4px 9px;font-size:11px}
+  .lib-menu button:disabled{opacity:.5;cursor:default}
   .lib-more{position:relative}
   .lib-menu{position:absolute;right:0;top:calc(100% + 4px);z-index:30;min-width:320px;background:#fff;border:1px solid #d2d2d7;border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.14);padding:5px;display:flex;flex-direction:column}
   .lib-menu button{border:0;background:transparent;text-align:left;padding:9px 11px;border-radius:7px;cursor:pointer;display:flex;flex-direction:column;gap:2px}
@@ -1058,7 +1067,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.7.0 · Build 2026.10.07.04";
+const BUILD_LABEL = "Spec v1.10.1 · Build 2026.11.06.04";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -3484,17 +3493,349 @@ function RootApp() {
     return {build, download};
   })();
 
+  // ── v1.8.0 · Master specification Phase 1: Products tree + vendor-ready requirement fields ──
+  function ProductsPanel({canEdit, who}) {
+    const divOf = n => String(n || '').replace(/\s/g, '').slice(0, 2);
+    const [sel, setSel] = useState(null), [q, setQ] = useState(''), [open, setOpen] = useState({});
+    const [rows, setRows] = useState([]), [base, setBase] = useState('[]'), [msg, setMsg] = useState(''), [busy, setBusy] = useState(false);
+    const [counts, setCounts] = useState({}), [missing, setMissing] = useState('');
+    const items = actv(ITEMS.items);
+    const loadCounts = useCallback(async () => {
+      const r = await sb.from('spec_item_params').select('item_code').eq('active', true).range(0, 49999);
+      if (r.error) { setMissing('Requirement fields are not set up (' + r.error.message + '). Run spec_item_params_v1.sql in Supabase › SQL Editor, then reload.'); return; }
+      const c = {}; (r.data || []).forEach(x => { c[x.item_code] = (c[x.item_code] || 0) + 1; }); setCounts(c); setMissing('');
+    }, []);
+    useEffect(() => { loadCounts(); }, [loadCounts]);
+    const dirty = JSON.stringify(rows) !== base;
+    useEffect(() => { const f = e => { if (dirty) { e.preventDefault(); e.returnValue = ''; } }; window.addEventListener('beforeunload', f); return () => window.removeEventListener('beforeunload', f); }, [dirty]);
+    const openItem = async (it, force) => {
+      if (!force && dirty && !window.confirm('You have unsaved field changes. Discard them?')) return;
+      setSel(it); setMsg('');
+      const r = await sb.from('spec_item_params').select('*').eq('item_code', it.code).order('sort').order('label');
+      if (r.error) { setMsg(r.error.message); setRows([]); setBase('[]'); return; }
+      const d = r.data || []; setRows(d); setBase(JSON.stringify(d));
+    };
+    const tree = useMemo(() => {
+      const t = {};
+      items.filter(i => !q || [i.ref, i.code, i.item, i.material, i.category, i.subcategory].join(' ').toLowerCase().includes(q.toLowerCase()))
+        .forEach(i => { const d = divOf(i.section_num), c = i.category || '(no category)', s = i.subcategory || '—';
+          t[d] = t[d] || {}; t[d][c] = t[d][c] || {}; t[d][c][s] = (t[d][c][s] || []).concat(i); });
+      return t;
+    }, [items, q]);
+    const allKeys = Object.keys(tree).flatMap(d => Object.keys(tree[d]).map(c => d + '|' + c));
+    const setAll = v => setOpen(Object.fromEntries(allKeys.map(k => [k, v])));
+    const optArr = o => Array.isArray(o) ? o : String(o || '').split('|').map(x => x.trim()).filter(Boolean);
+    const upd = (k, patch) => setRows(rs => rs.map((r, j) => j === k ? {...r, ...patch} : r));
+    const add = grp => setRows(rs => [...rs, {item_code:sel.code, grp:grp || 'General', label:'', unit:'', field_type:'text', options:[], required_value:'', required:true, vendor_response:true, sort:(rs.length + 1) * 10, active:true}]);
+    const copyFrom = async () => {
+      const src = window.prompt('Copy fields from which item? Enter its ref or code (e.g. 22-VAL-001 or IT-0105):', ''); if (!src) return;
+      const s = src.trim().toUpperCase(), it = items.find(i => (i.ref || '').toUpperCase() === s || String(i.code).toUpperCase() === s);
+      if (!it) return setMsg('No item with ref / code ' + src);
+      const r = await sb.from('spec_item_params').select('*').eq('item_code', it.code).eq('active', true).order('sort');
+      if (r.error) return setMsg(r.error.message);
+      if (!(r.data || []).length) return setMsg((it.ref || it.code) + ' has no fields to copy.');
+      setRows(rs => [...rs, ...r.data.map(({id, updated_at, updated_by, ...x}) => ({...x, item_code:sel.code, required_value:''}))]);
+      setMsg('Copied ' + r.data.length + ' fields from ' + (it.ref || it.code) + ' — required values left blank. Review, then Save fields.');
+    };
+    const save = async () => {
+      const bad = rows.findIndex(r => !String(r.label || '').trim()); if (bad >= 0) return setMsg('Row ' + (bad + 1) + ' has no requirement name.');
+      setBusy(true); setMsg('');
+      const out = rows.map(r => ({...r, label:String(r.label).trim(), grp:String(r.grp || 'General').trim(), unit:String(r.unit || '').trim() || null,
+        required_value:String(r.required_value ?? '').trim() || null, sort:Number(r.sort) || 0, updated_by:who, options:optArr(r.options)}));
+      const ins = out.filter(r => !r.id).map(({id, ...x}) => x), up = out.filter(r => r.id);
+      let e = null;
+      if (up.length) e = (await sb.from('spec_item_params').upsert(up, {onConflict:'id'})).error;
+      if (!e && ins.length) e = (await sb.from('spec_item_params').insert(ins)).error;
+      setBusy(false);
+      if (e) return setMsg('Save failed: ' + e.message + ' — your edits are still on screen.');
+      await openItem(sel, true); await loadCounts();
+      setMsg('Saved. These fields freeze into this item\'s next approved revision (Specifications tab).');
+    };
+    const cur = sel && AU.itemRev[sel.code], dr = sel && AU.itemDraft[sel.code];
+    const frozen = cur && Array.isArray(cur.params) ? cur.params.length : null;
+    const i1 = {padding:'3px 6px', fontSize:11, border:'1px solid #d2d2d7', borderRadius:6, width:'100%', background:'#fff'};
+    const groups = [...new Set(rows.map(r => r.grp || 'General'))];
+    if (missing) return <div className="ai-msg bad" style={{margin:12}}>{missing}</div>;
+    return <div style={{display:'grid', gridTemplateColumns:'280px minmax(0,1fr)', minHeight:'60vh'}}>
+      <aside style={{borderRight:'1px solid #e8e8ed', maxHeight:'calc(100vh - 210px)', overflow:'auto'}}>
+        <div style={{padding:8, borderBottom:'1px solid #f0f0f2', position:'sticky', top:0, background:'#fff', zIndex:1, display:'flex', gap:4}}>
+          <input className="piw-search" style={{flex:1}} value={q} onChange={e => setQ(e.target.value)} placeholder="Search ref, item, material…"/>
+          <button className="schedule-action" title="Expand all" onClick={() => setAll(true)}>+</button>
+          <button className="schedule-action" title="Collapse all" onClick={() => setAll(false)}>−</button></div>
+        {Object.keys(tree).sort().map(d => <div key={d}>
+          <div className="spec-div">Division {d}{DIVNAMES[d] ? ' – ' + DIVNAMES[d] : ''}</div>
+          {Object.keys(tree[d]).sort().map(c => { const ck = d + '|' + c, on = open[ck] ?? !!q; return <div key={c}>
+            <div onClick={() => setOpen({...open, [ck]:!on})} style={{padding:'3px 10px', fontSize:11.5, fontWeight:700, cursor:'pointer', display:'flex', gap:6}}>
+              <span style={{width:10, color:'#86868b'}}>{on ? '▾' : '▸'}</span>{c}
+              <span style={{marginLeft:'auto', fontSize:10, color:'#86868b'}}>{Object.values(tree[d][c]).flat().length}</span></div>
+            {on && Object.keys(tree[d][c]).sort().map(s => <div key={s}>
+              <div style={{padding:'2px 10px 2px 28px', fontSize:10, color:'#86868b', fontWeight:700}}>{s}</div>
+              {tree[d][c][s].map(it => <div key={it.code} onClick={() => openItem(it)} className={'piw-item' + (sel && sel.code === it.code ? ' on' : '')} style={{margin:'0 6px 0 30px'}}>
+                <span className="piw-txt"><b>{it.item}{it.material && it.material !== it.item ? ' – ' + it.material : ''}</b><em>{it.ref || it.code}</em></span>
+                {counts[it.code] ? <Chip k="pass">{counts[it.code]}</Chip> : <Chip k="draft">0</Chip>}</div>)}
+            </div>)}</div>; })}</div>)}
+        {!items.length && <div className="piw-empty">No items in the library.</div>}
+      </aside>
+      <section style={{padding:'12px 16px', minWidth:0}}>
+        {!sel ? <div className="piw-empty big">Select a product. Each product gets its own requirement fields, which a vendor will answer later.</div> : <>
+          <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:8}}>
+            <b style={{fontSize:15}}>{sel.item}{sel.material && sel.material !== sel.item ? ' – ' + sel.material : ''}</b>
+            <span className="tag-code">{sel.ref || sel.code}</span>
+            {cur ? <Chip k="pass">Published Rev {cur.rev}{frozen !== null ? ' · ' + frozen + ' fields frozen' : ' · no fields frozen'}</Chip> : <Chip k="draft">No published specification</Chip>}
+            {dr && <Chip k="review">Draft Rev {dr.rev} awaiting approval</Chip>}
+            {dirty && <span style={{fontSize:11, fontWeight:800, color:'#a76200'}}>● unsaved</span>}
+            <span style={{flex:1}}/>
+            {canEdit && <><button className="schedule-action" onClick={copyFrom}>Copy fields from…</button>
+              <button className="schedule-action" onClick={() => add(groups[groups.length - 1])}>+ Field</button>
+              <button className="lib-new" disabled={busy || !dirty} onClick={save}>{busy ? 'Saving…' : 'Save fields'}</button></>}
+          </div>
+          <div className="lib-help" style={{borderRadius:8, marginBottom:8}}>These fields are this product's master requirement. When the item's next revision is approved (Specifications tab), the active fields are frozen into that revision; vendor packages (Phase 2) will point to that frozen revision. Untick <b>Active</b> to retire a field — nothing is deleted.</div>
+          {msg && <div className={'ai-msg' + (/fail|No item|no requirement|has no fields/i.test(msg) ? ' bad' : '')} style={{marginBottom:8}}>{msg}</div>}
+          <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 330px)'}}>
+            <table className="schedule-table" style={{minWidth:1000, tableLayout:'auto'}}>
+              <thead><tr className="labels">{['Group', 'Requirement', 'Required value', 'Unit', 'Type', 'Options (A | B)', 'Req', 'Vendor', 'Active', 'Sort'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+              <tbody>{rows.map((r, k) => <tr key={r.id || 'n' + k} style={{cursor:'default', opacity:r.active === false ? .45 : 1}}>
+                <td style={{width:130}}><input disabled={!canEdit} style={i1} value={r.grp || ''} list="spgrp" onChange={e => upd(k, {grp:e.target.value})}/></td>
+                <td style={{minWidth:170}}><input disabled={!canEdit} style={{...i1, fontWeight:700}} value={r.label || ''} onChange={e => upd(k, {label:e.target.value})} placeholder="e.g. Body material"/></td>
+                <td style={{minWidth:200}}>{r.field_type === 'select'
+                  ? <select disabled={!canEdit} style={i1} value={r.required_value || ''} onChange={e => upd(k, {required_value:e.target.value})}><option value=""></option>{optArr(r.options).map(o => <option key={o}>{o}</option>)}</select>
+                  : r.field_type === 'longtext' ? <textarea disabled={!canEdit} rows={2} style={i1} value={r.required_value ?? ''} onChange={e => upd(k, {required_value:e.target.value})}/>
+                  : <input disabled={!canEdit} type={r.field_type === 'number' ? 'number' : 'text'} step="any" style={i1} value={r.required_value ?? ''} onChange={e => upd(k, {required_value:e.target.value})}/>}</td>
+                <td style={{width:70}}><input disabled={!canEdit} style={i1} value={r.unit || ''} onChange={e => upd(k, {unit:e.target.value})}/></td>
+                <td style={{width:95}}><select disabled={!canEdit} style={i1} value={r.field_type} onChange={e => upd(k, {field_type:e.target.value})}>{['text', 'number', 'select', 'longtext'].map(t => <option key={t}>{t}</option>)}</select></td>
+                <td style={{minWidth:150}}><input disabled={!canEdit || r.field_type !== 'select'} style={i1} value={Array.isArray(r.options) ? r.options.join(' | ') : (r.options || '')} onChange={e => upd(k, {options:e.target.value})}/></td>
+                <td className="ctr"><input type="checkbox" disabled={!canEdit} checked={!!r.required} onChange={e => upd(k, {required:e.target.checked})}/></td>
+                <td className="ctr"><input type="checkbox" disabled={!canEdit} checked={!!r.vendor_response} onChange={e => upd(k, {vendor_response:e.target.checked})}/></td>
+                <td className="ctr"><input type="checkbox" disabled={!canEdit} checked={r.active !== false} onChange={e => upd(k, {active:e.target.checked})}/></td>
+                <td style={{width:60}}><input disabled={!canEdit} type="number" style={i1} value={r.sort} onChange={e => upd(k, {sort:e.target.value})}/></td>
+              </tr>)}
+              {!rows.length && <tr><td colSpan={10} className="empty-schedule">No requirement fields yet. {canEdit ? 'Add fields, or copy them from a similar product.' : ''}</td></tr>}</tbody>
+            </table>
+            <datalist id="spgrp">{['General', 'Materials', 'Rating & Connection', 'Operation', 'Performance', 'Standards & Testing', 'Manufacturer Data'].map(g => <option key={g} value={g}/>)}</datalist>
+          </div>
+        </>}
+      </section>
+    </div>;
+  }
+  // ── v1.10.0 · Master specification Phase 2: Vendor packages (secure no-login links) ──
+  const vpLink = tok => new URL('vendor.html', window.location.href).href.split('#')[0] + '#t=' + tok;
+  const vpDate = d => d ? new Date(d).toLocaleDateString('en-GB', {day:'2-digit', month:'short', year:'numeric'}) : '—';
+  const vpDT = d => d ? new Date(d).toLocaleString('en-GB', {day:'2-digit', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit'}) : '—';
+  const vpChip = (p) => { const exp = p.status === 'Open' && new Date(p.expires_at) < new Date();
+    return exp ? <Chip k="blocked">Expired</Chip> : p.status === 'Open' ? <Chip k="review">Open</Chip> : p.status === 'Signed off' ? <Chip k="pass">Signed off</Chip> : p.status === 'Closed' ? <Chip k="draft">Closed</Chip> : <Chip k="blocked">Revoked</Chip>; };
+  const vpItemChip = s => s === 'Submitted' ? <Chip k="pass">Submitted 🔒</Chip> : s === 'Draft' ? <Chip k="review">In progress</Chip> : <Chip k="draft">Not started</Chip>;
+
+  function VpLinkBox({tok, pkg, onClose}) {
+    const url = vpLink(tok); const [copied, setCopied] = useState(false);
+    const copy = async () => { try { await navigator.clipboard.writeText(url); setCopied(true); setTimeout(() => setCopied(false), 2500); } catch (e) { window.prompt('Copy this link:', url); } };
+    const body = `Dear ${pkg.contact_name || 'Sir/Madam'},\n\nPlease review and complete our technical specification package ${pkg.ref_no} – ${pkg.title}.\n\nOpen the link below (no login needed), enter your details, complete each product and sign off when finished:\n${url}\n\n${pkg.due_date ? 'Required by: ' + vpDate(pkg.due_date) + '\n' : ''}The link expires on ${vpDate(pkg.expires_at)}.\n\nRegards`;
+    const mail = 'mailto:' + encodeURIComponent(pkg.contact_email || '') + '?subject=' + encodeURIComponent(`${pkg.ref_no} – ${pkg.title} – technical submission`) + '&body=' + encodeURIComponent(body);
+    return <div className="lib-alert amber" style={{display:'block'}}>
+      <div style={{fontWeight:800, marginBottom:6}}>Vendor link for {pkg.ref_no} — copy it now</div>
+      <div style={{fontSize:11, marginBottom:8}}>For security the link is shown only once. If it is lost, use <b>New link</b> (the old one stops working; the vendor's saved work is kept).</div>
+      <div style={{display:'flex', gap:6, flexWrap:'wrap', alignItems:'center'}}>
+        <input readOnly value={url} onFocus={e => e.target.select()} style={{flex:'1 1 320px', padding:'5px 8px', fontSize:11, border:'1px solid #d2d2d7', borderRadius:6, fontFamily:'ui-monospace,Menlo,Consolas,monospace'}}/>
+        <button className="lib-new" onClick={copy}>{copied ? 'Copied ✓' : 'Copy link'}</button>
+        <a className="schedule-action" href={mail} style={{textDecoration:'none'}}>Email to vendor…</a>
+        <button className="schedule-action" onClick={onClose}>Done</button>
+      </div>
+    </div>;
+  }
+
+  function VendorsPanel({canEdit, onNotif}) {
+    const [pk, setPk] = useState([]), [its, setIts] = useState([]), [notes, setNotes] = useState([]);
+    const [selId, setSelId] = useState(null), [mode, setMode] = useState('list'), [msg, setMsg] = useState(''), [busy, setBusy] = useState(false);
+    const [missing, setMissing] = useState(''), [link, setLink] = useState(null), [resp, setResp] = useState([]), [openIt, setOpenIt] = useState(null);
+    const [q, setQ] = useState(''), [showRead, setShowRead] = useState(false);
+    const load = useCallback(async () => {
+      const [a, b, c] = await Promise.all([
+        sb.from('vendor_packages').select('*').order('created_at', {ascending:false}).range(0, 4999),
+        sb.from('vendor_package_items').select('*').order('sort').range(0, 49999),
+        sb.from('vendor_notifications').select('*').order('created_at', {ascending:false}).limit(60)]);
+      if (a.error) { setMissing('Vendor packages are not set up (' + a.error.message + '). Run vendor_packages_v1.sql in Supabase › SQL Editor, then reload.'); return; }
+      setPk(a.data || []); setIts(b.data || []); setNotes(c.data || []); setMissing('');
+    }, []);
+    useEffect(() => { load(); }, [load]);
+    const sel = pk.find(p => p.id === selId) || null;
+    const selItems = sel ? its.filter(i => i.package_id === sel.id) : [];
+    useEffect(() => { (async () => {
+      setResp([]); setOpenIt(null);
+      if (!sel || !selItems.length) return;
+      const r = await sb.from('vendor_responses').select('*').in('package_item_id', selItems.map(i => i.id)).range(0, 49999);
+      if (!r.error) setResp(r.data || []);
+    })(); }, [selId, its.length]);
+    const run = async (fn, okMsg) => { setBusy(true); setMsg(''); try { await fn(); if (okMsg) setMsg(okMsg); await load(); onNotif && onNotif(); } catch (e) { setMsg((e && e.message) || String(e)); } setBusy(false); };
+    const ok = r => { if (r.error) throw new Error(r.error.message); return r.data; };
+    const regen = () => { if (!window.confirm(`Create a new link for ${sel.ref_no}?\n\nThe current link stops working immediately. The vendor's saved work is kept.`)) return;
+      run(async () => { const t = ok(await sb.rpc('vp_regenerate', {p_id:sel.id})); setLink({tok:t, id:sel.id}); }); };
+    const revoke = () => { if (!window.confirm(`Revoke the link for ${sel.ref_no}?\n\nThe vendor can no longer open or edit it. You can issue a new link later.`)) return;
+      run(async () => ok(await sb.rpc('vp_revoke', {p_id:sel.id})), 'Link revoked.'); };
+    const close = () => { const n = window.prompt(`Close ${sel.ref_no}? Closing is final.\n\nClosing note (optional):`, ''); if (n === null) return;
+      run(async () => ok(await sb.rpc('vp_close', {p_id:sel.id, p_note:n})), 'Package closed.'); };
+    const markRead = () => run(async () => ok(await sb.rpc('vp_mark_read')));
+    const unread = notes.filter(n => !n.read_at);
+    if (missing) return <div className="ai-msg bad" style={{margin:12}}>{missing}</div>;
+
+    if (mode === 'new') return <VpCreate onCancel={() => setMode('list')} onCreated={async (res, pkgRow) => { await load(); setSelId(res.id); setLink({tok:res.token, id:res.id}); setMode('list'); }}/>;
+
+    const prog = p => { const x = its.filter(i => i.package_id === p.id); return [x.filter(i => i.status === 'Submitted').length, x.length]; };
+    const list = pk.filter(p => !q || [p.ref_no, p.title, p.vendor_company, p.v_company, p.contact_name].join(' ').toLowerCase().includes(q.toLowerCase()));
+    const linkPkg = link && pk.find(p => p.id === link.id);
+    return <div style={{display:'grid', gridTemplateColumns:'320px minmax(0,1fr)', minHeight:'60vh'}}>
+      <aside style={{borderRight:'1px solid #e8e8ed', maxHeight:'calc(100vh - 210px)', overflow:'auto'}}>
+        <div style={{padding:8, borderBottom:'1px solid #f0f0f2', position:'sticky', top:0, background:'#fff', zIndex:1, display:'flex', gap:6}}>
+          <input className="piw-search" style={{flex:1}} value={q} onChange={e => setQ(e.target.value)} placeholder="Search package, vendor…"/>
+          {canEdit && <button className="lib-new" onClick={() => { setMode('new'); setLink(null); setMsg(''); }}>+ New</button>}
+        </div>
+        <div style={{padding:'8px 10px', borderBottom:'1px solid #f0f0f2', background:unread.length ? '#fff8ec' : '#fff'}}>
+          <div style={{display:'flex', alignItems:'center', gap:6, fontSize:11, fontWeight:800}}>
+            <span>🔔 {unread.length ? unread.length + ' new' : 'No new notifications'}</span><span style={{flex:1}}/>
+            {unread.length > 0 && canEdit && <button className="schedule-action" disabled={busy} onClick={markRead}>Mark read</button>}
+            <button className="schedule-action" onClick={() => setShowRead(!showRead)}>{showRead ? 'Hide' : 'History'}</button>
+          </div>
+          {(showRead ? notes : unread).slice(0, 12).map(n => <div key={n.id} onClick={() => setSelId(n.package_id)} style={{fontSize:10.5, padding:'4px 0', borderTop:'1px dashed #eee', cursor:'pointer', fontWeight:n.read_at ? 400 : 700, color:n.read_at ? '#6e6e73' : '#1d1d1f'}}>
+            {n.kind === 'signed_off' ? '✍ ' : '📦 '}{n.message}<div style={{fontSize:9.5, color:'#86868b', fontWeight:400}}>{vpDT(n.created_at)}</div></div>)}
+        </div>
+        {list.map(p => { const [d, t] = prog(p); return <div key={p.id} onClick={() => { setSelId(p.id); setMsg(''); if (link && link.id !== p.id) setLink(null); }} className={'piw-item' + (selId === p.id ? ' on' : '')} style={{margin:'4px 6px', display:'block'}}>
+          <div style={{display:'flex', gap:6, alignItems:'center'}}><b style={{fontSize:11.5}}>{p.ref_no}</b>{vpChip(p)}<span style={{marginLeft:'auto', fontSize:10, color:'#86868b'}}>{d}/{t}</span></div>
+          <div style={{fontSize:11.5, fontWeight:650}}>{p.title}</div>
+          <div style={{fontSize:10.5, color:'#6e6e73'}}>{p.v_company || p.vendor_company}{p.due_date ? ' · due ' + vpDate(p.due_date) : ''}</div>
+          <div style={{height:3, background:'#eee', borderRadius:2, marginTop:4}}><div style={{height:3, width:(t ? d / t * 100 : 0) + '%', background:'#34c759', borderRadius:2}}/></div>
+        </div>; })}
+        {!list.length && <div className="piw-empty">No vendor packages yet.</div>}
+      </aside>
+      <section style={{padding:'12px 16px', minWidth:0}}>
+        {msg && <div className={'ai-msg' + (/revoked\.|closed\.|^Package/.test(msg) ? '' : ' bad')} style={{marginBottom:8}}>{msg}</div>}
+        {link && linkPkg && <VpLinkBox tok={link.tok} pkg={linkPkg} onClose={() => setLink(null)}/>}
+        {!sel ? <div className="piw-empty big">Select a package, or click <b>+ New</b> to send products to a vendor.</div> : <>
+          <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:6}}>
+            <b style={{fontSize:15}}>{sel.ref_no} · {sel.title}</b>{vpChip(sel)}<span style={{flex:1}}/>
+            {canEdit && ['Open', 'Revoked'].includes(sel.status) && <button className="schedule-action" disabled={busy} onClick={regen}>New link</button>}
+            {canEdit && sel.status === 'Open' && <button className="schedule-action" disabled={busy} onClick={revoke}>Revoke link</button>}
+            {canEdit && sel.status === 'Signed off' && <button className="lib-new" disabled={busy} onClick={close}>Close package</button>}
+          </div>
+          <table className="schedule-table" style={{width:'auto', minWidth:0, marginBottom:10, tableLayout:'auto'}}><tbody>
+            <tr><th>Requested from</th><td>{sel.vendor_company}{sel.contact_name ? ' · ' + sel.contact_name : ''}{sel.contact_email ? ' · ' + sel.contact_email : ''}</td><th>Created</th><td>{vpDT(sel.created_at)} · {sel.created_by}</td></tr>
+            <tr><th>Vendor details</th><td>{sel.v_name ? `${sel.v_name}${sel.v_designation ? ' (' + sel.v_designation + ')' : ''} · ${sel.v_company}${sel.v_email ? ' · ' + sel.v_email : ''}` : <i style={{color:'#86868b'}}>not entered yet</i>}</td><th>Due / Link expiry</th><td>{vpDate(sel.due_date)} / {vpDate(sel.expires_at)}</td></tr>
+            <tr><th>Signed off</th><td>{sel.signed_at ? vpDT(sel.signed_at) + ' by ' + sel.v_name : '—'}</td><th>Closed</th><td>{sel.closed_at ? vpDT(sel.closed_at) + ' · ' + sel.closed_by + (sel.close_note ? ' — ' + sel.close_note : '') : '—'}</td></tr>
+          </tbody></table>
+          <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 400px)'}}>
+            <table className="schedule-table" style={{minWidth:760, tableLayout:'auto'}}>
+              <thead><tr className="labels">{['Ref', 'Product', 'Spec rev', 'Status', 'Vendor rev', 'Submitted', 'Comply', 'Deviation', 'N/A', ''].map(h => <th key={h}>{h}</th>)}</tr></thead>
+              <tbody>{selItems.map(i => { const rs = resp.filter(r => r.package_item_id === i.id && r.vendor_rev === i.vendor_rev); const c = k => rs.filter(r => r.compliance === k).length; const on = openIt === i.id;
+                const flds = (i.fields || []).slice().sort((a, b) => (a.sort || 0) - (b.sort || 0));
+                return <React.Fragment key={i.id}>
+                  <tr onClick={() => setOpenIt(on ? null : i.id)} style={{background:on ? '#f0f6ff' : undefined}}>
+                    <td className="tag-code">{i.item_ref || i.item_code}</td><td>{i.item_name}</td><td>{i.item_rev ? 'Rev ' + i.item_rev : '—'}</td><td>{vpItemChip(i.status)}</td>
+                    <td className="num">{String(i.vendor_rev).padStart(2, '0')}</td><td style={{fontSize:10}}>{vpDT(i.submitted_at)}</td>
+                    <td className="num">{c('Comply') || ''}</td><td className="num" style={{color:c('Deviation') ? '#b42318' : undefined, fontWeight:c('Deviation') ? 800 : 400}}>{c('Deviation') || ''}</td><td className="num">{c('N/A') || ''}</td>
+                    <td><button className="schedule-action">{on ? 'Hide' : 'View'}</button></td></tr>
+                  {on && <tr><td colSpan={10} style={{background:'#fafafc', padding:8}}>
+                    <table className="schedule-table" style={{tableLayout:'auto', background:'#fff'}}>
+                      <thead><tr className="labels">{['Group', 'Requirement', 'Specified', 'Vendor offer', 'Compliance', 'Vendor comment'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+                      <tbody>{[...flds.filter(f => (rs.find(r => r.field_id === f.id) || {}).compliance === 'Deviation'), ...flds.filter(f => (rs.find(r => r.field_id === f.id) || {}).compliance !== 'Deviation')].map(f => { const r = rs.find(x => x.field_id === f.id) || {}; const dev = r.compliance === 'Deviation';
+                        return <tr key={f.id} style={{cursor:'default', background:dev ? '#fff1f0' : undefined}}>
+                          <td style={{fontSize:10, color:'#86868b'}}>{f.grp}</td><td style={{fontWeight:700}}>{f.label}</td>
+                          <td>{f.required_value || '—'}{f.unit ? ' ' + f.unit : ''}</td>
+                          <td>{f.vendor_response === false ? <i style={{color:'#86868b'}}>info only</i> : (r.offered || '—')}</td>
+                          <td>{r.compliance === 'Comply' ? <Chip k="pass">Comply</Chip> : dev ? <Chip k="blocked">Deviation</Chip> : r.compliance === 'N/A' ? <Chip k="draft">N/A</Chip> : ''}</td>
+                          <td style={{fontSize:10.5, whiteSpace:'normal', maxWidth:320}}>{r.comment || ''}</td></tr>; })}</tbody>
+                    </table>
+                    <div style={{fontSize:10, color:'#86868b', marginTop:4}}>Deviations are listed first. Accept / request revision / reject per product comes in Phase 3.</div>
+                  </td></tr>}
+                </React.Fragment>; })}</tbody>
+            </table>
+          </div>
+        </>}
+      </section>
+    </div>;
+  }
+
+  function VpL({t, children}) { return <label style={{display:'grid', gap:3, fontSize:10.5, fontWeight:700, color:'#6e6e73'}}>{t}{children}</label>; }
+  function VpCreate({onCancel, onCreated}) {
+    const [f, setF] = useState({title:'', company:'', contact:'', email:'', due:'', days:30, message:''});
+    const [pick, setPick] = useState({}), [q, setQ] = useState(''), [onlyOk, setOnlyOk] = useState(true), [busy, setBusy] = useState(false), [msg, setMsg] = useState('');
+    const divOf = n => String(n || '').replace(/\s/g, '').slice(0, 2);
+    const items = actv(ITEMS.items);
+    // v1.10.1: a product is ready as soon as it has active vendor fields; the package freezes its own copy of them
+    const [fc, setFc] = useState(null);
+    useEffect(() => { (async () => { const r = await sb.from('spec_item_params').select('item_code,vendor_response').eq('active', true).range(0, 49999);
+      const c = {}; (r.data || []).forEach(x => { if (x.vendor_response !== false) c[x.item_code] = (c[x.item_code] || 0) + 1; }); setFc(c); })(); }, []);
+    const okOf = it => fc && fc[it.code] ? {n:fc[it.code], rev:AU.itemRev[it.code]} : null;
+    const why = it => fc === null ? 'checking…' : 'no requirement fields — add them in Products › Fields';
+    const nOk = items.filter(okOf).length;
+    const tree = useMemo(() => { const t = {};
+      items.filter(i => (!onlyOk || okOf(i)) && (!q || [i.ref, i.code, i.item, i.material, i.category, i.subcategory].join(' ').toLowerCase().includes(q.toLowerCase())))
+        .forEach(i => { const k = divOf(i.section_num) + ' · ' + (i.category || '(no category)'); (t[k] = t[k] || []).push(i); }); return t; }, [items, q, onlyOk]);
+    const picked = Object.keys(pick).filter(k => pick[k]);
+    const set = (k, v) => setF(x => ({...x, [k]:v}));
+    const create = async () => {
+      if (!f.title.trim() || !f.company.trim()) return setMsg('Enter the package title and vendor company.');
+      if (!picked.length) return setMsg('Select at least one product.');
+      if (f.email.trim() && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(f.email.trim())) return setMsg('Contact email is not valid.');
+      const days = Math.max(1, Math.min(180, parseInt(f.days, 10) || 30));
+      const order = items.filter(i => pick[i.code]).map(i => i.code);
+      setBusy(true); setMsg('');
+      const r = await sb.rpc('vp_create', {p_title:f.title.trim(), p_company:f.company.trim(), p_contact:f.contact.trim(), p_email:f.email.trim(), p_message:f.message.trim(), p_due:f.due || null, p_days:days, p_items:order});
+      setBusy(false);
+      if (r.error) return setMsg(r.error.message);
+      onCreated(r.data);
+    };
+    const i1 = {padding:'5px 8px', fontSize:12, border:'1px solid #d2d2d7', borderRadius:6, width:'100%'};
+    const L = VpL;
+    return <div style={{display:'grid', gridTemplateColumns:'minmax(280px,360px) minmax(0,1fr)', minHeight:'60vh'}}>
+      <section style={{padding:14, borderRight:'1px solid #e8e8ed', display:'grid', gap:9, alignContent:'start'}}>
+        <b style={{fontSize:15}}>New vendor package</b>
+        <L t="Package title *"><input style={i1} value={f.title} onChange={e => set('title', e.target.value)} placeholder="e.g. Valves – technical submission"/></L>
+        <L t="Vendor company *"><input style={i1} value={f.company} onChange={e => set('company', e.target.value)}/></L>
+        <L t="Contact name"><input style={i1} value={f.contact} onChange={e => set('contact', e.target.value)}/></L>
+        <L t="Contact email"><input style={i1} type="email" value={f.email} onChange={e => set('email', e.target.value)}/></L>
+        <div style={{display:'grid', gridTemplateColumns:'1fr 1fr', gap:8}}>
+          <L t="Required by"><input style={i1} type="date" value={f.due} onChange={e => set('due', e.target.value)}/></L>
+          <L t="Link valid (days)"><input style={i1} type="number" min="1" max="180" value={f.days} onChange={e => set('days', e.target.value)}/></L>
+        </div>
+        <L t="Message to vendor"><textarea style={i1} rows={4} value={f.message} onChange={e => set('message', e.target.value)} placeholder="Instructions shown at the top of the vendor page"/></L>
+        <div className="lib-help" style={{borderRadius:8}}><b>{picked.length}</b> product{picked.length === 1 ? '' : 's'} selected. Each product's current fields are frozen into this package when you create it — later field edits don't change what the vendor sees.</div>
+        {msg && <div className="ai-msg bad">{msg}</div>}
+        <div style={{display:'flex', gap:6}}><button className="lib-new" disabled={busy} onClick={create}>{busy ? 'Creating…' : 'Create & get link'}</button><button className="schedule-action" onClick={onCancel}>Cancel</button></div>
+      </section>
+      <section style={{padding:'10px 14px', minWidth:0}}>
+        <div style={{display:'flex', gap:8, alignItems:'center', flexWrap:'wrap', marginBottom:8}}>
+          <b>Select products</b><span style={{fontSize:11, color:'#86868b'}}>{nOk} of {items.length} ready to send</span>
+          <input className="piw-search" style={{flex:'1 1 200px'}} value={q} onChange={e => setQ(e.target.value)} placeholder="Search ref, item, material…"/>
+          <label style={{fontSize:11, display:'flex', gap:4, alignItems:'center'}}><input type="checkbox" checked={onlyOk} onChange={e => setOnlyOk(e.target.checked)}/>Ready only</label>
+        </div>
+        {!nOk && <div className="lib-alert amber">{fc === null ? 'Checking products…' : 'No product is ready yet. A product is ready as soon as it has requirement fields with “Vendor” ticked (Products › Fields).'}</div>}
+        <div style={{maxHeight:'calc(100vh - 290px)', overflow:'auto'}}>
+          {Object.keys(tree).sort().map(k => { const ready = tree[k].filter(okOf); const all = ready.length > 0 && ready.every(i => pick[i.code]);
+            return <div key={k} style={{marginBottom:8}}>
+              <div style={{display:'flex', alignItems:'center', gap:6, fontSize:11.5, fontWeight:800, padding:'4px 0', borderBottom:'1px solid #eee'}}>
+                <input type="checkbox" disabled={!ready.length} checked={all} onChange={e => setPick(p => { const n = {...p}; ready.forEach(i => { n[i.code] = e.target.checked; }); return n; })}/>Division {k}<span style={{color:'#86868b', fontWeight:400}}>({ready.length}/{tree[k].length})</span></div>
+              {tree[k].map(i => { const r = okOf(i); return <label key={i.code} title={r ? '' : why(i)} style={{display:'flex', gap:8, alignItems:'center', padding:'3px 0 3px 18px', fontSize:11.5, opacity:r ? 1 : .45, cursor:r ? 'pointer' : 'not-allowed'}}>
+                <input type="checkbox" disabled={!r} checked={!!pick[i.code]} onChange={e => setPick(p => ({...p, [i.code]:e.target.checked}))}/>
+                <span className="tag-code" style={{minWidth:86}}>{i.ref || i.code}</span><span style={{flex:1}}>{i.item}{i.material && i.material !== i.item ? ' – ' + i.material : ''}</span>
+                <span style={{fontSize:10, color:'#86868b'}}>{r ? `${r.n} field${r.n === 1 ? '' : 's'}${r.rev ? ' · spec Rev ' + r.rev : ''}` : why(i)}</span></label>; })}
+            </div>; })}
+        </div>
+      </section>
+    </div>;
+  }
+  // v1.9.0 · simplified navigation: 3 main tabs + Setup menu; sub-tabs shown only for the active tab
   const LIB_TAB_GROUPS = [
-    ['Content', [['sections', 'Sections'], ['itemspecs', 'Item specifications'], ['items', 'Items'], ['itemmgmt', 'Item management'], ['attrs', 'Item attributes']]],
-    ['Choices', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets'], ['warranty', 'Warranty annexure']]],
-    ['Reference', [['relations', 'Related links'], ['standards', 'Standards'], ['secstd', 'Section standards'], ['blocks', 'Common text'], ['vendors', 'Manufacturers']]],
-    ['Settings', [['options', 'Project options'], ['locations', 'Locations']]],
+    ['Products', [['products', 'Fields'], ['itemspecs', 'Specifications'], ['items', 'Items'], ['itemmgmt', 'Management'], ['attrs', 'Attributes']], false],
+    ['Sections', [['sections', 'Sections'], ['secstd', 'Section standards'], ['blocks', 'Common text']], false],
+    ['Vendors', [['vpk', 'Packages']], true],
+    ['Lists', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets'], ['warranty', 'Warranty annexure'], ['standards', 'Standards'], ['vendors', 'Manufacturers'], ['relations', 'Related links']], true],
   ];
+  const LIB_SETUP_TABS = [['options', 'Project options'], ['locations', 'Locations']];
   function LibraryAdminX({onBack, canEdit, who}) {
-    const [tab, setTab] = useState('sections'); const [ver, setVer] = useState(0); const [edit, setEdit] = useState(null); const [f, setF] = useState(''); const [stat, setStat] = useState('');
+    const [tab, setTab] = useState('products'); const [setupOpen, setSetupOpen] = useState(false); const [vpUnread, setVpUnread] = useState(0);
+    const pollVp = useCallback(async () => { if (!canEdit) return; try { const r = await sb.from('vendor_notifications').select('id', {count:'exact', head:true}).is('read_at', null); if (!r.error) setVpUnread(r.count || 0); } catch (e) {} }, [canEdit]);
+    useEffect(() => { pollVp(); const t = setInterval(pollVp, 60000); return () => clearInterval(t); }, [pollVp]); const [ver, setVer] = useState(0); const [edit, setEdit] = useState(null); const [f, setF] = useState(''); const [stat, setStat] = useState('');
     const [rows, setRows] = useState({}); const [msg, setMsg] = useState(''); const [conv, setConv] = useState(false); const [myEmail, setMyEmail] = useState('');
     const [more, setMore] = useState(false); const [attrN, setAttrN] = useState(0); const [exp, setExp] = useState({busy:false, msg:'', err:false});
     useEffect(() => { try { sb.auth.getSession().then(({data}) => setMyEmail(((data && data.session && data.session.user.email) || '').toLowerCase())); } catch (e) {} }, []);
+    useEffect(() => { if (!setupOpen) return; const c = () => setSetupOpen(false); document.addEventListener('click', c); return () => document.removeEventListener('click', c); }, [setupOpen]);
     useEffect(() => { if (!more) return; const c = () => setMore(false); document.addEventListener('click', c); return () => document.removeEventListener('click', c); }, [more]);
     const reload = useCallback(async () => {
       setMsg('');
@@ -3512,8 +3853,8 @@ function RootApp() {
     const cfg = LIB_TABLES[tab];
     const list = cfg ? (rows[tab] || []).filter(fl).filter(r => !stat || r.status === stat) : [];
     const counts = {chitems:(rows.chitems || []).length, chdefs:(rows.chdefs || []).length, chopts:(rows.chopts || []).length, presets:(rows.presets || []).length, warranty:(rows.warranty || []).length, sections:LIB.length, itemspecs:Object.keys(AU.itemRev).length, items:(rows.items || []).length, itemmgmt:actv(ITEMS.items).length, attrs:attrN, relations:(rows.relations || []).length, standards:(rows.standards || []).length, secstd:(rows.secstd || []).length, blocks:(rows.blocks || []).length, vendors:(rows.vendors || []).length, options:(rows.options || []).length, locations:(rows.locations || []).length};
-    const ownToolbar = tab === 'itemspecs' || tab === 'itemmgmt' || tab === 'attrs';
-    const go = k => { setTab(k); setStat(''); setF(''); setMore(false); };
+    const ownToolbar = tab === 'itemspecs' || tab === 'itemmgmt' || tab === 'attrs' || tab === 'products' || tab === 'vpk';
+    const go = k => { setTab(k); setStat(''); setF(''); setMore(false); setSetupOpen(false); };
     const cell = (k, r) => {
       const x = r[k];
       if (k === 'status') return stChip(x);
@@ -3553,7 +3894,6 @@ function RootApp() {
         <div><div className="lib-eyebrow">MEP Specifications</div><div className="lib-title">Specification library</div></div>
         <div className="lib-head-act">
           {exp.msg && <span className={'lib-note' + (exp.err ? ' bad' : '')}>{exp.msg}</span>}
-          <button className="lib-btn green" disabled={exp.busy} onClick={runExport} title="Export items, specifications, sections, clauses, standards, vendors, attributes and options to one Excel file">{exp.busy ? 'Exporting…' : 'Export to Excel'}</button>
           <button className="lib-btn" onClick={onBack}>← All projects</button>
         </div>
       </div></div>
@@ -3563,7 +3903,22 @@ function RootApp() {
         {AU.missing && <div className="lib-alert red">{AU.missing}</div>}
         {CH.missing && tab.startsWith('ch') && <div className="lib-alert red">{CH.missing}</div>}
         {msg && <div className="ai-msg bad" style={{marginBottom:10}}>{msg}</div>}
-        <div className="lib-tabs">{LIB_TAB_GROUPS.map(([g, ts]) => <div key={g} className="lib-tg"><div className="lib-tgl">{g}</div><div className="lib-tgb">{ts.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => go(k)}>{l}<span>{counts[k]}</span></button>)}</div></div>)}</div>
+        {(() => { const grps = LIB_TAB_GROUPS.filter(g => canEdit || !g[2]); const curG = grps.find(g => g[1].some(t => t[0] === tab)); const onSetup = LIB_SETUP_TABS.some(t => t[0] === tab);
+          return <div className="lib-nav">
+            <div className="lib-nav-main">
+              {grps.map(([g, ts]) => <button key={g} className={curG && curG[0] === g ? 'on' : ''} onClick={() => go(ts[0][0])}>{g}{g === 'Vendors' && vpUnread > 0 && <span className="lib-badge" title={vpUnread + ' new vendor notification' + (vpUnread === 1 ? '' : 's')}>{vpUnread}</span>}</button>)}
+              <span style={{flex:1}}/>
+              <div className="lib-more" onClick={e => e.stopPropagation()}>
+                <button className={'lib-setup' + (onSetup ? ' on' : '')} onClick={() => setSetupOpen(!setupOpen)}>⚙ Setup ▾</button>
+                {setupOpen && <div className="lib-menu" style={{minWidth:240}}>
+                  {canEdit && LIB_SETUP_TABS.map(([k, l]) => <button key={k} onClick={() => go(k)}><b>{l}</b></button>)}
+                  <button disabled={exp.busy} onClick={() => { setSetupOpen(false); runExport(); }}><b>{exp.busy ? 'Exporting…' : 'Export library to Excel'}</b><small>Items, specifications, sections, standards, manufacturers, attributes, options</small></button>
+                </div>}
+              </div>
+            </div>
+            {curG && curG[1].length > 1 && <div className="lib-tgb lib-nav-sub">{curG[1].map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => go(k)}>{l}</button>)}</div>}
+            {onSetup && <div className="lib-tgb lib-nav-sub">{LIB_SETUP_TABS.map(([k, l]) => <button key={k} className={tab === k ? 'on' : ''} onClick={() => go(k)}>{l}</button>)}</div>}
+          </div>; })()}
         <div className="schedule-card">
           {!ownToolbar && <div className="schedule-toolbar">
             <input value={f} onChange={e => setF(e.target.value)} placeholder="Filter…"/>
@@ -3587,6 +3942,8 @@ function RootApp() {
             : tab === 'itemspecs' ? <ItemSpecsTab canEdit={canEdit} who={who} myEmail={myEmail} onChanged={reload}/>
             : tab === 'itemmgmt' ? <ItemMgr.ItemManagerPanel canEdit={canEdit} who={who} onChanged={reload}/>
             : tab === 'attrs' ? <AttrsPanel/>
+            : tab === 'products' ? <ProductsPanel canEdit={canEdit} who={who}/>
+            : tab === 'vpk' ? <VendorsPanel canEdit={canEdit} onNotif={pollVp}/>
             : !cfgOk ? <div className="empty-schedule">{(cfg.chx ? CH.missing : AU.missing) || 'Tables not loaded.'}</div>
             : <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels">{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k, l]) => <th key={k}>{l.replace(/\s*\(.*$/, '').replace(/\s*–.*$/, '')}</th>)}{tab === 'blocks' && <th>Used in</th>}<th></th></tr></thead><tbody>
               {list.map((r, i) => <tr key={i} onClick={() => setEdit({row:r, isNew:false})} style={{opacity:r.active === false ? .5 : 1}}>{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k]) => <td key={k} style={{fontSize:10.5,maxWidth:320,whiteSpace:'normal'}}>{cell(k, r)}</td>)}{tab === 'blocks' && <td className="num">{usedBy(r.key)}</td>}<td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>)}
