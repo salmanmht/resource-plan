@@ -1251,6 +1251,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
         <button class="btn btn-g btn-sm" id="proj-hdr-back-btn" onclick="closeProjDetail()" style="display:none;">&#8592; Back</button>
         <button class="btn btn-g btn-sm" id="proj-hdr-refresh-btn" onclick="refreshProjData(window._viewingProjId,{manual:true})" title="Reload this project from the database — pulls in teammates' latest changes" style="display:none;">&#8635; Refresh</button>
         <button class="btn btn-g btn-sm" id="proj-hdr-org-btn" onclick="openOrgChart(window._viewingProjId)" title="Project team organization chart (auto-generated from bookings)" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">🗂️</span><span class="proj-btn-label"> Org Chart</span></button>
+        <button class="btn btn-g btn-sm" id="proj-hdr-undo-btn" onclick="projHoursUndo()" title="Undo last hours edit" disabled style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">&#8617;</span><span class="proj-btn-label"> Undo</span></button>
+        <button class="btn btn-g btn-sm" id="proj-hdr-redo-btn" onclick="projHoursRedo()" title="Redo last undone hours edit" disabled style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">&#8618;</span><span class="proj-btn-label"> Redo</span></button>
         <button class="btn btn-g btn-sm proj-hdr-export-btn" id="proj-hdr-export-btn" onclick="exportProjXLSX()" title="Export project info &amp; programme stages to Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">💾</span><span class="proj-btn-label"> Export Programme</span></button>
         <button class="btn btn-g btn-sm proj-hdr-import-btn" id="proj-hdr-import-btn" onclick="document.getElementById('proj-xlsx-import-input').click()" title="Import project info &amp; programme stages from Excel" style="display:none;align-items:center;gap:4px;"><span class="proj-btn-icon">📂</span><span class="proj-btn-label"> Import Programme</span></button>
         <input type="file" id="proj-xlsx-import-input" accept=".xlsx,.xls" style="display:none;" onchange="importProjXLSX(this)">
@@ -13722,6 +13724,30 @@ function toggleProj(id,event){
   const old=document.getElementById('proj-body-'+id);
   if(old&&old.parentElement)old.parentElement.outerHTML=renderProjCard(p);
 }
+// Project-hours Undo / Redo: records each actual weekly-hour cell change.
+const PROJ_HOUR_HISTORY_MAX=100;
+window._projHourUndo=window._projHourUndo||[];
+window._projHourRedo=window._projHourRedo||[];
+window._projHourHistoryLock=false;
+function _projHourHistBtns(){
+  const u=document.getElementById('proj-hdr-undo-btn'),r=document.getElementById('proj-hdr-redo-btn');
+  if(u){u.disabled=!window._projHourUndo.length;u.style.display=window._viewingProjId?'inline-flex':'none';u.title=window._projHourUndo.length?'Undo last hours edit':'Nothing to undo';}
+  if(r){r.disabled=!window._projHourRedo.length;r.style.display=window._viewingProjId?'inline-flex':'none';r.title=window._projHourRedo.length?'Redo last undone hours edit':'Nothing to redo';}
+}
+function _projHourApply(x,toVal){
+  const p=S.projects.find(q=>q.id===x.projId);if(!p)return false;
+  if(!p.weeklyHrs)p.weeklyHrs={};if(!p.weeklyHrs[x.engId])p.weeklyHrs[x.engId]=[];
+  p.weeklyHrs[x.engId][x.wkIdx]=toVal;
+  queueHourSave(x.projId,x.engId,x.wkIdx,toVal);
+  updateProjCardTotals(p);
+  const el=document.querySelector('input[data-pid="'+CSS.escape(String(x.projId))+'"][data-eng="'+CSS.escape(String(x.engId))+'"][data-wi="'+x.wkIdx+'"]');
+  if(el){el.value=toVal||'';el.defaultValue=toVal||'';el.style.background=toVal?'#dcfce7':'transparent';el.style.border=toVal?'1px solid #86efac':'1px solid transparent';}
+  if(typeof flushHourSaves==='function')flushHourSaves();
+  return true;
+}
+function projHoursUndo(){const x=window._projHourUndo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApply(x,x.oldVal)){window._projHourRedo.push(x);toast('↩ Hours undone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
+function projHoursRedo(){const x=window._projHourRedo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApply(x,x.newVal)){window._projHourUndo.push(x);toast('↪ Hours redone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
+window.projHoursUndo=projHoursUndo;window.projHoursRedo=projHoursRedo;
 function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
@@ -13748,7 +13774,14 @@ function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   if(!p.weeklyHrs)p.weeklyHrs={};
   if(!p.weeklyHrs[engId])p.weeklyHrs[engId]=[];
+  const _oldHour=Number(p.weeklyHrs[engId][wkIdx])||0;
+  if(!window._projHourHistoryLock && _oldHour!==val){
+    window._projHourUndo.push({projId:projId,engId:engId,wkIdx:wkIdx,oldVal:_oldHour,newVal:val});
+    if(window._projHourUndo.length>PROJ_HOUR_HISTORY_MAX)window._projHourUndo.shift();
+    window._projHourRedo.length=0; _projHourHistBtns();
+  }
   p.weeklyHrs[engId][wkIdx]=val;
+  inputEl.defaultValue=val||'';
   inputEl.style.background=val?'#dcfce7':'transparent';
   inputEl.style.border=val?'1px solid #86efac':'1px solid transparent';
   // Queue the change in a GLOBAL pending map (survives DOM re-render / navigation)
@@ -19223,5 +19256,10 @@ const _origNav=typeof nav==='function'?nav:null;
 })();
 </script>
 
+
+<script>
+setInterval(function(){try{_projHourHistBtns();}catch(e){}},800);
+document.addEventListener('keydown',function(e){if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='z'&&window._viewingProjId){e.preventDefault();if(e.shiftKey)projHoursRedo();else projHoursUndo();}else if((e.ctrlKey||e.metaKey)&&!e.altKey&&e.key.toLowerCase()==='y'&&window._viewingProjId){e.preventDefault();projHoursRedo();}},true);
+</script>
 </body>
 </html>
