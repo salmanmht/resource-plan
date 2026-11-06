@@ -11949,8 +11949,8 @@ function renderProjDetail(p){
                   const projDiscs=p.disciplines&&p.disciplines.length?new Set(p.disciplines):null;
                   const userIsBimLead=isBimLead();
                   // BIM/JSE members stay listed even when assigned: picking them again adds a second booking (slot)
-                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
-                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
+                  const mepAvail=(!adminUnlocked&&userIsBimLead)?[]:S.engineers.filter(e=>e.team!=='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(adminUnlocked||canEditDisc(e.disc))&&(!projDiscs||projDiscs.has(e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.disc]||9)-(discOrder[b.disc]||9)||a.name.localeCompare(b.name));
+                  const bimAvail=(p.bimExcluded||!(adminUnlocked||userIsBimLead))?[]:S.engineers.filter(e=>e.team==='BIM'&&!e._isVirtual&&(!assignedIds.has(e.id)||canDupBook(e,p))&&(!projDiscs||projDiscs.has(e.subDisc||e.disc)||isUmbrella(e))).sort((a,b)=>(discOrder[a.subDisc||a.disc]||9)-(discOrder[b.subDisc||b.disc]||9)||a.name.localeCompare(b.name));
                   let html='';
                   const _mepByD={}; mepAvail.forEach(e=>{ (_mepByD[e.disc]=_mepByD[e.disc]||[]).push(e); });
                   const _mepOrder=MEP_DISCS.concat(Object.keys(_mepByD).filter(d=>MEP_DISCS.indexOf(d)<0)); // real disciplines first, MEP/umbrella last
