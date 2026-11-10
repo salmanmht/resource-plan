@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>MEP Specifications — Meinhardt · v1.17.1</title>
+<title>MEP Specifications — Meinhardt · v1.18.2</title>
 <!-- v1.17.0: exact versions pinned so a CDN update cannot change the app -->
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
@@ -437,6 +437,7 @@
   .sbx-foot-row{display:grid;grid-template-columns:1fr auto;gap:6px}
   .sbx-save{border:0;background:#007aff;color:#fff;border-radius:9px;padding:9px;font-size:12px;font-weight:800;cursor:pointer}
   .sbx-save:hover{background:#0068d9}
+  .sbx-me{padding:8px 9px;margin-bottom:8px;background:#fff;border:1px solid #e5e5ea;border-radius:10px}
   .sbx-out{border:1px solid #e1e1e6;background:#fff;color:#6e6e73;border-radius:9px;padding:9px 12px;font-size:11px;font-weight:700;cursor:pointer}
   .sbx-out:hover{color:#ff3b30;border-color:#ffc9c5}
   @media screen and (max-width:900px){.pump-sidebar.sbx{width:min(300px,86vw);height:100dvh}}
@@ -997,7 +998,7 @@ function PrintPreview({children, active, measureKey}) {
     </div>
   );
 }
-function stageStatusLabel(meta) { const s=closureOf(meta).status||'draft'; return s==='awaiting_approver'?'Awaiting Associate / Approver':s==='closed'?'Closed':'Draft'; }
+function stageStatusLabel(meta) { const s=closureOf(meta).status||'draft'; return s==='awaiting_approver'?'Awaiting Approver (Associate)':s==='closed'?'Closed':'Draft'; }
 function isDraftStatus(st) { return !st || st==='draft' || st==='reopened'; }
 function StageClosurePanel({why, meta, team, me, isDiscLead, isApprover, isAdmin, onLead, onReturn, onApprover, onReopen, busy, valid, logoReady}) {
   const c=closureOf(meta), status=c.status||'draft', draft=isDraftStatus(status);
@@ -1011,26 +1012,27 @@ function StageClosurePanel({why, meta, team, me, isDiscLead, isApprover, isAdmin
     if (!logoReady) leadBlock='Client logo is required.';
     else if (!valid) leadBlock=why||'All sections must be reviewed, with no unresolved fields or TBC items, and every choice chosen and confirmed.';
     else if (!preparer) leadBlock='Set "Prepared by" on Setup first.';
-    else if (isDiscLead && preparer===myIni) leadBlock='You prepared this stage — another Lead must sign.';
+    else if (isDiscLead && preparer===myIni) leadBlock='You prepared this stage — another Checker (Senior / Principal / Lead) must sign.';
+    else if (isDiscLead && myEmail && String(meta.calcBySetBy||'').toLowerCase()===myEmail) leadBlock='You set "Prepared by" on this stage — another Checker must sign.';
   }
   let approverBlock='';
   if (awaiting && isApprover) {
-    if ((c.lead_signed_email||'').toLowerCase()===myEmail) approverBlock='You gave Lead sign-off — another Associate / Approver must approve.';
-    else if (preparer && preparer===myIni) approverBlock='You prepared this stage — another Associate / Approver must approve.';
+    if ((c.lead_signed_email||'').toLowerCase()===myEmail) approverBlock='You checked this stage — another Approver (Associate) must approve.';
+    else if (preparer && preparer===myIni) approverBlock='You prepared this stage — another Approver (Associate) must approve.';
   }
   const hist=Array.isArray(c.history)?c.history:[];
   const btn=(bg,fg,bd)=>({padding:'7px 10px',border:bd||'none',borderRadius:8,background:bg,color:fg,fontSize:11,fontWeight:800,cursor:'pointer'});
   return <div className="wf no-print">
     <div className="wf-top"><h3>Sign-off · Rev {meta.revision||'01'}</h3><span className={`stage-status ${draft?'draft':status}`}>{stageStatusLabel(meta)}</span></div>
     <ol className="wf-steps">
-      <li className={meta.calcBy?'done':''}><b>Prepared</b><span>{meta.calcBy?nameOf(meta.calcBy):'Not set'}</span></li>
-      <li className={awaiting||closed?'done':'now'}><b>Lead</b><span>{(awaiting||closed)&&c.lead_signed_by?`${c.lead_signed_by} · ${fmtDay(c.lead_signed_at)}`:'Pending'}</span></li>
-      <li className={closed?'done':(awaiting?'now':'')}><b>Associate / Approver</b><span>{closed?`${c.mep_lead_signed_by||c.closed_by||''} · ${fmtDay(c.closed_at)}`:'Pending'}</span></li>
+      <li className={meta.calcBy?'done':''}><b>1 · Prepared</b><span>{meta.calcBy?nameOf(meta.calcBy):'Not set'}</span></li>
+      <li className={awaiting||closed?'done':'now'}><b>2 · Checked</b><span>{(awaiting||closed)&&c.lead_signed_by?`${c.lead_signed_by} · ${fmtDay(c.lead_signed_at)}`:'Pending'}</span></li>
+      <li className={closed?'done':(awaiting?'now':'')}><b>3 · Approved</b><span>{closed?`${c.mep_lead_signed_by||c.closed_by||''} · ${fmtDay(c.closed_at)}`:'Pending'}</span></li>
     </ol>
     {draft && c.returned && <div className="wf-note warn"><b>Returned by {c.returned.by}</b> · {fmtWhen(c.returned.at)}<br/>{c.returned.comment}</div>}
     {draft && c.reopen_reason && !c.returned && <div className="wf-note"><b>Reopened by {c.reopened_by||'Admin'}</b> · {fmtWhen(c.reopened_at)}<br/>{c.reopen_reason}</div>}
     <div className="wf-actions">
-      {draft && isDiscLead && <button disabled={busy||!!leadBlock} onClick={onLead} style={btn('#1559a6','#fff')}>Lead sign-off</button>}
+      {draft && isDiscLead && <button disabled={busy||!!leadBlock} onClick={onLead} style={btn('#1559a6','#fff')}>Check &amp; sign</button>}
       {awaiting && isApprover && <>
         <button disabled={busy||!!approverBlock} onClick={onApprover} style={btn('#16803a','#fff')}>Sign &amp; close</button>
         <button disabled={busy} onClick={onReturn} style={btn('#fff','#a76200','1px solid #f5c27a')}>Return</button>
@@ -1038,8 +1040,8 @@ function StageClosurePanel({why, meta, team, me, isDiscLead, isApprover, isAdmin
       {closed && isAdmin && <button disabled={busy} onClick={onReopen} style={btn('#fff','#b91c1c','1px solid #fca5a5')}>Reopen as new revision</button>}
     </div>
     {draft && isDiscLead && leadBlock && <div className="wf-why">{leadBlock}</div>}
-    {draft && !isDiscLead && <div className="wf-why">Waiting for a Discipline Lead to sign.</div>}
-    {awaiting && !isApprover && <div className="wf-why">Locked — waiting for Approver sign-off.</div>}
+    {draft && !isDiscLead && <div className="wf-why">Waiting for a Checker (Senior / Principal / Lead) to sign.</div>}
+    {awaiting && !isApprover && <div className="wf-why">Locked — waiting for the Approver (Associate).</div>}
     {awaiting && approverBlock && <div className="wf-why">{approverBlock}</div>}
     {hist.length>0 && <details className="wf-hist"><summary>History ({hist.length})</summary>
       <ul>{hist.slice().reverse().map((h,i)=><li key={i}><b>{h.action}</b> — {h.by||h.email} · {fmtWhen(h.at)}{h.note?<em>“{h.note}”</em>:null}</li>)}</ul>
@@ -1093,10 +1095,10 @@ function useTeamData(session) {
   const [roles, setRoles] = React.useState([]);
   const [ready, setReady] = React.useState(false);
   const [pendingCount, setPendingCount] = React.useState(0);
-  const load = React.useCallback(async () => {
-    setReady(false);
+  const load = React.useCallback(async (quiet) => {
+    if (quiet !== true) setReady(false);
     const [teamRes, roleRes, pendingRes] = await Promise.all([
-      sb.from('engineers').select('id,name,email,desig,initials,disc,office,is_admin,active').order('name'),
+      sb.from('engineers').select('*').order('name'),
       sb.from('engineer_roles').select('id,email,role,scope,active,created_at').order('email'),
       sb.from('pending_users').select('id',{count:'exact',head:true}).eq('status','pending')
     ]);
@@ -1142,13 +1144,16 @@ function SignedField({label, who, when, team, pending}) {
     </div>
   </div>;
 }
-function UserBadge({session, me}) {
+function UserBadge({session, me, roles}) {
   const email = (session && session.user && session.user.email) || "";
   const eng = me;
   const derived = email ? email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "—";
   const name  = (eng && eng.name)  || derived;
   const desig = (eng && eng.desig) || "Meinhardt Group";
-  const admin = !!(eng && eng.is_admin);
+  // v1.18.2 · show the sign-off level (Engineer / Checker / Approver) and Admin
+  const mine = (roles || []).filter(r => r.active !== false && String(r.email || '').toLowerCase() === email.toLowerCase()).map(r => r.role);
+  const admin = !!(eng && eng.is_admin) || mine.includes('admin');
+  const level = mine.includes('associate') ? 'Approver' : mine.includes('lead') ? 'Checker' : mine.includes('engineer') ? 'Engineer' : roles ? 'View only' : '';
   return (
     <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}} title={email}>
       <div style={{width:30,height:30,borderRadius:9,flexShrink:0,background:"linear-gradient(135deg,#007aff,#5856d6)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,122,255,.2)"}}>
@@ -1158,7 +1163,8 @@ function UserBadge({session, me}) {
         <div style={{fontSize:13,fontWeight:700,color:"#1d1d1f",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",letterSpacing:"-.02em"}}>{name}</div>
         <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2,flexWrap:"wrap"}}>
           <span style={{fontSize:9,color:"#8e8e93",lineHeight:1.3}}>{desig}</span>
-          <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:"rgba(0,122,255,.1)",color:"#007aff"}}>{admin?"Admin":"Team"}</span>
+          {level && <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:level==='Approver'?"rgba(52,199,89,.14)":level==='Checker'?"rgba(255,149,0,.14)":"rgba(0,122,255,.1)",color:level==='Approver'?"#16803a":level==='Checker'?"#a76200":"#007aff"}}>{level}</span>}
+          {(admin || !level) && <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:"rgba(88,86,214,.12)",color:"#5856d6"}}>{admin?"Admin":"Team"}</span>}
         </div>
       </div>
     </div>
@@ -1169,7 +1175,7 @@ function UserBadge({session, me}) {
 // calculator. Library content lives in Supabase (spec_* tables); this page is
 // the engine only.
 // ══════════════════════════════════════════════════════════════════════════
-const BUILD_LABEL = "Spec v1.17.1 · Build 2026.11.09.02";
+const BUILD_LABEL = "Spec v1.18.2 · Build 2026.11.10.03";
 const DIVNAMES = {'21':'Fire Suppression','22':'Plumbing','23':'HVAC','26':'Electrical','28':'Electronic Safety and Security','33':'Utilities'};
 const PF_FIELDS = [
   ['elec','V3','Three-phase voltage (V)'],['elec','V1','Single-phase voltage (V)'],['elec','HZ','Frequency (Hz)'],
@@ -1185,6 +1191,8 @@ let LIB = [], OPTS = [], OPTMAP = {}, COUNTRIES = {}, ITEMS = {items:[], vendors
 let LIB_ERROR = "";
 // v1.17.0 · tables that failed to load (the page still opens, but sign-off is blocked)
 let LIB_WARN = [];
+// v1.17.5 · fingerprint of a section's text, identical to the server's sha256(convert_to(html,'UTF8'))
+async function sha256Hex(s) { const b = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(String(s ?? ''))); return [...new Uint8Array(b)].map(x => x.toString(16).padStart(2, '0')).join(''); }
 // v1.17.0 · HTML sanitiser for project edits and frozen issued text.
 // Only the formatting the specification editor produces is kept; scripts, event
 // handlers, links, images, frames, styles and unknown tags are removed.
@@ -1256,7 +1264,7 @@ function locMismatch(proj) {
 // Hard-coded location words in library text (should be {{FIELD}} tags).
 const HARD_LOC = /\b(Dubai|DCD|DEWA|Abu Dhabi|ADCD|Sharjah|SEWA|UAE|Riyadh|Saudi|KSA|SBC|Qatar|QCD|Kahramaa|Oman|Muscat)\b/g;
 function hardLocWords(body) { const out = new Set(); String(body || '').split('\n').forEach(l => { const s = l.replace(/\{\{[^}]*\}\}/g, ''); (s.match(HARD_LOC) || []).forEach(w => out.add(w)); }); return [...out]; }
-const fmtNum = n => String(n || '').replace(/^(\d{2})\s?(\d{2})(\d{2})/, '$1 $2 $3');
+const fmtNum = n => { const s = String(n || '').trim(); if (/^\d{2}\s?9998$/.test(s)) return s.replace(/^(\d{2})\s?/, '$1 '); return s.replace(/^(\d{2})\s?(\d{2})(\d{2})/, '$1 $2 $3'); };
 const SMALL_WORDS = new Set(['a','an','and','as','at','by','for','from','in','of','on','or','the','to','with']);
 const titleCase = t => String(t || '').toLowerCase().split(/(\s+|-|\/)/).map((w, i) => (i > 0 && SMALL_WORDS.has(w)) ? w : w.charAt(0).toUpperCase() + w.slice(1)).join('').replace(/\b(Grp|Ppr|Hdpe|Upvc|Lpg|Sng|Uv|Fm|Ul|Bms|Vfd|Ats)\b/g, m => m.toUpperCase());
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
@@ -1376,7 +1384,8 @@ function fill(text, T) {
     const v = T[k]; return (v === undefined || v === null || String(v).trim() === '') ? `<span class="unres">[${esc(k)}]</span>` : esc(v);
   });
 }
-function clauseLbl(l, n) { return l === 0 ? String.fromCharCode(65 + n) + '.' : l === 1 ? (n + 1) + '.' : l === 2 ? String.fromCharCode(97 + n) + '.' : (n + 1) + ')'; }
+function alphaLbl(n) { let s = ''; n++; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; }
+function clauseLbl(l, n) { return l === 0 ? alphaLbl(n) + '.' : l === 1 ? (n + 1) + '.' : l === 2 ? alphaLbl(n).toLowerCase() + '.' : (n + 1) + ')'; }
 
 // ── Section generation ─────────────────────────────────────────────────────
 function itemArticles(S, o, T) {
@@ -1496,7 +1505,7 @@ function annexARowsLive(secs, o) {
   const nums = new Set(secs.map(S => S.num));
   return actv(ITEMS.vendors).filter(v => nums.has(v.section_num) && evalCond(v.include_when || '', o)).map(v => {
     const S = secs.find(x => x.num === v.section_num), mk = String(v.makers || '').split(';').map(x => x.trim()).filter(Boolean);
-    return {sec:v.section_num, title:S ? S.title : '', item:v.item, makers:mk.join(', '), tbc:v.status === 'TBC' || !mk.length || /^TBC/i.test(mk[0] || '')};
+    return {sec:v.section_num, title:S ? S.title : '', item:v.item, makers:mk.join(', '), tbc:v.status !== 'Verified' || !mk.length || /^TBC/i.test(mk[0] || ''), vstatus:v.status || 'Draft'};
   });
 }
 
@@ -1504,7 +1513,7 @@ function annexARowsLive(secs, o) {
 function parseBlocks(html, key) {
   const doc = new DOMParser().parseFromString('<div>' + (html || '') + '</div>', 'text/html');
   const out = []; let n = 0;
-  const firstSpan = el => { const f = el.firstElementChild; return f && f.tagName === 'SPAN' && el.firstChild === f ? f : null; };
+  const firstSpan = el => { for (const c of el.childNodes) { if (c.nodeType === 3 && !c.textContent.replace(/\u00a0/g, ' ').trim()) continue; if (c.nodeType === 1 && c.tagName === 'BR') continue; return c.nodeType === 1 && c.tagName === 'SPAN' ? c : null; } return null; };
   [...doc.body.firstChild.childNodes].forEach(el => {
     if (el.nodeType === 3) { const t = el.textContent.trim(); if (t) out.push({t:'cl', lvl:0, lbl:'', html:esc(t)}); return; }
     if (el.nodeType !== 1) return;
@@ -1545,6 +1554,7 @@ function buildBook(ctx) {
       ['Client', esc(proj.client || '')], ['Consultant', esc(proj.consultant || '')],
       ['Location', esc([proj.city, T.COUNTRY].filter(Boolean).join(', '))],
       ['Stage', esc(stageName || '')], ['Revision', esc(rev)], ['Date', esc(meta.date || '')], ['Status', status],
+      ...(closure.issue_ref ? [['Issue reference', esc(closure.issue_ref)]] : []),
     ].map(r => [`<b>${r[0]}</b>`, r[1]]), [30, 70]),
     {t:'pb'},
     {t:'h2', text:'DOCUMENT CONTROL'},
@@ -1554,8 +1564,8 @@ function buildBook(ctx) {
     {t:'h2', text:'SIGN-OFF RECORD'},
     ...table(['Role', 'Name', 'Date'], [
       ['Prepared by (Engineer)', esc(nm(meta.calcBy)), esc(meta.calcDate || '')],
-      ['Checked by (Lead)', esc(nm(meta.checkedBy)), esc(closure.lead_signed_at ? fmtDay(closure.lead_signed_at) : '')],
-      ['Approved by (Associate / Approver)', esc(nm(meta.reviewedBy)), esc(closure.closed_at ? fmtDay(closure.closed_at) : '')],
+      ['Checked by (Senior / Principal / Lead)', esc(nm(meta.checkedBy)), esc(closure.lead_signed_at ? fmtDay(closure.lead_signed_at) : '')],
+      ['Approved by (Associate)', esc(nm(meta.reviewedBy)), esc(closure.closed_at ? fmtDay(closure.closed_at) : '')],
     ], [40, 40, 20]),
     {t:'h2', text:'PROJECT DESIGN BASIS'},
     ...table(null, PF_FIELDS.map(([, k, t]) => [`<b>${esc(t)}</b>`, (proj.pf || {})[k] ? esc(proj.pf[k]) : `<span class="unres">[${k}]</span>`]), [40, 60]),
@@ -1856,14 +1866,14 @@ function DocView({html, editable, onChange, docKey}) {
 
 function SpecProjectAccess({projectId, team, roles, session, canManage}) {
   const [members, setMembers] = useState([]); const [email, setEmail] = useState(''); const [role, setRole] = useState('reviewer'); const [msg, setMsg] = useState('');
-  const roleNames = {admin:'Admin', engineer:'Engineer', lead:'Lead', associate:'Associate', viewer:'Viewer'};
+  const roleNames = {admin:'Admin', engineer:'Engineer', lead:'Checker', associate:'Approver', viewer:'View only'};
   const roleText = m => roles.filter(r => r.active !== false && (r.email||'').toLowerCase() === (m||'').toLowerCase()).map(r => roleNames[r.role] || r.role).join(', ') || 'No team role';
   const load = useCallback(async () => { const {data, error} = await sb.from('spec_project_members').select('id,email,access_role').eq('project_id', projectId).order('email'); if (error) setMsg(error.message); else setMembers(data || []); }, [projectId]);
   useEffect(() => { load(); }, [load]);
   const add = async () => { if (!email) return; const {error} = await sb.from('spec_project_members').upsert({project_id:projectId, email:email.toLowerCase(), access_role:role, added_by:session.user.id}, {onConflict:'project_id,email'}); setMsg(error ? 'Could not grant access: ' + error.message : 'Access saved.'); setEmail(''); load(); };
   const remove = async m => { if (!window.confirm('Remove access for ' + m.email + '?')) return; const {error} = await sb.from('spec_project_members').delete().eq('id', m.id); setMsg(error ? error.message : 'Access removed.'); load(); };
   return <div className="client-brand-card"><h4>Project review access</h4>
-    <div className="client-brand-note" style={{maxWidth:'none',marginBottom:10}}>Add the Lead and the Associate / Approver as reviewers before sign-off. Editors can also change draft content.</div>
+    <div className="client-brand-note" style={{maxWidth:'none',marginBottom:10}}>Add the Checker (Senior / Principal / Lead) and the Approver (Associate) as reviewers before sign-off. Editors can also change draft content.</div>
     {canManage && <div style={{display:'grid',gridTemplateColumns:'minmax(220px,1fr) 120px auto',gap:8,alignItems:'end',marginBottom:10}}>
       <div><label style={lbl}>Team member</label><select value={email} onChange={e=>setEmail(e.target.value)} style={{...inp,cursor:'pointer'}}><option value=''>— Select —</option>{team.filter(t=>t.active!==false&&t.email).map(t=><option key={t.id} value={t.email}>{t.name} · {roleText(t.email)}</option>)}</select></div>
       <div><label style={lbl}>Access</label><select value={role} onChange={e=>setRole(e.target.value)} style={{...inp,cursor:'pointer'}}><option value='reviewer'>Reviewer</option><option value='editor'>Editor</option></select></div>
@@ -1895,18 +1905,53 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const me = team.find(t => (t.email||'').toLowerCase() === email) || null;
   const engineerTeam = team.filter(t => { const rs = roles.filter(r => r.active !== false && (r.email||'').toLowerCase() === (t.email||'').toLowerCase()).map(r => r.role); return t.active !== false && (rs.includes('engineer') || rs.includes('admin') || t.is_admin); });
   const closure = closureOf(meta), locked = ['awaiting_approver','closed'].includes(closure.status || 'draft');
+  const prepSetBy = String(meta.calcBySetBy || '').toLowerCase();
+  const prepMine = !!me && !!meta.calcBy && String(meta.calcBy).toUpperCase() === String(me.initials || '').toUpperCase();
+  const canSetPrep = !locked && (isAdmin || !meta.calcBy || prepSetBy === email || (!prepSetBy && prepMine));
+  const prepTeam = isAdmin ? engineerTeam : engineerTeam.filter(t => (t.email || '').toLowerCase() === email);
   const snap = closure.status === 'closed' ? closure.snapshot : null;
-  const viewProj = snap && snap.project ? {...proj, ...snap.project} : proj;
+  const leadProj = closure.status === 'awaiting_approver' && closure.lead_project ? closure.lead_project : null;   // v1.17.6: frozen at the Lead check
+  const viewProj = snap && snap.project ? {...proj, ...snap.project} : leadProj ? {...proj, ...leadProj} : proj;
   const viewState = snap && snap.state ? snap.state : state;
   const stageName = (snap && snap.stage_name) || (stages.find(s => s.id === stageId) || {}).stage_name;
 
   // ── load stages ──
+  // v1.18.0 · conflict-safe saving
+  const ver = useRef({stage:null, proj:null, guard:null, pguard:null});
+  const snapStage = useRef(''), snapProj = useRef(null), busyRef = useRef(0), conflictRef = useRef(null);
+  const stRef = useRef(null), mtRef = useRef(null), pjRef = useRef(null);
+  const [conflict, setConflict] = useState(null);
+  if (snapProj.current === null) snapProj.current = JSON.stringify({name:projectRow.name, ...(projectRow.project || {})});
   const openStage = async id => {
-    const {data, error} = await sb.from('spec_project_stages').select('id,state,meta').eq('id', id).single();
-    if (error) { alert('Could not open stage: ' + error.message); return; }
+    let res = null;
+    if (ver.current.guard !== false) {
+      res = await sb.from('spec_project_stages').select('id,state,meta,row_version,saved_by,saved_at').eq('id', id).single();
+      if (res.error && /row_version|saved_by|saved_at|column/i.test(res.error.message)) { ver.current.guard = false; res = null; }
+      else if (!res.error) ver.current.guard = true;
+    }
+    if (!res) res = await sb.from('spec_project_stages').select('id,state,meta').eq('id', id).single();
+    const {data, error} = res;
+    if (error) { alert('Could not open stage: ' + error.message); return false; }
     const st = {...blankState(), ...(data.state || {})}; st.opts = withDefaults(st.opts);
-    setStageId(id); setState(st); setMeta(normalizeStageMeta(data.meta));
+    const mt = normalizeStageMeta(data.meta);
+    if (isDraftStatus(closureOf(mt).status)) { delete st.issued_html; delete st.issued_list; delete st.issued_annex; delete st.app_build; }
+    ver.current.stage = data.row_version ?? null;
+    snapStage.current = JSON.stringify({state:st, meta:mt});
+    stRef.current = st; mtRef.current = mt;
+    setStageId(id); setState(st); setMeta(mt);
     try { localStorage.setItem('spec_stage_' + projectId, id); } catch (e) {}
+    return true;
+  };
+  const loadProjectRow = async () => {
+    let r = ver.current.pguard !== false ? await sb.from('spec_projects').select('name,project,row_version').eq('id', projectId).single() : null;
+    if (r && r.error && /row_version|column/i.test(r.error.message)) { ver.current.pguard = false; r = null; }
+    else if (r && !r.error) ver.current.pguard = true;
+    if (!r) r = await sb.from('spec_projects').select('name,project').eq('id', projectId).single();
+    if (r.error || !r.data) return false;
+    const p = {name:r.data.name, ...(r.data.project || {})};
+    ver.current.proj = r.data.row_version ?? null;
+    snapProj.current = JSON.stringify(p); pjRef.current = p; setProj(p);
+    return true;
   };
   useEffect(() => { (async () => {
     const {data} = await sb.from('spec_project_stages').select('id,stage_name,sort_order').eq('project_id', projectId).order('sort_order');
@@ -1919,25 +1964,127 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     let rem = null; try { rem = localStorage.getItem('spec_stage_' + projectId); } catch (e) {}
     const first = list.find(s => String(s.id) === String(rem)) || list[list.length - 1];
     if (first) await openStage(first.id);
+    await loadProjectRow();
     setReady(true);
   })(); }, [projectId]);
 
-  // ── autosave (same pattern as the pump calculator) ──
-  const projT = useRef(null), stageT = useRef(null), mountedP = useRef(false);
+  // ── autosave · v1.18.0: only real changes are saved, and only on top of the version this window loaded ──
+  const projT = useRef(null), stageT = useRef(null);
+  stRef.current = state; mtRef.current = meta; pjRef.current = proj;
+  const whoName = e => { const t = team.find(x => (x.email || '').toLowerCase() === String(e || '').toLowerCase()); return t ? t.name : (e || ''); };
+  const sayConflict = c => `${whoName(c.by) || 'Another user'} saved this ${c.kind === 'stage' ? 'stage' : 'project'}${c.at ? ' at ' + fmtWhen(c.at) : ''} after you opened it`;
+  const checkRejected = async kind => {
+    const isStage = kind === 'stage', g = isStage ? ver.current.guard : ver.current.pguard;
+    const {data} = await sb.from(isStage ? 'spec_project_stages' : 'spec_projects').select(g ? 'row_version,saved_by,saved_at' : 'id').eq('id', isStage ? stageId : projectId).maybeSingle();
+    const label = isStage ? 'stage' : 'project';
+    if (!data) return new Error(`This ${label} could not be read — it may have been deleted, or your access was removed.`);
+    if (g && data.row_version !== ver.current[kind]) {
+      const c = {kind, by:data.saved_by, at:data.saved_at}; conflictRef.current = c; setConflict(c);
+      return new Error('NOT SAVED: ' + sayConflict(c) + '. Saving is paused so nothing is overwritten.');
+    }
+    return new Error(`NOT SAVED: you do not have edit access to this ${label}. Ask the project owner or an Admin.`);
+  };
+  const chain = useRef({stage:Promise.resolve(), proj:Promise.resolve()});
+  const serial = (k, fn) => { const r = chain.current[k].then(fn, fn); chain.current[k] = r.catch(() => {}); return r; };
+  const saveProjRow = (p = proj) => serial('proj', () => saveProjRowNow(p));
+  const saveStageRow = (st = state, mt = meta) => serial('stage', () => saveStageRowNow(st, mt));
+  const saveProjRowNow = async (p) => {
+    const body = JSON.stringify(p);
+    if (body === snapProj.current) return false;
+    if (conflictRef.current) throw new Error('NOT SAVED: ' + sayConflict(conflictRef.current) + '. Reload first.');
+    busyRef.current++;
+    try {
+      let q = sb.from('spec_projects').update({name:p.name || 'Untitled Project', project:p}).eq('id', projectId);
+      if (ver.current.pguard && ver.current.proj != null) q = q.eq('row_version', ver.current.proj);
+      const {data, error} = await q.select(ver.current.pguard ? 'row_version' : 'id');
+      if (error) throw error;
+      if (!data || !data.length) throw await checkRejected('proj');
+      if (ver.current.pguard) ver.current.proj = data[0].row_version;
+      snapProj.current = body; return true;
+    } finally { busyRef.current--; }
+  };
+  const saveStageRowNow = async (st, mt) => {
+    if (!stageId) return false;
+    const body = JSON.stringify({state:st, meta:mt});
+    if (body === snapStage.current) return false;
+    if (conflictRef.current) throw new Error('NOT SAVED: ' + sayConflict(conflictRef.current) + '. Reload first.');
+    busyRef.current++;
+    try {
+      let q = sb.from('spec_project_stages').update({state:st, meta:mt}).eq('id', stageId);
+      if (ver.current.guard && ver.current.stage != null) q = q.eq('row_version', ver.current.stage);
+      const {data, error} = await q.select(ver.current.guard ? 'row_version' : 'id');
+      if (error) throw error;
+      if (!data || !data.length) throw await checkRejected('stage');
+      if (ver.current.guard) ver.current.stage = data[0].row_version;
+      snapStage.current = body; return true;
+    } finally { busyRef.current--; }
+  };
+  const withOwnBump = async fn => {
+    busyRef.current++;
+    try {
+      const read = async () => {
+        const [a, b] = await Promise.all([
+          ver.current.guard && stageId ? sb.from('spec_project_stages').select('row_version').eq('id', stageId).maybeSingle() : {data:null},
+          ver.current.pguard ? sb.from('spec_projects').select('row_version').eq('id', projectId).maybeSingle() : {data:null}]);
+        return {s:a.data ? a.data.row_version : null, p:b.data ? b.data.row_version : null};
+      };
+      const before = await read(); const out = await fn(); const after = await read();
+      if (before.s != null && before.s === ver.current.stage && after.s != null) ver.current.stage = after.s;
+      if (before.p != null && before.p === ver.current.proj && after.p != null) ver.current.proj = after.p;
+      return out;
+    } finally { busyRef.current--; }
+  };
   useEffect(() => {
-    if (!mountedP.current) { mountedP.current = true; return; }
+    if (!ready) return;
+    if (JSON.stringify(proj) === snapProj.current) return;
+    if (conflictRef.current) { setSaveStatus('error'); return; }
     setSaveStatus('saving'); clearTimeout(projT.current);
-    projT.current = setTimeout(async () => { const {error} = await sb.from('spec_projects').update({name:proj.name || 'Untitled Project', project:proj}).eq('id', projectId); setSaveStatus(error ? 'error' : 'saved'); }, 1000);
+    projT.current = setTimeout(async () => { projT.current = null; try { await saveProjRow(pjRef.current); setSaveStatus('saved'); } catch (e) { setSaveStatus('error'); setManualSave(String(e.message || e)); } }, 1000);
     return () => clearTimeout(projT.current);
-  }, [proj]);
+  }, [proj, ready]);
   useEffect(() => {
     if (!ready || !stageId || locked) return;
+    if (JSON.stringify({state, meta}) === snapStage.current) return;
+    if (conflictRef.current) { setSaveStatus('error'); return; }
     setSaveStatus('saving'); clearTimeout(stageT.current);
-    stageT.current = setTimeout(async () => { const {error} = await sb.from('spec_project_stages').update({state, meta}).eq('id', stageId); setSaveStatus(error ? 'error' : 'saved'); if (error) console.error(error); }, 1000);
+    stageT.current = setTimeout(async () => { stageT.current = null; try { await saveStageRow(stRef.current, mtRef.current); setSaveStatus('saved'); } catch (e) { setSaveStatus('error'); setManualSave(String(e.message || e)); console.error(e); } }, 1000);
     return () => clearTimeout(stageT.current);
   }, [state, meta, stageId, ready, locked]);
-  const flushProject = async () => { clearTimeout(projT.current); const {error} = await sb.from('spec_projects').update({name:proj.name || 'Untitled Project', project:proj}).eq('id', projectId); if (error) throw error; };
-  const flushStage = async (st = state, mt = meta) => { clearTimeout(stageT.current); if (!stageId || locked) return; const {error} = await sb.from('spec_project_stages').update({state:st, meta:mt}).eq('id', stageId); if (error) throw error; };
+  const flushProject = async () => { clearTimeout(projT.current); projT.current = null; await saveProjRow(proj); };
+  const flushStage = async (st = state, mt = meta) => { clearTimeout(stageT.current); stageT.current = null; if (!stageId || locked) return; await saveStageRow(st, mt); };
+  useEffect(() => {
+    if (!ready || !stageId) return;
+    let alive = true;
+    const idle = () => busyRef.current === 0 && !stageT.current && !projT.current;
+    const tick = async () => {
+      if (!alive || conflictRef.current || document.hidden || !idle()) return;
+      const [a, b] = await Promise.all([
+        ver.current.guard ? sb.from('spec_project_stages').select('row_version,saved_by,saved_at').eq('id', stageId).maybeSingle() : {data:null},
+        ver.current.pguard ? sb.from('spec_projects').select('row_version,saved_by,saved_at').eq('id', projectId).maybeSingle() : {data:null}]);
+      if (!alive || conflictRef.current || !idle()) return;
+      const sNew = a.data && ver.current.stage != null && a.data.row_version > ver.current.stage;
+      const pNew = b.data && ver.current.proj != null && b.data.row_version > ver.current.proj;
+      if (!sNew && !pNew) return;
+      const sDirty = JSON.stringify({state:stRef.current, meta:mtRef.current}) !== snapStage.current;
+      const pDirty = JSON.stringify(pjRef.current) !== snapProj.current;
+      if ((sNew && sDirty) || (pNew && pDirty)) { const d = sNew && sDirty ? a.data : b.data, c = {kind:sNew && sDirty ? 'stage' : 'proj', by:d.saved_by, at:d.saved_at}; conflictRef.current = c; setConflict(c); setSaveStatus('error'); return; }
+      if (sNew) await openStage(stageId);
+      if (pNew) await loadProjectRow();
+      const d = sNew ? a.data : b.data;
+      setManualSave(`Refreshed with changes saved by ${whoName(d.saved_by) || 'another user'}${d.saved_at ? ' · ' + fmtWhen(d.saved_at) : ''}`);
+    };
+    const t = setInterval(tick, 20000), v = () => { if (!document.hidden) tick(); };
+    document.addEventListener('visibilitychange', v);
+    return () => { alive = false; clearInterval(t); document.removeEventListener('visibilitychange', v); };
+  }, [ready, stageId]);
+  const downloadMine = () => saveBlob(new Blob([JSON.stringify({saved_from:BUILD_LABEL, at:new Date().toISOString(), project_id:projectId, stage_id:stageId, project:proj, stage:{state, meta}}, null, 1)], {type:'application/json'}), ((proj.no || 'PRJ') + '_' + (stageName || 'stage') + '_my_unsaved_copy_' + new Date().toISOString().slice(0, 16).replace(/[:T]/g, '')).replace(/[^\w\-]+/g, '_') + '.json');
+  const reloadTheirs = async () => {
+    if (!window.confirm('Reload the latest saved version?\n\nYour unsaved changes in this window will be discarded. Use "Download my unsaved copy" first if you need them.')) return;
+    clearTimeout(stageT.current); clearTimeout(projT.current); stageT.current = projT.current = null;
+    conflictRef.current = null; setConflict(null);
+    await loadProjectRow(); if (stageId) await openStage(stageId);
+    setSaveStatus('saved'); setManualSave('Reloaded the latest saved version.');
+  };
   const saveNow = async () => {
     if (locked) { setManualSave('Blocked — stage is ' + stageStatusLabel(meta) + '.'); return; }
     setManualSave('Saving…'); setSaveStatus('saving');
@@ -1961,7 +2108,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     if (error) { alert('Could not create stage: ' + error.message); return; }
     setStages(s => [...s, data]); await openStage(data.id);
   };
-  const renameStage = async () => { const s = stages.find(x => x.id === stageId); const name = window.prompt('Rename stage:', s.stage_name); if (!name || name === s.stage_name) return; const {error} = await sb.from('spec_project_stages').update({stage_name:name}).eq('id', stageId); if (error) return alert(error.message); setStages(x => x.map(y => y.id === stageId ? {...y, stage_name:name} : y)); };
+  const renameStage = async () => { const s = stages.find(x => x.id === stageId); const name = window.prompt('Rename stage:', s.stage_name); if (!name || name === s.stage_name) return; const {data: rn, error} = await sb.from('spec_project_stages').update({stage_name:name}).eq('id', stageId).select(ver.current.guard ? 'row_version' : 'id'); if (error) return alert(error.message); if (!rn || !rn.length) return alert('Rename was not saved — you may not have edit access.'); if (ver.current.guard && ver.current.stage != null && rn[0].row_version === ver.current.stage + 1) ver.current.stage = rn[0].row_version; setStages(x => x.map(y => y.id === stageId ? {...y, stage_name:name} : y)); };
   const deleteStage = async () => { if (stages.length <= 1) return alert('A project needs at least one stage.'); const s = stages.find(x => x.id === stageId); if (!window.confirm(`Delete stage "${s.stage_name}"?`)) return; const {error} = await sb.from('spec_project_stages').delete().eq('id', stageId); if (error) return alert(error.message); const rest = stages.filter(x => x.id !== stageId); setStages(rest); await openStage(rest[0].id); };
 
   // ── derived ──
@@ -1976,25 +2123,44 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const divs = useMemo(() => [...new Set(included.map(S => S.div))].sort(), [included]);
   const frozenAnnex = locked && viewState.issued_annex ? viewState.issued_annex : null;
   const annexA = useCallback(d => frozenAnnex && frozenAnnex.A && frozenAnnex.A[d] ? frozenAnnex.A[d] : annexARowsLive(included.filter(S => S.div === d), vOpts), [frozenAnnex, included, vOpts]);
-  const annexC = useCallback(d => frozenAnnex && frozenAnnex.C && frozenAnnex.C[d] ? frozenAnnex.C[d] : SPEC_AUTO.warrantyRows(d), [frozenAnnex, viewProj.country, locked]);
+  const annexC = useCallback(d => frozenAnnex && frozenAnnex.C && frozenAnnex.C[d] ? frozenAnnex.C[d] : (window.SPEC_AUTO && SPEC_AUTO.warrantyRows ? SPEC_AUTO.warrantyRows(d) : []), [frozenAnnex, viewProj.country, locked]);
   const annexBHtml = useCallback(d => frozenAnnex && frozenAnnex.B && frozenAnnex.B[d] !== undefined ? cleanHtml(frozenAnnex.B[d]) : genSection(annexBSection(d), vOpts, T, 'ANNEXURE B – ' + annexBTitle(d)), [frozenAnnex, vOpts, T]);
   const bodyOf = useCallback(S => {
-    if (locked && viewState.issued_html && viewState.issued_html[S.num] !== undefined) return cleanHtml(viewState.issued_html[S.num]);
+    if (locked && viewState.issued_html && typeof viewState.issued_html === 'object') return viewState.issued_html[S.num] !== undefined ? cleanHtml(viewState.issued_html[S.num]) : '<p><span class="unres">[This section is missing from the frozen issue]</span></p>';
     if (viewState.edits[S.num]) return cleanHtml(viewState.edits[S.num]);
     const L = LIB.find(x => x.num === S.num); return L ? genSection(L, vOpts, T) : '<p>Section no longer in the library.</p>';
   }, [locked, viewState, vOpts, T]);
   if (window.SPEC_AUTO) { SPEC_AUTO.excl = viewState.excl || {}; SPEC_AUTO.sel = viewState.sel || {}; SPEC_AUTO.dp = {plumbing:Number(viewProj.dpPlumb) || 0, fire:Number(viewProj.dpFire) || 0}; SPEC_AUTO.ctry = [String(viewProj.country || '').toLowerCase(), String((COUNTRIES[viewProj.country] || {}).name || '').toLowerCase()]; }
   useEffect(() => () => { if (window.SPEC_AUTO) { SPEC_AUTO.sel = {}; SPEC_AUTO.dp = {}; SPEC_AUTO.ctry = null; } }, []);
+  // ── v1.17.5 · review records kept on the server, tied to a fingerprint of the reviewed text ──
+  // ── v1.17.7 · issue integrity check and archive ──
+  const [integ, setInteg] = useState(null); const [arch, setArch] = useState({files:null, err:'', busy:''}); const [autoArch, setAutoArch] = useState(false);
+  const [srv, setSrv] = useState({ok:null, map:{}, err:''}); const [hashes, setHashes] = useState({}); const [revBusy, setRevBusy] = useState(false);
+  const loadReviews = useCallback(async () => {
+    if (!stageId) return;
+    const {data, error} = await sb.from('spec_section_reviews').select('id,section_num,content_hash,action,reviewer,reviewed_at').eq('stage_id', stageId).order('id').range(0, 19999);
+    if (error) { setSrv({ok:false, map:{}, err:error.message}); return; }
+    const m = {}; (data || []).forEach(r => { m[r.section_num] = r; }); setSrv({ok:true, map:m, err:''});
+  }, [stageId]);
+  useEffect(() => { setSrv({ok:null, map:{}, err:''}); setHashes({}); loadReviews(); }, [loadReviews]);
+  useEffect(() => {
+    if (srv.ok !== true || locked) return; let c = false;
+    const t = setTimeout(async () => { const h = {}; for (const S of included) h[S.num] = await sha256Hex(bodyOf(S)); if (!c) setHashes(h); }, 350);
+    return () => { c = true; clearTimeout(t); };
+  }, [included, bodyOf, srv.ok, locked]);
+  const reopenedAt = closure.reopened_at ? new Date(closure.reopened_at) : null;
+  const revRec = num => { const r = srv.map[num]; return r && r.action === 'reviewed' && (!reopenedAt || new Date(r.reviewed_at) > reopenedAt) ? r : null; };
+  const revState = num => { if (srv.ok !== true || locked) return null; const r = revRec(num); if (!r) return 'none'; if (hashes[num] === undefined) return 'pending'; return hashes[num] === r.content_hash ? 'ok' : 'stale'; };
   const choiceStale = num => { const r = viewState.reviewed[num]; if (locked || !r) return false; const was = (typeof r === 'object' && r.ch) || ''; return was !== SPEC_AUTO.choiceSig(num, viewState.sel || {}); };
   const chSt = SPEC_AUTO.choiceStatus(new Set(included.map(S => S.num)), viewState.sel || {}, vOpts);
-  const chPending = chSt.unset + chSt.unconf + chSt.blocked;
-  const staleItems = num => { const r = viewState.reviewed[num]; if (locked || !r || typeof r !== 'object' || !r.items || !SPEC_AUTO.itemSig) return []; const now = SPEC_AUTO.itemSig(num, vOpts); return Object.keys(now).filter(c => r.items[c] !== now[c]); };
-  const isRev = num => !!viewState.reviewed[num] && !staleItems(num).length && !choiceStale(num);
+  const chPending = chSt.unset + chSt.unconf + chSt.blocked + (chSt.nodp || 0);
+  const staleItems = num => { const r = viewState.reviewed[num]; if (locked || !r || typeof r !== 'object' || !r.items || !SPEC_AUTO.itemSig) return []; const now = SPEC_AUTO.itemSig(num, vOpts); return Object.keys(now).filter(c => Number(r.items[c]) !== Number(now[c])); };
+  const isRev = num => { if (srv.ok === true && !locked) return revState(num) === 'ok'; return !!viewState.reviewed[num] && !staleItems(num).length && !choiceStale(num); };
   const health0 = useMemo(() => {
     let rev = 0, ed = 0, unres = 0, tbc = 0;
     included.forEach(S => { const h = bodyOf(S); if (isRev(S.num)) rev++; if (viewState.edits[S.num]) ed++; unres += unresCount(h); tbc += tbcCount(h); });
     return {n:included.length, rev, ed, unres, tbc};
-  }, [included, bodyOf, viewState]);
+  }, [included, bodyOf, viewState, srv, hashes, locked]);
   const annexTbc = useMemo(() => evalCond('annex_a', vOpts) ? divs.reduce((a, d) => a + annexA(d).filter(r => r.tbc).length, 0) : 0, [divs, annexA, vOpts]);
   const health = {...health0, tbc:health0.tbc + annexTbc, unres:health0.unres + annexTbc};
   // v1.17.1 · every red highlight / TBC item, with where it is and where to fix it
@@ -2023,7 +2189,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
       });
     });
     if (evalCond('annex_a', vOpts)) divs.forEach(d => annexA(d).filter(r => r.tbc).forEach(r => out.push({kind:'tbc', annex:d, num:r.sec, title:r.title,
-      what:r.item + ' – ' + (r.makers && !/^TBC/i.test(r.makers) ? r.makers + ' (vendor list TBC)' : 'no manufacturers listed'), ctx:'', fix:'Library › Manufacturers (list makers, set Verified)', tab:null})));
+      what:r.item + ' – ' + (!r.makers || /^TBC/i.test(r.makers) ? 'no manufacturers listed' : r.vstatus !== 'Verified' ? 'manufacturer list is ' + r.vstatus + ' (not Verified)' : r.makers), ctx:'', fix:'Library › Manufacturers (list makers, set Verified)', tab:null})));
     return out;
   }, [included, bodyOf, divs, annexA, vOpts]);
   const annexTbcSec = useMemo(() => { const m = {}; issues.forEach(x => { if (x.annex) m[x.num] = (m[x.num] || 0) + 1; }); return m; }, [issues]);
@@ -2044,12 +2210,24 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   const locBad = locMismatch(viewProj);
   const libProbs = libProblems();
   const stageReady = libProbs.length === 0 && health.n > 0 && health.rev === health.n && health.unres === 0 && coverUnres === 0 && locBad.length === 0 && chPending === 0;
-  const blockReason = libProbs.length ? `Library data problem: ${libProbs[0]}${libProbs.length > 1 ? ` (+${libProbs.length - 1} more)` : ''} Reload the page; if it persists, tell an administrator.` : chPending ? `${chPending} choice(s) on the Selections tab are not chosen, not confirmed or not allowed.` : locBad.length ? `Design-basis fields do not match ${viewProj.city || 'the selected location'} (${locBad.join(', ')}) — Setup › Load location defaults.` : !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s)${annexTbc ? ` (${annexTbc} in Annexure A)` : ''}.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
+  const blockReason = libProbs.length ? `Library data problem: ${libProbs[0]}${libProbs.length > 1 ? ` (+${libProbs.length - 1} more)` : ''} Reload the page; if it persists, tell an administrator.` : chSt.nodp ? `Set the ${(chSt.nodpGroups || []).join(' / ') || 'project'} design pressure on Setup – ${chSt.nodp} pressure-rated choice(s) cannot be checked without it.` : chPending ? `${chPending} choice(s) on the Selections tab are not chosen, not confirmed or not allowed.` : locBad.length ? `Design-basis fields do not match ${viewProj.city || 'the selected location'} (${locBad.join(', ')}) — Setup › Load location defaults.` : !health.n ? 'No sections included.' : health.rev < health.n ? `${health.n - health.rev} section(s) not marked reviewed.` : health.unres ? `${health.unres} unresolved field(s) / TBC item(s)${annexTbc ? ` (${annexTbc} in Annexure A)` : ''}.` : coverUnres ? 'Project design basis has empty fields (Setup).' : '';
   useEffect(() => { if (!cur || !included.find(S => S.num === cur)) setCur(included[0] ? included[0].num : null); }, [included]);
 
   const setOpt = (k, v) => !locked && setState(s => ({...s, opts:{...s.opts, [k]:v}}));
   const toggleExcl = (num, inc) => !locked && setState(s => { const e = {...s.excl}; if (inc) delete e[num]; else e[num] = 1; return {...s, excl:e}; });
-  const setReviewed = (num, v) => !locked && setState(s => { const r = {...s.reviewed}; if (v) r[num] = {at:new Date().toISOString(), items:SPEC_AUTO.itemSig ? SPEC_AUTO.itemSig(num, s.opts) : {}, ch:SPEC_AUTO.choiceSig(num, s.sel || {})}; else delete r[num]; return {...s, reviewed:r}; });
+  const setReviewed = async (num, v) => {
+    if (locked) return;
+    if (srv.ok === true) {
+      const S = included.find(x => x.num === num); if (!S) return;
+      setRevBusy(true);
+      const {error} = await withOwnBump(() => sb.rpc('spec_review_set', {p_stage_id:stageId, p_section:num, p_html:bodyOf(S), p_reviewed:!!v}));
+      setRevBusy(false);
+      if (error) return alert('The review could not be recorded: ' + error.message);
+      await loadReviews();
+    }
+    setReviewedLocal(num, v);
+  };
+  const setReviewedLocal = (num, v) => !locked && setState(s => { const r = {...s.reviewed}; if (v) r[num] = {at:new Date().toISOString(), items:SPEC_AUTO.itemSig ? SPEC_AUTO.itemSig(num, s.opts) : {}, ch:SPEC_AUTO.choiceSig(num, s.sel || {})}; else delete r[num]; return {...s, reviewed:r}; });
   const setEdit = (num, html) => !locked && setState(s => ({...s, edits:{...s.edits, [num]:cleanHtml(html)}}));
   const isOldFmt = num => { const e = viewState.edits[num]; return !!e && (!/class="stitle"/.test(e) || !/>MANUFACTURERS</.test(e.split(/PART 2/i)[1] || '') ); };
   const oldFmt = included.filter(S => isOldFmt(S.num)).map(S => S.num);
@@ -2074,26 +2252,27 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
   // ── sign-off workflow (rules enforced in Supabase spec_wf_* functions) ──
   const wfCall = async (fn, args, fail) => {
     setSaveStatus('saving');
-    const {error} = await sb.rpc(fn, {p_stage_id:stageId, ...args});
+    const {error} = await withOwnBump(() => sb.rpc(fn, {p_stage_id:stageId, ...args}));
     if (error) { setSaveStatus('error'); alert(fail + ': ' + error.message); await openStage(stageId); return; }
     await openStage(stageId); setSaveStatus('saved');
   };
   const signLead = async () => {
-    if (!proj.clientLogo) return alert('Upload the client logo on Setup before Lead sign-off.');
-    if (!stageReady) return alert('Lead sign-off is blocked: ' + blockReason);
-    if (!meta.calcBy) return alert('Set "Prepared by" on Setup before Lead sign-off.');
-    if (me && (meta.calcBy || '').toUpperCase() === (me.initials || '').toUpperCase()) return alert('You prepared this stage. Lead sign-off must be given by a different Lead.');
-    if (!window.confirm(`Lead sign-off for Rev ${meta.revision || '01'}?\n\nThe specification text is frozen as it is now, and the stage is locked until the Associate / Approver signs or returns it.`)) return;
+    if (!proj.clientLogo) return alert('Upload the client logo on Setup before the check sign-off.');
+    if (!stageReady) return alert('Check sign-off is blocked: ' + blockReason);
+    if (!meta.calcBy) return alert('Set "Prepared by" on Setup before the check sign-off.');
+    if (me && (meta.calcBy || '').toUpperCase() === (me.initials || '').toUpperCase()) return alert('You prepared this stage. A different Checker (Senior / Principal / Lead) must sign it.');
+    if (!window.confirm(`Check and sign Rev ${meta.revision || '01'}?\n\nThe specification text is frozen as it is now, and the stage is locked until the Approver (Associate) signs or returns it.`)) return;
     const issued_html = {}, issued_list = included.map(S => ({num:S.num, title:S.title, div:S.div}));
     included.forEach(S => { issued_html[S.num] = bodyOf(S); });
     const issued_annex = {A:{}, B:{}, C:{}}; divs.forEach(d => { issued_annex.A[d] = annexA(d); issued_annex.B[d] = annexBHtml(d); issued_annex.C[d] = annexC(d); });
-    const frozen = {...state, issued_html, issued_list, issued_annex};
-    try { await flushProject(); await flushStage(frozen, meta); } catch (e) { return alert('Save failed before sign-off: ' + (e.message || e)); }
-    setState(frozen);
-    await wfCall('spec_wf_submit', {}, 'Lead sign-off failed');
+    const frozen = {...state, issued_html, issued_list, issued_annex, app_build:BUILD_LABEL};
+    try { await flushProject(); await flushStage(); } catch (e) { return alert('Save failed before sign-off: ' + (e.message || e)); }
+    // v1.17.6: the frozen text and the status change are saved by the server in one step (all or nothing)
+    await wfCall('spec_wf_submit', {p_state:frozen}, 'Check sign-off failed');
+    await loadReviews();
   };
-  const returnStage = async () => { const c = window.prompt('Return to Lead — what needs to be corrected? (required)', ''); if (c === null) return; if (!c.trim()) return alert('A comment is required.'); await wfCall('spec_wf_return', {p_comment:c.trim()}, 'Return failed'); };
-  const signApprover = async () => { if ((closure.lead_signed_email || '').toLowerCase() === email) return alert('You gave Lead sign-off on this stage. A different Associate / Approver must approve it.'); if (!window.confirm(`Approver sign-off and close Rev ${meta.revision || '01'}?\n\nThe issued specification is frozen; only an administrator can reopen it as a new revision.`)) return; await wfCall('spec_wf_approve', {}, 'Approver sign-off failed'); };
+  const returnStage = async () => { const c = window.prompt('Return to the Engineer and Checker — what needs to be corrected? (required)', ''); if (c === null) return; if (!c.trim()) return alert('A comment is required.'); await wfCall('spec_wf_return', {p_comment:c.trim()}, 'Return failed'); };
+  const signApprover = async () => { if ((closure.lead_signed_email || '').toLowerCase() === email) return alert('You checked this stage. A different Approver (Associate) must approve it.'); if (!window.confirm(`Approve and close Rev ${meta.revision || '01'}?\n\nThe issued specification is frozen; only an administrator can reopen it as a new revision.`)) return; setAutoArch(true); await wfCall('spec_wf_approve', {}, 'Approver sign-off failed'); };
   const reopenStage = async () => { const r = window.prompt('Reopen this closed stage as a new revision?\n\nReason (required):', ''); if (r === null) return; if (!r.trim()) return alert('A reason is required.'); await wfCall('spec_wf_reopen', {p_reason:r.trim()}, 'Reopen failed'); };
 
   // ── exports ──
@@ -2119,6 +2298,51 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     catch (e) { const m = (e && e.message) || String(e); setSaveStatus('error'); setManualSave('SAVE FAILED: ' + m); alert('PDF stopped: your latest changes could not be saved, so the PDF would not match the screen.\n\n' + m + '\n\nCheck the connection, click Save, then try again.'); return; }
     setBookDiv(d); setTab('issue'); setTimeout(() => window.print(), 600);
   };
+  const isClosed = closure.status === 'closed', issueRef = closure.issue_ref || '';
+  const damaged = isClosed && integ && integ.ok === false;
+  useEffect(() => {
+    setInteg(null); if (!isClosed) return; let c = false;
+    (async () => {
+      const local = [];
+      if (!snap || !snap.state) local.push('The approval snapshot is missing.');
+      if (!viewState.issued_html || typeof viewState.issued_html !== 'object') local.push('The frozen section text is missing.');
+      if (!Array.isArray(viewState.issued_list)) local.push('The frozen section list is missing.');
+      else (viewState.issued_list || []).forEach(S => { if (viewState.issued_html && viewState.issued_html[S.num] === undefined) local.push('Section ' + S.num + ' has no frozen text.'); });
+      const {data, error} = await sb.rpc('spec_issue_verify', {p_stage_id:stageId});
+      if (c) return;
+      const srvProb = error ? [] : ((data && data.problems) || []);
+      setInteg({ok:!local.length && !srvProb.length, problems:[...local, ...srvProb], legacy:!!(data && data.legacy), unchecked:!!error});
+    })();
+    return () => { c = true; };
+  }, [isClosed, stageId, closure.closed_at]);
+  const archDir = issueRef ? `${projectId}/${stageId}/${issueRef}` : '';
+  const loadArch = useCallback(async () => {
+    if (!archDir) return setArch(a => ({...a, files:null}));
+    const {data, error} = await sb.storage.from('spec-issues').list(archDir, {limit:200, sortBy:{column:'name', order:'asc'}});
+    setArch(a => ({...a, files:error ? null : (data || []).filter(f => f.name && !f.name.startsWith('.')), err:error ? error.message : ''}));
+  }, [archDir]);
+  useEffect(() => { loadArch(); }, [loadArch]);
+  const archUpload = async (name, blob, type) => {
+    const {error} = await sb.storage.from('spec-issues').upload(archDir + '/' + name, blob, {contentType:type, upsert:false});
+    if (error && !/exists|duplicate/i.test(error.message)) throw error;
+  };
+  const archiveWord = async () => {
+    if (!archDir || damaged) return;
+    setArch(a => ({...a, busy:'Archiving Word files…', err:''}));
+    try {
+      for (const d of divs) { const blob = await buildDocx(makeBook(d), null, logos); await archUpload(fileBase('Div' + d).replace(/[^\w\-]+/g, '_') + '.docx', blob, 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'); }
+      setArch(a => ({...a, busy:''})); await loadArch();
+    } catch (e) { setArch(a => ({...a, busy:'', err:'Archive failed: ' + (e.message || e)})); }
+  };
+  const archivePdf = async file => {
+    if (!file || !archDir) return;
+    if (file.type !== 'application/pdf') return alert('Choose a PDF file.');
+    setArch(a => ({...a, busy:'Uploading PDF…', err:''}));
+    try { await archUpload(file.name.replace(/[^\w\-.]+/g, '_'), file, 'application/pdf'); setArch(a => ({...a, busy:''})); await loadArch(); }
+    catch (e) { setArch(a => ({...a, busy:'', err:'Upload failed: ' + (e.message || e)})); }
+  };
+  const archOpen = async name => { const {data, error} = await sb.storage.from('spec-issues').createSignedUrl(archDir + '/' + name, 300); if (error) return alert(error.message); window.open(data.signedUrl, '_blank'); };
+  useEffect(() => { if (autoArch && isClosed && issueRef && integ && integ.ok) { setAutoArch(false); archiveWord(); } }, [autoArch, isClosed, issueRef, integ]);
   const onViewPage = useCallback(k => { setViewPg(k); const p = book && book.layout.pages[k]; if (p && p.doc.key !== pick) setPick(p.doc.key); }, [book, pick]);
   useEffect(() => { const el = document.querySelector('.calcpick-item.on'); if (el && el.scrollIntoView) el.scrollIntoView({block:'nearest'}); }, [pick]);
 
@@ -2154,15 +2378,31 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
           <a href="pump.html" className="sbx-applink"><span className="ic">▥</span><span className="tx">Equipment Calculator</span><span className="pill">↗</span></a>
         </nav>
         {tab === 'issue' && <><div className="sbx-label">Export</div><div className="sbx-export">
-          {book && <button className="xl2" disabled={!!busyX} onClick={() => exportDocx(curDiv, [pick], pick)}>↓ Word — current document</button>}
+          {damaged && <div className="sbx-msg" style={{color:'#b42318'}}><b>Issue damaged – read only.</b> Exports are blocked. Tell an administrator.</div>}
+          {book && <button className="xl2" disabled={!!busyX || damaged} onClick={() => exportDocx(curDiv, [pick], pick)}>↓ Word — current document</button>}
           {divs.map(d => <React.Fragment key={d}>
-            <button className="xl" disabled={!!busyX} onClick={() => exportDocx(d, null, '')}>↓ Word — Division {d}</button>
-            <button className="pdf" disabled={!!busyX} onClick={() => printDiv(d)}>▣ PDF — Division {d}</button>
+            <button className="xl" disabled={!!busyX || damaged} onClick={() => exportDocx(d, null, '')}>↓ Word — Division {d}</button>
+            <button className="pdf" disabled={!!busyX || damaged} onClick={() => printDiv(d)}>▣ PDF — Division {d}</button>
           </React.Fragment>)}
           {busyX && <div className="sbx-msg" style={{color:'#007aff'}}>{busyX}</div>}
-        </div></>}
+        </div>
+        {isClosed && <><div className="sbx-label">Issue archive</div><div className="sbx-export">
+          {!issueRef ? <div className="sbx-msg">Issued before v1.17.7 – no issue reference, so no archive.</div> : <>
+            <div className="sbx-msg"><b>{issueRef}</b>{integ && integ.ok && !integ.unchecked ? ' · verified ✓' : integ && integ.unchecked ? ' · not verified (run the v1.17.7 SQL)' : ''}</div>
+            {arch.files === null ? <div className="sbx-msg">{arch.err ? 'Archive not available: ' + arch.err : 'Loading…'}</div>
+              : !arch.files.length ? <div className="sbx-msg">No files archived yet.</div>
+              : arch.files.map(f => <button key={f.name} className="xl2" onClick={() => archOpen(f.name)} title="Archived copy – cannot be changed or deleted">🔒 {f.name}</button>)}
+            {(isApprover || isAdmin) && !damaged && <>
+              {arch.files && !arch.files.some(f => /\.docx$/i.test(f.name)) && <button className="xl" disabled={!!arch.busy} onClick={archiveWord}>Archive Word files</button>}
+              <label className="pdf" style={{cursor:'pointer', textAlign:'center'}}>Upload issued PDF…<input type="file" accept="application/pdf" style={{display:'none'}} onChange={e => { archivePdf(e.target.files[0]); e.target.value = ''; }}/></label>
+            </>}
+            {arch.busy && <div className="sbx-msg" style={{color:'#007aff'}}>{arch.busy}</div>}
+            {arch.err && arch.files !== null && <div className="sbx-msg" style={{color:'#b42318'}}>{arch.err}</div>}
+          </>}
+        </div></>}</>}
       </div>
       <div className="sbx-foot">
+        <div className="sbx-me" title={'Signed in as ' + email}><UserBadge session={session} me={me} roles={roles}/></div>
         <div className="sbx-status"><span className={`sidebar-status-dot ${saveStatus === 'saving' ? 'saving' : saveStatus === 'error' ? 'error' : ''}`}/>{saveStatus === 'saving' ? 'Saving…' : saveStatus === 'error' ? 'Save failed' : 'All changes saved'}</div>
         {manualSave && <div className="sbx-msg" style={{color:/FAILED|Blocked/.test(manualSave) ? '#ff3b30' : '#16803a'}}>{manualSave}</div>}
         <div className="sbx-foot-row"><button className="sbx-save" onClick={saveNow} title="Save now">⤓ Save</button><button className="sbx-out sbx-icon-btn" onClick={() => sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
@@ -2172,9 +2412,16 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
     <main className="pump-main">
       <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={() => setSidebarOpen(true)}>☰</button><div className="pump-mobile-title">{proj.name || 'Specification'} <span className="mobile-stage">{stageName || ''}</span></div><div className="pump-mobile-save">{saveStatus === 'saving' ? 'Saving…' : 'Saved'}</div></div>
       <div className={'app-content sidebar-content' + (tab === 'issue' ? ' issue-content' : '')} style={{maxWidth:tab === 'sections' || tab === 'systems' ? 1560 : 1180, margin:'0 auto'}}>
+        {conflict && <div className="no-print" style={{position:'sticky',top:8,zIndex:120,marginBottom:12,padding:'10px 12px',background:'#fff0ee',border:'1px solid #f5b5ae',borderRadius:10,fontSize:12,color:'#b42318',display:'flex',gap:10,alignItems:'center',flexWrap:'wrap',boxShadow:'0 4px 14px rgba(180,35,24,.12)'}}>
+          <span style={{flex:'1 1 320px'}}><b>⚠ {sayConflict(conflict)}.</b> Your latest changes in this window are <b>not saved</b>, and saving is paused so nobody's work is overwritten.</span>
+          <button onClick={downloadMine} style={{border:'1px solid #b42318',background:'#fff',color:'#b42318',borderRadius:7,padding:'6px 11px',fontSize:11,fontWeight:800,cursor:'pointer'}}>⬇ Download my unsaved copy</button>
+          <button onClick={reloadTheirs} style={{border:0,background:'#b42318',color:'#fff',borderRadius:7,padding:'6px 11px',fontSize:11,fontWeight:800,cursor:'pointer'}}>↻ Reload latest version</button>
+        </div>}
+        {ver.current.guard === false && ready && <div className="no-print" style={{marginBottom:12,padding:'8px 11px',background:'#fff4e0',border:'1px solid #f5c27a',borderRadius:8,fontSize:11,color:'#8a4b00'}}>Save protection is not set up yet — run <b>spec_v1.18.0_save_guard.sql</b> in Supabase. Until then, two people editing the same stage can overwrite each other.</div>}
+        {damaged && <div className="no-print" style={{marginBottom:12,padding:'9px 11px',background:'#fff0ee',border:'1px solid #f5b5ae',borderRadius:8,fontSize:11.5,color:'#b42318'}}><b>This issued stage failed its integrity check — read only, exports blocked.</b><ul style={{margin:'4px 0 0 18px'}}>{integ.problems.map((p, i) => <li key={i}>{p}</li>)}</ul>Do not reissue from this copy. Tell an administrator.</div>}
         {!locked && libProbs.length > 0 && <div className="no-print" style={{marginBottom:12,padding:'9px 11px',background:'#fff0ee',border:'1px solid #f5b5ae',borderRadius:8,fontSize:11.5,color:'#b42318'}}><b>Library data problem — sign-off is blocked:</b><ul style={{margin:'4px 0 0 18px'}}>{libProbs.map((p, i) => <li key={i}>{p}</li>)}</ul></div>}
         {!locked && locBad.length > 0 && tab !== 'issue' && <div className="no-print" style={{marginBottom:12,padding:'9px 11px',background:'#fff0ee',border:'1px solid #f5b5ae',borderRadius:8,fontSize:11.5,color:'#b42318',display:'flex',gap:10,alignItems:'center'}}>
-          <span style={{flex:1}}><b>Location mismatch:</b> the authority / code fields ({locBad.join(', ')}) do not match <b>{viewProj.city}, {T.COUNTRY}</b>. The specification text is still using the old values. Lead sign-off is blocked until this is fixed.</span>
+          <span style={{flex:1}}><b>Location mismatch:</b> the authority / code fields ({locBad.join(', ')}) do not match <b>{viewProj.city}, {T.COUNTRY}</b>. The specification text is still using the old values. Sign-off is blocked until this is fixed.</span>
           <button onClick={loadLocation} style={{border:0,background:'#b42318',color:'#fff',borderRadius:7,padding:'6px 11px',fontSize:11,fontWeight:800,cursor:'pointer',whiteSpace:'nowrap'}}>Load {viewProj.city} defaults</button></div>}
         {locked && tab !== 'issue' && <div className="no-print" style={{marginBottom:12,padding:'9px 11px',background:'#fff4e0',border:'1px solid #fed7aa',borderRadius:8,fontSize:11,color:'#9a3412'}}>This stage is {stageStatusLabel(meta).toLowerCase()}. Selections and text are read-only; the issued text is frozen. Only an administrator can reopen a closed stage.</div>}
 
@@ -2191,9 +2438,13 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
             <div/>
           </div>
           <div className="setup-grid3">
-            <SignOff label="Prepared by · Engineer" team={engineerTeam} who={meta.calcBy} when={meta.calcDate} onWho={v => setMeta(m => ({...m, calcBy:v}))} onWhen={v => setMeta(m => ({...m, calcDate:v}))}/>
-            <SignedField label="Checked by · Lead" team={team} who={meta.checkedBy} when={meta.checkedDate} pending="Filled automatically at Lead sign-off"/>
-            <SignedField label="Approved by · Associate / Approver" team={team} who={meta.reviewedBy} when={meta.reviewedDate} pending="Filled automatically at Approver sign-off"/>
+            <div>
+              {canSetPrep ? <SignOff label="Prepared by · Engineer" team={prepTeam} placeholderWho={prepTeam.length ? '— Select —' : 'Only an Engineer can be Prepared by'} who={meta.calcBy} when={meta.calcDate} onWho={v => setMeta(m => ({...m, calcBy:v, calcBySetBy:v ? email : ''}))} onWhen={v => setMeta(m => ({...m, calcDate:v}))}/>
+                : <SignedField label="Prepared by · Engineer" team={team} who={meta.calcBy} when={meta.calcDate} pending="—"/>}
+              <div style={{fontSize:9.5,color:'#86868b',marginTop:4}}>{meta.calcBy ? <>🔒 Set by {prepSetBy ? whoName(prepSetBy) : 'an earlier build'}{canSetPrep ? '' : ' · only that person or an Admin can change it'}</> : isAdmin ? 'Admin: anyone on the team can be selected.' : 'You can only enter yourself.'}</div>
+            </div>
+            <SignedField label="Checked by · Senior / Principal / Lead" team={team} who={meta.checkedBy} when={meta.checkedDate} pending="Filled automatically at check sign-off"/>
+            <SignedField label="Approved by · Associate" team={team} who={meta.reviewedBy} when={meta.reviewedDate} pending="Filled automatically at final approval"/>
           </div>
           <div className="setup-more" style={{borderTop:'1px solid #ececf0',marginTop:14,paddingTop:12}}>
             <div style={{display:'grid',gridTemplateColumns:'1fr 1fr auto',gap:12,alignItems:'end'}}>
@@ -2291,7 +2542,7 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
                   <div className={'piw-item' + (cur === S.num ? ' on' : '')} onClick={() => setCur(S.num)} title={S.title}>
                     <input type="checkbox" checked disabled={locked} onClick={e => e.stopPropagation()} onChange={() => toggleExcl(S.num, false)} title="Untick to exclude this section"/>
                     <span className="piw-txt"><b>{S.title}</b><em>{S.num}{viewState.edits[S.num] ? ' · edited' : ''}</em>{isOldFmt(S.num) && <span className="status-chip review" style={{marginTop:3,alignSelf:'flex-start'}}>old format</span>}</span>
-                    {annexTbcSec[S.num] ? <span title="Manufacturer list TBC in Annexure A"><Chip k="review">A·TBC {annexTbcSec[S.num]}</Chip></span> : null}{u ? <Chip k="blocked">{u}</Chip> : staleItems(S.num).length ? <Chip k="review">item updated</Chip> : choiceStale(S.num) ? <Chip k="review">choices changed</Chip> : viewState.reviewed[S.num] ? <Chip k="pass">✓</Chip> : <Chip k="draft">–</Chip>}
+                    {annexTbcSec[S.num] ? <span title="Manufacturer list TBC in Annexure A"><Chip k="review">A·TBC {annexTbcSec[S.num]}</Chip></span> : null}{u ? <Chip k="blocked">{u}</Chip> : staleItems(S.num).length ? <Chip k="review">item updated</Chip> : choiceStale(S.num) ? <Chip k="review">choices changed</Chip> : revState(S.num) === 'stale' ? <Chip k="review">changed since review</Chip> : isRev(S.num) ? <Chip k="pass">✓</Chip> : <Chip k="draft">–</Chip>}
                   </div></React.Fragment>; })}
                 {notIncluded.length > 0 && <div className="spec-div">Excluded</div>}
                 {notIncluded.map(S => <div key={S.num} className="piw-item" style={{opacity:.55}}><input type="checkbox" checked={false} disabled={locked} onChange={() => toggleExcl(S.num, true)}/><span className="piw-txt"><b>{S.title}</b><em>{S.num}</em></span></div>)}
@@ -2303,11 +2554,15 @@ function SpecApp({session, projectRow, onBack, team, roles=[], isAdmin=false}) {
                 <div className="piw-form-head">
                   <div className="piw-form-title"><span className="piw-chip">{curSec.cond || (LIB.find(x => x.num === curSec.num) || {}).cond ? 'Project-specific' : 'General'}</span><b>{curSec.title}</b><em>{curSec.num}</em></div>
                   <div className="piw-nav">
-                    <label style={{display:'flex',gap:6,alignItems:'center',fontSize:'11px',fontWeight:700,color:'#16803a',marginRight:6}}><input type="checkbox" disabled={locked} checked={isRev(curSec.num)} onChange={e => setReviewed(curSec.num, e.target.checked)}/> Reviewed</label>
+                    <label style={{display:'flex',gap:6,alignItems:'center',fontSize:'11px',fontWeight:700,color:'#16803a',marginRight:6}}><input type="checkbox" checked={isRev(curSec.num)} onChange={e => setReviewed(curSec.num, e.target.checked)} disabled={locked || revBusy}/> {revBusy ? 'Saving…' : 'Reviewed'}</label>
                     <button disabled={locked || !viewState.edits[curSec.num]} onClick={() => discardEdit(curSec.num)} title="Discard project edits" style={{width:'auto',padding:'0 9px',fontSize:11}}>↺ Library text</button>
                     <button disabled={idx <= 0} onClick={() => setCur(included[idx - 1].num)}>‹</button><span>{idx + 1} / {included.length}</span><button disabled={idx >= included.length - 1} onClick={() => setCur(included[idx + 1].num)}>›</button>
                   </div>
                 </div>
+                {srv.ok === false && !locked && <div className="calc-basis-card" style={{marginBottom:10}}><b>Review records</b>not set up on the server yet ({srv.err}) — reviews are kept in this stage only. Run spec_v1.17.5_reviews.sql.</div>}
+                {srv.ok === true && !locked && (() => { const r = revRec(curSec.num), st = revState(curSec.num); if (!r) return null;
+                  return st === 'stale' ? <div className="calc-basis-card" style={{marginBottom:10,background:'#fff4e0',borderColor:'#f5c27a',color:'#8a4b00'}}><b>Changed since review</b>Reviewed by {r.reviewer} on {fmtWhen(r.reviewed_at)}, but the text has changed since (a project edit, library text, item, choice or project setting). Check it and tick Reviewed again.</div>
+                    : st === 'ok' ? <div style={{fontSize:10.5,color:'#16803a',marginBottom:8}}>✓ Reviewed by {r.reviewer} · {fmtWhen(r.reviewed_at)} · recorded on the server</div> : null; })()}
                 {staleItems(curSec.num).length > 0 && <div className="calc-basis-card" style={{marginBottom:10,background:'#fff4e0',borderColor:'#f5c27a',color:'#8a4b00'}}><b>Item updated since review</b>{staleItems(curSec.num).map(c => { const it = ITEMS.items.find(x => x.code === c), r = SPEC_AUTO.itemRev[c]; return `${c} ${it ? it.item : ''} → Rev ${r ? r.rev : '?'}${r && r.reason ? ' (' + r.reason + ')' : ''}`; }).join(' · ')} — check the text and tick Reviewed again.</div>}
                 {(LIB.find(x => x.num === curSec.num) || {}).cond && <div className="calc-basis-card" style={{marginBottom:10}}><b>Included when</b>{condLabel(LIB.find(x => x.num === curSec.num).cond)}</div>}
                 <DocView html={bodyOf(curSec)} docKey={curSec.num + (locked ? 'L' : '')} editable={!locked} onChange={h => setEdit(curSec.num, h)}/>
@@ -2443,7 +2698,7 @@ function LibraryAdmin({onBack, canEdit, who}) {
       <div><div style={{fontSize:9,letterSpacing:'.15em',textTransform:'uppercase',color:'#86868b',fontWeight:800}}>MEP Specifications</div><div style={{fontSize:19,fontWeight:800,letterSpacing:'-.03em'}}>Specification library</div></div>
       <button onClick={onBack} style={{padding:'6px 12px',background:'#fff',color:'#424245',border:'1px solid #d2d2d7',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer'}}>← All projects</button></div></div>
     <div style={{maxWidth:1280,margin:'0 auto',padding:'18px 20px'}}>
-      {!canEdit && <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#9a3412',marginBottom:12}}>You can view the library. Only Admin, Lead or Associate can change it; every change is kept in history.</div>}
+      {!canEdit && <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#9a3412',marginBottom:12}}>You can view the library. Only an Admin, Associate or Library editor can change it; every change is kept in history.</div>}
       {msg && <div className="ai-msg bad" style={{marginBottom:10}}>{msg}</div>}
       <div className="schedule-card">
         <div className="schedule-toolbar">
@@ -2501,8 +2756,152 @@ function SpecIcon({size = 16}) {
   </svg>;
 }
 
+// ══════════════════════════════════════════════════════════════════════════
+// v1.18.1 · TEAM & ACCESS — one sign-off level per person
+//   Engineer → writes · Checker (Senior / Principal / Lead) → first sign-off
+//   Approver (Associate) → final approval · View only → no sign-off
+// Stored in engineer_roles (engineer / lead / associate / viewer), shared with the Equipment Calculator.
+// ══════════════════════════════════════════════════════════════════════════
+const TA_LEVELS = [
+  ['engineer', 'Engineer', 'Writes the specification', ['engineer']],
+  ['checker', 'Checker', 'Senior / Principal / Lead · first sign-off', ['engineer', 'lead']],
+  ['approver', 'Approver', 'Associate · final approval', ['engineer', 'associate']],
+  ['none', 'View only', 'No sign-off', ['viewer']],
+];
+const TA_MANAGED = ['engineer', 'lead', 'associate', 'viewer'];
+const taSuggest = desig => { const d = String(desig || ''); return /associate|director|partner/i.test(d) ? 'approver' : /senior|principal|lead|manager|head/i.test(d) ? 'checker' : 'engineer'; };
+const taGuess = email => { const n = String(email || '').split('@')[0].replace(/[._\-]+/g, ' ').replace(/\d+/g, '').trim().replace(/\b\w/g, c => c.toUpperCase()); return {name:n, initials:n.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 3).toUpperCase()}; };
+function TeamAccess({session, me, team, roles, reload, onBack}) {
+  const userId = session.user.id, myEmail = (session.user.email || '').toLowerCase();
+  const [tab, setTab] = useState('requests'); const [pend, setPend] = useState(null); const [hist, setHist] = useState(false);
+  const [msg, setMsg] = useState(''); const [busy, setBusy] = useState(''); const [q, setQ] = useState(''); const [form, setForm] = useState({}); const [edit, setEdit] = useState({}); const [add, setAdd] = useState(null);
+  const loadPend = useCallback(async () => { const {data, error} = await sb.from('pending_users').select('*').order('requested_at', {ascending:false}).range(0, 999); if (error) { setMsg('Access requests could not be read: ' + error.message); setPend([]); return; } setPend(data || []); }, []);
+  useEffect(() => { loadPend(); }, [loadPend]);
+  const lc = x => String(x || '').toLowerCase();
+  const rolesOf = em => roles.filter(r => lc(r.email) === lc(em));
+  const hasRole = (em, k) => rolesOf(em).some(r => r.role === k && r.active !== false);
+  const isAdm = t => !!t.is_admin || hasRole(t.email, 'admin');
+  const levelOf = em => hasRole(em, 'associate') ? 'approver' : hasRole(em, 'lead') ? 'checker' : hasRole(em, 'engineer') ? 'engineer' : 'none';
+  const ok = r => { if (r.error) throw new Error(r.error.message); return r; };
+  const run = async (label, fn, done) => { setBusy(label); setMsg(''); let good = false; try { await fn(); good = true; setMsg(done); } catch (e) { setMsg('Failed: ' + ((e && e.message) || e)); } try { await reload(true); await loadPend(); } catch (e) {} setBusy(''); return good; };
+  const dupIni = (ini, em) => !!ini && team.some(t => lc(t.email) !== lc(em) && String(t.initials || '').toUpperCase() === ini.toUpperCase());
+  const setRole = async (em, k, on) => {
+    const ex = rolesOf(em).filter(r => r.role === k);
+    if (ex.length) { for (const r of ex) if ((r.active !== false) !== on) ok(await sb.from('engineer_roles').update({active:on}).eq('id', r.id)); return; }
+    if (on) ok(await sb.from('engineer_roles').insert({email:lc(em), role:k, scope:'global', active:true, created_by:userId}));
+  };
+  const setLevel = async (em, lv) => { const want = (TA_LEVELS.find(x => x[0] === lv) || TA_LEVELS[0])[3]; for (const k of TA_MANAGED) await setRole(em, k, want.includes(k)); };
+  const saveProfile = async (em, f) => {
+    const ex = team.find(t => lc(t.email) === lc(em));
+    const row = {name:f.name.trim(), initials:f.initials.trim().toUpperCase(), desig:(f.desig || '').trim() || null, active:true};
+    if (ex) ok(await sb.from('engineers').update(row).eq('id', ex.id)); else ok(await sb.from('engineers').insert({...row, email:lc(em)}));
+  };
+  const check = (em, f) => !f.name.trim() ? 'Enter the full name.' : !f.initials.trim() ? 'Enter the initials (used on sign-offs).' : dupIni(f.initials.trim(), em) ? `Initials ${f.initials.toUpperCase()} are already used by another person — sign-offs would be ambiguous.` : '';
+  const formOf = p => form[p.id] || (() => { const g = taGuess(p.email), ex = team.find(t => lc(t.email) === lc(p.email)); const desig = (ex && ex.desig) || ''; return {name:(ex && ex.name) || g.name, initials:(ex && ex.initials) || g.initials, desig, level:taSuggest(desig), admin:false}; })();
+  const setF = (p, patch) => setForm(s => ({...s, [p.id]:{...formOf(p), ...patch}}));
+  const approve = p => { const f = formOf(p), bad = check(p.email, f); if (bad) return setMsg(bad);
+    run('Approving…', async () => {
+      await saveProfile(p.email, f); await setLevel(p.email, f.level); if (f.admin) await setRole(p.email, 'admin', true);
+      ok(await sb.from('pending_users').update({status:'approved', reviewed_at:new Date().toISOString(), reviewed_by:userId, note:null}).eq('id', p.id));
+    }, `${f.name} approved as ${TA_LEVELS.find(x => x[0] === f.level)[1]}. They can sign in to both apps now (they may need to refresh).`); };
+  const reject = p => { const n = window.prompt(`Reject access for ${p.email}?\n\nReason (shown to them):`, ''); if (n === null) return;
+    run('Rejecting…', async () => ok(await sb.from('pending_users').update({status:'rejected', reviewed_at:new Date().toISOString(), reviewed_by:userId, note:n.trim() || 'Access not approved.'}).eq('id', p.id)), p.email + ' rejected.'); };
+  const changeLevel = (t, lv) => run('Saving…', () => setLevel(t.email, lv), `${t.name} is now ${TA_LEVELS.find(x => x[0] === lv)[1]}.`);
+  const toggleAdmin = (t, on) => {
+    if (!on && lc(t.email) === myEmail) return setMsg('You cannot remove your own Admin rights.');
+    if (!on && team.filter(x => x.active !== false && isAdm(x)).length <= 1) return setMsg('This is the last Admin — make someone else Admin first.');
+    if (!on && t.is_admin && !hasRole(t.email, 'admin')) return setMsg(`${t.name} is Admin through the profile flag in Supabase (engineers.is_admin) — change it there.`);
+    run('Saving…', () => setRole(t.email, 'admin', on), `${t.name}: Admin ${on ? 'given' : 'removed'}.`);
+  };
+  const toggleActive = t => { if (lc(t.email) === myEmail) return setMsg('You cannot deactivate yourself.');
+    const on = t.active === false; if (!on && !window.confirm(`Deactivate ${t.name}?\n\nThey can no longer open either app. Their past sign-offs stay on record.`)) return;
+    run('Saving…', async () => ok(await sb.from('engineers').update({active:on}).eq('id', t.id)), `${t.name} ${on ? 'reactivated' : 'deactivated'}.`); };
+  const saveEdit = t => { const f = edit[t.id]; const bad = check(t.email, f); if (bad) return setMsg(bad);
+    run('Saving…', () => saveProfile(t.email, f), `${f.name} saved.`).then(g => g && setEdit(e => { const n = {...e}; delete n[t.id]; return n; })); };
+  const addMember = () => { const f = add, em = lc(f.email).trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return setMsg('Enter a valid email.');
+    if (team.some(t => lc(t.email) === em)) return setMsg(em + ' is already on the team.');
+    const bad = check(em, f); if (bad) return setMsg(bad);
+    run('Adding…', async () => { await saveProfile(em, f); await setLevel(em, f.level); if (f.admin) await setRole(em, 'admin', true); }, `${f.name} added. They sign up with "Request Access" using ${em}; no approval step is needed.`).then(g => g && setAdd(null)); };
+  const pending = (pend || []).filter(p => p.status === 'pending'), done = (pend || []).filter(p => p.status !== 'pending');
+  const shown = team.filter(t => !q || [t.name, t.email, t.initials, t.desig, TA_LEVELS.find(x => x[0] === levelOf(t.email))[1]].join(' ').toLowerCase().includes(q.toLowerCase()));
+  const i1 = {padding:'5px 8px', fontSize:12, border:'1px solid #d2d2d7', borderRadius:7, width:'100%', background:'#fff'};
+  const levelSel = (val, onChange, dis) => <select disabled={dis} style={{...i1, fontWeight:700}} value={val} onChange={e => onChange(e.target.value)}>{TA_LEVELS.map(([k, l, d]) => <option key={k} value={k}>{l} — {d}</option>)}</select>;
+  const counts = TA_LEVELS.map(([k, l]) => [l, team.filter(t => t.active !== false && levelOf(t.email) === k).length]);
+  const tabBtn = on => on ? {background:'#fff', color:'#007aff', boxShadow:'0 1px 2px rgba(0,0,0,.08)'} : undefined;
+  return <div className="global-page pl-page">
+    <header className="pl-head"><div className="pl-head-in">
+      <div className="pl-brand"><div className="pl-logo"><SpecIcon size={18}/></div><div><b>Team &amp; Access</b><span className="build-pill">{BUILD_LABEL}</span></div></div>
+      <nav className="pl-nav"><button type="button" onClick={onBack}>← All projects</button><a href="pump.html">▥ Equipment Calculator</a></nav>
+      <div className="pl-user"><UserBadge session={session} me={me} roles={roles}/></div>
+    </div></header>
+    <main className="pl-main">
+      <div className="pl-top"><div><h1>Team &amp; Access</h1><p>{counts.map(([l, n]) => `${n} ${l}`).join(' · ')} · {pending.length} request{pending.length === 1 ? '' : 's'} waiting</p></div>
+        <div className="pl-top-act"><div className="pl-nav">
+          <button type="button" onClick={() => setTab('requests')} style={tabBtn(tab === 'requests')}>Access requests{pending.length > 0 && <i className="pl-badge">{pending.length}</i>}</button>
+          <button type="button" onClick={() => setTab('team')} style={tabBtn(tab === 'team')}>Team members</button></div></div></div>
+      <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:14, padding:'10px 14px', background:'#fff', border:'1px solid #e1e1e6', borderRadius:12, fontSize:12}}>
+        <b style={{marginRight:4}}>Sign-off route:</b>
+        <span className="pl-tag sh">1 · Engineer writes</span><span>→</span>
+        <span className="pl-tag wait">2 · Checker signs (Senior / Principal / Lead)</span><span>→</span>
+        <span className="pl-tag ok">3 · Approver signs and closes (Associate)</span>
+        <span style={{color:'#86868b', fontSize:11}}>· three different people · Admin is separate and only manages the library, vendors and this page</span>
+      </div>
+      {msg && <div className={/^Failed|cannot|already|Enter|Initials|last Admin|profile flag/.test(msg) ? 'pl-err' : 'ai-msg'} style={{marginBottom:12}}>{msg}</div>}
+      {busy && <div className="ai-msg" style={{marginBottom:12, background:'#eef5ff', color:'#0a4fa0'}}>{busy}</div>}
+      {tab === 'requests' && <div className="schedule-card">
+        <div className="schedule-card-head"><div><h2>Waiting for approval</h2><p>People who signed up with “Request Access”. The level is suggested from the designation — check it before approving.</p></div></div>
+        {pend === null ? <div className="piw-empty">Loading…</div> : !pending.length ? <div className="piw-empty">No requests waiting ✓</div> :
+          <div className="schedule-table-wrap" style={{maxHeight:'none'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
+            <thead><tr className="labels">{['Email', 'Requested', 'Full name', 'Initials', 'Designation', 'Sign-off level', 'Admin', ''].map(h => <th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{pending.map(p => { const f = formOf(p); return <tr key={p.id} style={{cursor:'default'}}>
+              <td style={{fontWeight:700}}>{p.email}</td><td style={{fontSize:10.5, whiteSpace:'nowrap'}}>{fmtWhen(p.requested_at)}</td>
+              <td style={{minWidth:160}}><input style={i1} value={f.name} onChange={e => setF(p, {name:e.target.value})}/></td>
+              <td style={{width:76}}><input style={{...i1, textTransform:'uppercase', borderColor:dupIni(f.initials, p.email) ? '#ff3b30' : '#d2d2d7'}} maxLength={4} value={f.initials} onChange={e => setF(p, {initials:e.target.value})}/></td>
+              <td style={{minWidth:170}}><input style={i1} value={f.desig} placeholder="e.g. Senior Engineer - PH&E" onChange={e => setF(p, {desig:e.target.value, level:taSuggest(e.target.value)})}/></td>
+              <td style={{minWidth:250}}>{levelSel(f.level, v => setF(p, {level:v}))}</td>
+              <td className="ctr"><input type="checkbox" checked={!!f.admin} onChange={e => setF(p, {admin:e.target.checked})}/></td>
+              <td style={{whiteSpace:'nowrap'}}><button className="lib-new" disabled={!!busy} onClick={() => approve(p)}>Approve</button> <button className="schedule-action" style={{color:'#b42318'}} disabled={!!busy} onClick={() => reject(p)}>Reject</button></td>
+            </tr>; })}</tbody></table></div>}
+        <div style={{padding:'8px 14px', borderTop:'1px solid #f0f0f2'}}><a href="#" style={{fontSize:11, fontWeight:700, color:'#007aff'}} onClick={e => { e.preventDefault(); setHist(!hist); }}>{hist ? 'Hide' : 'Show'} decided requests ({done.length})</a>
+          {hist && <table className="schedule-table" style={{minWidth:0, tableLayout:'auto', marginTop:8}}><thead><tr className="labels">{['Email', 'Status', 'Requested', 'Decided', 'Note'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{done.map(p => <tr key={p.id} style={{cursor:'default'}}><td>{p.email}</td><td><Chip k={p.status === 'approved' ? 'pass' : 'blocked'}>{p.status}</Chip></td><td style={{fontSize:10.5}}>{fmtWhen(p.requested_at)}</td><td style={{fontSize:10.5}}>{fmtWhen(p.reviewed_at)}</td><td style={{fontSize:10.5}}>{p.note || ''}</td></tr>)}</tbody></table>}
+        </div>
+      </div>}
+      {tab === 'team' && <div className="schedule-card">
+        <div className="schedule-toolbar"><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search name, email, initials, level…"/><span className="toolbar-spacer"/>
+          <button className="lib-new" onClick={() => setAdd(add ? null : {email:'', name:'', initials:'', desig:'', level:'engineer', admin:false})}>{add ? 'Cancel' : '＋ Add member'}</button></div>
+        {add && <div style={{display:'grid', gridTemplateColumns:'1.3fr 1.2fr 76px 1.2fr 1.6fr 60px auto', gap:8, alignItems:'end', padding:'10px 12px', background:'#f5f9ff', borderBottom:'1px solid #e1e1e6'}}>
+          <div><label style={lbl}>Email</label><input style={i1} value={add.email} onChange={e => { const g = taGuess(e.target.value), o = taGuess(add.email); setAdd(a => ({...a, email:e.target.value, name:a.name && a.name !== o.name ? a.name : g.name, initials:a.initials && a.initials !== o.initials ? a.initials : g.initials})); }} placeholder="name@meinhardtgroup.com"/></div>
+          <div><label style={lbl}>Full name</label><input style={i1} value={add.name} onChange={e => setAdd(a => ({...a, name:e.target.value}))}/></div>
+          <div><label style={lbl}>Initials</label><input style={{...i1, textTransform:'uppercase'}} maxLength={4} value={add.initials} onChange={e => setAdd(a => ({...a, initials:e.target.value}))}/></div>
+          <div><label style={lbl}>Designation</label><input style={i1} value={add.desig} onChange={e => setAdd(a => ({...a, desig:e.target.value, level:taSuggest(e.target.value)}))}/></div>
+          <div><label style={lbl}>Sign-off level</label>{levelSel(add.level, v => setAdd(a => ({...a, level:v})))}</div>
+          <div><label style={lbl}>Admin</label><input type="checkbox" checked={add.admin} onChange={e => setAdd(a => ({...a, admin:e.target.checked}))}/></div>
+          <button className="lib-new" disabled={!!busy} onClick={addMember}>Add</button>
+        </div>}
+        <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 340px)'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
+          <thead><tr className="labels">{['Name', 'Initials', 'Designation', 'Email', 'Sign-off level', 'Admin', 'Active', ''].map(h => <th key={h} className={h === 'Admin' || h === 'Active' ? 'ctr' : ''}>{h}</th>)}</tr></thead>
+          <tbody>{shown.map(t => { const e = edit[t.id], self = lc(t.email) === myEmail, lv = levelOf(t.email), sug = taSuggest(t.desig);
+            const odd = t.desig && sug !== lv && lv !== 'none';
+            return <tr key={t.id} style={{cursor:'default', opacity:t.active === false ? .5 : 1}}>
+            <td style={{minWidth:160, fontWeight:700}}>{e ? <input style={i1} value={e.name} onChange={x => setEdit(s => ({...s, [t.id]:{...e, name:x.target.value}}))}/> : <>{t.name}{self && <span className="pl-tag sh" style={{marginLeft:6}}>you</span>}</>}</td>
+            <td style={{width:70}}>{e ? <input style={{...i1, textTransform:'uppercase'}} maxLength={4} value={e.initials} onChange={x => setEdit(s => ({...s, [t.id]:{...e, initials:x.target.value}}))}/> : <span className="tag-code">{t.initials}</span>}</td>
+            <td style={{minWidth:150, fontSize:10.5}}>{e ? <input style={i1} value={e.desig} onChange={x => setEdit(s => ({...s, [t.id]:{...e, desig:x.target.value}}))}/> : t.desig}</td>
+            <td style={{fontSize:10.5}}>{t.email}</td>
+            <td style={{minWidth:250}}>{levelSel(lv, v => changeLevel(t, v), !!busy)}{odd && <div style={{fontSize:9.5, color:'#a76200', marginTop:2}}>Designation suggests {TA_LEVELS.find(x => x[0] === sug)[1]}</div>}</td>
+            <td className="ctr"><input type="checkbox" disabled={!!busy} checked={isAdm(t)} onChange={x => toggleAdmin(t, x.target.checked)}/></td>
+            <td className="ctr"><label className="sw"><input type="checkbox" disabled={!!busy || self} checked={t.active !== false} onChange={() => toggleActive(t)}/><span/></label></td>
+            <td style={{whiteSpace:'nowrap'}}>{e ? <><button className="lib-new" disabled={!!busy} onClick={() => saveEdit(t)}>Save</button> <button className="schedule-action" onClick={() => setEdit(s => { const n = {...s}; delete n[t.id]; return n; })}>Cancel</button></>
+              : <button className="schedule-action" onClick={() => setEdit(s => ({...s, [t.id]:{name:t.name || '', initials:t.initials || '', desig:t.desig || ''}}))}>Edit</button>}</td>
+          </tr>; })}
+          {!shown.length && <tr><td colSpan={8} className="empty-schedule">No members match.</td></tr>}</tbody></table></div>
+        <div className="lib-foot">Levels apply to both apps. Checkers and Approvers can also write specifications. The same person can never prepare, check and approve one stage — the database blocks it. Project access is given per project on Setup › Project review access.</div>
+      </div>}
+    </main>
+  </div>;
+}
 // v1.12.0 · project list — same header, search, card grid and actions menu as the pump calculator
-function SpecHome({session, me, isAdmin, roles, canEditLib, onOpen, onOpenLibrary}) {
+function SpecHome({session, me, isAdmin, roles, canEditLib, onOpen, onOpenLibrary, onOpenTeam, pendingCount = 0}) {
   const userId = session.user.id, email = (session.user.email || '').toLowerCase();
   const canApprove = isAdmin || roles.some(r => r.active !== false && (r.email || '').toLowerCase() === email && r.role === 'associate');
   const [list, setList] = useState(null); const [wf, setWf] = useState({}); const [err, setErr] = useState(''); const [busy, setBusy] = useState(false);
@@ -2564,9 +2963,10 @@ function SpecHome({session, me, isAdmin, roles, canEditLib, onOpen, onOpenLibrar
           <div className="pl-brand"><div className="pl-logo" title="Specification Builder"><SpecIcon size={18}/></div><div><b>Specification Builder</b><span className="build-pill" title="Running build">{BUILD_LABEL}</span></div></div>
           <nav className="pl-nav">
             <a href="pump.html">▥ Equipment Calculator</a>
-            <button type="button" onClick={onOpenLibrary}>{'\uD83D\uDCDA'} Library{canEditLib ? '' : ' (view)'}</button>
+            {isAdmin && <button type="button" onClick={onOpenLibrary}>{'\uD83D\uDCDA'} Library</button>}
+            {isAdmin && <button type="button" onClick={onOpenTeam} title="Approve access requests and set sign-off levels">👥 Team &amp; Access{pendingCount > 0 && <i className="pl-badge" title={pendingCount + ' access request' + (pendingCount === 1 ? '' : 's') + ' waiting'}>{pendingCount}</i>}</button>}
           </nav>
-          <div className="pl-user"><UserBadge session={session} me={me}/><button type="button" className="pl-out" onClick={() => sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
+          <div className="pl-user"><UserBadge session={session} me={me} roles={roles}/><button type="button" className="pl-out" onClick={() => sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
         </div>
       </header>
       <main className="pl-main">
@@ -2626,7 +3026,7 @@ function SpecHome({session, me, isAdmin, roles, canEditLib, onOpen, onOpenLibrar
 // ══════════════════════════════════════════════════════════════════════════
 function RootApp() {
   const [session, setSession] = useState(undefined);
-  const {team, roles, me, isAdmin, ready:teamReady, reload:reloadTeam} = useTeamData(session);
+  const {team, roles, me, isAdmin, ready:teamReady, pendingCount, reload:reloadTeam} = useTeamData(session);
   const [open, setOpen] = useState(null); const [screen, setScreen] = useState('projects'); const [libReady, setLibReady] = useState(false);
   useEffect(() => {
     const apply = s => setSession(prev => { if (prev === undefined) return s || null; return (prev?.user?.id || null) === (s?.user?.id || null) ? prev : (s || null); });
@@ -2634,18 +3034,23 @@ function RootApp() {
     const {data: sub} = sb.auth.onAuthStateChange((_e, s) => { apply(s); if (!s) { setOpen(null); setLibReady(false); } });
     return () => sub.subscription.unsubscribe();
   }, []);
-  useEffect(() => { if (!session || !teamReady || !me || me.active === false) return; let c = false; loadLibrary().then(() => { if (!c) setLibReady(true); }); return () => { c = true; }; }, [session, teamReady, me]);
+  useEffect(() => { if (!session || !teamReady || !me || me.active === false) return; let c = false; loadLibrary().then(() => { if (!c) setLibReady(true); }); return () => { c = true; }; }, [session, teamReady, me && me.id, me && me.active]);
   if (session === undefined) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#86868b',fontSize:13}}>Loading…</div>;
   if (!session) return <AuthScreen/>;
   if (!teamReady) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#86868b',fontSize:13}}>Loading secure workspace…</div>;
   if (!me || me.active === false) return <AccessPendingScreen session={session} reload={reloadTeam}/>;
   if (!libReady) return <div style={{minHeight:'100vh',display:'flex',alignItems:'center',justifyContent:'center',color:'#86868b',fontSize:13}}>Loading specification library…</div>;
   const email = (session.user.email || '').toLowerCase();
-  const canEditLib = isAdmin || roles.some(r => r.active !== false && (r.email || '').toLowerCase() === email && (r.role === 'lead' || r.role === 'associate' || r.role === 'admin'));
+  const myRoles = roles.filter(r => r.active !== false && (r.email || '').toLowerCase() === email).map(r => r.role);
+  // v1.17.3 · Lead = sign-off only. Master library: Admin, Associate or Library editor.
+  // v1.17.4 · the Library (including vendor packages) is visible to Admins only
+  const canEditLib = isAdmin;
+  const canVendor = isAdmin;
   const who = (me && (me.initials || me.name)) || email;
   if (open) return <SpecApp key={open.id} session={session} projectRow={open} team={team} roles={roles} isAdmin={isAdmin} onBack={() => setOpen(null)}/>;
-  if (screen === 'library') return <LibraryAdmin onBack={() => setScreen('projects')} canEdit={canEditLib} who={who}/>;
-  return <SpecHome session={session} me={me} isAdmin={isAdmin} roles={roles} canEditLib={canEditLib} onOpen={r => setOpen(r)} onOpenLibrary={() => setScreen('library')}/>;
+  if (screen === 'team' && isAdmin) return <TeamAccess session={session} me={me} team={team} roles={roles} reload={reloadTeam} onBack={() => setScreen('projects')}/>;
+  if (screen === 'library' && isAdmin) return <LibraryAdmin onBack={() => setScreen('projects')} canEdit={canEditLib} canVendor={canVendor} who={who}/>;
+  return <SpecHome session={session} me={me} isAdmin={isAdmin} roles={roles} canEditLib={canEditLib} onOpen={r => setOpen(r)} onOpenLibrary={() => setScreen('library')} onOpenTeam={() => { reloadTeam(true); setScreen('team'); }} pendingCount={pendingCount}/>;
 }
 // ══════════════════════════════════════════════════════════════════════════
 // automation (merged into spec.html).js — Specification automation, Phase 1
@@ -3608,7 +4013,7 @@ function RootApp() {
     const day = d => d ? String(d).slice(0, 10) : '';
     const stamp = d => d ? String(d).replace('T', ' ').slice(0, 16) : '';
     const cl = c => c ? condLabel(c) : '';
-    const clbl = (l, n) => l === 0 ? String.fromCharCode(65 + (n % 26)) + '.' : l === 1 ? (n + 1) + '.' : l === 2 ? String.fromCharCode(97 + (n % 26)) + '.' : (n + 1) + ')';
+    const clbl = clauseLbl;
     const clean = s => String(s).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]/g, '');
     const xe = s => String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
     const colName = n => { let s = ''; n++; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
@@ -4717,7 +5122,37 @@ function RootApp() {
   const VP_RULES = [['exact', 'Exact match'], ['min', 'Minimum (≥)'], ['max', 'Maximum (≤)'], ['info', 'No check']];
   const VP_RULE_TAG = {exact:'=', min:'≥', max:'≤', info:'—'};
   const vpNum = s => { const m = String(s ?? '').replace(/,/g, '').match(/-?\d+(?:\.\d+)?/); return m ? parseFloat(m[0]) : null; };
-  const vpNorm = s => String(s ?? '').toLowerCase().replace(/[\s\-_.,;:()/]+/g, ' ').trim();
+  const vpNorm = s => String(s ?? '').toLowerCase().replace(/[\s\-_.,;:()/]+/g, '').trim();
+  // v1.17.2 · agreed unit table. q = quantity, f = factor to the base unit
+  // pressure kPa · power/cooling kW · flow/airflow L/s · length mm · temperature °C
+  const VP_UNITS = {
+    pa:['p', .001], kpa:['p', 1], mpa:['p', 1000], bar:['p', 100], barg:['p', 100], mbar:['p', .1], psi:['p', 6.894757], psig:['p', 6.894757],
+    mhead:['p', 9.80665], mwc:['p', 9.80665], mh2o:['p', 9.80665], mwg:['p', 9.80665],
+    w:['w', .001], kw:['w', 1], mw:['w', 1000], hp:['w', .7457], tr:['w', 3.516853], rt:['w', 3.516853], 'btu/h':['w', .00029307107], btuh:['w', .00029307107], 'btu/hr':['w', .00029307107],
+    'l/s':['f', 1], lps:['f', 1], 'l/min':['f', 1 / 60], lpm:['f', 1 / 60], 'm3/h':['f', 1 / 3.6], 'm3/hr':['f', 1 / 3.6], cmh:['f', 1 / 3.6], 'm3/s':['f', 1000], gpm:['f', .0630902], usgpm:['f', .0630902], cfm:['f', .4719474],
+    mm:['l', 1], cm:['l', 10], m:['l', 1000], in:['l', 25.4], inch:['l', 25.4], inches:['l', 25.4], '"':['l', 25.4],
+    '°c':['t', 'C'], degc:['t', 'C'], c:['t', 'C'], '°f':['t', 'F'], degf:['t', 'F'], f:['t', 'F'],
+  };
+  const VP_Q = {p:'pressure', w:'power', f:'flow', l:'length', t:'temperature', dn:'DN size'};
+  function vpParse(s) {
+    const raw = String(s ?? '').trim(); if (!raw) return null;
+    const t = raw.toLowerCase().replace(/³/g, '3').replace(/(\d),(\d{3})\b/g, '$1$2');
+    let m = t.match(/\b(pn|dn)\s*(\d+(?:\.\d+)?)\b/);
+    if (m) return m[1] === 'pn' ? {q:'p', v:parseFloat(m[2]) * 100, raw} : {q:'dn', v:parseFloat(m[2]), raw};
+    m = t.match(/(-?\d+(?:\.\d+)?)\s*(°\s*[cf]|[a-z"\/0-9 ]*)/);
+    if (!m) return null;
+    const n = parseFloat(m[1]);
+    let u = (m[2] || '').replace(/°\s*/, '°').trim();
+    const tries = [u.replace(/\s+/g, ''), u.split(/\s+/).slice(0, 2).join(''), u.split(/\s+/)[0] || ''];
+    for (const k of tries) {
+      const d = VP_UNITS[k]; if (!d) continue;
+      if (d[0] === 't') return {q:'t', v:d[1] === 'F' ? (n - 32) * 5 / 9 : n, raw};
+      return {q:d[0], v:n * d[1], raw};
+    }
+    return u && /^[a-z"]/.test(u) ? {q:'?', v:n, raw, unit:u} : {q:'', v:n, raw};
+  }
+  const vpSame = (a, b) => Math.abs(a - b) <= Math.max(1e-9, Math.abs(a) * .005);   // 0.5 % rounding tolerance
+  const vpFmt = x => x.q === 'p' ? +x.v.toFixed(2) + ' kPa' : x.q === 'w' ? +x.v.toFixed(3) + ' kW' : x.q === 'f' ? +x.v.toFixed(3) + ' L/s' : x.q === 'l' ? +x.v.toFixed(1) + ' mm' : x.q === 't' ? +x.v.toFixed(1) + ' °C' : x.q === 'dn' ? 'DN' + x.v : String(x.v);
   // Automatic check of the vendor's offer against the specified value.
   function vpCheck(f, r) {
     if (f.vendor_response === false) return {k:'none', t:''};
@@ -4726,11 +5161,19 @@ function RootApp() {
     const rule = f.rule || 'exact', req = f.required_value, off = r.offered;
     if (rule === 'info') return {k:'none', t:'not checked'};
     if (!String(req || '').trim()) return {k:'none', t:'no specified value'};
-    if (rule === 'exact') return vpNorm(req) === vpNorm(off) ? {k:'ok', t:'matches'} : {k:'diff', t:'differs from specified'};
-    const a = vpNum(req), b = vpNum(off);
-    if (a === null || b === null) return {k:'unk', t:'cannot compare – not a number'};
-    if (rule === 'min') return b >= a ? {k:'ok', t:`${b} ≥ ${a}`} : {k:'diff', t:`${b} is below the minimum ${a}`};
-    return b <= a ? {k:'ok', t:`${b} ≤ ${a}`} : {k:'diff', t:`${b} is above the maximum ${a}`};
+    const a = vpParse(req), b = vpParse(off);
+    if (rule === 'exact') {
+      if (vpNorm(req) === vpNorm(off)) return {k:'ok', t:'matches'};
+      if (a && b && a.q && a.q !== '?' && a.q === b.q) return vpSame(a.v, b.v) ? {k:'ok', t:`matches (${vpFmt(b)})`} : {k:'diff', t:`${vpFmt(b)} ≠ ${vpFmt(a)}`};
+      return {k:'diff', t:'differs from specified'};
+    }
+    if (!a || !b) return {k:'unk', t:'cannot compare – not a number'};
+    if (a.q === '?' || b.q === '?') return {k:'unk', t:`cannot compare – unit "${(a.q === '?' ? a : b).unit}" not recognised`};
+    if (!a.q !== !b.q) return {k:'unk', t:'cannot compare – unit missing on ' + (a.q ? 'the offer' : 'the specified value')};
+    if (a.q && a.q !== b.q) return {k:'unk', t:`cannot compare – ${VP_Q[b.q]} vs ${VP_Q[a.q]}`};
+    const lbl = x => a.q ? vpFmt(x) : String(x.v);
+    if (rule === 'min') return b.v >= a.v || vpSame(a.v, b.v) ? {k:'ok', t:`${lbl(b)} ≥ ${lbl(a)}`} : {k:'diff', t:`${lbl(b)} is below the minimum ${lbl(a)}`};
+    return b.v <= a.v || vpSame(a.v, b.v) ? {k:'ok', t:`${lbl(b)} ≤ ${lbl(a)}`} : {k:'diff', t:`${lbl(b)} is above the maximum ${lbl(a)}`};
   }
   const vpFlag = (f, r) => r && r.compliance === 'Comply' && vpCheck(f, r).k === 'diff';
   const vpSorted = fl => (fl || []).slice().sort((a, b) => (a.sort || 0) - (b.sort || 0));
@@ -5132,9 +5575,9 @@ function RootApp() {
     ['Lists', [['chitems', 'Choice items'], ['chdefs', 'Choices'], ['chopts', 'Options'], ['presets', 'Presets'], ['warranty', 'Warranty annexure'], ['standards', 'Standards'], ['vendors', 'Manufacturers'], ['relations', 'Related links']], true],
   ];
   const LIB_SETUP_TABS = [['options', 'Project options'], ['locations', 'Locations']];
-  function LibraryAdminX({onBack, canEdit, who}) {
+  function LibraryAdminX({onBack, canEdit, canVendor, who}) {
     const [tab, setTab] = useState('builder'); const [setupOpen, setSetupOpen] = useState(false); const [vpUnread, setVpUnread] = useState(0);
-    const pollVp = useCallback(async () => { if (!canEdit) return; try { const r = await sb.from('vendor_notifications').select('id', {count:'exact', head:true}).is('read_at', null); if (!r.error) setVpUnread(r.count || 0); } catch (e) {} }, [canEdit]);
+    const pollVp = useCallback(async () => { if (!canVendor) return; try { const r = await sb.from('vendor_notifications').select('id', {count:'exact', head:true}).is('read_at', null); if (!r.error) setVpUnread(r.count || 0); } catch (e) {} }, [canEdit]);
     useEffect(() => { pollVp(); const t = setInterval(pollVp, 60000); return () => clearInterval(t); }, [pollVp]); const [ver, setVer] = useState(0); const [edit, setEdit] = useState(null); const [f, setF] = useState(''); const [stat, setStat] = useState('');
     const [rows, setRows] = useState({}); const [msg, setMsg] = useState(''); const [conv, setConv] = useState(false); const [myEmail, setMyEmail] = useState('');
     const [more, setMore] = useState(false); const [scan, setScan] = useState(false); const [attrN, setAttrN] = useState(0); const [exp, setExp] = useState({busy:false, msg:'', err:false});
@@ -5202,12 +5645,12 @@ function RootApp() {
         </div>
       </div></div>
       <div className="lib-wrap">
-        {!canEdit && <div className="lib-alert warn">You can view the library. Only Admin, Lead or Associate can change it; every change is kept in history.</div>}
+        {!canEdit && <div className="lib-alert warn">You can view the library. Only an Admin, Associate or Library editor can change it; every change is kept in history.</div>}
         {nDrafts > 0 && canEdit && tab !== 'itemspecs' && <div className="lib-alert amber"><span style={{flex:1}}>{nDrafts} item specification draft{nDrafts === 1 ? '' : 's'} awaiting approval.</span><button className="schedule-action" onClick={() => go('itemspecs')}>Review</button></div>}
         {AU.missing && <div className="lib-alert red">{AU.missing}</div>}
         {CH.missing && tab.startsWith('ch') && <div className="lib-alert red">{CH.missing}</div>}
         {msg && <div className="ai-msg bad" style={{marginBottom:10}}>{msg}</div>}
-        {(() => { const grps = LIB_TAB_GROUPS.filter(g => canEdit || !g[2]); const curG = grps.find(g => g[1].some(t => t[0] === tab)); const onSetup = LIB_SETUP_TABS.some(t => t[0] === tab);
+        {(() => { const grps = LIB_TAB_GROUPS.filter(g => canEdit || !g[2] || (g[0] === 'Vendors' && canVendor)); const curG = grps.find(g => g[1].some(t => t[0] === tab)); const onSetup = LIB_SETUP_TABS.some(t => t[0] === tab);
           return <div className="lib-nav">
             <div className="lib-nav-main">
               {grps.map(([g, ts]) => <button key={g} className={curG && curG[0] === g ? 'on' : ''} onClick={() => go(ts[0][0])}>{g}{g === 'Vendors' && vpUnread > 0 && <span className="lib-badge" title={vpUnread + ' new vendor notification' + (vpUnread === 1 ? '' : 's')}>{vpUnread}</span>}</button>)}
@@ -5251,8 +5694,8 @@ function RootApp() {
             : tab === 'autofill' ? <AutoFillPanel canEdit={canEdit} who={who}/>
             : tab === 'builder' ? <ItemBuilderPanel canEdit={canEdit} who={who} onOpenTab={go}/>
             : tab === 'approvals' ? <ApprovalsPanel canEdit={canEdit} who={who} myEmail={myEmail} onChanged={reload}/>
-            : tab === 'vpk' ? <VendorsPanel canEdit={canEdit} onNotif={pollVp} who={who}/>
-            : tab === 'vreg' ? <RegisterPanel canEdit={canEdit}/>
+            : tab === 'vpk' ? <VendorsPanel canEdit={canVendor} onNotif={pollVp} who={who}/>
+            : tab === 'vreg' ? <RegisterPanel canEdit={canVendor}/>
             : !cfgOk ? <div className="empty-schedule">{(cfg.chx ? CH.missing : AU.missing) || 'Tables not loaded.'}</div>
             : <table className="schedule-table" style={{minWidth:900,tableLayout:'auto'}}><thead><tr className="labels">{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k, l]) => <th key={k}>{l.replace(/\s*\(.*$/, '').replace(/\s*–.*$/, '')}</th>)}{tab === 'blocks' && <th>Used in</th>}<th></th></tr></thead><tbody>
               {list.map((r, i) => <tr key={i} onClick={() => setEdit({row:r, isNew:false})} style={{opacity:r.active === false ? .5 : 1}}>{cfg.fields.filter(x => !['sort','choices','default_value','data','source'].includes(x[0])).map(([k]) => <td key={k} style={{fontSize:10.5,maxWidth:320,whiteSpace:'normal'}}>{cell(k, r)}</td>)}{tab === 'blocks' && <td className="num">{usedBy(r.key)}</td>}<td><button className="schedule-action">{canEdit ? 'Edit' : 'View'}</button></td></tr>)}
@@ -5271,6 +5714,7 @@ function RootApp() {
 
   // ── install ─────────────────────────────────────────────────────────────
   function install() {
+    if (AU.installed || AU._installing) return; AU._installing = true;
     orig = {genSection, loadLibrary, LibraryAdmin};
     LIB_TABLES.relations = {table:'spec_relations', key:'from_num,to_num', fields:REL_FIELDS, title:'Related link', auto:true, audit:true, canDelete:true,
       help:'One row = "this section refers to that section". Related Requirements is built from these rows and lists only sections included in the project. Sections from other disciplines (not in the library) print with the title entered here when "list sections by other disciplines" is on.'};
@@ -5379,8 +5823,9 @@ function RootApp() {
     return codes;
   }
   // status of every engineer choice in the project (drives the sign-off block)
+  const newId = () => (window.crypto && crypto.randomUUID ? crypto.randomUUID() : Date.now().toString(36) + Math.random().toString(36).slice(2, 10));
   function choiceStatus(nums, sel, o) {
-    const r = {items:0, variants:0, choices:0, unset:0, unconf:0, blocked:0, other:0};
+    const r = {items:0, variants:0, choices:0, unset:0, unconf:0, blocked:0, other:0, nodp:0, nodpGroups:[]};
     if (!CH.loaded) return r;
     chAll().forEach(it => {
       if (!nums.has(it.section_num)) return;
@@ -5395,6 +5840,7 @@ function RootApp() {
         const op = chOpt(it, c, p);
         if (!op) { r.unset++; return; }
         if (optBlock(it, op, o).level === 'Block') r.blocked++;
+        if (Number(op.rating_bar) > 0 && !((AU.dp || {})[it.pgroup] > 0)) { r.nodp++; if (!r.nodpGroups.includes(it.pgroup)) r.nodpGroups.push(it.pgroup); }
         if (!(v.conf || {})[c.choice_key]) r.unconf++;
       }));
     });
@@ -5423,12 +5869,12 @@ function RootApp() {
     const items = chAll().map((i, k) => ({i, k})).filter(x => nums.has(x.i.section_num) && (!q || (x.i.label + ' ' + x.i.item_key).toLowerCase().includes(q.toLowerCase()))).sort((a, b) => String(a.i.section_num).localeCompare(String(b.i.section_num)) || a.k - b.k).map(x => x.i);
     const outside = CH.items.filter(i => !nums.has(i.section_num) || !ctryOk(i.countries)).length;
     const unused = items.filter(i => !(sel[i.item_key] || []).length);
-    const addMany = list => { if (locked || !list.length) return; setState(s => { const n = {...(s.sel || {})}; list.forEach(it => { if (!(n[it.item_key] || []).length) n[it.item_key] = [{id:Math.random().toString(36).slice(2, 8), label:'', picks:{}, other:{}, conf:{}}]; }); return {...s, sel:n}; }); };
+    const addMany = list => { if (locked || !list.length) return; setState(s => { const n = {...(s.sel || {})}; list.forEach(it => { if (!(n[it.item_key] || []).length) n[it.item_key] = [{id:newId(), label:'', picks:{}, other:{}, conf:{}}]; }); return {...s, sel:n}; }); };
     const st = choiceStatus(nums, sel, opts);
     const labels = [...new Set([...Object.values(sel).flat().map(v => v.label).filter(Boolean), 'FOH', 'BOH'])];
     const setVars = (key, fn) => { if (locked) return; setState(s => { const cur = (s.sel || {})[key] || [], next = fn(cur), n = {...(s.sel || {})}; if (next.length) n[key] = next; else delete n[key]; return {...s, sel:n}; }); };
     const patch = (key, id, fn) => setVars(key, cur => cur.map(v => v.id === id ? fn(v) : v));
-    const addVar = key => setVars(key, cur => [...cur, {id:Math.random().toString(36).slice(2, 8), label:'', picks:{}, other:{}, conf:{}}]);
+    const addVar = key => setVars(key, cur => [...cur, {id:newId(), label:'', picks:{}, other:{}, conf:{}}]);
     const delVar = (key, id) => { if (window.confirm('Remove this variant and its choices?')) setVars(key, cur => cur.filter(v => v.id !== id)); };
     const pick = (it, v, c, val) => patch(it.item_key, v.id, x => ({...x, picks:{...x.picks, [c.choice_key]:val}, conf:{...x.conf, [c.choice_key]:false}}));
     const canConf = (c, v) => !locked && ((!c.code_critical && (v.picks || {})[c.choice_key] !== OTHER) || isLead);
@@ -5444,7 +5890,7 @@ function RootApp() {
         {card('Items in use', st.items, `${st.variants} variant${st.variants === 1 ? '' : 's'}`)}
         {card('To confirm', st.unconf + st.unset, st.unset ? `${st.unset} not chosen yet` : 'proposed, not confirmed', st.unconf + st.unset ? 'review' : 'pass')}
         {card('Not allowed', st.blocked, 'below design pressure or code rule', st.blocked ? 'blocked' : 'pass')}
-        {card('"Other" (Lead review)', st.other, 'typed text, not from the catalogue', st.other ? 'review' : 'pass')}
+        {card('"Other" (Checker review)', st.other, 'typed text, not from the catalogue', st.other ? 'review' : 'pass')}
         {card('Design pressure', `${dp.plumbing || '—'} / ${dp.fire || '—'}`, 'plumbing / fire, bar (Setup)', dp.plumbing || dp.fire ? 'capacity' : 'review')}
       </div>
       <datalist id="chxlabels">{labels.map(l => <option key={l} value={l}/>)}</datalist>
@@ -5484,7 +5930,7 @@ function RootApp() {
                   const cs = !p ? 'none' : (op && bl.level === 'Block') ? 'blocked' : (v.conf || {})[c.choice_key] ? 'ok' : 'prop';
                   const lockSel = locked || (c.code_critical && !isLead);
                   return <tr key={c.choice_key}>
-                    <td className="chx-l">{c.label}{c.code_critical && <span className="chx-lock" title="Code-critical: only a Lead can change it">Lead</span>}</td>
+                    <td className="chx-l">{c.label}{c.code_critical && <span className="chx-lock" title="Code-critical: only a Checker (Senior / Principal / Lead) can change it">Checker</span>}</td>
                     <td className="chx-s"><select disabled={lockSel} value={p || ''} onChange={e => pick(it, v, c, e.target.value)}>
                       <option value="">— choose —</option>
                       {chOpts(it, c).map(x => { const b = optBlock(it, x, opts); return <option key={x.opt_key} value={x.opt_key} disabled={b.level === 'Block'}>{x.label}{x.status === 'Check' ? ' (check)' : ''}{b.level === 'Block' ? ' — not allowed' : b.level === 'Warn' ? ' — warning' : ''}</option>; })}
@@ -5496,7 +5942,7 @@ function RootApp() {
                     {c.choice_key === 'rating' && !dp[it.pgroup] && <div className="chx-hint warn">Set the {it.pgroup} design pressure on Setup so ratings can be checked.</div>}
                     </td>
                     <td className="chx-b">{op && (op.source || op.standards) ? <span className="chx-src" title={'Source: ' + (op.source || '') + (op.standards ? '\nStandards: ' + op.standards : '')}>source</span> : null}</td>
-                    <td className="chx-c">{cs === 'none' ? chip('blocked', 'not chosen') : cs === 'blocked' ? chip('blocked', 'not allowed') : cs === 'ok' ? <button className="chx-ok" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, false)} title="Confirmed – click to unconfirm">✓ Confirmed</button> : <button className="chx-pr" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, true)} title={canConf(c, v) ? 'Click to confirm' : 'Only a Lead can confirm this'}>Proposed</button>}{p === OTHER && chip('review', 'Lead review')}</td>
+                    <td className="chx-c">{cs === 'none' ? chip('blocked', 'not chosen') : cs === 'blocked' ? chip('blocked', 'not allowed') : cs === 'ok' ? <button className="chx-ok" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, false)} title="Confirmed – click to unconfirm">✓ Confirmed</button> : <button className="chx-pr" disabled={!canConf(c, v)} onClick={() => confirm(it, v, c, true)} title={canConf(c, v) ? 'Click to confirm' : 'Only a Checker can confirm this'}>Proposed</button>}{p === OTHER && chip('review', 'Checker review')}</td>
                   </tr>; })}
               </tbody></table>
             </div>)}
