@@ -1147,6 +1147,14 @@
   .pl-stages{display:flex;flex-wrap:wrap;gap:5px}
   .pl-stages span{font-size:10.5px;font-weight:700;color:#424245;background:#f5f5f7;border:1px solid #ececf0;border-radius:999px;padding:3px 9px}
   .pl-card-foot{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:auto;padding-top:10px;border-top:1px solid #f0f0f2}
+  .sw{position:relative;display:inline-block;width:38px;height:22px;flex:0 0 auto;cursor:pointer}
+  .sw input{opacity:0;width:0;height:0;position:absolute}
+  .sw span{position:absolute;inset:0;background:#d2d2d7;border-radius:22px;transition:.15s}
+  .sw span:before{content:'';position:absolute;width:18px;height:18px;left:2px;top:2px;background:#fff;border-radius:50%;box-shadow:0 1px 2px rgba(0,0,0,.25);transition:.15s}
+  .sw input:checked+span{background:#34c759}.sw input:checked+span:before{transform:translateX(16px)}
+  .sw input:disabled+span{opacity:.5;cursor:not-allowed}
+  .lib-new{border:0;background:#007aff;color:#fff;border-radius:8px;padding:6px 14px;font-size:11px;font-weight:800;cursor:pointer}.lib-new:hover{background:#0068d9}.lib-new:disabled{opacity:.5;cursor:default}
+  .lib-foot{padding:8px 14px;font-size:10px;color:#86868b;border-top:1px solid #f0f0f2}
   .pl-tags{display:flex;flex-wrap:wrap;gap:5px;min-width:0}
   .pl-tag{font-size:10px;font-weight:750;border-radius:999px;padding:2px 8px;white-space:nowrap}
   .pl-tag.sh{background:#e8f0fe;color:#1559a6}.pl-tag.adm{background:#fff4e0;color:#8a4b00}.pl-tag.you{background:#ff9500;color:#fff}.pl-tag.wait{background:#fff4e0;color:#a76200}.pl-tag.ok{background:#e8faf0;color:#16803a}
@@ -1250,7 +1258,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.68.1 · Build 2026.11.10.04";
+const BUILD_LABEL = "v1.69.0 · Build 2026.11.10.05";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -10963,101 +10971,152 @@ function AccessPendingScreen({session, reload}) {
   </div>;
 }
 
-function TeamAccessAdmin({onBack, session, team, roles, reload, canEdit}) {
-  const [tab, setTab] = React.useState('requests');
-  const [requests, setRequests] = React.useState([]);
-  const [rows, setRows] = React.useState([]);
-  const [roleRows, setRoleRows] = React.useState([]);
-  const [message, setMessage] = React.useState('');
-  const [busy, setBusy] = React.useState(false);
-  const [newEmail, setNewEmail] = React.useState('');
-  const [newRole, setNewRole] = React.useState('viewer');
-  const [newScope, setNewScope] = React.useState('global');
-  const currentEmail = (session && session.user && session.user.email || '').toLowerCase();
-  const autoIni = n => { const p=String(n||'').trim().split(/\s+/).filter(Boolean); return p.length ? (p[0][0]+(p.length>1?p[p.length-1][0]: '')).toUpperCase() : ''; };
-  const blank = {name:'',email:'',desig:'',initials:'',disc:'PH&E',office:'DXB',active:true,_new:true};
-  const load = React.useCallback(async () => {
-    setBusy(true); setMessage('');
-    const [reqRes, roleRes] = await Promise.all([
-      sb.from('pending_users').select('id,email,status,requested_at,reviewed_at,note').order('requested_at',{ascending:false}),
-      sb.from('engineer_roles').select('id,email,role,scope,active,created_at').order('email')
-    ]);
-    if (reqRes.error || roleRes.error) setMessage('Access data could not be loaded: ' + ((reqRes.error||roleRes.error).message||''));
-    setRequests(reqRes.data || []);
-    setRoleRows(roleRes.data || []);
-    setRows(team.map(t=>({...t})));
-    setBusy(false);
-  }, [team]);
-  React.useEffect(() => { load(); }, [load]);
-  const set = (i,k,v) => setRows(r=>r.map((x,j)=>j===i ? {...x,[k]:v}:x));
-  const pill = (role) => { const map={admin:['#fef3c7','#92400e','Admin'],engineer:['#dbeafe','#1d4ed8','Engineer'],lead:['#f3e8ff','#7e22ce','Lead'],associate:['#dcfce7','#166534','Associate'],viewer:['#f1f5f9','#475569','Viewer']}; const x=map[role]||map.viewer; return <span style={{fontSize:10,fontWeight:800,padding:'2px 7px',borderRadius:6,background:x[0],color:x[1]}}>{x[2]}</span>; };
-  const activeRoles = (email) => roleRows.filter(r=>r.active!==false && (r.email||'').toLowerCase()===(email||'').toLowerCase());
-  async function saveMember(i) {
-    const r=rows[i]; if(!r.name || !r.name.trim()) { setMessage('Name is required.'); return; }
-    setBusy(true); const payload={name:r.name.trim(),email:(r.email||'').trim().toLowerCase()||null,desig:r.desig||'',initials:(r.initials||autoIni(r.name)).toUpperCase(),disc:r.disc||'PH&E',office:r.office||'',active:r.active!==false};
-    const q=r._new?sb.from('engineers').insert(payload):sb.from('engineers').update(payload).eq('id',r.id);
-    const {error}=await q; setBusy(false);
-    if(error){setMessage('Save failed: '+error.message);return;}
-    setMessage('Team member saved.'); await reload(); await load();
-  }
-  async function approve(req) {
-    setBusy(true); const email=(req.email||'').toLowerCase();
-    const existing=team.find(t=>(t.email||'').toLowerCase()===email);
-    let error=null;
-    if(existing) ({error}=await sb.from('engineers').update({active:true}).eq('id',existing.id));
-    else { const name=email.split('@')[0].replace(/[._]/g,' ').replace(/\b\w/g,c=>c.toUpperCase()); ({error}=await sb.from('engineers').insert({name,email,desig:'Pending profile setup',initials:autoIni(name),disc:'PH&E',office:'DXB',active:true})); }
-    if(!error) ({error}=await sb.from('pending_users').update({status:'approved',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',req.id));
-    setBusy(false); if(error){setMessage('Approval failed: '+error.message);return;} setMessage(email+' approved. Assign a role in the Roles tab.'); await reload(); await load();
-  }
-  async function reject(req) {
-    if(!window.confirm('Reject access for '+req.email+'?'))return; setBusy(true);
-    const {error}=await sb.from('pending_users').update({status:'rejected',reviewed_at:new Date().toISOString(),reviewed_by:session.user.id}).eq('id',req.id);
-    setBusy(false); if(error){setMessage('Rejection failed: '+error.message);return;} setMessage('Request rejected.'); await load();
-  }
-  async function addRole() {
-    if(!newEmail){setMessage('Select an active team member.');return;} setBusy(true);
-    const {error}=await sb.from('engineer_roles').insert({email:newEmail.toLowerCase(),role:newRole,scope:newScope||'global',active:true,created_by:session.user.id});
-    setBusy(false); if(error){setMessage('Role could not be added: '+error.message);return;} setMessage('Role granted.'); await load();
-  }
-  async function removeRole(r) {
-    if(!window.confirm('Remove '+r.role+' access from '+r.email+'?'))return; setBusy(true);
-    const {error}=await sb.from('engineer_roles').delete().eq('id',r.id); setBusy(false);
-    if(error){setMessage('Role removal failed: '+error.message);return;} setMessage('Role removed.'); await load();
-  }
-  const tabs=[['requests','Access requests'],['people','Team table'],['roles','Roles & access']];
-  const pending=requests.filter(r=>r.status==='pending');
-  return <div className="global-page" style={{minHeight:'100vh',background:'#f5f5f7'}}>
-    <div className="app-header" style={{background:'rgba(255,255,255,.9)',backdropFilter:'blur(20px)',borderBottom:'1px solid #d2d2d7',padding:'10px 20px'}}>
-      <div style={{maxWidth:1180,margin:'0 auto',display:'flex',justifyContent:'space-between',alignItems:'center',gap:12}}><div><div style={{fontSize:9,letterSpacing:'.15em',textTransform:'uppercase',color:'#86868b',fontWeight:800}}>Equipment Calculator administration</div><div style={{fontSize:19,fontWeight:800,letterSpacing:'-.03em',color:'#1d1d1f'}}>Team & Access</div></div><button onClick={onBack} style={{padding:'6px 12px',background:'#fff',color:'#424245',border:'1px solid #d2d2d7',borderRadius:8,fontSize:11,fontWeight:700,cursor:'pointer'}}>← All Projects</button></div>
-    </div>
-    <div style={{maxWidth:1180,margin:'0 auto',padding:'22px 20px'}}>
-      {!canEdit && <div style={{background:'#fff7ed',border:'1px solid #fed7aa',borderRadius:10,padding:'10px 14px',fontSize:12,color:'#9a3412',marginBottom:14}}>You can view team information, but only an administrator can grant, revoke, or approve access.</div>}
-      {message && <div style={{background:/failed|could not|error/i.test(message)?'#fff0ee':'#e8faf0',color:/failed|could not|error/i.test(message)?'#b91c1c':'#166534',borderRadius:9,padding:'9px 12px',fontSize:12,marginBottom:12}}>{message}</div>}
-      <div style={{display:'flex',gap:4,borderBottom:'1px solid #d2d2d7',marginBottom:18}}>{tabs.map(([key,label])=><button key={key} onClick={()=>setTab(key)} style={{position:'relative',padding:'9px 12px',border:'none',borderBottom:tab===key?'2px solid #007aff':'2px solid transparent',background:'transparent',fontSize:12,fontWeight:tab===key?800:600,color:tab===key?'#007aff':'#6e6e73',cursor:'pointer'}}>{label}{key==='requests'&&pending.length>0&&<span style={{marginLeft:6,fontSize:9,padding:'1px 5px',borderRadius:7,background:'#ff3b30',color:'#fff'}}>{pending.length}</span>}</button>)}</div>
-      {tab==='requests' && <div>{pending.length===0?<div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:30,textAlign:'center',color:'#86868b',fontSize:13}}>No pending access requests.</div>:<div style={{display:'grid',gap:9}}>{pending.map(r=><div key={r.id} style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:'14px 16px',display:'flex',justifyContent:'space-between',gap:12,alignItems:'center',flexWrap:'wrap'}}><div><div style={{fontSize:13,fontWeight:800,color:'#1d1d1f'}}>{r.email}</div><div style={{fontSize:11,color:'#86868b',marginTop:3}}>Requested {r.requested_at?new Date(r.requested_at).toLocaleString():'—'}</div></div>{canEdit&&<div style={{display:'flex',gap:7}}><button disabled={busy} onClick={()=>approve(r)} style={{padding:'6px 11px',border:'none',borderRadius:7,background:'#16803a',color:'#fff',fontSize:11,fontWeight:800,cursor:'pointer'}}>Approve</button><button disabled={busy} onClick={()=>reject(r)} style={{padding:'6px 11px',border:'1px solid #fecaca',borderRadius:7,background:'#fff',color:'#b91c1c',fontSize:11,fontWeight:800,cursor:'pointer'}}>Reject</button></div>}</div>)}</div>}</div>}
-      {tab==='people' && <div>
-        <div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,overflowX:'auto'}}>
-          <div style={{minWidth:890}}>
-            <div style={{display:'grid',gridTemplateColumns:'1.25fr 1.65fr 1.15fr 80px 100px 100px 72px',gap:8,padding:'10px 12px',background:'#f5f5f7',fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#86868b'}}>
-              <div>Name</div><div>Email</div><div>Designation</div><div>Initials</div><div>Access</div><div>Status</div><div></div>
-            </div>
-            {rows.map((r,i)=><div key={r.id||'new'+i} style={{display:'grid',gridTemplateColumns:'1.25fr 1.65fr 1.15fr 80px 100px 100px 72px',gap:8,padding:'8px 12px',borderTop:'1px solid #f0f0f2',alignItems:'center',opacity:r.active===false?.55:1}}>
-              <input disabled={!canEdit} value={r.name||''} onChange={e=>set(i,'name',e.target.value)} style={IN}/>
-              <input disabled={!canEdit} value={r.email||''} onChange={e=>set(i,'email',e.target.value)} style={IN}/>
-              <input disabled={!canEdit} value={r.desig||''} onChange={e=>set(i,'desig',e.target.value)} style={IN}/>
-              <input disabled={!canEdit} value={r.initials||''} onChange={e=>set(i,'initials',e.target.value.toUpperCase())} placeholder={autoIni(r.name)} maxLength={4} style={{...IN,textAlign:'center',fontWeight:800}}/>
-              <div style={{display:'flex',gap:4,flexWrap:'wrap'}}>{activeRoles(r.email).length ? activeRoles(r.email).map(x=><React.Fragment key={x.id}>{pill(x.role)}</React.Fragment>) : <span style={{fontSize:10,color:'#86868b'}}>No role</span>}</div>
-              <label style={{display:'flex',gap:5,alignItems:'center',fontSize:11,color:'#424245'}}><input disabled={!canEdit} type='checkbox' checked={r.active!==false} onChange={e=>set(i,'active',e.target.checked)}/> Active</label>
-              <button disabled={!canEdit||busy} onClick={()=>saveMember(i)} style={{padding:'5px 7px',fontSize:10,fontWeight:800,border:'1px solid #d2d2d7',borderRadius:6,background:'#fff',cursor:'pointer'}}>Save</button>
-            </div>)}
-          </div>
+function Chip({k, children}) { return <span className={`status-chip ${k}`}>{children}</span>; }
+// ══════════════════════════════════════════════════════════════════════════
+// v1.18.1 · TEAM & ACCESS — one sign-off level per person
+//   Engineer → writes · Checker (Senior / Principal / Lead) → first sign-off
+//   Approver (Associate) → final approval · View only → no sign-off
+// Stored in engineer_roles (engineer / lead / associate / viewer), shared with the Equipment Calculator.
+// ══════════════════════════════════════════════════════════════════════════
+const TA_LEVELS = [
+  ['engineer', 'Engineer', 'Writes the specification', ['engineer']],
+  ['checker', 'Checker', 'Senior / Principal / Lead · first sign-off', ['engineer', 'lead']],
+  ['approver', 'Approver', 'Associate · final approval', ['engineer', 'associate']],
+  ['none', 'View only', 'No sign-off', ['viewer']],
+];
+const TA_MANAGED = ['engineer', 'lead', 'associate', 'viewer'];
+const taSuggest = desig => { const d = String(desig || ''); return /associate|director|partner/i.test(d) ? 'approver' : /senior|principal|lead|manager|head/i.test(d) ? 'checker' : 'engineer'; };
+const taGuess = email => { const n = String(email || '').split('@')[0].replace(/[._\-]+/g, ' ').replace(/\d+/g, '').trim().replace(/\b\w/g, c => c.toUpperCase()); return {name:n, initials:n.split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 3).toUpperCase()}; };
+function TeamAccess({session, me, team, roles, reload, onBack}) {
+  const userId = session.user.id, myEmail = (session.user.email || '').toLowerCase();
+  const [tab, setTab] = useState('requests'); const [pend, setPend] = useState(null); const [hist, setHist] = useState(false);
+  const [msg, setMsg] = useState(''); const [busy, setBusy] = useState(''); const [q, setQ] = useState(''); const [form, setForm] = useState({}); const [edit, setEdit] = useState({}); const [add, setAdd] = useState(null);
+  const loadPend = useCallback(async () => { const {data, error} = await sb.from('pending_users').select('*').order('requested_at', {ascending:false}).range(0, 999); if (error) { setMsg('Access requests could not be read: ' + error.message); setPend([]); return; } setPend(data || []); }, []);
+  useEffect(() => { loadPend(); }, [loadPend]);
+  const lc = x => String(x || '').toLowerCase();
+  const rolesOf = em => roles.filter(r => lc(r.email) === lc(em));
+  const hasRole = (em, k) => rolesOf(em).some(r => r.role === k && r.active !== false);
+  const isAdm = t => !!t.is_admin || hasRole(t.email, 'admin');
+  const levelOf = em => hasRole(em, 'associate') ? 'approver' : hasRole(em, 'lead') ? 'checker' : hasRole(em, 'engineer') ? 'engineer' : 'none';
+  const ok = r => { if (r.error) throw new Error(r.error.message); return r; };
+  const run = async (label, fn, done) => { setBusy(label); setMsg(''); let good = false; try { await fn(); good = true; setMsg(done); } catch (e) { setMsg('Failed: ' + ((e && e.message) || e)); } try { await reload(true); await loadPend(); } catch (e) {} setBusy(''); return good; };
+  const dupIni = (ini, em) => !!ini && team.some(t => lc(t.email) !== lc(em) && String(t.initials || '').toUpperCase() === ini.toUpperCase());
+  const setRole = async (em, k, on) => {
+    const ex = rolesOf(em).filter(r => r.role === k);
+    if (ex.length) { for (const r of ex) if ((r.active !== false) !== on) ok(await sb.from('engineer_roles').update({active:on}).eq('id', r.id)); return; }
+    if (on) ok(await sb.from('engineer_roles').insert({email:lc(em), role:k, scope:'global', active:true, created_by:userId}));
+  };
+  const setLevel = async (em, lv) => { const want = (TA_LEVELS.find(x => x[0] === lv) || TA_LEVELS[0])[3]; for (const k of TA_MANAGED) await setRole(em, k, want.includes(k)); };
+  const saveProfile = async (em, f) => {
+    const ex = team.find(t => lc(t.email) === lc(em));
+    const row = {name:f.name.trim(), initials:f.initials.trim().toUpperCase(), desig:(f.desig || '').trim() || null, active:true};
+    if (ex) ok(await sb.from('engineers').update(row).eq('id', ex.id)); else ok(await sb.from('engineers').insert({...row, email:lc(em)}));
+  };
+  const check = (em, f) => !f.name.trim() ? 'Enter the full name.' : !f.initials.trim() ? 'Enter the initials (used on sign-offs).' : dupIni(f.initials.trim(), em) ? `Initials ${f.initials.toUpperCase()} are already used by another person — sign-offs would be ambiguous.` : '';
+  const formOf = p => form[p.id] || (() => { const g = taGuess(p.email), ex = team.find(t => lc(t.email) === lc(p.email)); const desig = (ex && ex.desig) || ''; return {name:(ex && ex.name) || g.name, initials:(ex && ex.initials) || g.initials, desig, level:taSuggest(desig), admin:false}; })();
+  const setF = (p, patch) => setForm(s => ({...s, [p.id]:{...formOf(p), ...patch}}));
+  const approve = p => { const f = formOf(p), bad = check(p.email, f); if (bad) return setMsg(bad);
+    run('Approving…', async () => {
+      await saveProfile(p.email, f); await setLevel(p.email, f.level); if (f.admin) await setRole(p.email, 'admin', true);
+      ok(await sb.from('pending_users').update({status:'approved', reviewed_at:new Date().toISOString(), reviewed_by:userId, note:null}).eq('id', p.id));
+    }, `${f.name} approved as ${TA_LEVELS.find(x => x[0] === f.level)[1]}. They can sign in to both apps now (they may need to refresh).`); };
+  const reject = p => { const n = window.prompt(`Reject access for ${p.email}?\n\nReason (shown to them):`, ''); if (n === null) return;
+    run('Rejecting…', async () => ok(await sb.from('pending_users').update({status:'rejected', reviewed_at:new Date().toISOString(), reviewed_by:userId, note:n.trim() || 'Access not approved.'}).eq('id', p.id)), p.email + ' rejected.'); };
+  const changeLevel = (t, lv) => run('Saving…', () => setLevel(t.email, lv), `${t.name} is now ${TA_LEVELS.find(x => x[0] === lv)[1]}.`);
+  const toggleAdmin = (t, on) => {
+    if (!on && lc(t.email) === myEmail) return setMsg('You cannot remove your own Admin rights.');
+    if (!on && team.filter(x => x.active !== false && isAdm(x)).length <= 1) return setMsg('This is the last Admin — make someone else Admin first.');
+    if (!on && t.is_admin && !hasRole(t.email, 'admin')) return setMsg(`${t.name} is Admin through the profile flag in Supabase (engineers.is_admin) — change it there.`);
+    run('Saving…', () => setRole(t.email, 'admin', on), `${t.name}: Admin ${on ? 'given' : 'removed'}.`);
+  };
+  const toggleActive = t => { if (lc(t.email) === myEmail) return setMsg('You cannot deactivate yourself.');
+    const on = t.active === false; if (!on && !window.confirm(`Deactivate ${t.name}?\n\nThey can no longer open either app. Their past sign-offs stay on record.`)) return;
+    run('Saving…', async () => ok(await sb.from('engineers').update({active:on}).eq('id', t.id)), `${t.name} ${on ? 'reactivated' : 'deactivated'}.`); };
+  const saveEdit = t => { const f = edit[t.id]; const bad = check(t.email, f); if (bad) return setMsg(bad);
+    run('Saving…', () => saveProfile(t.email, f), `${f.name} saved.`).then(g => g && setEdit(e => { const n = {...e}; delete n[t.id]; return n; })); };
+  const addMember = () => { const f = add, em = lc(f.email).trim(); if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(em)) return setMsg('Enter a valid email.');
+    if (team.some(t => lc(t.email) === em)) return setMsg(em + ' is already on the team.');
+    const bad = check(em, f); if (bad) return setMsg(bad);
+    run('Adding…', async () => { await saveProfile(em, f); await setLevel(em, f.level); if (f.admin) await setRole(em, 'admin', true); }, `${f.name} added. They sign up with "Request Access" using ${em}; no approval step is needed.`).then(g => g && setAdd(null)); };
+  const pending = (pend || []).filter(p => p.status === 'pending'), done = (pend || []).filter(p => p.status !== 'pending');
+  const shown = team.filter(t => !q || [t.name, t.email, t.initials, t.desig, TA_LEVELS.find(x => x[0] === levelOf(t.email))[1]].join(' ').toLowerCase().includes(q.toLowerCase()));
+  const i1 = {padding:'5px 8px', fontSize:12, border:'1px solid #d2d2d7', borderRadius:7, width:'100%', background:'#fff'};
+  const levelSel = (val, onChange, dis) => <select disabled={dis} style={{...i1, fontWeight:700}} value={val} onChange={e => onChange(e.target.value)}>{TA_LEVELS.map(([k, l, d]) => <option key={k} value={k}>{l} — {d}</option>)}</select>;
+  const counts = TA_LEVELS.map(([k, l]) => [l, team.filter(t => t.active !== false && levelOf(t.email) === k).length]);
+  const tabBtn = on => on ? {background:'#fff', color:'#007aff', boxShadow:'0 1px 2px rgba(0,0,0,.08)'} : undefined;
+  return <div className="global-page pl-page">
+    <header className="pl-head"><div className="pl-head-in">
+      <div className="pl-brand"><div className="pl-logo">▥</div><div><b>Team &amp; Access</b><span className="build-pill">{BUILD_LABEL}</span></div></div>
+      <nav className="pl-nav"><button type="button" onClick={onBack}>← All projects</button><a href="spec.html">§ Specification Builder</a></nav>
+      <div className="pl-user"><UserBadge session={session} me={me} roles={roles}/></div>
+    </div></header>
+    <main className="pl-main">
+      <div className="pl-top"><div><h1>Team &amp; Access</h1><p>{counts.map(([l, n]) => `${n} ${l}`).join(' · ')} · {pending.length} request{pending.length === 1 ? '' : 's'} waiting</p></div>
+        <div className="pl-top-act"><div className="pl-nav">
+          <button type="button" onClick={() => setTab('requests')} style={tabBtn(tab === 'requests')}>Access requests{pending.length > 0 && <i className="pl-badge">{pending.length}</i>}</button>
+          <button type="button" onClick={() => setTab('team')} style={tabBtn(tab === 'team')}>Team members</button></div></div></div>
+      <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:14, padding:'10px 14px', background:'#fff', border:'1px solid #e1e1e6', borderRadius:12, fontSize:12}}>
+        <b style={{marginRight:4}}>Sign-off route:</b>
+        <span className="pl-tag sh">1 · Engineer writes</span><span>→</span>
+        <span className="pl-tag wait">2 · Checker signs (Senior / Principal / Lead)</span><span>→</span>
+        <span className="pl-tag ok">3 · Approver signs and closes (Associate)</span>
+        <span style={{color:'#86868b', fontSize:11}}>· three different people · Admin is separate and only manages reference data, the library, vendors and this page</span>
+      </div>
+      {msg && <div className={/^Failed|cannot|already|Enter|Initials|last Admin|profile flag/.test(msg) ? 'pl-err' : 'ai-msg'} style={{marginBottom:12}}>{msg}</div>}
+      {busy && <div className="ai-msg" style={{marginBottom:12, background:'#eef5ff', color:'#0a4fa0'}}>{busy}</div>}
+      {tab === 'requests' && <div className="schedule-card">
+        <div className="schedule-card-head"><div><h2>Waiting for approval</h2><p>People who signed up with “Request Access”. The level is suggested from the designation — check it before approving.</p></div></div>
+        {pend === null ? <div className="piw-empty">Loading…</div> : !pending.length ? <div className="piw-empty">No requests waiting ✓</div> :
+          <div className="schedule-table-wrap" style={{maxHeight:'none'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
+            <thead><tr className="labels">{['Email', 'Requested', 'Full name', 'Initials', 'Designation', 'Sign-off level', 'Admin', ''].map(h => <th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{pending.map(p => { const f = formOf(p); return <tr key={p.id} style={{cursor:'default'}}>
+              <td style={{fontWeight:700}}>{p.email}</td><td style={{fontSize:10.5, whiteSpace:'nowrap'}}>{fmtWhen(p.requested_at)}</td>
+              <td style={{minWidth:160}}><input style={i1} value={f.name} onChange={e => setF(p, {name:e.target.value})}/></td>
+              <td style={{width:76}}><input style={{...i1, textTransform:'uppercase', borderColor:dupIni(f.initials, p.email) ? '#ff3b30' : '#d2d2d7'}} maxLength={4} value={f.initials} onChange={e => setF(p, {initials:e.target.value})}/></td>
+              <td style={{minWidth:170}}><input style={i1} value={f.desig} placeholder="e.g. Senior Engineer - PH&E" onChange={e => setF(p, {desig:e.target.value, level:taSuggest(e.target.value)})}/></td>
+              <td style={{minWidth:250}}>{levelSel(f.level, v => setF(p, {level:v}))}</td>
+              <td className="ctr"><input type="checkbox" checked={!!f.admin} onChange={e => setF(p, {admin:e.target.checked})}/></td>
+              <td style={{whiteSpace:'nowrap'}}><button className="lib-new" disabled={!!busy} onClick={() => approve(p)}>Approve</button> <button className="schedule-action" style={{color:'#b42318'}} disabled={!!busy} onClick={() => reject(p)}>Reject</button></td>
+            </tr>; })}</tbody></table></div>}
+        <div style={{padding:'8px 14px', borderTop:'1px solid #f0f0f2'}}><a href="#" style={{fontSize:11, fontWeight:700, color:'#007aff'}} onClick={e => { e.preventDefault(); setHist(!hist); }}>{hist ? 'Hide' : 'Show'} decided requests ({done.length})</a>
+          {hist && <table className="schedule-table" style={{minWidth:0, tableLayout:'auto', marginTop:8}}><thead><tr className="labels">{['Email', 'Status', 'Requested', 'Decided', 'Note'].map(h => <th key={h}>{h}</th>)}</tr></thead>
+            <tbody>{done.map(p => <tr key={p.id} style={{cursor:'default'}}><td>{p.email}</td><td><Chip k={p.status === 'approved' ? 'pass' : 'blocked'}>{p.status}</Chip></td><td style={{fontSize:10.5}}>{fmtWhen(p.requested_at)}</td><td style={{fontSize:10.5}}>{fmtWhen(p.reviewed_at)}</td><td style={{fontSize:10.5}}>{p.note || ''}</td></tr>)}</tbody></table>}
         </div>
-        {canEdit && <button onClick={()=>setRows(r=>[...r,{...blank}])} style={{marginTop:12,padding:'8px 13px',background:'#007aff',color:'#fff',border:'none',borderRadius:8,fontSize:12,fontWeight:800,cursor:'pointer'}}>+ Add team member</button>}
       </div>}
-      {tab==='roles' && <div><div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,padding:16,marginBottom:14}}><div style={{fontSize:10,fontWeight:800,textTransform:'uppercase',letterSpacing:'.08em',color:'#86868b',marginBottom:10}}>Grant access</div><div style={{display:'grid',gridTemplateColumns:'minmax(220px,1fr) 180px 150px auto',gap:9,alignItems:'end'}}><div><label style={lbl}>Team member</label><select disabled={!canEdit} value={newEmail} onChange={e=>setNewEmail(e.target.value)} style={{...IN,cursor:'pointer'}}><option value=''>— Select —</option>{rows.filter(r=>r.active!==false&&r.email).sort((a,b)=>(a.name||'').localeCompare(b.name||'')).map(r=><option key={r.id} value={r.email}>{r.name} · {r.email}</option>)}</select></div><div><label style={lbl}>Role</label><select disabled={!canEdit} value={newRole} onChange={e=>setNewRole(e.target.value)} style={{...IN,cursor:'pointer'}}><option value='admin'>Admin</option><option value='engineer'>Engineer</option><option value='lead'>Lead</option><option value='associate'>Associate</option><option value='viewer'>Viewer</option></select></div><div><label style={lbl}>Scope</label><select disabled={!canEdit} value={newScope} onChange={e=>setNewScope(e.target.value)} style={{...IN,cursor:'pointer'}}><option value='global'>All Equipment Calculator</option></select></div><button disabled={!canEdit||busy} onClick={addRole} style={{padding:'8px 13px',border:'none',borderRadius:8,background:'#007aff',color:'#fff',fontSize:12,fontWeight:800,cursor:'pointer'}}>Grant role</button></div><div style={{fontSize:11,color:'#86868b',marginTop:10}}>This mirrors the Resource Planning role taxonomy. Engineer prepares, Lead checks, and Associate / Approver gives final approval. Admin remains an administrative override role.</div></div><div style={{background:'#fff',border:'1px solid #d2d2d7',borderRadius:12,overflowX:'auto'}}><div style={{minWidth:720}}><div style={{display:'grid',gridTemplateColumns:'1.2fr 1.4fr 150px 140px 80px',gap:8,padding:'10px 12px',background:'#f5f5f7',fontSize:9,fontWeight:800,textTransform:'uppercase',letterSpacing:'.06em',color:'#86868b'}}><div>Person</div><div>Email</div><div>Role</div><div>Scope</div><div></div></div>{roleRows.filter(r=>r.active!==false).map(r=>{const person=rows.find(x=>(x.email||'').toLowerCase()===(r.email||'').toLowerCase());return <div key={r.id} style={{display:'grid',gridTemplateColumns:'1.2fr 1.4fr 150px 140px 80px',gap:8,padding:'9px 12px',borderTop:'1px solid #f0f0f2',alignItems:'center',fontSize:12}}><div style={{fontWeight:700,color:'#1d1d1f'}}>{person?.name||'—'}</div><div style={{color:'#6e6e73',overflowWrap:'anywhere'}}>{r.email}</div><div>{pill(r.role)}</div><div style={{color:'#6e6e73'}}>{r.scope||'global'}</div><div>{canEdit&&<button disabled={busy||(r.role==='admin'&&(r.email||'').toLowerCase()===currentEmail)} onClick={()=>removeRole(r)} style={{padding:'4px 8px',border:'none',background:'transparent',color:'#b91c1c',fontSize:10,fontWeight:800,cursor:'pointer'}}>Remove</button>}</div></div>})}</div></div></div>}
-    </div>
+      {tab === 'team' && <div className="schedule-card">
+        <div className="schedule-toolbar"><input value={q} onChange={e => setQ(e.target.value)} placeholder="Search name, email, initials, level…"/><span className="toolbar-spacer"/>
+          <button className="lib-new" onClick={() => setAdd(add ? null : {email:'', name:'', initials:'', desig:'', level:'engineer', admin:false})}>{add ? 'Cancel' : '＋ Add member'}</button></div>
+        {add && <div style={{display:'grid', gridTemplateColumns:'1.3fr 1.2fr 76px 1.2fr 1.6fr 60px auto', gap:8, alignItems:'end', padding:'10px 12px', background:'#f5f9ff', borderBottom:'1px solid #e1e1e6'}}>
+          <div><label style={lbl}>Email</label><input style={i1} value={add.email} onChange={e => { const g = taGuess(e.target.value), o = taGuess(add.email); setAdd(a => ({...a, email:e.target.value, name:a.name && a.name !== o.name ? a.name : g.name, initials:a.initials && a.initials !== o.initials ? a.initials : g.initials})); }} placeholder="name@meinhardtgroup.com"/></div>
+          <div><label style={lbl}>Full name</label><input style={i1} value={add.name} onChange={e => setAdd(a => ({...a, name:e.target.value}))}/></div>
+          <div><label style={lbl}>Initials</label><input style={{...i1, textTransform:'uppercase'}} maxLength={4} value={add.initials} onChange={e => setAdd(a => ({...a, initials:e.target.value}))}/></div>
+          <div><label style={lbl}>Designation</label><input style={i1} value={add.desig} onChange={e => setAdd(a => ({...a, desig:e.target.value, level:taSuggest(e.target.value)}))}/></div>
+          <div><label style={lbl}>Sign-off level</label>{levelSel(add.level, v => setAdd(a => ({...a, level:v})))}</div>
+          <div><label style={lbl}>Admin</label><input type="checkbox" checked={add.admin} onChange={e => setAdd(a => ({...a, admin:e.target.checked}))}/></div>
+          <button className="lib-new" disabled={!!busy} onClick={addMember}>Add</button>
+        </div>}
+        <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 340px)'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
+          <thead><tr className="labels">{['Name', 'Initials', 'Designation', 'Email', 'Sign-off level', 'Admin', 'Active', ''].map(h => <th key={h} className={h === 'Admin' || h === 'Active' ? 'ctr' : ''}>{h}</th>)}</tr></thead>
+          <tbody>{shown.map(t => { const e = edit[t.id], self = lc(t.email) === myEmail, lv = levelOf(t.email), sug = taSuggest(t.desig);
+            const odd = t.desig && sug !== lv && lv !== 'none';
+            return <tr key={t.id} style={{cursor:'default', opacity:t.active === false ? .5 : 1}}>
+            <td style={{minWidth:160, fontWeight:700}}>{e ? <input style={i1} value={e.name} onChange={x => setEdit(s => ({...s, [t.id]:{...e, name:x.target.value}}))}/> : <>{t.name}{self && <span className="pl-tag sh" style={{marginLeft:6}}>you</span>}</>}</td>
+            <td style={{width:70}}>{e ? <input style={{...i1, textTransform:'uppercase'}} maxLength={4} value={e.initials} onChange={x => setEdit(s => ({...s, [t.id]:{...e, initials:x.target.value}}))}/> : <span className="tag-code">{t.initials}</span>}</td>
+            <td style={{minWidth:150, fontSize:10.5}}>{e ? <input style={i1} value={e.desig} onChange={x => setEdit(s => ({...s, [t.id]:{...e, desig:x.target.value}}))}/> : t.desig}</td>
+            <td style={{fontSize:10.5}}>{t.email}</td>
+            <td style={{minWidth:250}}>{levelSel(lv, v => changeLevel(t, v), !!busy)}{odd && <div style={{fontSize:9.5, color:'#a76200', marginTop:2}}>Designation suggests {TA_LEVELS.find(x => x[0] === sug)[1]}</div>}</td>
+            <td className="ctr"><input type="checkbox" disabled={!!busy} checked={isAdm(t)} onChange={x => toggleAdmin(t, x.target.checked)}/></td>
+            <td className="ctr"><label className="sw"><input type="checkbox" disabled={!!busy || self} checked={t.active !== false} onChange={() => toggleActive(t)}/><span/></label></td>
+            <td style={{whiteSpace:'nowrap'}}>{e ? <><button className="lib-new" disabled={!!busy} onClick={() => saveEdit(t)}>Save</button> <button className="schedule-action" onClick={() => setEdit(s => { const n = {...s}; delete n[t.id]; return n; })}>Cancel</button></>
+              : <button className="schedule-action" onClick={() => setEdit(s => ({...s, [t.id]:{name:t.name || '', initials:t.initials || '', desig:t.desig || ''}}))}>Edit</button>}</td>
+          </tr>; })}
+          {!shown.length && <tr><td colSpan={8} className="empty-schedule">No members match.</td></tr>}</tbody></table></div>
+        <div className="lib-foot">Levels apply to both apps. Checkers and Approvers can also write specifications. The same person can never prepare, check and approve one stage — the database blocks it. Project access is given per project on Setup › Project review access.</div>
+      </div>}
+    </main>
   </div>;
 }
+// v1.12.0 · project list — same header, search, card grid and actions menu as the pump calculator
 const IN = {width:'100%',minWidth:0,padding:'5px 7px',border:'1px solid #d2d2d7',borderRadius:6,fontSize:11,fontFamily:'inherit'};
 
 // ── TEAM ────────────────────────────────────────────────────────────────────
@@ -11071,8 +11130,8 @@ function useTeamData(session) {
   const [roles, setRoles] = React.useState([]);
   const [ready, setReady] = React.useState(false);
   const [pendingCount, setPendingCount] = React.useState(0);
-  const load = React.useCallback(async () => {
-    setReady(false);
+  const load = React.useCallback(async (quiet) => {
+    if (quiet !== true) setReady(false);
     const [teamRes, roleRes, pendingRes] = await Promise.all([
       sb.from('engineers').select('id,name,email,desig,initials,disc,office,is_admin,active').order('name'),
       sb.from('engineer_roles').select('id,email,role,scope,active,created_at').order('email'),
@@ -11132,13 +11191,16 @@ function SignedField({label, who, when, team, pending}) {
 // apps are separate Supabase projects and cannot read each other's data.
 // If the email is not in the copy (new joiner not yet synced) it degrades to a
 // name derived from the address rather than showing nothing.
-function UserBadge({session, me}) {
+function UserBadge({session, me, roles}) {
   const email = (session && session.user && session.user.email) || "";
   const eng = me;
   const derived = email ? email.split("@")[0].replace(/[._]/g, " ").replace(/\b\w/g, c => c.toUpperCase()) : "—";
   const name  = (eng && eng.name)  || derived;
   const desig = (eng && eng.desig) || "Meinhardt Group";
-  const admin = !!(eng && eng.is_admin);
+  // v1.18.2 · show the sign-off level (Engineer / Checker / Approver) and Admin
+  const mine = (roles || []).filter(r => r.active !== false && String(r.email || '').toLowerCase() === email.toLowerCase()).map(r => r.role);
+  const admin = !!(eng && eng.is_admin) || mine.includes('admin');
+  const level = mine.includes('associate') ? 'Approver' : mine.includes('lead') ? 'Checker' : mine.includes('engineer') ? 'Engineer' : roles ? 'View only' : '';
   return (
     <div style={{display:"flex",alignItems:"center",gap:9,minWidth:0}} title={email}>
       <div style={{width:30,height:30,borderRadius:9,flexShrink:0,background:"linear-gradient(135deg,#007aff,#5856d6)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:"0 2px 8px rgba(0,122,255,.2)"}}>
@@ -11148,7 +11210,8 @@ function UserBadge({session, me}) {
         <div style={{fontSize:13,fontWeight:700,color:"#1d1d1f",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",letterSpacing:"-.02em"}}>{name}</div>
         <div style={{display:"flex",alignItems:"center",gap:5,marginTop:2,flexWrap:"wrap"}}>
           <span style={{fontSize:9,color:"#8e8e93",lineHeight:1.3}}>{desig}</span>
-          <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:"rgba(0,122,255,.1)",color:"#007aff"}}>{admin?"Admin":"Team"}</span>
+          {level && <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:level==='Approver'?"rgba(52,199,89,.14)":level==='Checker'?"rgba(255,149,0,.14)":"rgba(0,122,255,.1)",color:level==='Approver'?"#16803a":level==='Checker'?"#a76200":"#007aff"}}>{level}</span>}
+          {(admin || !level) && <span style={{flexShrink:0,fontSize:8,fontWeight:700,padding:"1px 5px",borderRadius:6,background:"rgba(88,86,214,.12)",color:"#5856d6"}}>{admin?"Admin":"Team"}</span>}
         </div>
       </div>
     </div>
@@ -11889,8 +11952,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           </div>
           {/* ── 6. Footer: save status + actions, always visible ── */}
           <div className="sbx-foot">
-            <div className="sbx-user"><UserBadge session={session} me={me} />
-              <span className="sbx-role" title="Your roles in this app">{isAdmin ? "Admin" : myRoles.includes("associate") ? "Approver" : myRoles.includes("lead") ? "Checker" : myRoles.includes("engineer") ? "Engineer" : "Viewer"}</span></div>
+            <div className="sbx-user"><UserBadge session={session} me={me} roles={roles} /></div>
             <div className="sbx-status"><span className={`sidebar-status-dot ${saveStatus==="saving"?"saving":saveStatus==="error"?"error":""}`}/>{saveStatus==="saving"?"Saving…":saveIssue&&saveIssue.kind==="conflict"?"Not saved — conflict":saveIssue&&saveIssue.kind==="perm"?"Not saved — no edit access":saveStatus==="error"?"Save failed":"All changes saved"}</div>
             {saveIssue && <div className="save-issue" role="alert">
               {saveIssue.kind==="perm" ? <><b>Your changes are not being saved.</b> The database refused them — you do not have edit access to this {saveIssue.what==="project"?"project":"stage"}. Ask the project owner to add you as <b>Editor</b>. Export the Excel pack now to keep your work.</>
@@ -12636,7 +12698,7 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
             <a href="spec.html">§ Specifications</a>
             {isAdmin && <button type="button" onClick={onOpenRefData}>▤ Reference Data</button>}
           </nav>
-          <div className="pl-user"><UserBadge session={session} me={me} /><button type="button" className="pl-out" onClick={()=>sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
+          <div className="pl-user"><UserBadge session={session} me={me} roles={roles} /><button type="button" className="pl-out" onClick={()=>sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
         </div>
       </header>
       <main className="pl-main">
@@ -12795,7 +12857,7 @@ function RootApp() {
     return <RefDataEditor onBack={()=>setScreen("projects")} />;
   }
   if (screen === "team") {
-    return <TeamAccessAdmin onBack={()=>setScreen("projects")} session={session} team={team} roles={roles} reload={reloadTeam} canEdit={isAdmin} />;
+    return <TeamAccess onBack={()=>setScreen("projects")} session={session} me={me} team={team} roles={roles} reload={reloadTeam} />;
   }
   return <ProjectsHome session={session} me={me} isAdmin={isAdmin} roles={roles} pendingCount={pendingCount} onOpen={setOpenProject} onOpenRefData={()=>setScreen("refdata")} onOpenTeam={()=>setScreen("team")} />;
 }
