@@ -969,6 +969,33 @@
   .gi-head span{font-size:9.5px;font-weight:700;color:#6e6e73;letter-spacing:.02em}
   .gi-out{font-size:11.5px;font-weight:700;color:#1d1d1f;text-align:right;font-variant-numeric:tabular-nums}
   .gi-out.q{color:#1559a6}
+  .gas-pick{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:12px}
+  .gas-pick button{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:8px 10px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;cursor:pointer;text-align:left}
+  .gas-pick button b{font-size:13px;color:#1d1d1f}.gas-pick button span{font-size:10.5px;color:#6e6e73;line-height:1.3}
+  .gas-pick button.on{border-color:#0071e3;background:#eef5ff;box-shadow:0 0 0 2px rgba(0,113,227,.15)}.gas-pick button.on b{color:#0b4f8a}
+  @media (max-width:800px){.gas-pick{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .gc{margin:0;height:520px}.gc .wd-bar select{height:26px;font-size:11.5px;border:1px solid #d2d2d7;border-radius:7px}
+  .gc-stage{min-height:300px}
+  .gc-big{position:fixed;inset:2vh 2vw;height:auto;z-index:1001;box-shadow:0 10px 40px rgba(0,0,0,.35)}
+  .gc-back{position:fixed;inset:0;background:rgba(0,0,0,.35);z-index:1000}
+  .gc-empty{position:absolute;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:#6e6e73;font-size:12px;text-align:center;padding:20px}.gc-empty b{font-size:14px;color:#1d1d1f}
+  .gc-msg{position:absolute;left:10px;bottom:10px;background:#fff4e0;border:1px solid #f5c27a;color:#7a4300;border-radius:8px;padding:6px 10px;font-size:11.5px;font-weight:600;pointer-events:none}
+  .gc-insp{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;padding:6px 10px;border-top:1px solid #eef0f3;background:#f7fbff;font-size:11.5px}
+  .gc-insp label{display:inline-flex;gap:5px;align-items:center}.gc-insp select,.gc-insp input{height:26px;border:1px solid #d2d2d7;border-radius:7px;font-size:11.5px}
+  .gc-insp .ok{color:#15803d;font-weight:700}.gc-insp .bad{color:#b91c1c;font-weight:700}
+  .lpg-ty{display:grid;grid-template-columns:minmax(0,1.6fr) 90px 104px 104px 76px 28px;gap:6px;align-items:center;margin-bottom:4px}
+  .lpg-g{display:grid;grid-template-columns:62px 62px 62px 86px 56px 50px minmax(110px,1.3fr) 44px 54px 104px 62px 56px 62px 52px 24px;gap:4px;align-items:center;margin-bottom:3px;min-width:1000px}
+  .lpg-ty input,.lpg-ty select,.lpg-g input,.lpg-g select{height:30px;padding:0 6px!important;font-size:11.5px!important;border:1px solid #d2d2d7;border-radius:7px!important;min-width:0;width:100%}
+  .lpg-g.fail{background:#fff4f3;border-radius:7px}.lpg-g input:disabled{background:#f5f5f7}.lpg-g.warn{background:#fffbea;border-radius:7px}
+  .lpg-scroll{overflow-x:auto}
+  .lpg-bar{display:flex;gap:12px;align-items:center;margin-bottom:6px;font-size:12px}
+  .lpg-paste{border:1px solid #d2d2d7;border-radius:10px;padding:8px;margin-bottom:8px;font-size:11.5px;display:flex;flex-direction:column;gap:6px}
+  .lpg-paste textarea{width:100%;font:12px ui-monospace,monospace;border:1px solid #d2d2d7;border-radius:8px;padding:6px}
+  .lpg-bands{margin-top:8px;font-size:11.5px;display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+  .lpg-bands input{width:58px;height:26px;border:1px solid #d2d2d7;border-radius:6px;padding:0 5px}
+  .lpg-route{font-size:11.5px;color:#424245;margin-top:8px}
+  .lpg-iss{margin:8px 0 0;padding-left:18px;font-size:11.5px;line-height:1.5}.lpg-iss .fail{color:#b91c1c}.lpg-iss .warn{color:#b45309}.lpg-iss .info{color:#6e6e73}
+  .lpg-ok{margin-top:8px;font-size:12px;color:#15803d;font-weight:600}
   .gi-kt{display:grid;grid-template-columns:minmax(0,1.6fr) 110px 110px;gap:6px;align-items:center}
   .gi-res{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:10px}
   .gi-res div{background:#f5f5f7;border:1px solid #e1e1e6;border-radius:9px;padding:8px 10px}
@@ -1221,7 +1248,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.65.1 · Build 2026.10.30.03";
+const BUILD_LABEL = "v1.68.0 · Build 2026.11.10.03";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1597,7 +1624,7 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", water:"Water Supply Pipe Sizing", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", custom:"Custom",
 };
 
 // Equipment groups, used by the Add menu and the schedule filter.
@@ -1606,6 +1633,7 @@ const TYPE_GROUPS = [
   {label:"Drainage",     types:["sewage","sump"]},
   {label:"Water Supply", types:["water"]},
   {label:"Interceptors", types:["grease"]},
+  {label:"Gas",          types:["gas"]},
 ];
 function TypeOptions() { return TYPE_GROUPS.map(g => <optgroup key={g.label} label={g.label}>{g.types.map(t => <option key={t} value={t}>{TYPE_LBL[t]}</option>)}</optgroup>); }
 // ── Pump set arrangements ────────────────────────────────────────────────────
@@ -1839,7 +1867,7 @@ function calcIsStale(p) { if (!calcKeyed(p) || CALC.mode === "auto") return fals
 function calcNow(p) { if (calcKeyed(p)) CALC.snap[p.id] = p; }
 function calcReset() { CALC.snap = {}; CALC.res = {}; }
 // what undo / redo in Pipe Sizing covers: the network and every Setup value that changes the result
-const WS_SNAP_KEYS = ["wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg"];
+const WS_SNAP_KEYS = ["gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg"];
 function wsSnapOf(c) { const o = {}; WS_SNAP_KEYS.forEach(k => { o[k] = c[k]; }); o.wsNet = c.wsNet || []; o.wsNodes = c.wsNodes || []; o.wsFix = c.wsFix || []; o.wsNotes = c.wsNotes || []; return o; }
 function safeCalculate(p) {
   const src = calcSnapOf(p), keyed = calcKeyed(p) && CALC.mode === "manual";
@@ -1853,7 +1881,8 @@ function safeCalculate(p) {
 function calculate(p) {
   if (p.type === "sump") return calculateSump(p);
   if (p.type === "grease") return calculateGrease(p);
-  if (p.type === "water") return calculateWater(p);
+  if (p.type === "water") return wsIsGas(p) ? calculateGas(p) : calculateWater(p);
+  if (p.type === "lpg") return calcError(["This item was made with the LPG test build — open it and press Convert to Gas Pipe Sizing."]);
   const set = pumpSetOf(p);
   const inputErrors = validatePumpInputs(p, set);
   if (inputErrors.length) return calcError(inputErrors);
@@ -2398,7 +2427,7 @@ function sumpFigure(s, caption) {
   return {svg:o, w:W, h:H};
 }
 function sumpDesignBasis(p) {
-  const system = (p && (p.name || TYPE_LBL[p.type])) || "Sump";
+  const system = (p && (p.name || typeLbl(p))) || "Sump";
   return [
     `${system} is assessed using the current coordinated project information and design inputs.`,
     "Pit inflow is the greatest of the cases considered (tank drain, drainage units, sprinkler discharge); the cases are alternatives and are not added together.",
@@ -2521,7 +2550,7 @@ function calculateGrease(p) {
     velOk:true, pipe:null, dutyPoints:[], steps, selStr};
 }
 function greaseDesignBasis(p) {
-  const system = (p && (p.name || TYPE_LBL[p.type])) || "Grease interceptor";
+  const system = (p && (p.name || typeLbl(p))) || "Grease interceptor";
   return [
     `${system} is sized to BS EN 1825-2 using the current coordinated F&B area information.`,
     (p && p.seatMode === "kitchen")
@@ -2537,6 +2566,315 @@ DEFS.grease = {type:"grease", name:"Grease Interceptor", tag:"GI-01",
   giTable: GI_KITCHEN_DEFAULT.map(t => ({...t})),
   giRows:[{building:"", level:"", area:"", kitArea:"", kitchen:"St. Restaurant Kitchens"}]};
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// GAS PIPE SIZING ENGINE — v1.68.0
+// A gas item is a normal Pipe Sizing item (type "water") with wsService "gas". It uses the SAME canvas, nodes, pipes,
+// load schedule, floor levels, pipe-class table and results screens as water supply. Only the technical part differs:
+//   gas type (LPG / SNG / PNG / other) → relative density → load types (peak × diversity) → flows (Hardy Cross on rings)
+//   → IGE/UP/2 (Pole) pressure loss → pressures at every node in mbar → stage-loss, end-pressure and velocity checks.
+// The result is returned in the water result shape (res.water) so every screen reads it unchanged; w.gasMode = true and
+// the unit helpers wsQU / wsPU give m³/h and mbar instead of L/s and m.
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+const wsIsGas = p => !!p && p.wsService === "gas";
+const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
+const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
+const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : v/WS_BAR;
+const typeLbl = p => !p ? "" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
+const GAS_RD = {propane:1.55, butane:2.07, air:1.0}, GAS_MW = {propane:44.10, butane:58.12};
+const GAS_TYPES = [
+  {k:"lpg",   l:"LPG",   long:"Liquefied petroleum gas (propane / butane vapour)", conv:2.40},
+  {k:"sng",   l:"SNG",   long:"Synthetic natural gas (LPG–air mixture)",          conv:1.32},
+  {k:"png",   l:"PNG",   long:"Piped natural gas",                                 conv:1.00},
+  {k:"other", l:"Other", long:"Other gas — enter its relative density",            conv:1.00},
+];
+const gasTypeOf = p => GAS_TYPES.find(g => g.k === (p && p.gasType)) || GAS_TYPES[0];
+const GAS_LOADS_DEFAULT = [
+  {l:"Mall F&B",   q:16,  unit:"ng",  div:"fixed", f:0.7},
+  {l:"Restaurant", q:16,  unit:"ng",  div:"band",  f:1},
+  {l:"Apartment",  q:0.6, unit:"gas", div:"fixed", f:0.2},
+];
+const GAS_BANDS_DEFAULT = [{upTo:5, f:1}, {upTo:10, f:0.8}, {upTo:15, f:0.75}, {upTo:"", f:0.7}];
+const GAS_CLS_DEFAULT = {main:{pipeType:"STEEL", maxV:15, maxP:450, minOD:"", spare:0}, riser:{pipeType:"STEEL", maxV:15, maxP:450, minOD:42.2, spare:0}, branch:{pipeType:"STEEL", maxV:15, maxP:450, minOD:42.2, spare:0}};
+const gasTypesOf = p => Array.isArray(p.gasTypes) && p.gasTypes.length ? p.gasTypes : GAS_LOADS_DEFAULT;
+const gasBandsOf = p => Array.isArray(p.gasBands) && p.gasBands.length ? p.gasBands : GAS_BANDS_DEFAULT;
+const gasFric = d => 0.0044*(1 + 43.5/d);                                    // IGE/UP/2, d = internal diameter in mm
+// relative density (air = 1): LPG from the propane / butane split (a mass split is turned into moles first), SNG = LPG share in air,
+// PNG 0.60, Other = typed. A typed value always wins.
+function gasDensity(p) {
+  const g = gasTypeOf(p), pr = Math.min(100, Math.max(0, num(p.gasPropane, 60)))/100;
+  let yp = pr; if (p.gasMix === "mass") { const np = pr/GAS_MW.propane, nb = (1 - pr)/GAS_MW.butane; yp = np/((np + nb) || 1); }
+  const sL = yp*GAS_RD.propane + (1 - yp)*GAS_RD.butane, x = Math.min(100, Math.max(0, num(p.gasSngPct, 55)))/100;
+  const calc = g.k === "lpg" ? sL : g.k === "sng" ? x*sL + (1 - x)*GAS_RD.air : g.k === "png" ? 0.60 : NaN;
+  const manual = wsFin(p.gasS) && Number(p.gasS) > 0;
+  return {calc, S:manual ? Number(p.gasS) : calc, manual, gas:g};
+}
+function gasBandF(bands, n) {
+  const b = (bands || []).slice().sort((a, c) => (wsFin(a.upTo) ? Number(a.upTo) : 1e12) - (wsFin(c.upTo) ? Number(c.upTo) : 1e12));
+  for (const r of b) if (!wsFin(r.upTo) || n <= Number(r.upTo)) return Number(r.f);
+  return b.length ? Number(b[b.length - 1].f) : 1;
+}
+// the demand "table" and fixture library of a pipe sizing item — for gas they are the load types of the item itself
+function wsDemC(p) { return wsIsGas(p) ? {label:"Gas load types (this calculation)", unit:"conn.", ref:"IGE/UP/2", table:[[0, 0], [1e9, 1e9]]} : FU_CODES[p && p.wsDemand]; }
+function wsLibOf(p) { return wsIsGas(p) ? gasTypesOf(p).map(t => ({name:String(t.l || ""), base:String(t.l || ""), occ:"", flush:"", lu:1, luHot:1, luTot:1, flow:"", minP:""})) : (FU_FIXTURES[p && p.wsDemand] || []); }
+// single-pipe pressure loss (mbar) for a flow Q (m³/h, standard) from an inlet pressure P1 (mbar gauge); > 75 mbar uses the medium-pressure form
+function gasFriction(P1, Q, S, L, d, absBasis) {
+  if (!(Q > 0) || !(L > 0)) return 0;
+  const K = Q*Q*S*L*gasFric(d)/Math.pow(d, 5);
+  if (P1 > 75) { const off = absBasis ? 1.01325 : 0, a = P1/1000 + off, X = K/(0.0127*0.0127); if (X >= a*a) return Infinity; return (a - Math.sqrt(a*a - X))*1000; }
+  return K/(0.000571*0.000571);
+}
+function calculateGas(p) {
+  const errors = [], rp = (v, l) => { if (!isPositive(v)) errors.push(`${l} must be greater than zero.`); };
+  const dens = gasDensity(p), gas = dens.gas, S = dens.S;
+  rp(p.gasSupply, "Supply pressure"); rp(p.gasConv, `NG → ${gas.l} conversion factor`); rp(p.gasLossMain, "Allowable loss, main / ring"); rp(p.gasLossBranch, "Allowable loss, riser / branch");
+  if (!(Number.isFinite(S) && S > 0)) errors.push(`Enter the relative density of the gas (${gas.l}).`);
+  if (!(wsFin(p.gasMinP) && Number(p.gasMinP) >= 0)) errors.push("Minimum end pressure must be zero or greater.");
+  if (p.gasLossUnit !== "mbar" && (Number(p.gasLossMain) >= 100 || Number(p.gasLossBranch) >= 100)) errors.push("Allowable loss in % must be below 100.");
+  if (!(Number(p.fittingsPct) >= 0)) errors.push("Fittings allowance must be zero or greater.");
+  const types = gasTypesOf(p), tBy = {};
+  types.forEach((t, i) => { const l = String(t.l || "").trim(); if (!l) errors.push(`Load type ${i + 1} needs a name.`); else if (tBy[l]) errors.push(`Load type "${l}" is listed twice.`); tBy[l] = t;
+    if (!isPositive(t.q)) errors.push(`Load type "${l || i + 1}": peak flow must be greater than zero.`);
+    if (t.div !== "band" && !(Number(t.f) > 0 && Number(t.f) <= 1)) errors.push(`Load type "${l || i + 1}": diversity factor must be greater than 0 and not more than 1.`); });
+  const bands = gasBandsOf(p);
+  bands.forEach((b, i) => { if (!(Number(b.f) > 0 && Number(b.f) <= 1)) errors.push(`Diversity band ${i + 1}: factor must be greater than 0 and not more than 1.`); });
+  // pipe classes — the same Setup table as water (material, minimum size, maximum velocity)
+  const cdef = {};
+  for (const c of WS_CLASSES) {
+    const d = {...GAS_CLS_DEFAULT[c.k], ...((p.wsCls || {})[c.k] || {})};
+    rp(d.maxV, `${c.l}: maximum velocity`);
+    const mk = resolveMatKey(d.pipeType), mt = mk ? PIPE_MATERIALS[mk] : null; let cands = [];
+    if (!mt || !mt.table || !mt.table.length) errors.push(`${c.l}: pipe schedule "${d.pipeType || "—"}" is not in Reference Data.`);
+    else { const minOD = Number(d.minOD) > 0 ? Number(d.minOD) : 0; cands = mt.table.slice().sort((a, b) => a.id - b.id).filter(x => x.od >= minOD - 1e-9);
+      if (!cands.length) errors.push(`${c.l}: no ${mt.label} size is at or above the minimum size of ${minOD} mm.`); }
+    cdef[c.k] = {k:c.k, l:c.l, matKey:mk, mat:mt, cands, maxV:Number(d.maxV), maxP:Number(d.maxP), minOD:Number(d.minOD) > 0 ? Number(d.minOD) : 0, spare:num(d.spare, 0), eps:0, Chw:0};
+  }
+  const nodeMap = wsNodeMap(p);
+  const net = (Array.isArray(p.wsNet) ? p.wsNet : []).map(s => wsGeo(wsNorm(s), nodeMap));
+  if (!net.length) errors.push("Add at least one pipe section — draw it on the canvas or type it in the Pipes table.");
+  const ids = new Set(), pairs = new Set();
+  net.forEach((s, i) => { const at = `Section ${i + 1}${s.id ? ` (${s.id})` : ""}`;
+    if (!String(s.id || "").trim()) errors.push(`${at}: section ID is missing.`); else if (ids.has(s.id)) errors.push(`Section ID "${s.id}" is used twice.`); ids.add(s.id);
+    if (s.from === s.to) errors.push(`${at}: from and to nodes must differ.`);
+    const pk = [s.from, s.to].sort().join("|"); if (pairs.has(pk)) errors.push(`${at}: two sections join ${s.from} and ${s.to}.`); pairs.add(pk);
+    if (!cdef[s.cls]) errors.push(`${at}: pipe class must be Main, Riser or Branch.`);
+    if (!isPositive(s.len)) errors.push(s.geo ? `${at}: the two nodes are at the same position.` : `${at}: length must be greater than zero.`);
+    if (s.loss !== "" && s.loss != null && !(Number(s.loss) >= 0)) errors.push(`${at}: extra loss must be zero or greater.`); });
+  const fix = Array.isArray(p.wsFix) ? p.wsFix : [];
+  fix.forEach((f, i) => { if (!tBy[f.fixture]) errors.push(`Load schedule row ${i + 1}: "${f.fixture || "—"}" is not one of the load types on Setup.`); if (!(Number(f.qty) >= 0)) errors.push(`Load schedule row ${i + 1}: quantity must be zero or greater.`); });
+  (Array.isArray(p.wsNodes) ? p.wsNodes : []).forEach(n => { if (n && n.qAdd !== "" && n.qAdd != null && !(Number(n.qAdd) >= 0)) errors.push(`Node ${n.id}: direct flow must be zero or greater.`); });
+  { const val = wsValidate(p); val.items.filter(i => i.sev === "error" && i.group !== "topology").forEach(i => errors.push(i.text)); }
+  if (errors.length) return calcError(errors);
+  // ── supplies and graph
+  const allN = new Set(net.flatMap(s => [s.from, s.to]));
+  let sups = wsMarkedX(p).filter(id => allN.has(id));
+  if (!sups.length) { const to = new Set(net.map(s => s.to)); sups = [...new Set(net.map(s => s.from))].filter(n => !to.has(n)); }
+  if (!sups.length) return calcError(["No supply node — mark the supply (PRS / regulator outlet or tank) on the drawing."]);
+  const adj = {}; net.forEach((s, k) => { (adj[s.from] = adj[s.from] || []).push({k, o:s.to}); (adj[s.to] = adj[s.to] || []).push({k, o:s.from}); });
+  const par = {}, parE = {}, depth = {}, seen = new Set(sups), q0 = [...sups], order = [], inTree = new Set();
+  sups.forEach(s => { par[s] = null; depth[s] = 0; });
+  while (q0.length) { const n = q0.shift(); order.push(n); (adj[n] || []).forEach(e => { if (seen.has(e.o)) return; seen.add(e.o); par[e.o] = n; parE[e.o] = e.k; depth[e.o] = depth[n] + 1; inTree.add(e.k); q0.push(e.o); }); }
+  const lost = net.filter(s => !seen.has(s.from) || !seen.has(s.to)).map(s => s.id);
+  if (lost.length) return calcError([`Section${lost.length > 1 ? "s" : ""} ${lost.slice(0, 6).join(", ")}${lost.length > 6 ? " …" : ""} ${lost.length > 1 ? "are" : "is"} not connected to a supply node.`]);
+  const chords = net.map((s, k) => k).filter(k => !inTree.has(k));
+  // ── demand
+  const conv = Number(p.gasConv), P0 = Number(p.gasSupply), Pmin = Number(p.gasMinP), margin = num(p.gasMargin, 0)/100, fitPc = num(p.fittingsPct, 0);
+  const absBasis = p.gasPBasis !== "gauge", auto = p.gasSizing !== "manual", MP = P0 > 75, off = absBasis ? 1.01325 : 0;
+  const unitQ = t => Number(t.q)/(t.unit === "ng" ? conv : 1);
+  const nodeCnt = {}, nodeDir = {}, nodeN = {};
+  fix.forEach(f => { const n = Number(f.qty) || 0; if (!(n > 0)) return; const c = nodeCnt[f.node] = nodeCnt[f.node] || {}; c[f.fixture] = (c[f.fixture] || 0) + n; nodeN[f.node] = (nodeN[f.node] || 0) + n; });
+  (Array.isArray(p.wsNodes) ? p.wsNodes : []).forEach(n => { if (n && Number(n.qAdd) > 0) nodeDir[n.id] = (nodeDir[n.id] || 0) + Number(n.qAdd); });
+  const atSup = Object.keys(nodeCnt).concat(Object.keys(nodeDir)).filter(n => sups.includes(n));
+  if (atSup.length) return calcError([`A load is connected at the supply node ${atSup[0]} — connect it to a node downstream of a pipe.`]);
+  const flowOf = (cnt, d) => { let Q = d || 0, n = 0; Object.entries(cnt || {}).forEach(([t, k]) => { const T = tBy[t], fd = T.div === "band" ? gasBandF(bands, k) : Number(T.f); Q += k*unitQ(T)*fd; n += k; }); return {Q, n}; };
+  // spanning-tree subtree counts (used for diversity per pipe on a branched network)
+  const subCnt = {}, subDir = {}, subNodes = {};
+  [...order].reverse().forEach(n => { const c = {...(nodeCnt[n] || {})}; let d = nodeDir[n] || 0; const sn = [n];
+    (adj[n] || []).forEach(e => { if (par[e.o] === n && parE[e.o] === e.k) { Object.entries(subCnt[e.o]).forEach(([t, v]) => { c[t] = (c[t] || 0) + v; }); d += subDir[e.o]; sn.push(...subNodes[e.o]); } });
+    subCnt[n] = c; subDir[n] = d; subNodes[n] = sn; });
+  const tot = (() => { const c = {}; let d = 0; sups.forEach(s => { Object.entries(subCnt[s]).forEach(([t, v]) => { c[t] = (c[t] || 0) + v; }); d += subDir[s]; }); return flowOf(c, d); })();
+  if (!(tot.Q > 0)) return calcError(["No gas load is connected. Add loads in the load schedule (or with the Fixture tool on the drawing), or a direct flow on a node."]);
+  const demand = {}; allN.forEach(n => { demand[n] = flowOf(nodeCnt[n], nodeDir[n]).Q; });
+  { const raw = Object.values(demand).reduce((a, v) => a + v, 0), k = raw > 0 ? tot.Q/raw : 1; if (chords.length && k > 1 + 1e-9) Object.keys(demand).forEach(n => { demand[n] *= k; }); }
+  const childOf = k => { const s = net[k]; return par[s.to] === s.from && parE[s.to] === k ? s.to : s.from; };
+  const treeQ = net.map((s, k) => inTree.has(k) ? flowOf(subCnt[childOf(k)], subDir[childOf(k)]).Q : 0);
+  // ── sizes: index into the class candidates
+  const ovrIx = net.map(s => { if (s.od === "" || s.od == null) return null; return cdef[s.cls].cands.findIndex(c => Number(c.od) === Number(s.od)); });
+  const bad0 = net.findIndex((s, k) => ovrIx[k] !== null && ovrIx[k] < 0);
+  if (bad0 >= 0) return calcError([`Section ${net[bad0].id}: the ${net[bad0].od} mm size is not in the ${cdef[net[bad0].cls].mat.label} schedule at or above the class minimum.`]);
+  const lossAllow = (cls, Pref) => { const v = Number(cls === "main" ? p.gasLossMain : p.gasLossBranch); return p.gasLossUnit === "mbar" ? v : v/100*Pref; };
+  const runLen = {}; [...order].reverse().forEach(n => { let best = 0; (adj[n] || []).forEach(e => { if (par[e.o] === n && parE[e.o] === e.k) best = Math.max(best, net[e.k].len*(1 + fitPc/100) + (runLen[e.o] || 0)); }); runLen[n] = best; });
+  const vAct = (Q, P, d) => Q/3600*(1.01325/(1.01325 + Math.max(P, 0)/1000))/(Math.PI/4*Math.pow(d/1000, 2));
+  const ci = net.map((s, k) => {
+    const cands = cdef[s.cls].cands; if (ovrIx[k] !== null) return ovrIx[k]; if (!auto) return 0;
+    const up = inTree.has(k) ? (childOf(k) === s.to ? s.from : s.to) : s.from, Pref = s.cls === "main" ? P0 : P0 - lossAllow("main", P0);
+    const Lq = s.len*(1 + fitPc/100), grad = lossAllow(s.cls, Pref)/Math.max(runLen[up] || 0, Lq);
+    const Q = inTree.has(k) ? treeQ[k] : Math.max(0, ...net.map((x, j) => (j !== k && x.cls === s.cls && [x.from, x.to].some(n => n === s.from || n === s.to)) ? treeQ[j] : 0));
+    const i = cands.findIndex(c => gasFriction(Pref, Q, S, Lq, c.id, absBasis)*(1 + margin)/Lq <= grad + 1e-12 && vAct(Q, Pref, c.id) <= cdef[s.cls].maxV);
+    return i >= 0 ? i : cands.length - 1; });
+  const autoIx = ci.slice();
+  const eqOf = s => (Array.isArray(s.eq) ? s.eq : []).filter(it => WS_EQ[it.type]).map(it => ({...it, mode:it.mode || WS_EQ[it.type].mode, qn:wsFin(it.qty) && Number(it.qty) > 0 ? Number(it.qty) : (it.qty === "" || it.qty == null ? 1 : 0), has:wsFin(it.val)}));
+  const EQ = net.map(eqOf);
+  // ── solve flows: Hardy Cross on the loops in the potential u (P² in bar² above 75 mbar, P in mbar at or below)
+  const C2 = MP ? 0.0127*0.0127 : 0.000571*0.000571, pAvg = P0/1000 + off, toU = dpm => MP ? 2*pAvg*dpm/1000 : dpm;
+  const leqOf = k => EQ[k].filter(it => it.mode === "leq" && it.has).reduce((a, it) => a + it.qn*Number(it.val), 0);
+  const dzOf = s => Number.isFinite(Number(s.dzm)) && s.dzm != null ? Number(s.dzm) : (s.ori === "up" ? s.len : s.ori === "down" ? -s.len : 0);
+  // the loop closed by chord c (a → b): the chord, then from b up the tree and down to a. Two supplies count as joined (both at the
+  // supply pressure), so a pipe between two supply trees is a loop too.
+  const pathOf = (() => { const memo = {}; return c => { if (memo[c] !== undefined) return memo[c]; let a = net[c].from, b = net[c].to; const A = [], B = [];
+    while (a !== b) { if (par[a] == null && par[b] == null) break;
+      if (par[a] != null && (depth[a] >= depth[b] || par[b] == null)) { const k = parE[a]; A.push({k, sgn:net[k].to === a ? 1 : -1}); a = par[a]; }
+      else { const k = parE[b]; B.push({k, sgn:net[k].to === b ? -1 : 1}); b = par[b]; } }
+    return (memo[c] = [...B, ...A.reverse()]); }; })();
+  const solveQ = () => {
+    const R = net.map((s, k) => { const d = cdef[s.cls].cands[ci[k]].id; return S*(s.len*(1 + fitPc/100) + leqOf(k))*gasFric(d)/(C2*Math.pow(d, 5))*(1 + margin); });
+    const H = net.map(s => toU(0.123*(S - 1)*dzOf(s)));
+    const Qc = {}; chords.forEach(k => { Qc[k] = 0; });
+    const treeFlows = () => { const ex = {}; chords.forEach(k => { ex[net[k].from] = (ex[net[k].from] || 0) + Qc[k]; ex[net[k].to] = (ex[net[k].to] || 0) - Qc[k]; });
+      const sub = {}, Q = net.map(() => 0); [...order].reverse().forEach(n => { let d = (demand[n] || 0) + (ex[n] || 0); (adj[n] || []).forEach(e => { if (par[e.o] === n && parE[e.o] === e.k) d += sub[e.o]; }); sub[n] = d;
+        if (par[n] != null) { const k = parE[n]; Q[k] = net[k].to === n ? d : -d; } }); chords.forEach(k => { Q[k] = Qc[k]; }); return Q; };
+    let Q = chords.length ? treeFlows() : net.map((s, k) => childOf(k) === s.to ? treeQ[k] : -treeQ[k]), it = 0, ok = !chords.length;
+    for (; it < 400 && chords.length; it++) { let mx = 0;
+      for (const c of chords) { const L = pathOf(c); if (!L) continue; const loop = [{k:c, sgn:1}, ...L]; let r = 0, dd = 0;
+        loop.forEach(e => { r += e.sgn*(R[e.k]*Q[e.k]*Math.abs(Q[e.k]) + H[e.k]); dd += 2*R[e.k]*Math.max(Math.abs(Q[e.k]), 1e-6); });
+        const dQ = -r/dd; loop.forEach(e => { Q[e.k] += e.sgn*dQ; }); mx = Math.max(mx, Math.abs(dQ)); }
+      if (mx < 1e-7*Math.max(tot.Q, 1)) { ok = true; break; } }
+    return {Q, conv:ok, it};
+  };
+  // ── pressures along the spanning tree with the exact per-pipe loss, then every check
+  const evaluate = () => {
+    const fl = solveQ(), Q = fl.Q, P = {}, PS = {}; sups.forEach(s => { P[s] = P0; PS[s] = P0; });
+    const det = net.map(() => null);
+    const lossOf = (k, P1, dir) => { const s = net[k], pipe = cdef[s.cls].cands[ci[k]], q = Math.abs(Q[k]), Lf = s.len + leqOf(k);
+      const hf = gasFriction(P1, q, S, Lf, pipe.id, absBasis)*(1 + margin), fitm = hf*fitPc/100, v = vAct(q, P1, pipe.id), rho = 1.204*S*(1.01325 + Math.max(P1, 0)/1000)/1.01325;
+      const eqItems = EQ[k].map(it => { let l = 0; if (it.has) { if (it.mode === "k") l = it.qn*Number(it.val)*rho*v*v/2/100; else if (it.mode === "dp") l = it.qn*Number(it.val); } return {...it, loss:l}; });
+      const eqLoss = eqItems.reduce((a, b) => a + b.loss, 0), dh = 0.123*(S - 1)*dzOf(s)*dir;
+      return {pipe, q, hf, fitm, v, eqItems, eqLoss, dh, extra:Number(s.loss) || 0, total:hf + fitm + eqLoss + dh + (Number(s.loss) || 0)}; };
+    order.forEach(n => { if (par[n] == null) return; const k = parE[n], s = net[k], up = par[n], dirStored = s.to === n ? 1 : -1, flowFwd = (Q[k]*dirStored) >= 0;
+      // the loss always acts against the flow; height effect follows the direction walked
+      const L = lossOf(k, P[up], dirStored), fr = L.hf + L.fitm + L.eqLoss + L.extra;
+      P[n] = P[up] - (flowFwd ? fr : -fr) - L.dh; PS[n] = PS[up] - L.dh;
+      const prv = EQ[k].filter(it => it.mode === "prv" && it.has).map(it => Number(it.val));
+      if (prv.length && flowFwd && P[n] > Math.min(...prv)) { P[n] = Math.min(...prv); L.prvOn = true; } if (prv.length) { L.prvSet = Math.min(...prv); if (PS[n] > L.prvSet) PS[n] = L.prvSet; }
+      det[k] = L; });
+    chords.forEach(k => { const s = net[k]; det[k] = lossOf(k, Q[k] >= 0 ? P[s.from] : P[s.to], Q[k] >= 0 ? 1 : -1); });
+    // flow tree: each node's main inflow
+    const inc = {}; net.forEach((s, k) => { const dn = Q[k] >= 0 ? s.to : s.from; if (inc[dn] === undefined || Math.abs(Q[k]) > Math.abs(Q[inc[dn]])) inc[dn] = k; });
+    sups.forEach(s => { delete inc[s]; });
+    const upOf = k => Q[k] >= 0 ? net[k].from : net[k].to, dnOf = k => Q[k] >= 0 ? net[k].to : net[k].from;
+    const takeOff = n => { let x = n; const sk = new Set(); while (inc[x] !== undefined && !sk.has(x)) { sk.add(x); const k = inc[x]; if (net[k].cls === "main") return x; x = upOf(k); } return x; };
+    const nodeReq = {}; allN.forEach(n => { if (sups.includes(n)) return; const nd = nodeMap[n]; if ((nodeN[n] || 0) > 0 || nodeDir[n] > 0) nodeReq[n] = Math.max(Pmin, nd && Number(nd.reqP) > 0 ? Number(nd.reqP) : 0); });
+    const rows = net.map((s, k) => { const L = det[k], dn = dnOf(k), Pst = s.cls === "main" ? P0 : (P[takeOff(dn)] != null ? P[takeOff(dn)] : P0), allow = lossAllow(s.cls, Pst), stageLoss = Pst - P[dn];
+      const vOk = L.v <= cdef[s.cls].maxV + 1e-9, lossOk = Number.isFinite(P[dn]) && stageLoss <= allow + 1e-9, pOk = nodeReq[dn] == null || P[dn] >= nodeReq[dn] - 1e-9;
+      return {k, L, dn, up:upOf(k), Pst, allow, stageLoss, vOk, lossOk, pOk, ok:vOk && lossOk && pOk}; });
+    return {Q, P, PS, rows, inc, conv:fl.conv, it:fl.it, nodeReq, upOf, dnOf};
+  };
+  const ringSets = chords.map(c => [c, ...(pathOf(c) || []).map(e => e.k)].filter(k => net[k].cls === "main" && ovrIx[k] === null));
+  const even = () => { if (p.gasRingOne === false || !auto) return; for (let i = 0; i < 3; i++) ringSets.forEach(set => { const mx = Math.max(...set.map(k => ci[k])); set.forEach(k => { ci[k] = mx; }); }); };
+  even();
+  let E = evaluate(), iter = 0;
+  while (auto && iter < 2000) { const bad = E.rows.filter(r => !r.ok); if (!bad.length) break; iter++;
+    const x = bad.reduce((a, r) => (E.P[r.dn] < E.P[a.dn] ? r : a), bad[0]); let cand = [];
+    if (!x.vOk && x.lossOk && x.pOk) cand = [x.k];
+    else { const sk = new Set(); let n = x.dn; while (E.inc[n] !== undefined && !sk.has(E.inc[n])) { const k = E.inc[n]; sk.add(k); if (x.pOk && !x.lossOk ? (net[k].cls === "main") === (net[x.k].cls === "main") : true) cand.push(k); n = E.upOf(k); } }
+    cand = cand.filter(k => ovrIx[k] === null && ci[k] < cdef[net[k].cls].cands.length - 1);
+    if (!cand.length) break;
+    const worst = cand.reduce((a, k) => (E.rows[k].L.hf + E.rows[k].L.fitm > E.rows[a].L.hf + E.rows[a].L.fitm ? k : a), cand[0]);
+    ci[worst]++; even(); E = evaluate(); }
+  // ── water-shaped result
+  const zOf = n => wsHasXYZ(nodeMap[n]) ? Number(nodeMap[n].z) : 0, zSrc = zOf(sups[0]);
+  const flowKids = {}; net.forEach((s, k) => { const u = E.upOf(k); if (E.inc[E.dnOf(k)] === k) (flowKids[u] = flowKids[u] || []).push(k); });
+  const subFlow = n => { const out = [n], sk = new Set([n]), q = [n]; while (q.length) { const a = q.shift(); (flowKids[a] || []).forEach(k => { const b = E.dnOf(k); if (!sk.has(b)) { sk.add(b); out.push(b); q.push(b); } }); } return out; };
+  const out = net.map((s, k) => {
+    const r = E.rows[k], L = r.L, cd = cdef[s.cls], sub = subFlow(r.dn), N = sub.reduce((a, n) => a + (nodeN[n] || 0), 0);
+    const Pf = E.P[s.from], Pt = E.P[s.to], dz = dzOf(s), why = ovrIx[k] !== null ? {k:"manual", t:`Manual size ${L.pipe.od} mm` + (autoIx[k] !== ci[k] ? "" : "")}
+      : !(L.q > 0) ? {k:"none", t:"No flow in this pipe — smallest permitted size"}
+      : ci[k] > autoIx[k] ? {k:"pressure", t:`Upsized ${ci[k] - autoIx[k]} size${ci[k] - autoIx[k] > 1 ? "s" : ""} from ${cd.cands[autoIx[k]].od} mm to keep the stage loss and the end pressures within the limits`}
+      : ci[k] === 0 ? {k:"min", t:`${L.pipe.od} mm passes — the smallest size allowed`, s:"Smallest size allowed"}
+      : {k:"friction", t:`${L.pipe.od} mm is the smallest size that keeps the share of the allowable stage loss and ${cd.maxV} m/s`, s:"Sized on the allowable stage loss"};
+    return {s, id:s.id, cls:s.cls, ori:s.ori, geo:!!s.geo, eq:EQ[k], cd, from:s.from, to:s.to, L:s.len, dz, extra:L.extra, sub, LU:N, Qc:0, N, Q:L.q, Qd:L.q, spare:0,
+      auto:autoIx[k], ovr:ovrIx[k], own:nodeN[s.to] || 0, ownQ:demand[s.to] || 0, demState:"in", parent:E.inc[r.up] !== undefined ? E.inc[r.up] : -1, idx:k,
+      ci:ci[k], pipe:L.pipe, noSize:false, grad:L.hf/Math.max(s.len + leqOf(k), 1e-9)*100, v:L.v, hf:L.hf, fitm:L.fitm, eqItems:L.eqItems, eqLoss:L.eqLoss, prvSet:L.prvSet != null ? L.prvSet : null, prvOn:!!L.prvOn,
+      loss:Pf - Pt, vOk:r.vOk, pOk:true, Re:0, reg:"", why, ok:r.ok, bump:ci[k] - autoIx[k], Pfrom:Pf, Pto:Pt, PfromS:E.PS[s.from], PtoS:E.PS[s.to], elev:zOf(s.to) - zSrc,
+      rev:E.Q[k] < -1e-9, chord:!inTree.has(k), stagePst:r.Pst, stageLoss:r.stageLoss, stagePct:r.stageLoss/r.Pst*100, allow:r.allow, lossOk:r.lossOk, endOk:r.pOk, dh:L.dh};
+  });
+  const rc = Object.keys(E.nodeReq).map(n => ({node:n, res:E.P[n], req:E.nodeReq[n], margin:E.P[n] - E.nodeReq[n], sec:E.inc[n] !== undefined ? E.inc[n] : -1}));
+  const crit = rc.reduce((a, b) => (!a || b.margin < a.margin ? b : a), null);
+  const path = []; if (crit) { let k = crit.sec; const sk = new Set(); while (k >= 0 && !sk.has(k)) { sk.add(k); path.unshift(k); k = out[k].parent; } }
+  const nodeS = {...E.PS}, nodeZ = {}, hgl = {}; allN.forEach(n => { nodeZ[n] = zOf(n); hgl[n] = E.P[n]; });
+  const issues = [], I = (sev, code, text, kind, id) => issues.push({sev, code, text, kind:kind || null, id:id == null ? null : id});
+  if (!E.conv) I("warn", "ring", `The ring flows did not fully converge (${E.it} iterations) — check for a pipe with an extreme size or length.`);
+  out.forEach(x => { if (!Number.isFinite(x.Pto) || !Number.isFinite(x.Pfrom)) I("fail", "lost", `${x.id}: pressure is fully lost — the pipe is far too small for ${x.Q.toFixed(1)} m³/h.`, "sec", x.id);
+    else { if (!x.lossOk) I("fail", "stage", `${x.id}: ${x.cls === "main" ? "main / ring" : "riser / branch"} loss ${x.stageLoss.toFixed(1)} mbar (${x.stagePct.toFixed(1)} %) is above the allowable ${x.allow.toFixed(1)} mbar.`, "sec", x.id);
+      if (!x.vOk) I("fail", "velocity", `${x.id}: ${x.v.toFixed(1)} m/s exceeds the ${x.cd.l.toLowerCase()} limit of ${x.cd.maxV} m/s.`, "sec", x.id); }
+    if (!(x.Q > 1e-9) && !x.chord) I("warn", "no-demand", `${x.id} carries no gas.`, "sec", x.id);
+    if (x.prvSet != null && !x.prvOn) I("warn", "prv-idle", `${x.id}: the regulator (set ${x.prvSet} mbar) is not regulating.`, "sec", x.id);
+    x.eqItems.forEach(it => { if (it.mode === "pump") I("warn", "eq-pump", `${x.id}: a booster pump has no meaning in a gas network — it is ignored.`, "sec", x.id); if (!it.has) I("warn", "eq-blank", `${x.id}: ${it.tag || WS_EQ[it.type].l} has no value — it adds no loss.`, "sec", x.id); }); });
+  rc.filter(r => r.margin < -1e-9).sort((a, b) => a.margin - b.margin).slice(0, 8).forEach(r => I("fail", "pressure", `${r.node}: ${r.res.toFixed(1)} mbar available, ${r.req.toFixed(1)} mbar required — ${(-r.margin).toFixed(1)} mbar short.`, "node", r.node));
+  if (dens.manual) I("info", "s-manual", `Relative density is set by hand to ${S}${Number.isFinite(dens.calc) ? ` (the gas data gives ${dens.calc.toFixed(3)})` : ""}.`);
+  if (margin > 0) I("info", "margin", `A design margin of ${(margin*100).toFixed(1)} % is added to every friction loss.`);
+  if (chords.length) I("info", "rings", `${chords.length} ring${chords.length > 1 ? "s" : ""} (closed loop${chords.length > 1 ? "s" : ""}) solved by Hardy Cross — the flow splits between the two ways round; a pipe whose gas runs against its drawn direction is marked ↺.`);
+  if (chords.length && Object.values(nodeCnt).some(c => Object.keys(c).some(t => tBy[t].div === "band"))) I("info", "band-ring", "Band diversity on a ring is applied per node (each node at its own factor) — conservative, because a ring has no single upstream pipe to count connections on.");
+  if (sups.length > 1) I("info", "supplies", `${sups.length} supply nodes (${sups.join(", ")}), each at ${P0} mbar.`);
+  { const val = wsValidate(p); val.items.filter(i => i.sev === "warn").forEach(i => { if (!issues.some(q => q.text === i.text)) I("warn", i.group, i.text, i.kind, i.id); }); }
+  const nFail = issues.filter(i => i.sev === "fail").length, nWarn = issues.filter(i => i.sev === "warn").length, nInfo = issues.filter(i => i.sev === "info").length, status = nFail ? "fail" : nWarn ? "warn" : "valid";
+  const mainSec = out.filter(x => x.cls === "main").reduce((a, x) => (!a || x.pipe.od > a.pipe.od ? x : a), null) || out[0];
+  const grp = (key, label, type, xs) => ({key, label, l:label, type, n:xs.length, maxOD:xs.reduce((a, x) => Math.max(a, x.pipe.od), 0), maxV:xs.reduce((a, x) => Math.max(a, x.v), 0), maxG:xs.reduce((a, x) => Math.max(a, x.grad), 0), rev:xs.filter(x => !x.ok).length});
+  const classes = WS_CLASSES.map(c => ({...grp(c.k, c.l, "cls", out.filter(x => x.cls === c.k)), cd:cdef[c.k]}));
+  const groups = [...classes, ...WS_ORI.map(o => grp(o.k, o.l, "ori", out.filter(x => x.ori === o.k)))];
+  const minMargin = crit ? crit.margin : 0, critRise = crit ? zOf(crit.node) - zSrc : 0;
+  const lib = wsLibOf(p), libBy = {}; lib.forEach(f => { libBy[f.name] = f; });
+  const dem = {code:"__GAS", knots:[[0, 0], [1e9, 1e9]], label:`${gas.l} — gas load types`, unit:"conn.", ref:"IGE/UP/2"};
+  const f1 = (v, d = 1) => Number.isFinite(v) ? Number(v).toFixed(d) : "—";
+  const gasTxt = gas.k === "lpg" ? `LPG — ${num(p.gasPropane, 60)} % propane / ${100 - num(p.gasPropane, 60)} % butane by ${p.gasMix === "mass" ? "mass" : "volume"}` : gas.k === "sng" ? `SNG — ${num(p.gasSngPct, 55)} % LPG in air` : gas.k === "png" ? "PNG — natural gas" : "Other gas";
+  const selStr = `${gas.l} · ${tot.n} connections · ${f1(tot.Q, 2)} m³/h · Largest main ${mainSec ? mainSec.pipe.od + " mm" : "—"} · Lowest end pressure ${crit ? crit.node + " " + f1(crit.res, 1) + " mbar" : "—"}${status === "valid" ? "" : " — REVIEW"}`;
+  const water = {pumpIn:p, gasMode:true, out, rc, crit, path, dem, system:"gas", T:15, nu:0, isDW:false, P0, sP0:P0, nodeS, Pmin, fitPc, root:sups[0], roots:sups.length > 1 ? sups.map((r, i) => ({root:r, P0, sP0:P0, name:r, color:"#0b2f57", k:i})) : undefined,
+    Qsrc:tot.Q, totLU:tot.n, totQc:0, totN:tot.n, mainSec, minMargin, upsized:out.filter(x => x.bump > 0), upsizeReverted:false, needSrc:P0 - minMargin, critRise, directLU:0, fixLU:tot.n,
+    warn:[], issues, status, nFail, nWarn, nInfo, critical:crit ? {node:crit.node, available:crit.res, required:crit.req, margin:crit.margin, path:path.map(k => out[k].id), rise:critRise} : null,
+    refInfo:{code:"__GAS", label:dem.label, ref:"IGE/UP/2", unit:"conn.", min:0, max:0, rows:types.length, hash:wsHash(JSON.stringify([types, bands, gas.k, S])), fixHash:"", nFixUsed:Object.keys(tBy).length, mats:[...new Set(WS_CLASSES.map(c => cdef[c.k].matKey))].map(k => ({key:k, label:PIPE_MATERIALS[k].label, sizes:PIPE_MATERIALS[k].table.length, hash:wsHash(k)})), source:REF_STATUS.source, loadedAt:REF_STATUS.at},
+    validation:wsValidate(p), aboveMode:"flag", ok:status === "valid", nSec:out.length, useV:true, useP:false, sc:"velocity", classes, groups, cdef, libBy, lib, nodeReq:E.nodeReq,
+    nodeLU:{...nodeN}, nodeQc:{...nodeDir}, directAt:{}, selStr, order:out.map(x => x.idx), nodeZ, hgl, zSrc,
+    gas:{type:gas, S, dens, conv, margin, absBasis, MP, chords:chords.map(k => net[k].id), sups, loopIt:E.it, upsized:iter, gasTxt, tot, types, bands, P:E.P}};
+  const steps = [
+    {s:"Basis (IGE/UP/2)", label:"Gas", value:gasTxt},
+    {label:"Relative density S", value:`${S.toFixed(3)}${dens.manual ? " (manual)" : gas.k === "other" ? "" : " (calculated)"}`},
+    {label:"Supply pressure", value:`${P0} mbar`},
+    {label:"Allowable loss main / riser-branch", value:`${p.gasLossMain} / ${p.gasLossBranch} ${p.gasLossUnit === "mbar" ? "mbar" : "%"}`},
+    {label:"Minimum end pressure", value:`${Pmin} mbar`},
+    {s:"Demand", label:"Connections", value:`${tot.n}`},
+    {label:`Diversified ${gas.l} flow at supply`, value:`${f1(tot.Q, 2)} m³/h`, hl:true},
+    {s:"Pipe Sizing", label:"Sections / rings / critical route", value:`${out.length} / ${chords.length} / ${path.map(k => out[k].id).join(" → ") || "—"}`},
+    ...out.map(x => ({label:`${x.id} [${x.cd.l}] ${x.from} ${x.rev ? "←" : "→"} ${x.to}`, value:`${f1(x.Q, 2)} m³/h · ${x.pipe.od} mm · ${f1(x.v)} m/s · ${f1(x.Pto, 1)} mbar`, flag:x.ok ? undefined : "warn"})),
+    {s:"Pressure", label:crit ? `Lowest end pressure ${crit.node}` : "Lowest end pressure", value:crit ? `${f1(crit.res, 1)} mbar` : "—", hl:true, flag:minMargin >= -1e-9 ? "ok" : "warn"},
+    ...issues.filter(i => i.sev !== "info").map((w, i) => ({...(i === 0 ? {s:"Warnings"} : {}), label:w.text, value:"⚠", flag:"warn"})),
+  ];
+  return {valid:true, water, flowLsPerPump:tot.Q/3.6, flowTotal:tot.Q/3.6, designFlow:tot.Q/3.6, totalH:"—", pwrSel:"—", config:`${out.length} sections`, setText:`${out.length} pipe sections`,
+    set:{duty:out.length, standby:0, installed:out.length, sharing:"full"}, connectedKw:0, installedKw:0, velOk:status === "valid", pipe:null, dutyPoints:[], steps, selStr};
+}
+function gasDesignBasis(p) {
+  const name = (p && p.name) || "Gas distribution", g = gasTypeOf(p);
+  return [
+    `${name} (${g.long}) is sized to IGE/UP/2 using the coordinated tenant / appliance load information.`,
+    `Each load type has a peak flow (natural-gas figures are converted to ${g.l} with the factor entered) and a diversity factor, fixed or by the number of connections served.`,
+    "Pressure loss uses the IGE/UP/2 (Pole) equations with f = 0.0044 (1 + 43.5/d) on the internal diameters of the selected pipe schedule; the medium-pressure form applies above 75 mbar. A rise adds 0.123 (S − 1) mbar per metre.",
+    "Ringed mains are solved by Hardy Cross so the flow splits between both ways round; pressures are carried from the supply to every node and checked per stage (main / ring, then riser / branch) and at every load.",
+  ];
+}
+// convert an item from the v1.66 / v1.67 LPG test builds into a normal gas pipe sizing item (same canvas as water)
+function gasFromLegacy(p) {
+  const net = Array.isArray(p.lpgNet) ? p.lpgNet : [], old = Array.isArray(p.lpgNodes) ? p.lpgNodes : [];
+  const nodes = old.map(n => ({id:n.id, x:wsFin(n.x) ? Number(n.x) : "", y:wsFin(n.y) ? Number(n.y) : "", z:wsFin(n.z) ? Number(n.z) : "", ...(n.supply ? {supply:true} : {})}));
+  const wsNet = net.map(s => ({id:s.id, cls:s.cls || "main", ori:Number(s.rise) > 0 ? "up" : Number(s.rise) < 0 ? "down" : "h", from:s.from, to:s.to, len:s.len, loss:"", od:"", eq:[]}));
+  const wsFix = net.filter(s => s.load && Number(s.qty) > 0).map(s => ({level:"", room:"", fixture:s.load === "Mall Restaurant" ? "Mall F&B" : s.load, node:s.to, qty:Number(s.qty)}));
+  const direct = net.filter(s => Number(s.qDirect) > 0).map(s => ({id:s.to, x:"", y:"", z:"", qAdd:Number(s.qDirect)}));
+  const types = (Array.isArray(p.lpgTypes) ? p.lpgTypes : GAS_LOADS_DEFAULT).map(t => ({l:t.l === "Mall Restaurant" ? "Mall F&B" : t.l, q:t.q, unit:t.unit === "ng" ? "ng" : "gas", div:t.div, f:t.f}));
+  const nm = {}; nodes.forEach(n => { nm[n.id] = n; }); direct.forEach(d => { nm[d.id] = {...(nm[d.id] || {id:d.id, x:"", y:"", z:""}), qAdd:d.qAdd}; });
+  return {...DEFS.gas, id:p.id, name:(p.name || "Gas Pipe Sizing").replace(/^LPG Pipe Sizing$/, "Gas Pipe Sizing"), tag:p.tag || "GAS-01",
+    gasType:p.lpgGas || "lpg", gasPropane:p.lpgPropane ?? 60, gasMix:p.lpgMixBasis === "mass" ? "mass" : "vol", gasSngPct:p.lpgSngPct ?? 55, gasS:p.lpgSOverride ?? "", gasMargin:p.lpgMargin ?? 0,
+    gasSupply:p.lpgSupply ?? 350, gasLossUnit:p.lpgLossUnit === "mbar" ? "mbar" : "pct", gasLossMain:p.lpgLossMain ?? 10, gasLossBranch:p.lpgLossBranch ?? 10, gasMinP:p.lpgMinP ?? 37,
+    gasConv:p.lpgConv ?? 2.4, gasPBasis:p.lpgPBasis === "gauge" ? "gauge" : "abs", gasSizing:p.lpgSizing === "manual" ? "manual" : "auto", gasRingOne:p.lpgRingOne !== false,
+    gasTypes:types, gasBands:Array.isArray(p.lpgBands) ? p.lpgBands : GAS_BANDS_DEFAULT.map(b => ({...b})), wsNodes:Object.values(nm), wsNet, wsFix};
+}
+
 // ══════════════════════════════════════════════════════════════════════════
 // WATER SUPPLY PIPE SIZING  (type "water")
 // Fixture schedule → connected network → cumulative loading units → probable flow → pipe selection
@@ -2545,7 +2883,7 @@ DEFS.grease = {type:"grease", name:"Grease Interceptor", tag:"GI-01",
 // (ref_fixture_unit_codes / ref_fixture_unit_tables) and the fixtures with their loading units from
 // ref_fixtures, so IOP, IPC, UPC, BS EN 806 and national tables all work the same way.
 // <WATER-CORE-BEGIN>
-const CLASSIC_ONLY = new Set(["sump","grease","water"]);
+const CLASSIC_ONLY = new Set(["sump","grease","water","lpg"]);
 const WS_COUNTRIES = ["UAE","Saudi Arabia (KSA)","Qatar","Oman","Bahrain","Kuwait"];
 const WS_ID = /^[A-Za-z0-9_.\-]+$/;
 const WS_CLASSES = [{k:"main", l:"Main"}, {k:"riser", l:"Riser"}, {k:"branch", l:"Branch"}];
@@ -2678,7 +3016,7 @@ function wsNetworks(p) {
 function wsNetPump(p, n) {
   const cfg = (p.wsNetCfg && p.wsNetCfg[n.id]) || {}, nodes = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(q => n.ids.has(q.id));
   const o = {...p, id:null, wsNet:n.secs, wsNodes:nodes, wsFix:(Array.isArray(p.wsFix) ? p.wsFix : []).filter(f => n.ids.has(f.node)), wsNotes:[], wsNetCfg:undefined,
-    name:(p.name || TYPE_LBL[p.type] || "Water supply") + " — " + n.name, tag:(p.tag || "WS") + "-" + (n.k < 26 ? String.fromCharCode(65 + n.k) : n.k + 1), _net:{id:n.id, name:n.name, k:n.k}};
+    name:(p.name || typeLbl(p) || "Water supply") + " — " + n.name, tag:(p.tag || "WS") + "-" + (n.k < 26 ? String.fromCharCode(65 + n.k) : n.k + 1), _net:{id:n.id, name:n.name, k:n.k}};
   ["supplyPressure", "staticSupplyPressure"].forEach(k => { if (cfg[k] !== undefined && cfg[k] !== "" && cfg[k] !== null) o[k] = cfg[k]; });
   if (cfg.wsPump && typeof cfg.wsPump === "object") o.wsPump = {...(p.wsPump || {}), ...cfg.wsPump};
   delete o.wsNetCfg; return o;
@@ -2773,6 +3111,12 @@ function wsHash(s) { let h = 0x811c9dc5; s = String(s); for (let i = 0; i < s.le
 // Supported network: ONE supply node and a branched (tree) network — every other node is fed by exactly one pipe. Loops are not supported.
 const WS_JUMP = 20;   // a single pipe that changes level by more than this (m) is flagged for a check
 function wsValidate(p) {
+  const v = wsValidateBase(p); if (!wsIsGas(p)) return v;
+  const ringRe = /fed by \d+ pipes|closed loop|feed one connected network|not connected to the supply node|Exactly one is required/;
+  const items = v.items.filter(i => !(i.group === "topology" && ringRe.test(i.text)));
+  return {...v, items, errors:items.filter(i => i.sev === "error").length, warns:items.filter(i => i.sev === "warn").length, infos:items.filter(i => i.sev === "info").length, topology:"Supply node(s) · branched or ringed network (rings solved by Hardy Cross)"};
+}
+function wsValidateBase(p) {
   const items = [], add = (sev, group, text, kind, id) => items.push({sev, group, text, kind:kind || null, id:id == null ? null : id});
   const net = Array.isArray(p.wsNet) ? p.wsNet : [], nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], fix = Array.isArray(p.wsFix) ? p.wsFix : [], nm = wsNodeMap(p);
   const isDW = p.headLossMethod !== "HW";
@@ -2834,14 +3178,14 @@ function wsValidate(p) {
     if (!(L > 0)) add("error", "geometry", `${s.id}: length must be greater than zero.`, "sec", s.id); });
   if (typedDiff.length) add("warn", "geometry", `The length typed on ${typedDiff.length} pipe${typedDiff.length > 1 ? "s" : ""} differs from the distance between its nodes — the node distance is used: ${typedDiff.slice(0, 4).join("; ")}${typedDiff.length > 4 ? " and " + (typedDiff.length - 4) + " more" : ""}. Edit a pipe to confirm it.`);
   // ── loads
-  const nodeSet = new Set([...net.map(s => s.from), ...net.map(s => s.to)]), lib = FU_FIXTURES[p.wsDemand] || [];
+  const nodeSet = new Set([...net.map(s => s.from), ...net.map(s => s.to)]), lib = wsLibOf(p);
   fix.forEach((f, i) => { const at = `Fixture row ${i + 1}${f.fixture ? " (" + f.fixture + ")" : ""}`;
     if (!nodeSet.has(f.node)) add("error", "loads", `${at} is connected to "${f.node || "—"}", which is not in the network.`, "node", f.node);
     else if ((mkS.length ? mkS : (roots.length === 1 ? roots : [])).includes(f.node)) add("error", "loads", `${at} is connected at the supply node — connect it downstream of a pipe.`, "node", f.node);
     if (!(f.qty !== "" && f.qty != null && Number(f.qty) >= 0)) add("error", "loads", `${at}: quantity must be zero or greater.`, "node", f.node);
     if (lib.length && !lib.some(x => x.name === f.fixture)) add("error", "loads", `${at} is not in Reference Data for the selected demand table.`, "node", f.node); });
   { // a fixture with loading units AND a flow value: the flow is added in full, on top of the probable flow (right for a continuous load, double counting for an ordinary fixture)
-    const sys = p.system === "hot" ? "hot" : p.system === "total" ? "total" : "cold", unit = (FU_CODES[p.wsDemand] || {}).unit || "LU", seenF = {};
+    const sys = p.system === "hot" ? "hot" : p.system === "total" ? "total" : "cold", unit = (wsDemC(p) || {}).unit || "LU", seenF = {};
     fix.forEach(f => { const L = lib.find(x => x.name === f.fixture), q = Number(f.qty) || 0; if (!L || !(q > 0) || seenF[f.fixture]) return; seenF[f.fixture] = 1;
       const lu = wsLibLu(L, sys), fl = Number(L.flow) || 0; if (!(lu > 0 && fl > 0)) return;
       const n = fix.filter(g => g.fixture === f.fixture).reduce((a, g) => a + (Number(g.qty) || 0), 0);
@@ -2858,7 +3202,7 @@ function wsValidate(p) {
     else if (!(Number.isFinite(Number(it.val)) && Number(it.val) >= 0)) add("error", "equipment", `${lab}: the value must be zero or greater.`, "sec", s.id);
     if (it.qty !== "" && it.qty != null && !(Number.isFinite(Number(it.qty)) && Number(it.qty) >= 0)) add("error", "equipment", `${lab}: quantity must be zero or greater.`, "sec", s.id); }));
   // ── reference data
-  const dem = FU_CODES[p.wsDemand];
+  const dem = wsDemC(p);
   if (!p.wsDemand) add("error", "reference", "No demand table is selected (Setup).");
   else if (!dem) add("error", "reference", FU_LOAD_ERROR || `Demand table "${p.wsDemand}" is not in Reference Data.`);
   else { const t = dem.table || [];
@@ -2915,20 +3259,20 @@ function wsFixCode(f) {
 }
 // The code of every fixture used in the project (same rule as the fixture key: unique, in order of first use).
 function wsCodeMap(p) {
-  const lib = FU_FIXTURES[p.wsDemand] || [], by = {}; lib.forEach(f => { by[f.name] = f; });
+  const lib = wsLibOf(p), by = {}; lib.forEach(f => { by[f.name] = f; });
   const order = [], seen = {}; (Array.isArray(p.wsFix) ? p.wsFix : []).forEach(f => { const L = by[f.fixture], q = Number(f.qty) || 0; if (!L || !(q > 0) || seen[L.name]) return; seen[L.name] = 1; order.push(L); });
   const used = {}, codeOf = {}; order.forEach(L => { const c = wsFixCode(L); let k = c, i = 2; while (used[k] && used[k] !== L.name) k = c + (i++); used[k] = L.name; codeOf[L.name] = k; });
   return codeOf;
 }
 // What is connected at a node: the fixtures (with their codes) and the direct load, as one short line for the Pipes table.
 function wsNodeLoad(p, nodeId) {
-  const lib = FU_FIXTURES[p.wsDemand] || [], by = {}; lib.forEach(f => { by[f.name] = f; });
+  const lib = wsLibOf(p), by = {}; lib.forEach(f => { by[f.name] = f; });
   const codes = wsCodeMap(p), items = {}, order = []; let lu = 0;
   (Array.isArray(p.wsFix) ? p.wsFix : []).forEach(f => { if (f.node !== nodeId) return; const L = by[f.fixture], q = Number(f.qty) || 0; if (!L || !(q > 0)) return;
     if (!items[L.name]) { items[L.name] = {name:L.name, code:codes[L.name] || wsFixCode(L), qty:0}; order.push(L.name); } items[L.name].qty += q; lu += q*wsLibLu(L, p.system); });
   const nd = wsNodeMap(p)[nodeId], direct = nd && wsFin(nd.luAdd) && Number(nd.luAdd) > 0 ? Number(nd.luAdd) : 0; lu += direct;
   const parts = order.map(n => `${+items[n].qty.toFixed(2)} ${items[n].code}`); if (direct) parts.push(`${+direct.toFixed(2)} direct`);
-  const unit = (FU_CODES[p.wsDemand] || {}).unit || "LU";
+  const unit = (wsDemC(p) || {}).unit || "LU";
   return {items:order.map(n => items[n]), direct, lu, text: parts.length ? parts.join(", ") + " · " + (+lu.toFixed(1)) + " " + unit : ""};
 }
 // A new pipe from a node. It continues the way the feeding pipe runs; its class is guessed (from the supply: Main, vertical: Riser,
@@ -3356,7 +3700,7 @@ function wsMergeNetworks(p, R) {
     set:{duty:out.length, standby:0, installed:out.length, sharing:"full"}, connectedKw:0, installedKw:0, velOk:water.ok, pipe:null, dutyPoints:[], pumpHead:first.pumpHead, steps, selStr:water.selStr};
 }
 function waterDesignBasis(p) {
-  const name = (p && (p.name || TYPE_LBL[p.type])) || "Water supply";
+  const name = (p && (p.name || typeLbl(p))) || "Water supply";
   const sysTxt = p && p.system === "hot" ? "hot water" : p && p.system === "total" ? "combined hot and cold water" : "cold water", code = p && p.wsDemand && FU_CODES[p.wsDemand] ? FU_CODES[p.wsDemand].label : "the selected demand table";
   return [
     `${name} is sized for the ${sysTxt} system in accordance with ${code}${p && p.edition ? ` (${p.edition})` : ""}${p && p.country ? `, ${p.country}` : ""}${p && p.authority ? `, ${p.authority}` : ""}.`,
@@ -3535,8 +3879,8 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const bad = !x.ok || x.noSize, [s0, s1] = real;
     const len = Math.hypot(s1[0]-s0[0], s1[1]-s0[1]) || 1, ux = (s1[0]-s0[0])/len, uy = (s1[1]-s0[1])/len, mx = (s0[0]+s1[0])/2, my = (s0[1]+s1[1])/2;
     const arr = x.ori === "up" ? "↑" : x.ori === "down" ? "↓" : (cx < px ? "←" : "→"), rb = opt.colorBy && opt.colorBy !== "class" ? wsResBand(w, x, opt.colorBy, p.maxFixP) : null, col = rb ? rb.c : (bad ? C.bad : clsCol(x.cls));
-    const l1 = `${x.id} · ${wsClsLabel(x.cls)} · ${x.pipe.od} mm (ID ${x.pipe.id})`, l2 = `Σ ${lu1(x.LU)} ${unit} · ${x.Qd.toFixed(2)} L/s`, l3 = `${x.v.toFixed(2)} m/s · ${lu1(x.L)} m ${arr} · ${Math.abs(x.dz) < 0.005 ? "level" : (x.dz > 0 ? "rise +" : "drop −") + Math.abs(x.dz).toFixed(1) + " m"}${bad ? "  ⚠ REVIEW" : ""}`;
-    let s = `<g data-sec="${sxEsc(x.id)}"><title>${sxEsc(`${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\n${x.pipe.od} mm OD / ${x.pipe.id} mm ID\nCumulative ${lu1(x.LU)} ${unit} · ${x.N} fixtures · ${x.Qd.toFixed(3)} L/s\nVelocity ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\nLength ${lu1(x.L)} m · pressure at ${x.to}: ${x.Pto.toFixed(1)} m${bad ? "\nREVIEW: exceeds the limit or no size available" : ""}`)}</title>`;
+    const l1 = `${x.id} · ${wsClsLabel(x.cls)} · ${x.pipe.od} mm (ID ${x.pipe.id})`, l2 = `Σ ${lu1(x.LU)} ${unit} · ${x.Qd.toFixed(2)} ${wsQU(w)}${w.gasMode ? " · " + x.Pto.toFixed(1) + " mbar" : ""}`, l3 = `${x.v.toFixed(2)} m/s · ${lu1(x.L)} m ${arr} · ${Math.abs(x.dz) < 0.005 ? "level" : (x.dz > 0 ? "rise +" : "drop −") + Math.abs(x.dz).toFixed(1) + " m"}${bad ? "  ⚠ REVIEW" : ""}`;
+    let s = `<g data-sec="${sxEsc(x.id)}"><title>${sxEsc(`${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\n${x.pipe.od} mm OD / ${x.pipe.id} mm ID\nCumulative ${lu1(x.LU)} ${unit} · ${x.N} fixtures · ${x.Qd.toFixed(3)} ${wsQU(w)}\nVelocity ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\nLength ${lu1(x.L)} m · pressure at ${x.to}: ${x.Pto.toFixed(1)} ${wsPU(w)}${bad ? "\nREVIEW: exceeds the limit or no size available" : ""}`)}</title>`;
     geo.sec[x.id] = {x0:Math.min(...pts.map(q => q[0])), x1:Math.max(...pts.map(q => q[0])), y0:Math.min(...pts.map(q => q[1])), y1:Math.max(...pts.map(q => q[1]))};
     if (sel && sel.kind === "sec" && sel.id === x.id) s += `<path d="${dAll}" fill="none" stroke="${SELC}" stroke-opacity=".30" stroke-width="${sw + 24}" stroke-linecap="round" stroke-linejoin="round"/>`;
     if (onPath.has(x.id)) s += `<path d="${dAll}" fill="none" stroke="${C.crit}" stroke-width="${sw + 12}" stroke-linecap="round" stroke-linejoin="round"/>`;
@@ -3563,12 +3907,12 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const critC = G && w.crit && w.crit.node === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="#fde68a" fill-opacity=".85" stroke="#d99a14" stroke-width="2"/>` : "", rr = G ? 6 : 9, dr = G ? (fx ? 6 : 4.6) : 7, dst = G ? (fx ? "#fff" : (low ? C.bad : "#33415c")) : (fx ? "#fff" : accent);
     nodeSvg.push(`<g data-node="${sxEsc(n)}" style="cursor:pointer">${critC}${ring}<circle cx="${nx}" cy="${ny}" r="14" fill="#000" fill-opacity="0"/>` + (isRoot ? `<rect x="${nx-rr}" y="${ny-rr}" width="${2*rr}" height="${2*rr}" rx="3" fill="${C.root}" stroke="#fff" stroke-width="1.5"/>`
       : `<circle cx="${nx}" cy="${ny}" r="${dr}" fill="${fx ? (low ? C.bad : C.fix) : "#fff"}" stroke="${dst}" stroke-width="${G ? 1.8 : (fx ? 1.6 : 2.2)}"/>`) + "</g>");
-    const lines = [{t:isRoot ? `${n} (supply) · P ${press[n].toFixed(1)} m` : `${n} · P ${press[n].toFixed(1)} m${neg ? "  ⚠ NEGATIVE" : low ? "  ⚠ LOW" : ""}`, b:1, f:low ? C.bad : C.ink}];
+    const lines = [{t:isRoot ? `${n} (supply) · P ${press[n].toFixed(1)} ${wsPU(w)}` : `${n} · P ${press[n].toFixed(1)} ${wsPU(w)}${neg ? "  ⚠ NEGATIVE" : low ? "  ⚠ LOW" : ""}`, b:1, f:low ? C.bad : C.ink}];
     if (LV && wsHasXYZ(nm0[n])) lines.push({t:`${wsLvNodeLabel(LV, nm0[n])} · EL ${wsLvSigned(Number(nm0[n].z))} m`, f:C.sub});
     else if (!isRoot && feeder[n] && Number.isFinite(feeder[n].elev)) lines.push({t:`z ${feeder[n].elev >= 0 ? "+" : "−"}${Math.abs(feeder[n].elev).toFixed(1)} m`, f:C.sub});
-    let tip = `${n}: residual pressure P ${press[n].toFixed(1)} m${req != null ? ` (required ${req.toFixed(1)} m)` : ""}${!isRoot && feeder[n] ? `\nheight above the supply z ${feeder[n].elev.toFixed(1)} m` : ""}`;
+    let tip = `${n}: pressure P ${press[n].toFixed(1)} ${wsPU(w)}${req != null ? ` (required ${req.toFixed(1)} ${wsPU(w)})` : ""}${!isRoot && feeder[n] ? `\nheight above the supply z ${feeder[n].elev.toFixed(1)} m` : ""}`;
     if (fx) {
-      const items = Object.entries(fx.g).map(([k, v]) => `${lu1(v)}× ${k}`); if (fx.direct) items.push(`Direct ${lu1(fx.direct.lu)} ${unit}${fx.direct.q ? ` + ${fx.direct.q} L/s` : ""}`);
+      const items = Object.entries(fx.g).map(([k, v]) => `${lu1(v)}× ${k}`); if (fx.direct) items.push(`Direct ${lu1(fx.direct.lu)} ${unit}${fx.direct.q ? ` + ${fx.direct.q} ${wsQU(w)}` : ""}`);
       lines.push({t:`${lu1(fx.lu)} ${unit} at this node`, f:C.fix, b:1});
       const wrap = []; let cl = ""; items.forEach(it => { const nx = cl ? cl + ", " + it : it; if (cl && nx.length > 32) { wrap.push(cl + ","); cl = it; } else cl = nx; }); if (cl) wrap.push(cl);
       wrap.forEach(t => lines.push({t, f:C.sub})); tip += `\n${lu1(fx.lu)} ${unit}: ${items.join(", ")}`;
@@ -3594,7 +3938,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const hit2 = (a, b, m) => a.x0 < b.x1 + m && b.x0 < a.x1 + m && a.y0 < b.y1 + m && b.y0 < a.y1 + m;
   const ovl = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0))*Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
   const ttl = [[14, 28, "NETWORK SCHEMATIC", 14, 1], [14, 47, `${p.name || "Water supply"}${p.tag ? " · " + p.tag : ""}`, 11.5, 1],
-    [14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} L/s · ${out.filter(x => !x.ok || x.noSize).length ? out.filter(x => !x.ok || x.noSize).length + " to review" : "all checks pass"}`, 10.5, 0]];
+    [14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} ${wsQU(w)} · ${out.filter(x => !x.ok || x.noSize).length ? out.filter(x => !x.ok || x.noSize).length + " to review" : "all checks pass"}`, 10.5, 0]];
   addOb("title", null, 0, 0, W, 8, 0);
   ttl.forEach(([tx, ty, t, sz, b]) => addOb("title", null, tx, ty - sz*0.76, tx + wsTxtW(t, sz, b)*SAFE, ty + sz*0.22, -3));
   addOb("key", null, 0, Ltop0 + (keyH ? 4 : 0), W, Ltop0 + (keyH ? 4 : 0) + 4000, 0);
@@ -3704,7 +4048,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" fill="#000">`
     + `<rect width="${W}" height="${H}" fill="#fff"/><rect x="0" y="0" width="${Math.round(W/3)}" height="6" fill="${C.main}"/><rect x="${Math.round(W/3)}" y="0" width="${Math.round(W/3)}" height="6" fill="${C.riser}"/><rect x="${Math.round(2*W/3)}" y="0" width="${W - Math.round(2*W/3)}" height="6" fill="${C.branch}"/>`
     + T(14, 28, "NETWORK SCHEMATIC", {b:1, s:14, halo:false, f:C.main}) + T(14, 47, `${p.name || "Water supply"}${p.tag ? " · " + p.tag : ""}`, {s:11.5, b:1, halo:false})
-    + T(14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} L/s · ${nBad ? nBad + " to review" : "all checks pass"}`, {s:10.5, halo:false, f:nBad ? C.bad : C.sub})
+    + T(14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} ${wsQU(w)} · ${nBad ? nBad + " to review" : "all checks pass"}`, {s:10.5, halo:false, f:nBad ? C.bad : C.sub})
     + guideSvg + groupsOut.join("") + nodeSvg.join("") + cardSvgs.join("") + noteRC.map(o => `<g data-note="${sxEsc(o.q.id)}">` + T(X(o.c), Y(o.r), o.q.text, {s:11, b:1, f:"#3d2c8d"}) + "</g>").join("") + lateSvg.join("") + keySvg + leg + cbyLeg + `</svg>`;
   return {svg, w:W, h:H, geo};
 }
@@ -3904,8 +4248,8 @@ function wsEdDrawPipe(p, aRef, bRef, tw, opt) {
   // which network does each end belong to? (a network = the pipes connected to one supply node)
   const sups = empty ? [A.id] : wsSupplyIds(p), compIx = id => sups.findIndex(r => wsEdComp(w.net, r).has(id)), ia = compIx(A.id), ib = compIx(B.id);
   const joinOK = ia >= 0 && ib >= 0 && ia !== ib && !wsMarkedX(p).length;      // an unmarked drawing that was read as several networks: a pipe between them joins them into one, as it always did
-  if (ia >= 0 && ib >= 0 && ia === ib) return err("That would close a loop — the network is a branched tree and every node is fed by one pipe only. End the pipe on a free point, or on a node that is not yet connected.");
-  if (ia >= 0 && ib >= 0 && !joinOK) return err("That would join two separate networks — a connected network has one supply, and ring mains are not supported. End the pipe on a free point, or on a node of the same network.");
+  if (ia >= 0 && ib >= 0 && ia === ib && !wsIsGas(p)) return err("That would close a loop — the network is a branched tree and every node is fed by one pipe only. End the pipe on a free point, or on a node that is not yet connected.");
+  if (ia >= 0 && ib >= 0 && !joinOK && !wsIsGas(p)) return err("That would join two separate networks — a connected network has one supply, and ring mains are not supported. End the pipe on a free point, or on a node of the same network.");
   let sup = ia >= 0 ? sups[ia] : ib >= 0 ? sups[ib] : null, started = false;
   if (ia < 0 && ib < 0) {
     if (!oo.newNet) return err("A pipe must connect to the network — start or end it on a node or on a pipe that is already connected (or switch on “New network” to start another network with its own supply).");
@@ -4070,7 +4414,7 @@ function wsEdCrit(w) {
 // Where a node's required pressure comes from, in words — the question behind "why is this the critical terminal".
 function wsEdReqSource(p, w, id) {
   if (!w || !w.nodeReq || w.nodeReq[id] == null) return null;
-  const req = w.nodeReq[id], n = wsNodeMap(p)[id], typed = n && Number(n.reqP) > 0 ? Number(n.reqP) : null, lib = FU_FIXTURES[p.wsDemand] || [], eps = 1e-9, parts = [];
+  const req = w.nodeReq[id], n = wsNodeMap(p)[id], typed = n && Number(n.reqP) > 0 ? Number(n.reqP) : null, lib = wsLibOf(p), eps = 1e-9, parts = [];
   const fx = (Array.isArray(p.wsFix) ? p.wsFix : []).filter(f => f.node === id && Number(f.qty) > 0);
   if (typed != null && Math.abs(typed - req) < eps) return {req, text:"typed on this node (Req. p)"};
   fx.forEach(f => { const L = lib.find(x => x.name === f.fixture); if (L && Number(L.minP) > 0 && Math.abs(Number(L.minP) - req) < eps && !parts.includes(f.fixture)) parts.push(f.fixture); });
@@ -4081,7 +4425,7 @@ function wsEdReqSource(p, w, id) {
 // Same contract as step 1: pure functions that take the project fields and return {patch, …} or {error}; on an error nothing is changed.
 // A clip is a plain object (JSON-safe, so it can be stored in the project as a block): the pipes, nodes (as offsets from a base node), fixtures
 // and direct loads of one connected group. Pasting joins the clip's base node to a node of the network, or to a tee made on a pipe.
-const wsEdLib = p => FU_FIXTURES[p.wsDemand] || [];
+const wsEdLib = p => wsLibOf(p);
 // add (or raise) a fixture row. strict = match on level and room too (pasted rows); otherwise the first row of that fixture at the node is raised
 function wsEdFixRows(fix, node, name, qty, level, room, strict) {
   const q = Number(qty) > 0 ? Number(qty) : 1, lv = level == null ? "" : String(level), rm = room == null ? "" : String(room);
@@ -4461,7 +4805,7 @@ const wsLevelsOf = (proj, pump) => (pump && pump.wsLevels !== undefined && pump.
 const wsLevelsDefaultOf = proj => (proj && (proj.wsLevelsDefault || proj.wsLevels)) || undefined;
 // the copy of a calculation: a deep copy with its own levels (never the same object, never shared)
 function wsDupPump(proj, src, id, suffix) {
-  const np = {...JSON.parse(JSON.stringify(src)), id, name:(src.name || TYPE_LBL[src.type] || "Calculation") + (suffix == null ? " (copy)" : suffix)};
+  const np = {...JSON.parse(JSON.stringify(src)), id, name:(src.name || typeLbl(src) || "Calculation") + (suffix == null ? " (copy)" : suffix)};
   if (src.type === "water") { const L = wsLevelsOf(proj, src); if (L) np.wsLevels = wsLvClone(L); }
   return np;
 }
@@ -4625,7 +4969,7 @@ const WS_CBY = [["class", "Class"], ["velocity", "Velocity"], ["friction", "Fric
 const WS_BANDS = {
   velocity:[{k:"low", c:"#2b7bd6", l:"under 50 % of the limit"}, {k:"ok", c:"#1f9d55", l:"50–80 %"}, {k:"near", c:"#e0a21f", l:"80–100 %"}, {k:"over", c:"#d8332b", l:"over the limit"}],
   friction:[{k:"low", c:"#2b7bd6", l:"under 50 % of the limit"}, {k:"ok", c:"#1f9d55", l:"50–80 %"}, {k:"near", c:"#e0a21f", l:"80–100 %"}, {k:"over", c:"#d8332b", l:"over the limit"}],
-  pressure:[{k:"short", c:"#d8332b", l:"below the required pressure"}, {k:"near", c:"#e0a21f", l:"less than 5 m to spare"}, {k:"ok", c:"#1f9d55", l:"OK"}, {k:"high", c:"#7b3fd6", l:"above the max. fixture pressure"}],
+  pressure:[{k:"short", c:"#d8332b", l:"below the required pressure"}, {k:"near", c:"#e0a21f", l:"less than 5 m (water) / 5 mbar (gas) to spare"}, {k:"ok", c:"#1f9d55", l:"OK"}, {k:"high", c:"#7b3fd6", l:"above the max. fixture pressure"}],
 };
 const WS_BAND_NONE = {k:"none", c:"#9aa7b8", l:"no flow"};
 function wsResBand(w, x, mode, maxF) {
@@ -4644,12 +4988,12 @@ function wsHoverLines(w, p, kind, id) {
   if (kind === "sec") { const x = w.out.find(q => q.id === id); if (!x) return null;
     const K = x.eqItems.filter(i => i.mode === "k" && i.has).reduce((a, i) => a + i.qn*Number(i.val), 0);
     return [`${x.id} · ${x.cd.l} · ${x.pipe.od} mm OD / ${x.pipe.id} mm ID`, `Length ${f(x.L, 2)} m · start EL ${z(x.from)} m · end EL ${z(x.to)} m`,
-      x.Qd > 0 ? `Flow ${f(x.Qd, 3)} L/s · ${f(x.v, 2)} m/s · ${f(x.grad, 0)} Pa/m` : "No flow",
-      `Friction ${f(x.hf, 2)} m + fittings ${f(x.fitm, 2)} m${K > 0 ? ` · valves ΣK ${+K.toFixed(3)}` : ""}${x.eqItems.length ? ` · equipment ${f(x.eqLoss, 2)} m` : ""}`,
-      `Pressure ${f(x.Pfrom, 1)} → ${f(x.Pto, 1)} m · HGL ${f(w.hgl[x.from], 1)} → ${f(w.hgl[x.to], 1)} m`]; }
+      x.Qd > 0 ? `Flow ${f(x.Qd, 3)} ${wsQU(w)} · ${f(x.v, 2)} m/s · ${f(x.grad, 0)} Pa/m` : "No flow",
+      `Friction ${f(x.hf, 2)} ${wsPU(w)} + fittings ${f(x.fitm, 2)} ${wsPU(w)}${K > 0 ? ` · valves ΣK ${+K.toFixed(3)}` : ""}${x.eqItems.length ? ` · equipment ${f(x.eqLoss, 2)} ${wsPU(w)}` : ""}`,
+      `Pressure ${f(x.Pfrom, 1)} → ${f(x.Pto, 1)} ${wsPU(w)}${w.gasMode ? (Number.isFinite(x.stagePct) ? ` · stage ${f(x.stagePct, 1)} %` : "") + (x.rev ? " · gas runs To → From" : "") : ` · HGL ${f(w.hgl[x.from], 1)} → ${f(w.hgl[x.to], 1)} m`}`]; }
   const n = id; if (w.hgl[n] == null) return null; const req = w.nodeReq[n], pr = wsRootP(w, n) != null ? wsRootP(w, n) : (w.out.find(q => q.to === n) || {}).Pto;
-  return [`Node ${n}${wsRootP(w, n) != null ? " (supply)" : ""}`, `EL ${z(n)} m · P ${f(pr, 1)} m · HGL ${f(w.hgl[n], 1)} m`,
-    ...(req != null ? [`Required ${f(req, 1)} m · margin ${pr - req >= 0 ? "+" : ""}${f(pr - req, 1)} m`] : []), ...(w.nodeLU[n] ? [`${+w.nodeLU[n].toFixed(1)} ${w.dem.unit} at this node`] : [])];
+  return [`Node ${n}${wsRootP(w, n) != null ? " (supply)" : ""}`, `EL ${z(n)} m · P ${f(pr, 1)} ${wsPU(w)}${w.gasMode ? "" : ` · HGL ${f(w.hgl[n], 1)} m`}`,
+    ...(req != null ? [`Required ${f(req, 1)} ${wsPU(w)} · margin ${pr - req >= 0 ? "+" : ""}${f(pr - req, 1)} ${wsPU(w)}`] : []), ...(w.nodeLU[n] ? [`${+w.nodeLU[n].toFixed(1)} ${w.dem.unit} at this node`] : [])];
 }
 // Notes: free text placed on the drawing (building names, "Duty AHU", remarks). Kept in the project with a position; the calculation ignores them.
 const wsNotesOf = p => Array.isArray(p.wsNotes) ? p.wsNotes : [];
@@ -4676,6 +5020,11 @@ DEFS.water = {type:"water", name:"Water Supply Pipe Sizing", tag:"WS-01",
   country:"UAE", authority:"", edition:"", building:"", system:"cold", wsDemand:"",
   wsSource:"pump", wsPump:{suction:"", suctionUnit:"m", other:"", duty:1, standby:1, flowSafety:"", shutoffPct:100}, headLossMethod:"DW", sizingCriterion:"both", fittingsPct:30, supplyPressure:50, staticSupplyPressure:"", minResidual:10, maxFixP:"", waterTemp:20, storeyH:3, autoUpsize:true,
   wsCls:{main:{...WS_CLS_DEFAULT.main}, riser:{...WS_CLS_DEFAULT.riser}, branch:{...WS_CLS_DEFAULT.branch}}, wsFix:[], wsNet:[], wsNodes:[]};
+// a gas pipe sizing item is a pipe sizing item (same canvas, pipes, loads and results as water) with a gas engine — see calculateGas
+DEFS.gas = {...DEFS.water, type:"water", wsService:"gas", name:"Gas Pipe Sizing", tag:"GAS-01", wsDemand:"__GAS", wsSource:"fixed", fittingsPct:10, autoUpsize:true,
+  wsCls:{main:{...GAS_CLS_DEFAULT.main}, riser:{...GAS_CLS_DEFAULT.riser}, branch:{...GAS_CLS_DEFAULT.branch}},
+  gasType:"lpg", gasPropane:60, gasMix:"vol", gasSngPct:55, gasS:"", gasConv:2.40, gasSupply:350, gasMinP:37, gasLossUnit:"pct", gasLossMain:10, gasLossBranch:10,
+  gasMargin:0, gasPBasis:"abs", gasSizing:"auto", gasRingOne:true, gasTypes:GAS_LOADS_DEFAULT.map(t => ({...t})), gasBands:GAS_BANDS_DEFAULT.map(b => ({...b}))};
 
 // ══════════════════════════════════════════════════════════════════════════
 // CLASSIC CALCULATION SHEET  — the Meinhardt "calculation sheet" layout
@@ -5071,6 +5420,54 @@ function clSumpRows(B, p, res) {
   };
 }
 
+// ── Gas pipe sizing calculation sheet (IGE/UP/2) — the network, schematic and pipe table are the shared pipe-sizing ones ──
+function clGasRows(B, p, res) {
+  const w = res.water, G = w.gas, f = (v, d) => Number.isFinite(v) ? Number(v.toFixed(d)) : null;
+  B.align("l");
+  B.section("1. Basis of Design (IGE/UP/2)");
+  B.inp("gasT", "Gas", G.type.long, {});
+  if (G.type.k === "lpg" || G.type.k === "sng") B.inp("gasPr", "LPG — Propane Share (balance Butane), by " + (p.gasMix === "mass" ? "Mass" : "Volume"), num(p.gasPropane, 60), {unit:"%", dp:0});
+  if (G.type.k === "sng") B.inp("gasX", "LPG Share in the SNG (LPG–Air) Mix", num(p.gasSngPct, 55), {unit:"%", dp:0});
+  B.inp("gasS", "Relative Density of Gas, S" + (G.dens.manual ? " (entered)" : G.type.k === "other" ? "" : " (calculated)"), f(G.S, 3), {dp:3});
+  B.inp("gasP0", "Supply Pressure (PRS Outlet), P1", w.P0, {unit:"mbar", dp:0});
+  B.inp("gasLm", "Allowable Pressure Loss — Main / Ring", Number(p.gasLossMain), {unit:p.gasLossUnit === "mbar" ? "mbar" : "%", dp:1});
+  B.inp("gasLb", "Allowable Pressure Loss — Riser / Branch (from the take-off)", Number(p.gasLossBranch), {unit:p.gasLossUnit === "mbar" ? "mbar" : "%", dp:1});
+  B.inp("gasPm", "Minimum Pressure at Every Load", w.Pmin, {unit:"mbar", dp:0});
+  B.inp("gasCv", `Natural Gas → ${G.type.l} Peak Flow Conversion (divide by)`, G.conv, {dp:2});
+  B.inp("gasFt", "Fittings Allowance on Friction Loss", w.fitPc, {unit:"%", dp:0});
+  if (G.margin > 0) B.inp("gasMg", "Design Margin on Friction Loss", G.margin*100, {unit:"%", dp:1});
+  WS_CLASSES.forEach(c => { const cd = w.cdef[c.k]; B.inp("gasC" + c.k, `${c.l === "Branch" ? "Branches" : c.l + "s"} — ${cd.mat.label}${cd.minOD ? `, minimum ${cd.minOD} mm OD` : ""}, max. velocity`, cd.maxV, {unit:"m/s", dp:1}); });
+  B.text("Q = 0.0127 [ (P1² − P2²) · d⁵ / (S · L · f) ]^0.5  for P > 75 mbar (P in bar " + (G.absBasis ? "absolute" : "gauge") + ")", {cls:"fx"});
+  B.text("Q = 0.000571 [ ΔP · d⁵ / (S · L · f) ]^0.5  for P ≤ 75 mbar   ·   f = 0.0044 (1 + 43.5 / d)   ·   height effect = 0.123 (S − 1) · H mbar", {cls:"fx"});
+  B.gap();
+  B.text("Load types", {bold:true});
+  B.tbl("gasTy", {
+    head:[[{v:"Load type", span:[1,3]}, {v:"Peak flow (m³/h)", span:[4,5]}, {v:"Basis", span:[6,6]}, {v:`${G.type.l} per unit (m³/h)`, span:[7,8]}, {v:"Diversity", span:[9,9]}]],
+    rows:G.types.map(t => [{v:t.l, span:[1,3], al:"l", input:true}, {v:Number(t.q), span:[4,5], dp:2, input:true}, {v:t.unit === "ng" ? "NG" : G.type.l, span:[6,6]},
+      {v:Number(t.q)/(t.unit === "ng" ? G.conv : 1), span:[7,8], dp:3}, {v:t.div === "band" ? "Band table" : Number(t.f), span:[9,9], dp:2}]),
+  });
+  if (G.types.some(t => t.div === "band")) { B.gap(); B.text("Diversity bands (connections served): " + G.bands.map(b => (wsFin(b.upTo) ? "≤ " + b.upTo : "above") + " → " + b.f).join(" · "), {italic:true}); }
+  B.gap();
+  B.section("2. Pipe Sizing and Pressure");
+  B.tbl("gasN", {
+    head:[[{v:"Section (Class)", span:[1,1]}, {v:"From → To", span:[2,2]}, {v:"Q (m³/h)", span:[3,3]}, {v:"L / Rise (m)", span:[4,4]}, {v:"OD / ID (mm)", span:[5,5]}, {v:"Vel. (m/s)", span:[6,6]}, {v:"Loss (mbar)", span:[7,7]}, {v:"P at To (mbar)", span:[8,8]}, {v:"Stage loss %", span:[9,9]}]],
+    rows:w.out.map(x => [{v:`${x.id} (${x.cd.l})`, span:[1,1], al:"l"}, {v:`${x.from} ${x.rev ? "←" : "→"} ${x.to}`, span:[2,2], al:"l"}, {v:f(x.Q, 2), span:[3,3], dp:2},
+      {v:`${x.L.toFixed(1)}${Math.abs(x.dz) > 0.005 ? " / " + (x.dz > 0 ? "+" : "") + x.dz.toFixed(1) : ""}`, span:[4,4]}, {v:`${x.pipe.od} / ${x.pipe.id}`, span:[5,5]}, {v:f(x.v, 1), span:[6,6], dp:1},
+      {v:f(Math.abs(x.Pfrom - x.Pto), 2), span:[7,7], dp:2}, {v:f(x.Pto, 1), span:[8,8], dp:1}, {v:Number.isFinite(x.stagePct) ? `${x.stagePct.toFixed(1)}${x.ok ? "" : " ✗"}` : "✗", span:[9,9]}]),
+  });
+  B.gap();
+  B.section("3. Result");
+  B.calc("gasQ", `Total Diversified ${G.type.l} Flow at Supply`, f(w.Qsrc, 2), null, {unit:"m³/h", dp:2});
+  B.calc("gasCn", "Connections Served", w.totN, null, {dp:0});
+  if (G.chords.length) B.calc("gasRg", "Rings (closed loops) solved by Hardy Cross", G.chords.length, null, {dp:0});
+  B.calc("gasCr", `Lowest Pressure at a Load (${w.crit ? w.crit.node : "—"})`, w.crit ? f(w.crit.res, 1) : null, null, {unit:"mbar", dp:1, key:true});
+  B.text("Critical route: " + (w.path.map(k => w.out[k].id).join(" → ") || "—"), {italic:true});
+  w.issues.filter(i => i.sev !== "info").forEach(i => B.text("⚠ " + i.text, {warn:true}));
+  { const t = `${G.type.l} ${w.Qsrc.toFixed(2)} m³/h · Lowest Pressure at a Load ${w.crit ? w.crit.node + " " + w.crit.res.toFixed(1) + " mbar" : "—"} · ${w.status === "valid" ? "All Checks Pass" : "REVIEW"}`;
+    B.banner = {text:t, xl:'"' + t.replace(/"/g, '""').slice(0, 250) + '"'}; }
+  try { const sc = wsSchematic(w, p, {levels:B.levels});
+    B.appendix.push({t:"section", title:"Network Schematic"}, {t:"text", text:"Pipe size, connections served and flow on every pipe; loads and pressure (mbar) at every node."}, {t:"figure", svg:sc.svg, w:sc.w, h:sc.h, wide:true, px:900}); } catch (e) {}
+}
 // ── Grease interceptor (BS EN 1825-2) ─────────────────────────────────────────
 function clGreaseRows(B, p, res) {
   const g = res.grease;
@@ -5578,11 +5975,11 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = String(pump.name || TYPE_LBL[pump.type] || "Calculation");
+  const title = String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
-  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
+  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
   const closure = closureOf(meta);
   return {
     blocked:false, type: pump.type, res, rows:(()=>{ let z = 0; for (const x of B.rows) { if (x.t === "section") z = 0; else if (x.t === "row" || x.t === "text") x.z = (z++ % 2 === 1); } return B.rows; })(), byId:B.byId, tables:B.tables, banner:B.banner,
@@ -5590,7 +5987,7 @@ function clBuildDoc(proj, pump, meta, stageName, opts) {
       calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
       reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
     appendix:B.appendix,
-    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${TYPE_LBL[pump.type] || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
     closure: closure.status === "closed" ? closure : null,
     watermark: closure.status === "closed" ? null : (stageStatusLabel(meta).toUpperCase() === "DRAFT" ? "DRAFT — NOT FOR ISSUE" : "DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
   };
@@ -6150,6 +6547,14 @@ function LiveCalcPanel({pump}) {
             ["Selected NS",res.grease.nsLabel],
             ["Separators",`${res.grease.n} No.`],
             ["F&B Connected",`${res.grease.count}`]] :
+           res.lpg ? [[res.lpg.gas.l+" Flow",`${res.lpg.tot.Q.toFixed(2)} m³/h`],
+            ["Connections",`${res.lpg.tot.n}`],
+            ["Largest Main",res.lpg.mainBig?res.lpg.mainBig.pipe.nps:"—"],
+            ["Lowest P",res.lpg.critNode?`${res.lpg.critP.toFixed(1)} mbar`:"—"]] :
+           res.water && res.water.gasMode ? [[res.water.gas.type.l + " Flow",`${res.water.Qsrc.toFixed(2)} m³/h`],
+            ["Connections",`${res.water.totN}`],
+            ["Main Pipe",res.water.mainSec?`${res.water.mainSec.pipe.od} mm`:"—"],
+            ["Lowest P",res.water.crit?`${res.water.crit.res.toFixed(1)} mbar`:"—"]] :
            res.water ? [["Peak Flow",`${res.water.Qsrc.toFixed(2)} L/s`],
             ["Total "+res.water.dem.unit,`${res.water.totLU.toFixed(0)}`],
             ["Main Pipe",res.water.mainSec?`${res.water.mainSec.pipe.od} mm`:"—"],
@@ -6165,7 +6570,7 @@ function LiveCalcPanel({pump}) {
           ))}
         </div>
         <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5}}>
-          {res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} fixtures · {wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
+          {res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.lpg ? <>{res.lpg.gas.l} · {res.lpg.nSec} sections{res.lpg.chords.length?` · ${res.lpg.chords.length} ring`:""} · S = {res.lpg.S.toFixed(3)} · supply {res.lpg.P0} mbar<br/>Lowest end node {res.lpg.critNode||"—"} · <span style={{color:res.lpg.status==="valid"?"#4ade80":"#f87171",fontWeight:700}}>{res.lpg.status==="valid"?"all checks pass ✓":"review warnings ✗"}</span></> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} {res.water.gasMode ? "connections · " + res.water.gas.type.l + " · S " + res.water.gas.S.toFixed(3) : "fixtures · " + wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
           {res.set.installed} pumps installed · {res.setText || `${res.set.duty} duty, ${res.set.standby} standby`}
           <br/>Pipe: {res.pipe.od} mm OD{res.pipe.wall!==undefined?` × ${res.pipe.wall} mm wall`:""} · Velocity{" "}
           <span style={{color:res.velOk?"#4ade80":"#f87171",fontWeight:700}}>
@@ -6359,7 +6764,7 @@ function aiCleanPatch(raw, pump){
 function aiPumpContext(pump){
   const keys = Object.keys(AI_FIELDS).filter(k=>pump[k]!==undefined);
   const cur = Object.fromEntries(keys.map(k=>[k,pump[k]]));
-  return `Pump type: ${pump.type} (${TYPE_LBL[pump.type]}). Current values: ${JSON.stringify(cur)}.
+  return `Pump type: ${pump.type} (${typeLbl(pump)}). Current values: ${JSON.stringify(cur)}.
 Fixture-unit codes available: ${Object.entries(FU_CODES).map(([k,c])=>`${k}=${c.label} (${c.unit})`).join("; ")||"none"}.`;
 }
 const AI_FIELD_HELP = `Fields (SI units): name, tag, directFlow (L/s), safetyPct (%), flowMode ("direct" or "wsfu"), wsfu (total fixture units), fuCode,
@@ -6630,20 +7035,22 @@ function StatusChip({status}) { return <span className={`status-chip ${status.ke
 function ScheduleReviewTable({items, density, selectedId, onSelect}) {
   if (!items.length) return <div className="empty-schedule">No equipment matches the current filters.</div>;
   const row = item => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
-    <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left" title={`${p.name} — ${TYPE_LBL[p.type]||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{TYPE_LBL[p.type]||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
+    <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left" title={`${p.name} — ${typeLbl(p)||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{typeLbl(p)||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
     {p.type==='grease'
       ? <><td><div className="pipe-main">Grease separator</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.set.installed} × ${r.nsLabel}`}</div></td><td className="ctr"><span className="method-chip">EN 1825</span></td></>
+      : p.type==='lpg'
+      ? <><td><div className="pipe-main">Steel Sch 40 · {r.error?'Gas':r.lpg.gas.l}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.lpg.nSec} sections · ${r.lpg.tot.Q.toFixed(1)} m³/h`}</div></td><td className="ctr"><span className="method-chip">IGE/UP/2</span></td></>
       : p.type==='water'
-      ? <><td><div className="pipe-main">{r.error?'—':r.water.classes.filter(c=>c.n>0).map(c=>c.cd.mat.label.split(' (')[0]).filter((v,i,a)=>a.indexOf(v)===i).join(' / ')}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.water.nSec} sections · main ${r.water.mainSec?r.water.mainSec.pipe.od:'—'} mm OD`}</div></td><td className="ctr"><span className="method-chip">{p.headLossMethod==='HW'?'H–W':'D–W'}</span></td></>
+      ? <><td><div className="pipe-main">{r.error?'—':r.water.classes.filter(c=>c.n>0).map(c=>c.cd.mat.label.split(' (')[0]).filter((v,i,a)=>a.indexOf(v)===i).join(' / ')}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.water.nSec} sections · main ${r.water.mainSec?r.water.mainSec.pipe.od:'—'} mm OD`}</div></td><td className="ctr"><span className="method-chip">{wsIsGas(p)?'IGE/UP/2':p.headLossMethod==='HW'?'H–W':'D–W'}</span></td></>
       : <><td><div className="pipe-main">{pipe.label||'—'}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.pipe.od} mm OD${r.pipe.wall!==undefined?` × ${r.pipe.wall} wall`:""}`}</div></td><td className="ctr"><span className="method-chip">{p.headLossMethod==='DW'?'D–W':'H–W'}</span></td></>}
     <td className="num strong">{r.error?'—':r.flowLsPerPump.toFixed(2)}</td><td className="num">{r.error?'—':r.flowTotal.toFixed(2)}</td><td className="num strong">{r.error?'—':r.totalH}</td><td className="num strong">{r.error?'—':r.pwrSel}</td>
-    <td className="ctr">{r.error?'—':r.config}</td><td className="ctr">{r.error||p.type==='water'?'—':r.set.installed}</td><td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status}/><button className="schedule-action" onClick={e=>{e.stopPropagation();onSelect(p.id)}}>View</button></div></td>
+    <td className="ctr">{r.error?'—':r.config}</td><td className="ctr">{r.error||p.type==='water'||p.type==='lpg'?'—':r.set.installed}</td><td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status}/><button className="schedule-action" onClick={e=>{e.stopPropagation();onSelect(p.id)}}>View</button></div></td>
   </tr>; };
-  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:'24%'}}/><col style={{width:130}}/><col style={{width:'15%'}}/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:120}}/></colgroup><thead><tr className="labels"><th className="row-no sticky-left">No.</th><th className="system sticky-left">System</th><th className="tag sticky-left">Tag</th><th>Pipe</th><th className="ctr">Method</th><th className="num">Flow each<br/>(L/s)</th><th className="num">System flow<br/>(L/s)</th><th className="num">Head<br/>(m)</th><th className="num">Motor<br/>(kW)</th><th className="ctr">Arrangement</th><th className="ctr">Total</th><th className="sticky-right ctr">State</th></tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||TYPE_LBL[p.type]}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
+  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:'24%'}}/><col style={{width:130}}/><col style={{width:'15%'}}/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:120}}/></colgroup><thead><tr className="labels"><th className="row-no sticky-left">No.</th><th className="system sticky-left">System</th><th className="tag sticky-left">Tag</th><th>Pipe</th><th className="ctr">Method</th><th className="num">Flow each<br/>(L/s)</th><th className="num">System flow<br/>(L/s)</th><th className="num">Head<br/>(m)</th><th className="num">Motor<br/>(kW)</th><th className="ctr">Arrangement</th><th className="ctr">Total</th><th className="sticky-right ctr">State</th></tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||typeLbl(p)}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
 }
 function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
   if (!item) return null; const {p,result:r,status,index}=item; const mat=matOf(p.pipeType)||{};
-  return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Equipment inspection"><header><div><div className="schedule-eyebrow">Item {index+1} · {TYPE_LBL[p.type]}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : r.grease ? <><div className="drawer-summary"><div className="drawer-metric"><span>Waste flow</span><b>{r.grease.Qs.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Selected</span><b>{r.grease.nsLabel}</b></div><div className="drawer-metric"><span>Separators</span><b>{r.grease.n} No.</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>BS EN 1825-2</b></div><div className="drawer-line"><span>F&amp;B areas connected</span><b>{r.grease.count}</b></div><div className="drawer-line"><span>Total area</span><b>{r.grease.tot.A.toFixed(0)} m²</b></div><div className="drawer-line"><span>Total persons / meals per day</span><b>{r.grease.tot.P.toFixed(1)} / {r.grease.mealsDay.toFixed(0)}</b></div><div className="drawer-line"><span>NS per separator</span><b>{r.grease.perGI.toFixed(2)}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.water ? <><div className="drawer-summary"><div className="drawer-metric"><span>Peak flow</span><b>{r.water.Qsrc.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Main pipe</span><b>{r.water.mainSec?`${r.water.mainSec.pipe.od} mm`:'—'}</b></div><div className="drawer-metric"><span>Min residual</span><b>{r.water.minMargin.toFixed(1)} m</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Demand data</span><b>{r.water.dem.label}</b></div><div className="drawer-line"><span>Sections / fixtures</span><b>{r.water.nSec} / {r.water.totN.toFixed(0)}</b></div><div className="drawer-line"><span>Total {r.water.dem.unit}</span><b>{r.water.totLU.toFixed(0)}</b></div><div className="drawer-line"><span>Critical node</span><b>{r.water.crit?r.water.crit.node:'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD{r.pipe.wall!==undefined?` × ${r.pipe.wall} mm wall`:""}</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit inputs</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
+  return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Equipment inspection"><header><div><div className="schedule-eyebrow">Item {index+1} · {typeLbl(p)}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : r.grease ? <><div className="drawer-summary"><div className="drawer-metric"><span>Waste flow</span><b>{r.grease.Qs.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Selected</span><b>{r.grease.nsLabel}</b></div><div className="drawer-metric"><span>Separators</span><b>{r.grease.n} No.</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>BS EN 1825-2</b></div><div className="drawer-line"><span>F&amp;B areas connected</span><b>{r.grease.count}</b></div><div className="drawer-line"><span>Total area</span><b>{r.grease.tot.A.toFixed(0)} m²</b></div><div className="drawer-line"><span>Total persons / meals per day</span><b>{r.grease.tot.P.toFixed(1)} / {r.grease.mealsDay.toFixed(0)}</b></div><div className="drawer-line"><span>NS per separator</span><b>{r.grease.perGI.toFixed(2)}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.lpg ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.lpg.gas.l} flow</span><b>{r.lpg.tot.Q.toFixed(2)} m³/h</b></div><div className="drawer-metric"><span>Largest main</span><b>{r.lpg.mainBig?r.lpg.mainBig.pipe.nps:'—'}</b></div><div className="drawer-metric"><span>Lowest P</span><b>{r.lpg.critNode?`${r.lpg.critP.toFixed(1)} mbar`:'—'}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>IGE/UP/2 · S {r.lpg.S.toFixed(3)}</b></div><div className="drawer-line"><span>Sections / connections / rings</span><b>{r.lpg.nSec} / {r.lpg.tot.n} / {r.lpg.chords.length}</b></div><div className="drawer-line"><span>Critical route</span><b>{r.lpg.route.join(' → ')||'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.water ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.water.gasMode?'Gas flow':'Peak flow'}</span><b>{r.water.Qsrc.toFixed(2)} {wsQU(r.water)}</b></div><div className="drawer-metric"><span>Main pipe</span><b>{r.water.mainSec?`${r.water.mainSec.pipe.od} mm`:'—'}</b></div><div className="drawer-metric"><span>{r.water.gasMode?'Lowest P':'Min residual'}</span><b>{r.water.gasMode&&r.water.crit?r.water.crit.res.toFixed(1):r.water.minMargin.toFixed(1)} {wsPU(r.water)}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Demand data</span><b>{r.water.dem.label}</b></div><div className="drawer-line"><span>Sections / fixtures</span><b>{r.water.nSec} / {r.water.totN.toFixed(0)}</b></div><div className="drawer-line"><span>Total {r.water.dem.unit}</span><b>{r.water.totLU.toFixed(0)}</b></div><div className="drawer-line"><span>Critical node</span><b>{r.water.crit?r.water.crit.node:'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD{r.pipe.wall!==undefined?` × ${r.pipe.wall} mm wall`:""}</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit inputs</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
 }
 function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet}) {
   // v1.55: compact schedule — one header line with the counts, one toolbar line, one-line rows, the table fills the window, full-screen mode
@@ -6653,7 +7060,7 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const [full,setFull]=useState(false);
   useEffect(()=>{ if(!full) return; const k=e=>{ if(e.key==="Escape") setFull(false); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[full]);
   const items=useMemo(()=>pumps.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[pumps]);
-  const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,TYPE_LBL[item.p.type],(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
+  const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,typeLbl(item.p),(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
   const selected=items.find(x=>x.p.id===selectedId)||null, savedClass=saveStatus==='error'?'error':saveStatus==='saving'?'saving':'';
   const counts=items.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
   const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0);
@@ -6782,8 +7189,8 @@ function isDraftStatus(st) { return !st || st==='draft' || st==='reopened'; }
 function defaultDesignBasis(p) {
   if (p && p.type === 'sump') return sumpDesignBasis(p);
   if (p && p.type === 'grease') return greaseDesignBasis(p);
-  if (p && p.type === 'water') return waterDesignBasis(p);
-  const system = (p && (p.name || TYPE_LBL[p.type])) || 'MEP calculation';
+  if (p && p.type === 'water') return wsIsGas(p) ? gasDesignBasis(p) : waterDesignBasis(p);
+  const system = (p && (p.name || typeLbl(p))) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
   const method = p?.headLossMethod==='DW' ? 'Darcy-Weisbach method is used for friction-loss calculation.' : 'Hazen-Williams method is used for friction-loss calculation.';
   return [`${system} is assessed using the current coordinated project information and design inputs.`, method, flow, 'Pipe and motor selections use the approved in-application reference schedules.'];
@@ -6887,7 +7294,7 @@ function buildIssueDoc(proj, pump, meta, stageName) {
       title: (pump.name || 'Pump'),
       errors: (res && res.errors) || ['Calculation could not be produced.']};
   }
-  const title = (pump.name || TYPE_LBL[pump.type] || 'Calculation') + (pump.tag ? ' \u2014 ' + pump.tag : '');
+  const title = (pump.name || typeLbl(pump) || 'Calculation') + (pump.tag ? ' \u2014 ' + pump.tag : '');
   const closure = closureOf(meta);
   return {
     blocked: false,
@@ -7227,6 +7634,55 @@ function GreaseForm({pump, onChange}) {
     </div>
   );
 }
+// ─── GAS — design basis on the Setup tab of the shared Pipe Sizing form (the canvas, pipes and results are the water ones) ───
+function GasBasis({pump, u, uu}) {
+  const dens = gasDensity(pump), gas = dens.gas, types = gasTypesOf(pump), bands = gasBandsOf(pump), fix = Array.isArray(pump.wsFix) ? pump.wsFix : [];
+  const unit = pump.gasLossUnit === "mbar" ? "mbar" : "%";
+  const setGas = k => { const t = GAS_TYPES.find(x => x.k === k); uu({gasType:k, gasConv:t.conv, gasS:k === "other" ? (pump.gasS || "") : ""}); };
+  const setType = (i, o) => { const old = types[i].l, next = types.map((t, j) => j === i ? {...t, ...o} : t), patch = {gasTypes:next};
+    if (o.l !== undefined && o.l !== old) patch.wsFix = fix.map(f => f.fixture === old ? {...f, fixture:o.l} : f); uu(patch); };
+  const setBand = (i, o) => uu({gasBands:bands.map((b, j) => j === i ? {...b, ...o} : b)});
+  return <>
+    <div className="gas-pick" style={{gridColumn:"1/-1"}}>{GAS_TYPES.map(t => <button type="button" key={t.k} className={gas.k === t.k ? "on" : ""} onClick={() => setGas(t.k)}><b>{t.l}</b><span>{t.long}</span></button>)}</div>
+    {(gas.k === "lpg" || gas.k === "sng") && <N label={gas.k === "sng" ? "Propane in the LPG" : "Propane"} unit="%" value={pump.gasPropane} onChange={v => u("gasPropane", v)} max={100} hint="Butane = 100 − propane" />}
+    {(gas.k === "lpg" || gas.k === "sng") && <Seg label="Mix basis" value={pump.gasMix === "mass" ? "mass" : "vol"} onChange={v => u("gasMix", v)} options={[{value:"vol", label:"By volume"}, {value:"mass", label:"By mass"}]} />}
+    {gas.k === "sng" && <N label="LPG share in SNG (rest air)" unit="%" value={pump.gasSngPct} onChange={v => u("gasSngPct", v)} max={100} hint="Propane–air SNG is typically 50–60 % LPG — confirm with the supplier" />}
+    <div className="pf-f"><label title={gas.k === "other" ? "Required" : "Blank = calculated"}>Relative density S {gas.k === "other" ? "(air = 1)" : dens.manual ? <b style={{color:"#b45309"}}>· manual</b> : <span style={{color:"#1559a6"}}>· calc. {dens.calc.toFixed(3)}</span>}</label>
+      <div className={"pf-in" + (gas.k === "other" && !(Number(pump.gasS) > 0) ? " bad" : "")}><input type="number" inputMode="decimal" value={pump.gasS ?? ""} placeholder={Number.isFinite(dens.calc) ? dens.calc.toFixed(3) : "e.g. 0.60"} onChange={e => u("gasS", e.target.value)} onWheel={e => e.currentTarget.blur()} /></div></div>
+    <N label={`NG → ${gas.l} factor`} value={pump.gasConv} onChange={v => u("gasConv", v)} min={0.01} hint={`${gas.l} peak = NG peak ÷ factor (default ${gas.conv})`} />
+    <N label="Supply pressure (PRS outlet)" unit="mbar" value={pump.gasSupply} onChange={v => u("gasSupply", v)} min={0.1} />
+    <N label="Min. pressure at loads" unit="mbar" value={pump.gasMinP} onChange={v => u("gasMinP", v)} hint="Required at every node with a load (a node's own Req. P can raise it)" />
+    <Seg label="Allowable loss in" value={unit === "mbar" ? "mbar" : "pct"} onChange={v => u("gasLossUnit", v)} options={[{value:"pct", label:"%"}, {value:"mbar", label:"mbar"}]} />
+    <N label="Allowable loss — main / ring" unit={unit} value={pump.gasLossMain} onChange={v => u("gasLossMain", v)} min={0.01} hint="% of the supply pressure" />
+    <N label="Allowable loss — riser / branch" unit={unit} value={pump.gasLossBranch} onChange={v => u("gasLossBranch", v)} min={0.01} hint="% of the pressure where it leaves the main" />
+    <N label="Design margin on ΔP" unit="%" value={pump.gasMargin} onChange={v => u("gasMargin", v)} req={false} hint="Added to every friction loss" />
+    <Seg label="Pressure basis > 75 mbar" value={pump.gasPBasis === "gauge" ? "gauge" : "abs"} onChange={v => u("gasPBasis", v)} options={[{value:"abs", label:"Absolute", title:"IGE/UP/2"}, {value:"gauge", label:"Gauge", title:"Legacy spreadsheet — slightly conservative"}]} />
+    <Seg label="Pipe sizing" value={pump.gasSizing === "manual" ? "manual" : "auto"} onChange={v => u("gasSizing", v)} options={[{value:"auto", label:"Auto"}, {value:"manual", label:"Manual"}]} />
+    <Seg label="Ring in one size" value={pump.gasRingOne === false ? "no" : "yes"} onChange={v => u("gasRingOne", v === "yes")} options={[{value:"yes", label:"Yes"}, {value:"no", label:"No"}]} />
+    <div style={{gridColumn:"1/-1"}} className="cfe">
+      <div className="lpg-ty gi-head"><span>Load type (placed with the Fixture tool / load schedule)</span><span>Peak (m³/h)</span><span>Basis</span><span>Diversity</span><span>Factor</span><span/></div>
+      {types.map((t, i) => <div className="lpg-ty" key={i}>
+        <input value={t.l} onChange={e => setType(i, {l:e.target.value})} />
+        <input type="number" inputMode="decimal" value={t.q} onChange={e => setType(i, {q:e.target.value})} onWheel={e => e.currentTarget.blur()} style={{textAlign:"right"}} />
+        <select value={t.unit === "ng" ? "ng" : "gas"} onChange={e => setType(i, {unit:e.target.value})}><option value="ng">NG peak</option><option value="gas">{gas.l} peak</option></select>
+        <select value={t.div} onChange={e => setType(i, {div:e.target.value})}><option value="fixed">Fixed</option><option value="band">Band table</option></select>
+        <input type="number" inputMode="decimal" disabled={t.div === "band"} value={t.div === "band" ? "" : t.f} onChange={e => setType(i, {f:e.target.value})} onWheel={e => e.currentTarget.blur()} style={{textAlign:"right"}} />
+        <button type="button" className="cfe-x" disabled={fix.some(f => f.fixture === t.l)} title={fix.some(f => f.fixture === t.l) ? "In use in the load schedule" : "Remove type"} onClick={() => uu({gasTypes:types.filter((_, j) => j !== i)})}>✕</button>
+      </div>)}
+      <div className="cfe-foot"><button type="button" className="cfe-add" onClick={() => uu({gasTypes:[...types, {l:"New type " + (types.length + 1), q:"", unit:"gas", div:"fixed", f:1}]})}>＋ Add load type</button></div>
+      <div className="lpg-bands"><b>Diversity bands</b> (connections served → factor):
+        {bands.map((b, i) => <span key={i}>{i === bands.length - 1 ? "above" : "≤"} {i === bands.length - 1 ? "" : <input type="number" value={b.upTo} onChange={e => setBand(i, {upTo:e.target.value})} />} → <input type="number" step="0.05" value={b.f} onChange={e => setBand(i, {f:e.target.value})} /></span>)}
+      </div>
+    </div>
+  </>;
+}
+// an item made with the v1.66 / v1.67 LPG test builds: one click turns it into a normal gas pipe sizing item
+function LegacyLpgCard({pump, onChange, onOpen}) {
+  return <div className="pf"><div className="wl-card"><div className="wl-ic">▦</div>
+    <div className="wl-txt"><b>{pump.name || "LPG Pipe Sizing"} — made with the LPG test build</b>
+      <span>Gas now uses the same Pipe Sizing workspace, canvas and tables as water. Convert this item to continue; its basis, load types and pipe table are kept (typed sections can then be placed on the canvas).</span></div>
+    <button type="button" className="pz-btn pri" onClick={() => { const np = gasFromLegacy(pump); onChange(np); if (onOpen) setTimeout(() => onOpen(np.id), 30); }}>Convert to Gas Pipe Sizing →</button></div></div>;
+}
 // ─── WATER SUPPLY PIPE SIZING FORM ────────────────────────────────────────────
 // Four workspaces: Setup (standard, system, criteria per pipe class) · Fixtures (schedule) ·
 // Network (pipe sections: class + orientation) · Results. The demand table and the fixtures with their
@@ -7386,10 +7842,10 @@ function WsDesignReview({pump, res, w, pick, selIs, uu}) {
         {!blocked && <span className="wr-cnt">{w.nFail ? <em style={{color:"#b91c1c"}}>{w.nFail} failed</em> : null}{w.nWarn ? <em style={{color:"#a76200"}}>{w.nWarn} to review</em> : null}{w.nInfo ? <em>{w.nInfo} note{w.nInfo > 1 ? "s" : ""}</em> : null}</span>}
       </div>
       {c && <div className="wr-crit">
-        <div><span>Critical terminal</span><b>{c.node}</b><small>{c.rise >= 0 ? "+" : ""}{c.rise.toFixed(1)} m above the source</small></div>
-        <div><span>Available pressure</span><b>{c.available.toFixed(1)} m</b><small>{(c.available/WS_BAR).toFixed(2)} bar</small></div>
-        <div><span>Required pressure</span><b>{c.required.toFixed(1)} m</b><small>{(c.required/WS_BAR).toFixed(2)} bar</small></div>
-        <div className={c.margin >= -1e-9 ? "ok" : "bad"}><span>Pressure margin</span><b>{c.margin >= 0 ? "+" : ""}{c.margin.toFixed(1)} m</b><small>{c.margin >= -1e-9 ? "meets the requirement" : "short — see below"}</small></div>
+        <div><span>{w.gasMode ? "Lowest-pressure load" : "Critical terminal"}</span><b>{c.node}</b><small>{c.rise >= 0 ? "+" : ""}{c.rise.toFixed(1)} m above the source</small></div>
+        <div><span>Available pressure</span><b>{c.available.toFixed(1)} {wsPU(w)}</b><small>{wsBarOf(w, c.available).toFixed(w.gasMode ? 3 : 2)} bar</small></div>
+        <div><span>Required pressure</span><b>{c.required.toFixed(1)} {wsPU(w)}</b><small>{wsBarOf(w, c.required).toFixed(w.gasMode ? 3 : 2)} bar</small></div>
+        <div className={c.margin >= -1e-9 ? "ok" : "bad"}><span>Pressure margin</span><b>{c.margin >= 0 ? "+" : ""}{c.margin.toFixed(1)} {wsPU(w)}</b><small>{c.margin >= -1e-9 ? "meets the requirement" : "short — see below"}</small></div>
         <button type="button" className="wr-route" onClick={() => pick("node", c.node)} title="Show the critical route and its terminal on the drawing">◎ Show critical route</button>
       </div>}
       {blocked && <ul className="wr-list">{val.items.filter(i => i.sev === "error").map((it, i) => <WsIssueRow key={"v" + i} it={it} pick={pick} selIs={selIs} />)}{res.errors.filter(e => !val.items.some(i => i.sev === "error" && i.text === e)).map((e, i) => <li className="wr-it" key={i}><b style={{color:"#b91c1c", background:"#fff0ee"}}>Error</b><span>{e}</span></li>)}</ul>}
@@ -7398,7 +7854,7 @@ function WsDesignReview({pump, res, w, pick, selIs, uu}) {
       <div className="wr-fold"><button type="button" onClick={() => tg("net")}>{open.net ? "▾" : "▸"} Network and reference checks — {val.errors ? <b style={{color:"#b91c1c"}}>{val.errors} error{val.errors > 1 ? "s" : ""}</b> : <b style={{color:"#1b6b3a"}}>no errors</b>}{val.warns ? ` · ${val.warns} warning${val.warns > 1 ? "s" : ""}` : ""}</button>
         {open.net && <div className="wr-net"><div className="wr-sup"><b>Supported network:</b> {val.topology}.</div>
           {byGroup.length === 0 ? <div className="wr-ok">✓ Topology, geometry, loads, equipment and reference data all check out.</div> : byGroup.map(x => <div key={x.g}><div className="wr-gt">{groupLabel[x.g]}</div><ul className="wr-list">{x.items.map((it, i) => <WsIssueRow key={i} it={it} pick={pick} selIs={selIs} />)}</ul></div>)}</div>}</div>
-      {!blocked && <div className="wr-fold"><button type="button" onClick={() => tg("ref")}>{open.ref ? "▾" : "▸"} Reference data used — <b>{w.refInfo.label}</b> · {w.refInfo.min}–{w.refInfo.max} {w.refInfo.unit}</button>
+      {!blocked && <div className="wr-fold"><button type="button" onClick={() => tg("ref")}>{open.ref ? "▾" : "▸"} Reference data used — <b>{w.refInfo.label}</b> · {w.gasMode ? `${w.refInfo.rows} load types · pipe schedules from Reference Data` : `${w.refInfo.min}–${w.refInfo.max} ${w.refInfo.unit}`}</button>
         {open.ref && <div className="wr-ref"><table className="ws-res"><tbody>
           <tr><td>Demand table</td><td><b>{w.refInfo.label}</b> <span className="ws-dim">({w.refInfo.code})</span></td></tr>
           <tr><td>Source / edition</td><td>{w.refInfo.ref && w.refInfo.ref !== w.refInfo.label ? w.refInfo.ref : <span style={{color:"#a76200"}}>not recorded in Reference Data</span>}{pump.edition ? " · " + pump.edition : ""}</td></tr>
@@ -7421,31 +7877,31 @@ function WsPipeDetail({pump, w, sel, pick}) {
     return <div className="wr-detail"><div className="wr-dt"><b style={{color:WS_COL[x.cls]}}>{x.id}</b> · {x.cd.l} · {x.from} → {x.to}<span className={"status-chip " + (x.ok && !x.noSize ? "pass" : "review")} style={{marginLeft:8}}>{x.ok && !x.noSize ? "OK" : "Review"}</span></div>
       <table className="ws-res"><tbody>
         {row("Cumulative demand", `${f(x.LU, 1)} ${w.dem.unit}`, `${x.own ? f(x.own, 1) + " at " + x.to : "nothing at " + x.to}${kids.map(k => " + " + f(k.LU, 1) + " via " + k.id).join("")}`)}
-        {row("Probable flow", `${f(x.Q - x.Qc*0 , 3)} L/s`, x.demState === "above" ? "above the table — extended, not an approved value" : x.demState === "below" ? "below the first row — first-row flow used" : `from ${w.refInfo.label}, interpolated`)}
-        {row("Design flow", `${f(x.Qd, 3)} L/s`, x.spare ? `probable flow + ${x.spare}% spare capacity` : "no spare capacity added")}
+        {w.gasMode ? row("Diversified flow", `${f(x.Q, 3)} m³/h`, `${x.N} connections served${x.rev ? " · gas runs To → From (ring)" : ""}`) : row("Probable flow", `${f(x.Q - x.Qc*0 , 3)} L/s`, x.demState === "above" ? "above the table — extended, not an approved value" : x.demState === "below" ? "below the first row — first-row flow used" : `from ${w.refInfo.label}, interpolated`)}
+        {!w.gasMode && row("Design flow", `${f(x.Qd, 3)} L/s`, x.spare ? `probable flow + ${x.spare}% spare capacity` : "no spare capacity added")}
         {row("Pipe", `${x.pipe.od} mm OD / ${x.pipe.id} mm ID`, `${PIPE_MATERIALS[mk] ? PIPE_MATERIALS[mk].label : mk}`)}
         {row("Why this size", x.why.k === "manual" ? "manual" : x.why.k === "pressure" ? "upsized" : "automatic", x.why.t)}
         {row("Velocity", `${f(x.v)} m/s`, `limit ${w.useV ? x.cd.maxV + " m/s" : "not used"} · ${x.vOk ? "OK" : "EXCEEDED"}`)}
         {row("Friction gradient", `${f(x.grad, 0)} Pa/m`, `limit ${w.useP ? x.cd.maxP + " Pa/m" : "not used"} · ${x.pOk ? "OK" : "EXCEEDED"} · Re ${f(x.Re, 0)} (${x.reg || "—"})`)}
         {row("Length / elevation change", `${f(x.L)} m / ${x.dz >= 0 ? "+" : ""}${f(x.dz)} m`, x.geo ? "from the node positions" : "typed length and orientation")}
-        {row("Friction loss", `${f(x.hf, 3)} m`, `${w.isDW ? "Darcy-Weisbach, Swamee-Jain friction factor" : "Hazen-Williams"} · ${f(x.hf/Math.max(x.L, 1e-9)*9810, 0)} Pa/m × ${f(x.L)} m`)}
-        {row("Fittings allowance", `${f(x.fitm, 3)} m`, `${w.fitPc}% of the friction loss`)}
-        {row("Extra loss", `${f(x.extra, 3)} m`, "typed on the pipe")}
-        {row("Equipment", `${f(x.eqLoss, 3)} m`, x.eqItems.length ? x.eqItems.map(i => `${i.tag || WS_EQ[i.type].ab} ${i.mode === "prv" ? "set " + i.val + " m" + (x.prvOn ? " (regulating)" : " (idle)") : i.mode === "pump" ? "+" + i.val + " m" : i.has ? (i.loss).toFixed(2) + " m" : "no value"}`).join(", ") : "none on this pipe")}
-        {row("Static head change", `${x.dz >= 0 ? "−" : "+"}${f(Math.abs(x.dz))} m`, x.dz > 0 ? "rising — pressure lost" : x.dz < 0 ? "falling — pressure gained" : "level")}
-        {row("Pressure at peak flow", `${f(x.Pfrom, 1)} → ${f(x.Pto, 1)} m`, `at ${x.from} → at ${x.to}${x.prvOn ? " (held by the PRV)" : ""}`)}
-        {row("Hydraulic grade line", `${f(w.hgl[x.from], 1)} → ${f(w.hgl[x.to], 1)} m`, "pressure + elevation")}
-        {row("Static pressure (no flow)", `${f(x.PfromS, 1)} → ${f(x.PtoS, 1)} m`, `elevation and PRV only — ${(x.PtoS/WS_BAR).toFixed(2)} bar at ${x.to}`)}
+        {row("Friction loss", `${f(x.hf, 3)} ${wsPU(w)}`, `${w.gasMode ? "IGE/UP/2 (Pole), f = 0.0044 (1 + 43.5/d)" : w.isDW ? "Darcy-Weisbach, Swamee-Jain friction factor" : "Hazen-Williams"} · ${f(w.gasMode ? x.grad : x.hf/Math.max(x.L, 1e-9)*9810, 0)} Pa/m × ${f(x.L)} m`)}
+        {row("Fittings allowance", `${f(x.fitm, 3)} ${wsPU(w)}`, `${w.fitPc}% of the friction loss`)}
+        {row("Extra loss", `${f(x.extra, 3)} ${wsPU(w)}`, "typed on the pipe")}
+        {row("Equipment", `${f(x.eqLoss, 3)} ${wsPU(w)}`, x.eqItems.length ? x.eqItems.map(i => `${i.tag || WS_EQ[i.type].ab} ${i.mode === "prv" ? "set " + i.val + " m" + (x.prvOn ? " (regulating)" : " (idle)") : i.mode === "pump" ? "+" + i.val + " m" : i.has ? (i.loss).toFixed(2) + " m" : "no value"}`).join(", ") : "none on this pipe")}
+        {w.gasMode ? row("Height effect", `${f(x.dh, 2)} mbar`, "0.123 (S − 1) × rise — a gas heavier than air loses pressure going up") : row("Static head change", `${x.dz >= 0 ? "−" : "+"}${f(Math.abs(x.dz))} m`, x.dz > 0 ? "rising — pressure lost" : x.dz < 0 ? "falling — pressure gained" : "level")}
+        {row(w.gasMode ? "Pressure" : "Pressure at peak flow", `${f(x.Pfrom, 1)} → ${f(x.Pto, 1)} ${wsPU(w)}`, `at ${x.from} → at ${x.to}${x.prvOn ? " (held by the PRV)" : ""}`)}
+        {!w.gasMode && row("Hydraulic grade line", `${f(w.hgl[x.from], 1)} → ${f(w.hgl[x.to], 1)} m`, "pressure + elevation")}
+        {row("Static pressure (no flow)", `${f(x.PfromS, 1)} → ${f(x.PtoS, 1)} ${wsPU(w)}`, `${w.gasMode ? "height effect and regulator only" : "elevation and PRV only"} — ${wsBarOf(w, x.PtoS).toFixed(w.gasMode ? 3 : 2)} bar at ${x.to}`)}
         {x.pnDer != null && row("Pipe pressure class", `PN${+x.pnDer.toFixed(2)} (${f(x.pnDer*WS_BAR, 1)} m)`, `nominal PN${x.pnNom} × ${x.pnFac.toFixed(2)} at ${w.T} °C${x.derate.family === null ? " — no derating data, nominal used" : ""}${Math.max(x.Pfrom, x.Pto, x.PfromS, x.PtoS) > x.pnDer*WS_BAR + 1e-9 ? " — EXCEEDED" : ""}`)}
       </tbody></table></div>; }
   const n = sel.id, fed = w.out.find(q => q.to === n), pr = fed ? fed.Pto : wsRootP(w, n), req = w.nodeReq[n], lu = w.nodeLU[n] || 0, qc = w.nodeQc[n] || 0, fx = (pump.wsFix || []).filter(q => q.node === n);
   return <div className="wr-detail"><div className="wr-dt"><b>Node {n}</b>{wsRootP(w, n) != null ? " · supply" : ""}</div><table className="ws-res"><tbody>
     <tr><td>Fed by</td><td className="n"><b>{fed ? fed.id : "—"}</b></td><td className="ws-dim">{fed ? `${fed.cd.l}, ${fed.pipe.od} mm` : "supply node"}</td></tr>
-    <tr><td>Residual pressure</td><td className="n"><b>{pr == null ? "—" : f(pr, 1) + " m"}</b></td><td className="ws-dim">{pr == null ? "" : (pr/WS_BAR).toFixed(2) + " bar"}</td></tr>
-    <tr><td>Static pressure (no flow)</td><td className="n"><b>{w.nodeS[n] == null ? "—" : f(w.nodeS[n], 1) + " m"}</b></td><td className="ws-dim">{w.nodeS[n] == null ? "" : (w.nodeS[n]/WS_BAR).toFixed(2) + " bar" + (pr != null && w.nodeS[n] > pr + 0.05 ? ` · ${f(w.nodeS[n] - pr, 1)} m above the peak-flow pressure` : "")}</td></tr>
-    <tr><td>Required pressure</td><td className="n"><b>{req == null ? "—" : f(req, 1) + " m"}</b></td><td className="ws-dim">{req == null ? "no load at this node" : pr != null ? (pr - req >= -1e-9 ? `margin +${f(pr - req, 1)} m` : `SHORT by ${f(req - pr, 1)} m`) : ""}</td></tr>
-    <tr><td>Load at this node</td><td className="n"><b>{f(lu, 1)} {w.dem.unit}</b></td><td className="ws-dim">{fx.length ? fx.map(q => `${q.qty}× ${q.fixture}`).join(", ") : ""}{qc ? ` + ${qc} L/s direct` : ""}</td></tr>
-    <tr><td>Hydraulic grade line</td><td className="n"><b>{w.hgl[n] == null ? "—" : f(w.hgl[n], 1) + " m"}</b></td><td className="ws-dim">pressure + elevation{w.nodeZ[n] != null ? ` (EL ${f(w.nodeZ[n], 2)} m)` : ""}</td></tr>
+    <tr><td>Residual pressure</td><td className="n"><b>{pr == null ? "—" : f(pr, 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{pr == null ? "" : wsBarOf(w, pr).toFixed(w.gasMode ? 3 : 2) + " bar"}</td></tr>
+    <tr><td>Static pressure (no flow)</td><td className="n"><b>{w.nodeS[n] == null ? "—" : f(w.nodeS[n], 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{w.nodeS[n] == null ? "" : wsBarOf(w, w.nodeS[n]).toFixed(w.gasMode ? 3 : 2) + " bar" + (pr != null && w.nodeS[n] > pr + 0.05 ? ` · ${f(w.nodeS[n] - pr, 1)} ${wsPU(w)} above the peak-flow pressure` : "")}</td></tr>
+    <tr><td>Required pressure</td><td className="n"><b>{req == null ? "—" : f(req, 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{req == null ? "no load at this node" : pr != null ? (pr - req >= -1e-9 ? `margin +${f(pr - req, 1)} ${wsPU(w)}` : `SHORT by ${f(req - pr, 1)} ${wsPU(w)}`) : ""}</td></tr>
+    <tr><td>Load at this node</td><td className="n"><b>{f(lu, 1)} {w.dem.unit}</b></td><td className="ws-dim">{fx.length ? fx.map(q => `${q.qty}× ${q.fixture}`).join(", ") : ""}{qc ? ` + ${qc} ${wsQU(w)} direct` : ""}</td></tr>
+    {!w.gasMode && <tr><td>Hydraulic grade line</td><td className="n"><b>{w.hgl[n] == null ? "—" : f(w.hgl[n], 1) + " m"}</b></td><td className="ws-dim">pressure + elevation{w.nodeZ[n] != null ? ` (EL ${f(w.nodeZ[n], 2)} m)` : ""}</td></tr>}
     <tr><td>Elevation above the source</td><td className="n"><b>{fed ? (fed.elev >= 0 ? "+" : "") + f(fed.elev, 1) + " m" : "0 m"}</b></td><td className="ws-dim"></td></tr>
   </tbody></table></div>;
 }
@@ -7587,14 +8043,14 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
     return () => clearTimeout(t);
   }, [sel && sel.t, tab]);
   const res = useMemo(() => safeCalculate(pump), [pump]);
-  const w = res && res.water;
+  const w = res && res.water, gasM = wsIsGas(pump);
   const fix = Array.isArray(pump.wsFix) ? pump.wsFix : [], net = Array.isArray(pump.wsNet) ? pump.wsNet : [];
-  const hot = pump.system === "hot", dem = pump.wsDemand || "", demC = FU_CODES[dem];
-  const lib = FU_FIXTURES[dem] || [];
+  const hot = pump.system === "hot", dem = pump.wsDemand || "", demC = wsDemC(pump);
+  const lib = wsLibOf(pump);
   const storeyH = Number(pump.storeyH) > 0 ? Number(pump.storeyH) : 3;
   // a demand table must be selected; take the first one in Reference Data (IOP if present) the first time
   useEffect(() => { if (!pump.wsDemand) { const ks = Object.keys(FU_CODES); if (ks.length) u("wsDemand", FU_CODES.iop_lu ? "iop_lu" : ks[0]); } }, [pump.wsDemand]);
-  const sc = sizingCriterionOf(pump), isDW = pump.headLossMethod !== "HW";
+  const sc = gasM ? "velocity" : sizingCriterionOf(pump), isDW = pump.headLossMethod !== "HW";
   // pipe class criteria
   const cls = k => ({...WS_CLS_DEFAULT[k], ...((pump.wsCls || {})[k] || {})});
   const setCls = (k, o, clearOd) => uu({wsCls: {...(pump.wsCls || {}), [k]: {...cls(k), ...o}}, ...(clearOd ? {wsNet: net.map(s => wsNorm(s).cls === k ? {...s, od:""} : s)} : {})});
@@ -7679,10 +8135,11 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
 
       {tab === "setup" && <>
         <section className="pf-sec">
-          <h5><i>1</i>Design basis <em>pressure in metres of water · 10.2 m ≈ 1 bar</em></h5>
+          <h5><i>1</i>Design basis <em>{gasM ? "gas · IGE/UP/2 · pressures in mbar · loads are placed with the Fixture tool or the load schedule" : "pressure in metres of water · 10.2 m ≈ 1 bar"}</em></h5>
           <div className="pf-row pf-grid">
             <T label="Name" value={pump.name} onChange={v => u("name", v)} />
-            <T label="Tag" value={pump.tag} onChange={v => u("tag", v)} placeholder="e.g. WS-01" />
+            <T label="Tag" value={pump.tag} onChange={v => u("tag", v)} placeholder={gasM ? "e.g. GAS-01" : "e.g. WS-01"} />
+            {gasM ? <GasBasis pump={pump} u={u} uu={uu} /> : <>
             <div style={{gridColumn:"span 2"}}><S label="Standard / demand table (Reference Data)" value={dem} onChange={v => u("wsDemand", v)} options={codeOpts} /></div>
             <Seg label="System" value={pump.system === "hot" ? "hot" : pump.system === "total" ? "total" : "cold"} onChange={setSystem} options={[{value:"cold", label:"Cold"}, {value:"hot", label:"Hot"}, {value:"total", label:"Combined", title:"Uses each fixture's combined (total) value, e.g. for a building main feeding both cold and hot"}]} />
             <div style={{gridColumn:"span 2"}}><Seg label="Water source" value={pump.wsSource === "fixed" ? "fixed" : "pump"} onChange={v => u("wsSource", v)} options={[{value:"pump", label:"Pump — calculate the head", title:"The calculation works out the flow and the pump head the network needs"}, {value:"fixed", label:"Mains / tank — fixed pressure", title:"The pressure at the supply node is given; the calculation checks the network against it"}]} /></div>
@@ -7696,12 +8153,12 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
               : demC ? <div className="ws-note">{demC.ref && demC.ref !== demC.label ? demC.ref + " · " : ""}{lib.length} fixtures · {demC.table[0][0]}–{demC.table[demC.table.length - 1][0]} {demC.unit} — the demand curve and fixtures come from Reference Data; confirm they match the standard and edition.</div> : null}
             {Object.keys(FU_CODES).length > 0 && dem && demC && !lib.length && noteBox("#fff0ee", "#b91c1c", FU_FIX_ERROR || `No fixtures are defined for ${demC.label}. Add them under Reference Data → Fixture Units → Fixtures.`)}
             {hot && noteBox("#e8f0fe", "#1559a6", "Hot water uses the hot-water loading units of each fixture in Reference Data; a fixture with none is not served. Hot-water return circulation is not part of this calculation.")}
-            {pump.system === "total" && noteBox("#e8f0fe", "#1559a6", "Combined uses the total (combined) loading units of each fixture, as in IPC and UPC — normally for a main that feeds both cold and hot. A fixture with no combined value uses its cold value and is listed in the warnings.")}
+            {pump.system === "total" && noteBox("#e8f0fe", "#1559a6", "Combined uses the total (combined) loading units of each fixture, as in IPC and UPC — normally for a main that feeds both cold and hot. A fixture with no combined value uses its cold value and is listed in the warnings.")}</>}
           </div>
         </section>
         <section className="pf-sec">
           <h5><i>2</i>Pipe sizing by class <em>one line per class · each section is sized within the limits of its class</em>
-            <span className="pf-h-ctl"><Seg value={sc} onChange={v => uu({sizingCriterion:v})} options={[{value:"velocity", label:"Velocity", title:"Size on maximum velocity"}, {value:"pressure", label:"Δp", title:"Size on maximum friction loss"}, {value:"both", label:"Both", title:"Both limits — the stricter governs"}]} /></span></h5>
+            {!gasM && <span className="pf-h-ctl"><Seg value={sc} onChange={v => uu({sizingCriterion:v})} options={[{value:"velocity", label:"Velocity", title:"Size on maximum velocity"}, {value:"pressure", label:"Δp", title:"Size on maximum friction loss"}, {value:"both", label:"Both", title:"Both limits — the stricter governs"}]} /></span>}</h5>
           <div className="ws-cs" style={{gridTemplateColumns:"72px minmax(120px,1.7fr) 84px" + (sc !== "pressure" ? " minmax(74px,.7fr)" : "") + (sc !== "velocity" ? " minmax(80px,.8fr)" : "")}}>
             <span className="ws-cs-h" /><span className="ws-cs-h">Material</span><span className="ws-cs-h">Min. size</span>{sc !== "pressure" && <span className="ws-cs-h r">Max velocity</span>}{sc !== "velocity" && <span className="ws-cs-h r">Max loss</span>}
             {WS_CLASSES.map(c => { const k = c.k, {mk, m} = matOfK(k), t = (m.table || []).map(x => String(x.od)), cur = String(cls(k).minOD ?? "");
@@ -7712,7 +8169,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                   {families.map(f => <optgroup key={f} label={f}>{Object.entries(PIPE_MATERIALS).filter(([, x]) => famOf(x) === f).map(([kk, x]) => <option key={kk} value={kk}>{x.label || kk}</option>)}</optgroup>)}</select></div></div>
                 <div className="pf-f"><div className="pf-in"><select value={cur} onChange={e => setCls(k, {minOD:e.target.value}, false)} title="Smallest pipe that may be used for this class">
                   <option value="">Any</option>{(cur && !t.includes(cur) ? [cur] : []).concat(t).map(o => <option key={o} value={o}>{o} mm</option>)}</select></div></div>
-                {sc !== "pressure" && <N label="Max velocity" unit="m/s" value={cls(k).maxV} onChange={v => setCls(k, {maxV:v})} min={0.1} max={6} />}
+                {sc !== "pressure" && <N label="Max velocity" unit="m/s" value={cls(k).maxV} onChange={v => setCls(k, {maxV:v})} min={0.1} max={gasM ? 40 : 6} />}
                 {sc !== "velocity" && <N label="Max friction loss" unit="Pa/m" value={cls(k).maxP} onChange={v => setCls(k, {maxP:v})} min={1} max={5000} step={10} />}
               </React.Fragment>; })}
           </div>
@@ -7727,7 +8184,11 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
               : <span className="lv-al-n ok">✓ Every node within ±{alignTol} m of a floor is on its pipe height.</span>}
             {tow["no tower"] ? <span className="lv-al-n bad">{tow["no tower"]} node{tow["no tower"] === 1 ? " is" : "s are"} outside every tower band — widen a band (x from – to) so it covers them.</span> : null}
             {alignMsg && <span className="lv-al-n">{alignMsg}</span>}</div>; })()}
-        <details className="pf-adv ws-more">
+        {gasM ? <details className="pf-adv ws-more"><summary>More settings <em>fittings {pump.fittingsPct}% · new vertical pipe {pump.storeyH} m</em></summary>
+          <div className="pf-row pf-grid">
+            <N label="Fittings & valves" unit="%" value={pump.fittingsPct} onChange={v => u("fittingsPct", v)} max={200} hint="Added to the straight-pipe friction of every section" />
+            <N label="Length of a new vertical pipe" unit="m" value={pump.storeyH ?? ""} onChange={v => u("storeyH", v)} min={0.1} hint="One storey height — given to a new vertical pipe when you draw or add it" />
+          </div></details> : <details className="pf-adv ws-more">
           <summary>More settings <em>{isDW ? "Darcy-Weisbach" : "Hazen-Williams"} · fittings {pump.fittingsPct}% · {pump.waterTemp} °C · upsizing {pump.autoUpsize === false ? "off" : "on"} · above table: {pump.wsAbove === "block" ? "blocked" : "flagged"} · spare {WS_CLASSES.map(c => cls(c.k).spare ?? 0).join(" / ")}%</em></summary>
           <div className="pf-row pf-grid">
             <div style={{gridColumn:"span 2"}}><Seg label="Friction method" value={isDW ? "DW" : "HW"} onChange={v => u("headLossMethod", v)} options={[{value:"DW", label:"Darcy-Weisbach"}, {value:"HW", label:"Hazen-Williams"}]} /></div>
@@ -7741,7 +8202,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
             {Number(pump.storeyH) > 8 && noteBox("#fff4e0", "#a76200", `A new vertical pipe will be ${pump.storeyH} m long — that is more than one storey. Check this value.`)}
           </div>
           <div className="cfe-help">Pipe roughness and the Hazen-Williams C come from each material in Reference Data. When the residual pressure at the remote fixture is short, the pipes on the critical path are upsized one step at a time while that helps; where it cannot close the gap (mostly static head) the automatic sizes are kept and the shortfall is reported. <b>Above the demand table:</b> beyond the last row the flow is extended along the last segment and the result is marked for review — or, with Block, the calculation refuses to run.</div>
-        </details>
+        </details>}
         <details className="pf-adv ws-more">
           <summary>Report details <em>printed on the calculation sheet only · {[pump.country, pump.authority, pump.edition, pump.building].filter(Boolean).join(" · ") || "none entered"}</em></summary>
           <div className="pf-row pf-grid">
@@ -7792,7 +8253,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                 : <input type="number" inputMode="decimal" value={s.len ?? ""} onChange={e => setLenV(i, e.target.value)} onWheel={e => e.currentTarget.blur()} className={!(Number(gs.len) > 0) ? "bad r" : "r"} title={s.ori === "h" ? "Horizontal length" : "Vertical length (rise or drop)"} />}</span>
               <select value={String(s.od ?? "")} onChange={e => setNet(i, {od:e.target.value})} title={"Pipe size (outside diameter). Auto = the calculation chooses the smallest size that meets the velocity and friction limits" + (x && !x.noSize && x.ovr === null ? " — it chose " + x.pipe.od + " mm" : "")}><option value="">{x && !x.noSize && x.ovr === null ? `Auto · ${x.pipe.od}` : "Auto"}</option>{tbl.map(c => <option key={c.od} value={String(c.od)}>{c.od} mm</option>)}</select>
               <button type="button" className={"ws-load" + (ld.text ? "" : " empty") + (open ? " on" : "")} title={ld.text ? "Connected at " + s.to + ": " + ld.text + " — click to edit" : "Nothing connected at " + s.to + " — click to add fixtures"} onClick={e => { e.stopPropagation(); setLoadOpen(open ? null : s.id); }}>{ld.text || "＋ add"}</button>
-              <span className={"ws-res1 " + (x ? (okx ? "ok" : "bad") : "")} title={x ? `${x.pipe.od} mm OD / ${x.pipe.id} mm ID · Σ ${x.LU.toFixed(1)} ${w.dem.unit} · ${x.Qd.toFixed(3)} L/s · ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\n${x.why.t}` : ""}>{x ? <><b>{x.pipe.od}</b> mm · {x.v.toFixed(2)} m/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : x.bump > 0 ? <i className="ws-flag up" title="Upsized for pressure"> ↑</i> : null}{x.eqItems && x.eqItems.length ? <i className="ws-eqc" title={x.eqItems.map(q => q.tag || WS_EQ[q.type].ab).join(", ")}> ⚙{x.eqItems.length}</i> : null}</> : "—"}</span>
+              <span className={"ws-res1 " + (x ? (okx ? "ok" : "bad") : "")} title={x ? `${x.pipe.od} mm OD / ${x.pipe.id} mm ID · Σ ${x.LU.toFixed(1)} ${w.dem.unit} · ${x.Qd.toFixed(3)} ${wsQU(w)} · ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m${w.gasMode ? ` · ${x.Pto.toFixed(1)} mbar` : ""}\n${x.why.t}` : ""}>{x ? <><b>{x.pipe.od}</b> mm · {x.v.toFixed(2)} m/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : x.bump > 0 ? <i className="ws-flag up" title="Upsized for pressure"> ↑</i> : null}{x.eqItems && x.eqItems.length ? <i className="ws-eqc" title={x.eqItems.map(q => q.tag || WS_EQ[q.type].ab).join(", ")}> ⚙{x.eqItems.length}</i> : null}</> : "—"}</span>
               <button type="button" className="cfe-x" onClick={e => { e.stopPropagation(); delNet(i); }} title="Remove pipe">✕</button>
             </div>
             {open && <div className="ws-ldp" onClick={e => e.stopPropagation()}>
@@ -7805,11 +8266,11 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                 <select value={ldPick} onChange={e => setLdPick(e.target.value)}><option value="">＋ Add a fixture…</option>{wsFixGroups(lib).flatMap(g => g.items).map(q => <option key={q.name} value={q.name}>{q.name}</option>)}</select>
                 <input type="number" inputMode="decimal" min="1" value={ldQty} onChange={e => setLdQty(e.target.value)} className="r" title="Quantity" />
                 <button type="button" className="pz-btn" disabled={!ldPick} onClick={() => { act({wsFix:[...fix, {level:wsLvNodeLabel(lvls, nodeMap[s.to]) || "", room:"", fixture:ldPick, node:s.to, qty:Number(ldQty) || 1}]}); setLdPick(""); setLdQty(1); }}>Add</button></div>
-              <label className="ws-ldp-d">Direct load <CommitInput type="number" cls="r" value={wsFin((nodeMap[s.to] || {}).luAdd) ? nodeMap[s.to].luAdd : ""} onCommit={v => setNode(s.to, {luAdd:v})} placeholder="0" /> <i>{w ? w.dem.unit : "LU"} — for a zone whose fixtures you do not list</i></label>
+              <label className="ws-ldp-d">Direct load <CommitInput type="number" cls="r" value={wsFin((nodeMap[s.to] || {})[gasM ? "qAdd" : "luAdd"]) ? nodeMap[s.to][gasM ? "qAdd" : "luAdd"] : ""} onCommit={v => setNode(s.to, gasM ? {qAdd:v} : {luAdd:v})} placeholder="0" /> <i>{gasM ? "m³/h, already diversified" : w ? w.dem.unit : "LU"} — for a zone whose {gasM ? "loads" : "fixtures"} you do not list</i></label>
             </div>}
             </React.Fragment>; })}
         </div>
-        <div className="cfe-help">Water flows from the supply node outwards; a pipe carries every fixture at its To node and downstream. Click a row, or a pipe on the schematic, to set its extra loss, valves and size in the strip above the drawing.</div>
+        <div className="cfe-help">{gasM ? "Gas" : "Water"} flows from the supply node outwards{gasM ? " (both ways round a ring)" : ""}; a pipe carries every fixture at its To node and downstream. Click a row, or a pipe on the schematic, to set its extra loss, valves and size in the strip above the drawing.</div>
       </section>}
 
       {tab === "results" && (res && res.error
@@ -7819,36 +8280,36 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
           {w.pumpMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
           <WsDesignReview pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} />
           {sel && (sel.kind === "sec" || sel.kind === "node") && <><div className="ws-res-title">Selected {sel.kind === "sec" ? "pipe" : "node"} — full calculation</div><WsPipeDetail pump={pump} w={w} sel={sel} pick={pick} /></>}
-          {!w.pumpMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
+          {!w.pumpMode && !w.gasMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
           <div className="gi-res">
-            <div title="Loading units at the source = fixtures + direct loads"><span>Loading units</span><b>{w.totLU.toFixed(0)} {w.dem.unit}</b><small className="gi-sub">{w.fixLU.toFixed(0)} from {w.totN.toFixed(0)} fixtures{w.directLU > 0 ? ` + ${w.directLU.toFixed(0)} direct` : ""}</small></div>
-            <div><span>Peak flow at source</span><b>{w.Qsrc.toFixed(2)} L/s</b></div>
+            <div title="Loading units at the source = fixtures + direct loads"><span>{w.gasMode ? "Connections" : "Loading units"}</span><b>{w.totLU.toFixed(0)} {w.dem.unit}</b><small className="gi-sub">{w.fixLU.toFixed(0)} from {w.totN.toFixed(0)} fixtures{w.directLU > 0 ? ` + ${w.directLU.toFixed(0)} direct` : ""}</small></div>
+            <div><span>{w.gasMode ? "Diversified flow" : "Peak flow at source"}</span><b>{w.Qsrc.toFixed(2)} {wsQU(w)}</b></div>
             <div><span>Main pipe</span><b>{w.mainSec ? `${w.mainSec.pipe.od} mm` : "—"}</b></div>
             {w.pumpMode ? <div className="sel" title="The pressure the pump must deliver at the supply node"><span>Pressure at source</span><b>{w.srcPressure.toFixed(1)} m</b><small className="gi-sub">{(w.srcPressure/WS_BAR).toFixed(2)} bar</small></div>
-              : <div className={w.minMargin >= -1e-9 ? "sel" : "badbox"}><span>Min residual margin</span><b>{w.minMargin.toFixed(1)} m</b></div>}
+              : <div className={w.minMargin >= -1e-9 ? "sel" : "badbox"}><span>{w.gasMode ? `Lowest pressure${w.crit ? " · " + w.crit.node : ""}` : "Min residual margin"}</span><b>{w.gasMode && w.crit ? w.crit.res.toFixed(1) : w.minMargin.toFixed(1)} {wsPU(w)}</b></div>}
           </div>
-          {w.crit && <div className="cfe-help" style={{marginTop:8}}>Critical route <b>{w.path.map(k => w.out[k].id).join(" → ")}</b> to node <b>{w.crit.node}</b>: {w.crit.res.toFixed(1)} m residual, {w.crit.req.toFixed(1)} m required.{w.upsized.length ? ` Upsized for pressure: ${w.upsized.map(x => x.id).join(", ")}.` : ""}</div>}
+          {w.crit && <div className="cfe-help" style={{marginTop:8}}>Critical route <b>{w.path.map(k => w.out[k].id).join(" → ")}</b> to node <b>{w.crit.node}</b>: {w.crit.res.toFixed(1)} {wsPU(w)} {w.gasMode ? "available" : "residual"}, {w.crit.req.toFixed(1)} {wsPU(w)} required.{w.upsized.length ? ` Upsized for pressure: ${w.upsized.map(x => x.id).join(", ")}.` : ""}</div>}
           {(() => { const tr = wsLvTowers(lvls).length ? wsTowerSummary(w, w.pumpIn || pump, lvls) : []; if (tr.length < 2) return null; const f1 = v => Number.isFinite(v) ? v.toFixed(1) : "—";
             return <><div className="ws-res-title">Summary by tower</div>
               <div className="ws-scroll ws-res-wrap" style={{maxHeight:260}}><table className="ws-res">
-                <thead><tr><th>Tower</th><th className="n">Pipes</th><th className="n">Fixtures</th><th className="n">{w.dem.unit}</th><th className="n">Max v m/s</th><th className="n">Max Pa/m</th><th className="n">Min margin m</th><th>Check</th></tr></thead>
+                <thead><tr><th>Tower</th><th className="n">Pipes</th><th className="n">Fixtures</th><th className="n">{w.dem.unit}</th><th className="n">Max v m/s</th><th className="n">Max Pa/m</th><th className="n">Min margin {wsPU(w)}</th><th>Check</th></tr></thead>
                 <tbody>{tr.map(r => <tr key={r.id} onClick={() => r.minNode && pick("node", r.minNode)} style={{cursor:r.minNode ? "pointer" : "default"}}><td><b>{r.name}</b>{r.common ? <i style={{fontStyle:"normal", color:"#86868b"}}> · common</i> : null}</td><td className="n">{r.pipes}</td><td className="n">{+r.fixtures.toFixed(1)}</td><td className="n">{f1(r.lu)}</td><td className="n">{r.pipes ? r.maxV.toFixed(2) : "—"}</td><td className="n">{r.pipes ? r.maxG.toFixed(0) : "—"}</td><td className="n">{r.minMargin == null ? "—" : f1(r.minMargin)}</td>
                   <td>{r.ok ? <span className="status-chip pass">OK</span> : <span className="status-chip blocked">Review</span>}</td></tr>)}</tbody></table></div>
               <div className="cfe-help">Every pipe and node belongs to the tower it is tagged with — or, when untagged, to the tower of its position. Click a row to select its lowest-margin node.</div></>; })()}
           {(() => { const ft = wsLvFloorTable(w, w.pumpIn || pump, lvls); if (!ft.length) return null; const multi = wsLvMulti(lvls), f1 = v => Number.isFinite(v) ? v.toFixed(1) : "—";
             return <><div className="ws-res-title">Pressure by floor <span style={{textTransform:"none",fontWeight:600,color:"#86868b"}}>— loaded nodes only · {ft[0].maxF != null ? `max. fixture pressure ${ft[0].maxF} m` : "no max. fixture pressure set on Setup"}</span></div>
               <div className="ws-scroll ws-res-wrap" style={{maxHeight:360}}><table className="ws-res">
-                <thead><tr>{multi && <th>Tower</th>}<th>Level</th><th className="n">FFL m</th><th className="n">Nodes</th><th className="n">Lowest P m</th><th>at</th><th className="n">Highest P m</th><th className="n" title="Highest pressure on the floor with NO flow">Static max m</th><th className="n">Bar (max)</th><th>Check</th></tr></thead>
-                <tbody>{ft.map((r, i) => { const mx = Math.max(r.pMax, r.sMax); return <tr key={i} onClick={() => pick("node", r.minNode)} style={{cursor:"pointer"}}>{multi && <td>{r.tower}</td>}<td><b>{r.level}</b></td><td className="n">{Number.isFinite(r.ffl) ? wsLvSigned(r.ffl) : "—"}</td><td className="n">{r.nodes.length}</td><td className="n">{f1(r.pMin)}</td><td>{r.minNode}</td><td className="n">{f1(r.pMax)}</td><td className="n">{f1(r.sMax)}</td><td className="n">{Number.isFinite(mx) ? (mx/WS_BAR).toFixed(2) : "—"}</td>
+                <thead><tr>{multi && <th>Tower</th>}<th>Level</th><th className="n">FFL m</th><th className="n">Nodes</th><th className="n">Lowest P {wsPU(w)}</th><th>at</th><th className="n">Highest P {wsPU(w)}</th><th className="n" title="Highest pressure on the floor with NO flow">Static max {wsPU(w)}</th><th className="n">Bar (max)</th><th>Check</th></tr></thead>
+                <tbody>{ft.map((r, i) => { const mx = Math.max(r.pMax, r.sMax); return <tr key={i} onClick={() => pick("node", r.minNode)} style={{cursor:"pointer"}}>{multi && <td>{r.tower}</td>}<td><b>{r.level}</b></td><td className="n">{Number.isFinite(r.ffl) ? wsLvSigned(r.ffl) : "—"}</td><td className="n">{r.nodes.length}</td><td className="n">{f1(r.pMin)}</td><td>{r.minNode}</td><td className="n">{f1(r.pMax)}</td><td className="n">{f1(r.sMax)}</td><td className="n">{Number.isFinite(mx) ? wsBarOf(w, mx).toFixed(w.gasMode ? 3 : 2) : "—"}</td>
                   <td>{r.short ? <span className="status-chip blocked">Low pressure</span> : r.over ? <span className="status-chip review">Above max — PRV / zone</span> : <span className="status-chip pass">OK</span>}</td></tr>; })}</tbody></table></div>
               <div className="cfe-help">Every node with a load is put on the floor of its tower whose FFL is at or below it. P at peak flow; Static max = with no flow (friction gone), which governs the PRV zoning. Click a row to select its lowest-pressure node.</div></>; })()}
           <div className="ws-res-title" style={{display:"flex",alignItems:"center",gap:10}}>Pipe-by-pipe schedule <span style={{textTransform:"none",display:"inline-flex",gap:6,alignItems:"center"}}>{sortCtl}</span></div>
           <div className="ws-scroll ws-res-wrap"><table className="ws-res">
-            <thead><tr><th>Section</th><th>Class</th><th>Orient.</th><th>Route</th><th className="n">Fixt.</th><th className="n">{w.dem.unit}</th><th className="n">Q L/s</th><th className="n">OD</th><th className="n">ID</th><th className="n">v m/s</th><th className="n">v limit</th><th className="n">Pa/m</th><th className="n">Pa/m limit</th><th className="n">Residual m</th><th className="n" title="Hydraulic grade line at the To node: pressure + elevation">HGL m</th><th className="n" title="Pressure at the To node with no flow: friction and losses zero, elevation and PRV kept">Static m</th><th>Status</th><th>Size selected because</th></tr></thead>
+            <thead><tr><th>Section</th><th>Class</th><th>Orient.</th><th>Route</th><th className="n">Fixt.</th><th className="n">{w.dem.unit}</th><th className="n">Q {wsQU(w)}</th><th className="n">OD</th><th className="n">ID</th><th className="n">v m/s</th><th className="n">v limit</th><th className="n">Pa/m</th><th className="n">Pa/m limit</th><th className="n">{w.gasMode ? "P mbar" : "Residual m"}</th><th className="n" title={w.gasMode ? "Loss from the supply (mains) or from the take-off on the main (risers / branches), % of that pressure" : "Hydraulic grade line at the To node: pressure + elevation"}>{w.gasMode ? "Stage %" : "HGL m"}</th><th className="n" title="Pressure at the To node with no flow: friction and losses zero, elevation and PRV kept">Static {wsPU(w)}</th><th>Status</th><th>Size selected because</th></tr></thead>
             <tbody>{schedRows.map(x => <tr key={x.id} className={(critIds.has(x.id) ? "crit" : "") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
-              <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} />{x.cd.l}</td><td>{x.ori === "h" ? "Horiz." : x.ori === "up" ? "Vert. ↑" : "Vert. ↓"}</td><td>{x.from} → {x.to}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(0)}</td><td className="n">{x.Qd.toFixed(3)}</td>
+              <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} />{x.cd.l}</td><td>{x.ori === "h" ? "Horiz." : x.ori === "up" ? "Vert. ↑" : "Vert. ↓"}</td><td>{x.from} {x.rev ? "←" : "→"} {x.to}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(0)}</td><td className="n">{x.Qd.toFixed(3)}</td>
               <td className="n"><b>{x.pipe.od}</b>{x.bump > 0 && <em title="Upsized for residual pressure"> ↑</em>}</td><td className="n">{x.pipe.id}</td>
-              <td className="n">{x.v.toFixed(2)}</td><td className="n">{w.useV ? x.cd.maxV : "—"}</td><td className="n">{x.grad.toFixed(0)}</td><td className="n">{w.useP ? x.cd.maxP : "—"}</td><td className="n">{x.Pto.toFixed(1)}</td><td className="n">{w.hgl[x.to].toFixed(1)}</td><td className="n" title={`Static (no flow) pressure at ${x.to}`}>{x.PtoS.toFixed(1)}</td>
+              <td className="n">{x.v.toFixed(2)}</td><td className="n">{w.useV ? x.cd.maxV : "—"}</td><td className="n">{x.grad.toFixed(0)}</td><td className="n">{w.useP ? x.cd.maxP : "—"}</td><td className="n">{x.Pto.toFixed(1)}</td><td className="n">{w.gasMode ? (Number.isFinite(x.stagePct) ? x.stagePct.toFixed(1) : "—") : w.hgl[x.to].toFixed(1)}</td><td className="n" title={`Static (no flow) pressure at ${x.to}`}>{x.PtoS.toFixed(1)}</td>
               <td><span className={"status-chip " + (x.ok && !x.noSize ? "pass" : "review")}>{x.ok && !x.noSize ? "OK" : x.noSize ? "No size" : "Review"}</span></td>
               <td className="ws-why" title={x.why.t}><i className={"wy-" + x.why.k} />{x.why.s || x.why.t}</td></tr>)}</tbody>
           </table></div>
@@ -7864,7 +8325,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
           </table></div>
           <div className="ws-res-title">Loading-unit build-up — how each pipe's {w.dem.unit} are made up</div>
           <div className="ws-scroll ws-res-wrap" style={{maxHeight:"none"}}><table className="ws-res">
-            <thead><tr><th>Section</th><th>To node</th><th className="n">At node</th><th>Plus the branches it feeds</th><th className="n">Σ {w.dem.unit}</th><th className="n">Q L/s</th><th className="n">Parts alone</th></tr></thead>
+            <thead><tr><th>Section</th><th>To node</th><th className="n">At node</th><th>Plus the branches it feeds</th><th className="n">Σ {w.dem.unit}</th><th className="n">Q {wsQU(w)}</th><th className="n">Parts alone</th></tr></thead>
             <tbody>{w.out.map(x => { const kids = w.out.filter(y => y.from === x.to), pq = x.ownQ + kids.reduce((a, y) => a + y.Qd, 0);
               return <tr key={x.id} className={selIs("sec", x.id) ? "sel" : ""} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
                 <td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} /><b>{x.id}</b></td><td>{x.to}</td><td className="n">{x.own ? +x.own.toFixed(1) : "—"}</td>
@@ -7895,8 +8356,9 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
   const C = WS_COL, nm = wsNodeMap(pump), nodesArr = Array.isArray(pump.wsNodes) ? pump.wsNodes : [], net = Array.isArray(pump.wsNet) ? pump.wsNet : [], fix = Array.isArray(pump.wsFix) ? pump.wsFix : [];
   const flash = flashIn || (() => {});
   const outBy = {}; if (w) w.out.forEach(x => { outBy[x.id] = x; });
-  const unit = w ? w.dem.unit : ((FU_CODES[pump.wsDemand] || {}).unit || "LU");
-  const lib = FU_FIXTURES[pump.wsDemand] || [], luAt = {}, qAt = {};
+  const QU = wsIsGas(pump) ? "m³/h" : "L/s";
+  const unit = w ? w.dem.unit : ((wsDemC(pump) || {}).unit || "LU");
+  const lib = wsLibOf(pump), luAt = {}, qAt = {};
   fix.forEach(f => { const L = lib.find(x => x.name === f.fixture), q = Number(f.qty) || 0; if (L && q > 0 && f.node) luAt[f.node] = (luAt[f.node] || 0) + q*wsLibLu(L, pump.system); });
   nodesArr.forEach(n => { if (wsFin(n.luAdd) && Number(n.luAdd) > 0) luAt[n.id] = (luAt[n.id] || 0) + Number(n.luAdd); if (wsFin(n.qAdd) && Number(n.qAdd) > 0) qAt[n.id] = Number(n.qAdd); });
   const hasLoad = id => luAt[id] > 0 || qAt[id] > 0;
@@ -7915,16 +8377,16 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
         {selNode && <div className="nc-r1"><b className="nc-it">Node</b><CommitInput value={selNode.id} onCommit={v => { v = String(v).trim(); if (!v || v === selNode.id) return; if (wsAllNodeIds(pump).includes(v)) { flash(`A node named "${v}" already exists.`); return; } edit(wsRenamePatch(pump, selNode.id, v)); setSel({kind:"node", id:v, src:"draw"}); }} cls="nc-id" />
           {wsLvHas(lvls) && wsHasXYZ(selNode) && <span className="nc-lvtag" title="The floor this node is on (Setup → Floor levels)">{wsLvNodeLabel(lvls, selNode)}</span>}{wsLvTowers(lvls).length > 0 && <label className="nc-f" title="The tower this node belongs to. Auto = by its position (the plan band of a tower, or the common basement below its top)"><span>Tower</span><select className="nc-sel" value={selNode.tower || ""} onChange={e => { const r = wsEdAssignTower(pump, [selNode.id], e.target.value); if (r.error) flash(r.error); else edit(r.patch); }}><option value="">Auto · {(wsTowerOfNode(lvls, {...selNode, tower:""}) || {name:"—"}).name}</option>{wsTowerChoices(lvls).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}{["x", "y", "z"].map(k => <label key={k} className="nc-f"><span>{k.toUpperCase()}</span><CommitInput type="number" cls="r" value={wsFin(selNode[k]) ? selNode[k] : ""} onCommit={v => setN(selNode.id, {[k]:v})} placeholder="—" /></label>)}
           <span className="nc-sep" />
-          <label className="nc-f dl" title="Loading units typed straight onto this node — for a zone or riser whose fixtures are not listed"><span>Direct load</span><CommitInput type="number" cls="r" value={wsFin(selNode.luAdd) ? selNode.luAdd : ""} onCommit={v => setN(selNode.id, {luAdd:v})} placeholder="0" /><i>{unit}</i></label>
-          <label className="nc-f dl" title="A continuous flow, e.g. make-up water, in L/s"><span>Flow</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>L/s</i></label>
-          <label className="nc-f dl" title="Pressure required at this node. It applies to every load here, fixtures included, and can raise the requirement above what the fixtures need, never lower it (blank = what the fixtures or Setup give)"><span>Req. p</span><CommitInput type="number" cls="r" value={wsFin(selNode.reqP) ? selNode.reqP : ""} onCommit={v => setN(selNode.id, {reqP:v})} placeholder="default" /><i>m</i></label>
+          {!wsIsGas(pump) && <label className="nc-f dl" title="Loading units typed straight onto this node — for a zone or riser whose fixtures are not listed"><span>Direct load</span><CommitInput type="number" cls="r" value={wsFin(selNode.luAdd) ? selNode.luAdd : ""} onCommit={v => setN(selNode.id, {luAdd:v})} placeholder="0" /><i>{unit}</i></label>}
+          <label className="nc-f dl" title={wsIsGas(pump) ? "A gas flow at this node in m³/h, already diversified — for a load not in the load types" : "A continuous flow, e.g. make-up water, in L/s"}><span>Flow</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>{QU}</i></label>
+          <label className="nc-f dl" title="Pressure required at this node. It applies to every load here, fixtures included, and can raise the requirement above what the fixtures need, never lower it (blank = what the fixtures or Setup give)"><span>Req. p</span><CommitInput type="number" cls="r" value={wsFin(selNode.reqP) ? selNode.reqP : ""} onCommit={v => setN(selNode.id, {reqP:v})} placeholder="default" /><i>{wsIsGas(pump) ? "mbar" : "m"}</i></label>
           <span style={{flex:1}} />{wsEdPlaced(pump) && net.length > 0 && !wsSupplyIds(pump).includes(selNode.id) && <button type="button" className="nc-c" title="Make this node the supply: the pipes between the old supply and it are flipped" onClick={() => { const r = wsEdSetSupply(pump, selNode.id); if (r.error) flash(r.error); else edit(r.patch); }}>Make supply</button>}{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this node's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
         {selNode && fed && <div className="nc-r3"><span className="nc-l">Demand</span><span className="nc-bu">{hasLoad(selNode.id) ? <><b>{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}</b> at this node</> : "No load at this node"}{fed.LU > (luAt[selNode.id] || 0) + 1e-9 ? <> · <b>{+fed.LU.toFixed(1)} {unit}</b> carried by {fed.id} (this node plus everything downstream)</> : null}{(() => { const rs = wsEdReqSource(pump, w, selNode.id); return rs ? <> · needs <b>{rs.req.toFixed(1)} m</b> — {rs.text}</> : null; })()}</span></div>}
         {selNode && <div className="nc-r2"><span className="nc-l">Fixtures</span>{fixHere.map(({f, i}) => <span key={i} className="nc-eq fx"><button type="button" className="x st" onClick={() => edit({wsFix:(Number(f.qty) || 0) > 1 ? fix.map((q, j) => j === i ? {...q, qty:(Number(q.qty) || 0) - 1} : q) : fix.filter((_, j) => j !== i)})} title="One less (the last one removes the row)">−</button><b>{f.qty}×</b><button type="button" className="x st" onClick={() => edit({wsFix:fix.map((q, j) => j === i ? {...q, qty:(Number(q.qty) || 0) + 1} : q)})} title="One more">+</button><em>{f.fixture}</em><button type="button" className="x" onClick={() => edit({wsFix:fix.filter((_, j) => j !== i)})} title="Remove">✕</button></span>)}
           <select className="nc-fx" value={fxPick} onChange={e => setFxPick(e.target.value)}><option value="">＋ Add fixture…</option>{wsFixGroups(lib).flatMap(g => g.items).map(f => <option key={f.name} value={f.name}>{f.name}</option>)}</select>
           <input className="nc-q r" type="number" min="1" value={fxQty} onChange={e => setFxQty(e.target.value)} title="Quantity" />
           <button type="button" className="nc-c" disabled={!fxPick} onClick={() => { edit({wsFix:[...fix, {level:wsLvNodeLabel(lvls, selNode) || "", room:"", fixture:fxPick, node:selNode.id, qty:Number(fxQty) || 1}]}); setFxPick(""); }}>Add</button>
-          {hasLoad(selNode.id) && <span className="nc-ih">{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}{qAt[selNode.id] ? ` + ${qAt[selNode.id]} L/s` : ""} at this node</span>}</div>}
+          {hasLoad(selNode.id) && <span className="nc-ih">{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}{qAt[selNode.id] ? ` + ${qAt[selNode.id]} ${QU}` : ""} at this node</span>}</div>}
         {selSec && <div className="nc-r1"><b className="nc-it" style={{color:C[selSec.cls]}}>{selSec.id}</b>
           <select className="nc-sel" value={selSec.cls} style={{color:C[selSec.cls], fontWeight:700}} title={selSec.clsAuto === true ? "Set by the drawing rule: a run from the supply is a Main, other vertical runs are Risers, the rest Branches. Choose another class to override it." : selSec.clsAuto === false ? "Set by you" : ""} onChange={e => setS(selSec.id, {cls:e.target.value, od:"", clsAuto:false})}>{WS_CLASSES.map(c => <option key={c.k} value={c.k}>{c.l}</option>)}</select>
           {selSec.clsAuto === false && wsEdPlaced(pump) && <button type="button" className="nc-c" title="Give the class back to the drawing rule" onClick={() => edit(wsEdSetAuto(pump, selSec.id).patch)}>↺ Auto</button>}
@@ -7934,13 +8396,13 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           <label className="nc-f"><span>Length m</span><CommitInput type="number" cls="r" value={secGeo.geo ? +secGeo.len.toFixed(2) : (selSec.len ?? "")} title={secGeo.geo ? "The distance between the two nodes — type a length to move the end node (and everything downstream)" : ""} onCommit={v => { if (v === "") return; if (secGeo.geo) { const r = wsSetPipeGeom(pump, selSec.id, {len:v}); if (r) edit(r); } else setS(selSec.id, {len:v}); }} /></label>
           <label className="nc-f"><span>Extra loss m</span><CommitInput type="number" cls="r" value={selSec.loss ?? ""} onCommit={v => setS(selSec.id, {loss:v})} placeholder="—" /></label>
           <label className="nc-f"><span>Size</span><select value={String(selSec.od ?? "")} onChange={e => setS(selSec.id, {od:e.target.value})}><option value="">Auto{o ? ` · ${o.pipe.od} mm` : ""}</option>{sizes.map(c => <option key={c.od} value={String(c.od)}>{c.od} mm</option>)}</select></label>
-          {o && <span className={"nc-res " + (o.ok && !o.noSize ? "ok" : "bad")}>Σ {+o.LU.toFixed(1)} {unit} · {o.Qd.toFixed(2)} L/s · {o.v.toFixed(2)} m/s {o.ok && !o.noSize ? "✓" : "⚠"}</span>}
+          {o && <span className={"nc-res " + (o.ok && !o.noSize ? "ok" : "bad")}>Σ {+o.LU.toFixed(1)} {unit} · {o.Qd.toFixed(2)} {QU} · {o.v.toFixed(2)} m/s {o.ok && !o.noSize ? "✓" : "⚠"}</span>}
           <span style={{flex:1}} />{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this pipe's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
         {selSec && <div className="nc-r2"><span className="nc-l">Equipment</span>{(selSec.eq || []).filter(it => WS_EQ[it.type]).map(it => <EqChip key={it.id} pump={pump} secId={selSec.id} it={it} edit={edit} />)}
           <select className="nc-fx" value="" onChange={e => { if (e.target.value) edit(wsEqAdd(pump, selSec.id, e.target.value).patch); }}><option value="">＋ Valve, PRV, meter, pump…</option>{Object.entries(WS_EQ).map(([k, t]) => <option key={k} value={k}>{t.l}</option>)}</select>
           {!(selSec.eq || []).length && <span className="nc-ih">none on this pipe</span>}</div>}
         {selSec && o && <div className="nc-r3"><span className="nc-l">Demand</span><span className="nc-bu"><b>Σ {+o.LU.toFixed(1)} {unit}</b> = {o.own > 0 ? <>{+o.own.toFixed(1)} at {selSec.to}</> : <>nothing at {selSec.to}</>}{kidsOf(o).map(k => <React.Fragment key={k.id}> + <button type="button" className="nc-lk" onClick={() => setSel({kind:"sec", id:k.id, src:"draw"})} title={"Go to " + k.id}>{+k.LU.toFixed(1)} via {k.id}</button></React.Fragment>)}</span>
-          <span className="nc-ih">→ <b>{o.Qd.toFixed(2)} L/s</b> from the demand table{partsQ(o) > o.Qd*1.02 ? <> — not the sum of the parts ({partsQ(o).toFixed(2)} L/s): probable flow rises more slowly than the loading units because not every fixture runs at once</> : null}</span></div>}
+          <span className="nc-ih">→ <b>{o.Qd.toFixed(2)} {QU}</b> {wsIsGas(pump) ? "after diversity" : "from the demand table"}{!wsIsGas(pump) && partsQ(o) > o.Qd*1.02 ? <> — not the sum of the parts ({partsQ(o).toFixed(2)} L/s): probable flow rises more slowly than the loading units because not every fixture runs at once</> : null}</span></div>}
       </fieldset></div>
   );
 }
@@ -7981,7 +8443,7 @@ function SchViewer({sch, style, onPick, focus}) {
 // ─── WATER SUPPLY — right-hand half of the Pipe Sizing workspace: Drawing · Schematic · Live calculation ───
 // Shown above the drawing / schematic whenever the supply pressure cannot serve the network
 function WsPressureBanner({w, pump, edit, locked}) {
-  if (!w || w.minMargin >= -1e-9) return null;
+  if (!w || w.gasMode || w.minMargin >= -1e-9) return null;
   const need = Math.ceil(w.needSrc*10)/10, neg = w.out.filter(x => x.Pto < -1e-9).length;
   return <div className="ws-pb">
     <div><b>⚠ Not enough supply pressure</b> — {w.P0.toFixed(1)} m is supplied, about <b>{w.needSrc.toFixed(1)} m</b> is needed at the source. {w.crit ? <>The most demanding point, <b>{w.crit.node}</b>, is {w.critRise.toFixed(1)} m {w.critRise >= 0 ? "above" : "below"} the supply node{neg ? <>, so {neg} node{neg > 1 ? "s" : ""} read{neg > 1 ? "" : "s"} below zero pressure</> : null}.</> : null} <span className="ws-pb-s">Not a calculation error: water cannot be lifted higher than the pressure behind it.</span></div>
@@ -8404,7 +8866,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
         {msg && <div className={"wd-msg " + msg.kind} style={{left:Math.min(Math.max(8, msg.x + 14), Math.max(8, dim.w - 300)), top:Math.min(Math.max(8, msg.y + 16), Math.max(8, dim.h - 70))}} role="alert">{msg.text}</div>}
         {locked && <div className="wd-over"><b>This stage is locked</b><span>Reopen it to edit the drawing.</span></div>}
         {!locked && !placed && <div className="wd-over"><b>This network was typed in the table</b><span>It has no positions yet. Place it on the canvas, then draw on it, move nodes and add pipes.</span><button type="button" className="pz-btn pri" onClick={placeIt}>Place the network on the canvas</button></div>}
-        {!locked && placed && !nodesAll.length && !net.length && <div className="wd-empty"><b>Draw the network</b><span>Pipe tool: click where the water enters (the supply), then click along to draw the main. Click empty space again to continue.</span></div>}
+        {!locked && placed && !nodesAll.length && !net.length && <div className="wd-empty"><b>Draw the network</b><span>Pipe tool: click where the {wsIsGas(pump) ? "gas" : "water"} enters (the supply), then click along to draw the main. Click empty space again to continue.</span></div>}
       </div>
       <div className="wd-hint">{status}</div>
     </div>
@@ -8508,12 +8970,13 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
       <div className="pz-top">
         <div className="pz-title"><b>Pipe Sizing</b><span>{proj.name || "Untitled project"}{stageName ? " · " + stageName : ""}</span></div>
         {waters.length > 0 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the pipe sizing calculation">
-          {waters.map(x => <option key={x.id} value={x.id}>{x.name || "Water supply"}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
-        <button type="button" className="pz-btn" disabled={stageLocked} onClick={addWater} title="Add another pipe sizing calculation">＋ New</button>
+          {waters.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
+        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("water")} title="Add a water supply pipe sizing calculation">＋ Water</button>
+        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("gas")} title="Add a gas (LPG / SNG / PNG) pipe sizing calculation">＋ Gas</button>
         <span className="pz-sp" />
         <div className="pz-calc"><div className="ws-seg2" role="group" aria-label="Calculation mode"><button type="button" className={calcMode === "auto" ? "on" : ""} onClick={() => setCalcMode("auto")} title="Every edit recalculates at once">Auto</button><button type="button" className={calcMode === "manual" ? "on" : ""} onClick={() => setCalcMode("manual")} title="Results change only when Calculate is pressed">Manual</button></div>
           <button type="button" className={"pz-btn pri" + (stale ? " pz-pulse" : "")} onClick={calcAll} title="Calculate everything now (Ctrl+Enter)">▶ Calculate</button></div>
-        {w && <>{w.networks ? <>{chip("", "Networks", String(w.networks.length))}{chip("", "Peak flow", w.Qsrc.toFixed(2) + " L/s")}{chip(w.minMargin >= -1e-9 ? "ok" : "bad", "Min residual", w.minMargin.toFixed(1) + " m")}</> : w.pumpMode
+        {w && <>{w.gasMode ? <>{chip("", w.gas.type.l + " flow", w.Qsrc.toFixed(1) + " m³/h")}{chip("", "Main", w.mainSec ? w.mainSec.pipe.od + " mm" : "—")}{chip(w.minMargin >= -1e-9 ? "ok" : "bad", "Lowest P", w.crit ? w.crit.res.toFixed(1) + " mbar" : "—")}</> : w.networks ? <>{chip("", "Networks", String(w.networks.length))}{chip("", "Peak flow", w.Qsrc.toFixed(2) + " L/s")}{chip(w.minMargin >= -1e-9 ? "ok" : "bad", "Min residual", w.minMargin.toFixed(1) + " m")}</> : w.pumpMode
           ? <>{chip("", "Design flow", res.pumpHead.design.toFixed(2) + " L/s")}{chip("ok", "Pump head", res.pumpHead.noPump ? "No pump" : res.pumpHead.head + " m")}{chip("", "Main", w.mainSec ? w.mainSec.pipe.od + " mm" : "—")}</>
           : <>{chip("", "Peak flow", w.Qsrc.toFixed(2) + " L/s")}{chip("", "Main", w.mainSec ? w.mainSec.pipe.od + " mm" : "—")}{chip(w.minMargin >= -1e-9 ? "ok" : "bad", "Min residual", w.minMargin.toFixed(1) + " m")}</>}
           <button type="button" className={"pz-kpi pz-st " + (w.status === "valid" ? "ok" : w.status === "warn" ? "warn" : "bad")} onClick={() => goTab("results")} title="Open the design review"><span>Design status</span><b>{WS_STATUS[w.status].l}{w.nFail ? ` · ${w.nFail}` : w.nWarn ? ` · ${w.nWarn}` : ""}</b></button></>}
@@ -8525,7 +8988,8 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
       </div>
       {stale && <div className="pz-stale"><b>⚠ Inputs changed since the last calculation.</b> The results, pump duty, schematic and calculation sheets still show the previous calculation. <button type="button" className="pz-btn pri" onClick={calcAll}>▶ Calculate</button> <span>Ctrl+Enter</span></div>}
       {!stale && calcAt && calcMode === "manual" && <div className="pz-fresh">Calculated {new Date(calcAt).toLocaleTimeString()}</div>}
-      {cur && (() => { const dm = FU_CODES[cur.wsDemand], kn = dm ? dm.table : null, rs = REF_STATUS, fb = rs.source === "defaults";
+      {cur && (() => { const dm = wsDemC(cur), kn = dm ? dm.table : null, rs = REF_STATUS, fb = rs.source === "defaults";
+        if (wsIsGas(cur)) { const d = gasDensity(cur); return <div className="pz-info"><span className="pz-i1">{`Gas — ${d.gas.long} · S ${Number.isFinite(d.S) ? d.S.toFixed(3) : "—"} · supply ${cur.gasSupply} mbar · IGE/UP/2 · pipe schedules from ${rs.source === "defaults" ? "built-in reference data ⚠" : "Supabase reference data"}`}</span></div>; }
         const line = `${dm ? dm.label : "no demand table"} · ${cur.wsSource === "fixed" ? `fixed supply ${cur.supplyPressure} m` : "pump — head calculated"} · ${fb ? "built-in reference data ⚠" : "Supabase reference data"}`;
         const full = `Demand table: ${dm ? dm.label : "none selected"}${kn && kn.length ? ` · supported ${kn[0][0]}–${kn[kn.length - 1][0]} ${dm.unit} · above the table: ${cur.wsAbove === "block" ? "blocked" : "flagged"}` : ""}${dm && dm.ref && dm.ref !== dm.label ? "\n" + dm.ref : ""}\nReference data: ${fb ? "built-in defaults — not from Supabase" + (rs.error ? " (" + rs.error + ")" : "") : `Supabase · ${rs.nMat} pipe schedules · ${rs.nFuCodes} demand tables · ${rs.nFix} fixtures`}\nNetwork: single supply node, branched — loops are not supported`;
         return <div className="pz-info" title={full}><span className={"pz-i1" + (fb ? " bad" : "")}>{line}</span></div>; })()}
@@ -8533,7 +8997,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
       {!cur ? <div className="pz-empty">
           <div className="pz-empty-card"><div className="pz-empty-ic">▦</div><h3>No pipe sizing calculation yet</h3>
             <p>Create one to enter the fixtures and draw the pipe network. The drawing sits beside the inputs.</p>
-            <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={addWater}>＋ Create Water Supply Pipe Sizing</button>
+            <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater("water")}>＋ Create Water Supply Pipe Sizing</button> <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater("gas")}>＋ Create Gas Pipe Sizing</button>
             {stageLocked && <p style={{color:"#b91c1c"}}>This stage is locked.</p>}</div></div>
         : <div className="pz-split" ref={splitRef} style={{gridTemplateColumns:`minmax(0,${ratio}fr) 12px minmax(0,${1 - ratio}fr)`}}>
             <section className="pz-left">
@@ -8556,9 +9020,9 @@ function WaterLaunch({pump, onChange, onOpen}) {
     <div className="pf">
       <div className="wl-card">
         <div className="wl-ic">▦</div>
-        <div className="wl-txt"><b>{pump.name || "Water supply"}{pump.tag ? " · " + pump.tag : ""} — pipe sizing is edited in its own workspace</b>
+        <div className="wl-txt"><b>{pump.name || typeLbl(pump)}{pump.tag ? " · " + pump.tag : ""} — pipe sizing is edited in its own workspace</b>
           <span>Setup, pipes and results on one side — the network schematic on the other.</span>
-          {w ? <span className="wl-sum">{w.nSec} sections · {w.totN.toFixed(0)} fixtures · {w.totLU.toFixed(0)} {w.dem.unit} · peak {w.Qsrc.toFixed(2)} L/s · {w.pumpMode ? (res.pumpHead.noPump ? "no pump needed" : `pump head ${res.pumpHead.head} m`) : `min residual ${w.minMargin.toFixed(1)} m`}</span>
+          {w ? <span className="wl-sum">{w.gasMode ? w.selStr : <>{w.nSec} sections · {w.totN.toFixed(0)} fixtures · {w.totLU.toFixed(0)} {w.dem.unit} · peak {w.Qsrc.toFixed(2)} L/s · {w.pumpMode ? (res.pumpHead.noPump ? "no pump needed" : `pump head ${res.pumpHead.head} m`) : `min residual ${w.minMargin.toFixed(1)} m`}</>}</span>
              : <span className="wl-sum">{res && res.errors ? res.errors[0] : "Not calculated yet."}</span>}</div>
         <button type="button" className="pz-btn pri" onClick={onOpen}>Open Pipe Sizing →</button>
       </div>
@@ -10700,12 +11164,12 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
   return sep === "." ? `${dd}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}` : `${dd}/${RPT_MON[d.getMonth()]}/${d.getFullYear()}`; }
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
-const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", water:"ws"};
+const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
-  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION"};
+  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION"};
 function rptGroups(sel, names) {
   const out = [];
-  sel.forEach(p => { const k = RPT_GROUP[p.type] || "circ"; let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k], items:[]}; out.push(g); } g.items.push(p); });
+  sel.forEach(p => { const k = p.type === "water" && wsIsGas(p) ? "lpg" : RPT_GROUP[p.type] || "circ"; let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k], items:[]}; out.push(g); } g.items.push(p); });
   return out;
 }
 function rptDefaultHistory(meta, stageName, title) {
@@ -10753,7 +11217,7 @@ function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, j
       <label style={{marginTop:6}}>Calculation sheets to include ({sel.length} of {pumps.length})</label>
       <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(230px,1fr))", gap:"3px 12px", maxHeight:170, overflow:"auto", border:"1px solid #e5e5ea", borderRadius:9, padding:8}}>
         {pumps.map((p, i) => <label key={p.id} style={{display:"flex", gap:6, alignItems:"center", fontSize:11.5, fontWeight:600, color:"#1d1d1f", margin:0, textTransform:"none", letterSpacing:0}}>
-          <input type="checkbox" checked={pick.has(p.id)} onChange={() => tog(p.id)} />{i + 1}. {p.name || TYPE_LBL[p.type]}</label>)}
+          <input type="checkbox" checked={pick.has(p.id)} onChange={() => tog(p.id)} />{i + 1}. {p.name || typeLbl(p)}</label>)}
       </div>
       {locked && <div className="ai-note">This stage is locked — your edits are used for this export but not saved.</div>}
       <div className="ai-row"><button onClick={() => setPick(new Set(pumps.map(p => p.id)))}>All</button><button onClick={() => setPick(new Set())}>None</button><span style={{flex:1}} />
@@ -10808,18 +11272,18 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
       {wm}{head}
       <h1 className="rpt-toc-h">Table Of Contents</h1>
       <table className="rpt-toc"><thead><tr><th style={{width:"12%"}}>SN</th><th>DESCRIPTION</th></tr></thead>
-        <tbody><tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || TYPE_LBL[p.type] || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
+        <tbody><tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || typeLbl(p) || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
     </section>
     <section className="rpt-pg" id="rpt-sched">
       {wm}{head}
       <h1 className="rpt-toc-h">Equipment Schedule</h1>
       <table className="rpt-tb rpt-sch"><thead><tr><th style={{width:"5%"}}>SN</th><th style={{width:"15%"}}>Tag</th><th>Description</th><th style={{width:"12%"}}>Arrangement</th><th style={{width:"11%"}}>Flow (L/s)</th><th style={{width:"10%"}}>Head (m)</th><th style={{width:"11%"}}>Motor (kW each)</th></tr></thead>
         <tbody>{rptExpand(sel).map((p, i) => { const r = safeCalculate(p), ok = r && !r.error;
-          const fl = !ok ? "—" : r.grease ? r.grease.Qs.toFixed(2) : r.water ? r.water.Qsrc.toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
-          const hd = !ok ? "—" : r.grease ? "—" : r.water ? (r.pumpHead ? (r.pumpHead.noPump ? "0" : String(r.pumpHead.head)) : "—") : (typeof r.totalH === "number" ? (p.type === "sump" ? r.totalH.toFixed(1) : String(r.totalH)) : "—");
-          const kw = !ok ? "—" : (r.grease || r.water) ? "—" : String(r.pwrSel);
-          const ar = !ok ? "BLOCKED" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
-          return <tr key={i}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name || TYPE_LBL[p.type]}</td><td style={{textAlign:"center"}}>{ar}</td><td style={{textAlign:"right"}}>{fl}</td><td style={{textAlign:"right"}}>{hd}</td><td style={{textAlign:"right"}}>{kw}</td></tr>; })}</tbody></table>
+          const fl = !ok ? "—" : r.grease ? r.grease.Qs.toFixed(2) : r.water ? (r.water.gasMode ? r.water.Qsrc/3.6 : r.water.Qsrc).toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
+          const hd = !ok ? "—" : (r.grease || r.lpg) ? "—" : r.water ? (r.pumpHead ? (r.pumpHead.noPump ? "0" : String(r.pumpHead.head)) : "—") : (typeof r.totalH === "number" ? (p.type === "sump" ? r.totalH.toFixed(1) : String(r.totalH)) : "—");
+          const kw = !ok ? "—" : (r.grease || r.water || r.lpg) ? "—" : String(r.pwrSel);
+          const ar = !ok ? "BLOCKED" : r.lpg ? r.lpg.nSec + " sections" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
+          return <tr key={i}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name || typeLbl(p)}</td><td style={{textAlign:"center"}}>{ar}</td><td style={{textAlign:"right"}}>{fl}</td><td style={{textAlign:"right"}}>{hd}</td><td style={{textAlign:"right"}}>{kw}</td></tr>; })}</tbody></table>
       <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Flow is per duty pump (grease interceptors: total waste water flow; pipe sizing: peak flow at the source). D = duty, A = assist, S = standby.</p>
     </section>
     {groups.map((g, i) => <React.Fragment key={g.k}>
@@ -11254,7 +11718,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   // add a calculation with some values already filled in (used by "Create booster pump from this"); stays on the current page
   const addPumpWith = init => { if (stageLocked) return null; const np = {id:_id++, ...DEFS[init.type], ...init}; setPumps(ps => [...ps, np]); return np.id; };
   const openPump = id => { setEditId(id); setTab("pumps"); };
-  const addPump = type => { if(stageLocked) return; const p={id:_id++,...DEFS[type]}; if (type==="water") { const L0=wsLevelsDefaultOf(proj); if (L0) p.wsLevels=wsLvClone(L0); } setPumps(ps=>[...ps,p]); setEditId(p.id); if (type==="water") { setPipeId(p.id); setTab("pipe"); } else setTab("pumps"); };
+  const addPump = type => { if(stageLocked) return; const p={id:_id++,...DEFS[type]}; if (p.p.type==="water") { const L0=wsLevelsDefaultOf(proj); if (L0) p.wsLevels=wsLvClone(L0); } setPumps(ps=>[...ps,p]); setEditId(p.id); if (p.type==="water") { setPipeId(p.id); setTab("pipe"); } else setTab("pumps"); };
   const delPump = id   => { if(stageLocked) return; setPumps(ps=>ps.filter(p=>p.id!==id)); };
   // v1.48: duplicate a calculation (placed right below the original) and move a calculation up or down the list
   const dupPump = id => { if(stageLocked) return; const src = pumps.find(p=>p.id===id); if(!src) return;
@@ -11402,7 +11866,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               <summary style={{cursor:"pointer",fontSize:11,fontWeight:700,color:"#6e6e73"}}>🗑 Recently deleted ({meta.trash.length})</summary>
               <div style={{display:"flex",flexDirection:"column",gap:5,marginTop:6,maxHeight:220,overflow:"auto"}}>
                 {meta.trash.map((t,i)=><div key={i} style={{display:"flex",gap:6,alignItems:"center",fontSize:10.5,lineHeight:1.3}}>
-                  <div style={{flex:1,minWidth:0}}><b style={{display:"block",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{(t.pump&&(t.pump.name||TYPE_LBL[t.pump.type]))||"Calculation"}</b>
+                  <div style={{flex:1,minWidth:0}}><b style={{display:"block",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{(t.pump&&(t.pump.name||typeLbl(t.pump)))||"Calculation"}</b>
                     <span style={{color:"#86868b"}}>{t.why} · {t.by||"—"} · {t.at?new Date(t.at).toLocaleString():""}</span></div>
                   <button type="button" disabled={stageLocked} onClick={()=>restoreTrash(i)} style={{border:"1px solid #c8dafa",background:"#f5f9ff",color:"#007aff",borderRadius:7,padding:"3px 8px",fontSize:10.5,fontWeight:800,cursor:"pointer"}}>Restore</button>
                 </div>)}
@@ -11502,10 +11966,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 <input className="piw-search" value={pumpQuery} onChange={e=>setPumpQuery(e.target.value)} placeholder="Search name or tag" />
               </div>
               <div className="piw-items">
-                {pumps.map((p,i)=>({p,i})).filter(({p})=>{const q=pumpQuery.trim().toLowerCase();return !q||[(p.name||""),(p.tag||""),TYPE_LBL[p.type]||""].join(" ").toLowerCase().includes(q);}).map(({p,i})=>(
+                {pumps.map((p,i)=>({p,i})).filter(({p})=>{const q=pumpQuery.trim().toLowerCase();return !q||[(p.name||""),(p.tag||""),typeLbl(p)||""].join(" ").toLowerCase().includes(q);}).map(({p,i})=>(
                   <div key={p.id} onClick={()=>setEditId(p.id)} className={"piw-item"+(editId===p.id?" on":"")} title={p.name}>
                     <span className="piw-no">{i+1}</span>
-                    <span className="piw-txt"><b>{p.name||TYPE_LBL[p.type]}</b><em>{p.tag||TYPE_LBL[p.type]}</em></span>
+                    <span className="piw-txt"><b>{p.name||typeLbl(p)}</b><em>{p.tag||typeLbl(p)}</em></span>
                     {!stageLocked && <span className="piw-acts" onClick={e=>e.stopPropagation()}>
                       <button type="button" disabled={i===0 || !!pumpQuery.trim()} title="Move up" onClick={()=>movePump(p.id,-1)}>▲</button>
                       <button type="button" disabled={i===pumps.length-1 || !!pumpQuery.trim()} title="Move down" onClick={()=>movePump(p.id,1)}>▼</button>
@@ -11533,19 +11997,19 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 <>
                   <div className="piw-form-head">
                     <div className="piw-form-title">
-                      <span className="piw-chip">{TYPE_LBL[editing.type]}</span>
+                      <span className="piw-chip">{typeLbl(editing)}</span>
                       <b>{editing.name||"Untitled calculation"}</b>
                       <em>{editing.tag||"No tag"}</em>
                     </div>
                     <div className="piw-nav">
-                      {!["grease","water"].includes(editing.type) && <AiAssistant key={editing.id} pump={editing} locked={stageLocked} onApply={patch=>updPump({...editing,...patch,id:editing.id})} />}
+                      {!["grease","water","lpg"].includes(editing.type) && <AiAssistant key={editing.id} pump={editing} locked={stageLocked} onApply={patch=>updPump({...editing,...patch,id:editing.id})} />}
                       <button disabled={!prev} onClick={()=>prev&&setEditId(prev.id)} title="Previous calculation">‹</button>
                       <span>{idx+1} / {pumps.length}</span>
                       <button disabled={!next} onClick={()=>next&&setEditId(next.id)} title="Next calculation">›</button>
                     </div>
                   </div>
                   {stageLocked&&<LockedNotice/>}
-                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>{editing.type==="sump" ? <SumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="grease" ? <GreaseForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="water" ? <WaterLaunch pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={()=>{setPipeId(editing.id);setTab("pipe");}} /> : <PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} />}</fieldset>
+                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>{editing.type==="sump" ? <SumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="grease" ? <GreaseForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="lpg" ? <LegacyLpgCard pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={id=>{setPipeId(id);setTab("pipe");}} /> : editing.type==="water" ? <WaterLaunch pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={()=>{setPipeId(editing.id);setTab("pipe");}} /> : <PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} />}</fieldset>
                 </>); })() : (
                 <div className="piw-empty big">Select a calculation from the list, or add a new one.</div>
               )}
@@ -11565,7 +12029,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         {/* ── SCHEDULE REVIEW WORKSPACE ── */}
         {/* ── PIPE SIZING — sidebar hidden, half data entry / half schematic ── */}
         {tab==="pipe" && (
-          <PipeSizingWorkspace calcMode={calcMode} setCalcMode={setCalcMode} calcAll={calcAll} calcAt={calcAt} pumps={pumps} pipeId={pipeId} setPipeId={setPipeId} updPump={updPump} addWater={()=>addPump("water")} addPumpWith={addPumpWith} openPump={openPump}
+          <PipeSizingWorkspace calcMode={calcMode} setCalcMode={setCalcMode} calcAll={calcAll} calcAt={calcAt} pumps={pumps} pipeId={pipeId} setPipeId={setPipeId} updPump={updPump} addWater={k=>addPump(k==="gas"?"gas":"water")} addPumpWith={addPumpWith} openPump={openPump}
             proj={proj} setProj={setProj} stageName={issueStageName} stageLocked={stageLocked} saveStatus={saveStatus} saveNow={saveNow}
             onBack={()=>setTab("pumps")} />
         )}
@@ -11598,7 +12062,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                   className={"calcpick-item"+(printPick===p.id?" on":"")}>
                   <span className="calcpick-no">{i+1}</span>
                   <span className="calcpick-body">
-                    <b>{p.name||TYPE_LBL[p.type]||"Calculation"}</b>
+                    <b>{p.name||typeLbl(p)||"Calculation"}</b>
                     <span>{p.tag||"—"}</span>
                   </span>
                 </button>
