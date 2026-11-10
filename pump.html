@@ -1258,7 +1258,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.69.0 · Build 2026.11.10.05";
+const BUILD_LABEL = "v1.70.0 · Build 2026.11.10.07";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1494,6 +1494,12 @@ async function loadReferenceData() {
       sb.from("ref_fixture_unit_tables").select("code,units,flow_ls").order("code").order("units").range(0,9999),
       sb.from("ref_fixtures").select("*").order("sort_order").range(0,9999),
     ]);
+    // Fluids (v1.70). A missing table must not block everything else — the built-in rows are used.
+    try { const fl = await sb.from("ref_fluids").select("*").eq("active", true).order("sort_order");
+      if (!fl.error && fl.data && fl.data.length) { FLUIDS = fl.data.map(r => ({...r, density_kg_m3:Number(r.density_kg_m3), visc_cst:Number(r.visc_cst),
+        visc2_cst:r.visc2_cst == null ? null : Number(r.visc2_cst), visc2_temp_c:r.visc2_temp_c == null ? null : Number(r.visc2_temp_c), ref_temp_c:Number(r.ref_temp_c),
+        vapour_kpa_abs:r.vapour_kpa_abs == null ? null : Number(r.vapour_kpa_abs)})); FLUIDS_SRC = "supabase"; }
+      else { FLUIDS = DEFAULT_FLUIDS; FLUIDS_SRC = "defaults"; } } catch (e) { FLUIDS = DEFAULT_FLUIDS; FLUIDS_SRC = "defaults"; }
     // Fixtures (loading units per fixture, per demand table). A missing table must not block everything else.
     FU_FIXTURES = {}; FU_FIX_ERROR = "";
     if (fixRes.error) FU_FIX_ERROR = "Fixture loading units could not be loaded from Supabase (" + fixRes.error.message + "). Run mep-fixture-units-fixtures.sql.";
@@ -1608,15 +1614,58 @@ const num = (v, dflt) => {
 // the approved reference release. Callers must block and explain the exception.
 const selectMotor = kw => MOTOR_KW.find(s=>s>=kw) || null;
 
+// ══════════════════════════════════════════════════════════════════════════
+// FLUIDS (v1.70) — density / viscosity / vapour pressure from Supabase ref_fluids.
+// A pump with no fluid chosen keeps the original water basis exactly (1000 kg/m³, 1.004 cSt), so
+// every calculation made before v1.70 gives the same result. Built-in rows are the same as the
+// table seed and are used only if the table cannot be read.
+// ══════════════════════════════════════════════════════════════════════════
+const DEFAULT_FLUIDS = [
+  {code:"WATER", name:"Water (fresh)", category:"water", ref_temp_c:20, density_kg_m3:998.2, visc_cst:1.004, visc2_cst:0.658, visc2_temp_c:40, vapour_kpa_abs:2.34, hw_valid:true, source:"IAPWS / CIBSE Guide C"},
+  {code:"SEAWATER", name:"Seawater (3.5 % salinity)", category:"water", ref_temp_c:20, density_kg_m3:1025, visc_cst:1.05, visc2_cst:0.7, visc2_temp_c:40, vapour_kpa_abs:2.3, hw_valid:true, source:"ITTC 2011"},
+  {code:"TSE", name:"Treated sewage effluent (TSE)", category:"water", ref_temp_c:25, density_kg_m3:1000, visc_cst:0.9, vapour_kpa_abs:3.17, hw_valid:true, source:"Taken as water"},
+  {code:"DIESEL", name:"Diesel (EN 590 / ASTM D975 No.2)", category:"fuel", ref_temp_c:20, density_kg_m3:835, visc_cst:4, visc2_cst:2.7, visc2_temp_c:40, vapour_kpa_abs:0.5, flash_point_c:55, hw_valid:false, default_pipe:"STEEL", source:"EN 590: 820–845 kg/m³, 2.0–4.5 cSt @ 40 °C"},
+  {code:"GASOIL", name:"Gas oil / light fuel oil", category:"fuel", ref_temp_c:20, density_kg_m3:850, visc_cst:5, visc2_cst:3.5, visc2_temp_c:40, vapour_kpa_abs:0.4, flash_point_c:60, hw_valid:false, default_pipe:"STEEL", source:"BS 2869 Class A2/D (typical)"},
+  {code:"KEROSENE", name:"Kerosene / Jet A-1", category:"fuel", ref_temp_c:20, density_kg_m3:800, visc_cst:1.6, visc2_cst:1.2, visc2_temp_c:40, vapour_kpa_abs:0.7, flash_point_c:38, hw_valid:false, default_pipe:"STEEL", source:"DEF STAN 91-091 (typical)"},
+  {code:"PETROL", name:"Petrol / gasoline", category:"fuel", ref_temp_c:20, density_kg_m3:740, visc_cst:0.6, visc2_cst:0.5, visc2_temp_c:40, vapour_kpa_abs:60, flash_point_c:-40, hw_valid:false, default_pipe:"STEEL", source:"EN 228 (typical RVP 45–90 kPa)"},
+  {code:"BIODIESEL", name:"Biodiesel B100 (FAME)", category:"fuel", ref_temp_c:20, density_kg_m3:880, visc_cst:6, visc2_cst:4.5, visc2_temp_c:40, vapour_kpa_abs:0.1, flash_point_c:130, hw_valid:false, default_pipe:"STEEL", source:"EN 14214: 3.5–5.0 cSt @ 40 °C"},
+  {code:"HVO", name:"HVO renewable diesel", category:"fuel", ref_temp_c:20, density_kg_m3:780, visc_cst:3.5, visc2_cst:2.5, visc2_temp_c:40, vapour_kpa_abs:0.3, flash_point_c:61, hw_valid:false, default_pipe:"STEEL", source:"EN 15940 (typical)"},
+  {code:"HFO180", name:"Heavy fuel oil IFO 180", category:"fuel", ref_temp_c:50, density_kg_m3:980, visc_cst:180, visc2_cst:40, visc2_temp_c:100, vapour_kpa_abs:0.1, flash_point_c:60, hw_valid:false, default_pipe:"STEEL", source:"ISO 8217 RME/RMG 180"},
+  {code:"LPG_LIQ", name:"LPG liquid (propane)", category:"fuel", ref_temp_c:20, density_kg_m3:500, visc_cst:0.2, vapour_kpa_abs:836, flash_point_c:-104, hw_valid:false, default_pipe:"STEEL", source:"NFPA 58 / supplier data"},
+  {code:"EG30", name:"Ethylene glycol 30 % (by mass)", category:"glycol", ref_temp_c:20, density_kg_m3:1040, visc_cst:2.5, visc2_cst:1.4, visc2_temp_c:40, vapour_kpa_abs:2.1, hw_valid:false, source:"ASHRAE Handbook (typical)"},
+  {code:"PG30", name:"Propylene glycol 30 % (by mass)", category:"glycol", ref_temp_c:20, density_kg_m3:1030, visc_cst:3.5, visc2_cst:1.9, visc2_temp_c:40, vapour_kpa_abs:2.1, hw_valid:false, source:"ASHRAE Handbook (typical)"},
+];
+let FLUIDS = DEFAULT_FLUIDS, FLUIDS_SRC = "defaults";
+const FLUID_CAT = {water:"Water", fuel:"Fuels", glycol:"Glycol mixtures", other:"Other"};
+// kinematic viscosity (cSt) at temperature T: log-linear between the two table points; one point = held constant
+function fluidNuAt(f, T) {
+  const T1 = Number(f.ref_temp_c), n1 = Number(f.visc_cst), T2 = Number(f.visc2_temp_c), n2 = Number(f.visc2_cst);
+  if (!Number.isFinite(T) || !(n2 > 0) || !Number.isFinite(T2) || T2 === T1) return {nu:n1, how:Number.isFinite(T) && T !== T1 ? "held at the table value (one point only)" : "table value"};
+  const ln = Math.log(n1) + (Math.log(n2) - Math.log(n1))*(T - T1)/(T2 - T1), lo = Math.min(T1, T2), hi = Math.max(T1, T2);
+  return {nu:Math.exp(ln), how:T === T1 ? "table value" : T >= lo && T <= hi ? `interpolated between ${T1} °C and ${T2} °C` : `extrapolated from ${T1} °C and ${T2} °C — check`};
+}
+// the fluid basis of a pump calculation
+function fluidOf(p) {
+  const code = p && p.fluid ? String(p.fluid) : "";
+  if (!code) return {legacy:true, code:"", name:"Water — standard basis", short:"Water", cat:"water", rho:1000, nuCst:1.004, nu:1.004e-6, T:20, hw:true, pv:2.34, src:"Standard water basis (1000 kg/m³, 1.004 cSt)", nuHow:"standard", manualRho:false, manualNu:false};
+  const f = FLUIDS.find(x => x.code === code) || DEFAULT_FLUIDS.find(x => x.code === code);
+  if (!f) return {missing:true, code, name:code};
+  const T = p.fluidTemp === "" || p.fluidTemp == null || !Number.isFinite(Number(p.fluidTemp)) ? Number(f.ref_temp_c) : Number(p.fluidTemp);
+  const at = fluidNuAt(f, T), manualRho = Number(p.fluidRho) > 0, manualNu = Number(p.fluidNu) > 0;
+  const rho = manualRho ? Number(p.fluidRho) : Number(f.density_kg_m3), nuCst = manualNu ? Number(p.fluidNu) : at.nu;
+  return {legacy:false, code, name:f.name, short:f.name.split(" (")[0], cat:f.category || "other", rho, nuCst, nu:nuCst*1e-6, T, refT:Number(f.ref_temp_c), hw:!!f.hw_valid, pv:Number(f.vapour_kpa_abs),
+    flash:f.flash_point_c, src:f.source || "", note:f.notes || "", defaultPipe:f.default_pipe || "", nuHow:manualNu ? "entered" : at.how, manualRho, manualNu,
+    rhoNote:manualRho ? "entered" : (T !== Number(f.ref_temp_c) ? `table value at ${f.ref_temp_c} °C` : "table value")};
+}
 // Hazen-Williams friction loss (m)
 function hwLoss(Q_m3s, D_m, L, C) {
   return 10.7*Math.pow(Q_m3s/C,1.852)*L/Math.pow(D_m,4.87);
 }
 // Darcy-Weisbach friction loss (m) with Swamee-Jain friction factor
-function dwLoss(Q_m3s, D_m, L, roughness_mm) {
+function dwLoss(Q_m3s, D_m, L, roughness_mm, nuIn) {
   const A = Math.PI/4*D_m*D_m;
   const v = Q_m3s/A;
-  const nu = 1.004e-6; // kinematic viscosity of water @ 20°C, m²/s
+  const nu = nuIn > 0 ? nuIn : 1.004e-6; // kinematic viscosity, m²/s (water @ 20°C unless the fluid gives another)
   const Re = (v*D_m)/nu;
   const eps = roughness_mm/1000;
   let f;
@@ -1634,12 +1683,12 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
 };
 
 // Equipment groups, used by the Add menu and the schedule filter.
 const TYPE_GROUPS = [
-  {label:"Pumps",        types:["rcp","ffp","tp","hex","booster","irrigation","custom"]},
+  {label:"Pumps",        types:["rcp","ffp","tp","fuel","hex","booster","irrigation","custom"]},
   {label:"Drainage",     types:["sewage","sump"]},
   {label:"Water Supply", types:["water"]},
   {label:"Interceptors", types:["grease"]},
@@ -1791,7 +1840,7 @@ function computeFlow(p) {
 function headLossFor(Q_m3s, D_m, L, p, matKey) {
   const mat = matOf(matKey);
   if (p.headLossMethod==="DW") {
-    const r = dwLoss(Q_m3s, D_m, L, Number(p.roughness)||mat.roughness);
+    const r = dwLoss(Q_m3s, D_m, L, Number(p.roughness)||mat.roughness, fluidOf(p).nu);
     return { hf:r.hf, method:"Darcy-Weisbach", detail:`f=${r.f.toFixed(4)}, Re=${r.Re.toFixed(0)}`, v:r.v };
   }
   const C = Number(p.hwCoeff)||mat.hwC;
@@ -1904,6 +1953,14 @@ function calculate(p) {
   const mat = matKey ? PIPE_MATERIALS[matKey] : null;
   if (!mat) return calcError([`Pipe schedule "${p.pipeType||'—'}" is not in Reference Data. Select a pipe material and class.`]);
   if (!mat.table || !mat.table.length) return calcError([`Pipe schedule "${mat.label||matKey}" has no sizes in Reference Data.`]);
+  // v1.70 fluid basis — Hazen-Williams is valid for water only, so any other fluid is calculated by Darcy-Weisbach
+  const fl = fluidOf(p);
+  if (fl.missing) return calcError([`Fluid "${fl.code}" is not in Reference Data (ref_fluids). Pick another fluid or add it.`]);
+  if (!(fl.rho >= 300 && fl.rho <= 2000)) return calcError([`Fluid density ${fl.rho} kg/m³ is outside 300–2000 kg/m³.`]);
+  if (!(fl.nuCst > 0.05 && fl.nuCst <= 5000)) return calcError([`Fluid viscosity ${+fl.nuCst.toFixed(3)} cSt is outside 0.05–5000 cSt.`]);
+  const hwForced = !fl.hw && p.headLossMethod !== "DW";
+  if (hwForced) p = {...p, headLossMethod:"DW"};
+  const RG = fl.rho*9.81;      // Pa per metre of fluid head
   let totalFlowLs, steps;
   try { ({ totalFlowLs, steps } = computeFlow(p)); }
   catch (e) { return calcError([e.message || 'The selected demand reference could not be evaluated.']); }
@@ -1954,7 +2011,7 @@ function calculate(p) {
   const maxLoss = Number(p.maxLossPaM);                 // Pa/m
   const Q_sizing = (sizingBasis==="peak" ? flowTotal : designFlow)/1000;
   const reqDi = useV ? Math.sqrt((4*Q_sizing)/(Math.PI*maxV))*1000 : null;
-  const gradOf = (D_mm, Qm3s) => headLossFor(Qm3s, D_mm/1000, 1, p, matKey).hf * PA_PER_M;   // Pa/m
+  const gradOf = (D_mm, Qm3s) => headLossFor(Qm3s, D_mm/1000, 1, p, matKey).hf * RG;   // Pa/m
   // Walk the approved schedule (sorted by ID) and take the first size that
   // meets every active limit. Note which limit actually pushed the size up.
   const sched = (mat.table||[]).slice().sort((x,y)=>x.id-y.id);
@@ -1994,7 +2051,7 @@ function calculate(p) {
     {label:"Max Allowable Velocity",                                                          value:`${maxV} m/s`},
     {label:"Required Internal Diameter  [Di = √(4Q / π·v)]",                                value:`${reqDi.toFixed(1)} mm`},
   );
-  if (useP) steps.push({label:"Max Allowable Friction Loss",                               value:`${maxLoss} Pa/m  (${(maxLoss/PA_PER_M*100).toFixed(2)} m/100 m)`});
+  if (useP) steps.push({label:"Max Allowable Friction Loss",                               value:`${maxLoss} Pa/m  (${(maxLoss/RG*100).toFixed(2)} m/100 m)`});
   steps.push(
     {label:`Selected Pipe  (OD × wall × ID)`,                                                 value:`${pipe.od} mm OD${pipe.wall!==undefined?` × ${pipe.wall} mm wall`:""} × ${pipe.id} mm ID`},
     {label:"Size Governed By",                                                                value:governs},
@@ -2007,7 +2064,7 @@ function calculate(p) {
   } else {
     steps.push({label:"Actual Flow Velocity",                                                  value:`${velDesign.toFixed(2)} m/s`, flag:useV?(v2(velDesign)>maxV?"warn":"ok"):undefined});
   }
-  steps.push({label:"Friction Gradient at Design Flow  [i = hf / L]",                       value:`${gradDesign.toFixed(0)} Pa/m  (${(gradDesign/PA_PER_M*100).toFixed(2)} m/100 m)`, flag:useP?(gradOk?"ok":"warn"):undefined});
+  steps.push({label:"Friction Gradient at Design Flow  [i = hf / L]",                       value:`${gradDesign.toFixed(0)} Pa/m  (${(gradDesign/RG*100).toFixed(2)} m/100 m)`, flag:useP?(gradOk?"ok":"warn"):undefined});
   if (minV>0) steps.push({label:"Min Self-Cleansing Velocity",  value:`${minV} m/s`, flag:velPeak<minV?"warn":"ok"});
 
   // Head loss
@@ -2016,6 +2073,12 @@ function calculate(p) {
   const hlResult = headLossFor(Q_hf, D_m, L, p, matKey);
   const hf = hlResult.hf;
   const hf_fit=hf*fitPc/100;
+  if (!fl.legacy) steps.push(
+    {s:"Fluid", label:"Fluid",                                                                 value:fl.name},
+    {label:`Density  (${fl.rhoNote})`,                                                         value:`${+fl.rho.toFixed(1)} kg/m³`},
+    {label:`Kinematic Viscosity at ${fl.T} °C  (${fl.nuHow})`,                                   value:`${+fl.nuCst.toFixed(3)} cSt`},
+    ...(hwForced ? [{label:"Friction method", value:"Darcy-Weisbach — Hazen-Williams is valid for water only", flag:"warn"}] : []),
+  );
   steps.push(
     {s:"Head Loss", label:"Method",                                                             value:`${hlResult.method}  (${hlResult.detail})`},
     {label:"Pipe Run Length",                                                                    value:`${L} m`},
@@ -2043,13 +2106,13 @@ function calculate(p) {
   // Power
   const Q_pwr=flowLsPerPump/1000;
   const motorMarginPct=0;   // v1.47: no motor margin on pumps — the motor is the first standard rating at or above the shaft power
-  const pwrShaft=(Q_pwr*9.81*totalH)/pumpE;          // pump shaft (brake) power
+  const pwrShaft=(Q_pwr*9.81*totalH)*(fl.rho/1000)/pumpE;   // pump shaft (brake) power — ρ g Q H / ηp (ρ = 1000 on the standard water basis)
   const pwrReq=pwrShaft*(1+motorMarginPct/100);      // motor output rating required
   const pwrInput=pwrShaft/motE;                      // electrical input at duty point
   const pwrSel=selectMotor(pwrReq);
   if (!pwrSel) return calcError([`Required motor rating ${pwrReq.toFixed(3)} kW exceeds the approved standard motor schedule. Add an approved motor rating or revise the design.`]);
   steps.push(
-    {s:"Motor Power", label:`Shaft Power  [Ps = Q × 9.81 × H / ηp, ηp = ${(pumpE*100).toFixed(0)}%]`, value:`${pwrShaft.toFixed(3)} kW`},
+    {s:"Motor Power", label:fl.legacy ? `Shaft Power  [Ps = Q × 9.81 × H / ηp, ηp = ${(pumpE*100).toFixed(0)}%]` : `Shaft Power  [Ps = ρ/1000 × Q × 9.81 × H / ηp, ρ = ${+fl.rho.toFixed(1)}, ηp = ${(pumpE*100).toFixed(0)}%]`, value:`${pwrShaft.toFixed(3)} kW`},
     {label:`Required Motor Rating  [= shaft power]`,          value:`${pwrReq.toFixed(3)} kW`},
     {label:"Selected Standard Motor",                                            value:`${pwrSel} kW`, hl:true},
     {label:`Electrical Input  [Ps / ηm, ηm = ${(motE*100).toFixed(0)}%]`,       value:`${pwrInput.toFixed(3)} kW`},
@@ -2066,7 +2129,7 @@ function calculate(p) {
     return { pct:Math.round(fr*100), flow:Qd*1000, v:vD, head:Htotal, velOk: (!useV||v2(vD)<=maxV) && (minV<=0||vD>=minV) };
   });
 
-  return {valid:true, hsPct, flowLsPerPump, flowTotal, designFlow, reqDi, pipe, vel, velPeak, velDesign, sizingBasis, safetyPct,
+  return {valid:true, fluid:fl, hwForced, pumpIn:hwForced ? p : undefined, hsPct, flowLsPerPump, flowTotal, designFlow, reqDi, pipe, vel, velPeak, velDesign, sizingBasis, safetyPct,
     crit, maxLoss, gradDesign, gradOk, governs,
     hf, hf_fit, totalH, pwrShaft, pwrReq, pwrInput, motorMarginPct, pwrSel, dutyPoints, matKey,
     set, sharePct, config: configStr(set.duty, set.standby, set.assist),
@@ -2090,6 +2153,9 @@ const DEFS = {
   irrigation: {type:"irrigation", name:"Irrigation Pump",         tag:"IRR-P",   pipeType:"UPVC", headLossMethod:"HW", pipeSizingBasis:"design", flowMode:"area", irrigatedArea:1000, applicationRate:6, directFlow:2.0, safetyPct:10, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full",   maxVelocity:1.5, maxLossPaM:300, minVelocity:0, hwCoeff:150, staticHead:5, residualPressure:15, pipeRun:150, fittingsPct:40, pumpEff:0.65, motorEff:0.88, motorMarginPct:15},
   custom:     {type:"custom",     name:"Custom Pump",             tag:"CP",      pipeType:"PPR",  headLossMethod:"HW", pipeSizingBasis:"design", customInputs:[{key:"V",label:"Tank volume",value:20,unit:"m³"},{key:"t",label:"Operating time",value:2,unit:"h"}], flowFormula:"V * 1000 / (t * 3600)", flowUnit:"L/s", customHeads:[{label:"Equipment ΔP",value:0}], safetyPct:0, configPreset:"1D1S", numDuty:1, numStandby:1, sharingMode:"full", maxVelocity:2, maxLossPaM:300, minVelocity:0, hwCoeff:150, staticHead:5, residualPressure:10, pipeRun:30, fittingsPct:50, pumpEff:0.7, motorEff:0.88, motorMarginPct:15},
 };
+// v1.70: a Fuel Transfer pump is a Transfer pump with a fuel selected — same flow method (volume ÷ time), Darcy-Weisbach, steel pipe
+DEFS.fuel = {...DEFS.tp, type:"tp", name:"Fuel Transfer Pump", tag:"FTP", fluid:"DIESEL", fluidTemp:"", fluidRho:"", fluidNu:"", headLossMethod:"DW", pipeType:"STEEL",
+  tankCapacity:5, operatingTime:1, maxVelocity:1.5, staticHead:10, residualPressure:5, pipeRun:60, fittingsPct:50, pumpEff:0.6, motorEff:0.85};
 // ══════════════════════════════════════════════════════════════════════════
 // SUMP / DRAINAGE PIT  — pit sizing, operating levels, pump selection
 // Pump type "sump". Re-uses the common reference data (pipe materials, motor
@@ -5143,6 +5209,7 @@ function clPipeHead(B, p, res, o) {
   const sump = !!o.sump, mat = matOf(res.matKey);
   const useV = res.crit !== "pressure", useP = res.crit !== "velocity", isDW = p.headLossMethod === "DW";
   const Cval = Number(p.hwCoeff) || mat.hwC, eps = Number(p.roughness) || mat.roughness;
+  const fl = res.fluid || fluidOf(p), NUX = fl.legacy ? "1.004E-6" : "{nu}/1000000", RGX = fl.legacy ? "9810" : "{rho}*9.81";
   const sched = mat.table.slice().sort((a,b) => a.id - b.id);
   const Qh = o.QhVal, D = res.pipe.id/1000, Lrun = num(p.pipeRun,0);
   B.align("r");
@@ -5155,27 +5222,33 @@ function clPipeHead(B, p, res, o) {
   const pos = sump ? "IF(ISNUMBER({pOvr}),MATCH({pOvr},{@pipe.OD},0),MATCH(1,{@pipe.OK},0))" : "MATCH(1,{@pipe.OK},0)";
   B.calc("OD", `Selected Pipe Size (OD) — ${mat.label}`, res.pipe.od, `INDEX({@pipe.OD},${pos})`, {unit:"mm", dp:1, key:true});
   B.calc("ID", "Internal Diameter of Selected Pipe", res.pipe.id, `INDEX({@pipe.ID},${pos})`, {unit:"mm", dp:2});
-  B.tables.pipe = {sched, isDW, useV, useP, label: mat.label, C: Cval, eps};
+  B.tables.pipe = {sched, isDW, useV, useP, label: mat.label, C: Cval, eps, legacy:fl.legacy, nuCst:fl.nuCst, rho:fl.rho};
   B.gap();
   B.section(sump ? "Pumped Main Pipe Pressure Loss" : "4. Pumped Main Pipe Pressure Loss");
   B.text(isDW ? "Darcy-Weisbach formula for friction loss: hf = f x (L / D) x (v^2 / 2g), f by Swamee-Jain" : "Hazen-Williams formula for friction loss: hf = 10.7 x (Q / C)^1.852 x L / D^4.87", {cls:"fx"});
   B.align("l");
+  if (!fl.legacy) {
+    B.inp("fluidN", "Fluid pumped", fl.name, {});
+    B.inp("rho", `Density of fluid (${fl.rhoNote})`, +fl.rho.toFixed(1), {unit:"kg/m³", dp:1, bold:true});
+    B.inp("nu", `Kinematic viscosity at ${fl.T} °C (${fl.nuHow})`, +fl.nuCst.toFixed(4), {unit:"cSt", dp:3, bold:true});
+    if (res.hwForced) B.text("Hazen-Williams is valid for water only — Darcy-Weisbach is used for this fluid.", {italic:true});
+  }
   B.calc("Qh", "Flow Rate (Q)", Qh, o.QhXl, {unit:"m³/s", dp:4});
   B.calc("Di", "Internal Diameter of Selected Pipe (Di)", res.pipe.id, "{ID}", {unit:"mm", dp:2});
   let hfXl, gradXl;
-  const dw = isDW ? dwLoss(Qh, D, Lrun, eps) : null;
+  const dw = isDW ? dwLoss(Qh, D, Lrun, eps, fl.nu) : null;
   if (!isDW) {
     B.inp("C", "Hazen-Williams Coefficient (C)", Cval, {dp:0});
     B.calc("v", "Flow Velocity", res.vel, "{Qh}/(PI()/4*({Di}/1000)^2)", {unit:"m/s", dp:2});
     hfXl = "10.7*({Qh}/{C})^1.852*{L}/({Di}/1000)^4.87";
-    gradXl = "10.7*({Qh}/{C})^1.852/({Di}/1000)^4.87*9810";
+    gradXl = "10.7*({Qh}/{C})^1.852/({Di}/1000)^4.87*" + RGX;
   } else {
     B.inp("eps", "Pipe roughness (e)", eps, {unit:"mm", dp:3});
     B.calc("v", "Flow Velocity", dw.v, "{Qh}/(PI()/4*({Di}/1000)^2)", {unit:"m/s", dp:2});
-    B.calc("Re", "Reynolds number", dw.Re, "{v}*({Di}/1000)/1.004E-6", {dp:0});
+    B.calc("Re", "Reynolds number", dw.Re, "{v}*({Di}/1000)/(" + NUX + ")", {dp:0});
     B.calc("f", "Friction factor (f)", dw.f, "IF({Re}<2300,64/{Re},0.25/LOG10({eps}/1000/(3.7*{Di}/1000)+5.74/{Re}^0.9)^2)", {dp:4});
     hfXl = "{f}*({L}/({Di}/1000))*({v}^2/(2*9.81))";
-    gradXl = "{f}*(1/({Di}/1000))*({v}^2/(2*9.81))*9810";
+    gradXl = "{f}*(1/({Di}/1000))*({v}^2/(2*9.81))*" + RGX;
   }
   B.calc("grad", "Friction gradient at design flow", res.gradDesign, gradXl, {unit:"Pa/m", dp:0});
   o.statics(B);
@@ -5190,8 +5263,8 @@ function clPipeHead(B, p, res, o) {
   B.inp("hs", o.hsLabel, o.hsVal, {unit:"%", dp:0});
   const hRound = o.round;       // 1 m for the standard pump types, 0.1 m for sumps
   B.calc("H", "Total pump head (including factor of safety " + o.hsVal + "%)", res.totalH, `CEILING({sum}*(1+{hs}/100)-1E-10,${hRound})`, {unit:"m", dp: hRound < 1 ? 1 : 0, key:true, bold:true});
-  const bar = ceilTenth(+(res.totalH*0.0980665).toFixed(6));
-  B.calc("Hbar", "Total Pump Head (bar)", bar, "CEILING(ROUND({H}*0.0980665,6),0.1)", {unit:"bar", dp:1});
+  const bar = ceilTenth(+(res.totalH*0.0980665*fl.rho/1000).toFixed(6));
+  B.calc("Hbar", "Total Pump Head (bar)", bar, fl.legacy ? "CEILING(ROUND({H}*0.0980665,6),0.1)" : "CEILING(ROUND({H}*0.0980665*{rho}/1000,6),0.1)", {unit:"bar", dp:1});
   B.gap();
   B.section(sump ? "Electrical Power Load of Each Pump" : "5. Electrical Power Load of Each Pump");
   B.align("l");
@@ -5200,7 +5273,7 @@ function clPipeHead(B, p, res, o) {
   B.calc("Hp", "Head of the pump", res.totalH, "{H}", {unit:"m", dp: hRound < 1 ? 1 : 0});
   const pumpE = Number(p.pumpEff), motE = Number(p.motorEff);
   B.inp("ep", "Efficiency of pump", pumpE, {pct:true, bold:true});
-  B.calc("Ps", "Pump shaft power", res.pwrShaft, "{g}*{Qp}*{Hp}/{ep}", {unit:"kW", dp:2});
+  B.calc("Ps", "Pump shaft power", res.pwrShaft, fl.legacy ? "{g}*{Qp}*{Hp}/{ep}" : "{rho}/1000*{g}*{Qp}*{Hp}/{ep}", {unit:"kW", dp:2});
   if (sump) { B.inp("mm", "Motor margin over shaft power", res.motorMarginPct, {unit:"%", dp:0});
     B.calc("Pm", "Required motor rating for each pump", res.pwrReq, "{Ps}*(1+{mm}/100)", {unit:"kW", dp:2, bold:true}); }
   else B.calc("Pm", "Required motor rating (= shaft power)", res.pwrReq, "{Ps}", {unit:"kW", dp:2, bold:true});
@@ -5987,6 +6060,7 @@ function clBuildDoc(proj, pump, meta, stageName, opts) {
   const res = safeCalculate(pump);
   const title = String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
+  if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
   if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
@@ -6206,14 +6280,15 @@ async function clWriteSheet(wb, ws, doc, proj) {
       const rr = T0 + i, ctx = {r:rr, cols:tr.pipe.cols}, D = s.id/1000;
       const v = Qsz/(Math.PI/4*D*D);
       let Re = null, f = null, grad;
-      if (t.isDW) { Re = v*D/1.004e-6; f = Re < 2300 ? 64/Re : 0.25/Math.pow(Math.log10(t.eps/1000/(3.7*D) + 5.74/Math.pow(Re, 0.9)), 2); grad = f*(1/D)*(v*v/(2*9.81))*9810; }
-      else grad = 10.7*Math.pow(Qsz/t.C, 1.852)/Math.pow(D, 4.87)*9810;
+      const nuT = t.legacy ? 1.004e-6 : t.nuCst*1e-6, rgT = t.legacy ? 9810 : t.rho*9.81, NUT = t.legacy ? "1.004E-6" : "{nu}/1000000", RGT = t.legacy ? "9810" : "{rho}*9.81";
+      if (t.isDW) { Re = v*D/nuT; f = Re < 2300 ? 64/Re : 0.25/Math.pow(Math.log10(t.eps/1000/(3.7*D) + 5.74/Math.pow(Re, 0.9)), 2); grad = f*(1/D)*(v*v/(2*9.81))*rgT; }
+      else grad = 10.7*Math.pow(Qsz/t.C, 1.852)/Math.pow(D, 4.87)*rgT;
       const ok = ((!t.useV) || Math.round(v*100)/100 <= maxV) && ((!t.useP) || grad <= maxL) ? 1 : 0;
       num$(rr, "K", s.od); num$(rr, "L", s.wall === undefined ? null : s.wall); num$(rr, "M", s.id);
       const fc = (col, xl, val, fmt) => { const c = ws.getCell(`${col}${rr}`); setFormula(c, xl, val, ctx); c.font = F({size:9}); if (fmt) c.numFmt = fmt; };
       fc("N", "{Qsz}/(PI()/4*({#ID}/1000)^2)", v, "0.00");
-      if (t.isDW) { fc("O", "{#V}*({#ID}/1000)/1.004E-6", Re, "0"); fc("P", "IF({#RE}<2300,64/{#RE},0.25/LOG10({eps}/1000/(3.7*{#ID}/1000)+5.74/{#RE}^0.9)^2)", f, "0.0000"); fc("Q", "{#F}*(1/({#ID}/1000))*({#V}^2/(2*9.81))*9810", grad, "0"); }
-      else fc("Q", "10.7*({Qsz}/{C})^1.852/({#ID}/1000)^4.87*9810", grad, "0");
+      if (t.isDW) { fc("O", "{#V}*({#ID}/1000)/(" + NUT + ")", Re, "0"); fc("P", "IF({#RE}<2300,64/{#RE},0.25/LOG10({eps}/1000/(3.7*{#ID}/1000)+5.74/{#RE}^0.9)^2)", f, "0.0000"); fc("Q", "{#F}*(1/({#ID}/1000))*({#V}^2/(2*9.81))*" + RGT, grad, "0"); }
+      else fc("Q", "10.7*({Qsz}/{C})^1.852/({#ID}/1000)^4.87*" + RGT, grad, "0");
       fc("R", `IF(AND(${t.useV ? "ROUND({#V},2)<={maxV}" : "TRUE"},${t.useP ? "{#GRAD}<={maxL}" : "TRUE"}),1,0)`, ok, "0");
     });
   }
@@ -6922,7 +6997,13 @@ function PumpForm({pump, onChange}) {
   if (pump.type==="custom") {
     flowFields = <><div style={{gridColumn:"1/-1"}}><CustomFlowEditor pump={pump} onPatch={uu}/></div>{sf}</>;
   }
-  const isDW = pump.headLossMethod==="DW";
+  const fl = fluidOf(pump), isDW = pump.headLossMethod==="DW" || (!fl.legacy && !fl.missing && !fl.hw);
+  const pickFluid = code => { const f = FLUIDS.find(x => x.code === code); const o = {fluid:code, fluidRho:"", fluidNu:"", fluidTemp:""};
+    if (f && !f.hw_valid) o.headLossMethod = "DW";
+    if (f && f.default_pipe && pump.pipeType !== f.default_pipe && PIPE_MATERIALS[f.default_pipe] && !(f.category === (fluidOf(pump).cat))) o.pipeType = f.default_pipe;
+    uu(o); };
+  const fluidOpts = [{value:"", label:"Water — standard basis (1000 kg/m³)"}, ...Object.keys(FLUID_CAT).flatMap(c => FLUIDS.filter(f => (f.category || "other") === c).map(f => ({value:f.code, label:`${FLUID_CAT[c]} · ${f.name}`}))),
+    ...(fl.missing ? [{value:fl.code, label:`⚠ ${fl.code} — not in Reference Data`}] : [])];
   return (
     <div className="pf">
       {/* Identity */}
@@ -6971,6 +7052,14 @@ function PumpForm({pump, onChange}) {
           <span className="pf-h-ctl"><Seg value={sizingCriterionOf(pump)} onChange={v=>uu({sizingCriterion:v, ...(v!=='velocity'&&!(Number(pump.maxLossPaM)>0)?{maxLossPaM:300}:{})})}
             options={[{value:"velocity",label:"Velocity",title:"Size on maximum velocity"},{value:"pressure",label:"Δp",title:"Size on maximum friction loss (Pa/m)"},{value:"both",label:"Both",title:"Both limits — the stricter governs"}]} /></span></h5>
         <div className="pf-row pf-grid">
+          <S label="Fluid" value={pump.fluid || ""} onChange={pickFluid} options={fluidOpts} />
+          {!fl.legacy && !fl.missing && <>
+            <N label="Fluid temperature" unit="°C" value={pump.fluidTemp ?? ""} onChange={v=>u("fluidTemp",v)} req={false} min={-50} max={200} hint={`Blank = ${fl.refT} °C (table). Viscosity follows the temperature`} />
+            <div className="pf-f"><label title="Blank = from Reference Data">Density {fl.manualRho ? <b style={{color:"#b45309"}}>· manual</b> : <span style={{color:"#1559a6"}}>· {+fl.rho.toFixed(1)}</span>}</label>
+              <div className="pf-in"><input type="number" inputMode="decimal" value={pump.fluidRho ?? ""} placeholder={String(+fl.rho.toFixed(1))} onChange={e=>u("fluidRho",e.target.value)} onWheel={e=>e.currentTarget.blur()} /><span>kg/m³</span></div></div>
+            <div className="pf-f"><label title={`Blank = from Reference Data, ${fl.nuHow}`}>Viscosity {fl.manualNu ? <b style={{color:"#b45309"}}>· manual</b> : <span style={{color:"#1559a6"}}>· {+fl.nuCst.toFixed(3)}</span>}</label>
+              <div className="pf-in"><input type="number" inputMode="decimal" value={pump.fluidNu ?? ""} placeholder={String(+fl.nuCst.toFixed(3))} onChange={e=>u("fluidNu",e.target.value)} onWheel={e=>e.currentTarget.blur()} /><span>cSt</span></div></div>
+          </>}
           <S label="Material" value={curFam} onChange={pickFamily} options={(curFam?[]:[{value:"",label:`⚠ ${pump.pipeType||"—"} — not in Reference Data`}]).concat(families.map(f=>({value:f,label:f})))} />
           <S label="SDR / class" value={matKey} onChange={v=>u("pipeType",v)} options={classes.length?classes.map(([k,m])=>({value:k,label:m.sdrClass||m.label||k})):[{value:"",label:"Select material first"}]} />
           {sizingCriterionOf(pump)!=='pressure' && <N label="Max velocity" unit="m/s" value={pump.maxVelocity} onChange={v=>u("maxVelocity",v)} min={0.1} max={5} />}
@@ -6997,14 +7086,16 @@ function PumpForm({pump, onChange}) {
       <details className="pf-adv">
         <summary>Advanced <em>{isDW?`Darcy ε ${pump.roughness ?? mat.roughness} mm`:`H-W C ${pump.hwCoeff||mat.hwC}`} · ηp {pump.pumpEff} · ηm {pump.motorEff} · pipe on {(pump.pipeSizingBasis||"design")==="design"?"design":"peak"} flow{Number(pump.minVelocity)>0?` · min v ${pump.minVelocity}`:""}</em></summary>
         <div className="pf-row pf-grid">
-          <Seg label="Friction" value={isDW?"DW":"HW"} onChange={v=>u("headLossMethod",v)} options={[{value:"HW",label:"Hazen-Williams"},{value:"DW",label:"Darcy"}]} />
+          {(!fl.legacy && !fl.missing && !fl.hw)
+            ? <div className="pf-f"><label>Friction</label><div className="pf-note" style={{fontSize:11,color:"#6e6e73",paddingTop:6}}>Darcy-Weisbach — Hazen-Williams is for water only</div></div>
+            : <Seg label="Friction" value={isDW?"DW":"HW"} onChange={v=>u("headLossMethod",v)} options={[{value:"HW",label:"Hazen-Williams"},{value:"DW",label:"Darcy"}]} />}
           {isDW
             ? <N label="Roughness ε" unit="mm" value={pump.roughness ?? mat.roughness} onChange={v=>u("roughness",v)} step={0.001} hint={`Default ${mat.roughness} mm`} />
             : <N label="H-W C" value={pump.hwCoeff ?? mat.hwC} onChange={v=>u("hwCoeff",v)} min={60} max={160} hint={`Default ${mat.hwC}`} />}
           <Seg label="Size pipe on" value={pump.pipeSizingBasis||"design"} onChange={v=>u("pipeSizingBasis",v)} options={[{value:"design",label:"Design"},{value:"peak",label:"Peak"}]} />
           <N label="Min velocity" unit="m/s" value={pump.minVelocity} onChange={v=>u("minVelocity",v)} req={false} hint="0 = off" />
           <N label="Motor efficiency" value={pump.motorEff} onChange={v=>u("motorEff",v)} min={0.1} max={1} step={0.01} hint="Electrical input only — IE3 ≈ 0.88–0.92" />
-          <N label="Pump efficiency" value={pump.pumpEff} onChange={v=>u("pumpEff",v)} min={0.1} max={1} step={0.01} hint="0.10–1.00 · shaft power = Q × 9.81 × H ÷ pump efficiency" />
+          <N label="Pump efficiency" value={pump.pumpEff} onChange={v=>u("pumpEff",v)} min={0.1} max={1} step={0.01} hint={fl.legacy ? "0.10–1.00 · shaft power = Q × 9.81 × H ÷ pump efficiency" : "0.10–1.00 · shaft power = ρ/1000 × Q × 9.81 × H ÷ pump efficiency"} />
           <N label="Head safety factor" unit="%" value={pump.headSafetyPct ?? 10} onChange={v=>u("headSafetyPct",v)} max={100} req={false} hint="Added to the total head before it is rounded up. Default 10 %" />
         </div>
       </details>
@@ -7202,8 +7293,10 @@ function defaultDesignBasis(p) {
   if (p && p.type === 'water') return wsIsGas(p) ? gasDesignBasis(p) : waterDesignBasis(p);
   const system = (p && (p.name || typeLbl(p))) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
-  const method = p?.headLossMethod==='DW' ? 'Darcy-Weisbach method is used for friction-loss calculation.' : 'Hazen-Williams method is used for friction-loss calculation.';
-  return [`${system} is assessed using the current coordinated project information and design inputs.`, method, flow, 'Pipe and motor selections use the approved in-application reference schedules.'];
+  const fl = p ? fluidOf(p) : {legacy:true};
+  const method = p?.headLossMethod==='DW' || (!fl.legacy && !fl.missing && !fl.hw) ? 'Darcy-Weisbach method is used for friction-loss calculation.' : 'Hazen-Williams method is used for friction-loss calculation.';
+  const fluidTxt = !fl.legacy && !fl.missing ? [`The pumped fluid is ${fl.name}; density ${+fl.rho.toFixed(1)} kg/m³ and kinematic viscosity ${+fl.nuCst.toFixed(3)} cSt at ${fl.T} °C are taken from the approved fluid reference data${fl.manualRho || fl.manualNu ? ", with the values entered by the designer where noted" : ""}. Heads are in metres of the fluid pumped.`] : [];
+  return [`${system} is assessed using the current coordinated project information and design inputs.`, ...fluidTxt, method, flow, 'Pipe and motor selections use the approved in-application reference schedules.'];
 }
 function basisOf(proj, meta, p) {
   const stageBasis = Array.isArray(meta?.designBasis) ? meta.designBasis.filter(Boolean) : [];
@@ -10979,7 +11072,7 @@ function Chip({k, children}) { return <span className={`status-chip ${k}`}>{chil
 // Stored in engineer_roles (engineer / lead / associate / viewer), shared with the Equipment Calculator.
 // ══════════════════════════════════════════════════════════════════════════
 const TA_LEVELS = [
-  ['engineer', 'Engineer', 'Writes the specification', ['engineer']],
+  ['engineer', 'Engineer', 'Prepares the document', ['engineer']],
   ['checker', 'Checker', 'Senior / Principal / Lead · first sign-off', ['engineer', 'lead']],
   ['approver', 'Approver', 'Associate · final approval', ['engineer', 'associate']],
   ['none', 'View only', 'No sign-off', ['viewer']],
@@ -11057,7 +11150,7 @@ function TeamAccess({session, me, team, roles, reload, onBack}) {
           <button type="button" onClick={() => setTab('team')} style={tabBtn(tab === 'team')}>Team members</button></div></div></div>
       <div style={{display:'flex', alignItems:'center', gap:8, flexWrap:'wrap', marginBottom:14, padding:'10px 14px', background:'#fff', border:'1px solid #e1e1e6', borderRadius:12, fontSize:12}}>
         <b style={{marginRight:4}}>Sign-off route:</b>
-        <span className="pl-tag sh">1 · Engineer writes</span><span>→</span>
+        <span className="pl-tag sh">1 · Engineer prepares</span><span>→</span>
         <span className="pl-tag wait">2 · Checker signs (Senior / Principal / Lead)</span><span>→</span>
         <span className="pl-tag ok">3 · Approver signs and closes (Associate)</span>
         <span style={{color:'#86868b', fontSize:11}}>· three different people · Admin is separate and only manages reference data, the library, vendors and this page</span>
@@ -11111,7 +11204,7 @@ function TeamAccess({session, me, team, roles, reload, onBack}) {
               : <button className="schedule-action" onClick={() => setEdit(s => ({...s, [t.id]:{name:t.name || '', initials:t.initials || '', desig:t.desig || ''}}))}>Edit</button>}</td>
           </tr>; })}
           {!shown.length && <tr><td colSpan={8} className="empty-schedule">No members match.</td></tr>}</tbody></table></div>
-        <div className="lib-foot">Levels apply to both apps. Checkers and Approvers can also write specifications. The same person can never prepare, check and approve one stage — the database blocks it. Project access is given per project on Setup › Project review access.</div>
+        <div className="lib-foot">Levels apply to both apps. Checkers and Approvers can also prepare documents. The same person can never prepare, check and approve one stage — the database blocks it. Project access is given per project on Setup › Project review access.</div>
       </div>}
     </main>
   </div>;
@@ -12216,7 +12309,7 @@ function RefTable({columns, rows, setRows, onDeleteRow, newRowTemplate, disableK
           <div style={{display:"flex",flexDirection:"column",gap:6,maxHeight:440,overflowY:"auto",paddingRight:4}}>
             {rows.map((r,i)=>(
               <div key={r.id||r._key} style={g}>
-                {columns.map(c=>(
+                {columns.map(c=> c.type === "checkbox" ? <input key={c.key} type="checkbox" checked={!!r[c.key]} onChange={e=>update(i,c.key,e.target.checked)} style={{justifySelf:"center",width:16,height:16}} /> : (
                   <input key={c.key} type={c.type||"text"} step={c.step} list={c.options ? "rtl-"+c.key : undefined} value={r[c.key]??""}
                     disabled={disableKeyFor && c.key===disableKeyFor && !r._isNew}
                     onChange={e=>update(i,c.key,e.target.value)}
@@ -12389,6 +12482,38 @@ function PipeMaterialsTab() {
   );
 }
 
+function FluidsTab() {
+  return (
+    <RefTableTab
+      title="Fluids"
+      note="Density and kinematic viscosity at the reference temperature; a second viscosity point lets the calculator follow the fluid temperature (log-linear). H-W ticked = Hazen-Williams allowed (water-like fluids only); otherwise Darcy-Weisbach is used. Typical values — confirm against the supplier's data sheet."
+      tableName="ref_fluids"
+      conflictKey="code"
+      disableKeyFor="code"
+      numericKeys={["ref_temp_c","density_kg_m3","visc_cst","visc2_cst","visc2_temp_c","vapour_kpa_abs","flash_point_c"]}
+      transformIn={r => { const {id, updated_at, updated_by, ...rest} = r; return rest; }}
+      newRowTemplate={{code:"", name:"", category:"fuel", ref_temp_c:20, density_kg_m3:"", visc_cst:"", visc2_cst:"", visc2_temp_c:"", vapour_kpa_abs:"", flash_point_c:"", hw_valid:false, default_pipe:"STEEL", source:"", notes:"", active:true}}
+      pasteKeys={["code","name","category","ref_temp_c","density_kg_m3","visc_cst","visc2_cst","visc2_temp_c","vapour_kpa_abs","flash_point_c"]}
+      columns={[
+        {key:"code", label:"Code", width:"0.8fr"},
+        {key:"name", label:"Name", width:"1.6fr"},
+        {key:"category", label:"Category", width:"0.7fr"},
+        {key:"ref_temp_c", label:"Ref. °C", type:"number", width:"0.5fr"},
+        {key:"density_kg_m3", label:"ρ kg/m³", type:"number", step:"0.1", width:"0.6fr"},
+        {key:"visc_cst", label:"ν cSt", type:"number", step:"0.001", width:"0.55fr"},
+        {key:"visc2_cst", label:"ν₂ cSt", type:"number", step:"0.001", width:"0.55fr"},
+        {key:"visc2_temp_c", label:"at °C", type:"number", width:"0.45fr"},
+        {key:"vapour_kpa_abs", label:"Pv kPa(a)", type:"number", step:"0.01", width:"0.6fr"},
+        {key:"flash_point_c", label:"Flash °C", type:"number", width:"0.5fr"},
+        {key:"hw_valid", label:"H-W", type:"checkbox", width:"0.35fr"},
+        {key:"default_pipe", label:"Pipe key", width:"0.6fr"},
+        {key:"source", label:"Source", width:"1.4fr"},
+        {key:"active", label:"Active", type:"checkbox", width:"0.4fr"},
+      ]}
+    />
+  );
+}
+
 function MotorsTab() {
   return (
     <RefTableTab
@@ -12505,7 +12630,7 @@ function RefDataEditor({onBack}) {
   const [tab, setTab] = useState("materials");
   const tabs = [
     ["materials","Pipe Materials"], ["sizes","Pipe Sizes"], ["motors","Motor kW"],
-    ["fu","Fixture Units (WSFU / LU)"],
+    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"],
   ];
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
@@ -12531,6 +12656,7 @@ function RefDataEditor({onBack}) {
           {tab==="sizes" && <PipeSizesTab/>}
           {tab==="motors" && <MotorsTab/>}
           {tab==="fu" && <FixtureUnitsTab/>}
+          {tab==="fluids" && <FluidsTab/>}
         </div>
       </div>
     </div>
