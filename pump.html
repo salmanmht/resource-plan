@@ -198,6 +198,14 @@
   .calcwrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
   .calcpick{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px;max-height:calc(100vh - 40px);overflow-y:auto;padding:2px 2px 6px}
   .calcpick-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#fff;border:1px solid #d2d2d7;border-radius:9px;cursor:pointer;flex:0 0 auto;text-align:left;width:100%}
+  .calcpick-filter{display:flex;gap:6px;position:sticky;top:0;z-index:2;background:#f5f5f7;padding-bottom:4px}
+  .calcpick-filter select{flex:1;min-width:0;height:30px;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;font-weight:600;padding:0 8px;background:#fff}
+  .calcpick-filter button{flex:0 0 auto;width:30px;height:30px;border:1px solid #d2d2d7;border-radius:8px;background:#fff;cursor:pointer;font-size:14px;color:#424245}
+  .calcpick-grp{display:flex;flex-direction:column;gap:6px}
+  .calcpick-gh{display:flex;align-items:center;gap:6px;border:0;background:none;padding:6px 2px 2px;cursor:pointer;text-align:left;width:100%}
+  .calcpick-gh span{font-size:10px;color:#86868b;width:10px}.calcpick-gh b{flex:1;font-size:10.5px;font-weight:800;color:#424245;text-transform:uppercase;letter-spacing:.04em}
+  .calcpick-gh em{font-style:normal;font-size:10px;font-weight:700;color:#6e6e73;background:#e8e8ed;border-radius:999px;padding:1px 7px}
+  .calcpick-gh.sel b{color:#007aff}
   .calcpick-item.on{border-color:#007aff;background:#e8f0fe;box-shadow:0 0 0 1px #007aff inset}
   .calcpick-no{font-size:10px;font-weight:800;color:#86868b;flex:0 0 auto}
   .calcpick-item.on .calcpick-no{color:#007aff}
@@ -1258,7 +1266,7 @@ const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.70.0 · Build 2026.11.10.07";
+const BUILD_LABEL = "v1.73.0 · Build 2026.11.10.10";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1509,7 +1517,8 @@ async function loadReferenceData() {
       (FU_FIXTURES[r.code] = FU_FIXTURES[r.code] || []).push({
         name:[tx(r.fixture), tx(r.occupancy), tx(r.flush_type)].filter(Boolean).join(" — "),   // what the fixture schedule stores and shows
         base:tx(r.fixture), occ:tx(r.occupancy), flush:tx(r.flush_type),
-        abbr:tx(r.abbreviation), lu:nv(r.lu_cold), luHot:nv(r.lu_hot), luTot:nv(r.lu_total), flow:nv(r.flow_ls), minP:nv(r.min_pressure_m)});
+        abbr:tx(r.abbreviation), lu:nv(r.lu_cold), luHot:nv(r.lu_hot), luTot:nv(r.lu_total), flow:nv(r.flow_ls), minP:nv(r.min_pressure_m),
+        luL:nv(r.lu_low), luM:nv(r.lu_med), luH:nv(r.lu_high), fref:tx(r.freq_ref)});
     }
     if (mats.data && mats.data.length) {
       const built = {};
@@ -1926,7 +1935,7 @@ function calcIsStale(p) { if (!calcKeyed(p) || CALC.mode === "auto") return fals
 function calcNow(p) { if (calcKeyed(p)) CALC.snap[p.id] = p; }
 function calcReset() { CALC.snap = {}; CALC.res = {}; }
 // what undo / redo in Pipe Sizing covers: the network and every Setup value that changes the result
-const WS_SNAP_KEYS = ["gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg"];
+const WS_SNAP_KEYS = ["gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne"];
 function wsSnapOf(c) { const o = {}; WS_SNAP_KEYS.forEach(k => { o[k] = c[k]; }); o.wsNet = c.wsNet || []; o.wsNodes = c.wsNodes || []; o.wsFix = c.wsFix || []; o.wsNotes = c.wsNotes || []; return o; }
 function safeCalculate(p) {
   const src = calcSnapOf(p), keyed = calcKeyed(p) && CALC.mode === "manual";
@@ -3187,7 +3196,16 @@ function wsHash(s) { let h = 0x811c9dc5; s = String(s); for (let i = 0; i < s.le
 // Supported network: ONE supply node and a branched (tree) network — every other node is fed by exactly one pipe. Loops are not supported.
 const WS_JUMP = 20;   // a single pipe that changes level by more than this (m) is flagged for a check
 function wsValidate(p) {
-  const v = wsValidateBase(p); if (!wsIsGas(p)) return v;
+  const v = wsValidateBase(p);
+  if (!wsIsGas(p) && wsIsRingNet(p)) {      // v1.71: water ring mains — the tree checks are replaced by a supply / connection check that ignores pipe direction
+    const ringRe = /fed by \d+ pipes|closed loop|not connected to the supply node|The network has no supply node|Exactly one is required/;
+    const items = v.items.filter(i => !(i.group === "topology" && ringRe.test(i.text)));
+    const net = (Array.isArray(p.wsNet) ? p.wsNet : []).filter(s => s && s.from && s.to);
+    wsComps(net).forEach(c => { if (!wsHasLoop(c.secs)) return; const sub = c.secs, r = wsRingRoot(p, sub);
+      if (r == null) items.push({sev:"error", group:"topology", text:`${sub.slice(0, 4).map(x => x.id).join(", ")}${sub.length > 4 ? " …" : ""}: this network has a ring main — mark its supply node (select the node → Supply).`, kind:"sec", id:sub[0].id}); });
+    return {...v, items, errors:items.filter(i => i.sev === "error").length, warns:items.filter(i => i.sev === "warn").length, infos:items.filter(i => i.sev === "info").length, topology:"Single supply node · branched network with ring mains (rings solved by Hardy Cross)"};
+  }
+  if (!wsIsGas(p)) return v;
   const ringRe = /fed by \d+ pipes|closed loop|feed one connected network|not connected to the supply node|Exactly one is required/;
   const items = v.items.filter(i => !(i.group === "topology" && ringRe.test(i.text)));
   return {...v, items, errors:items.filter(i => i.sev === "error").length, warns:items.filter(i => i.sev === "warn").length, infos:items.filter(i => i.sev === "info").length, topology:"Supply node(s) · branched or ringed network (rings solved by Hardy Cross)"};
@@ -3395,7 +3413,7 @@ function wsSortPipes(items, key, dir) {
 // The fixtures actually used in the project, each with a unique code, loading units each, quantity and total.
 function wsFixKey(w, p) {
   const fix = Array.isArray(p.wsFix) ? p.wsFix : [], by = {}, order = [];
-  fix.forEach(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0; if (!L || !(q > 0)) return; if (!by[L.name]) { by[L.name] = {name:L.name, base:L.base, abbr:L.abbr, lu:wsLibLu(L, w.system), qty:0}; order.push(L.name); } by[L.name].qty += q; });
+  fix.forEach(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0; if (!L || !(q > 0)) return; if (!by[L.name]) { by[L.name] = {name:L.name, base:L.base, abbr:L.abbr, lu:wsLibLu(L, w.system, w.freq && w.freq.src), qty:0}; order.push(L.name); } by[L.name].qty += q; });
   const used = {}, codeOf = {};
   order.forEach(n => { const c = wsFixCode(by[n]); let k = c, i = 2; while (used[k] && used[k] !== n) k = c + (i++); used[k] = n; codeOf[n] = k; });
   const rows = order.map(n => ({code:codeOf[n], name:n, lu:by[n].lu, qty:by[n].qty, lut:by[n].qty*by[n].lu}));
@@ -3404,7 +3422,22 @@ function wsFixKey(w, p) {
 }
 // Cold, hot or combined (total) loading units of a fixture. A fixture with no combined value uses its cold value.
 const wsHas = v => !(v === "" || v == null);
-function wsLibLu(f, system) { const v = system === "hot" ? f.luHot : system === "total" ? (wsHas(f.luTot) ? f.luTot : f.lu) : f.lu; return wsHas(v) ? Number(v) : 0; }
+function wsLibLu(f, system, mode) {
+  if (mode && system !== "hot") { const r = wsFreqLu(f, mode); if (r) return r.v; }
+  const v = system === "hot" ? f.luHot : system === "total" ? (wsHas(f.luTot) ? f.luTot : f.lu) : f.lu; return wsHas(v) ? Number(v) : 0; }
+// v1.72 · frequency of use (IOP Table 15). mode = "low" | "med" | "high"; "" = the fixture table value (lu_cold / hot / total) as before.
+// A blank frequency falls back to the nearest one the table gives: High → Medium → Low, Low → Medium → High, Medium → High → Low.
+const WS_FREQ = [{k:"", l:"As per fixture table"}, {k:"low", l:"Low"}, {k:"med", l:"Medium"}, {k:"high", l:"High"}];
+const wsFreqLbl = k => (WS_FREQ.find(x => x.k === (k || "")) || WS_FREQ[0]).l;
+const WS_FREQ_ORDER = {high:["high", "med", "low"], low:["low", "med", "high"], med:["med", "high", "low"]};
+function wsFreqLu(f, mode) {
+  if (!f || !mode || !WS_FREQ_ORDER[mode]) return null;
+  const val = {low:f.luL, med:f.luM, high:f.luH};
+  if (!["low", "med", "high"].some(k => wsHas(val[k]))) return null;            // this fixture has no frequency values — the table value is used
+  for (const k of WS_FREQ_ORDER[mode]) if (wsHas(val[k])) return {v:Number(val[k]), used:k, fb:k !== mode};
+  return null;
+}
+const wsHasFreqData = lib => (lib || []).some(f => wsHas(f.luL) || wsHas(f.luM) || wsHas(f.luH));
 const wsSysName = s => s === "hot" ? "Hot Water" : s === "total" ? "Combined (Cold + Hot)" : "Cold Water";
 function wsDemandOf(p) {
   const code = p.wsDemand;
@@ -3412,6 +3445,94 @@ function wsDemandOf(p) {
   const c = FU_CODES[code];
   if (!c) throw new Error(FU_LOAD_ERROR || `Demand table "${code}" is not in Reference Data (ref_fixture_unit_codes). Select another table.`);
   return {code, knots: c.table.map(r => [Number(r[0]), Number(r[1])]), label:c.label, unit:c.unit, ref:c.ref};
+}
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// v1.71 · WATER SUPPLY RING MAINS
+// A water network may now hold closed loops (rings). A network with no loop runs the original tree solver line for line.
+// With a loop:
+//   • bridges (pipes NOT on a ring — risers and branches leaving it) carry the loading units of everything beyond them and are sized
+//     from the demand table exactly as before;
+//   • for each ring, the probable flow of everything it serves is read from the demand table at the ring's TOTAL loading units, shared to
+//     the ring's nodes in proportion to the loading units hanging from each (plus their continuous flows), and split round the ring by
+//     Hardy Cross on the friction of the pipes (elevation cancels round a closed loop);
+//   • ring pipes are oriented in the direction the water flows; where the two flows meet, one pipe is the "closing" pipe of the ring.
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+function wsHasLoop(net) {
+  const par = {}, find = x => { if (par[x] === undefined) par[x] = x; while (par[x] !== x) { par[x] = par[par[x]]; x = par[x]; } return x; };
+  for (const s of (net || [])) { if (s == null || s.from == null || s.to == null || s.from === "" || s.to === "" || s.from === s.to) continue;
+    const a = find(s.from), b = find(s.to); if (a === b) return true; par[a] = b; }
+  return false;
+}
+const wsIsRingNet = p => !!p && p.type === "water" && !wsIsGas(p) && wsHasLoop(Array.isArray(p.wsNet) ? p.wsNet : []);
+// the supply of a ringed network: the one marked supply in it, else the single node that no pipe feeds
+function wsRingRoot(p, net) {
+  const ids = new Set(); net.forEach(s => { ids.add(s.from); ids.add(s.to); });
+  const mk = wsMarkedX(p).filter(id => ids.has(id)); if (mk.length === 1) return mk[0]; if (mk.length > 1) return null;
+  return wsRootOf({wsNet:net});
+}
+// spanning tree from the supply (breadth first), bridges (Tarjan) and the rings (what is left once the bridges are removed)
+function wsRingTopo(net, root) {
+  const adj = {}; net.forEach((s, k) => { (adj[s.from] = adj[s.from] || []).push({k, o:s.to}); (adj[s.to] = adj[s.to] || []).push({k, o:s.from}); });
+  const depth = {[root]:0}, par = {}, parE = {}, q = [root];
+  for (let i = 0; i < q.length; i++) { const n = q[i]; (adj[n] || []).forEach(e => { if (depth[e.o] !== undefined) return; depth[e.o] = depth[n] + 1; par[e.o] = n; parE[e.o] = e.k; q.push(e.o); }); }
+  const unreached = net.filter(s => depth[s.from] === undefined || depth[s.to] === undefined).map(s => s.id);
+  const disc = {}, low = {}, bridge = new Set(); let t = 0;
+  disc[root] = low[root] = t++; const st = [[root, -1, 0]];
+  while (st.length) { const top = st[st.length - 1], u = top[0], list = adj[u] || [];
+    if (top[2] < list.length) { const e = list[top[2]++]; if (e.k === top[1]) continue;
+      if (disc[e.o] === undefined) { disc[e.o] = low[e.o] = t++; st.push([e.o, e.k, 0]); } else low[u] = Math.min(low[u], disc[e.o]); }
+    else { st.pop(); if (st.length) { const pu = st[st.length - 1][0]; low[pu] = Math.min(low[pu], low[u]); if (low[u] > disc[pu]) bridge.add(top[1]); } } }
+  const P = {}, find = x => { if (P[x] === undefined) P[x] = x; while (P[x] !== x) { P[x] = P[P[x]]; x = P[x]; } return x; };
+  net.forEach((s, k) => { if (!bridge.has(k) && depth[s.from] !== undefined) { const a = find(s.from), b = find(s.to); if (a !== b) P[a] = b; } });
+  const byRoot = {}; net.forEach((s, k) => { if (bridge.has(k) || depth[s.from] === undefined) return; const r = find(s.from); (byRoot[r] = byRoot[r] || {nodes:new Set(), edges:[]}); byRoot[r].nodes.add(s.from); byRoot[r].nodes.add(s.to); byRoot[r].edges.push(k); });
+  const comps = Object.values(byRoot).map((c, i) => { const entry = [...c.nodes].reduce((a, n) => (a == null || depth[n] < depth[a] ? n : a), null); return {i, nodes:c.nodes, edges:c.edges, entry}; });
+  const compOfEdge = {}; comps.forEach(c => c.edges.forEach(k => { compOfEdge[k] = c.i; }));
+  return {adj, depth, par, parE, bfs:q, bridge, comps, compOfEdge, unreached};
+}
+// Hardy Cross on every ring. dem[n] = flow leaving the ring at node n (L/s); H(k, |q|) = loss in pipe k (m) at flow |q|. Returns signed flows
+// (+ = the stored From → To direction) for the ring pipes, and the iterations / convergence of each ring.
+function wsRingFlows(net, RT, dem, H) {
+  const Q = {}, info = [];
+  RT.comps.forEach(c => {
+    const adj = {}; c.edges.forEach(k => { const s = net[k]; (adj[s.from] = adj[s.from] || []).push({k, o:s.to}); (adj[s.to] = adj[s.to] || []).push({k, o:s.from}); });
+    const dep = {[c.entry]:0}, pr = {}, pe = {}, q = [c.entry], inTree = new Set();
+    for (let i = 0; i < q.length; i++) { const n = q[i]; (adj[n] || []).forEach(e => { if (dep[e.o] !== undefined) return; dep[e.o] = dep[n] + 1; pr[e.o] = n; pe[e.o] = e.k; inTree.add(e.k); q.push(e.o); }); }
+    const chords = c.edges.filter(k => !inTree.has(k));
+    const sub = {}; for (let i = q.length - 1; i >= 0; i--) { const n = q[i]; sub[n] = (sub[n] || 0) + (dem[n] || 0); if (pr[n] !== undefined) sub[pr[n]] = (sub[pr[n]] || 0) + sub[n]; }
+    c.edges.forEach(k => { Q[k] = 0; });
+    q.forEach(n => { if (pe[n] === undefined) return; const k = pe[n]; Q[k] = net[k].to === n ? sub[n] : -sub[n]; });
+    const loops = chords.map(ch => { let a = net[ch].from, b = net[ch].to; const A = [], B = [];
+      while (a !== b) { if (dep[b] >= dep[a] && pr[b] !== undefined) { const k = pe[b]; B.push({k, sgn:net[k].from === b ? 1 : -1}); b = pr[b]; }
+        else if (pr[a] !== undefined) { const k = pe[a]; A.push({k, sgn:net[k].to === a ? 1 : -1}); a = pr[a]; } else break; }
+      return [{k:ch, sgn:1}, ...B, ...A.reverse()]; });
+    const Qin = sub[c.entry] || 0, qmin = Math.max(Qin*1e-4, 1e-6);
+    const h = (k, x) => { const a = Math.abs(x); return a > 0 ? Math.sign(x)*H(k, a) : 0; };
+    const dh = (k, x) => { const a = Math.max(Math.abs(x), qmin), d = a*1e-3; return Math.max((H(k, a + d) - H(k, Math.max(a - d, 0)))/(2*d), 1e-12); };
+    let it = 0, conv = !loops.length;
+    for (; it < 400 && loops.length; it++) { let mx = 0;
+      for (const L of loops) { let r = 0, dd = 0; L.forEach(e => { r += e.sgn*h(e.k, Q[e.k]); dd += dh(e.k, Q[e.k]); });
+        const dQ = -r/dd; if (!Number.isFinite(dQ)) continue; L.forEach(e => { Q[e.k] += e.sgn*dQ; }); mx = Math.max(mx, Math.abs(dQ)); }
+      if (mx < Math.max(Qin*1e-7, 1e-9)) { conv = true; break; } }
+    info.push({i:c.i, it, conv, Qin, chords:chords.length});
+  });
+  return {Q, info};
+}
+// parents and directions in a ringed network: every node takes its biggest inflow as the feeding pipe; any other pipe ending at it is a
+// "closing" pipe (it carries the meeting flow but does not set the node pressure). A node the flow does not reach from the supply (a zero-flow
+// meeting point) is fed along the spanning tree instead.
+function wsRingParents(out, root, RT) {
+  const inc = {}; out.forEach((x, k) => { (inc[x.to] = inc[x.to] || []).push(k); });
+  const main = {}; Object.entries(inc).forEach(([n, ks]) => { main[n] = ks.reduce((a, k) => (out[k].Q > out[a].Q + 1e-12 || (Math.abs(out[k].Q - out[a].Q) <= 1e-12 && !out[k].ring && out[a].ring) ? k : a), ks[0]); });
+  delete main[root];
+  const reach = () => { const kids = {}; Object.entries(main).forEach(([n, k]) => { (kids[out[k].from] = kids[out[k].from] || []).push(n); }); const seen = new Set([root]), q = [root];
+    for (let i = 0; i < q.length; i++) (kids[q[i]] || []).forEach(n => { if (!seen.has(n)) { seen.add(n); q.push(n); } }); return seen; };
+  let seen = reach();
+  for (let g = 0; g < 50 && seen.size < Object.keys(main).length + 1; g++) {
+    RT.bfs.forEach(v => { if (v === root || seen.has(v)) return; const k = RT.parE[v], x = out[k];
+      if (x.to !== v) { out[k] = {...x, from:x.to, to:x.from, dz:-x.dz, ori:x.ori === "up" ? "down" : x.ori === "down" ? "up" : x.ori, flipped:!x.flipped}; }
+      main[v] = k; });
+    Object.keys(main).forEach(n => { if (out[main[n]].to !== n) delete main[n]; }); seen = reach(); }
+  out.forEach((x, k) => { x.parent = x.from === root ? -1 : (main[x.from] != null ? main[x.from] : -1); x.closing = x.to !== root && main[x.to] !== k; if (x.to === root) x.closing = true; });
 }
 function calculateWaterCore(p) {
   const errors = [], system = p.system === "hot" ? "hot" : p.system === "total" ? "total" : "cold";
@@ -3436,7 +3557,8 @@ function calculateWaterCore(p) {
     else { const minOD = Number(d.minOD) > 0 ? Number(d.minOD) : 0; cands = mt.table.slice().sort((a, b) => a.id - b.id).filter(x => x.od >= minOD);
       if (!cands.length) errors.push(`${c.l}: no ${mt.label} size is at or above the minimum pipe size of ${minOD} mm.`); }
     cdef[c.k] = {k:c.k, l:c.l, matKey:mk, mat:mt, cands, maxV:Number(d.maxV), maxP:Number(d.maxP), minOD: Number(d.minOD) > 0 ? Number(d.minOD) : 0,
-      spare: num(d.spare, 0), eps: mt ? (Number(mt.roughness) || 0) : 0, Chw: mt ? (Number(mt.hwC) || 150) : 150};
+      spare: num(d.spare, 0), eps: mt ? (Number(mt.roughness) || 0) : 0, Chw: mt ? (Number(mt.hwC) || 150) : 150,
+      freq: p.system !== "hot" && WS_FREQ_ORDER[d.freq] ? d.freq : ""};
   }
   // demand table and fixtures — both from Reference Data
   let dem = null; try { dem = wsDemandOf(p); } catch (e) { errors.push(e.message); }
@@ -3446,13 +3568,14 @@ function calculateWaterCore(p) {
   const nodeMap = wsNodeMap(p);
   const net = (Array.isArray(p.wsNet) ? p.wsNet : []).map(s => wsGeo(wsNorm(s), nodeMap));
   if (!net.length) errors.push("Add at least one pipe section to the network.");
+  const ringMode = wsHasLoop(net);       // v1.71: a closed loop → ring solver; no loop → the original tree solver, unchanged
   const secIds = new Set(), toSet = new Set(), fromSet = new Set();
   net.forEach((s, i) => {
     const at = `Section ${i+1}${s.id ? ` (${s.id})` : ""}`;
     ["id","from","to"].forEach(k => { if (!WS_ID.test(String(s[k] || ""))) errors.push(`${at}: ${k === "id" ? "section ID" : k + " node"} must use letters, numbers, - _ . only.`); });
     if (secIds.has(s.id)) errors.push(`Section ID "${s.id}" is used twice.`); secIds.add(s.id);
     if (s.from === s.to) errors.push(`${at}: from and to nodes must differ.`);
-    if (toSet.has(s.to)) errors.push(`Node "${s.to}" is fed by more than one section — a node can have only one supply pipe.`); toSet.add(s.to); fromSet.add(s.from);
+    if (!ringMode && toSet.has(s.to)) errors.push(`Node "${s.to}" is fed by more than one section — a node can have only one supply pipe.`); toSet.add(s.to); fromSet.add(s.from);
     if (!cdef[s.cls]) errors.push(`${at}: pipe class must be Main, Riser or Branch.`);
     if (!WS_ORI.some(o => o.k === s.ori)) errors.push(`${at}: orientation must be Horizontal, Vertical Up or Vertical Down.`);
     if (!isPositive(s.len)) errors.push(s.geo ? `${at}: the two nodes are at the same position — move one, or set a manual length.` : `${at}: length must be greater than zero.`);
@@ -3463,8 +3586,8 @@ function calculateWaterCore(p) {
       if (it.val !== "" && it.val != null && !(Number.isFinite(Number(it.val)) && Number(it.val) >= 0)) errors.push(`${lab}: the value must be zero or greater.`);
       if (it.qty !== "" && it.qty != null && !(Number.isFinite(Number(it.qty)) && Number(it.qty) >= 0)) errors.push(`${lab}: quantity must be zero or greater.`); });
   });
-  const roots = [...fromSet].filter(n => !toSet.has(n));
-  if (net.length && !errors.length && roots.length !== 1) errors.push(roots.length ? `The network has ${roots.length} supply nodes (${roots.join(", ")}). It must have exactly one.` : "The network has no supply node — sections form a loop.");
+  const roots = ringMode ? [wsRingRoot(p, net)].filter(r => r != null) : [...fromSet].filter(n => !toSet.has(n));
+  if (net.length && !errors.length && roots.length !== 1) errors.push(ringMode ? "This network has a ring main. Mark its supply node (select the node → Supply): in a ring the supply cannot be found from the pipe directions." : roots.length ? `The network has ${roots.length} supply nodes (${roots.join(", ")}). It must have exactly one.` : "The network has no supply node — sections form a loop.");
   const fix = Array.isArray(p.wsFix) ? p.wsFix : [];
   // direct loads: loading units and / or a continuous flow typed straight onto a node (e.g. a zone whose fixtures are not listed)
   const direct = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(n => n && n.id !== "" && n.id != null && (wsFin(n.luAdd) && Number(n.luAdd) > 0 || wsFin(n.qAdd) && Number(n.qAdd) > 0));
@@ -3495,10 +3618,15 @@ function calculateWaterCore(p) {
   const sP0 = wsFin(p.staticSupplyPressure) && Number(p.staticSupplyPressure) > 0 ? Number(p.staticSupplyPressure) : P0;
   const T = Number(p.waterTemp), nu = wsNu(T);
   // topology (parents before children)
-  const kids = {}; net.forEach(s => { (kids[s.from] = kids[s.from] || []).push(s); });
+  const RT = ringMode ? wsRingTopo(net, root) : null;
+  if (RT && RT.unreached.length) return calcError([`Section${RT.unreached.length>1?"s":""} ${RT.unreached.slice(0, 8).join(", ")} ${RT.unreached.length>1?"are":"is"} not connected to the supply node ${root}.`]);
+  if (RT) { const bad = []; net.forEach((s, k) => { if (RT.bridge.has(k)) return; (Array.isArray(s.eq) ? s.eq : []).forEach(it => { const t = WS_EQ[it.type]; const m = it.mode || (t && t.mode); if (m === "prv" || m === "pump") bad.push(`${s.id} (${it.tag || (t && t.l) || "item"})`); }); });
+    if (bad.length) return calcError([`A PRV or booster pump cannot sit on a ring pipe: ${bad.slice(0, 6).join(", ")}. Put it on the pipe that feeds the ring, or on a branch leaving it.`]); }
+  const kids = {}; if (RT) RT.bfs.forEach(v => { if (v !== root) (kids[RT.par[v]] = kids[RT.par[v]] || []).push({to:v}); }); else net.forEach(s => { (kids[s.from] = kids[s.from] || []).push(s); });
   const order = [], seen = new Set([root]), q = [root];
-  while (q.length) { const n = q.shift(); for (const s of (kids[n] || [])) { if (seen.has(s.to)) continue; seen.add(s.to); order.push(s); q.push(s.to); } }
-  if (order.length !== net.length) { const lost = net.filter(s => !order.includes(s)).map(s => s.id); return calcError([`Section${lost.length>1?"s":""} ${lost.join(", ")} ${lost.length>1?"are":"is"} not connected to the supply node ${root}.`]); }
+  if (RT) { RT.bfs.forEach(v => { if (v !== root) order.push(net[RT.parE[v]]); }); net.forEach((s, k) => { if (!order.includes(s)) order.push(s); }); }
+  else while (q.length) { const n = q.shift(); for (const s of (kids[n] || [])) { if (seen.has(s.to)) continue; seen.add(s.to); order.push(s); q.push(s.to); } }
+  if (!RT && order.length !== net.length) { const lost = net.filter(s => !order.includes(s)).map(s => s.id); return calcError([`Section${lost.length>1?"s":""} ${lost.join(", ")} ${lost.length>1?"are":"is"} not connected to the supply node ${root}.`]); }
   // demand at nodes
   const nodeLU = {}, nodeQc = {}, nodeN = {}, nodeReq = {};
   fix.forEach(f => { const L = libBy[f.fixture], n = Number(f.qty) || 0, nd = f.node;
@@ -3511,32 +3639,94 @@ function calculateWaterCore(p) {
   // what the fixtures need, never lower it (before this, a Req. P on a node with fixtures was silently ignored).
   (Array.isArray(p.wsNodes) ? p.wsNodes : []).forEach(n => { if (n && n.id != null && nodeReq[n.id] != null && Number(n.reqP) > 0) nodeReq[n.id] = Math.max(nodeReq[n.id], Number(n.reqP)); });
   const subOf = n => { const out = [n]; for (const s of (kids[n] || [])) out.push(...subOf(s.to)); return out; };
+  // v1.72 frequency of use: the loading units at every node for each frequency a class uses; "" is the original nodeLU, untouched
+  const freqOn = WS_CLASSES.some(c => cdef[c.k] && cdef[c.k].freq), FB = {}, NLU = {"":nodeLU};
+  const nodeLUm = mode => { mode = mode || ""; if (NLU[mode]) return NLU[mode]; const m = {};
+    fix.forEach(f => { const L = libBy[f.fixture], n = Number(f.qty) || 0; if (!L) return; const r = wsFreqLu(L, mode), v = r ? r.v : wsLibLu(L, system);
+      if (n > 0) { if (r && r.fb) FB[`${L.name}|${mode}|${r.used}`] = {name:L.name, want:mode, used:r.used}; else if (!r) FB[`${L.name}|${mode}|-`] = {name:L.name, want:mode, used:""}; }
+      m[f.node] = (m[f.node] || 0) + n*v; });
+    Object.entries(directAt).forEach(([id, d]) => { m[id] = (m[id] || 0) + d.lu; });
+    return (NLU[mode] = m); };
+  const srcMode = freqOn ? (cdef.main ? cdef.main.freq : "") : "";
   const directLU = Object.values(directAt).reduce((a, d) => a + d.lu, 0);
-  const totLU = Object.values(nodeLU).reduce((a, b) => a + b, 0), totQc = Object.values(nodeQc).reduce((a, b) => a + b, 0), totN = Object.values(nodeN).reduce((a, b) => a + b, 0);
+  const totLU = Object.values(nodeLUm(srcMode)).reduce((a, b) => a + b, 0), totQc = Object.values(nodeQc).reduce((a, b) => a + b, 0), totN = Object.values(nodeN).reduce((a, b) => a + b, 0);
   if (!(totLU > 0 || totQc > 0)) return calcError([system === "hot" ? `No hot-water loading units or flows are defined for "${dem.label}". Enter the hot-water loading units in Reference Data → Fixture Units → Fixtures.` : "The fixture schedule gives no demand. Check the quantities and the loading units in Reference Data."]);
   const Qsrc = wsInterp(dem.knots, totLU) + totQc;
   const gradOf = (Q, c, cd) => isDW ? wsDW(Q/1000, c.id/1000, cd.eps, nu).grad : hwLoss(Q/1000, c.id/1000, 1, cd.Chw)*PA_PER_M;
-  const secs = net.map((s, i) => {
-    const cd = cdef[s.cls], sub = subOf(s.to), LU = sub.reduce((a, n) => a + (nodeLU[n] || 0), 0), Qc = sub.reduce((a, n) => a + (nodeQc[n] || 0), 0), N = sub.reduce((a, n) => a + (nodeN[n] || 0), 0);
+  const autoOf = (cd, Qd) => cd.cands.findIndex(c => (!useV || v2(Qd/1000/(Math.PI/4*Math.pow(c.id/1000, 2))) <= cd.maxV) && (!useP || gradOf(Qd, c, cd) <= cd.maxP));
+  // ── v1.71 ring preparation: loads hanging from every ring node, the ring flows at a first guess of the sizes, then sizes ↔ flows to a fixed point
+  let RG = null;
+  if (RT) {
+    // v1.72: the ring's frequency — that of the ring pipes' class; ring pipes of several classes take the one giving the most loading units
+    const rMs = [...new Set(RT.comps.flatMap(c => c.edges.map(k => (cdef[net[k].cls] || {}).freq || "")))];
+    const ringMode = rMs.length === 1 ? rMs[0] : rMs.reduce((a, m) => (Object.values(nodeLUm(m)).reduce((x, y) => x + y, 0) > Object.values(nodeLUm(a)).reduce((x, y) => x + y, 0) ? m : a), rMs[0]);
+    const nodeLUr = nodeLUm(ringMode);
+    const tLU = {}, tQc = {}, tN = {}; for (let i = RT.bfs.length - 1; i >= 0; i--) { const n = RT.bfs[i];
+      tLU[n] = (tLU[n] || 0) + (nodeLUr[n] || 0); tQc[n] = (tQc[n] || 0) + (nodeQc[n] || 0); tN[n] = (tN[n] || 0) + (nodeN[n] || 0);
+      if (n !== root) { const pa = RT.par[n]; tLU[pa] = (tLU[pa] || 0) + tLU[n]; tQc[pa] = (tQc[pa] || 0) + tQc[n]; tN[pa] = (tN[pa] || 0) + tN[n]; } }
+    const hang = {}, rings = RT.comps.map(c => {
+      let LU = 0, Qc = 0, N = 0; c.nodes.forEach(n => { let lu = nodeLUr[n] || 0, qc = nodeQc[n] || 0, nn = nodeN[n] || 0;
+        RT.bfs.forEach(v => { if (v !== root && RT.par[v] === n && RT.bridge.has(RT.parE[v])) { lu += tLU[v]; qc += tQc[v]; nn += tN[v]; } });
+        hang[n] = {lu, qc, n:nn}; LU += lu; Qc += qc; N += nn; });
+      const QLU = LU > 0 ? wsInterp(dem.knots, LU) : 0;
+      return {...c, LU, Qc, N, QLU, Qin:QLU + Qc, ids:c.edges.map(k => net[k].id)}; });
+    const demN = {}; rings.forEach(r => r.nodes.forEach(n => { if (n === r.entry) return; const h = hang[n]; demN[n] = (r.LU > 0 ? r.QLU*h.lu/r.LU : 0) + h.qc; }));
+    rings.forEach(r => { const h = hang[r.entry]; demN[r.entry] = 0; r.entryOwn = (r.LU > 0 ? r.QLU*h.lu/r.LU : 0) + h.qc; });
+    const ringOne = p.wsRingOne !== false;
+    const H = ci => (k, a) => { const s = net[k], cd = cdef[s.cls], c = cd.cands[Math.max(0, Math.min(ci[k], cd.cands.length - 1))], Qd = a*(1 + cd.spare/100);
+      const g = gradOf(Qd, c, cd), v = Qd/1000/(Math.PI/4*Math.pow(c.id/1000, 2)), hf = g/PA_PER_M*Number(s.len)*(1 + fitPc/100);
+      let e = 0; (Array.isArray(s.eq) ? s.eq : []).forEach(it => { const t = WS_EQ[it.type]; if (!t || !wsFin(it.val)) return; const m = it.mode || t.mode, qn = wsFin(it.qty) && Number(it.qty) > 0 ? Number(it.qty) : (it.qty === "" || it.qty == null ? 1 : 0);
+        if (m === "k") e += qn*Number(it.val)*v*v/(2*9.81); else if (m === "leq") e += qn*Number(it.val)*g/PA_PER_M; });
+      return hf + e; };
+    const ovrOf = k => { const s = net[k]; if (s.od === "" || s.od == null) return null; return cdef[s.cls].cands.findIndex(c => Number(c.od) === Number(s.od)); };
+    const sizeRing = (ci, Q) => { rings.forEach(r => { let mx = -1; r.edges.forEach(k => { const o = ovrOf(k); if (o !== null) { ci[k] = Math.max(o, 0); return; }
+        const cd = cdef[net[k].cls], qd = Math.abs(Q[k] || 0)*(1 + cd.spare/100), a = qd > 0 ? autoOf(cd, qd) : 0; ci[k] = a < 0 ? cd.cands.length - 1 : a; mx = Math.max(mx, ci[k]); });
+        if (ringOne) r.edges.forEach(k => { if (ovrOf(k) === null && cdef[net[k].cls].cands.length > mx) ci[k] = Math.max(ci[k], Math.min(mx, cdef[net[k].cls].cands.length - 1)); }); }); return ci; };
+    // a ring pipe's demand state, flow-equivalent loading units and fixtures follow its share of the ring flow
+    let ci = {}; rings.forEach(r => r.edges.forEach(k => { ci[k] = 0; })); sizeRing(ci, Object.fromEntries(rings.flatMap(r => r.edges.map(k => [k, r.Qin/2]))));
+    let F = wsRingFlows(net, RT, demN, H(ci));
+    for (let i = 0; i < 12; i++) { const prev = JSON.stringify(ci); ci = sizeRing({...ci}, F.Q); F = wsRingFlows(net, RT, demN, H(ci)); if (JSON.stringify(ci) === prev) break; }
+    const ringOf = {}; rings.forEach(r => r.edges.forEach(k => { ringOf[k] = r; }));
+    RG = {rings, demN, H, ci, F, ringOf, ringOne, hang, tLU, tQc, tN, mode:ringMode};
+  }
+  const secs = net.map((s0, i) => {
+    // v1.71: in a ringed network a bridge is turned to point away from the supply; a ring pipe keeps its drawn direction here and is turned to the flow in solve()
+    const flipB = !!(RT && !RG.ringOf[i] && RT.depth[s0.from] > RT.depth[s0.to]), s = flipB ? {...s0, from:s0.to, to:s0.from, dzm:s0.dzm != null && Number.isFinite(Number(s0.dzm)) ? -Number(s0.dzm) : s0.dzm, ori:s0.ori === "up" ? "down" : s0.ori === "down" ? "up" : s0.ori} : s0;
+    const cd = cdef[s.cls], nLU = nodeLUm(cd.freq), sub = RT && RG.ringOf[i] ? [] : subOf(s.to), LU = sub.reduce((a, n) => a + (nLU[n] || 0), 0), Qc = sub.reduce((a, n) => a + (nodeQc[n] || 0), 0), N = sub.reduce((a, n) => a + (nodeN[n] || 0), 0);
     const demState = LU > dem.knots[dem.knots.length - 1][0] ? "above" : (LU > 0 && LU < dem.knots[0][0] ? "below" : "in");
-    const own = nodeLU[s.to] || 0, ownQ = (own > 0 || (nodeQc[s.to] || 0) > 0) ? wsInterp(dem.knots, own) + (nodeQc[s.to] || 0) : 0;
-    const Q = wsInterp(dem.knots, LU) + Qc, Qd = Q*(1 + cd.spare/100), L = Number(s.len), dz = s.dzm != null && Number.isFinite(Number(s.dzm)) ? Number(s.dzm) : (s.ori === "up" ? L : s.ori === "down" ? -L : 0);
+    const own = nLU[s.to] || 0, ownQ = (own > 0 || (nodeQc[s.to] || 0) > 0) ? wsInterp(dem.knots, own) + (nodeQc[s.to] || 0) : 0;
+    const ringR = RT ? RG.ringOf[i] : null, qR = ringR ? Math.abs(RG.F.Q[i] || 0) : 0;
+    const Q = ringR ? qR : wsInterp(dem.knots, LU) + Qc, Qd = Q*(1 + cd.spare/100), L = Number(s.len), dz = s.dzm != null && Number.isFinite(Number(s.dzm)) ? Number(s.dzm) : (s.ori === "up" ? L : s.ori === "down" ? -L : 0);
     let auto = -1, ovr = null;
     if (s.od !== "" && s.od != null) ovr = cd.cands.findIndex(c => Number(c.od) === Number(s.od));
     else if (Qd > 0) auto = cd.cands.findIndex(c => (!useV || v2(Qd/1000/(Math.PI/4*Math.pow(c.id/1000, 2))) <= cd.maxV) && (!useP || gradOf(Qd, c, cd) <= cd.maxP));
     const eq = (Array.isArray(s.eq) ? s.eq : []).filter(it => WS_EQ[it.type]).map(it => ({...it, mode:it.mode || WS_EQ[it.type].mode, qn:wsFin(it.qty) && Number(it.qty) > 0 ? Number(it.qty) : (it.qty === "" || it.qty == null ? 1 : 0), has:wsFin(it.val)}));
-    return {s, id:s.id, cls:s.cls, ori:s.ori, geo:!!s.geo, eq, cd, from:s.from, to:s.to, L, dz, extra:Number(s.loss) || 0, sub, LU, Qc, N, Q, Qd, spare:cd.spare, auto, ovr, own, ownQ, demState,
-      parent: s.from === root ? -1 : net.findIndex(o => o.to === s.from), idx:i};
+    const base = {s, id:s.id, cls:s.cls, ori:s.ori, geo:!!s.geo, eq, cd, from:s.from, to:s.to, L, dz, extra:Number(s.loss) || 0, sub, LU, Qc, N, Q, Qd, spare:cd.spare, auto, ovr, own, ownQ, demState,
+      parent: RT ? -1 : s.from === root ? -1 : net.findIndex(o => o.to === s.from), idx:i};
+    if (flipB) base.flipped = true;
+    if (ringR) { base.ring = ringR.i + 1; base.auto = ovr === null ? RG.ci[i] : auto; }
+    return base;
   });
+  // v1.71: a ring pipe at a given flow — its share of the ring loading units and fixtures, and its direction (the flow's)
+  const ringAdj = (x0, q) => { const r = RG.ringOf[x0.idx], a = Math.abs(q), sh = r.Qin > 0 ? a/r.Qin : 0, LU = r.LU*sh, Qc = r.Qc*sh, flip = q < 0;
+    const s0 = x0.s, dzS = x0.dz; return {...x0, Q:a, Qd:a*(1 + x0.cd.spare/100), LU, Qc, N:r.N*sh, from:flip ? s0.to : s0.from, to:flip ? s0.from : s0.to, dz:flip ? -dzS : dzS,
+      ori:flip ? (x0.ori === "up" ? "down" : x0.ori === "down" ? "up" : x0.ori) : x0.ori, flipped:flip, qRing:q,
+      demState:LU > dem.knots[dem.knots.length - 1][0] ? "above" : (LU > 0 && LU < dem.knots[0][0] ? "below" : "in")}; };
   { const ab = secs.filter(x => x.demState === "above"), mx = dem.knots[dem.knots.length - 1][0];
     if (p.wsAbove === "block" && ab.length) return calcError([`${ab.length > 1 ? "Sections " + ab.map(x => x.id).join(", ") + " carry" : "Section " + ab[0].id + " carries"} up to ${Math.max(...ab.map(x => x.LU)).toFixed(0)} ${dem.unit}, above the largest value in the demand table (${mx} ${dem.unit}). The selected methodology gives no flow beyond the table. Split the system into zones, choose another table, or set "Above the table" to Flag on Setup.`]); }
   const badOvr = secs.find(x => x.ovr !== null && x.ovr < 0);
   if (badOvr) return calcError([`Section ${badOvr.id}: the ${badOvr.s.od} mm size override is not in the ${badOvr.cd.mat.label} schedule${badOvr.cd.minOD ? ` at or above the ${badOvr.cd.minOD} mm minimum` : ""}.`]);
   const Qd_v = (Qd, c) => Qd/1000/(Math.PI/4*Math.pow(c.id/1000, 2));
   const solve = bumps => {
-    const out = secs.map(x => {
+    let qNow = null;
+    if (RT) { const ci = {}; secs.forEach(x => { if (!x.ring) return; ci[x.idx] = x.ovr !== null ? x.ovr : Math.min(x.auto + (bumps[x.id] || 0), x.cd.cands.length - 1); });
+      if (RG.ringOne) RG.rings.forEach(r => { const mx = Math.max(...r.edges.filter(k => secs[k].ovr === null).map(k => ci[k]), -1); r.edges.forEach(k => { if (secs[k].ovr === null && mx >= 0) ci[k] = Math.min(Math.max(ci[k], mx), secs[k].cd.cands.length - 1); }); });
+      const sameAsSized = RG.rings.every(r => r.edges.every(k => ci[k] === RG.ci[k]));
+      qNow = sameAsSized ? RG.F.Q : wsRingFlows(net, RT, RG.demN, RG.H(ci)).Q; secs.forEach(x => { if (x.ring) x._ciR = ci[x.idx]; }); }
+    const out = secs.map(x0 => {
+      const x = RT && x0.ring ? ringAdj(x0, qNow[x0.idx] || 0) : x0;
       const cands = x.cd.cands;
-      const ci = x.ovr !== null ? x.ovr : (x.auto >= 0 ? Math.min(x.auto + (bumps[x.id] || 0), cands.length - 1) : (x.Qd > 0 ? cands.length - 1 : 0));
+      const ci = x.ring && x0._ciR != null ? x0._ciR : x.ovr !== null ? x.ovr : (x.auto >= 0 ? Math.min(x.auto + (bumps[x.id] || 0), cands.length - 1) : (x.Qd > 0 ? cands.length - 1 : 0));
       const pipe = cands[ci], noSize = x.ovr === null && x.Qd > 0 && x.auto < 0, g = x.Qd > 0 ? gradOf(x.Qd, pipe, x.cd) : 0;
       const v = x.Qd > 0 ? x.Qd/1000/(Math.PI/4*Math.pow(pipe.id/1000, 2)) : 0;
       const hf = g/PA_PER_M*x.L, fitm = hf*fitPc/100;
@@ -3561,12 +3751,14 @@ function calculateWaterCore(p) {
           const why1 = [vF ? `${vp.toFixed(2)} m/s exceeds the ${x.cd.maxV} m/s limit` : "", pF ? `${gp.toFixed(0)} Pa/m exceeds the ${x.cd.maxP} Pa/m limit` : ""].filter(Boolean).join(" and "),
             fine = vF && !pF && useP ? ` (friction ${gp.toFixed(0)} Pa/m is fine)` : pF && !vF && useV ? ` (velocity ${vp.toFixed(2)} m/s is fine)` : "";
           why = {k: vF && pF ? "both" : vF ? "velocity" : "friction", t:`${pipe.od} mm is the smallest size that passes (${own}). ${prevC.od} mm fails: ${why1}${fine}.`, s:`${prevC.od} mm fails: ${why1}${fine}.`}; } }
-      return {...x, ci, pipe, noSize, grad:g, v, hf, fitm, eqItems, eqLoss, prvSet, loss, vOk, pOk, Re, reg, why, ok: vOk && pOk, bump: bumps[x.id] || 0};
+      if (x.ring) why = {...why, t:why.t + ` Ring ${x.ring} pipe — ${x.Q.toFixed(3)} L/s from the ring solution${RG.ringOne ? "; the ring is laid in one size" : ""}.`};
+      return {...x, ci, pipe, noSize, grad:g, v, hf, fitm, eqItems, eqLoss, prvSet, loss, vOk, pOk, Re, reg, why, ok: vOk && pOk, bump: x.ring ? Math.max(0, ci - (x.auto >= 0 ? x.auto : ci)) : (bumps[x.id] || 0)};
     });
+    if (RT) wsRingParents(out, root, RT);
     const fill = k => { const x = out[k]; if (x.Pto !== undefined) return; if (x.parent >= 0) fill(x.parent); x.Pfrom = x.parent < 0 ? P0 : out[x.parent].Pto; x.Pto = x.Pfrom - x.loss; x.prvOn = false; if (x.prvSet != null && x.Pto > x.prvSet) { x.Pto = x.prvSet; x.prvOn = true; } };
     out.forEach((_, k) => fill(k));
-    const nodeP = {[root]: P0}; out.forEach(x => { nodeP[x.to] = x.Pto; });
-    const rc = Object.keys(nodeReq).map(n => ({node:n, res:nodeP[n], req:nodeReq[n], margin:nodeP[n] - nodeReq[n], sec:out.findIndex(x => x.to === n)}));
+    const nodeP = {[root]: P0}; out.forEach(x => { if (!x.closing) nodeP[x.to] = x.Pto; });
+    const rc = Object.keys(nodeReq).map(n => ({node:n, res:nodeP[n], req:nodeReq[n], margin:nodeP[n] - nodeReq[n], sec:out.findIndex(x => x.to === n && !x.closing)}));
     const crit = rc.reduce((a, b) => (!a || b.margin < a.margin ? b : a), null);
     const path = []; if (crit) { let k = crit.sec; while (k >= 0) { path.unshift(k); k = out[k].parent; } }
     return {out, rc, crit, path};
@@ -3587,12 +3779,12 @@ function calculateWaterCore(p) {
   const elev = {}; const elevOf = k => { if (elev[k] != null) return elev[k]; const x = out[k]; return elev[k] = (x.parent < 0 ? 0 : elevOf(x.parent)) + x.dz; }; out.forEach((_, k) => elevOf(k));
   out.forEach((x, k) => { x.elev = elev[k]; });
   // v1.44: elevation of every node (above the project datum when the supply has a position, else above the supply) and the HGL = pressure + elevation
-  const zSrc = wsHasXYZ(nodeMap[root]) ? Number(nodeMap[root].z) : 0, nodeZ = {[root]:zSrc}, hgl = {[root]:P0 + zSrc}; out.forEach(x => { nodeZ[x.to] = zSrc + x.elev; hgl[x.to] = x.Pto + zSrc + x.elev; });
+  const zSrc = wsHasXYZ(nodeMap[root]) ? Number(nodeMap[root].z) : 0, nodeZ = {[root]:zSrc}, hgl = {[root]:P0 + zSrc}; out.forEach(x => { if (x.closing) return; nodeZ[x.to] = zSrc + x.elev; hgl[x.to] = x.Pto + zSrc + x.elev; });
   // Static (no-flow) pass: the same tree with friction, fittings allowance, the extra loss typed on a pipe and the equipment K / equivalent-length /
   // pressure-drop losses all set to zero. Elevation change and PRV set pressures are kept. A booster-pump item adds no head at no flow.
   const fillS = k => { const x = out[k]; if (x.PtoS !== undefined) return; if (x.parent >= 0) fillS(x.parent); x.PfromS = x.parent < 0 ? sP0 : out[x.parent].PtoS; x.PtoS = x.PfromS - x.dz; if (x.prvSet != null && x.PtoS > x.prvSet) x.PtoS = x.prvSet; };
   out.forEach((_, k) => fillS(k));
-  const nodeS = {[root]: sP0}; out.forEach(x => { nodeS[x.to] = x.PtoS; });
+  const nodeS = {[root]: sP0}; out.forEach(x => { if (!x.closing) nodeS[x.to] = x.PtoS; });
   // pressure class of each pipe, derated for the water temperature (nominal PN is read from the material name)
   out.forEach(x => { const pn = wsPnOf(x.cd.mat, x.cd.matKey); if (pn == null) return; const d = wsDerate(x.cd.mat, x.cd.matKey, T), f = d.factor == null ? 1 : d.factor; x.pnNom = pn; x.pnFac = f; x.pnDer = pn*f; x.derate = d; });
   const mainSec = out.filter(x => x.parent < 0).reduce((a, b) => (!a || b.Q > a.Q ? b : a), null);
@@ -3608,7 +3800,7 @@ function calculateWaterCore(p) {
   const rh = out.filter(x => x.cls === "riser" && x.ori === "h"); if (rh.length) warn.push(`Riser section${rh.length > 1 ? "s" : ""} ${rh.map(x => x.id).join(", ")} ${rh.length > 1 ? "are" : "is"} horizontal — check the pipe class or orientation.`);
   if (bad.some(x => x.noSize)) warn.push(`No configured size satisfies the limits for section${bad.filter(x => x.noSize).length > 1 ? "s" : ""} ${bad.filter(x => x.noSize).map(x => x.id).join(", ")} — the largest size is shown. Add a size or revise the criteria.`);
   const lim = bad.filter(x => !x.noSize); if (lim.length) warn.push(`Section${lim.length > 1 ? "s" : ""} ${lim.map(x => x.id).join(", ")} exceed${lim.length > 1 ? "" : "s"} the velocity / friction limit with the size selected.`);
-  const needSrc = P0 - minMargin, critRise = crit ? (out.find(x => x.to === crit.node) || {elev:0}).elev : 0, critLoss = crit ? P0 - crit.res - critRise : 0;
+  const needSrc = P0 - minMargin, critRise = crit ? (out.find(x => x.to === crit.node && !x.closing) || {elev:0}).elev : 0, critLoss = crit ? P0 - crit.res - critRise : 0;
   if (crit && minMargin < -1e-9) warn.push(`Not enough supply pressure: ${P0.toFixed(1)} m is supplied but about ${needSrc.toFixed(1)} m is needed at the source. The most demanding point (${crit.node}) is ${critRise.toFixed(1)} m ${critRise >= 0 ? "above" : "below"} the supply node, the pipes lose ${critLoss.toFixed(1)} m, and ${crit.req.toFixed(1)} m must remain there — ${(-minMargin).toFixed(1)} m short. ${upsizeReverted ? "Larger pipes were tried and cannot close a gap this size, so the automatic sizes are kept. " : ""}Add a booster pump or raise the supply pressure (Results → Pump duty gives the head).`);
   if (system === "total") { const used = new Set(fix.map(f => f.fixture)), miss = lib.filter(f => used.has(f.name) && !wsHas(f.luTot)).map(f => f.name);
     if (miss.length) warn.push(`No combined value in Reference Data for ${some(miss)} — the cold value is used.`); }
@@ -3619,7 +3811,7 @@ function calculateWaterCore(p) {
     const negL = out.filter(x => x.Pto < -1e-9 && x.Q > 0).map(x => x.to), negD = out.filter(x => x.Pto < -1e-9 && !(x.Q > 0));
     if (negL.length) warn.push(`Pressure is below zero at ${some(negL)} (lowest ${Math.min(...out.filter(x => x.Q > 0).map(x => x.Pto)).toFixed(1)} m) — water cannot be lifted that high from this supply pressure, so nothing downstream of ${negL[0]} would receive water.`);
     if (negD.length) warn.push(`${some(negD.map(x => x.id))} end${negD.length > 1 ? "" : "s"} above the last fixture and serve${negD.length > 1 ? "" : "s"} nothing — the pressure there would be below zero (${negD.map(x => x.id + ": " + x.dz.toFixed(1) + " m rise").slice(0, 3).join(", ")}). Delete ${negD.length > 1 ? "them" : "it"}, or connect the fixture ${negD.length > 1 ? "they are" : "it is"} meant to serve.`); }
-  const idle = out.filter(x => !(x.Q > 0)); if (idle.length) warn.push(`Section${idle.length > 1 ? "s" : ""} ${idle.map(x => x.id).join(", ")} serve no demand.`);
+  const idle = out.filter(x => !(x.Q > 0) && !x.ring); if (idle.length) warn.push(`Section${idle.length > 1 ? "s" : ""} ${idle.map(x => x.id).join(", ")} serve no demand.`);
   // ── review items: every one says what is wrong and points at the pipe or node to look at ──
   const valAll = valEarly || wsValidate(p);
   const issues = [], I = (sev, code, text, kind, id) => issues.push({sev, code, text, kind:kind || null, id:id == null ? null : id});
@@ -3631,7 +3823,7 @@ function calculateWaterCore(p) {
     else if (x.demState === "below") I("info", "below-table", `${x.id}: ${+x.LU.toFixed(2)} ${dem.unit} is below the first table row (${dem.knots[0][0]}) — the first-row flow (${dem.knots[0][1]} L/s) is used, which is conservative.`, "sec", x.id);
     if (x.Qd > 0 && x.reg === "transitional") I("info", "regime", `${x.id}: Reynolds number ${x.Re.toFixed(0)} is in the laminar-to-turbulent transition (2300–4000); the friction factor is approximate there.`, "sec", x.id);
     if (x.cls === "riser" && x.ori === "h" && !valAll.items.some(i => i.id === x.id && /is typed/.test(i.text))) I("warn", "riser-h", `${x.id} is a Riser but is horizontal — check the class or the orientation.`, "sec", x.id);
-    if (!(x.Q > 0) && !(x.Pto < -1e-9)) I("warn", "no-demand", `${x.id} serves no demand.`, "sec", x.id);
+    if (!(x.Q > 0) && !(x.Pto < -1e-9) && !x.ring) I("warn", "no-demand", `${x.id} serves no demand.`, "sec", x.id);
     if (x.ovr !== null && x.auto >= 0 && x.pipe.od !== x.cd.cands[x.auto].od) I("info", "manual", `${x.id}: manual size ${x.pipe.od} mm differs from the automatic ${x.cd.cands[x.auto].od} mm.`, "sec", x.id);
     x.eqItems.forEach(it => { if (!it.has) I("warn", "eq-blank", `${x.id}: ${it.tag || WS_EQ[it.type].l} has no value — it adds no loss.`, "sec", x.id); });
     if (x.prvSet != null && !x.prvOn) I("warn", "prv-idle", `${x.id}: the PRV (set ${x.prvSet.toFixed(1)} m) is not regulating — only ${x.Pto.toFixed(1)} m reaches it.`, "sec", x.id);
@@ -3644,11 +3836,11 @@ function calculateWaterCore(p) {
     negD.forEach(x => I("warn", "dead-end", `${x.id} ends ${x.dz >= 0 ? x.dz.toFixed(1) + " m above" : "at"} the node it leaves and serves nothing — pressure at ${x.to} would be ${x.Pto.toFixed(1)} m. Delete it, or connect the fixture it is meant to serve.`, "sec", x.id)); }
   // maximum pressure — at the fixtures (the limit set on Setup) and in the pipes (the pressure class of the material)
   { const maxF = wsFin(p.maxFixP) && Number(p.maxFixP) > 0 ? Number(p.maxFixP) : null;
-    if (maxF != null) { const hi = Object.keys(nodeReq).map(n => ({node:n, pr:(out.find(x => x.to === n) || {Pto:P0}).Pto})).filter(r => r.pr > maxF + 1e-9).sort((a, b) => b.pr - a.pr);
+    if (maxF != null) { const hi = Object.keys(nodeReq).map(n => ({node:n, pr:(out.find(x => x.to === n && !x.closing) || {Pto:P0}).Pto})).filter(r => r.pr > maxF + 1e-9).sort((a, b) => b.pr - a.pr);
       hi.slice(0, 6).forEach(r => I("warn", "max-fixture-pressure", `${r.node}: ${r.pr.toFixed(1)} m (${(r.pr/WS_BAR).toFixed(1)} bar) at the fixture — above the maximum fixture pressure of ${maxF} m set on Setup. A PRV or a pressure zone is needed.`, "node", r.node));
       if (hi.length > 6) I("warn", "max-fixture-pressure", `…and ${hi.length - 6} more fixture node${hi.length - 6 > 1 ? "s" : ""} above the maximum fixture pressure of ${maxF} m.`, "node", hi[6].node); }
     // at NO flow friction vanishes and the lower floors see MORE pressure: a fixture or pipe that passes at peak flow can fail here
-    const stHi = maxF == null ? [] : Object.keys(nodeReq).map(n => ({node:n, dyn:(out.find(x => x.to === n) || {Pto:P0}).Pto, st:nodeS[n]})).filter(r => r.st > maxF + 1e-9 && !(r.dyn > maxF + 1e-9)).sort((a, b) => b.st - a.st);
+    const stHi = maxF == null ? [] : Object.keys(nodeReq).map(n => ({node:n, dyn:(out.find(x => x.to === n && !x.closing) || {Pto:P0}).Pto, st:nodeS[n]})).filter(r => r.st > maxF + 1e-9 && !(r.dyn > maxF + 1e-9)).sort((a, b) => b.st - a.st);
     stHi.slice(0, 6).forEach(r => I("warn", "max-fixture-pressure-static", `${r.node}: ${r.st.toFixed(1)} m (${(r.st/WS_BAR).toFixed(1)} bar) with NO FLOW — above the maximum fixture pressure of ${maxF} m set on Setup (${r.dyn.toFixed(1)} m at peak flow). At zero flow friction vanishes, so the static pressure governs. A PRV or a pressure zone is needed.`, "node", r.node));
     if (stHi.length > 6) I("warn", "max-fixture-pressure-static", `…and ${stHi.length - 6} more fixture node${stHi.length - 6 > 1 ? "s" : ""} above the maximum fixture pressure of ${maxF} m with no flow.`, "node", stHi[6].node);
     const over = [], overS = [];
@@ -3668,9 +3860,15 @@ function calculateWaterCore(p) {
   { const pm = []; out.forEach(x => x.eqItems.forEach(it => { if (it.mode === "pump" && it.has) pm.push({id:x.id, tag:it.tag || WS_EQ[it.type].ab}); }));
     if (pm.length) I("info", "pump-item-static", `${pm.map(q => q.tag + " on " + q.id).join(", ")} ${pm.length > 1 ? "add" : "adds"} head only while water flows — at no flow ${pm.length > 1 ? "they add" : "it adds"} nothing, so the static pressure beyond ${pm.length > 1 ? "them" : "it"} does not include the head ${pm.length > 1 ? "they give" : "it gives"}. If the pump has a real shut-off head, the no-flow pressure downstream is higher than shown and the maximum fixture pressure and pipe rating checks may be understated.`, "sec", pm[0].id); }
   (Array.isArray(p.wsNodes) ? p.wsNodes : []).forEach(n => { if (n && n.id != null && Number(n.reqP) > 0 && nodeReq[n.id] != null && nodeReq[n.id] > Number(n.reqP) + 1e-9) I("info", "reqp-lower", `Node ${n.id}: the required pressure typed on it (${Number(n.reqP)} m) is below what its load needs (${nodeReq[n.id].toFixed(1)} m), so ${nodeReq[n.id].toFixed(1)} m is used. A node requirement can raise the figure from the fixtures, not lower it.`, "node", n.id); });
+  if (freqOn) {
+    I("info", "freq", `Frequency of use (IOP Table 15): ${WS_CLASSES.map(c => `${c.l === "Branch" ? "branches" : c.l.toLowerCase() + "s"} ${wsFreqLbl(cdef[c.k].freq).toLowerCase()}`).join(" · ")}${RG ? ` · ring main ${wsFreqLbl(RG.mode).toLowerCase()}` : ""}. Each pipe adds up the loading units at the frequency of its class.`);
+    Object.values(FB).forEach(b => I("info", "freq-fb", b.used ? `${b.name}: ${wsFreqLbl(b.want)} is not in the fixture table — ${wsFreqLbl(b.used)} used.` : `${b.name}: no Low / Medium / High values in Reference Data — the fixture table value is used for ${wsFreqLbl(b.want)}.`)); }
+  if (RG) { RG.rings.forEach(r => { const inf = RG.F.info.find(f => f.i === r.i) || {}; const cl = out.filter(x => x.ring === r.i + 1 && x.closing).map(x => x.id);
+      I("info", "ring", `Ring ${r.i + 1} (${r.ids.length} pipes, fed at ${r.entry}): ${+r.LU.toFixed(1)} ${dem.unit} → ${r.Qin.toFixed(2)} L/s from the demand table at the ring's total loading units, shared to its nodes by their loading units and split round the ring by Hardy Cross${inf.conv === false ? " — NOT fully converged, check the ring" : ` (${inf.it} iteration${inf.it === 1 ? "" : "s"})`}. The flows meet at ${cl.length ? cl.join(", ") : "—"}.`, "sec", r.ids[0]);
+      if (inf.conv === false) I("warn", "ring-conv", `Ring ${r.i + 1}: the flow split did not converge — check for a pipe with an extreme size or length.`, "sec", r.ids[0]); }); }
   const nFail = issues.filter(i => i.sev === "fail").length, nWarn = issues.filter(i => i.sev === "warn").length, nInfo = issues.filter(i => i.sev === "info").length;
   const status = nFail ? "fail" : nWarn ? "warn" : "valid";
-  const critOut = crit ? out.find(x => x.to === crit.node) : null;
+  const critOut = crit ? out.find(x => x.to === crit.node && !x.closing) : null;
   const critical = crit ? {node:crit.node, available:crit.res, required:crit.req, margin:crit.margin, path:sol.path.map(k => out[k].id), rise:critRise} : null;
   const refInfo = (() => { const kn = dem.knots, fixUsed = [...new Set(fix.map(f => f.fixture))].sort().map(n => { const L = libBy[n]; return L ? [n, L.lu, L.luHot, L.luTot, L.flow, L.minP].join("|") : n; }).join(";");
     const mats = [...new Set(WS_CLASSES.map(c => cdef[c.k].matKey))].map(k => { const m = PIPE_MATERIALS[k]; return {key:k, label:m.label, sizes:m.table.length, hash:wsHash([k, m.hwC, m.roughness, m.table.map(r => r.od + "/" + r.id).join(",")].join("|"))}; });
@@ -3683,6 +3881,8 @@ function calculateWaterCore(p) {
     {label:"Friction method", value:isDW ? `Darcy-Weisbach (ν = ${(nu*1e6).toFixed(3)} mm²/s)` : "Hazen-Williams"},
     {label:"Sizing criterion", value:SIZING_LBL[sc]},
     ...used.map((c, i) => ({...(i === 0 ? {s:"Pipe Classes"} : {}), label:`${c.l}: ${c.cd.mat.label}`, value:`${useV ? `≤ ${c.cd.maxV} m/s` : ""}${useV && useP ? " · " : ""}${useP ? `≤ ${c.cd.maxP} Pa/m` : ""}${c.cd.minOD ? ` · min ${c.cd.minOD} mm` : ""}${c.cd.spare ? ` · +${c.cd.spare}%` : ""}`})),
+    ...(freqOn ? [{s:"Frequency of Use", label:"Main / riser / branch (IOP Table 15)", value:WS_CLASSES.map(c => wsFreqLbl(cdef[c.k].freq)).join(" / ")}] : []),
+    ...(RG ? [{s:"Ring Mains", label:"Rings / ring pipes", value:`${RG.rings.length} / ${RG.rings.reduce((a, r) => a + r.ids.length, 0)} · Hardy Cross${RG.ringOne ? " · one size per ring" : ""}`}] : []),
     {s:"Demand", label:"Fixtures / total loading units", value:`${totN.toFixed(0)} / ${totLU.toFixed(0)} ${dem.unit}`},
     {label:"Peak flow at source", value:`${f1(Qsrc)} L/s`, hl:true},
     {s:"Pipe Sizing", label:"Sections / critical path", value:`${out.length} / ${crit ? sol.path.map(k => out[k].id).join(" → ") : "—"}`},
@@ -3695,7 +3895,9 @@ function calculateWaterCore(p) {
   const ok = status === "valid";
   const selStr = `${totN.toFixed(0)} fixtures · ${f1(totLU, 0)} ${dem.unit} · Peak flow ${f1(Qsrc)} L/s at source — Main ${mainSec ? mainSec.pipe.od : "—"} mm — minimum residual margin ${f1(minMargin, 1)} m${ok ? "" : " — REVIEW"}`;
   const water = {pumpIn:p, out, rc:sol.rc, crit, path:sol.path, dem, system, T, nu, isDW, P0, sP0, nodeS, Pmin, fitPc, root, Qsrc, totLU, totQc, totN, mainSec, minMargin, upsized, upsizeReverted, needSrc, critRise, directLU, fixLU:totLU - directLU, warn, issues, status, nFail, nWarn, nInfo, critical, refInfo, validation:val, aboveMode:p.wsAbove === "block" ? "block" : "flag", ok, nSec:out.length, useV, useP, sc,
-    classes, groups, cdef, libBy, lib, nodeReq, nodeLU, nodeQc, directAt, selStr, order, nodeZ, hgl, zSrc};
+    classes, groups, cdef, libBy, lib, nodeReq, nodeLU:nodeLUm(srcMode), nodeQc, directAt, selStr, order, nodeZ, hgl, zSrc,
+    freq:freqOn ? {on:true, src:srcMode, ring:RG ? RG.mode : null, byCls:Object.fromEntries(WS_CLASSES.map(c => [c.k, cdef[c.k].freq])), fb:Object.values(FB)} : {on:false, src:"", byCls:{}, fb:[]},
+    rings: RG ? RG.rings.map(r => ({n:r.i + 1, entry:r.entry, ids:r.ids, LU:r.LU, Qin:r.Qin, closing:out.filter(x => x.ring === r.i + 1 && x.closing).map(x => x.id)})) : []};
   return {valid:true, water, flowLsPerPump:Qsrc, flowTotal:Qsrc, designFlow:Qsrc, totalH:"—", pwrSel:"—", config:`${out.length} sections`, setText:`${out.length} pipe sections`,
     set:{duty:out.length, standby:0, installed:out.length, sharing:"full"}, connectedKw:0, installedKw:0, velOk:ok, pipe:null, dutyPoints:[], steps, selStr};
 }
@@ -3783,6 +3985,8 @@ function waterDesignBasis(p) {
     "Downstream fixtures are aggregated automatically along the connected network; loading units are converted to probable flow with the demand table named below.",
     `Each section is sized as the smallest configured pipe meeting the velocity and friction limits set for its class (main, riser or branch); ${p && p.headLossMethod === "HW" ? "Hazen-Williams" : "Darcy-Weisbach"} friction, fittings allowance, equipment losses and static head (vertical sections) give the residual pressure along every route.`,
     ...(p && p.wsSource !== "fixed" ? ["The pump flow is the probable peak flow of all fixtures. The pump head is the pressure needed at the source to satisfy the most demanding fixture, less the suction pressure, plus the losses between the pump and the source, with the head safety factor entered on Setup (10 % unless changed)."] : []),
+    ...(p && p.system !== "hot" && WS_CLASSES.some(c => ((p.wsCls || {})[c.k] || {}).freq) ? [`Loading units are taken at the frequency of use of IOP Table 15 set for each pipe class (main ${wsFreqLbl(((p.wsCls || {}).main || {}).freq).toLowerCase()}, riser ${wsFreqLbl(((p.wsCls || {}).riser || {}).freq).toLowerCase()}, branch ${wsFreqLbl(((p.wsCls || {}).branch || {}).freq).toLowerCase()}); where the table gives no value at that frequency the nearest one is used.`] : []),
+    ...(wsIsRingNet(p) ? ["Ring mains are solved by Hardy Cross: the probable flow of each ring is read from the demand table at the ring's total loading units, shared to the take-offs in proportion to their loading units and split round the ring by friction. Pipes outside the rings are sized from their own loading units."] : []),
     "Residual pressure is checked at every fixture node and the critical (remote) route is reported. Pipe sizes and pressures use the approved in-application reference schedules.",
   ];
 }
@@ -3939,7 +4143,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   (Array.isArray(p.wsFix) ? p.wsFix : []).forEach(f => {
     const L = w.libBy[f.fixture], q = Number(f.qty) || 0; if (!L || !(q > 0)) return;
     const a = fixAt[f.node] = fixAt[f.node] || {lu:0, g:{}};
-    a.lu += q*wsLibLu(L, w.system); const b = FK.codeOf[L.name] || L.base || L.name; a.g[b] = (a.g[b] || 0) + q;
+    a.lu += q*wsLibLu(L, w.system, w.freq && w.freq.src); const b = FK.codeOf[L.name] || L.base || L.name; a.g[b] = (a.g[b] || 0) + q;
   });
   Object.entries(w.directAt || {}).forEach(([n, d]) => { const a = fixAt[n] = fixAt[n] || {lu:0, g:{}}; a.lu += d.lu; a.direct = d; });
   const press = {}; rootsL.forEach(r => { press[r.root] = r.P0; }); out.forEach(x => { press[x.to] = x.Pto; });
@@ -4324,8 +4528,9 @@ function wsEdDrawPipe(p, aRef, bRef, tw, opt) {
   // which network does each end belong to? (a network = the pipes connected to one supply node)
   const sups = empty ? [A.id] : wsSupplyIds(p), compIx = id => sups.findIndex(r => wsEdComp(w.net, r).has(id)), ia = compIx(A.id), ib = compIx(B.id);
   const joinOK = ia >= 0 && ib >= 0 && ia !== ib && !wsMarkedX(p).length;      // an unmarked drawing that was read as several networks: a pipe between them joins them into one, as it always did
-  if (ia >= 0 && ib >= 0 && ia === ib && !wsIsGas(p)) return err("That would close a loop — the network is a branched tree and every node is fed by one pipe only. End the pipe on a free point, or on a node that is not yet connected.");
-  if (ia >= 0 && ib >= 0 && !joinOK && !wsIsGas(p)) return err("That would join two separate networks — a connected network has one supply, and ring mains are not supported. End the pipe on a free point, or on a node of the same network.");
+  const ringClose = ia >= 0 && ib >= 0 && ia === ib;
+  if (false) return err("That would close a loop — the network is a branched tree and every node is fed by one pipe only. End the pipe on a free point, or on a node that is not yet connected.");
+  if (ia >= 0 && ib >= 0 && !joinOK && !ringClose && !wsIsGas(p)) return err("That would join two separate networks — a connected network has one supply, and ring mains are not supported. End the pipe on a free point, or on a node of the same network.");
   let sup = ia >= 0 ? sups[ia] : ib >= 0 ? sups[ib] : null, started = false;
   if (ia < 0 && ib < 0) {
     if (!oo.newNet) return err("A pipe must connect to the network — start or end it on a node or on a pipe that is already connected (or switch on “New network” to start another network with its own supply).");
@@ -4336,6 +4541,7 @@ function wsEdDrawPipe(p, aRef, bRef, tw, opt) {
   }
   const sid = wsNextSec(wsEdPseudo(w));
   w.net.push({id:sid, cls:"branch", ori:"h", from:A.id, to:B.id, len:0, loss:"", od:"", clsAuto:true, ...(tw ? {tower:tw} : {})});
+  if (ringClose && !wsMarkedX(p).length && sup != null) { const n = w.nodes.find(q => q.id === sup); if (n) n.supply = true; }   // v1.71: a ring keeps its supply marked
   const p2 = {...p, wsNodes:w.nodes, wsNet:w.net}; p2.wsNet = wsEdNormalise(p2, sup).wsNet;
   const bad = wsEdNewErrors(p, p2); if (bad.length) return err(bad[0].text);
   const s2 = p2.wsNet.find(x => x.id === sid);
@@ -4767,7 +4973,9 @@ function wsEdReconnect(p, secId, o) {
   for (const [lab, id] of [["From", from], ["To", to]]) if (!has(id)) return err(`${lab}: there is no node “${id}” in the drawing. Type the name of a node that is already there (a node is renamed from the pipe that ends at it, or from the strip above the drawing).`);
   if (from === to) return err("From and To must be two different nodes.");
   const sup = wsEdSupplyId(p), sups = wsSupplyIds(p), net2 = net.map((x, j) => j === i ? {...x, from, to} : x), ids = new Set(); net2.forEach(x => { ids.add(x.from); ids.add(x.to); });
-  if (net2.length !== ids.size - (wsMarked(p).length ? wsComps(net2).length : 1)) return err("That would give a node two feeding pipes or close a loop — the network is a branched tree and every node is fed by one pipe only.");
+  { const rank = q => { const nn = new Set(); q.forEach(x => { nn.add(x.from); nn.add(x.to); }); return q.length - nn.size + wsComps(q).length; };
+    const oldFail = net2.length !== ids.size - (wsMarked(p).length ? wsComps(net2).length : 1);   // the pre-v1.71 tree rule — kept as is for a tree
+    if (oldFail && (rank(net) === 0 || rank(net2) > rank(net))) return err("That would give a node two feeding pipes or close a loop — the network is a branched tree and every node is fed by one pipe only. To make a ring main, draw the closing pipe with the Pipe tool."); }
   if (wsComps(net2).some(c => sups.filter(r => c.ids.has(r)).length > 1)) return err("That would join two separate networks — a connected network has one supply, and ring mains are not supported.");
   const comp = wsEdRootedNet(net2, sups);
   if (!sups.some(r => ids.has(r)) || [...ids].some(id => !comp.has(id))) return err(from !== s.from ? `${from} is beyond ${to} (it is fed through this pipe), so ${from} cannot feed it — choose a node on the supply side.` : `That would cut part of the network off from the supply.`);
@@ -5652,12 +5860,16 @@ function clWaterRows(B, p, res) {
     head:[[T("Pipe Class",[1,1]), T("Pipe Material",[2,3]), T("Max Velocity (m/s)",[4,4]), T("Max Friction Loss (Pa/m)",[5,5]), T("Min Pipe Size OD (mm)",[6,6]), T("Spare Capacity (%)",[7,7]), T("Roughness e (mm)",[8,8]), T("H-W C",[9,9])]],
     rows: w.classes.map(c => [T(c.l,[1,1],{al:"l"}), T(c.cd.mat.label,[2,3],{al:"l",input:true}), T(c.cd.maxV,[4,4],{dp:2,input:true}), T(c.cd.maxP,[5,5],{dp:0,input:true}), T(c.cd.minOD,[6,6],{dp:0,input:true}), T(c.cd.spare,[7,7],{dp:0,input:true}), T(c.cd.eps,[8,8],{dp:3,input:true}), T(c.cd.Chw,[9,9],{dp:0,input:true})]),
   });
+  if (w.freq && w.freq.on) { B.gap(); B.text("Frequency of use (IOP Table 15) — each pipe adds up the loading units at the frequency of its class", {bold:true});
+    B.tbl("frq", {head:[[T("Pipe Class",[1,2]), T("Frequency of Use",[3,5]), T("Fixtures with no value at this frequency",[6,9])]],
+      rows:WS_CLASSES.map(c => { const m = w.freq.byCls[c.k], fb = w.freq.fb.filter(b => b.want === m); return [T(c.l,[1,2],{al:"l"}), T(wsFreqLbl(m),[3,5],{al:"l",input:true}), T(fb.length ? fb.map(b => `${b.name} → ${b.used ? wsFreqLbl(b.used) : "table value"}`).join(", ") : "—",[6,9],{al:"l"})]; })});
+    B.text(`Fixture loading units, the fixture summary and the source flow are shown at the main frequency (${wsFreqLbl(w.freq.src)})${w.freq.ring != null ? `; ring mains use ${wsFreqLbl(w.freq.ring)}` : ""}. Missing values use the nearest frequency the table gives.`, {italic:true}); }
   B.gap();
   B.section("3. Demand Data");
   B.text(`Fixture loading units — Reference Data: ${w.dem.label}`, {bold:true});
   B.tbl("lib", {
     head:[[T("Fixture",[1,3]), T(`${wsSysName(w.system)} Loading Units (${w.dem.unit})`,[4,5]), T("Continuous Flow (l/s)",[6,7]), T("Min. Pressure (m)",[8,9])]],
-    rows: libUsed.map(f => [T(f.name,[1,3],{al:"l"}), T(wsLibLu(f, w.system),[4,5],{dp:1,input:true}), T(Number(f.flow) || 0,[6,7],{dp:2,input:true}), T(Number(f.minP) > 0 ? Number(f.minP) : w.Pmin,[8,9],{dp:1,input:true})]),
+    rows: libUsed.map(f => [T(f.name,[1,3],{al:"l"}), T(wsLibLu(f, w.system, w.freq && w.freq.src),[4,5],{dp:1,input:true}), T(Number(f.flow) || 0,[6,7],{dp:2,input:true}), T(Number(f.minP) > 0 ? Number(f.minP) : w.Pmin,[8,9],{dp:1,input:true})]),
   });
   B.gap();
   { const FK = wsFixKey(w, p);
@@ -5671,7 +5883,7 @@ function clWaterRows(B, p, res) {
   B.text("Fixture schedule", {bold:true});
   B.tbl("fx", {
     head:[[T("Level",[1,1]), T("Room / Area",[2,3]), T("Fixture",[4,4]), T("Connected Node",[5,5]), T("Qty",[6,6]), T("LU Each",[7,7]), T("LU Total",[8,8]), T("Continuous Flow (l/s)",[9,9])]],
-    rows: fix.map(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0, lu = wsLibLu(L, w.system);
+    rows: fix.map(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0, lu = wsLibLu(L, w.system, w.freq && w.freq.src);
       return [T(f.level || "",[1,1],{al:"l"}), T(f.room || "",[2,3],{al:"l"}), T(f.fixture,[4,4],{input:true,dv:"lib.A"}), T(f.node,[5,5],{input:true}), T(q,[6,6],{dp:0,input:true}),
         T(lu,[7,7],{dp:1,xl:"INDEX({@lib.D},MATCH({#D},{@lib.A},0))"}), T(q*lu,[8,8],{dp:1,xl:"{#F}*{#G}"}), T(q*(Number(L.flow) || 0),[9,9],{dp:2,xl:"{#F}*INDEX({@lib.F},MATCH({#D},{@lib.A},0))"})]; })
       .concat(Object.entries(w.directAt || {}).map(([id, d]) => [T("",[1,1]), T("Direct load",[2,3],{al:"l"}), T("Direct load",[4,4],{al:"l"}), T(id,[5,5],{input:true}), T(null,[6,6]), T(null,[7,7]), T(d.lu,[8,8],{dp:1,input:true}), T(d.q,[9,9],{dp:2,input:true})])),
@@ -5706,7 +5918,8 @@ function clWaterRows(B, p, res) {
   B.text("Downstream fixtures are summed automatically for every section; probable flow is read from the demand table.", {italic:true});
   B.tbl("dm", {
     head:[[T("Section",[1,1]), T("Pipe Class",[2,2]), T("Fixtures",[3,3]), T(`Cumulative ${w.dem.unit}`,[4,4]), T("Continuous Flow (l/s)",[5,5]), T("Probable Flow (l/s)",[6,6]), T("Spare Capacity (%)",[7,7]), T("Design Flow (l/s)",[8,9])]],
-    rows: w.out.map(x => [T(x.id,[1,1],{al:"l"}), T(x.cd.l,[2,2],{xl:"{~nt.B}"}), T(x.N,[3,3],{dp:0,xl:sumif(x.sub, "F")}), T(x.LU,[4,4],{dp:1,xl:sumif(x.sub, "H")}), T(x.Qc,[5,5],{dp:2,xl:sumif(x.sub, "I")}),
+    rows: w.out.map(x => (x.ring || (w.freq && w.freq.on && (x.cd.freq || "") !== w.freq.src)) ? [T(x.id + (x.ring ? " (ring " + x.ring + ")" : " (" + wsFreqLbl(x.cd.freq).toLowerCase() + ")"),[1,1],{al:"l"}), T(x.cd.l,[2,2],{xl:"{~nt.B}"}), T(x.N,[3,3],{dp:1}), T(x.LU,[4,4],{dp:1}), T(x.Qc,[5,5],{dp:2}),
+      T(x.Q,[6,6],{dp:3}), T(x.spare,[7,7],{dp:0,xl:clsOf("G")}), T(x.Qd,[8,9],{dp:3,xl:"{#F}*(1+{#G}/100)"})] : [T(x.id,[1,1],{al:"l"}), T(x.cd.l,[2,2],{xl:"{~nt.B}"}), T(x.N,[3,3],{dp:0,xl:sumif(x.sub, "F")}), T(x.LU,[4,4],{dp:1,xl:sumif(x.sub, "H")}), T(x.Qc,[5,5],{dp:2,xl:sumif(x.sub, "I")}),
       T(x.Q,[6,6],{dp:3,xl:`${interp("{#D}")}+{#E}`}), T(x.spare,[7,7],{dp:0,xl:clsOf("G")}), T(x.Qd,[8,9],{dp:3,xl:"{#F}*(1+{#G}/100)"})]),
   });
   B.gap();
@@ -5860,7 +6073,7 @@ function clWaterRows(B, p, res) {
   w.issues.filter(i => !["pressure", "negative", "riser-h", "no-demand", "eq-blank", "prv-idle", "no-combined"].includes(i.code)).forEach(i => B.text((i.sev === "fail" ? "✗ " : i.sev === "warn" ? "⚠ " : "ⓘ ") + i.text, {warn:i.sev !== "info", italic:i.sev === "info"}));
   B.gap();
   B.text("Assumptions and limits of this calculation", {bold:true});
-  ["Single supply node and a branched (tree) network — looped networks are not modelled.",
+  [w.rings && w.rings.length ? `Single supply node; ${w.rings.length} ring main${w.rings.length > 1 ? "s" : ""} solved by Hardy Cross — the probable flow of each ring is read from the demand table at the ring's total loading units, shared to its nodes in proportion to the loading units they serve and split round the ring by friction; pipes outside the rings are sized from their own loading units.` : "Single supply node and a branched (tree) network — looped networks are not modelled.",
    "Probable flow is read from the demand table at the cumulative loading units of each pipe; flows of branches do not add.",
    w.isDW ? `Friction by Darcy-Weisbach with the Swamee-Jain friction factor at ${w.T} °C (laminar 64/Re below Re 2300; approximate between 2300 and 4000).` : "Friction by Hazen-Williams with the C value of each pipe material.",
    `Fittings are allowed as ${w.fitPc}% of the friction loss; equipment losses are taken at the design flow of the pipe they sit on; a PRV holds its set pressure when more arrives.`,
@@ -5911,6 +6124,10 @@ function clWaterCompact(B, p, res, po) {
     head:[[T("Pipe Class",[1,1]), T("Pipe Material",[2,3]), T("Max Velocity (m/s)",[4,4]), T("Max Friction (Pa/m)",[5,5]), T("Min Size OD (mm)",[6,6]), T("Spare (%)",[7,7]), T("Roughness e (mm)",[8,8]), T("H-W C",[9,9])]],
     rows: w.classes.filter(c => c.n > 0).map(c => [T(c.l,[1,1],{al:"l"}), T(c.cd.mat.label,[2,3],{al:"l"}), T(c.cd.maxV,[4,4],{dp:2}), T(c.cd.maxP,[5,5],{dp:0}), T(c.cd.minOD,[6,6],{dp:0}), T(c.cd.spare,[7,7],{dp:0}), T(c.cd.eps,[8,8],{dp:3}), T(c.cd.Chw,[9,9],{dp:0})]),
   });
+  if (w.freq && w.freq.on) { B.gap(); B.text("Frequency of use (IOP Table 15) — each pipe adds up the loading units at the frequency of its class", {bold:true});
+    B.tbl("frq", {head:[[T("Pipe Class",[1,2]), T("Frequency of Use",[3,5]), T("Fixtures with no value at this frequency",[6,9])]],
+      rows:WS_CLASSES.map(c => { const m = w.freq.byCls[c.k], fb = w.freq.fb.filter(b => b.want === m); return [T(c.l,[1,2],{al:"l"}), T(wsFreqLbl(m),[3,5],{al:"l",input:true}), T(fb.length ? fb.map(b => `${b.name} → ${b.used ? wsFreqLbl(b.used) : "table value"}`).join(", ") : "—",[6,9],{al:"l"})]; })});
+    B.text(`Fixture loading units, the fixture summary and the source flow are shown at the main frequency (${wsFreqLbl(w.freq.src)})${w.freq.ring != null ? `; ring mains use ${wsFreqLbl(w.freq.ring)}` : ""}. Missing values use the nearest frequency the table gives.`, {italic:true}); }
   B.gap();
   B.section("2. Fixture Summary");
   { const FK = wsFixKey(w, p);
@@ -5924,7 +6141,7 @@ function clWaterCompact(B, p, res, po) {
     B.gap(); B.text("Fixture schedule by room and node", {bold:true});
     B.tbl("fx", {
       head:[[T("Level",[1,1]), T("Room / Area",[2,3]), T("Fixture",[4,5]), T("Node",[6,6]), T("Qty",[7,7]), T("LU Each",[8,8]), T("LU Total",[9,9])]],
-      rows: fix.map(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0, lu = L ? wsLibLu(L, w.system) : 0;
+      rows: fix.map(f => { const L = w.libBy[f.fixture], q = Number(f.qty) || 0, lu = L ? wsLibLu(L, w.system, w.freq && w.freq.src) : 0;
         return [T(f.level || "",[1,1],{al:"l"}), T(f.room || "",[2,3],{al:"l"}), T(f.fixture,[4,5],{al:"l"}), T(f.node,[6,6]), T(q,[7,7],{dp:0}), T(lu,[8,8],{dp:1}), T(q*lu,[9,9],{dp:1})]; })
         .concat(Object.entries(w.directAt || {}).map(([id, d]) => [T("",[1,1]), T("Direct load",[2,3],{al:"l"}), T("Direct load",[4,5],{al:"l"}), T(id,[6,6]), T(null,[7,7]), T(null,[8,8]), T(d.lu,[9,9],{dp:1})])),
     });
@@ -6027,7 +6244,7 @@ function clWaterCompact(B, p, res, po) {
   w.issues.filter(i => i.sev !== "info" && !["pressure", "negative", "riser-h", "no-demand", "eq-blank", "prv-idle", "no-combined"].includes(i.code)).forEach(i => B.text((i.sev === "fail" ? "✗ " : "⚠ ") + i.text, {warn:true}));
   if (po.assume) {
     B.gap(); B.text("Assumptions and limits of this calculation", {bold:true});
-    ["Single supply node and a branched (tree) network — looped networks are not modelled.",
+    [w.rings && w.rings.length ? `Single supply node; ${w.rings.length} ring main${w.rings.length > 1 ? "s" : ""} solved by Hardy Cross (ring flow from the ring's total loading units, shared by loading units, split by friction).` : "Single supply node and a branched (tree) network — looped networks are not modelled.",
      "Probable flow is read from the demand table at the cumulative loading units of each pipe; flows of branches do not add.",
      w.isDW ? `Friction by Darcy-Weisbach with the Swamee-Jain friction factor at ${w.T} °C.` : "Friction by Hazen-Williams with the C value of each pipe material.",
      "Hot-water circulation, fire flow and tank refill are not included; pipe sizes meet velocity and friction limits only (no noise, erosion or water-hammer check)."].forEach(t => B.text("• " + t, {italic:true}));
@@ -8150,6 +8367,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
   const fix = Array.isArray(pump.wsFix) ? pump.wsFix : [], net = Array.isArray(pump.wsNet) ? pump.wsNet : [];
   const hot = pump.system === "hot", dem = pump.wsDemand || "", demC = wsDemC(pump);
   const lib = wsLibOf(pump);
+  const freqUI = !gasM && !hot && wsHasFreqData(lib);
   const storeyH = Number(pump.storeyH) > 0 ? Number(pump.storeyH) : 3;
   // a demand table must be selected; take the first one in Reference Data (IOP if present) the first time
   useEffect(() => { if (!pump.wsDemand) { const ks = Object.keys(FU_CODES); if (ks.length) u("wsDemand", FU_CODES.iop_lu ? "iop_lu" : ks[0]); } }, [pump.wsDemand]);
@@ -8262,8 +8480,8 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
         <section className="pf-sec">
           <h5><i>2</i>Pipe sizing by class <em>one line per class · each section is sized within the limits of its class</em>
             {!gasM && <span className="pf-h-ctl"><Seg value={sc} onChange={v => uu({sizingCriterion:v})} options={[{value:"velocity", label:"Velocity", title:"Size on maximum velocity"}, {value:"pressure", label:"Δp", title:"Size on maximum friction loss"}, {value:"both", label:"Both", title:"Both limits — the stricter governs"}]} /></span>}</h5>
-          <div className="ws-cs" style={{gridTemplateColumns:"72px minmax(120px,1.7fr) 84px" + (sc !== "pressure" ? " minmax(74px,.7fr)" : "") + (sc !== "velocity" ? " minmax(80px,.8fr)" : "")}}>
-            <span className="ws-cs-h" /><span className="ws-cs-h">Material</span><span className="ws-cs-h">Min. size</span>{sc !== "pressure" && <span className="ws-cs-h r">Max velocity</span>}{sc !== "velocity" && <span className="ws-cs-h r">Max loss</span>}
+          <div className="ws-cs" style={{gridTemplateColumns:"72px minmax(120px,1.7fr) 84px" + (freqUI ? " minmax(104px,.9fr)" : "") + (sc !== "pressure" ? " minmax(74px,.7fr)" : "") + (sc !== "velocity" ? " minmax(80px,.8fr)" : "")}}>
+            <span className="ws-cs-h" /><span className="ws-cs-h">Material</span><span className="ws-cs-h">Min. size</span>{freqUI && <span className="ws-cs-h" title="IOP Table 15 frequency of use — the loading units each pipe of this class adds up">Frequency</span>}{sc !== "pressure" && <span className="ws-cs-h r">Max velocity</span>}{sc !== "velocity" && <span className="ws-cs-h r">Max loss</span>}
             {WS_CLASSES.map(c => { const k = c.k, {mk, m} = matOfK(k), t = (m.table || []).map(x => String(x.od)), cur = String(cls(k).minOD ?? "");
               return <React.Fragment key={k}>
                 <b className="ws-cs-c" style={{color:WS_COL[k], borderLeftColor:WS_COL[k]}}>{c.l === "Branch" ? "Branches" : c.l + "s"}</b>
@@ -8272,6 +8490,8 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                   {families.map(f => <optgroup key={f} label={f}>{Object.entries(PIPE_MATERIALS).filter(([, x]) => famOf(x) === f).map(([kk, x]) => <option key={kk} value={kk}>{x.label || kk}</option>)}</optgroup>)}</select></div></div>
                 <div className="pf-f"><div className="pf-in"><select value={cur} onChange={e => setCls(k, {minOD:e.target.value}, false)} title="Smallest pipe that may be used for this class">
                   <option value="">Any</option>{(cur && !t.includes(cur) ? [cur] : []).concat(t).map(o => <option key={o} value={o}>{o} mm</option>)}</select></div></div>
+                {freqUI && <div className="pf-f"><div className="pf-in"><select value={cls(k).freq || ""} onChange={e => setCls(k, {freq:e.target.value}, false)} title="Frequency of use (IOP Table 15) for this class. As per fixture table = the loading units in Reference Data, as before.">
+                  {WS_FREQ.map(o => <option key={o.k} value={o.k}>{o.l}</option>)}</select></div></div>}
                 {sc !== "pressure" && <N label="Max velocity" unit="m/s" value={cls(k).maxV} onChange={v => setCls(k, {maxV:v})} min={0.1} max={gasM ? 40 : 6} />}
                 {sc !== "velocity" && <N label="Max friction loss" unit="Pa/m" value={cls(k).maxP} onChange={v => setCls(k, {maxP:v})} min={1} max={5000} step={10} />}
               </React.Fragment>; })}
@@ -8299,6 +8519,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
             <N label="Water temperature" unit="°C" value={pump.waterTemp} onChange={v => u("waterTemp", v)} min={1} max={95} hint="Sets the viscosity used by Darcy-Weisbach" />
             <N label="Length of a new vertical pipe" unit="m" value={pump.storeyH ?? ""} onChange={v => u("storeyH", v)} min={0.1} hint="One storey height — given to a new vertical pipe when you draw or add it. It does not change pipes that already exist." />
             <Seg label="Upsize critical path" value={pump.autoUpsize === false ? "off" : "on"} onChange={v => u("autoUpsize", v === "on")} options={[{value:"on", label:"On"}, {value:"off", label:"Off"}]} />
+            <Seg label="Ring main in one size" value={pump.wsRingOne === false ? "no" : "yes"} onChange={v => u("wsRingOne", v === "yes")} options={[{value:"yes", label:"Yes", title:"Every pipe of a ring takes the largest size the ring needs"}, {value:"no", label:"No", title:"Each ring pipe is sized for its own share of the flow"}]} />
             <Seg label="Above the demand table" value={pump.wsAbove === "block" ? "block" : "flag"} onChange={v => u("wsAbove", v)} options={[{value:"flag", label:"Flag for review", title:"Extend the last table segment and mark the result Review — not an approved value"}, {value:"block", label:"Block", title:"Refuse to calculate where the demand is above the largest table value"}]} />
             <div className="pf-f" style={{gridColumn:"span 3"}}><label title="Added to the probable flow of every section of the class">Spare capacity — mains / risers / branches</label>
               <div className="ws-spare">{WS_CLASSES.map(c => <N key={c.k} label={c.l} unit="%" value={cls(c.k).spare ?? 0} onChange={v => setCls(c.k, {spare:v})} max={200} req={false} hint={c.l + ": spare capacity"} />)}</div></div>
@@ -9182,7 +9403,8 @@ function wsRunSelfTest() {
     }
     // ── T08 invalid networks must be blocked, never passed
     { const rows = [], good = wsSelfToPump(WS_ST.cases[1].case, false), mk = (name, f) => { const p = f(JSON.parse(JSON.stringify(good))), r = calculate(p), v = wsValidate(p); rows.push({label:name, exp:"blocked + flagged", act:(r.error ? "blocked" : "CALCULATED (" + r.water.status + ")") + " · " + v.errors + " check error" + (v.errors === 1 ? "" : "s"), ok:!!r.error && v.errors > 0, diff:""}); };
-      mk("Loop — a node fed by two pipes", p => { p.wsNet.push({id:"X1", cls:"branch", ori:"h", from:"C", to:"B", len:5, loss:"", od:"", eq:[]}); return p; });
+      { const p = JSON.parse(JSON.stringify(good)); p.wsNet.push({id:"X1", cls:"branch", ori:"h", from:"C", to:"B", len:5, loss:"", od:"", eq:[]}); const r = calculate(p);
+        rows.push({label:"Loop — a node fed by two pipes: since v1.71 a water ring main is calculated (Hardy Cross), not blocked", exp:"calculated · 1 ring", act:r.error ? "blocked: " + r.errors[0] : `calculated · ${r.water.rings.length} ring${r.water.rings.length === 1 ? "" : "s"}`, ok:!r.error && r.water.rings.length === 1, diff:""}); }
       mk("Closed loop with no supply node", p => { p.wsNet = [{id:"X1", cls:"main", ori:"h", from:"A", to:"B", len:5, loss:"", od:""}, {id:"X2", cls:"main", ori:"h", from:"B", to:"A", len:5, loss:"", od:""}]; return p; });
       mk("Disconnected branch (second supply node)", p => { p.wsNet.push({id:"X1", cls:"branch", ori:"h", from:"Z1", to:"Z2", len:5, loss:"", od:"", eq:[]}); return p; });
       mk("Duplicate section ID", p => { p.wsNet[1].id = p.wsNet[0].id; return p; });
@@ -9193,6 +9415,74 @@ function wsRunSelfTest() {
       mk("Negative equipment value", p => { p.wsNet[0].eq = [{id:"E0", type:"meter", tag:"WM", mode:"dp", val:-2, qty:1}]; return p; });
       mk("Node coordinates that are not numbers", p => { p.wsNodes = [{id:"A", x:"abc", y:0, z:0}]; return p; });
       out.push({id:"T08", name:"Invalid and disconnected networks", why:"Every one of these must be refused by the solver and listed by the network check. A false pass here would be the worst failure.", rows, ms:0}); }
+    // ── T35 v1.71: water ring mains — Hardy Cross split, mass balance, closed-loop pressures, bridges unchanged, guards
+    { const rows = [], base = wsSelfToPump(WS_ST.cases.find(c => c.id === "T02").case, false);
+      const S = (id, from, to, len, cls, ori) => ({id, cls:cls || "main", ori:ori || "h", from, to, len, loss:"", od:"", eq:[]}), F = (node, qty) => ({level:"", room:"", fixture:"TF", node, qty});
+      const ringP = (loads, extra) => ({...base, wsSource:"fixed", supplyPressure:60, autoUpsize:false, wsNodes:[{id:"SRC", x:"", y:"", z:"", supply:true}],
+        wsNet:[S("S0", "SRC", "A", 10), S("AB", "A", "B", 20), S("BC", "B", "C", 20), S("CD", "C", "D", 20), S("DA", "D", "A", 20),
+          S("TB", "B", "Bt", 3, "branch"), S("TC", "C", "Ct", 3, "branch"), S("TD", "D", "Dt", 3, "branch")],
+        wsFix:[F("Bt", loads[0]), F("Ct", loads[1]), F("Dt", loads[2])], ...(extra || {})});
+      const kn = WS_ST.cases.find(c => c.id === "T02").case.knots, Qof = lu => wsInterp(kn, lu);
+      const chk = (lab, p) => { const r = calculate(p); if (r.error) { txt(rows, lab, "calculated", "blocked: " + r.errors[0]); return null; } return r.water; };
+      const w = chk("Symmetric ring (10 / 10 / 10 fixtures at B, C, D) is calculated", ringP([10, 10, 10]));
+      if (w) { const by = id => w.out.find(x => x.id === id);
+        txt(rows, "Symmetric ring is calculated: 1 ring of 4 pipes, fed at A", "1 · 4 · A", `${w.rings.length} · ${w.rings[0].ids.length} · ${w.rings[0].entry}`);
+        num(rows, "Feed pipe S0 (a bridge) carries the demand-table flow of all 30 LU — the tree rule, unchanged", Qof(30), by("S0").Q, 1e-9);
+        num(rows, "Ring inflow = flow in the feed pipe", Qof(30), w.rings[0].Qin, 1e-9);
+        num(rows, "Symmetry: flow A→B equals flow A→D", by("AB").Q, by("DA").Q, 1e-6);
+        num(rows, "Branch TB is sized from its own 10 LU (unchanged method)", Qof(10), by("TB").Q, 1e-9);
+        const bal = n => { let s = 0; w.out.forEach(x => { if (x.to === n) s += x.Q; if (x.from === n) s -= x.Q; }); return s; };
+        num(rows, "Node B: ring flow in − ring flow out = its share of the ring flow (10/30)", Qof(30)*10/30, w.out.filter(x => x.ring && x.to === "B").reduce((a, x) => a + x.Q, 0) - w.out.filter(x => x.ring && x.from === "B").reduce((a, x) => a + x.Q, 0), 1e-6);
+        num(rows, "Mass balance at C: ring inflow − branch share = 0", 0, w.out.filter(x => x.to === "C" && x.ring).reduce((a, x) => a + x.Q, 0) - Qof(30)*10/30, 1e-6);
+        const cl = w.out.filter(x => x.closing && x.ring);
+        txt(rows, "One closing pipe where the two flows meet", "1", String(cl.length));
+        const nodeP = {}; w.out.forEach(x => { if (!x.closing) nodeP[x.to] = x.Pto; });
+        num(rows, "Closed loop: the pressure reached by the closing pipe equals the node pressure (Hardy Cross converged)", nodeP[cl[0].to], cl[0].Pto, 1e-3); }
+      const w2 = chk("Unequal ring (25 / 5 / 2 fixtures)", ringP([25, 5, 2]));
+      if (w2) { const by = id => w2.out.find(x => x.id === id), tot = Qof(32);
+        num(rows, "Unequal ring: flow leaving A round both sides = ring inflow", tot, w2.out.filter(x => x.ring && x.from === "A").reduce((a, x) => a + x.Q, 0), 1e-6);
+        num(rows, "…node C receives exactly its share (5/32 of the ring flow)", tot*5/32, w2.out.filter(x => x.ring && x.to === "C").reduce((a, x) => a + x.Q, 0) - w2.out.filter(x => x.ring && x.from === "C").reduce((a, x) => a + x.Q, 0), 1e-6);
+        const cl = w2.out.find(x => x.closing && x.ring), nP = {}; w2.out.forEach(x => { if (!x.closing) nP[x.to] = x.Pto; });
+        num(rows, "…closed-loop pressure check at the meeting node", nP[cl.to], cl.Pto, 1e-3);
+        txt(rows, "…ring in one size (default): all four ring pipes have the same size", "1 size", new Set(w2.out.filter(x => x.ring).map(x => x.pipe.od)).size + " size" + (new Set(w2.out.filter(x => x.ring).map(x => x.pipe.od)).size > 1 ? "s" : "")); }
+      const w3 = chk("Same ring sized pipe by pipe (Ring main in one size = No)", ringP([25, 5, 2], {wsRingOne:false}));
+      if (w3) txt(rows, "Ring main in one size = No: each ring pipe is sized for its own flow (the lightly loaded side is smaller)", "smaller", Math.min(...w3.out.filter(x => x.ring).map(x => x.pipe.od)) < Math.max(...w3.out.filter(x => x.ring).map(x => x.pipe.od)) ? "smaller" : "same");
+      { const p = ringP([10, 10, 10]); p.wsNodes = []; p.wsNet = [S("AB", "A", "B", 20), S("BC", "B", "C", 20), S("CD", "C", "D", 20), S("DA", "D", "A", 20), S("TB", "B", "Bt", 3, "branch"), S("TC", "C", "Ct", 3, "branch"), S("TD", "D", "Dt", 3, "branch")]; const r = calculate(p), v = wsValidate(p);
+        txt(rows, "A ring whose supply cannot be found (no marked supply, every node fed) is blocked and flagged", "blocked · flagged", (r.error ? "blocked" : "CALCULATED") + " · " + (v.errors ? "flagged" : "not flagged")); }
+      { const p = ringP([10, 10, 10]); p.wsNet = p.wsNet.map(x => x.id === "BC" ? {...x, eq:[{id:"E1", type:"prv", tag:"PRV", mode:"prv", val:20, qty:1}]} : x); const r = calculate(p);
+        txt(rows, "A PRV on a ring pipe is refused with a message", "refused", r.error && /ring pipe/.test(r.errors[0]) ? "refused" : (r.error ? r.errors[0] : "accepted")); }
+      { const p = ringP([10, 10, 10]), q = {...p, wsNet:p.wsNet.filter(x => x.id !== "DA"), wsNodes:[]}, r = calculate(q), r0 = calculate({...base, wsSource:"fixed", supplyPressure:60, autoUpsize:false, wsNodes:[], wsNet:q.wsNet, wsFix:q.wsFix});
+        txt(rows, "The same network with the ring opened (DA removed) runs the tree solver: identical result to before v1.71", "same", !r.error && !r0.error && JSON.stringify(r.water.out.map(x => [x.id, x.Q, x.pipe.od, x.Pto])) === JSON.stringify(r0.water.out.map(x => [x.id, x.Q, x.pipe.od, x.Pto])) && !r.water.rings.length ? "same" : "different"); }
+      out.push({id:"T35", name:"v1.71 — water ring mains", why:"A ring is fed by the demand-table flow of its total loading units, shared to its nodes by their loading units and split by Hardy Cross. Checks: the feed and branches keep the tree rule; mass balance at the ring nodes; the pressure at the meeting node is the same both ways round; one size per ring by default; guards for an unidentifiable supply and a PRV on a ring.", rows, ms:0}); }
+    // ── T36 v1.72: frequency of use (IOP Table 15) per pipe class
+    { const rows = [], lib = FU_FIXTURES.__T, nLib = lib.length;
+      lib.push({name:"WCf", base:"WCf", occ:"", flush:"", lu:5, luHot:"", luTot:"", flow:"", minP:"", luL:1, luM:2, luH:5, fref:"T15 WC"},
+               {name:"URf", base:"URf", occ:"", flush:"", lu:1, luHot:"", luTot:"", flow:"", minP:"", luL:"", luM:1, luH:"", fref:"T15 Urinal"});
+      try {
+        const base = wsSelfToPump(WS_ST.cases.find(c => c.id === "T02").case, false), kn = WS_ST.cases.find(c => c.id === "T02").case.knots;
+        const S = (id, from, to, len, cls, ori) => ({id, cls, ori:ori || "h", from, to, len, loss:"", od:"", eq:[]}), F = (node, fixture, qty) => ({level:"", room:"", fixture, node, qty});
+        const mk = (freq, extra) => ({...base, wsSource:"fixed", supplyPressure:80, autoUpsize:false, wsNodes:[],
+          wsCls:Object.fromEntries(Object.entries(base.wsCls).map(([k, v]) => [k, {...v, freq:(freq || {})[k] || ""}])),
+          wsNet:[S("M1", "SRC", "A", 10, "main"), S("R1", "A", "B", 6, "riser", "up"), S("B1", "B", "C", 5, "branch"), S("B2", "B", "D", 5, "branch")],
+          wsFix:[F("C", "WCf", 10), F("D", "URf", 4)], ...(extra || {})});
+        const run = p => { const r = calculate(p); return r.error ? null : r.water; }, by = (w, id) => w.out.find(x => x.id === id);
+        const w0 = run(mk()), wOld = (() => { const p = mk(); p.wsCls = base.wsCls; return run(p); })();
+        txt(rows, "All classes on “As per fixture table”: identical to a calculation saved before v1.72", "same", w0 && wOld && JSON.stringify(w0.out.map(x => [x.id, x.LU, x.Q, x.pipe.od, x.Pto])) === JSON.stringify(wOld.out.map(x => [x.id, x.LU, x.Q, x.pipe.od, x.Pto])) && !w0.freq.on ? "same" : "different");
+        num(rows, "…branch B1 uses the fixture-table value (10 WC × 5 LU)", 50, by(w0, "B1").LU, 1e-9);
+        const w1 = run(mk({main:"med", riser:"med", branch:"high"}));
+        num(rows, "Branch = High: B1 adds up 10 WC × 5 LU", 50, by(w1, "B1").LU, 1e-9);
+        num(rows, "Riser = Medium: R1 adds up 10 WC × 2 + 4 urinals × 1", 24, by(w1, "R1").LU, 1e-9);
+        num(rows, "Main = Medium: M1 carries the same 24 LU and the source flow reads the table at 24 LU", wsInterp(kn, 24), w1.Qsrc, 1e-9);
+        num(rows, "Branch = High, urinal has no High value → nearest (Medium, 1 LU) used: B2 = 4 LU", 4, by(w1, "B2").LU, 1e-9);
+        txt(rows, "…the fallback is reported in the notes", "reported", w1.issues.some(i => i.code === "freq-fb" && /URf: High/.test(i.text)) ? "reported" : "missing");
+        const w2 = run(mk({main:"low", riser:"low", branch:"low"}));
+        num(rows, "All Low: urinal has no Low value → Medium (1 LU); riser = 10 × 1 + 4 × 1", 14, by(w2, "R1").LU, 1e-9);
+        const fx = run(mk({main:"high", riser:"high", branch:"high"}, {wsFix:[F("C", "TF", 6), F("D", "URf", 2)]}));
+        num(rows, "A fixture with no frequency values keeps its table value (TF 6 × 1) under High", 6, by(fx, "B1").LU, 1e-9);
+        const wh = run(mk({main:"high", riser:"high", branch:"high"}, {system:"hot", wsFix:[F("C", "TF", 6), F("D", "TF", 2)]}));
+        txt(rows, "Hot water ignores the frequency setting (no hot values in Table 15)", "off", wh ? (wh.freq.on ? "on" : "off") : "blocked");
+      } finally { lib.length = nLib; }
+      out.push({id:"T36", name:"v1.72 — frequency of use per pipe class (IOP Table 15)", why:"Each pipe adds up the loading units at the frequency set for its class; “As per fixture table” must give exactly the old result; a missing value takes the nearest frequency the table gives and is reported.", rows, ms:0}); }
     // ── T11 formulas against textbook relations
     { const rows = [], F0 = WS_ST.formula, nu = wsNu(20), r = wsDW(1e-3, 0.02, 0.0015, nu), lam = wsDW(1e-5, 0.02, 0.0015, nu);
       num(rows, "Kinematic viscosity of water at 20 °C (m²/s)", F0.nu20, nu, 1e-6, v => v.toExponential(4)); num(rows, "…vs the textbook value 1.004×10⁻⁶ (±0.5 %)", 1.004e-6, nu, 0.005, v => v.toExponential(4));
@@ -9622,12 +9912,13 @@ function wsRunSelfTest() {
         txt(rows, "…the pipes already drawn are unchanged", "same", r.error ? r.error : sig({wsNet:r.patch.wsNet.filter(x => x.id !== r.id)}) === sig(p1) ? "same" : "changed"); }
       // 3. refusals: a loop, a second feed, an island — the project is left exactly as it was
       { const before = J(p1), l1 = wsEdDrawPipe(p1, {node:"N3"}, {node:"SRC"}), l2 = wsEdDrawPipe(p1, {node:"N1"}, {node:"N3"}), l3 = wsEdDrawPipe(p1, {node:"N2"}, {pt:pt(5, 0, 0)}), l4 = wsEdDrawPipe(p1, {node:"N1"}, {pt:pt(5, 0, 0)}), i1 = wsEdDrawPipe(p1, {pt:pt(30, 0, 0)}, {pt:pt(35, 0, 0)});
-        txt(rows, "Closing a loop (N3 back to the supply) is refused with a message", "loop", /close a loop/.test(l1.error || "") ? "loop" : (l1.error || "accepted"));
-        txt(rows, "A second feed to N3 (a pipe from N1, both already connected) is refused", "loop", /close a loop/.test(l2.error || "") ? "loop" : (l2.error || "accepted"));
-        txt(rows, "Ending a pipe from N2 on the middle of the main S01 (both ends on the network) is refused", "loop", /close a loop/.test(l3.error || "") ? "loop" : (l3.error || "accepted"));
+        const rg = r => r.error ? r.error : wsHasLoop(r.patch.wsNet) ? "ring" : "no ring";
+        txt(rows, "Closing a loop (N3 back to the supply) is accepted as a ring main (v1.71)", "ring", rg(l1));
+        txt(rows, "A second feed to N3 (a pipe from N1, both already connected) makes a ring (v1.71)", "ring", rg(l2));
+        txt(rows, "Ending a pipe from N2 on the middle of the main S01 (both ends on the network) makes a ring (v1.71)", "ring", rg(l3));
         txt(rows, "…but a pipe from N1 back along S01 to its middle runs over S01: refused, and it says so", "over S01", /already has a pipe going that way \(S0\d\)/.test(l4.error || "") ? "over S01" : (l4.error || "accepted"));
         txt(rows, "A pipe between two free points on a network is refused (it would connect to nothing)", "must connect", /must connect to the network/.test(i1.error || "") ? "must connect" : (i1.error || "accepted"));
-        txt(rows, "…and after every refusal the project is byte-for-byte unchanged", "unchanged", J(p1) === before && [l1, l2, l3, l4, i1].every(r => !r.patch) ? "unchanged" : "changed"); }
+        txt(rows, "…and after every refusal the project is byte-for-byte unchanged", "unchanged", J(p1) === before && [l4, i1].every(r => !r.patch) ? "unchanged" : "changed"); }
       // 4. ending on the middle of a pipe: split, total length unchanged, both halves keep class and size override
       { const q = {...p1, wsNet:p1.wsNet.map(s => s.id === "S01" ? {...s, od:"63"} : s)}, r = wsEdDrawPipe(q, {pt:pt(5, 0, 3)}, {pt:pt(5, 0, 0)}), p = r.error ? q : {...q, ...r.patch};
         txt(rows, "A pipe ending mid-span on S01: 6 nodes (the free start and the tee are new), 5 sections (S01 split in two, plus the new pipe)", "6 nodes · 5 sections", r.error ? r.error : (p.wsNodes.length + " nodes · " + p.wsNet.length + " sections"));
@@ -9767,8 +10058,9 @@ function wsRunSelfTest() {
         st = {...st, pend:null, typed:"", tool:"pipe"};
         click(5.0, 2.0); const o8 = click(5.1, -0.1), s8 = P().wsNet.find(s => s.id === (o8.sel || {}).id);
         txt(rows, "Pipe tool: start in empty space at (5, 2), end on the tee node below it: flipped to flow away from the supply — From the tee, up, 2 m, riser", "up 2 riser · from tee", o8.flash ? o8.flash : `${s8.ori} ${s8.len} ${s8.cls} · from ${s8.from === P().wsNet.find(s => s.id === "S01").to ? "tee" : s8.from}`);
-        st = {...st, pend:null, typed:"", ortho:false}; click(20.05, 3.05); const before = JSON.stringify(P()), o9 = click(0.05, 0.02);
-        txt(rows, "Without ortho: N3, then a click on the supply node, is refused as a loop and nothing changes", "loop · unchanged", (/close a loop/.test(o9.flash || "") ? "loop" : (o9.flash || "accepted")) + " · " + (JSON.stringify(P()) === before ? "unchanged" : "changed"));
+        st = {...st, pend:null, typed:"", ortho:false}; click(20.05, 3.05); const before = JSON.stringify(P()), stB = st, o9 = click(0.05, 0.02);
+        txt(rows, "Without ortho: N3, then a click on the supply node, closes a ring main (v1.71) and the supply is marked", "ring · changed · supply marked", (wsHasLoop(P().wsNet) ? "ring" : (o9.flash || "no ring")) + " · " + (JSON.stringify(P()) === before ? "unchanged" : "changed") + " · " + (wsMarkedX(P()).length ? "supply marked" : "no mark"));
+        st = {...stB, pend:null, typed:""};
         st = {...st, pend:null, typed:"", ortho:true}; click(10.0, 3.0); type("y5"); const o10 = enter(14, 3);
         txt(rows, "Typing y5 from N2 and Enter: a branch 5 m into the page, node at y = 5", "h 5 branch · y 5", o10.flash ? o10.flash : (s => `${s.ori} ${s.len} ${s.cls} · y ${P().wsNodes.find(n => n.id === s.to).y}`)(P().wsNet.find(s => s.id === o10.sel.id)));
         txt(rows, "The finished session: 8 nodes, 7 sections, total length 33.5 m, no validation error", "8 · 7 · 33.5 · 0", `${P().wsNodes.length} · ${P().wsNet.length} · ${tot(P())} · ${nerr(P())}`);
@@ -10279,7 +10571,7 @@ function wsRunSelfTest() {
       { let seed = 4242; const rnd = () => { seed = (seed*1664525 + 1013904223) % 4294967296; return seed/4294967296; }, pick = a => a[Math.floor(rnd()*a.length)];
         const gen = n => { let p = {...base(), supplyPressure:300, wsNodes:[], wsNet:[], wsFix:[]}; let r = wsEdDrawPipe(p, {pt:{x:0, y:0, z:0}}, {pt:{x:6, y:0, z:0}}); p = {...p, ...r.patch};
           const dirs = [[1, 0, 0], [1, 0, 0], [-1, 0, 0], [0, 0, 1], [0, 0, 1], [0, 0, -1], [0, 1, 0], [0, -1, 0]];
-          for (let i = 0; i < n; i++) { const from = pick(p.wsNodes), d = pick(dirs), L = pick([2, 3, 3.5, 4, 6, 8, 10]), q = wsEdDrawPipe(p, {node:from.id}, {rel:{dx:d[0]*L, dy:d[1]*L, dz:d[2]*L}}); if (!q.error) p = {...p, ...q.patch}; }
+          for (let i = 0; i < n; i++) { const from = pick(p.wsNodes), d = pick(dirs), L = pick([2, 3, 3.5, 4, 6, 8, 10]), q = wsEdDrawPipe(p, {node:from.id}, {rel:{dx:d[0]*L, dy:d[1]*L, dz:d[2]*L}}); if (!q.error && !wsHasLoop(q.patch.wsNet)) p = {...p, ...q.patch}; }   // v1.71: trees only here (rings are tested in T35)
           const sup = p.wsNodes[0].id; p.wsFix = p.wsNodes.filter(nd => nd.id !== sup && rnd() < 0.6).map(nd => F(nd.id, 1 + Math.floor(rnd()*8), "TF")); return p; };
         let nets = 0, geoOK = 0, clean = 0, projWorst = 0, lblMissing = 0, textAll = 0, drawCl = 0, vOv = 0, links = 0; const V = {s:36, ox:60, oy:700};
         for (let t = 0; t < 30; t++) { const p = gen(6 + Math.floor(rnd()*20)); if (!p.wsFix.length) continue; const r = calculate(p); if (r.error) continue; nets++;
@@ -10736,7 +11028,7 @@ function wsRunSelfTest() {
       { const e0 = two(), pt = {x:14, y:5, z:3}, d1 = wsEdDrawPipe(e0, {node:"A3"}, {pt}, ""), p1 = d1.error ? e0 : {...e0, ...d1.patch};
         txt(rows, "A branch drawn to a free point works (setup for the stack test)", "accepted", d1.error ? d1.error : "accepted");
         const d2 = wsEdDrawPipe(p1, {node:"A2"}, {pt}, ""), d3 = wsEdDrawPipe(p1, {node:"A2"}, {pt}, "", {stack:true});
-        txt(rows, "A second pipe to the same point joins the node that is there — here that closes a loop, so it is refused; with “Stack” it gets a node of its own on the same point", "refused · accepted", `${d2.error ? "refused" : "accepted"} · ${d3.error ? d3.error : "accepted"}`);
+        txt(rows, "A second pipe to the same point joins the node that is there — here that closes a ring main (accepted since v1.71); with “Stack” it gets a node of its own on the same point", "ring · accepted", `${d2.error ? "refused" : wsHasLoop(d2.patch.wsNet) ? "ring" : "accepted"} · ${d3.error ? d3.error : "accepted"}`);
         if (!d3.error) { const p2 = {...p1, ...d3.patch}, at = p2.wsNodes.filter(n => Math.abs(n.x - 14) < 1e-6 && Math.abs(n.y - 5) < 1e-6 && Math.abs(n.z - 3) < 1e-6), v = wsValidate(p2), r = calculate(p2);
           txt(rows, "Two nodes now sit on one point: a warning (not an error), the calculation still runs, nothing is blocked", "2 · warn · calculated", `${at.length} · ${v.items.some(i => i.sev === "warn" && /same position/.test(i.text)) ? "warn" : "none"} · ${v.items.some(i => i.sev === "error" && /same position/.test(i.text)) ? "ERROR" : (r.error ? "blocked: " + r.errors[0] : "calculated")}`);
           const cur = wsEdProj(pt), s0 = wsEdSnap(p2, cur, {tol:0.3, grid:0.5, y:0, snap:true, pick:0}), s1 = wsEdSnap(p2, cur, {tol:0.3, grid:0.5, y:0, snap:true, pick:1}), sn = wsEdSnap(p2, cur, {tol:0.3, grid:0.5, y:0, snap:true, noNode:true});
@@ -11322,6 +11614,12 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
   return sep === "." ? `${dd}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}` : `${dd}/${RPT_MON[d.getMonth()]}/${d.getFullYear()}`; }
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
+// Calculation Sheets list groups (on screen only — the printed pack and its numbering are unchanged)
+const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["ws","Water Supply Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
+function calcPickGroups(pumps) {
+  const by = {}; (pumps || []).forEach((p, i) => { const k = p.type === "water" && wsIsGas(p) ? "lpg" : (RPT_GROUP[p.type] || "circ"); (by[k] = by[k] || []).push({p, i}); });
+  return CALC_PICK_GROUPS.filter(([k]) => by[k]).map(([k, l]) => ({k, l, items:by[k]}));
+}
 const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
   sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION"};
@@ -11460,6 +11758,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [editId, setEditId]   = useState(null);
   const [pumpQuery, setPumpQuery] = useState("");
   const [printPick, setPrintPick] = useState(null);
+  // v1.73: the Calculation Sheets list is grouped by kind — a filter and collapsible groups (remembered in this browser)
+  const [pickFilter, setPickFilter] = useState("all");
+  const [pickClosed, setPickClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_pick_closed") || "{}"); } catch (e) { return {}; } });
+  const togglePickGroup = k => setPickClosed(o => { const n = {...o, [k]:!o[k]}; try { localStorage.setItem("mep_pick_closed", JSON.stringify(n)); } catch (e) {} return n; });
   const [pipeId, setPipeId] = useState(() => { calcReset(); return null; });
   const [calcMode, setCalcModeS] = useState(CALC.mode), [calcAt, setCalcAt] = useState(null);
   const sheetStyle = "classic";   // the Meinhardt classic sheet is the only layout
@@ -12216,16 +12518,32 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               <WsPrintOptions value={proj.wsPrint} disabled={stageLocked} onChange={v=>setProj(x=>({...x,wsPrint:v}))} />{stageLocked && <div className="ai-note">This stage is locked — reopen it to change the print content.</div>}</details>}
             <div className="calcwrap rz" style={{"--csL":csL+"px"}}>
             <div className="calcpick no-print">
-              {pumps.map((p,i)=>(
-                <button key={p.id} onClick={()=>setPrintPick(p.id)}
-                  className={"calcpick-item"+(printPick===p.id?" on":"")}>
-                  <span className="calcpick-no">{i+1}</span>
-                  <span className="calcpick-body">
-                    <b>{p.name||typeLbl(p)||"Calculation"}</b>
-                    <span>{p.tag||"—"}</span>
-                  </span>
-                </button>
-              ))}
+              {(() => { const groups = calcPickGroups(pumps), shown = pickFilter === "all" ? groups : groups.filter(g => g.k === pickFilter);
+                return <>
+                  <div className="calcpick-filter">
+                    <select value={groups.some(g => g.k === pickFilter) ? pickFilter : "all"} onChange={e => setPickFilter(e.target.value)} title="Show one kind of calculation">
+                      <option value="all">All calculations ({pumps.length})</option>
+                      {groups.map(g => <option key={g.k} value={g.k}>{g.l} ({g.items.length})</option>)}
+                    </select>
+                    {pickFilter === "all" && groups.length > 1 && <button type="button" title={groups.every(g => pickClosed[g.k]) ? "Expand all groups" : "Collapse all groups"}
+                      onClick={() => { const all = groups.every(g => pickClosed[g.k]), n = {}; groups.forEach(g => { n[g.k] = !all; }); setPickClosed(n); try { localStorage.setItem("mep_pick_closed", JSON.stringify(n)); } catch (e) {} }}>{groups.every(g => pickClosed[g.k]) ? "⊞" : "⊟"}</button>}
+                  </div>
+                  {shown.map(g => { const closed = pickFilter === "all" && !!pickClosed[g.k], hasSel = g.items.some(x => x.p.id === printPick);
+                    return <div key={g.k} className="calcpick-grp">
+                      <button type="button" className={"calcpick-gh" + (hasSel ? " sel" : "")} onClick={() => pickFilter === "all" && togglePickGroup(g.k)}>
+                        <span>{closed ? "▸" : "▾"}</span><b>{g.l}</b><em>{g.items.length}</em></button>
+                      {!closed && g.items.map(({p, i}) => (
+                        <button key={p.id} onClick={()=>setPrintPick(p.id)}
+                          className={"calcpick-item"+(printPick===p.id?" on":"")}>
+                          <span className="calcpick-no">{i+1}</span>
+                          <span className="calcpick-body">
+                            <b>{p.name||typeLbl(p)||"Calculation"}</b>
+                            <span>{p.tag||"—"}</span>
+                          </span>
+                        </button>
+                      ))}
+                    </div>; })}
+                </>; })()}
             </div>
             <ColDrag w={csL} set={setCsL} def={csLd} dir={1} title="Drag to widen the list · double-click to reset" />
             <div className="calcsplit">
@@ -12607,7 +12925,7 @@ function FixtureUnitsTab() {
         conflictKey="id"
         filterColumn="code"
         filterValue={code}
-        numericKeys={["lu_cold","lu_hot","lu_total","flow_ls","min_pressure_m"]}
+        numericKeys={["lu_cold","lu_hot","lu_total","lu_low","lu_med","lu_high","flow_ls","min_pressure_m"]}
         newRowTemplate={{code, fixture:"", occupancy:"", flush_type:"", lu_cold:"", lu_hot:"", lu_total:"", flow_ls:"", min_pressure_m:""}}
         pasteKeys={["fixture","occupancy","flush_type","lu_cold","lu_hot","lu_total","flow_ls","min_pressure_m"]}
         columns={[
@@ -12618,6 +12936,10 @@ function FixtureUnitsTab() {
           {key:"lu_cold", label:`Cold ${sel.unit}`, type:"number", step:"0.01", width:"0.65fr"},
           {key:"lu_hot", label:`Hot ${sel.unit}`, type:"number", step:"0.01", width:"0.65fr"},
           {key:"lu_total", label:`Combined ${sel.unit}`, type:"number", step:"0.01", width:"0.75fr"},
+          {key:"lu_low", label:"Low", type:"number", step:"0.01", width:"0.5fr"},
+          {key:"lu_med", label:"Medium", type:"number", step:"0.01", width:"0.55fr"},
+          {key:"lu_high", label:"High", type:"number", step:"0.01", width:"0.5fr"},
+          {key:"freq_ref", label:"Frequency source", width:"1.2fr"},
           {key:"flow_ls", label:"Cont. flow (L/s)", type:"number", step:"0.001", width:"0.75fr"},
           {key:"min_pressure_m", label:"Min. press. (m)", type:"number", step:"0.1", width:"0.75fr"},
         ]}
