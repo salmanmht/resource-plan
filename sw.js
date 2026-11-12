@@ -1,5 +1,11 @@
 // MEP Resource Plan — service worker
 //
+// v6: the shared core (mep-core.js) used by the standalone sibling apps now
+// bypasses this worker as well. It is deployed and versioned together with
+// pump.html / spec.html, which are already standalone, so it must be fetched
+// fresh every time — never served from an old cached copy after an edit. See
+// the new early return below.
+//
 // v5: Supabase and all non-GET requests are now COMPLETELY untouched by this
 // worker. Previously they were wrapped in `e.respondWith(fetch(req))`, which
 // looks like a pass-through but is not: calling respondWith makes the worker
@@ -10,7 +16,7 @@
 // went through this path and intermittently died before it ever left the
 // browser. Returning without respondWith hands the request to the browser's
 // native networking, where it cannot fail this way.
-const CACHE_NAME = 'mep-rp-v5';
+const CACHE_NAME = 'mep-rp-v6';
 
 const SHELL_ASSETS = [
   '/index.html',
@@ -24,6 +30,12 @@ const SHELL_ASSETS = [
 // so they stay entirely outside this worker: no caching, no offline fallback,
 // no shared update lifecycle. Add future sibling apps here.
 const STANDALONE_PAGES = ['/pump.html', '/spec.html'];
+
+// Files shared by the standalone sibling apps (not the Resource Plan). They
+// follow the same rule as the pages above: always live, never cached here, so
+// an edit is picked up on the next load instead of being pinned to a stale
+// cached copy. Add future shared files here.
+const STANDALONE_ASSETS = ['/mep-core.js'];
 
 function isStandalone(pathname){
   return STANDALONE_PAGES.some(p => pathname === p || pathname.startsWith(p.replace('.html','') + '/'));
@@ -75,6 +87,9 @@ self.addEventListener('fetch', e => {
 
   // Standalone sibling apps (e.g. the pump calculator).
   if (isStandalone(path)) return;
+
+  // Shared core for the standalone apps — same rule, always fetched fresh.
+  if (STANDALONE_ASSETS.indexOf(path) !== -1) return;
 
   // ── NAVIGATION ───────────────────────────────────────────────────────────
   if (req.mode === 'navigate') {
