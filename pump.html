@@ -9,6 +9,7 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" crossorigin></script>
+<script src="mep-core.js"></script>
 <style>
   :root { --rp-bg:#f5f5f7; --rp-surface:#fff; --rp-border:#d2d2d7; --rp-text:#1d1d1f; --rp-muted:#86868b; --rp-accent:#007aff; --rp-accent-soft:#e8f0fe; --rp-danger:#ff3b30; --rp-radius:10px; --rp-radius-large:14px; }
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -14242,31 +14243,29 @@ function RootApp() {
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp />);
 </script>
 <script>
-/* Compile-once loader (shared-core). Fetches mep-core.js, compiles it together
-   with the app source above once, caches the compiled result in the browser,
-   then runs the cache on every later load — slow only the first open after an
-   edit to either file. */
+/* Compile-once loader. The shared core (mep-core.js) is loaded separately by
+   the <script src="mep-core.js"> tag in <head>; here we compile only THIS
+   app's own source once, cache it in the browser, and run the cache on every
+   later load — slow only the first open after an edit to this file. */
 (function () {
   var BABEL_URL = "https://unpkg.com/@babel/standalone@7.26.4/babel.min.js";
-  var CORE_URL  = "mep-core.js";
+  var el = document.getElementById("__appsrc"); var SRC = el ? el.textContent : "";
   var DBN = "eqcalc-" + (String((window.APP_META&&window.APP_META.name)||"app").replace(/[^a-z0-9]/gi,"").toLowerCase());
-  var el = document.getElementById("__appsrc"); var APP = el ? el.textContent : "";
-  function fail(m){ if (window.__bootError) window.__bootError(m); }
+  function fail(msg){ if (window.__bootError) window.__bootError(msg); }
+  if (window.__MEP_CORE_READY !== true) { return fail("The shared file mep-core.js did not load. Make sure mep-core.js sits in the same folder as this page."); }
   function runScript(code){ var s=document.createElement("script"); s.textContent=code; document.head.appendChild(s); }
   function cyrb53(s){ var h1=0xdeadbeef^s.length,h2=0x41c6ce57^s.length; for(var i=0,ch;i<s.length;i++){ ch=s.charCodeAt(i); h1=Math.imul(h1^ch,2654435761); h2=Math.imul(h2^ch,1597334677);} h1=Math.imul(h1^(h1>>>16),2246822507)^Math.imul(h2^(h2>>>13),3266489909); h2=Math.imul(h2^(h2>>>16),2246822507)^Math.imul(h1^(h1>>>13),3266489909); return "c1_"+(4294967296*(2097151&h2)+(h1>>>0)).toString(36); }
   function withDB(cb){ try{ var r=indexedDB.open(DBN,1); r.onupgradeneeded=function(){ r.result.createObjectStore("c"); }; r.onsuccess=function(){ cb(r.result); }; r.onerror=function(){ cb(null); }; }catch(e){ cb(null); } }
   function getCached(key,cb){ withDB(function(db){ if(!db) return cb(null); try{ var q=db.transaction("c","readonly").objectStore("c").get(key); q.onsuccess=function(){ cb(q.result||null); }; q.onerror=function(){ cb(null); }; }catch(e){ cb(null); } }); }
   function putCached(key,code){ withDB(function(db){ if(!db) return; try{ var st=db.transaction("c","readwrite").objectStore("c"); st.clear(); st.put(code,key); }catch(e){} }); }
   function compileAndRun(SRC,KEY){
-    var m=document.getElementById("boot-msg"); if(m){ m.innerHTML="Starting… preparing the app for the first time. A few seconds now, instant every time after this."; }
+    var m=document.getElementById("boot-msg"); if(m){ m.innerHTML="Starting… preparing the app for the first time. A few seconds now, instant every time after."; }
     function go(){ try{ var out=Babel.transform(SRC,{presets:["react"],compact:true}).code; try{ putCached(KEY,out); }catch(e){} runScript(out); }catch(e){ fail("Could not compile the app: "+e.message); } }
     if(window.Babel) return go();
-    var s=document.createElement("script"); s.src=BABEL_URL; s.crossOrigin="anonymous"; s.onload=go; s.onerror=function(){ fail("Could not load the one-time compiler from the internet."); }; document.head.appendChild(s);
+    var s=document.createElement("script"); s.src=BABEL_URL; s.onload=go; s.onerror=function(){ fail("Could not load the one-time compiler from the internet."); }; document.head.appendChild(s);
   }
-  fetch(CORE_URL).then(function(res){ if(!res.ok) throw new Error("HTTP "+res.status); return res.text(); }).then(function(core){
-    var SRC = core + "\n;\n" + APP; var KEY = cyrb53(SRC);
-    getCached(KEY, function(cached){ if(cached){ try{ runScript(cached); }catch(e){ compileAndRun(SRC,KEY); } } else compileAndRun(SRC,KEY); });
-  }).catch(function(e){ fail("Could not load the shared core (mep-core.js): "+e.message); });
+  var KEY = cyrb53(SRC);
+  getCached(KEY, function(cached){ if(cached){ try{ runScript(cached); }catch(e){ compileAndRun(SRC,KEY); } } else compileAndRun(SRC,KEY); });
 })();
 </script>
 
