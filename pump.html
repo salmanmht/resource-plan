@@ -1376,7 +1376,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.88.3 · Build 2026.11.12.22";
+const BUILD_LABEL = "v1.89.0 · Build 2026.11.12.23";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1652,6 +1652,12 @@ async function loadReferenceData() {
         FOAM_TANKS = (ft.data || []).map(r => ({key:r.tank_key, model:r.model, vol:nv(r.volume_l), orient:r.orientation || "", dia:nv(r.dia_mm), len:nv(r.length_mm), emptyWt:nv(r.empty_wt_kg), pressure:nv(r.pressure_bar), src:r.source || "", notes:r.notes || ""}));
         FOAM_TANK_ERR = FOAM_TANKS.length ? "" : "The foam tank library in Supabase is empty. Add tanks in Reference Data → Foam Bladder Tanks."; }
     } catch (e) { FOAM_TANKS = []; FOAM_TANK_ERR = "The foam tank library could not be loaded (" + (e.message || e) + ")."; }
+    // Rainfall presets (v1.89). A missing table must not block everything else — the Stormwater tab says so.
+    try { const rf = await sb.from("ref_rainfall").select("*").eq("active", true).order("sort_order");
+      if (rf.error) { SW_RAIN = []; SW_RAIN_ERR = "The rainfall library could not be loaded from Supabase (" + rf.error.message + "). Run mep-rainfall.sql, or type the design intensity in Design settings."; }
+      else { SW_RAIN = (rf.data || []).map(r => ({key:r.rain_key, name:r.name, authority:r.authority || "", mm_hr:r.mm_hr === null || r.mm_hr === "" ? "" : Number(r.mm_hr), return_years:r.return_years || "", duration_min:r.duration_min || "", source:r.source || "", notes:r.notes || ""}));
+        SW_RAIN_ERR = ""; }
+    } catch (e) { SW_RAIN = []; SW_RAIN_ERR = "The rainfall library could not be loaded (" + (e.message || e) + ")."; }
     // Fixtures (loading units per fixture, per demand table). A missing table must not block everything else.
     FU_FIXTURES = {}; FU_FIX_ERROR = "";
     if (fixRes.error) FU_FIX_ERROR = "Fixture loading units could not be loaded from Supabase (" + fixRes.error.message + "). Run mep-fixture-units-fixtures.sql.";
@@ -1836,7 +1842,7 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm, nuIn) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", pbc:"Pressure Break Chamber", ca:"Clean Agent", foam:"Foam System", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", pbc:"Pressure Break Chamber", ca:"Clean Agent", foam:"Foam System", storm:"Stormwater (BS EN 12056-3)", fuelp:"Fuel Oil Pipe Sizing", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
 };
 
 // Equipment groups, used by the Add menu and the schedule filter.
@@ -2096,6 +2102,8 @@ function calculate(p) {
   if (p.type === "pbc") return calculatePbc(p);
   if (p.type === "ca") return calculateCa(p);
   if (p.type === "foam") return calculateFoam(p);
+  if (p.type === "storm") return calculateStorm(p);
+  if (p.type === "fuelp") return calculateFuelPipe(p);
   if (p.type === "water") return wsIsDrain(p) ? calculateDrain(p) : wsIsGas(p) ? calculateGas(p) : calculateWater(p);
   if (p.type === "lpg") return calcError(["This item was made with the LPG test build — open it and press Convert to Gas Pipe Sizing."]);
   const set = pumpSetOf(p);
@@ -3302,6 +3310,384 @@ function foamFigure(c) {
 }
 // <FOAM-CORE-END>
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// STORMWATER — BS EN 12056-3:2000 roof drainage (type "storm")  v1.89.0
+// A catchment (kind "roof") is one roof area with its outlets and rainwater pipes; a drain (kind "drain") is a
+// horizontal collector that takes the flow of the catchments it serves.
+//   Runoff        Q = r × A × C                                      (clause 4.1, equation 1; C = 1.0)
+//   Rainfall      r = design intensity (mm/h ÷ 3 600) × risk factor  (clause 4.2, Table 2)
+//   Area          flat roof: plan area; pitched roof with wind: A = Lr (Br + Hr/2)  (Table 3); + 50 % of walls (4.3.4)
+//   Outlets       Table 7, circular: weir Qo = kO·D·h^1.5 / 7 500 (h ≤ D/2); orifice Qo = kO·D²·h^0.5 / 15 000 (h > D/2)
+//   Rainwater pipe Table 8, Wyly-Eaton: Q = 2.5×10⁻⁴ · kb^-0.167 · di^2.667 · f^1.667  (f 0.33, kb 0.25 mm)
+//   Drains        Annex C, Colebrook-White part full: filling degree 0.7, kb 1.0 mm, ν 1.31×10⁻⁶ m²/s; not below DN 100 (6.3.3)
+// Rainfall presets come from Supabase ref_rainfall (SW_RAIN); the project can type its own figure instead.
+// <STORM-CORE-BEGIN>
+const SW_RISK = [
+  {v:1.0, l:"1.0 — eaves gutters"},
+  {v:1.5, l:"1.5 — overflow would inconvenience (e.g. over entrances)"},
+  {v:2.0, l:"2.0 — overflow could enter the building (valley, parapet, internal)"},
+  {v:3.0, l:"3.0 — exceptional protection (hospitals, communications, hazardous stores)"},
+];
+const SW_KINDS = {roof:"Roof catchment", drain:"Horizontal drain"};
+const SW_SET_DEF = {rain:"", mmhr:"", risk:1, C:1, fill:0.33, kbR:0.25, dFill:0.7, kbD:1.0, nu:1.31e-6, dMinDN:100, grad:1, vMin:0.7, kO:0.5, h:35, oD:100, oCap:"", nMin:2, rwpMin:75, mat:"en12056"};
+let SW_RAIN = [];
+let SW_RAIN_ERR = "Rainfall library not loaded yet.";
+function stormSettings(s) { return {...SW_SET_DEF, ...(s || {})}; }
+// design rainfall: typed figure first, then the preset
+function swRainOf(set, lib) {
+  const L = Array.isArray(lib) ? lib : SW_RAIN, typed = set.mmhr !== "" && set.mmhr != null && Number(set.mmhr) > 0;
+  const pre = set.rain ? L.find(x => x.key === set.rain) || null : null;
+  if (typed) return {mmhr:Number(set.mmhr), label:"Project design figure", src:pre ? `typed (preset ${pre.name} not used)` : "typed on the Stormwater tab", pre:null};
+  if (pre && Number(pre.mm_hr) > 0) return {mmhr:Number(pre.mm_hr), label:pre.name, src:[pre.authority, pre.return_years ? `1 in ${pre.return_years} yr` : "", pre.duration_min ? `${pre.duration_min} min` : "", pre.source].filter(Boolean).join(" · "), pre};
+  if (pre) return {err:`The rainfall preset “${pre.name}” has no intensity — enter it in Reference Data → Rainfall Intensity, or type the figure on the Stormwater tab.`};
+  if (set.rain) return {err:"The rainfall preset chosen is no longer in Reference Data — choose another or type the figure."};
+  return {err:"Choose the design rainfall intensity (preset or typed figure) in Stormwater → Design settings."};
+}
+// pipe sizes: EN 12056 nominal sizes (Drainage reference) or a material from Pipe Materials
+function swSizes(mat) {
+  if (!mat || mat === "en12056") { const D = Object.values(DRAIN || {})[0]; return {label:D ? "EN 12056 nominal sizes" : "—", rows:D ? D.sizes.map(s => ({dn:s.dn, di:s.di})) : [], kbDef:null}; }
+  const k = resolveMatKey(mat), m = k ? PIPE_MATERIALS[k] : null;
+  return m ? {label:m.label, rows:m.table.map(r => ({dn:r.nb, di:r.id, od:r.od})), kbDef:m.roughness} : {label:"", rows:[], missing:true};
+}
+const swDN = s => s ? (s.od ? `DN${s.dn} (${s.od} OD)` : `DN${s.dn}`) : "—";
+// capacities
+const swOutletQ = (kO, D, h) => h <= D/2 ? kO*D*Math.pow(h, 1.5)/7500 : kO*D*D*Math.pow(h, 0.5)/15000;
+const swRwpQ = (di, f, kb) => 2.5e-4*Math.pow(kb, -0.167)*Math.pow(di, 2.667)*Math.pow(f, 1.667);
+function swRoofArea(p) {
+  const num = v => Number(v), blank = v => v === "" || v == null;
+  if (p.roofType === "pitched") {
+    const Lr = num(p.Lr), Br = num(p.Br), Hr = blank(p.Hr) ? 0 : num(p.Hr);
+    return {A:p.wind ? Lr*(Br + Hr/2) : Lr*Br, Lr, Br, Hr, how:p.wind ? "Lr × (Br + Hr/2)  [wind 26°, Table 3]" : "Lr × Br  [no wind allowance, Table 3]"};
+  }
+  if (!blank(p.area)) return {A:num(p.area), how:"plan area"};
+  return {A:num(p.L)*num(p.B), how:"L × B", L:num(p.L), B:num(p.B)};
+}
+function calculateStormRoof(p, set) {
+  const errors = [], num = v => Number(v), blank = v => v === "" || v == null;
+  const rain = swRainOf(set, p._rain);
+  if (rain.err) errors.push(rain.err);
+  if (p.roofType === "pitched") { if (!isPositive(p.Lr)) errors.push("Length of roof (Lr) must be greater than zero."); if (!isPositive(p.Br)) errors.push("Plan width gutter to ridge (Br) must be greater than zero."); }
+  else if (blank(p.area)) { if (!isPositive(p.L)) errors.push("Length must be greater than zero (or enter the area)."); if (!isPositive(p.B)) errors.push("Width must be greater than zero (or enter the area)."); }
+  else if (!isPositive(p.area)) errors.push("Roof area must be greater than zero.");
+  const wall = blank(p.wall) ? 0 : num(p.wall); if (!(wall >= 0)) errors.push("Wall area must be zero or more.");
+  const risk = blank(p.risk) ? num(set.risk) : num(p.risk), C = num(set.C);
+  if (!(risk > 0)) errors.push("Risk factor must be greater than zero.");
+  const oD = blank(p.oD) ? num(set.oD) : num(p.oD), kO = blank(p.kO) ? num(set.kO) : num(p.kO), h = blank(p.h) ? num(set.h) : num(p.h);
+  if (!(oD > 0)) errors.push("Outlet effective diameter must be greater than zero.");
+  if (!(kO > 0 && kO <= 1)) errors.push("Outlet coefficient kO must be between 0 and 1.");
+  if (!(h > 0)) errors.push("Head at the outlet must be greater than zero.");
+  const fill = blank(p.fill) ? num(set.fill) : num(p.fill), kbR = num(set.kbR);
+  if (!(fill > 0 && fill <= 0.33 + 1e-9)) errors.push("Filling degree of the rainwater pipe must be greater than 0 and not more than 0.33 (6.1.1).");
+  const sz = swSizes(p.mat || set.mat);
+  if (sz.missing) errors.push("The rainwater pipe material is not in Reference Data — choose another."); else if (!sz.rows.length) errors.push("No pipe sizes are available for the rainwater pipe — check Reference Data.");
+  if (errors.length) return calcError(errors);
+
+  const ar = swRoofArea(p), A = ar.A + wall/2;
+  if (!(A > 0)) return calcError(["The effective roof area works out at zero — check the dimensions."]);
+  const r = rain.mmhr/3600*risk, Q = r*A*C;
+  // outlets: number (auto = fewest from the minimum that carry the flow)
+  const oCap = !blank(p.oCap) ? num(p.oCap) : !blank(set.oCap) ? num(set.oCap) : null;   // manufacturer's rated capacity replaces Table 7
+  if (oCap != null && !(oCap > 0)) return calcError(["Rated outlet capacity must be greater than zero (or blank for Table 7)."]);
+  const capO = oCap != null ? oCap : swOutletQ(kO, oD, h), weir = h <= oD/2;
+  const nMin = Math.max(1, Math.round(num(set.nMin) || 1));
+  let n = isPositive(p.n) ? Math.round(num(p.n)) : null, autoN = !n;
+  if (!n) { n = nMin; while (n < 200 && capO < Q/n - 1e-9) n++; }
+  const Qo = Q/n, okO = capO >= Qo - 1e-9;
+  // rainwater pipes: one per outlet unless a number is typed
+  const nR = isPositive(p.nR) ? Math.round(num(p.nR)) : n, Qr = Q/nR;
+  const pin = !blank(p.rwpDN) ? sz.rows.find(s => String(s.dn) === String(p.rwpDN)) || null : null;
+  if (!blank(p.rwpDN) && !pin) return calcError([`Rainwater pipe size DN${p.rwpDN} is not in the size list of ${sz.label} — choose another or set it back to Auto.`]);
+  const fits = s => swRwpQ(s.di, fill, kbR) >= Qr - 1e-9;
+  const rwpMin = Math.max(num(set.rwpMin) || 0, oD);   // not below the minimum, nor below the outlet
+  const auto = sz.rows.filter(s => s.dn >= rwpMin - 1e-9 || s.di >= rwpMin - 1e-9).sort((a, b) => a.di - b.di).find(fits) || null;
+  const pipe = pin || auto;
+  if (!pipe) return calcError([`No rainwater pipe in ${sz.label} carries ${Qr.toFixed(2)} l/s at filling degree ${fill} — add rainwater pipes (fewer litres each) or use a larger material range.`]);
+  const capR = swRwpQ(pipe.di, fill, kbR), okR = capR >= Qr - 1e-9, smallR = pipe.di < 75 || (pin && pipe.dn < rwpMin - 1e-9 && pipe.di < rwpMin - 1e-9);
+  const c = {kind:"roof", rain, risk, C, r, roofType:p.roofType === "pitched" ? "pitched" : "flat", ar, wall, A, Q, kO, oD, h, weir, oCap, capO, n, rwpMin, autoN, nMin, Qo, okO,
+    fill, kbR, sz, nR, Qr, pipe, pinned:!!pin, capR, okR, smallR};
+  const f2 = v => v.toFixed(2), f3 = v => v.toFixed(3);
+  const steps = [
+    {s:"Rainfall", label:`Design intensity  [${rain.label}]`, value:`${rain.mmhr} mm/h`},
+    {label:`Rainfall intensity r  [${rain.mmhr} ÷ 3 600 × risk ${risk}]`, value:`${f3(r*1)} l/(s·m²)`},
+    {s:"Runoff", label:`Roof area  [${ar.how}]`, value:`${f2(ar.A)} m²`},
+    ...(wall > 0 ? [{label:`Walls draining onto the roof  [50 % of ${f2(wall)} m², 4.3.4]`, value:`${f2(wall/2)} m²`}] : []),
+    {label:`Runoff Q = r × A × C  [C ${C}]`, value:`${f2(Q)} l/s`, hl:true},
+    {s:oCap != null ? "Outlets  (manufacturer rating)" : "Outlets  (Table 7)", label:oCap != null ? `Outlet capacity  [rated, DN${oD}${h ? ` at ${h} mm head` : ""}]` : `Outlet capacity  [${weir ? "weir" : "orifice"} flow, D ${oD} mm, h ${h} mm, kO ${kO}]`, value:`${f2(capO)} l/s each`},
+    {label:`Outlets${autoN ? " (auto)" : ""}  [${f2(Qo)} l/s each]`, value:`${n} No.`, hl:true, ...(okO ? {} : {flag:"warn"})},
+    {s:"Rainwater pipes  (Table 8)", label:`Flow per pipe  [${nR} pipe${nR > 1 ? "s" : ""}]`, value:`${f2(Qr)} l/s`},
+    {label:`Rainwater pipe${pin ? " (chosen)" : " (auto)"}  [di ${pipe.di} mm, f ${fill}]`, value:`${swDN(pipe)} · ${f2(capR)} l/s`, hl:true, ...(okR && !smallR ? {} : {flag:"warn"})},
+  ];
+  const selStr = `Provide ${n} No. DN${oD} roof outlet${n > 1 ? "s" : ""} and ${nR} No. ${swDN(pipe)} rainwater pipe${nR > 1 ? "s" : ""} — runoff ${f2(Q)} l/s from ${f2(A)} m² at ${rain.mmhr} mm/h${risk !== 1 ? ` × ${risk}` : ""}`;
+  return {valid:true, storm:c, flowLsPerPump:Q, flowTotal:Q, designFlow:Q, totalH:"—", pwrSel:"—", config:`${n} outlets · ${nR} × ${swDN(pipe)}`, setText:`${nR} RWP`,
+    set:{duty:nR, standby:0, installed:nR, sharing:"full"}, connectedKw:0, installedKw:0, velOk:true, pipe:null, dutyPoints:[], steps, selStr};
+}
+function calculateStormDrain(p, set) {
+  const errors = [], num = v => Number(v), blank = v => v === "" || v == null;
+  const roofs = Array.isArray(p._roofs) ? p._roofs : [], ids = Array.isArray(p.roofs) ? p.roofs : [];
+  const got = ids.map(id => roofs.find(r => r.id === "storm-" + id || r.id === id)).filter(Boolean);
+  const extra = blank(p.extra) ? 0 : num(p.extra);
+  if (!(extra >= 0)) errors.push("Other flow must be zero or more.");
+  if (!got.length && !(extra > 0)) errors.push("Tick the roof catchments this drain serves (or enter another flow).");
+  const grad = blank(p.grad) ? num(set.grad) : num(p.grad), fill = blank(p.fill) ? num(set.dFill) : num(p.fill);
+  const kb = num(set.kbD), nu = num(set.nu), dMin = blank(p.dMinDN) ? num(set.dMinDN) : num(p.dMinDN), vMin = num(set.vMin);
+  if (!(grad > 0 && grad <= 20)) errors.push("Gradient must be greater than 0 and not more than 20 %.");
+  if (!(fill > 0 && fill <= 1)) errors.push("Filling degree must be greater than 0 and not more than 1.");
+  const sz = swSizes(p.mat || set.mat);
+  if (sz.missing) errors.push("The drain material is not in Reference Data — choose another."); else if (!sz.rows.length) errors.push("No pipe sizes are available for the drain — check Reference Data.");
+  const src = got.map(r => ({r, res:calculateStormRoof(r, set)}));
+  const bad = src.filter(x => x.res.error);
+  if (bad.length) errors.push(`Catchment ${bad.map(x => x.r.tag || x.r.name).join(", ")} has errors — fix it first.`);
+  if (errors.length) return calcError(errors);
+  const parts = src.map(x => ({tag:x.r.tag, name:x.r.name, Q:x.res.storm.Q, rwp:x.res.storm.pipe}));
+  const Q = parts.reduce((a, x) => a + x.Q, 0) + extra;
+  const rwpMax = parts.reduce((m, x) => Math.max(m, x.rwp.dn), 0);
+  const floorDN = Math.max(dMin || 0, rwpMax);
+  const cap = s => drCap(s.di, grad, fill, kb, nu);
+  const pin = !blank(p.dDN) ? sz.rows.find(s => String(s.dn) === String(p.dDN)) || null : null;
+  if (!blank(p.dDN) && !pin) return calcError([`Drain size DN${p.dDN} is not in the size list of ${sz.label} — choose another or set it back to Auto.`]);
+  const auto = sz.rows.slice().sort((a, b) => a.di - b.di).find(s => s.dn >= floorDN && cap(s).Q >= Q - 1e-9) || null;
+  const pipe = pin || auto;
+  if (!pipe) return calcError([`No drain in ${sz.label} carries ${Q.toFixed(2)} l/s at ${grad} % and filling degree ${fill} — steepen the gradient or split the flow.`]);
+  const cp = cap(pipe), at = drFillAt(pipe.di, grad, Q, kb, nu);
+  const okQ = cp.Q >= Q - 1e-9, okMin = pipe.dn >= floorDN, okV = !(at.v < vMin);
+  const c = {kind:"drain", parts, extra, Q, grad, fill, kb, nu, dMin, rwpMax, floorDN, sz, pipe, pinned:!!pin, capQ:cp.Q, capV:cp.v, y:at.y, v:at.v, over:at.over, okQ, okMin, okV, vMin};
+  const f2 = v => v.toFixed(2);
+  const steps = [
+    {s:"Flow", label:`Catchments served  [${parts.map(x => x.tag).join(", ") || "—"}]`, value:`${f2(parts.reduce((a, x) => a + x.Q, 0))} l/s`},
+    ...(extra > 0 ? [{label:"Other flow", value:`${f2(extra)} l/s`}] : []),
+    {label:"Design flow", value:`${f2(Q)} l/s`, hl:true},
+    {s:"Drain  (Annex C)", label:`Smallest size allowed  [DN ${dMin}${rwpMax > dMin ? `, largest rainwater pipe DN${rwpMax}` : ""}]`, value:`DN${floorDN}`},
+    {label:`Drain${pin ? " (chosen)" : " (auto)"}  [${grad} %, filling ${fill}, kb ${kb} mm]`, value:`${swDN(pipe)} · ${f2(cp.Q)} l/s`, hl:true, ...(okQ && okMin ? {} : {flag:"warn"})},
+    {label:"Depth and velocity at the design flow", value:`h/d ${at.over ? "> 0.82" : at.y.toFixed(2)} · ${at.v.toFixed(2)} m/s`, ...(okV ? {} : {flag:"warn"})},
+  ];
+  const selStr = `Provide ${swDN(pipe)} drain at ${grad} % — design flow ${f2(Q)} l/s, capacity ${f2(cp.Q)} l/s at h/d ${fill}, ${at.v.toFixed(2)} m/s`;
+  return {valid:true, storm:c, flowLsPerPump:Q, flowTotal:Q, designFlow:Q, totalH:"—", pwrSel:"—", config:`${swDN(pipe)} at ${grad} %`, setText:"1 drain",
+    set:{duty:1, standby:0, installed:1, sharing:"full"}, connectedKw:0, installedKw:0, velOk:okV, pipe:null, dutyPoints:[], steps, selStr};
+}
+function calculateStorm(p) {
+  const set = stormSettings(p._set);
+  return p.kind === "drain" ? calculateStormDrain(p, set) : calculateStormRoof(p, set);
+}
+function stormItems(meta) {
+  const sw = (meta && meta.storm) || {}, set = stormSettings(sw.set);
+  const roofs = (sw.roofs || []).map((h, i) => ({...h, type:"storm", kind:"roof", id:"storm-" + h.id, tag:h.tag || `RC-${String(i + 1).padStart(2, "0")}`, name:h.name || `Roof ${i + 1}`, _set:set, _rain:SW_RAIN}));
+  const drains = (sw.drains || []).map((h, i) => ({...h, type:"storm", kind:"drain", id:"storm-" + h.id, tag:h.tag || `SD-${String(i + 1).padStart(2, "0")}`, name:h.name || `Drain ${i + 1}`, _set:set, _rain:SW_RAIN, _roofs:roofs}));
+  return [...roofs, ...drains];
+}
+function stormTitle(p) { return p && p.kind === "drain" ? "Stormwater Drain Sizing (BS EN 12056-3)" : "Roof Drainage Calculation (BS EN 12056-3)"; }
+function stormDesignBasis(p) {
+  const r = (() => { try { return calculateStorm(p); } catch (e) { return null; } })(), c = r && r.storm;
+  if (p && p.kind === "drain") return [
+    `${(p && p.name) || "The drain"} is sized to BS EN 12056-3:2000, Annex C: Colebrook-White part-full flow with kb ${c ? c.kb : 1.0} mm and ν 1.31×10⁻⁶ m²/s at a filling degree of ${c ? c.fill : 0.7}.`,
+    "The design flow is the sum of the runoff of the catchments served (clause 4.1). The drain is not smaller than DN 100 nor than the rainwater pipes connected to it (6.3.3), and is laid to fall without reduction in size.",
+  ];
+  return [
+    `${(p && p.name) || "The roof"} is drained to BS EN 12056-3:2000. Runoff Q = r × A × C with C = 1.0 (clause 4.1); r is the design rainfall intensity${c ? ` of ${c.rain.mmhr} mm/h (${c.rain.label})` : ""} multiplied by the Table 2 risk factor.`,
+    "Effective area to Table 3, plus 50 % of walls draining onto the roof (4.3.4). Outlets by the Table 7 weir or orifice equation (or the manufacturer rating); rainwater pipes by the Wyly-Eaton equation of Table 8 at a filling degree not above 0.33. Rainfall and outlet data to be confirmed with the authority and manufacturer.",
+  ];
+}
+// <STORM-CORE-END>
+
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// FUEL PIPEWORK — diesel oil pipe sizing (type "fuelp")  v1.89.0
+// One line per pipe run: transfer (bulk tank → day tank, with the pump), engine supply and return (day tank ↔ generator),
+// tanker fill, tank vent, day tank overflow (gravity back to the bulk tank).
+//   Darcy-Weisbach: hf = f (L_eq / d) v² / 2g; f = 64/Re (Re < 2 000) else Swamee-Jain; fluid from Reference Data (ref_fluids)
+//   Size = smallest bore within the velocity limit (and any pressure limit), never below the minimum size
+//   Vent: not smaller than the largest fill or withdrawal connection of the tank and not below 32 mm (NFPA 30, 21.4.3 / 22.4.2)
+//   Overflow: gravity, part full (Colebrook-White at h/d 0.5), not smaller than the pipe filling the tank
+// <FUEL-CORE-BEGIN>
+const FP_KINDS = {transfer:"Transfer — bulk tank to day tank", supply:"Engine supply — day tank to generator", ret:"Engine return — generator to day tank",
+  fill:"Tanker fill — fill point to bulk tank", vent:"Tank vent", overflow:"Overflow — day tank back to bulk tank"};
+const FP_SHORT = {transfer:"Transfer", supply:"Engine supply", ret:"Engine return", fill:"Tanker fill", vent:"Vent", overflow:"Overflow"};
+const FP_SET_DEF = {fluid:"DIESEL", temp:"", mat:"STEEL", vSuc:1.0, vDis:1.5, fit:30, minDN:15, eta:50, supFactor:3, ventMin:32, ofGrad:1, ofFill:0.5};
+function fuelSettings(s) { return {...FP_SET_DEF, ...(s || {})}; }
+const fpNm = s => String(s || "").trim().toLowerCase();
+// Darcy-Weisbach with Swamee-Jain (same expression as the sheet)
+function fpFric(Qls, dMm, Lm, kbMm, nu) {
+  const d = dMm/1000, A = Math.PI*d*d/4, v = Qls/1000/A, Re = v*d/nu;
+  const f = Re < 2000 ? 64/Math.max(Re, 1e-9) : 0.25/Math.pow(Math.log10(kbMm/1000/(3.7*d) + 5.74/Math.pow(Re, 0.9)), 2);
+  const hf = f*Lm/d*v*v/(2*9.81);
+  return {v, Re, f, hf, lam:Re < 2000};
+}
+function fpPick(rows, Qls, Leq, kb, nu, vmax, minDN, pinDN, extra) {
+  const ok = s => { const h = fpFric(Qls, s.di, Leq, kb, nu); return h.v <= vmax + 1e-9 && (!extra || extra(s, h)); };
+  if (pinDN != null && pinDN !== "") { const s = rows.find(x => String(x.dn) === String(pinDN)); return s ? {s, pinned:true} : {missing:true}; }
+  const s = rows.slice().sort((a, b) => a.di - b.di).find(x => x.dn >= minDN && ok(x));
+  return s ? {s, pinned:false} : null;
+}
+function fpFlowOf(p, set) {   // design flow of a line in l/s, with how it was found
+  const num = v => Number(v), blank = v => v === "" || v == null;
+  if (p.kind === "transfer") {
+    if (p.qMode === "fill") { const V = num(p.dayVol), t = num(p.fillMin); return V > 0 && t > 0 ? {Q:V/t/60, how:`day tank ${V} L filled in ${t} min`} : {err:"Enter the day tank volume and the fill time (or the pump flow)."}; }
+    return num(p.q) > 0 ? {Q:num(p.q)/60, how:"pump flow"} : {err:"Enter the transfer pump flow (L/min)."};
+  }
+  if (p.kind === "supply" || p.kind === "ret") {
+    const n = isPositive(p.nGen) ? Math.round(num(p.nGen)) : 1, cons = num(p.cons);
+    if (!(cons > 0)) return {err:"Enter the generator fuel consumption at full load (L/h)."};
+    const fac = num(set.supFactor), sup = blank(p.sup) ? cons*fac : num(p.sup);
+    if (!(sup > 0)) return {err:"Fuel supply flow must be greater than zero."};
+    if (sup < cons - 1e-9) return {err:"Fuel supply flow cannot be less than the consumption."};
+    const each = p.kind === "supply" ? sup : sup - cons;
+    if (!(each > 0)) return {err:"Return flow works out at zero (supply = consumption) — enter the generator supply flow."};
+    return {Q:each*n/3600, how:p.kind === "supply" ? `${n} × ${each.toFixed(0)} L/h supply${blank(p.sup) ? ` (${fac} × consumption)` : ""}` : `${n} × (${sup.toFixed(0)} − ${cons.toFixed(0)}) L/h return`, n, cons, sup};
+  }
+  if (p.kind === "fill") return num(p.q) > 0 ? {Q:num(p.q)/60, how:"tanker discharge rate"} : {err:"Enter the tanker discharge rate (L/min)."};
+  return {Q:0};
+}
+function calculateFuelPipe(p) {
+  const set = fuelSettings(p._set), errors = [], num = v => Number(v), blank = v => v === "" || v == null;
+  const kind = FP_KINDS[p.kind] ? p.kind : "transfer";
+  const fl = fluidOf({fluid:set.fluid, fluidTemp:set.temp});
+  if (fl.missing) errors.push(`Fluid “${set.fluid}” is not in Reference Data (ref_fluids) — choose another in Fuel → Design settings.`);
+  const mk = resolveMatKey(p.mat || set.mat), mat = mk ? PIPE_MATERIALS[mk] : null;
+  if (!mat) errors.push("The pipe material is not in Reference Data — choose another.");
+  if (errors.length) return calcError(errors);
+  const rows = mat.table.map(r => ({dn:r.nb, di:r.id, od:r.od})), kb = num(mat.roughness), nu = fl.nu, rho = fl.rho, g = 9.81;
+  const fit = blank(p.fit) ? num(set.fit) : num(p.fit), minDN = blank(p.minDN) ? num(set.minDN) : num(p.minDN);
+  const kPa = hm => rho*g*hm/1000;
+  const lines = Array.isArray(p._lines) ? p._lines : [];
+  const sibs = lines.filter(x => x.id !== p.id && x.kind !== "vent" && x.kind !== "overflow");
+  const base = {fl, mat, mk, kb, fit, minDN, rows};
+  const f2 = v => v.toFixed(2), f1 = v => v.toFixed(1), f0 = v => Math.round(v).toLocaleString("en-GB");
+  const done = (c, steps, selStr, extra) => ({valid:true, fuel:c, flowLsPerPump:c.Q, flowTotal:c.Q, designFlow:c.Q, totalH:c.H != null ? +c.H.toFixed(1) : "—", pwrSel:c.motor != null ? c.motor : "—",
+    config:c.cfg, setText:"1 line", set:{duty:1, standby:0, installed:1, sharing:"full"}, connectedKw:c.motor || 0, installedKw:c.motor || 0, velOk:true, pipe:null, dutyPoints:[], steps, selStr, ...(extra || {})});
+  const head = [{s:"Fluid", label:`${fl.name}  [${fl.T} °C]`, value:`${f0(rho)} kg/m³ · ${fl.nuCst.toFixed(2)} cSt`}];
+
+  if (kind === "vent") {
+    const tk = fpNm(p.tank); if (!tk) return calcError(["Enter the tank this vent serves (the same name used on its fill / transfer / supply lines)."]);
+    const conn = sibs.filter(x => fpNm(x.to) === tk || fpNm(x.from) === tk).map(x => ({x, r:calculateFuelPipe({...x, _lines:[]})})).filter(o => o.r.valid);
+    const largest = conn.reduce((m, o) => o.r.fuel.pipe.dn > m.dn ? {dn:o.r.fuel.pipe.dn, tag:o.x.tag || o.x.name} : m, {dn:0, tag:""});
+    const inflow = conn.filter(o => fpNm(o.x.to) === tk).reduce((a, o) => a + o.r.fuel.Q, 0), outflow = conn.filter(o => fpNm(o.x.from) === tk).reduce((a, o) => a + o.r.fuel.Q, 0);
+    const vMin = num(set.ventMin), floor = Math.max(vMin, largest.dn);
+    const pin = !blank(p.dn) ? rows.find(s => String(s.dn) === String(p.dn)) || null : null;
+    if (!blank(p.dn) && !pin) return calcError([`Size DN${p.dn} is not in ${mat.label} — choose another or set it back to Auto.`]);
+    const auto = rows.slice().sort((a, b) => a.di - b.di).find(s => s.dn >= floor) || null, s = pin || auto;
+    if (!s) return calcError([`${mat.label} has no size of DN${floor} or more.`]);
+    const air = Math.max(inflow, outflow), vAir = air/1000/(Math.PI*Math.pow(s.di/1000, 2)/4), ok = s.dn >= floor;
+    const c = {kind, ...base, Q:air, tank:p.tank, conn:conn.map(o => ({tag:o.x.tag || o.x.name, kind:o.x.kind, dn:o.r.fuel.pipe.dn, dir:fpNm(o.x.to) === tk ? "in" : "out"})), largest, vMin, floor, pipe:s, pinned:!!pin, vAir, ok, cfg:`DN${s.dn} vent`};
+    return done(c, [...head,
+      {s:"Vent  (NFPA 30)", label:`Connections on ${p.tank}`, value:c.conn.length ? c.conn.map(x => `${x.tag} DN${x.dn}`).join(" · ") : "none found"},
+      {label:`Smallest vent  [largest connection${largest.tag ? ` (${largest.tag})` : ""}, not below DN${vMin}]`, value:`DN${floor}`},
+      {label:`Vent${pin ? " (chosen)" : " (auto)"}`, value:`DN${s.dn} · ${s.di} mm bore`, hl:true, ...(ok ? {} : {flag:"warn"})},
+      {label:`Air velocity at the largest liquid flow  [${f2(air)} l/s]`, value:`${f2(vAir)} m/s`}],
+      `Provide DN${s.dn} vent to ${p.tank} — not smaller than the largest fill or withdrawal connection (DN${largest.dn || "—"}) and not below DN${vMin}`);
+  }
+  if (kind === "overflow") {
+    const tk = fpNm(p.from); if (!tk) return calcError(["Enter the tank the overflow leaves (the day tank, same name as on its transfer line)."]);
+    const feed = sibs.filter(x => fpNm(x.to) === tk && (x.kind === "transfer" || x.kind === "fill")).map(x => ({x, r:calculateFuelPipe({...x, _lines:[]})})).filter(o => o.r.valid);
+    const ret = sibs.filter(x => fpNm(x.to) === tk && x.kind === "ret").map(x => ({x, r:calculateFuelPipe({...x, _lines:[]})})).filter(o => o.r.valid);
+    const Qin = feed.reduce((a, o) => a + o.r.fuel.Q, 0) + ret.reduce((a, o) => a + o.r.fuel.Q, 0) + (blank(p.qx) ? 0 : num(p.qx)/60);
+    if (!(Qin > 0)) return calcError(["No flow into this tank was found — the overflow must carry the transfer pump flow. Name the day tank the same as the “To” of its transfer line, or enter the flow."]);
+    const inDN = feed.reduce((m, o) => Math.max(m, o.r.fuel.pipe.dn), 0);
+    const grad = blank(p.grad) ? num(set.ofGrad) : num(p.grad), fill = num(set.ofFill);
+    if (!(grad > 0)) return calcError(["Overflow gradient must be greater than zero."]);
+    const cap = s => drCap(s.di, grad, fill, kb, nu), floor = Math.max(inDN, minDN);
+    const pin = !blank(p.dn) ? rows.find(s => String(s.dn) === String(p.dn)) || null : null;
+    if (!blank(p.dn) && !pin) return calcError([`Size DN${p.dn} is not in ${mat.label} — choose another or set it back to Auto.`]);
+    const auto = rows.slice().sort((a, b) => a.di - b.di).find(s => s.dn >= floor && cap(s).Q >= Qin - 1e-9) || null, s = pin || auto;
+    if (!s) return calcError([`No size in ${mat.label} carries ${f2(Qin)} l/s by gravity at ${grad} % — steepen the fall.`]);
+    const cp = cap(s), at = drFillAt(s.di, grad, Qin, kb, nu), ok = cp.Q >= Qin - 1e-9 && s.dn >= floor;
+    const c = {kind, ...base, Q:Qin, from:p.from, to:p.to, inDN, grad, fill, pipe:s, pinned:!!pin, capQ:cp.Q, y:at.y, v:at.v, over:at.over, ok, cfg:`DN${s.dn} overflow at ${grad} %`};
+    return done(c, [...head,
+      {s:"Flow", label:`Largest flow into ${p.from}  [${[...feed, ...ret].map(o => o.x.tag || o.x.name).join(" + ") || "entered"}]`, value:`${f2(Qin)} l/s (${f0(Qin*60)} L/min)`, hl:true},
+      {s:"Overflow  (gravity)", label:`Smallest size  [not below the filling pipe${inDN ? ` DN${inDN}` : ""}]`, value:`DN${floor}`},
+      {label:`Overflow${pin ? " (chosen)" : " (auto)"}  [${grad} %, h/d ${fill}, Colebrook-White]`, value:`DN${s.dn} · ${f2(cp.Q)} l/s`, hl:true, ...(ok ? {} : {flag:"warn"})},
+      {label:"Depth and velocity at the design flow", value:`h/d ${at.over ? "> 0.82" : at.y.toFixed(2)} · ${at.v.toFixed(2)} m/s`}],
+      `Provide DN${s.dn} overflow from ${p.from} to ${p.to || "the bulk tank"} at ${grad} % fall — carries ${f2(Qin)} l/s (capacity ${f2(cp.Q)} l/s at h/d ${fill})`);
+  }
+
+  // pumped / pressure lines
+  const fq = fpFlowOf(p, set);
+  if (fq.err) return calcError([fq.err]);
+  const Q = fq.Q;
+  if (kind === "transfer") {
+    const Ls = num(p.Ls), Ld = num(p.Ld), zs = blank(p.zs) ? 0 : num(p.zs), zd = blank(p.zd) ? 0 : num(p.zd), eta = (blank(p.eta) ? num(set.eta) : num(p.eta))/100;
+    if (!(Ls >= 0)) errors.push("Suction length must be zero or more."); if (!(Ld > 0)) errors.push("Discharge length must be greater than zero.");
+    if (!(eta > 0 && eta <= 1)) errors.push("Pump efficiency must be between 0 and 100 %.");
+    if (errors.length) return calcError(errors);
+    const LsE = Ls*(1 + fit/100), LdE = Ld*(1 + fit/100);
+    const ps = fpPick(rows, Q, LsE, kb, nu, num(set.vSuc), minDN, p.dnS), pd = fpPick(rows, Q, LdE, kb, nu, num(set.vDis), minDN, p.dnD);
+    if ((ps && ps.missing) || (pd && pd.missing)) return calcError([`A chosen size is not in ${mat.label} — set it back to Auto.`]);
+    if (!ps || !pd) return calcError([`No size in ${mat.label} keeps the velocity within the limit at ${f2(Q)} l/s.`]);
+    const hs = fpFric(Q, ps.s.di, LsE, kb, nu), hd = fpFric(Q, pd.s.di, LdE, kb, nu);
+    const H = zs + zd + hs.hf + hd.hf, Pw = rho*g*Q/1000*H/1000, Pin = Pw/eta;
+    const motor = (MOTOR_KW || []).find(k => k >= Pin*1.15) || null;
+    const Hatm = 101.325*1000/(rho*g), Hvp = (fl.pv || 0)*1000/(rho*g), NPSHa = Hatm - Hvp - zs - hs.hf, npshr = blank(p.npshr) ? null : num(p.npshr);
+    const okN = npshr == null ? NPSHa > 0 : NPSHa >= npshr + 0.5;
+    const c = {kind, ...base, Q, how:fq.how, from:p.from, to:p.to, Ls, Ld, LsE, LdE, zs, zd, ps:ps.s, pd:pd.s, pinS:ps.pinned, pinD:pd.pinned, hs, hd, H, Pw, eta, Pin, motor, Hatm, Hvp, NPSHa, npshr, okN,
+      okVs:hs.v <= num(set.vSuc) + 1e-9, okVd:hd.v <= num(set.vDis) + 1e-9, pipe:pd.s, cfg:`DN${ps.s.dn} / DN${pd.s.dn} · ${f1(H)} m`};
+    return done(c, [...head,
+      {s:"Flow", label:`Transfer flow  [${fq.how}]`, value:`${f2(Q)} l/s (${f0(Q*60)} L/min)`, hl:true},
+      {s:"Suction", label:`Suction${ps.pinned ? " (chosen)" : " (auto)"}  [${f1(LsE)} m incl. ${fit} % fittings, ≤ ${set.vSuc} m/s]`, value:`DN${ps.s.dn} · ${f2(hs.v)} m/s · ${f2(hs.hf)} m`, ...(c.okVs ? {} : {flag:"warn"})},
+      {s:"Discharge", label:`Discharge${pd.pinned ? " (chosen)" : " (auto)"}  [${f1(LdE)} m incl. ${fit} % fittings, ≤ ${set.vDis} m/s]`, value:`DN${pd.s.dn} · ${f2(hd.v)} m/s · ${f2(hd.hf)} m`, ...(c.okVd ? {} : {flag:"warn"})},
+      {s:"Pump", label:`Pump head  [lift ${f1(zs)} + rise ${f1(zd)} + friction ${f2(hs.hf + hd.hf)} m]`, value:`${f1(H)} m (${f0(kPa(H))} kPa)`, hl:true},
+      {label:`Absorbed power  [η ${Math.round(eta*100)} %]`, value:`${f2(Pin)} kW${motor ? ` → ${motor} kW motor` : ""}`},
+      {label:`NPSH available${npshr != null ? `  [NPSHr ${npshr} m + 0.5 m]` : ""}`, value:`${f1(NPSHa)} m`, ...(okN ? {} : {flag:"warn"})}],
+      `Provide transfer pump ${f0(Q*60)} L/min at ${f1(H)} m (${f0(kPa(H))} kPa)${motor ? `, ${motor} kW` : ""} — suction DN${ps.s.dn}, discharge DN${pd.s.dn} ${mat.label}`);
+  }
+  // supply, return, fill: one run
+  const L = num(p.L), z = blank(p.z) ? 0 : num(p.z), lim = blank(p.lim) ? null : num(p.lim);
+  if (!(L > 0)) return calcError(["Pipe length must be greater than zero."]);
+  const Le = L*(1 + fit/100), vmax = kind === "fill" ? num(set.vDis) : num(set.vSuc);
+  const within = (s, h) => lim == null || kPa(h.hf + z) <= lim + 1e-9;
+  let pk = fpPick(rows, Q, Le, kb, nu, vmax, minDN, p.dn, within);
+  if (pk && pk.missing) return calcError([`Size DN${p.dn} is not in ${mat.label} — choose another or set it back to Auto.`]);
+  if (!pk) pk = fpPick(rows, Q, Le, kb, nu, vmax, minDN, p.dn);
+  if (!pk) return calcError([`No size in ${mat.label} keeps the velocity within ${vmax} m/s at ${f2(Q)} l/s.`]);
+  const s = pk.s, h = fpFric(Q, s.di, Le, kb, nu), dp = kPa(h.hf + z), okV = h.v <= vmax + 1e-9, okP = lim == null || dp <= lim + 1e-9;
+  const what = kind === "supply" ? "Suction at the engine inlet" : kind === "ret" ? "Back pressure at the engine return" : "Pressure needed at the fill point";
+  const c = {kind, ...base, Q, how:fq.how, n:fq.n, cons:fq.cons, sup:fq.sup, from:p.from, to:p.to, L, Le, z, lim, vmax, pipe:s, pinned:pk.pinned, h, dp, okV, okP, what, cfg:`DN${s.dn} · ${f2(h.v)} m/s`};
+  return done(c, [...head,
+    {s:"Flow", label:`${FP_SHORT[kind]} flow  [${fq.how}]`, value:`${f2(Q)} l/s (${f0(Q*3600)} L/h)`, hl:true},
+    {s:"Pipe", label:`Pipe${pk.pinned ? " (chosen)" : " (auto)"}  [${f1(Le)} m incl. ${fit} % fittings, ≤ ${vmax} m/s]`, value:`DN${s.dn} · ${f2(h.v)} m/s`, hl:true, ...(okV ? {} : {flag:"warn"})},
+    {label:`Friction  [${h.lam ? "laminar" : "turbulent"}, Re ${f0(h.Re)}]`, value:`${f2(h.hf)} m`},
+    {label:`${what}  [friction ${z >= 0 ? "+" : "−"} ${f1(Math.abs(z))} m ${z >= 0 ? "rise" : "fall"}]${lim != null ? `  ≤ ${lim} kPa` : ""}`, value:`${f1(dp)} kPa${dp < 0 && kind !== "fill" ? " (positive head)" : ""}`, ...(okP ? {} : {flag:"warn"})}],
+    `Provide DN${s.dn} ${mat.label} ${FP_SHORT[kind].toLowerCase()} line${p.from || p.to ? ` (${[p.from, p.to].filter(Boolean).join(" → ")})` : ""} — ${f2(Q)} l/s at ${f2(h.v)} m/s, ${f1(dp)} kPa`);
+}
+function fuelItems(meta) {
+  const fu = (meta && meta.fuel) || {}, set = fuelSettings(fu.set), raw = fu.lines || [];
+  const lines = raw.map((h, i) => ({...h, type:"fuelp", id:"fuelp-" + h.id, tag:h.tag || `FO-${String(i + 1).padStart(2, "0")}`, name:h.name || FP_SHORT[h.kind] || "Line", _set:set}));
+  return lines.map(x => ({...x, _lines:lines}));
+}
+function fuelTitle(p) { return `Fuel Oil Pipe Sizing — ${FP_SHORT[p && p.kind] || "Line"}`; }
+function fuelDesignBasis(p) {
+  const k = p && p.kind;
+  if (k === "vent") return ["Normal vent sized to NFPA 30: not smaller than the largest filling or withdrawal connection of the tank and not below 32 mm nominal (1¼ in). Emergency venting to be confirmed separately for the tank type.", "Vent to terminate outside, above the fill point, with a flame arrester / weatherproof cap as required by the authority."];
+  if (k === "overflow") return ["The overflow returns the day tank surplus to the bulk tank by gravity. It must carry the full transfer pump flow (plus any engine return) without surcharging: Colebrook-White part-full flow at h/d 0.5 with the fuel viscosity.", "It is not smaller than the pipe filling the day tank and falls continuously to the bulk tank."];
+  return [
+    `${(p && p.name) || "The line"} is sized by the Darcy-Weisbach equation with the friction factor from 64/Re (laminar) or the Swamee-Jain equation (turbulent), using the fuel density and viscosity of Reference Data (ref_fluids).`,
+    "The pipe is the smallest bore within the velocity limit (suction and engine lines 1.0 m/s, pressure lines 1.5 m/s by default) with a fittings allowance on the straight length. Installation to NFPA 30 / NFPA 37; flows and limits to be confirmed against the generator and pump datasheets.",
+  ];
+}
+// Short drawing for the stormwater and fuel sheets and tabs
+function swFigure(c) {
+  const W = 520, H = 150, e = v => sxEsc(String(v));
+  const tx = (x, y, v, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(v)}</text>`;
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" style="height:100px"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  const f2 = v => v.toFixed(2);
+  if (c.kind === "roof") {
+    o += `<line x1="20" y1="40" x2="250" y2="40" stroke="#000" stroke-width="2"/><line x1="20" y1="30" x2="20" y2="40" stroke="#000" stroke-width="2"/><line x1="250" y1="30" x2="250" y2="40" stroke="#000" stroke-width="2"/>`;
+    for (let i = 0; i < 9; i++) o += `<line x1="${40 + i*24}" y1="8" x2="${34 + i*24}" y2="24" stroke="#1d6fb8" stroke-width="1.2"/>`;
+    const nd = Math.min(c.n, 3);
+    for (let i = 0; i < nd; i++) { const x = 60 + i*(150/Math.max(nd - 1, 1)) - (nd === 1 ? -75 : 0); o += `<rect x="${x - 8}" y="40" width="16" height="6" fill="#1d6fb8"/><line x1="${x}" y1="46" x2="${x}" y2="128" stroke="#1d6fb8" stroke-width="5"/>`; }
+    o += `<line x1="40" y1="128" x2="250" y2="128" stroke="#555" stroke-dasharray="4 3"/>`;
+    o += tx(135, 145, `${c.n} outlet${c.n > 1 ? "s" : ""} · ${c.nR} × ${swDN(c.pipe)} rainwater pipe${c.nR > 1 ? "s" : ""}`, {a:"middle", s:10.5, b:true, f:"#1d6fb8"});
+    [[`${f2(c.Q)} l/s runoff`, true], [`${f2(c.A)} m² at ${c.rain.mmhr} mm/h${c.risk !== 1 ? ` × ${c.risk}` : ""}`, false], [`${f2(c.capO)} l/s per outlet (${f2(c.Qo)} needed)`, false], [`${f2(c.capR)} l/s per pipe (${f2(c.Qr)} needed)`, false]]
+      .forEach(([v, b], i) => { o += tx(290, 34 + i*20, v, {s:b ? 12 : 11, b, f:b ? "#1d6fb8" : "#333"}); });
+  } else {
+    const d = 90, cx = 120, cy = 72, r = d/2, y = Math.min(c.y, 1), lvl = cy + r - 2*r*y;
+    o += `<defs><clipPath id="swc"><circle cx="${cx}" cy="${cy}" r="${r}"/></clipPath></defs><circle cx="${cx}" cy="${cy}" r="${r}" fill="#f3f6fa" stroke="#000" stroke-width="1.4"/>`;
+    o += `<rect x="${cx - r}" y="${lvl}" width="${d}" height="${cy + r - lvl}" fill="#cfe3f6" clip-path="url(#swc)"/><line x1="${cx - r - 6}" y1="${lvl}" x2="${cx + r + 6}" y2="${lvl}" stroke="#1d6fb8" stroke-dasharray="3 2"/>`;
+    o += tx(cx, cy + r + 18, `${swDN(c.pipe)} at ${c.grad} %`, {a:"middle", s:10.5, b:true, f:"#1d6fb8"});
+    [[`${f2(c.Q)} l/s design flow`, true], [`${f2(c.capQ)} l/s capacity at h/d ${c.fill}`, false], [`h/d ${c.over ? "> 0.82" : c.y.toFixed(2)} at the design flow`, false], [`${c.v.toFixed(2)} m/s`, false]]
+      .forEach(([v, b], i) => { o += tx(250, 34 + i*20, v, {s:b ? 12 : 11, b, f:b ? "#1d6fb8" : "#333"}); });
+  }
+  return {svg:o + `</svg>`, w:W, h:H};
+}
+// <FUEL-CORE-END>
+
+
 
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 // GAS PIPE SIZING ENGINE — v1.68.0
@@ -3316,7 +3702,7 @@ const wsIsGas = p => !!p && p.wsService === "gas";
 const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : v/WS_BAR;
-const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
+const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : p.type === "storm" ? stormTitle(p) : p.type === "fuelp" ? fuelTitle(p) : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
 const GAS_RD = {propane:1.55, butane:2.07, air:1.0}, GAS_MW = {propane:44.10, butane:58.12};
 const GAS_TYPES = [
   {k:"lpg",   l:"LPG",   long:"Liquefied petroleum gas (propane / butane vapour)", conv:2.40},
@@ -3621,7 +4007,7 @@ function gasFromLegacy(p) {
 // (ref_fixture_unit_codes / ref_fixture_unit_tables) and the fixtures with their loading units from
 // ref_fixtures, so IOP, IPC, UPC, BS EN 806 and national tables all work the same way.
 // <WATER-CORE-BEGIN>
-const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","foam","water","lpg"]);
+const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","foam","storm","fuelp","water","lpg"]);
 const WS_COUNTRIES = ["UAE","Saudi Arabia (KSA)","Qatar","Oman","Bahrain","Kuwait"];
 const WS_ID = /^[A-Za-z0-9_.\-]+$/;
 const WS_CLASSES = [{k:"main", l:"Main"}, {k:"riser", l:"Riser"}, {k:"branch", l:"Branch"}];
@@ -6771,7 +7157,7 @@ function clFxText(r, byId) {
 // One house style for every sheet label: Title Case, single spaces, no trailing colon.
 // Only plain lower-case words are touched; units (l/s, m³), symbols (dT, kW, t) and codes stay as written.
 const CL_SMALL = new Set(["a","an","and","as","at","by","for","from","in","of","on","or","per","the","to","with","over","above","below","up","incl.","be","through","is"]);
-const CL_KEEP = new Set(["fd","ft","fr","dT","hf"]);
+const CL_KEEP = new Set(["fd","ft","fr","dT","hf","mm","kb","di"]);
 function clTitle(t) {
   let s = String(t == null ? "" : t).replace(/\s+/g, " ").replace(/\s*:\s*$/, "").replace(/Stop-Float/g, "Stop - Float").replace(/\bSqm\b/g, "m²").trim();
   let first = true;
@@ -7457,6 +7843,144 @@ function clFoamRows(B, p, res) {
   B.banner = {text:res.selStr, xl:'"Provide ' + c.n + ' No. ' + c.tank.vol + ' L bladder tank' + (c.n > 1 ? "s" : "") + ' (' + c.conc.label + ') — "&TEXT({fmVc},"#,##0")&" L concentrate + "&TEXT({fmVt}-{fmVc},"#,##0")&" L reserve; foam solution "&TEXT(' + qPk + ',"#,##0")&" L/min, water "&TEXT({fmQw},"0.00")&" L/s"'};
 }
 
+// ── Stormwater: calculation sheet rows (v1.89.0) — BS EN 12056-3, one A4 page ───────────
+// Colebrook-White part-full rows shared by the stormwater drain and the fuel overflow (Excel: live formulas)
+function clCwRows(B, px, o) {
+  const y = o.fill, d = o.di/1000, th = 2*Math.acos(1 - 2*y), A = d*d/8*(th - Math.sin(th)), P = d*th/2, R = A/P;
+  const S = o.grad/100, a = Math.sqrt(8*9.81*R*S), v = -2*a*Math.log10(o.kb/1000/(14.8*R) + 2.51*o.nu/(4*R*a));
+  B.calc(px + "Th", `Wetted angle  [2 ACOS(1 - 2 h/d)]`, th, `2*ACOS(1-2*{${o.idF}})`, {unit:"rad", dp:3});
+  B.calc(px + "Ar", "Flow area  [d²/8 (θ - sin θ)]", A, `({${o.idD}}/1000)^2/8*({${px}Th}-SIN({${px}Th}))`, {unit:"m²", dp:5});
+  B.calc(px + "R", "Hydraulic radius  [A / (d θ / 2)]", R, `{${px}Ar}/({${o.idD}}/1000*{${px}Th}/2)`, {unit:"m", dp:4});
+  const sq = `SQRT(8*9.81*{${px}R}*{${o.idG}}/100)`;
+  B.calc(px + "V", "Velocity  [Colebrook-White]", v, `-2*${sq}*LOG10({${o.idK}}/1000/(14.8*{${px}R})+2.51*${o.nuX}/(4*{${px}R}*${sq}))`, {unit:"m/s", dp:2});
+  B.calc(px + "Qc", `Capacity at h/d ${y}${o.ok ? " ✓" : " — TOO SMALL"}`, A*v*1000, `{${px}Ar}*{${px}V}*1000`, {unit:"l/s", dp:2, key:true, bold:true});
+}
+function clStormRows(B, p, res) {
+  const c = res.storm; B.align("l");
+  if (c.kind === "drain") {
+    B.section(`1.  Design Flow${p.location ? " — " + p.location : ""}`);
+    const ids = [];
+    c.parts.forEach((x, i) => { const id = "sdq" + i; ids.push(`{${id}}`); B.inp(id, `Runoff from ${x.tag} — ${x.name}`, x.Q, {unit:"l/s", dp:2}); });
+    if (c.extra > 0) { B.inp("sdqx", "Other flow", c.extra, {unit:"l/s", dp:2}); ids.push("{sdqx}"); }
+    B.calc("sdQ", "Design flow", c.Q, ids.join("+") || "0", {unit:"l/s", dp:2, key:true, bold:true});
+    B.section("2.  Drain  ·  BS EN 12056-3 Annex C (Colebrook-White, part full)");
+    B.inp("sdG", "Gradient", c.grad, {unit:"%", dp:2});
+    B.inp("sdF", "Filling degree h/d", c.fill, {unit:"", dp:2});
+    B.inp("sdK", "Effective roughness kb", c.kb, {unit:"mm", dp:2});
+    B.inp("sdNu", "Kinematic viscosity of water", c.nu*1e6, {unit:"×10⁻⁶ m²/s", dp:2});
+    B.inp("sdD", `Drain internal diameter  [${swDN(c.pipe)}${c.pinned ? ", chosen" : ", smallest that carries the flow"}; not below DN${c.floorDN}]`, c.pipe.di, {unit:"mm", dp:1});
+    clCwRows(B, "sdc", {fill:c.fill, di:c.pipe.di, grad:c.grad, kb:c.kb, nu:c.nu, idF:"sdF", idD:"sdD", idG:"sdG", idK:"sdK", nuX:"{sdNu}*1E-6", ok:c.okQ});
+    B.text(`At the design flow: h/d ${c.over ? "above 0.82" : c.y.toFixed(2)}, velocity ${c.v.toFixed(2)} m/s${c.okV ? "" : ` — below ${c.vMin} m/s, check self-cleansing (6.3.5)`}.`);
+    const fg = swFigure(c); B.fig(fg.svg, fg.w, fg.h);
+    B.banner = {text:res.selStr, xl:'"Provide ' + swDN(c.pipe) + ' drain at "&TEXT({sdG},"0.0#")&" % — design flow "&TEXT({sdQ},"0.00")&" l/s, capacity "&TEXT({sdcQc},"0.00")&" l/s at h/d "&TEXT({sdF},"0.0#")&", "&TEXT({sdcV},"0.00")&" m/s"'};
+    return;
+  }
+  B.section(`1.  Rainfall Intensity  ·  ${c.rain.label}`);
+  B.inp("swI", "Design rainfall intensity", c.rain.mmhr, {unit:"mm/h", dp:1});
+  B.inp("swRF", "Risk factor  [Table 2]", c.risk, {unit:"", dp:1});
+  B.calc("swr", "Rainfall intensity r  [mm/h ÷ 3 600 × risk factor]", c.r, "{swI}/3600*{swRF}", {unit:"l/(s·m²)", dp:4, bold:true});
+  B.section(`2.  Effective Roof Area and Runoff${p.location ? " — " + p.location : ""}`);
+  let ax;
+  if (c.roofType === "pitched") {
+    B.inp("swLr", "Length of roof Lr", c.ar.Lr, {unit:"m", dp:2}); B.inp("swBr", "Plan width, gutter to ridge Br", c.ar.Br, {unit:"m", dp:2});
+    if (p.wind) { B.inp("swHr", "Height of ridge above gutter Hr", c.ar.Hr, {unit:"m", dp:2}); ax = "{swLr}*({swBr}+{swHr}/2)"; } else ax = "{swLr}*{swBr}";
+    B.calc("swA0", `Roof area  [${p.wind ? "Lr (Br + Hr/2), wind 26°" : "Lr x Br"}, Table 3]`, c.ar.A, ax, {unit:"m²", dp:2});
+  } else if (c.ar.L != null) { B.inp("swL", "Length", c.ar.L, {unit:"m", dp:2}); B.inp("swB", "Width", c.ar.B, {unit:"m", dp:2}); B.calc("swA0", "Roof plan area  [L x B]", c.ar.A, "{swL}*{swB}", {unit:"m²", dp:2}); }
+  else B.inp("swA0", "Roof plan area", c.ar.A, {unit:"m²", dp:2});
+  if (c.wall > 0) { B.inp("swWl", "Wall area draining onto the roof", c.wall, {unit:"m²", dp:2}); B.calc("swA", "Effective area  [roof + 50 % of walls, 4.3.4]", c.A, "{swA0}+{swWl}/2", {unit:"m²", dp:2, bold:true}); }
+  else B.calc("swA", "Effective area", c.A, "{swA0}", {unit:"m²", dp:2, bold:true});
+  B.calc("swQ", `Runoff  Q = r x A x C  [equation 1, C = ${c.C}]`, c.Q, `{swr}*{swA}*${c.C}`, {unit:"l/s", dp:2, key:true, bold:true});
+  B.section(c.oCap != null ? "3.  Roof Outlets  ·  manufacturer rated capacity" : `3.  Roof Outlets  ·  Table 7, circular, ${c.weir ? "weir" : "orifice"} flow`);
+  if (c.oCap != null) B.inp("swOc", `Rated capacity of one DN${c.oD} outlet`, c.capO, {unit:"l/s", dp:2});
+  else {
+    B.inp("swD", "Effective outlet diameter D", c.oD, {unit:"mm", dp:0}); B.inp("swH", "Head at the outlet h", c.h, {unit:"mm", dp:0}); B.inp("swK", `Outlet coefficient kO  [${c.kO >= 1 ? "unobstructed" : "with strainer / grating"}]`, c.kO, {unit:"", dp:2});
+    B.calc("swOc", c.weir ? "Outlet capacity  [kO D h^1.5 / 7 500, h ≤ D/2]" : "Outlet capacity  [kO D² h^0.5 / 15 000, h > D/2]", c.capO, "IF({swH}<={swD}/2,{swK}*{swD}*{swH}^1.5/7500,{swK}*{swD}^2*{swH}^0.5/15000)", {unit:"l/s", dp:2});
+  }
+  B.inp("swN", `Number of outlets${c.autoN ? "  [fewest that carry the runoff]" : ""}`, c.n, {unit:"No.", dp:0});
+  B.calc("swQo", `Flow per outlet${c.okO ? " ✓" : " — EXCEEDS THE OUTLET CAPACITY"}`, c.Qo, "{swQ}/{swN}", {unit:"l/s", dp:2, bold:true});
+  B.section(`4.  Rainwater Pipes  ·  Table 8, Wyly-Eaton  ·  ${c.sz.label}`);
+  B.inp("swNr", "Number of rainwater pipes", c.nR, {unit:"No.", dp:0});
+  B.calc("swQr", "Flow per rainwater pipe", c.Qr, "{swQ}/{swNr}", {unit:"l/s", dp:2});
+  B.inp("swF", "Filling degree f  [6.1.1, not above 0.33]", c.fill, {unit:"", dp:2});
+  B.inp("swKb", "Pipe roughness kb", c.kbR, {unit:"mm", dp:2});
+  B.inp("swDi", `Internal diameter  [${swDN(c.pipe)}${c.pinned ? ", chosen" : ", smallest that carries the flow"}]`, c.pipe.di, {unit:"mm", dp:1});
+  B.calc("swCr", `Capacity  [2.5x10⁻⁴ kb^-0.167 di^2.667 f^1.667]${c.okR ? " ✓" : " — TOO SMALL"}`, c.capR, "2.5E-4*{swKb}^-0.167*{swDi}^2.667*{swF}^1.667", {unit:"l/s", dp:2, key:true, bold:true});
+  const fg = swFigure(c); B.fig(fg.svg, fg.w, fg.h);
+  B.banner = {text:res.selStr, xl:'"Provide "&TEXT({swN},"0")&" No. DN' + c.oD + ' roof outlet"&IF({swN}>1,"s","")&" and "&TEXT({swNr},"0")&" No. ' + swDN(c.pipe) + ' rainwater pipe"&IF({swNr}>1,"s","")&" — runoff "&TEXT({swQ},"0.00")&" l/s from "&TEXT({swA},"0.00")&" m² at "&TEXT({swI},"0")&" mm/h' + (c.risk !== 1 ? ' x "&TEXT({swRF},"0.0")&"' : '') + '"'};
+}
+
+// ── Fuel pipework: calculation sheet rows (v1.89.0) ───────────
+function clFuelRun(B, px, c, o) {   // one Darcy-Weisbach run: length → velocity → Re → f → friction
+  const h = o.h;
+  B.inp(px + "L", o.lenLbl || "Pipe length", o.L, {unit:"m", dp:1});
+  B.inp(px + "Di", `Internal diameter  [DN${o.s.dn} ${c.mat.label}${o.pinned ? ", chosen" : `, smallest within ${o.vmax} m/s`}]`, o.s.di, {unit:"mm", dp:2});
+  B.calc(px + "V", `Velocity${h.v <= o.vmax + 1e-9 ? " ✓" : ` — ABOVE ${o.vmax} m/s`}`, h.v, `{${o.q}}/1000/(PI()/4*({${px}Di}/1000)^2)`, {unit:"m/s", dp:2});
+  B.calc(px + "Re", "Reynolds number  [v d / ν]", h.Re, `{${px}V}*{${px}Di}/1000/({fpNu}*1E-6)`, {unit:"", dp:0});
+  B.calc(px + "F", `Friction factor  [${h.lam ? "64 / Re, laminar" : "Swamee-Jain"}]`, h.f, `IF({${px}Re}<2000,64/{${px}Re},0.25/LOG10({fpKb}/(3.7*{${px}Di})+5.74/{${px}Re}^0.9)^2)`, {unit:"", dp:4});
+  B.calc(px + "Hf", `Friction loss  [f (L (1 + ${c.fit} %) / d) v² / 2g]`, h.hf, `{${px}F}*{${px}L}*(1+{fpFit}/100)/({${px}Di}/1000)*{${px}V}^2/(2*9.81)`, {unit:"m", dp:2, bold:true});
+}
+function clFuelRows(B, p, res) {
+  const c = res.fuel, k = c.kind; B.align("l");
+  B.section(`1.  Fluid and Pipe  ·  ${c.fl.name}`);
+  B.inp("fpRho", `Density  [${c.fl.T} °C]`, c.fl.rho, {unit:"kg/m³", dp:0});
+  B.inp("fpNu", "Kinematic viscosity", c.fl.nuCst, {unit:"cSt", dp:2});
+  B.inp("fpKb", `Pipe roughness  [${c.mat.label}]`, c.kb, {unit:"mm", dp:3});
+  if (k !== "vent") B.inp("fpFit", "Fittings allowance on the straight length", c.fit, {unit:"%", dp:0});
+  if (k === "vent") {
+    B.section(`2.  Normal Vent  ·  NFPA 30  ·  ${c.tank}`);
+    const ids = [];
+    c.conn.forEach((x, i) => { const id = "fvc" + i; ids.push(`{${id}}`); B.inp(id, `${x.dir === "in" ? "Filling" : "Withdrawal"} connection ${x.tag} (${FP_SHORT[x.kind]})`, x.dn, {unit:"DN", dp:0}); });
+    B.inp("fvMin", "Smallest vent allowed  [1¼ in]", c.vMin, {unit:"DN", dp:0});
+    B.calc("fvFl", "Smallest vent  [largest connection, not below the minimum]", c.floor, `MAX({fvMin}${ids.length ? "," + ids.join(",") : ""})`, {unit:"DN", dp:0, bold:true});
+    B.inp("fvDN", `Vent size  [${c.pinned ? "chosen" : "auto"}${c.ok ? " ✓" : " — SMALLER THAN REQUIRED"}]`, c.pipe.dn, {unit:"DN", dp:0, key:true, bold:true});
+    B.text(`Bore ${c.pipe.di} mm; air velocity at the largest liquid flow (${c.Q.toFixed(2)} l/s): ${c.vAir.toFixed(2)} m/s. Emergency venting to be checked for the tank type.`);
+    B.banner = {text:res.selStr, xl:'"Provide DN"&TEXT({fvDN},"0")&" vent to ' + String(c.tank).replace(/"/g, "'") + ' — not smaller than the largest fill or withdrawal connection (DN"&TEXT({fvFl},"0")&") and not below DN"&TEXT({fvMin},"0")'};
+    return;
+  }
+  if (k === "overflow") {
+    B.section(`2.  Flow into ${c.from}`);
+    B.inp("foQi", "Largest flow into the tank  [transfer pump + engine return]", c.Q, {unit:"l/s", dp:2, key:true});
+    B.section("3.  Overflow  ·  gravity, Colebrook-White part full");
+    B.inp("foG", "Fall", c.grad, {unit:"%", dp:2}); B.inp("foF", "Filling degree h/d", c.fill, {unit:"", dp:2});
+    B.inp("foD", `Internal diameter  [DN${c.pipe.dn}${c.pinned ? ", chosen" : ", smallest that carries the flow"}; not below the filling pipe${c.inDN ? ` DN${c.inDN}` : ""}]`, c.pipe.di, {unit:"mm", dp:2});
+    clCwRows(B, "foc", {fill:c.fill, di:c.pipe.di, grad:c.grad, kb:c.kb, nu:c.fl.nu, idF:"foF", idD:"foD", idG:"foG", idK:"fpKb", nuX:"{fpNu}*1E-6", ok:c.ok});
+    B.text(`At the design flow: h/d ${c.over ? "above 0.82" : c.y.toFixed(2)}, velocity ${c.v.toFixed(2)} m/s. The overflow falls continuously to ${c.to || "the bulk tank"}.`);
+    B.banner = {text:res.selStr, xl:'"Provide DN' + c.pipe.dn + ' overflow by gravity at "&TEXT({foG},"0.0#")&" % — carries "&TEXT({foQi},"0.00")&" l/s (capacity "&TEXT({focQc},"0.00")&" l/s at h/d "&TEXT({foF},"0.0#")&")"'};
+    return;
+  }
+  if (k === "transfer") {
+    B.section(`2.  Transfer Flow  ·  ${c.from || "bulk tank"} → ${c.to || "day tank"}`);
+    if (p.qMode === "fill") { B.inp("ftV", "Day tank volume", Number(p.dayVol), {unit:"L", dp:0}); B.inp("ftT", "Fill time", Number(p.fillMin), {unit:"min", dp:0}); B.calc("fpQ", "Transfer flow  [V / t]", c.Q, "{ftV}/{ftT}/60", {unit:"l/s", dp:2, key:true, bold:true}); }
+    else { B.inp("ftQm", "Transfer pump flow", c.Q*60, {unit:"L/min", dp:0}); B.calc("fpQ", "Transfer flow", c.Q, "{ftQm}/60", {unit:"l/s", dp:2, key:true, bold:true}); }
+    B.section("3.  Suction");
+    clFuelRun(B, "fs", c, {h:c.hs, L:c.Ls, Le:c.LsE, s:c.ps, pinned:c.pinS, vmax:Number(fuelSettings(p._set).vSuc), q:"fpQ", lenLbl:"Suction length"});
+    B.section("4.  Discharge");
+    clFuelRun(B, "fd", c, {h:c.hd, L:c.Ld, Le:c.LdE, s:c.pd, pinned:c.pinD, vmax:Number(fuelSettings(p._set).vDis), q:"fpQ", lenLbl:"Discharge length"});
+    B.section("5.  Pump");
+    B.inp("ftZs", "Suction lift  [pump above the lowest bulk tank level]", c.zs, {unit:"m", dp:1});
+    B.inp("ftZd", "Static rise  [pump to the day tank inlet]", c.zd, {unit:"m", dp:1});
+    B.calc("ftH", "Pump head  [lift + rise + friction]", c.H, "{ftZs}+{ftZd}+{fsHf}+{fdHf}", {unit:"m", dp:1, key:true, bold:true});
+    B.inp("ftE", "Pump efficiency", c.eta*100, {unit:"%", dp:0});
+    B.calc("ftKw", `Absorbed power${c.motor ? `  [motor ${c.motor} kW]` : ""}`, c.Pin, "{fpRho}*9.81*{fpQ}/1000*{ftH}/1000/({ftE}/100)", {unit:"kW", dp:2});
+    B.calc("ftN", `NPSH available  [(101.3 - ${c.fl.pv || 0} kPa vapour) / ρg - lift - friction${c.npshr != null ? `; NPSHr ${c.npshr} m + 0.5 m${c.okN ? " ✓" : " — TOO LOW"}` : ""}]`, c.NPSHa, `(101.325-${c.fl.pv || 0})*1000/({fpRho}*9.81)-{ftZs}-{fsHf}`, {unit:"m", dp:1});
+    B.banner = {text:res.selStr, xl:'"Provide transfer pump "&TEXT({fpQ}*60,"#,##0")&" L/min at "&TEXT({ftH},"0.0")&" m ("&TEXT({ftH}*{fpRho}*9.81/1000,"#,##0")&" kPa)' + (c.motor ? ', ' + c.motor + ' kW' : '') + ' — suction DN' + c.ps.dn + ', discharge DN' + c.pd.dn + ' ' + c.mat.label + '"'};
+    return;
+  }
+  B.section(`2.  ${FP_SHORT[k]} Flow${c.from || c.to ? `  ·  ${[c.from, c.to].filter(Boolean).join(" → ")}` : ""}`);
+  if (k === "fill") { B.inp("ffQm", "Tanker discharge rate", c.Q*60, {unit:"L/min", dp:0}); B.calc("fpQ", "Fill flow", c.Q, "{ffQm}/60", {unit:"l/s", dp:2, key:true, bold:true}); }
+  else {
+    B.inp("fgN", "Generators served", c.n || 1, {unit:"No.", dp:0});
+    B.inp("fgC", "Fuel consumption at full load, each", c.cons, {unit:"L/h", dp:0});
+    B.inp("fgS", `Fuel supply flow, each${p.sup === "" || p.sup == null ? `  [${fuelSettings(p._set).supFactor} x consumption]` : "  [generator datasheet]"}`, c.sup, {unit:"L/h", dp:0});
+    B.calc("fpQ", k === "supply" ? "Supply flow  [n x supply]" : "Return flow  [n x (supply - consumption)]", c.Q, k === "supply" ? "{fgN}*{fgS}/3600" : "{fgN}*({fgS}-{fgC})/3600", {unit:"l/s", dp:3, key:true, bold:true});
+  }
+  B.section("3.  Pipe");
+  clFuelRun(B, "fr", c, {h:c.h, L:c.L, Le:c.Le, s:c.pipe, pinned:c.pinned, vmax:c.vmax, q:"fpQ"});
+  B.inp("frZ", k === "supply" ? "Static rise to the engine inlet  [negative = day tank above the engine]" : k === "ret" ? "Static rise from the engine to the day tank inlet" : "Static rise from the fill point to the tank inlet", c.z, {unit:"m", dp:1});
+  B.calc("frP", `${c.what}${c.lim != null ? `  [limit ${c.lim} kPa${c.okP ? " ✓" : " — EXCEEDED"}]` : ""}`, c.dp, "{fpRho}*9.81*({frHf}+{frZ})/1000", {unit:"kPa", dp:1, key:true, bold:true});
+  B.banner = {text:res.selStr, xl:'"Provide DN' + c.pipe.dn + ' ' + c.mat.label + ' ' + FP_SHORT[k].toLowerCase() + ' line — "&TEXT({fpQ},"0.00")&" l/s at "&TEXT({frV},"0.00")&" m/s, "&TEXT({frP},"0.0")&" kPa"'};
+}
+
 // ── Water supply pipe sizing (network) ────────────────────────────────────────
 function clWaterRows(B, p, res) {
   const w = res.water, T = (v, span, o={}) => ({v, span, ...o}), fmt = (v, d) => Number(v).toFixed(d);
@@ -7902,12 +8426,12 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : String(pump.name || typeLbl(pump) || "Calculation");
+  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : pump.type === "storm" || pump.type === "fuelp" ? `${pump.type === "fuelp" ? "Fuel Oil Pipe Sizing" : typeLbl(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
-  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "foam") clFoamRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
+  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "foam") clFoamRows(B, pump, res); else if (pump.type === "storm") clStormRows(B, pump, res); else if (pump.type === "fuelp") clFuelRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
   const closure = closureOf(meta);
   const _doc = (() => {
   return {
@@ -7916,7 +8440,7 @@ function clBuildDoc(proj, pump, meta, stageName, opts) {
       calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
       reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
     appendix:B.appendix,
-    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "foam" ? foamTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "foam" ? foamTitle(pump) : pump.type === "storm" ? stormTitle(pump) : pump.type === "fuelp" ? fuelTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
     closure: closure.status === "closed" ? closure : null,
     watermark: closure.status === "closed" ? null : (stageStatusLabel(meta).toUpperCase() === "DRAFT" ? "DRAFT — NOT FOR ISSUE" : "DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
   };
@@ -8938,7 +9462,7 @@ function FireScheduleTable({items, density, onOpen}) {
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Room</th><th className="sticky-left">Tag</th><th>Agent</th><th className="ctr">Hazard</th><th>Spaces protected</th><th className="num">Volume (m³)</th><th className="num">Design (%)</th><th className="num">Achieved (%)</th><th className="num">Agent (kg)</th><th className="ctr">Cylinders</th><th className="num">Fill each (kg)</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(row)}</tbody></table></div>;
 }
-function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam}) {
+function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam,stormItems:swIn=[],onEditStorm,fuelItems:fpIn=[],onEditFuel}) {
   const [disc,setDiscS]=useState(()=>{ try { return localStorage.getItem("mep_sch_disc")==="fire"?"fire":"plumbing"; } catch(e){ return "plumbing"; } });
   const setDisc=v=>{ setDiscS(v); try { localStorage.setItem("mep_sch_disc",v); } catch(e){} };
   const [agentFilter,setAgentFilter]=useState('all');
@@ -8958,6 +9482,11 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const caRows=useMemo(()=>caItems.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[caItems]);
   const fmRows=useMemo(()=>fmIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fmIn]);
   const fItems=[...caRows,...fmRows];
+  const swRows=useMemo(()=>swIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[swIn]);
+  const fpRows=useMemo(()=>fpIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fpIn]);
+  const pMatch=item=>{const q=query.trim().toLowerCase(); return (!q||[item.p.name,item.p.tag,item.p.location,item.p.from,item.p.to,item.p.tank,typeLbl(item.p)].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter);};
+  const swVis=swRows.filter(pMatch), fpVis=fpRows.filter(pMatch), plExtra=swRows.length+fpRows.length;
+  const plCounts=[...swRows,...fpRows].reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{...counts});
   const fMatch=item=>{const q=query.trim().toLowerCase(); const ag=item.p.type==="foam"?"foam":((item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent);
     return (!q||[item.p.name,item.p.tag,item.p.location,item.p.type==="foam"?"foam "+(FOAM_KINDS[item.p.kind]||""):(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter||(agentFilter==="ca"&&item.p.type==="ca"));};
   const caVis=caRows.filter(fMatch), fmVis=fmRows.filter(fMatch), fVisible=[...caVis,...fmVis];
@@ -8970,17 +9499,17 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
     <div className="sch-head">
       <div className="sch-title"><b>Equipment Schedule</b><span>{stageName||'Active stage'} · Rev {proj.revision||'—'} · <i className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'}</span></div>
       <div className="sch-kpis">
-        {kpi("all","all",fire?"Systems":"Items",fire?fItems.length:items.length)}
-        {kpi("pass","pass","Pass",fire?fCounts.pass:counts.pass)}
-        {kpi("review","review","Review",fire?fCounts.review:counts.review)}
-        {kpi("blocked","blocked","Blocked",fire?fCounts.blocked:counts.blocked)}
+        {kpi("all","all",fire?"Systems":"Items",fire?fItems.length:items.length+plExtra)}
+        {kpi("pass","pass","Pass",fire?fCounts.pass:plCounts.pass)}
+        {kpi("review","review","Review",fire?fCounts.review:plCounts.review)}
+        {kpi("blocked","blocked","Blocked",fire?fCounts.blocked:plCounts.blocked)}
         {fire ? kpi(null,"kw","Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`) : kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
       </div>
     </div>
     <section className="schedule-card">
       <div className="sch-bar no-print">
         <div className="sch-disc cs-disc" role="tablist" aria-label="Discipline">
-          <button type="button" role="tab" aria-selected={!fire} className={!fire?"on":""} onClick={()=>switchDisc("plumbing")}>Plumbing<em>{items.length}</em></button>
+          <button type="button" role="tab" aria-selected={!fire} className={!fire?"on":""} onClick={()=>switchDisc("plumbing")}>Plumbing<em>{items.length+plExtra}</em></button>
           <button type="button" role="tab" aria-selected={fire} className={fire?"on fire":"fire"} onClick={()=>switchDisc("fire")}>Fire Protection<em>{fItems.length}</em></button>
         </div>
         <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder={fire?"Search room, hazard, tag, location or system…":"Search system, tag, pipe or type…"} />
@@ -8988,7 +9517,7 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
         <select aria-label="Filter by equipment type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All types</option><TypeOptions/></select>
         <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select></>}
         {(fire ? (query.trim()||statusFilter!=='all'||agentFilter!=='all') : nf>0) && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');setAgentFilter('all');}}>✕ Clear filters</button>}
-        <span className="sch-count">{fire ? `${fVisible.length} of ${fItems.length} shown` : `${visible.length} of ${items.length} shown`}</span>
+        <span className="sch-count">{fire ? `${fVisible.length} of ${fItems.length} shown` : `${visible.length+swVis.length+fpVis.length} of ${items.length+plExtra} shown`}</span>
         <span style={{flex:1}}/>
         <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
@@ -8996,6 +9525,10 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
       {fire ? <div className="sch-fire">
           {(caRows.length>0||!fmRows.length) && <><div className="sch-sub">Clean agent systems <em>{caVis.length}</em></div><FireScheduleTable items={caVis} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/></>}
           {fmRows.length>0 && <><div className="sch-sub">Foam systems <em>{fmVis.length}</em></div><FoamScheduleTable items={fmVis} density={density} onOpen={id=>onEditFoam&&onEditFoam(id)}/></>}
+        </div> : plExtra>0 ? <div className="sch-fire">
+          {(items.length>0||!plExtra) && <><div className="sch-sub">Pumps, tanks and pipe sizing <em>{visible.length}</em></div><ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/></>}
+          {swRows.length>0 && <><div className="sch-sub">Stormwater <em>{swVis.length}</em></div><StormScheduleTable items={swVis} density={density} onOpen={id=>onEditStorm&&onEditStorm(id)}/></>}
+          {fpRows.length>0 && <><div className="sch-sub">Fuel oil pipework <em>{fpVis.length}</em></div><FuelScheduleTable items={fpVis} density={density} onOpen={id=>onEditFuel&&onEditFuel(id)}/></>}
         </div> : <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>}
     </section>
     <PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/>
@@ -9100,6 +9633,8 @@ function defaultDesignBasis(p) {
   if (p && p.type === 'pbc') return pbcDesignBasis(p);
   if (p && p.type === 'ca') return caDesignBasis(p);
   if (p && p.type === 'foam') return foamDesignBasis(p);
+  if (p && p.type === 'storm') return stormDesignBasis(p);
+  if (p && p.type === 'fuelp') return fuelDesignBasis(p);
   if (p && p.type === 'water') return wsIsDrain(p) ? drainDesignBasis(p) : wsIsGas(p) ? gasDesignBasis(p) : waterDesignBasis(p);
   const system = (p && (p.name || typeLbl(p))) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
@@ -9111,6 +9646,8 @@ function defaultDesignBasis(p) {
 function basisOf(proj, meta, p) {
   if (p && p.type === "ca") return caDesignBasis(p);                 // a fire sheet never takes the plumbing stage / project statements
   if (p && p.type === "foam") return foamDesignBasis(p);
+  if (p && p.type === "storm") return stormDesignBasis(p);   // v1.89: standard-specific statements
+  if (p && p.type === "fuelp") return fuelDesignBasis(p);
   const stageBasis = Array.isArray(meta?.designBasis) ? meta.designBasis.filter(Boolean) : [];
   const projectBasis = Array.isArray(proj?.designBasis) ? proj.designBasis.filter(Boolean) : [];
   return stageBasis.length ? stageBasis : (projectBasis.length ? projectBasis : defaultDesignBasis(p));
@@ -9819,6 +10356,410 @@ function FoamScheduleTable({items, density, onOpen}) {
         <td>{FOAM_KINDS[p.kind] || "—"}</td><td>{c ? c.conc.label : "—"}</td>
         <td className="num">{c ? c.Ades.toFixed(1) : "—"}</td><td className="num strong">{c ? f0(c.Qpeak) : "—"}</td><td className="num">{c ? c.time : "—"}</td>
         <td className="num strong">{c ? f0(c.Vtot) : "—"}</td><td className="ctr">{c ? `${c.n} × ${c.tank.vol} L` : "—"}</td><td className="num">{c ? (c.Qw/60).toFixed(2) : "—"}</td>
+        <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
+      </tr>; })}</tbody></table></div>;
+}
+
+// ─── STORMWATER TAB (v1.89.0) ─────────────────────────────────────────────────
+// Roof catchments and horizontal drains live in the stage meta (meta.storm). Rainfall presets: Supabase ref_rainfall.
+const SW_UID = () => Math.random().toString(36).slice(2, 10);
+const SW_NEW_ROOF = () => ({id:SW_UID(), name:"", location:"", roofType:"flat", L:"", B:"", area:"", Lr:"", Br:"", Hr:"", wind:false, wall:"", risk:"", n:"", oD:"", h:"", kO:"", oCap:"", nR:"", fill:"", mat:"", rwpDN:""});
+const SW_NEW_DRAIN = () => ({id:SW_UID(), name:"", location:"", roofs:[], extra:"", grad:"", fill:"", dMinDN:"", mat:"", dDN:""});
+const swMatOpts = (blankLbl) => [...(blankLbl ? [{value:"", label:blankLbl}] : []), {value:"en12056", label:"EN 12056 nominal sizes (Drainage reference)"}, ...Object.entries(PIPE_MATERIALS).map(([k, m]) => ({value:k, label:m.label}))];
+function StormTab({meta, setMeta, locked, focus}) {
+  const sw = (meta && meta.storm) || {}, set = stormSettings(sw.set), roofs = sw.roofs || [], drains = sw.drains || [];
+  const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(() => !(set.rain || set.mmhr)), [showAdv, setShowAdv] = useState(false);
+  useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
+  const upd = fn => { if (locked) return; setMeta(m => { const cur = m.storm || {}; return {...m, storm:fn({...cur, roofs:cur.roofs || [], drains:cur.drains || [], set:cur.set || {}})}; }); };
+  const setR = (id, patch) => upd(x => ({...x, roofs:x.roofs.map(h => h.id === id ? {...h, ...patch} : h), drains:x.drains.map(h => h.id === id ? {...h, ...patch} : h)}));
+  const setSet = patch => upd(x => ({...x, set:{...x.set, ...patch}}));
+  const addRoof = () => { const h = SW_NEW_ROOF(); upd(x => ({...x, roofs:[...x.roofs, h]})); setSelId(h.id); };
+  const addDrain = () => { const h = SW_NEW_DRAIN(); upd(x => ({...x, drains:[...x.drains, h]})); setSelId(h.id); };
+  const dup = h => { const n = {...h, id:SW_UID(), name:(h.name || "Item") + " (copy)"}; const k = roofs.some(q => q.id === h.id) ? "roofs" : "drains"; upd(x => { const a = x[k].slice(), i = a.findIndex(q => q.id === h.id); a.splice(i + 1, 0, n); return {...x, [k]:a}; }); setSelId(n.id); };
+  const del = h => { if (!window.confirm(`Delete ${h.name || "this item"}?`)) return; upd(x => ({...x, roofs:x.roofs.filter(q => q.id !== h.id), drains:x.drains.filter(q => q.id !== h.id).map(d => ({...d, roofs:(d.roofs || []).filter(r => r !== h.id)}))})); };
+  const items = useMemo(() => stormItems(meta), [meta]);
+  const results = useMemo(() => items.map(it => safeCalculate(it)), [items]);
+  const resOf = id => { const i = items.findIndex(x => x.id === "storm-" + id); return i >= 0 ? {it:items[i], r:results[i]} : {}; };
+  const isRoof = roofs.some(q => q.id === selId) || (!selId && roofs.length > 0);
+  const h = roofs.find(x => x.id === selId) || drains.find(x => x.id === selId) || roofs[0] || drains[0] || null;
+  const kindR = h ? roofs.some(q => q.id === h.id) : isRoof;
+  const cur = h ? resOf(h.id) : {}, rs = cur.r, c = rs && rs.storm;
+  const fig = useMemo(() => c ? swFigure(c) : null, [c]);
+  const rain = swRainOf(set, SW_RAIN);
+  const totQ = results.reduce((a, r, i) => r && r.storm && items[i].kind === "roof" ? a + r.storm.Q : a, 0), nBad = results.filter(r => r && r.error).length;
+  const blank = v => v === "" || v == null, f2 = v => v.toFixed(2);
+  const sizeOpts = (mat, val) => { const sz = swSizes(mat || set.mat); return [{value:"", label:"Auto — smallest that carries the flow"}, ...(val && !sz.rows.some(s => String(s.dn) === String(val)) ? [{value:val, label:`⚠ DN${val} — not in the size list`}] : []), ...sz.rows.map(s => ({value:String(s.dn), label:`${swDN(s)} · di ${s.di} mm`}))]; };
+  const row = (q, i, kind) => { const {it, r} = resOf(q.id), k = r && r.storm, warn = r && (r.steps || []).some(s => s.flag);
+    return <tr key={q.id} className={(h && h.id === q.id ? "sel " : "") + (r && r.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
+      <td className="n">{i + 1}</td><td><b>{(it && it.tag) || "—"}</b></td><td><b>{(it && it.name) || "—"}</b></td><td>{q.location || "—"}</td>
+      {kind === "roof" ? <>
+        <td>{q.roofType === "pitched" ? "Pitched" : "Flat"}</td>
+        <td className="n">{k ? k.A.toFixed(1) : "—"}</td><td className="n"><b>{k ? f2(k.Q) : "—"}</b></td>
+        <td className="n">{k ? k.n : "—"}</td><td>{k ? `${k.nR} × ${swDN(k.pipe)}` : <span className="ca-errt" title={(r && r.errors || []).join(" ")}>⚠ {(r && r.errors && r.errors[0]) || "error"}</span>}</td>
+      </> : <>
+        <td>{(q.roofs || []).map(id => (resOf(id).it || {}).tag).filter(Boolean).join(", ") || "—"}</td>
+        <td className="n"><b>{k ? f2(k.Q) : "—"}</b></td><td className="n">{k ? k.grad : "—"}</td>
+        <td>{k ? `${swDN(k.pipe)} · h/d ${k.over ? ">0.82" : k.y.toFixed(2)}` : <span className="ca-errt" title={(r && r.errors || []).join(" ")}>⚠ {(r && r.errors && r.errors[0]) || "error"}</span>}</td>
+      </>}
+      <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dup(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => del(q)}>✕</button></td>
+    </tr>; };
+  const nAdv = h && kindR ? ["risk", "oD", "h", "kO", "oCap", "nR", "fill", "mat", "rwpDN"].filter(k => !blank(h[k])).length : h ? ["fill", "dMinDN", "mat", "dDN"].filter(k => !blank(h[k])).length : 0;
+  return (
+    <div className="ca-tab">
+      <div className="ca-head">
+        <div><h2>Stormwater</h2><span>Roof drainage · BS EN 12056-3 · {roofs.length} catchment{roofs.length === 1 ? "" : "s"} · {drains.length} drain{drains.length === 1 ? "" : "s"} · {f2(totQ)} l/s runoff{rain.err ? "" : ` · ${rain.mmhr} mm/h`}{nBad ? ` · ${nBad} with errors` : ""}</span></div>
+        <div className="ca-acts no-print">
+          <button type="button" className={"ca-btn" + (showSet ? " on" : "")} onClick={() => setShowSet(v => !v)} title="Rainfall and defaults for the whole project">⚙ Design settings</button>
+          <button type="button" className="ca-btn" onClick={addDrain} disabled={locked}>+ Add drain</button>
+          <button type="button" className="ca-btn pri" onClick={addRoof} disabled={locked}>+ Add roof</button>
+        </div>
+      </div>
+      {locked && <div className="ca-note no-print">This stage is signed off — the stormwater items are read only.</div>}
+      {SW_RAIN_ERR && <div className="ca-note bad no-print">⚠ {SW_RAIN_ERR}</div>}
+      {rain.err && !SW_RAIN_ERR && <div className="ca-note bad no-print">⚠ {rain.err}</div>}
+      {showSet && <section className="ca-card no-print">
+        <h4>Design settings <em>project-wide · each roof or drain can override them under Advanced</em></h4>
+        <div className="ca-sub">Rainfall</div>
+        <div className="ca-grid">
+          <S label="Rainfall preset (Reference Data)" value={set.rain || ""} onChange={v => setSet({rain:v})} options={[{value:"", label:"— choose —"}, ...(set.rain && !SW_RAIN.some(x => x.key === set.rain) ? [{value:set.rain, label:`⚠ ${set.rain} — not in Reference Data`}] : []), ...SW_RAIN.map(x => ({value:x.key, label:`${x.name}${Number(x.mm_hr) > 0 ? ` — ${x.mm_hr} mm/h` : " — no intensity yet"}`}))]} />
+          <N label="Or type the design intensity" unit="mm/h" value={set.mmhr} onChange={v => setSet({mmhr:v})} req={false} hint="Replaces the preset" />
+          <S label="Risk factor (Table 2)" value={String(set.risk)} onChange={v => setSet({risk:Number(v)})} options={SW_RISK.map(x => ({value:String(x.v), label:x.l}))} />
+        </div>
+        {!rain.err && <div className="ca-advn">Design rainfall {rain.mmhr} mm/h · {rain.src}</div>}
+        <div className="ca-sub">Outlets and rainwater pipes</div>
+        <div className="ca-grid">
+          <N label="Outlet effective diameter D" unit="mm" value={set.oD} onChange={v => setSet({oD:v})} />
+          <N label="Head at the outlet h" unit="mm" value={set.h} onChange={v => setSet({h:v})} hint="Allowed depth of water at the outlet (5.4.2)" />
+          <S label="Outlet coefficient kO (Table 7)" value={String(set.kO)} onChange={v => setSet({kO:Number(v)})} options={[{value:"0.5", label:"0.5 — with strainer or grating"}, {value:"1", label:"1.0 — unobstructed"}]} />
+          <N label="Or rated outlet capacity" unit="l/s" value={set.oCap} onChange={v => setSet({oCap:v})} req={false} hint="Manufacturer rating; replaces Table 7" />
+          <N label="Fewest outlets per roof" value={set.nMin} onChange={v => setSet({nMin:v})} hint="7.3.1: at least two on a flat roof with parapets" />
+          <N label="Smallest rainwater pipe" unit="DN" value={set.rwpMin} onChange={v => setSet({rwpMin:v})} hint="6.1.3: pipes below DN 75 block easily" />
+          <N label="Filling degree f" value={set.fill} onChange={v => setSet({fill:v})} max={0.33} hint="Table 8: 0.33 (or 0.20)" />
+          <S label="Pipe sizes" value={set.mat} onChange={v => setSet({mat:v})} options={swMatOpts()} />
+        </div>
+        <div className="ca-sub">Drains (Annex C)</div>
+        <div className="ca-grid">
+          <N label="Gradient" unit="%" value={set.grad} onChange={v => setSet({grad:v})} />
+          <N label="Filling degree h/d" value={set.dFill} onChange={v => setSet({dFill:v})} max={1} />
+          <N label="Smallest drain" unit="DN" value={set.dMinDN} onChange={v => setSet({dMinDN:v})} hint="6.3.3: not below DN 100" />
+          <N label="Self-cleansing velocity" unit="m/s" value={set.vMin} onChange={v => setSet({vMin:v})} hint="Warning only" />
+        </div>
+      </section>}
+      <section className="ca-card no-print">
+        <h4>Roof catchments <em>one roof area with its outlets and rainwater pipes</em></h4>
+        {!roofs.length ? <div className="ca-empty">No roof catchments yet. <button type="button" className="ca-btn pri" onClick={addRoof} disabled={locked}>+ Add the first roof</button></div> :
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Tag</th><th>Roof</th><th>Location</th><th>Type</th><th className="n">Area m²</th><th className="n">Runoff l/s</th><th className="n">Outlets</th><th>Rainwater pipes</th><th/></tr></thead>
+          <tbody>{roofs.map((q, i) => row(q, i, "roof"))}</tbody></table></div>}
+      </section>
+      {drains.length > 0 && <section className="ca-card no-print">
+        <h4>Horizontal drains <em>collectors sized to Annex C</em></h4>
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Tag</th><th>Drain</th><th>Location</th><th>Serves</th><th className="n">Flow l/s</th><th className="n">Fall %</th><th>Size</th><th/></tr></thead>
+          <tbody>{drains.map((q, i) => row(q, i, "drain"))}</tbody></table></div>
+      </section>}
+      {h && <div className="ca-split no-print">
+        <section className="ca-card ca-inputs">
+          <h4>Inputs <em>{kindR ? "roof catchment" : "horizontal drain"}</em></h4>
+          <div className="ca-g2">
+            <T label="Name" value={h.name} onChange={v => setR(h.id, {name:v})} placeholder={kindR ? "e.g. Main roof" : "e.g. Collector drain"} />
+            <T label="Location" value={h.location} onChange={v => setR(h.id, {location:v})} placeholder="e.g. Level 20" />
+          </div>
+          {kindR ? <>
+            <div className="ca-sub">Roof</div>
+            <Seg label="Roof type" value={h.roofType === "pitched" ? "pitched" : "flat"} onChange={v => setR(h.id, {roofType:v})} options={[{value:"flat", label:"Flat roof — internal outlets"}, {value:"pitched", label:"Pitched roof — into a gutter"}]} />
+            {h.roofType === "pitched" ? <div className="ca-g3" style={{marginTop:8}}>
+              <N label="Length of roof Lr" unit="m" value={h.Lr} onChange={v => setR(h.id, {Lr:v})} />
+              <N label="Plan width, gutter to ridge Br" unit="m" value={h.Br} onChange={v => setR(h.id, {Br:v})} />
+              {h.wind && <N label="Ridge height above gutter Hr" unit="m" value={h.Hr} onChange={v => setR(h.id, {Hr:v})} />}
+            </div> : <div className="ca-g3" style={{marginTop:8}}>
+              <N label="Length" unit="m" value={h.L} onChange={v => setR(h.id, {L:v})} req={blank(h.area)} />
+              <N label="Width" unit="m" value={h.B} onChange={v => setR(h.id, {B:v})} req={blank(h.area)} />
+              <N label="Or plan area" unit="m²" value={h.area} onChange={v => setR(h.id, {area:v})} req={false} hint="Replaces L × B" />
+            </div>}
+            {h.roofType === "pitched" && <label className="ca-chk"><input type="checkbox" checked={!!h.wind} disabled={locked} onChange={e => setR(h.id, {wind:e.target.checked})} /> Allow for wind-driven rain (Table 3, 26° to vertical)</label>}
+            <div className="ca-g3"><N label="Walls draining onto the roof" unit="m²" value={h.wall} onChange={v => setR(h.id, {wall:v})} req={false} hint="50 % is added (4.3.4)" /></div>
+            <div className="ca-sub">Outlets</div>
+            <div className="ca-g3">
+              <N label="Number of outlets" value={h.n} onChange={v => setR(h.id, {n:v})} req={false} hint={`Blank = fewest that carry the runoff (at least ${set.nMin})`} />
+            </div>
+            <button type="button" className="ca-adv" onClick={() => setShowAdv(v => !v)}>{showAdv ? "▾" : "▸"} Advanced for this roof <em>{nAdv ? `${nAdv} override${nAdv === 1 ? "" : "s"} set` : "risk factor, outlet, rainwater pipe size and material"}</em></button>
+            {showAdv && <>
+              <div className="ca-g3" style={{marginTop:8}}>
+                <S label="Risk factor" value={blank(h.risk) ? "" : String(h.risk)} onChange={v => setR(h.id, {risk:v})} options={[{value:"", label:`Project default (${set.risk})`}, ...SW_RISK.map(x => ({value:String(x.v), label:x.l}))]} />
+                <N label="Outlet diameter D" unit="mm" value={h.oD} onChange={v => setR(h.id, {oD:v})} req={false} hint={`Blank = ${set.oD} mm`} />
+                <N label="Head at the outlet h" unit="mm" value={h.h} onChange={v => setR(h.id, {h:v})} req={false} hint={`Blank = ${set.h} mm`} />
+                <S label="Outlet coefficient kO" value={blank(h.kO) ? "" : String(h.kO)} onChange={v => setR(h.id, {kO:v})} options={[{value:"", label:`Project default (${set.kO})`}, {value:"0.5", label:"0.5 — strainer / grating"}, {value:"1", label:"1.0 — unobstructed"}]} />
+                <N label="Rated outlet capacity" unit="l/s" value={h.oCap} onChange={v => setR(h.id, {oCap:v})} req={false} hint="Manufacturer rating; replaces Table 7" />
+                <N label="Rainwater pipes" value={h.nR} onChange={v => setR(h.id, {nR:v})} req={false} hint="Blank = one per outlet" />
+                <N label="Filling degree f" value={h.fill} onChange={v => setR(h.id, {fill:v})} req={false} max={0.33} hint={`Blank = ${set.fill}`} />
+                <S label="Pipe sizes" value={h.mat || ""} onChange={v => setR(h.id, {mat:v, rwpDN:""})} options={swMatOpts(`Project default`)} />
+                <S label="Rainwater pipe size" value={h.rwpDN || ""} onChange={v => setR(h.id, {rwpDN:v})} options={sizeOpts(h.mat, h.rwpDN)} />
+              </div>
+            </>}
+          </> : <>
+            <div className="ca-sub">Catchments served</div>
+            {!roofs.length ? <div className="ca-advn">Add roof catchments first.</div> : <div className="sw-picks">{roofs.map(q => { const it = resOf(q.id).it, on = (h.roofs || []).includes(q.id);
+              return <label key={q.id} className={"ca-chk" + (on ? " on" : "")}><input type="checkbox" checked={on} disabled={locked} onChange={e => setR(h.id, {roofs:e.target.checked ? [...(h.roofs || []), q.id] : (h.roofs || []).filter(x => x !== q.id)})} /> {it ? it.tag : ""} · {(it && it.name) || "Roof"}</label>; })}</div>}
+            <div className="ca-g3" style={{marginTop:8}}>
+              <N label="Other flow" unit="l/s" value={h.extra} onChange={v => setR(h.id, {extra:v})} req={false} hint="e.g. paved area or another drain" />
+              <N label="Gradient" unit="%" value={h.grad} onChange={v => setR(h.id, {grad:v})} req={false} hint={`Blank = ${set.grad} %`} />
+            </div>
+            <button type="button" className="ca-adv" onClick={() => setShowAdv(v => !v)}>{showAdv ? "▾" : "▸"} Advanced for this drain <em>{nAdv ? `${nAdv} override${nAdv === 1 ? "" : "s"} set` : "filling degree, smallest size, material, size"}</em></button>
+            {showAdv && <div className="ca-g3" style={{marginTop:8}}>
+              <N label="Filling degree h/d" value={h.fill} onChange={v => setR(h.id, {fill:v})} req={false} max={1} hint={`Blank = ${set.dFill}`} />
+              <N label="Smallest drain" unit="DN" value={h.dMinDN} onChange={v => setR(h.id, {dMinDN:v})} req={false} hint={`Blank = DN ${set.dMinDN}`} />
+              <S label="Pipe sizes" value={h.mat || ""} onChange={v => setR(h.id, {mat:v, dDN:""})} options={swMatOpts("Project default")} />
+              <S label="Drain size" value={h.dDN || ""} onChange={v => setR(h.id, {dDN:v})} options={sizeOpts(h.mat, h.dDN)} />
+            </div>}
+          </>}
+        </section>
+        <section className="ca-card ca-design">
+          <h4>Design <em>{kindR ? "BS EN 12056-3 · Tables 7 and 8" : "BS EN 12056-3 · Annex C"}</em></h4>
+          {c ? <>
+            <div className="ca-kpis">
+              {c.kind === "roof" ? <>
+                <div className="hl"><span>Runoff</span><b>{f2(c.Q)} l/s</b><i>{c.A.toFixed(1)} m² · {c.rain.mmhr} mm/h</i></div>
+                <div className={c.okO ? "" : "bad"}><span>Outlets</span><b>{c.n} No.</b><i>{f2(c.capO)} l/s each</i></div>
+                <div className={c.okR && !c.smallR ? "" : "bad"}><span>Rainwater pipes</span><b>{c.nR} × {swDN(c.pipe)}</b><i>{f2(c.capR)} l/s each</i></div>
+              </> : <>
+                <div className="hl"><span>Design flow</span><b>{f2(c.Q)} l/s</b><i>{c.parts.length} catchment{c.parts.length === 1 ? "" : "s"}</i></div>
+                <div className={c.okQ && c.okMin ? "" : "bad"}><span>Drain</span><b>{swDN(c.pipe)}</b><i>{f2(c.capQ)} l/s at {c.grad} %</i></div>
+                <div className={c.okV ? "" : "bad"}><span>At design flow</span><b>{c.v.toFixed(2)} m/s</b><i>h/d {c.over ? "> 0.82" : c.y.toFixed(2)}</i></div>
+              </>}
+            </div>
+            <div className="sump-fig ca-fig" dangerouslySetInnerHTML={{__html:fig.svg}} />
+            <div className="ca-steps">{rs.steps.map((st, i) => <React.Fragment key={i}>{st.s && <div className="ca-sh">{st.s}</div>}<div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div></React.Fragment>)}</div>
+          </> : <div className="ca-errbox">{(rs && rs.errors || ["Calculation could not be produced."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+        </section>
+      </div>}
+    </div>
+  );
+}
+function RainfallTab() {
+  return (
+    <RefTableTab
+      title="Rainfall Intensity"
+      note="Design rainfall presets the Stormwater tab chooses from (mm/h). Fill in the figure each authority or project brief requires and keep the source. The key is stored on each project that uses a preset, so do not change it once used — set Active off instead of deleting."
+      tableName="ref_rainfall"
+      conflictKey="rain_key"
+      disableKeyFor="rain_key"
+      numericKeys={["mm_hr","return_years","duration_min"]}
+      transformIn={r => { const {id, updated_at, updated_by, ...rest} = r; return rest; }}
+      newRowTemplate={{rain_key:"", name:"", authority:"", mm_hr:"", return_years:"", duration_min:"", source:"", notes:"", active:true}}
+      pasteKeys={["rain_key","name","authority","mm_hr","return_years","duration_min","source"]}
+      columns={[
+        {key:"rain_key", label:"Key", width:"0.7fr"},
+        {key:"name", label:"Name", width:"1.4fr"},
+        {key:"authority", label:"Authority", width:"1fr"},
+        {key:"mm_hr", label:"mm/h", type:"number", width:"0.5fr"},
+        {key:"return_years", label:"Return yr", type:"number", width:"0.55fr"},
+        {key:"duration_min", label:"Duration min", type:"number", width:"0.6fr"},
+        {key:"source", label:"Source", width:"1.6fr"},
+        {key:"active", label:"Active", type:"checkbox", width:"0.4fr"},
+      ]}
+    />
+  );
+}
+
+// ─── FUEL TAB (v1.89.0) ───────────────────────────────────────────────────────
+// Fuel lines live in the stage meta (meta.fuel). Fluid properties: Reference Data → Fluids; pipes: Pipe Materials.
+const FP_NEW = kind => ({id:SW_UID(), name:"", kind, from:"", to:"", tank:"", q:"", qMode:"pump", dayVol:"", fillMin:"", cons:"", sup:"", nGen:"", L:"", z:"", lim:"", Ls:"", zs:"", Ld:"", zd:"", eta:"", npshr:"", grad:"", qx:"", fit:"", minDN:"", mat:"", dn:"", dnS:"", dnD:""});
+function FuelTab({meta, setMeta, locked, focus}) {
+  const fu = (meta && meta.fuel) || {}, set = fuelSettings(fu.set), lines = fu.lines || [];
+  const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(false), [showAdv, setShowAdv] = useState(false), [addKind, setAddKind] = useState("transfer");
+  useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
+  const upd = fn => { if (locked) return; setMeta(m => { const cur = m.fuel || {}; return {...m, fuel:fn({...cur, lines:cur.lines || [], set:cur.set || {}})}; }); };
+  const setL = (id, patch) => upd(x => ({...x, lines:x.lines.map(h => h.id === id ? {...h, ...patch} : h)}));
+  const setSet = patch => upd(x => ({...x, set:{...x.set, ...patch}}));
+  const add = () => { const h = FP_NEW(addKind); upd(x => ({...x, lines:[...x.lines, h]})); setSelId(h.id); };
+  const dup = h => { const n = {...h, id:SW_UID(), name:(h.name || "Line") + " (copy)"}; upd(x => { const a = x.lines.slice(), i = a.findIndex(q => q.id === h.id); a.splice(i + 1, 0, n); return {...x, lines:a}; }); setSelId(n.id); };
+  const del = h => { if (!window.confirm(`Delete ${h.name || "this line"}?`)) return; upd(x => ({...x, lines:x.lines.filter(q => q.id !== h.id)})); };
+  const items = useMemo(() => fuelItems(meta), [meta]);
+  const results = useMemo(() => items.map(it => safeCalculate(it)), [items]);
+  const h = lines.find(x => x.id === selId) || lines[0] || null, ix = h ? lines.findIndex(x => x.id === h.id) : -1, rs = ix >= 0 ? results[ix] : null, c = rs && rs.fuel;
+  const tanks = [...new Set(lines.flatMap(q => [q.from, q.to, q.tank]).map(v => String(v || "").trim()).filter(Boolean))];
+  const blank = v => v === "" || v == null, f2 = v => v.toFixed(2), f0 = v => Math.round(v).toLocaleString("en-GB");
+  const fuelFluids = FLUIDS.filter(f => (f.category || "") === "fuel");
+  const matK = h ? resolveMatKey(h.mat || set.mat) : null, mat = matK ? PIPE_MATERIALS[matK] : null;
+  const sizeOpts = val => [{value:"", label:"Auto"}, ...(val && mat && !mat.table.some(r => String(r.nb) === String(val)) ? [{value:val, label:`⚠ DN${val} — not in ${mat.label}`}] : []), ...(mat ? mat.table.map(r => ({value:String(r.nb), label:`DN${r.nb} · bore ${r.id} mm`})) : [])];
+  const nAdv = h ? ["fit", "minDN", "mat", "dn", "dnS", "dnD", "eta", "npshr"].filter(k => !blank(h[k])).length : 0;
+  const k = h && h.kind;
+  return (
+    <div className="ca-tab">
+      <datalist id="fp-tanks">{tanks.map(t => <option key={t} value={t} />)}</datalist>
+      <div className="ca-head">
+        <div><h2>Fuel Oil Pipework</h2><span>Diesel pipe sizing · Darcy-Weisbach · NFPA 30 / NFPA 37 · {lines.length} line{lines.length === 1 ? "" : "s"}{results.some(r => r && r.error) ? ` · ${results.filter(r => r && r.error).length} with errors` : ""}</span></div>
+        <div className="ca-acts no-print">
+          <button type="button" className={"ca-btn" + (showSet ? " on" : "")} onClick={() => setShowSet(v => !v)} title="Fluid, material and limits for the whole project">⚙ Design settings</button>
+          <select className="ca-btn" value={addKind} onChange={e => setAddKind(e.target.value)} disabled={locked} aria-label="Line type to add">{Object.entries(FP_SHORT).map(([kk, l]) => <option key={kk} value={kk}>{l}</option>)}</select>
+          <button type="button" className="ca-btn pri" onClick={add} disabled={locked}>+ Add line</button>
+        </div>
+      </div>
+      {locked && <div className="ca-note no-print">This stage is signed off — the fuel lines are read only.</div>}
+      {showSet && <section className="ca-card no-print">
+        <h4>Design settings <em>project-wide · each line can override material, size and fittings under Advanced</em></h4>
+        <div className="ca-grid">
+          <S label="Fuel (Reference Data → Fluids)" value={set.fluid} onChange={v => setSet({fluid:v})} options={[...(fuelFluids.some(f => f.code === set.fluid) ? [] : [{value:set.fluid, label:`⚠ ${set.fluid} — not a fuel in Reference Data`}]), ...fuelFluids.map(f => ({value:f.code, label:f.name}))]} />
+          <N label="Fuel temperature" unit="°C" value={set.temp} onChange={v => setSet({temp:v})} req={false} hint="Blank = table temperature (higher viscosity at lower temperature)" />
+          <S label="Pipe material" value={set.mat} onChange={v => setSet({mat:v})} options={Object.entries(PIPE_MATERIALS).map(([kk, m]) => ({value:kk, label:m.label}))} />
+          <N label="Velocity limit — suction and engine lines" unit="m/s" value={set.vSuc} onChange={v => setSet({vSuc:v})} />
+          <N label="Velocity limit — pressure lines" unit="m/s" value={set.vDis} onChange={v => setSet({vDis:v})} />
+          <N label="Fittings allowance" unit="%" value={set.fit} onChange={v => setSet({fit:v})} hint="Added to the straight length" />
+          <N label="Smallest pipe" unit="DN" value={set.minDN} onChange={v => setSet({minDN:v})} />
+          <N label="Transfer pump efficiency" unit="%" value={set.eta} onChange={v => setSet({eta:v})} max={100} />
+          <N label="Engine supply flow" unit="× consumption" value={set.supFactor} onChange={v => setSet({supFactor:v})} hint="Used when the generator supply flow is not entered" />
+          <N label="Smallest vent" unit="DN" value={set.ventMin} onChange={v => setSet({ventMin:v})} hint="NFPA 30: 1¼ in (32 mm)" />
+          <N label="Overflow fall" unit="%" value={set.ofGrad} onChange={v => setSet({ofGrad:v})} />
+        </div>
+      </section>}
+      <section className="ca-card no-print">
+        <h4>Lines <em>click a line to edit it · name the tanks the same way on every line so vents and overflows find their connections</em></h4>
+        {!lines.length ? <div className="ca-empty">No fuel lines yet. Choose a type and press <b>+ Add line</b> — start with the tanker fill and the transfer line.</div> :
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Tag</th><th>Line</th><th>Type</th><th>From → To</th><th className="n">Flow l/s</th><th>Size</th><th className="n">Velocity m/s</th><th>Result</th><th/></tr></thead>
+          <tbody>{lines.map((q, i) => { const r = results[i], kk = r && r.fuel, it = items[i], warn = r && (r.steps || []).some(s => s.flag);
+            return <tr key={q.id} className={(h && h.id === q.id ? "sel " : "") + (r && r.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
+              <td className="n">{i + 1}</td><td><b>{it.tag}</b></td><td><b>{it.name}</b></td><td>{FP_SHORT[q.kind] || "—"}</td>
+              <td>{q.kind === "vent" ? (q.tank || "—") : [q.from, q.to].filter(Boolean).join(" → ") || "—"}</td>
+              <td className="n">{kk && kk.kind !== "vent" ? f2(kk.Q) : "—"}</td>
+              <td>{kk ? (kk.kind === "transfer" ? `DN${kk.ps.dn} / DN${kk.pd.dn}` : `DN${kk.pipe.dn}`) : <span className="ca-errt" title={(r && r.errors || []).join(" ")}>⚠ {(r && r.errors && r.errors[0]) || "error"}</span>}</td>
+              <td className="n">{kk ? (kk.kind === "transfer" ? f2(kk.hd.v) : kk.h ? f2(kk.h.v) : kk.v != null ? f2(kk.v) : kk.vAir != null ? f2(kk.vAir) : "—") : "—"}</td>
+              <td>{kk ? (kk.kind === "transfer" ? `${kk.H.toFixed(1)} m head` : kk.dp != null ? `${kk.dp.toFixed(1)} kPa` : kk.kind === "overflow" ? `h/d ${kk.over ? ">0.82" : kk.y.toFixed(2)}` : "vent") : "—"}</td>
+              <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dup(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => del(q)}>✕</button></td>
+            </tr>; })}</tbody></table></div>}
+      </section>
+      {h && <div className="ca-split no-print">
+        <section className="ca-card ca-inputs">
+          <h4>Inputs <em>{FP_KINDS[k]}</em></h4>
+          <div className="ca-g2">
+            <T label="Name" value={h.name} onChange={v => setL(h.id, {name:v})} placeholder={FP_SHORT[k]} />
+            <S label="Type" value={k} onChange={v => setL(h.id, {kind:v})} options={Object.entries(FP_KINDS).map(([kk, l]) => ({value:kk, label:l}))} />
+          </div>
+          {k === "vent" ? <div className="ca-g2"><div className="pf-f"><label>Tank</label><div className="pf-in"><input list="fp-tanks" value={h.tank || ""} onChange={e => setL(h.id, {tank:e.target.value})} placeholder="e.g. Bulk tank" /></div></div></div>
+          : <div className="ca-g2">
+            <div className="pf-f"><label>From</label><div className="pf-in"><input list="fp-tanks" value={h.from || ""} onChange={e => setL(h.id, {from:e.target.value})} placeholder={k === "fill" ? "Fill point" : k === "ret" ? "Generator" : k === "overflow" ? "Day tank" : k === "supply" ? "Day tank" : "Bulk tank"} /></div></div>
+            <div className="pf-f"><label>To</label><div className="pf-in"><input list="fp-tanks" value={h.to || ""} onChange={e => setL(h.id, {to:e.target.value})} placeholder={k === "fill" || k === "overflow" ? "Bulk tank" : k === "supply" ? "Generator" : "Day tank"} /></div></div>
+          </div>}
+          {k === "transfer" && <>
+            <div className="ca-sub">Flow</div>
+            <Seg label="Flow from" value={h.qMode === "fill" ? "fill" : "pump"} onChange={v => setL(h.id, {qMode:v})} options={[{value:"pump", label:"Pump flow"}, {value:"fill", label:"Day tank volume ÷ fill time"}]} />
+            <div className="ca-g3" style={{marginTop:8}}>{h.qMode === "fill" ? <>
+              <N label="Day tank volume" unit="L" value={h.dayVol} onChange={v => setL(h.id, {dayVol:v})} />
+              <N label="Fill time" unit="min" value={h.fillMin} onChange={v => setL(h.id, {fillMin:v})} /></> :
+              <N label="Transfer pump flow" unit="L/min" value={h.q} onChange={v => setL(h.id, {q:v})} />}</div>
+            <div className="ca-sub">Suction and discharge</div>
+            <div className="ca-g3">
+              <N label="Suction length" unit="m" value={h.Ls} onChange={v => setL(h.id, {Ls:v})} />
+              <N label="Suction lift" unit="m" value={h.zs} onChange={v => setL(h.id, {zs:v})} min={-100} req={false} hint="Pump above the lowest bulk tank level; negative = flooded suction" />
+              <N label="Discharge length" unit="m" value={h.Ld} onChange={v => setL(h.id, {Ld:v})} />
+              <N label="Static rise" unit="m" value={h.zd} onChange={v => setL(h.id, {zd:v})} min={-100} req={false} hint="Pump to the day tank inlet" />
+              <N label="Pump NPSH required" unit="m" value={h.npshr} onChange={v => setL(h.id, {npshr:v})} req={false} hint="From the pump datasheet; blank = not checked" />
+            </div>
+          </>}
+          {(k === "supply" || k === "ret") && <>
+            <div className="ca-sub">Generator</div>
+            <div className="ca-g3">
+              <N label="Generators on this line" value={h.nGen} onChange={v => setL(h.id, {nGen:v})} req={false} hint="Blank = 1" />
+              <N label="Consumption at full load, each" unit="L/h" value={h.cons} onChange={v => setL(h.id, {cons:v})} />
+              <N label="Fuel supply flow, each" unit="L/h" value={h.sup} onChange={v => setL(h.id, {sup:v})} req={false} hint={`Generator datasheet; blank = ${set.supFactor} × consumption`} />
+            </div>
+          </>}
+          {k === "fill" && <><div className="ca-sub">Tanker</div><div className="ca-g3"><N label="Tanker discharge rate" unit="L/min" value={h.q} onChange={v => setL(h.id, {q:v})} /></div></>}
+          {(k === "supply" || k === "ret" || k === "fill") && <>
+            <div className="ca-sub">Route</div>
+            <div className="ca-g3">
+              <N label="Pipe length" unit="m" value={h.L} onChange={v => setL(h.id, {L:v})} />
+              <N label={k === "supply" ? "Static rise to the engine" : "Static rise"} unit="m" value={h.z} onChange={v => setL(h.id, {z:v})} min={-100} req={false} hint={k === "supply" ? "Negative = day tank above the engine inlet" : "Up in the direction of flow"} />
+              <N label={k === "supply" ? "Max inlet restriction" : k === "ret" ? "Max return restriction" : "Tanker pump pressure"} unit="kPa" value={h.lim} onChange={v => setL(h.id, {lim:v})} req={false} hint="From the datasheet; blank = not checked" />
+            </div>
+          </>}
+          {k === "overflow" && <>
+            <div className="ca-sub">Overflow</div>
+            <div className="ca-g3">
+              <N label="Fall" unit="%" value={h.grad} onChange={v => setL(h.id, {grad:v})} req={false} hint={`Blank = ${set.ofGrad} %`} />
+              <N label="Other flow into the tank" unit="L/min" value={h.qx} onChange={v => setL(h.id, {qx:v})} req={false} hint="Added to the transfer and return lines found" />
+            </div>
+          </>}
+          {k !== "vent" && k !== "overflow" && <>
+            <button type="button" className="ca-adv" onClick={() => setShowAdv(v => !v)}>{showAdv ? "▾" : "▸"} Advanced for this line <em>{nAdv ? `${nAdv} override${nAdv === 1 ? "" : "s"} set` : "fittings, material, size"}</em></button>
+            {showAdv && <div className="ca-g3" style={{marginTop:8}}>
+              <N label="Fittings allowance" unit="%" value={h.fit} onChange={v => setL(h.id, {fit:v})} req={false} hint={`Blank = ${set.fit} %`} />
+              <N label="Smallest pipe" unit="DN" value={h.minDN} onChange={v => setL(h.id, {minDN:v})} req={false} hint={`Blank = DN${set.minDN}; e.g. the engine connection size`} />
+              {k === "transfer" && <N label="Pump efficiency" unit="%" value={h.eta} onChange={v => setL(h.id, {eta:v})} req={false} max={100} hint={`Blank = ${set.eta} %`} />}
+              <S label="Pipe material" value={h.mat || ""} onChange={v => setL(h.id, {mat:v, dn:"", dnS:"", dnD:""})} options={[{value:"", label:"Project default"}, ...Object.entries(PIPE_MATERIALS).map(([kk, m]) => ({value:kk, label:m.label}))]} />
+              {k === "transfer" ? <>
+                <S label="Suction size" value={h.dnS || ""} onChange={v => setL(h.id, {dnS:v})} options={sizeOpts(h.dnS)} />
+                <S label="Discharge size" value={h.dnD || ""} onChange={v => setL(h.id, {dnD:v})} options={sizeOpts(h.dnD)} />
+              </> : <S label="Pipe size" value={h.dn || ""} onChange={v => setL(h.id, {dn:v})} options={sizeOpts(h.dn)} />}
+            </div>}
+          </>}
+          {(k === "vent" || k === "overflow") && <div className="ca-g3" style={{marginTop:8}}>
+            <S label="Pipe material" value={h.mat || ""} onChange={v => setL(h.id, {mat:v, dn:""})} options={[{value:"", label:"Project default"}, ...Object.entries(PIPE_MATERIALS).map(([kk, m]) => ({value:kk, label:m.label}))]} />
+            <S label="Size" value={h.dn || ""} onChange={v => setL(h.id, {dn:v})} options={sizeOpts(h.dn)} />
+          </div>}
+        </section>
+        <section className="ca-card ca-design">
+          <h4>Design <em>{c ? c.fl.name : FP_SHORT[k]}</em></h4>
+          {c ? <>
+            <div className="ca-kpis">
+              <div className="hl"><span>Flow</span><b>{f2(c.Q)} l/s</b><i>{f0(c.Q*60)} L/min</i></div>
+              {c.kind === "transfer" ? <>
+                <div className={c.okVs && c.okVd ? "" : "bad"}><span>Pipe</span><b>DN{c.ps.dn} / DN{c.pd.dn}</b><i>suction / discharge</i></div>
+                <div><span>Pump</span><b>{c.H.toFixed(1)} m</b><i>{f2(c.Pin)} kW{c.motor ? ` → ${c.motor} kW` : ""}</i></div>
+                <div className={c.okN ? "" : "bad"}><span>NPSH available</span><b>{c.NPSHa.toFixed(1)} m</b><i>{c.npshr != null ? `NPSHr ${c.npshr} m` : "no NPSHr entered"}</i></div>
+              </> : c.kind === "vent" ? <>
+                <div className={c.ok ? "" : "bad"}><span>Vent</span><b>DN{c.pipe.dn}</b><i>not below DN{c.floor}</i></div>
+                <div><span>Air velocity</span><b>{f2(c.vAir)} m/s</b><i>at the largest flow</i></div>
+              </> : c.kind === "overflow" ? <>
+                <div className={c.ok ? "" : "bad"}><span>Overflow</span><b>DN{c.pipe.dn}</b><i>{f2(c.capQ)} l/s at {c.grad} %</i></div>
+                <div><span>At design flow</span><b>{c.v.toFixed(2)} m/s</b><i>h/d {c.over ? "> 0.82" : c.y.toFixed(2)}</i></div>
+              </> : <>
+                <div className={c.okV ? "" : "bad"}><span>Pipe</span><b>DN{c.pipe.dn}</b><i>{f2(c.h.v)} m/s</i></div>
+                <div className={c.okP ? "" : "bad"}><span>{c.kind === "fill" ? "At fill point" : "Restriction"}</span><b>{c.dp.toFixed(1)} kPa</b><i>{c.lim != null ? `limit ${c.lim} kPa` : "no limit entered"}</i></div>
+              </>}
+            </div>
+            <div className="ca-steps">{rs.steps.map((st, i) => <React.Fragment key={i}>{st.s && <div className="ca-sh">{st.s}</div>}<div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div></React.Fragment>)}</div>
+          </> : <div className="ca-errbox">{(rs && rs.errors || ["Calculation could not be produced."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+        </section>
+      </div>}
+    </div>
+  );
+}
+// v1.89: Plumbing schedule — stormwater and fuel
+function StormScheduleTable({items, density, onOpen}) {
+  if (!items.length) return <div className="empty-schedule">No stormwater items match.</div>;
+  const f2 = v => v.toFixed(2);
+  return <div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
+    <colgroup><col style={{width:48}}/><col style={{width:"20%"}}/><col style={{width:100}}/><col style={{width:"14%"}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:"16%"}}/><col style={{width:"14%"}}/><col style={{width:150}}/></colgroup>
+    <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Item</th><th className="sticky-left">Tag</th><th>Type</th><th className="num">Area (m²)</th><th className="num">Flow (l/s)</th><th>Outlets / drain</th><th>Rainwater pipes / fall</th><th className="sticky-right ctr">State</th></tr></thead>
+    <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.storm;
+      return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
+        <td className="row-no sticky-left">{index + 1}</td>
+        <td className="system sticky-left" title={p.name}><div className="system-main">{p.name}</div><div className="system-sub">{p.location || "—"}</div></td>
+        <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
+        <td>{SW_KINDS[p.kind] || "—"}</td>
+        <td className="num">{c && c.kind === "roof" ? c.A.toFixed(1) : "—"}</td><td className="num strong">{c ? f2(c.Q) : "—"}</td>
+        <td>{c ? (c.kind === "roof" ? `${c.n} × DN${c.oD} outlet` : swDN(c.pipe)) : "—"}</td>
+        <td>{c ? (c.kind === "roof" ? `${c.nR} × ${swDN(c.pipe)}` : `${c.grad} % · h/d ${c.over ? ">0.82" : c.y.toFixed(2)}`) : "—"}</td>
+        <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
+      </tr>; })}</tbody></table></div>;
+}
+function FuelScheduleTable({items, density, onOpen}) {
+  if (!items.length) return <div className="empty-schedule">No fuel lines match.</div>;
+  const f2 = v => v.toFixed(2);
+  return <div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
+    <colgroup><col style={{width:48}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"12%"}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:150}}/></colgroup>
+    <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Line</th><th className="sticky-left">Tag</th><th>Type</th><th>From → To</th><th className="num">Flow (l/s)</th><th>Size</th><th>Result</th><th className="sticky-right ctr">State</th></tr></thead>
+    <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.fuel;
+      return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
+        <td className="row-no sticky-left">{index + 1}</td>
+        <td className="system sticky-left" title={p.name}><div className="system-main">{p.name}</div><div className="system-sub">{c ? c.fl.short : "—"}</div></td>
+        <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
+        <td>{FP_SHORT[p.kind] || "—"}</td><td>{p.kind === "vent" ? (p.tank || "—") : [p.from, p.to].filter(Boolean).join(" → ") || "—"}</td>
+        <td className="num strong">{c && c.kind !== "vent" ? f2(c.Q) : "—"}</td>
+        <td>{c ? (c.kind === "transfer" ? `DN${c.ps.dn} / DN${c.pd.dn}` : `DN${c.pipe.dn}`) : "—"}</td>
+        <td>{c ? (c.kind === "transfer" ? `${c.H.toFixed(1)} m${c.motor ? ` · ${c.motor} kW` : ""}` : c.dp != null ? `${c.dp.toFixed(1)} kPa` : c.kind === "overflow" ? `${c.grad} % fall` : "vent") : "—"}</td>
         <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
       </tr>; })}</tbody></table></div>;
 }
@@ -13863,14 +14804,14 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
 // Calculation Sheets list groups (on screen only — the printed pack and its numbering are unchanged)
-const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["foam","Foam Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
+const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["foam","Foam Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["sw","Stormwater"],["fp","Fuel Oil Pipework"],["lpg","Gas Pipe Sizing"]];
 function calcPickGroups(pumps) {
   const by = {}; (pumps || []).forEach((p, i) => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : (RPT_GROUP[p.type] || "circ"); (by[k] = by[k] || []).push({p, i}); });
   return CALC_PICK_GROUPS.filter(([k]) => by[k]).map(([k, l]) => ({k, l, items:by[k]}));
 }
-const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", foam:"foam", water:"ws", lpg:"lpg"};
+const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", foam:"foam", storm:"sw", fuelp:"fp", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
-  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", foam:"FOAM SYSTEM CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION"};
+  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", foam:"FOAM SYSTEM CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION", sw:"STORMWATER DRAINAGE CALCULATION", fp:"FUEL OIL PIPE SIZING CALCULATION"};
 function rptGroups(sel, names) {
   const out = [];
   sel.forEach(p => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : RPT_GROUP[p.type] || "circ"; let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k], items:[]}; out.push(g); } g.items.push(p); });
@@ -14016,10 +14957,10 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
       <h1 className="rpt-toc-h">Equipment Schedule</h1>
       <table className="rpt-tb rpt-sch"><thead><tr><th style={{width:"5%"}}>SN</th><th style={{width:"15%"}}>Tag</th><th>Description</th><th style={{width:"12%"}}>Arrangement</th><th style={{width:"11%"}}>Flow (L/s)</th><th style={{width:"10%"}}>Head (m)</th><th style={{width:"11%"}}>Motor (kW each)</th></tr></thead>
         <tbody>{eqSel.map((p, i) => { const r = safeCalculate(p), ok = r && !r.error;
-          const fl = !ok ? "—" : r.ca ? "—" : r.grease ? r.grease.Qs.toFixed(2) : r.water ? (r.water.gasMode ? r.water.Qsrc/3.6 : r.water.Qsrc).toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
-          const hd = !ok ? "—" : (r.grease || r.lpg) ? "—" : r.water ? (r.pumpHead ? (r.pumpHead.noPump ? "0" : String(r.pumpHead.head)) : "—") : (typeof r.totalH === "number" ? (p.type === "sump" ? r.totalH.toFixed(1) : String(r.totalH)) : "—");
-          const kw = !ok ? "—" : (r.grease || r.water || r.lpg) ? "—" : String(r.pwrSel);
-          const ar = !ok ? "BLOCKED" : r.ca ? `${r.ca.n} × ${r.ca.cyl.vol} L · ${r.ca.Wsup.toFixed(1)} kg` : r.lpg ? r.lpg.nSec + " sections" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
+          const fl = !ok ? "—" : r.ca ? "—" : (r.storm || r.fuel) ? Number(r.flowTotal).toFixed(2) : r.grease ? r.grease.Qs.toFixed(2) : r.water ? (r.water.gasMode ? r.water.Qsrc/3.6 : r.water.Qsrc).toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
+          const hd = !ok ? "—" : (r.grease || r.lpg || r.storm) ? "—" : r.fuel ? (r.fuel.H != null ? r.fuel.H.toFixed(1) : "—") : r.water ? (r.pumpHead ? (r.pumpHead.noPump ? "0" : String(r.pumpHead.head)) : "—") : (typeof r.totalH === "number" ? (p.type === "sump" ? r.totalH.toFixed(1) : String(r.totalH)) : "—");
+          const kw = !ok ? "—" : (r.grease || r.water || r.lpg || r.storm) ? "—" : r.fuel ? (r.fuel.motor ? String(r.fuel.motor) : "—") : String(r.pwrSel);
+          const ar = !ok ? "BLOCKED" : (r.storm || r.fuel) ? r.config : r.ca ? `${r.ca.n} × ${r.ca.cyl.vol} L · ${r.ca.Wsup.toFixed(1)} kg` : r.lpg ? r.lpg.nSec + " sections" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
           return <tr key={i}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name || typeLbl(p)}</td><td style={{textAlign:"center"}}>{ar}</td><td style={{textAlign:"right"}}>{fl}</td><td style={{textAlign:"right"}}>{hd}</td><td style={{textAlign:"right"}}>{kw}</td></tr>; })}</tbody></table>
       <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Flow is per duty pump (grease interceptors: total waste water flow; pipe sizing: peak flow at the source). D = duty, A = assist, S = standby.</p>
     </section>}
@@ -14040,6 +14981,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [pumpQuery, setPumpQuery] = useState("");
   const [printPick, setPrintPick] = useState(null);
   const [caFocus, setCaFocus] = useState(null);
+  const [stormFocus, setStormFocus] = useState(null), [fuelFocus, setFuelFocus] = useState(null);   // v1.89: item to open in the Stormwater / Fuel tab
   const [foamFocus, setFoamFocus] = useState(null);   // v1.86: hazard to open in the Foam tab   // v1.84: room to open in the Clean Agent tab (from the Fire Protection schedule)
   // v1.73: the Calculation Sheets list is grouped by kind — a filter and collapsible groups (remembered in this browser)
   const [pickFilter, setPickFilter] = useState("all");
@@ -14054,7 +14996,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   // Fire (clean agent rooms from the Clean Agent tab) — or both together.
   const [sheetDisc, setSheetDiscS] = useState(() => { try { const v = localStorage.getItem("mep_sheet_disc"); return v === "fire" ? v : "plumbing"; } catch (e) { return "plumbing"; } });
   const setSheetDisc = v => { try { localStorage.setItem("mep_sheet_disc", v); } catch (e) {} setSheetDiscS(v); };
-  const pickList = sheetDisc === "fire" ? [...caRoomItems(meta), ...foamItems(meta)] : pumps;
+  const pickList = sheetDisc === "fire" ? [...caRoomItems(meta), ...foamItems(meta)] : [...pumps, ...stormItems(meta), ...fuelItems(meta)];   // v1.89: stormwater and fuel are plumbing sheets
   const pickIds = pickList.map(p => p.id).join("|");
   React.useEffect(() => {
     // Keep a valid selection: first load, after a pump is deleted, and when the discipline changes.
@@ -14482,7 +15424,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const issueProject = closureSnapshot?.project ? {...proj,...closureSnapshot.project} : proj;
   const issueMeta = closureSnapshot?.meta_before_closure ? {...meta,...closureSnapshot.meta_before_closure,closure:meta.closure} : meta;
   const caIssueItems = [...caRoomItems(issueMeta), ...foamItems(issueMeta)];   // Fire discipline: clean agent rooms + foam hazards
-  const sheetItems = sheetDisc === "fire" ? caIssueItems : sheetDisc === "all" ? [...pumps, ...caIssueItems] : pumps;
+  const plIssueItems = [...pumps, ...stormItems(issueMeta), ...fuelItems(issueMeta)];   // Plumbing discipline: calculation items + stormwater + fuel lines
+  const sheetItems = sheetDisc === "fire" ? caIssueItems : sheetDisc === "all" ? [...plIssueItems, ...caIssueItems] : plIssueItems;
   const discLbl = sheetDisc === "fire" ? "Fire" : sheetDisc === "plumbing" ? "Plumbing" : "";
   const issueStageName = closureSnapshot?.stage_name || currentStage?.stage_name;
   // The closure snapshot is used for issued outputs; therefore a later project
@@ -14615,7 +15558,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 4. Workspace ── */}
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
-              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["agent","❄","Clean Agent"],["foam","◍","Foam"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="foam"&&<span className="pill">{((meta.foam||{}).hazards||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
+              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["agent","❄","Clean Agent"],["foam","◍","Foam"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="foam"&&<span className="pill">{((meta.foam||{}).hazards||[]).length}</span>}{key==="storm"&&<span className="pill">{((meta.storm||{}).roofs||[]).length+((meta.storm||{}).drains||[]).length}</span>}{key==="fuel"&&<span className="pill">{((meta.fuel||{}).lines||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
               <a href="spec.html" className="sbx-applink" style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",fontSize:12,fontWeight:600,color:"#424245",textDecoration:"none",borderTop:"1px dashed #e5e5ea",marginTop:4}}><span className="ic" style={{width:18,textAlign:"center"}}>§</span><span className="tx" style={{flex:1}}>Specifications</span><span className="pill">↗</span></a>
             </nav>
             {(meta.trash||[]).length>0 && <details className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
@@ -14664,7 +15607,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="storm"||tab==="fuel" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -14795,10 +15738,14 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         )}
         {tab==="agent" && <CleanAgentTab meta={meta} setMeta={setMeta} locked={stageLocked} proj={projForDisplay} stageName={issueStageName} focus={caFocus} />}
         {tab==="foam" && <FoamTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={foamFocus} />}
+        {tab==="storm" && <StormTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={stormFocus} />}
+        {tab==="fuel" && <FuelTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={fuelFocus} />}
         {tab==="schedule" && (
           <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus}
             caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
             foamItems={foamItems(meta)} onEditFoam={id=>{ setFoamFocus({id:String(id).replace(/^foam-/,""), t:Date.now()}); setTab("foam"); }}
+            stormItems={stormItems(meta)} onEditStorm={id=>{ setStormFocus({id:String(id).replace(/^storm-/,""), t:Date.now()}); setTab("storm"); }}
+            fuelItems={fuelItems(meta)} onEditFuel={id=>{ setFuelFocus({id:String(id).replace(/^fuelp-/,""), t:Date.now()}); setTab("fuel"); }}
             onEditPump={id=>{if(stageLocked) return; const t=pumps.find(x=>x.id===id); setEditId(id); if(t&&t.type==="water"){setPipeId(id);setTab("pipe");} else setTab("pumps");}}
             onOpenCalculationSheet={()=>setTab("print")} />
         )}
@@ -14814,7 +15761,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 unchanged and cannot silently lose a calculation. */}
             <div className="cs-bar no-print">
               <div className="sch-disc cs-disc" role="tablist" aria-label="Discipline">
-                <button type="button" role="tab" aria-selected={sheetDisc!=="fire"} className={sheetDisc!=="fire"?"on":""} onClick={()=>setSheetDisc("plumbing")}>Plumbing<em>{pumps.length}</em></button>
+                <button type="button" role="tab" aria-selected={sheetDisc!=="fire"} className={sheetDisc!=="fire"?"on":""} onClick={()=>setSheetDisc("plumbing")}>Plumbing<em>{plIssueItems.length}</em></button>
                 <button type="button" role="tab" aria-selected={sheetDisc==="fire"} className={sheetDisc==="fire"?"on fire":"fire"} onClick={()=>setSheetDisc("fire")}>Fire Protection<em>{caIssueItems.length}</em></button>
               </div>
               {staleWater.length>0 && <span className="pz-stale-inline">⚠ {staleWater.length} Pipe Sizing calculation{staleWater.length===1?"":"s"} changed since last calculated — <button type="button" onClick={calcAll}>Calculate</button></span>}
@@ -15283,7 +16230,7 @@ function RefDataEditor({onBack}) {
   const [tab, setTab] = useState("materials");
   const tabs = [
     ["materials","Pipe Materials"], ["sizes","Pipe Sizes"], ["motors","Motor kW"],
-    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"], ["cacyl","Clean Agent Cylinders"], ["foamtank","Foam Bladder Tanks"],
+    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"], ["cacyl","Clean Agent Cylinders"], ["foamtank","Foam Bladder Tanks"], ["rain","Rainfall Intensity"],
   ];
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
@@ -15313,6 +16260,7 @@ function RefDataEditor({onBack}) {
           {tab==="drain" && <DrainageRefTab/>}
           {tab==="cacyl" && <CaCylindersTab/>}
           {tab==="foamtank" && <FoamTanksTab/>}
+          {tab==="rain" && <RainfallTab/>}
         </div>
       </div>
     </div>
