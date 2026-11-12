@@ -198,7 +198,7 @@
   /* Split-view calculation sheets. screen-hide is the load-bearing rule: the
      unselected sheets stay in the DOM so printing still emits the full pack. */
   .calcwrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
-  .calcpick{display:flex;flex-direction:column;gap:6px;position:sticky;top:12px;max-height:calc(100vh - 40px);overflow-y:auto;padding:2px 2px 6px}
+  .calcpick{display:flex;flex-direction:column;gap:6px;position:sticky;top:64px;max-height:calc(100vh - 84px);overflow-y:auto;padding:2px 2px 6px}
   .calcpick-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#fff;border:1px solid #d2d2d7;border-radius:9px;cursor:pointer;flex:0 0 auto;text-align:left;width:100%}
   .calcpick-filter{display:flex;gap:6px;position:sticky;top:0;z-index:2;background:#f5f5f7;padding-bottom:4px}
   .calcpick-filter select{flex:1;min-width:0;height:30px;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;font-weight:600;padding:0 8px;background:#fff}
@@ -262,6 +262,7 @@
   .sbx-disc button{border:0;background:transparent;border-radius:8px;padding:6px 4px;font-size:11.5px;font-weight:700;color:#6e6e73;cursor:pointer;display:flex;gap:5px;justify-content:center;align-items:center}
   .sbx-disc button em{font-style:normal;font-size:10px;background:#e1e1e6;border-radius:8px;padding:0 6px;color:#424245}
   .sbx-disc button.on{background:#fff;color:#007aff;box-shadow:0 1px 3px rgba(0,0,0,.1)}.sbx-disc button.on em{background:#e8f0fe;color:#1559a6}
+  .sbx-disc button.on.fire{color:#c0392b}.sbx-disc button.on.fire em{background:#fdecea;color:#c0392b}
   .ca-adv{margin-top:14px;border:1px dashed #c8c8d0;background:#fafafc;border-radius:9px;padding:8px 11px;width:100%;text-align:left;font-size:12px;font-weight:700;color:#1d1d1f;cursor:pointer}
   .ca-adv:hover{border-color:#007aff;color:#007aff}.ca-adv em{font-style:normal;font-weight:500;color:#86868b;margin-left:6px}
   .ca-advn{font-size:11px;color:#86868b;margin-top:8px}
@@ -270,6 +271,12 @@
   .sch-disc button em{font-style:normal;font-size:11px;background:#e1e1e6;border-radius:8px;padding:1px 7px;color:#424245}
   .sch-disc button.on{background:#fff;color:#007aff;box-shadow:0 1px 3px rgba(0,0,0,.1)}.sch-disc button.on em{background:#e8f0fe;color:#1559a6}
   .sch-disc button.on.fire{color:#c0392b}.sch-disc button.on.fire em{background:#fdecea;color:#c0392b}
+  .cs-disc{margin-left:0!important}
+  .cs-units{display:inline-flex;gap:10px;align-items:center;margin-left:14px}
+  .cs-units label{display:inline-flex;gap:6px;align-items:center;font-size:11.5px;font-weight:700;color:#424245}
+  .cs-units select{border:1px solid #d2d2d7;border-radius:7px;padding:3px 6px;font-size:11.5px;background:#fff;font-family:inherit}
+  .sch-fire{display:flex;flex-direction:column;gap:6px;overflow:auto;flex:1;min-height:0}.sch-fire .schedule-table-wrap{flex:none!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible}
+  .sch-sub{font-size:12px;font-weight:800;color:#1d1d1f;padding:8px 4px 2px;text-transform:uppercase;letter-spacing:.04em}.sch-sub em{font-style:normal;font-size:11px;background:#f1f1f3;border-radius:8px;padding:1px 7px;color:#424245;margin-left:6px}
   .ca-note.bad{background:#fdecea;border-color:#f5c2bd;color:#9b2c22}
   .ca-def{font-style:normal;color:#86868b;font-size:10.5px}.ca-src{color:#6e6e73;font-size:11px}
   .ca-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
@@ -670,7 +677,7 @@
   .sump-add{display:flex;gap:6px;flex-wrap:wrap}
   .sump-margin-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:0 0 10px;padding:9px 12px;border-radius:10px;background:#fff4e0;border:1px solid #f5c27a;color:#7a4300;font-size:11.5px;line-height:1.45}.sump-margin-bar span{flex:1 1 320px}
   /* ── Classic calculation sheet — ONE colour (Meinhardt blue); everything else black on white ── */
-  .cs-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;background:#fff;border:1px solid #d2d2d7;border-radius:10px}
+  .cs-bar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin:0 0 12px;padding:8px 12px;background:#fff;border:1px solid #d2d2d7;border-radius:10px;position:sticky;top:0;z-index:30;box-shadow:0 2px 8px rgba(0,0,0,.06)}
   .cs-chk{display:flex;align-items:center;gap:6px;font-size:11px;font-weight:700;color:#424245;cursor:pointer}
   .cs-key{font-size:10.5px;color:#6e6e73;margin-left:auto}
   .cs-wrap{position:relative;overflow:hidden;max-width:100%;box-sizing:border-box;padding:3px;background:#fff;color:#000;margin:2px;font-family:Arial,Helvetica,sans-serif!important}
@@ -1341,14 +1348,22 @@
 /* Boot guard (plain JS, not Babel): if a library or the in-browser compile fails, show why instead of a white screen. */
 (function () {
   function msg(html, bad) { var m = document.getElementById("boot-msg"); if (m) { m.innerHTML = html; m.style.color = bad ? "#b91c1c" : "#86868b"; } }
-  window.__bootError = function (t) { msg("⚠ " + t + "<br><br><span style='font-size:12.5px;color:#6b7280'>This calculator loads React, Supabase and ExcelJS from the internet. If you are offline, on a restricted company network, or opening the file inside a preview pane that blocks external scripts, these will not load and the page stays blank. Open the file in Chrome, Edge or Safari with a normal internet connection and reload.</span>", true); };
-  window.addEventListener("error", function (e) { if (e && e.message && /Babel|transform|Unexpected token|SyntaxError|is not defined/i.test(e.message) && document.getElementById("boot")) window.__bootError("The app could not start: " + e.message); });
+  window.__bootError = function (t) { window.__bootFailed = true; msg("⚠ " + t + "<br><br><span style='font-size:12.5px;color:#6b7280'>This calculator loads React, Supabase and ExcelJS from the internet. If you are offline, on a restricted company network, or opening the file inside a preview pane that blocks external scripts, these will not load and the page stays blank. Open the file in Chrome, Edge or Safari with a normal internet connection and reload.</span>", true); };
+  // v1.87.1: show ANY error that happens while the start screen is still up, so a failure names its cause.
+  window.addEventListener("error", function (e) { if (document.getElementById("boot")) window.__bootError("The app could not start: " + ((e && (e.message || (e.error && e.error.message))) || "unknown error") + (e && e.filename ? " (" + String(e.filename).split("/").pop() + (e.lineno ? ":" + e.lineno : "") + ")" : "")); });
+  window.addEventListener("unhandledrejection", function (e) { if (document.getElementById("boot")) window.__bootError("The app could not start: " + ((e && e.reason && (e.reason.message || e.reason)) || "unknown error")); });
   setTimeout(function () {
     var miss = []; if (typeof React === "undefined") miss.push("React"); if (typeof ReactDOM === "undefined") miss.push("ReactDOM"); if (!window.supabase) miss.push("Supabase");
     if (miss.length) window.__bootError("Could not load: " + miss.join(", ") + ".");
-    else if (document.getElementById("boot")) msg("Starting… compiling the app (this can take a few seconds the first time).");
+    else if (document.getElementById("boot") && !window.__bootFailed) msg("Starting… compiling the app (this can take a few seconds the first time).");
   }, 6000);
-  setTimeout(function () { if (document.getElementById("boot") && typeof React !== "undefined") window.__bootError("The libraries loaded but the app did not start — in-browser compilation may have failed. Please reload; if it keeps happening, send this note to the developer."); }, 22000);
+  // v1.87.1: the first open of a new version compiles the whole app in the browser. A slow PC can need longer than 22 s,
+  // so while the compile is still running this waits (up to 120 s) instead of reporting a failure.
+  (function waitBoot(t) { setTimeout(function () {
+    if (!document.getElementById("boot") || typeof React === "undefined" || window.__bootFailed) return;
+    if ((window.__mepCompiling || Date.now() - (window.__mepCompiledAt || 0) < 15000) && t < 120000) { msg("Starting… preparing this new version for the first time (" + Math.round(t / 1000) + " s). This happens once per version; later opens are instant."); return waitBoot(t + 8000); }
+    window.__bootError("The libraries loaded but the app did not start" + (window.__mepCompiling ? " — the first-time compile is taking more than two minutes" : "") + ". Please reload once; if it keeps happening, press F12, open Console and send the red error line to the developer.");
+  }, t === 22000 ? 22000 : 8000); })(22000);
 })();
 </script>
 
@@ -1361,7 +1376,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.84.0 · Build 2026.11.12.10";
+const BUILD_LABEL = "v1.88.3 · Build 2026.11.12.22";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1630,6 +1645,13 @@ async function loadReferenceData() {
           dia:nv(r.dia_mm), height:nv(r.height_mm), emptyWt:nv(r.empty_wt_kg), pressure:nv(r.pressure_bar), valve:r.valve || "", src:r.source || "", notes:r.notes || ""}));
         CA_CYL_ERR = CA_CYLS.length ? "" : "The clean agent cylinder library in Supabase is empty. Add cylinders in Reference Data → Clean Agent Cylinders."; }
     } catch (e) { CA_CYLS = []; CA_CYL_ERR = "The clean agent cylinder library could not be loaded (" + (e.message || e) + ")."; }
+    // Foam bladder tanks (v1.86). A missing table must not block everything else — the Foam tab says so.
+    try { const ft = await sb.from("ref_foam_tanks").select("*").eq("active", true).order("sort_order");
+      if (ft.error) { FOAM_TANKS = []; FOAM_TANK_ERR = "The foam tank library could not be loaded from Supabase (" + ft.error.message + "). Run mep-foam-tanks.sql."; }
+      else { const nv = v => v === null || v === undefined || v === "" ? "" : Number(v);
+        FOAM_TANKS = (ft.data || []).map(r => ({key:r.tank_key, model:r.model, vol:nv(r.volume_l), orient:r.orientation || "", dia:nv(r.dia_mm), len:nv(r.length_mm), emptyWt:nv(r.empty_wt_kg), pressure:nv(r.pressure_bar), src:r.source || "", notes:r.notes || ""}));
+        FOAM_TANK_ERR = FOAM_TANKS.length ? "" : "The foam tank library in Supabase is empty. Add tanks in Reference Data → Foam Bladder Tanks."; }
+    } catch (e) { FOAM_TANKS = []; FOAM_TANK_ERR = "The foam tank library could not be loaded (" + (e.message || e) + ")."; }
     // Fixtures (loading units per fixture, per demand table). A missing table must not block everything else.
     FU_FIXTURES = {}; FU_FIX_ERROR = "";
     if (fixRes.error) FU_FIX_ERROR = "Fixture loading units could not be loaded from Supabase (" + fixRes.error.message + "). Run mep-fixture-units-fixtures.sql.";
@@ -1814,7 +1836,7 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm, nuIn) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", pbc:"Pressure Break Chamber", ca:"Clean Agent", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", pbc:"Pressure Break Chamber", ca:"Clean Agent", foam:"Foam System", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
 };
 
 // Equipment groups, used by the Add menu and the schedule filter.
@@ -2073,6 +2095,7 @@ function calculate(p) {
   if (p.type === "grease") return calculateGrease(p);
   if (p.type === "pbc") return calculatePbc(p);
   if (p.type === "ca") return calculateCa(p);
+  if (p.type === "foam") return calculateFoam(p);
   if (p.type === "water") return wsIsDrain(p) ? calculateDrain(p) : wsIsGas(p) ? calculateGas(p) : calculateWater(p);
   if (p.type === "lpg") return calcError(["This item was made with the LPG test build — open it and press Convert to Gas Pipe Sizing."]);
   const set = pumpSetOf(p);
@@ -3064,29 +3087,27 @@ function caRoomItems(meta) {
 function caTitle(p) { const a = CA_AGENTS[p && p.agent] || CA_AGENTS[caSettings(p && p._set).agent] || CA_AGENTS.novec; return `Clean Agent Calculation (${a.short})`; }
 function caDesignBasis(p) {
   const r = (() => { try { return calculateCa(p); } catch (e) { return null; } })(), c = r && r.ca;
-  const a = CA_AGENTS[p && p.agent] || CA_AGENTS[caSettings(p && p._set).agent] || CA_AGENTS.novec, set = caSettings(p && p._set);
-  const cls = CA_CLASSES[p && p.cls] ? p.cls : "C";
+  const a = CA_AGENTS[p && p.agent] || CA_AGENTS[caSettings(p && p._set).agent] || CA_AGENTS.novec;
+  const cls = CA_CLASSES[p && p.cls] ? p.cls : "C", nm = (p && p.name) || "The room";
+  const ex = c ? c.spaces.filter(x => x.k !== "room").map(x => x.l.toLowerCase()) : [], roomIn = !c || c.spaces.some(x => x.k === "room");
+  const who = roomIn ? `${nm}${ex.length ? `, including its ${ex.join(" and ")},` : ""} is` : `The ${ex.join(" and ")} of ${nm} ${ex.length > 1 ? "are" : "is"}`;
   return [
-    (() => { const nm = (p && p.name) || "The room", ex = c ? c.spaces.filter(x => x.k !== "room").map(x => x.l.toLowerCase()) : [], roomIn = !c || c.spaces.some(x => x.k === "room");
-      const who = roomIn ? `${nm}${ex.length ? `, including its ${ex.join(" and ")},` : ""} is` : `The ${ex.join(" and ")} of ${nm} ${ex.length > 1 ? "are" : "is"}`;
-      return `${who} protected by a total flooding ${a.label} clean agent system designed to NFPA 2001.`; })(),
-    `Agent quantity W = V / s × C / (100 − C) × ACF, with s = ${a.k1} + ${a.k2} × T m³/kg at the minimum design temperature${c ? ` of ${c.T} °C` : ""} and the NFPA 2001 altitude correction factor${c ? ` of ${c.acf.toFixed(3)}` : ""}.`,
-    c && c.cOv != null ? `The design concentration of ${c.C.toFixed(2)} % is set by the designer for this ${CA_CLASSES[cls].split(" — ")[0]} hazard.`
-      : `The design concentration for this ${CA_CLASSES[cls].split(" — ")[0]} hazard is ${c ? c.C.toFixed(2) + " %" : "the MEC times the NFPA 2001 safety factor"} (${c ? c.dc.basis : ""}${cls === "A" && set.heptFloor ? ", not less than the heptane MEC" : ""}); the ${a.short} MEC values are those of the listed system and shall be confirmed with the supplier.`,
-    `The achieved concentration is checked against the ${a.short} NOAEL of ${a.noael} %${c && !c.occupied ? "; the space is not normally occupied" : " for a normally occupied space"}, and the agent is discharged within 10 s.`,
-    `The ${a.short} cylinder size, fill range and dimensions are taken from the cylinder library in Reference Data and shall be confirmed against the approved supplier datasheet.`,
+    `${who} protected by a total flooding ${a.label} system to NFPA 2001: W = V / s × C / (100 − C) × ACF, with s = ${a.k1} + ${a.k2} × T at the minimum design temperature.`,
+    c && c.cOv != null ? `Design concentration ${c.C.toFixed(2)} % (${CA_CLASSES[cls].split(" — ")[0]}) as set by the designer; achieved concentration checked against the NOAEL of ${a.noael} %.`
+      : `Design concentration ${c ? c.C.toFixed(2) + " %" : ""} for a ${CA_CLASSES[cls].split(" — ")[0]} hazard (${c ? c.dc.basis : "MEC × safety factor"}); achieved concentration checked against the NOAEL of ${a.noael} %; discharge within 10 s.`,
+    `MEC values and the ${a.short} cylinder data are from the listed system and Reference Data, to be confirmed against the approved supplier datasheet.`,
   ];
 }
 // Cylinder sketch — SVG {svg, w, h}. The bank is drawn to fit a fixed band (up to 6 cylinders; more are shown as "+ n");
 // the details table sits in its own column so they never overlap.
-function caCylFigure(c, caption) {
-  const cy = c.cyl, W = 640, H = 312, e = s => sxEsc(String(s));
+function caCylFigure(c, caption, compact) {
+  const cy = c.cyl, W = 640, H = compact ? 214 : 312, e = s => sxEsc(String(s));
   const t = (x, y, s, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(s)}</text>`;
-  const bandX = 78, bandW = 300, yB = 248, hh = 196, yT = yB - hh;
+  const bandX = 78, bandW = 300, yB = compact ? 160 : 248, hh = compact ? 140 : 196, yT = yB - hh;
   const more = c.n > 6, nd = more ? 5 : c.n, gap = 10;
   const natW = Math.max(40, Math.min(120, (Number(cy.dia) || 300)*hh/Math.max(Number(cy.height) || 1000, 1)));
   const dw = Math.max(26, Math.min(natW, (bandW - (more ? 46 : 0) - (nd - 1)*gap)/nd));
-  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif"${compact ? ' style="height:170px"' : ""}><rect width="${W}" height="${H}" fill="#fff"/>`;
   if (caption) o += t(W/2, 18, String(caption).toUpperCase(), {a:"middle", s:11, b:true});
   const fy0 = Math.min(1, c.fill/Math.max(Number(cy.maxFill), 1));
   for (let i = 0; i < nd; i++) {
@@ -3101,13 +3122,185 @@ function caCylFigure(c, caption) {
   o += `<line x1="${bandX - 16}" y1="${yT}" x2="${bandX - 16}" y2="${yB}" stroke="#000"/><path d="M${bandX-19} ${yT+6} L${bandX-16} ${yT} L${bandX-13} ${yT+6}M${bandX-19} ${yB-6} L${bandX-16} ${yB} L${bandX-13} ${yB-6}" fill="none" stroke="#000"/>` + t(bandX - 22, (yT + yB)/2 + 4, `${(Number(cy.height)/1000).toFixed(2)} m`, {a:"end", s:10.5, b:true, f:"#c0392b"});
   o += `<line x1="${bandX}" y1="${yB + 10}" x2="${bandX + dw}" y2="${yB + 10}" stroke="#000"/><path d="M${bandX+5} ${yB+7} L${bandX} ${yB+10} L${bandX+5} ${yB+13}M${bandX+dw-5} ${yB+7} L${bandX+dw} ${yB+10} L${bandX+dw-5} ${yB+13}" fill="none" stroke="#000"/>` + t(bandX + dw/2, yB + 22, `Ø ${(Number(cy.dia)/1000).toFixed(2)} m`, {a:"middle", s:10, b:true, f:"#c0392b"});
   const tx = 404;
-  o += `<line x1="${tx - 16}" y1="44" x2="${tx - 16}" y2="${yB}" stroke="#e1e1e6"/>`;
+  o += `<line x1="${tx - 16}" y1="${compact ? 18 : 44}" x2="${tx - 16}" y2="${yB}" stroke="#e1e1e6"/>`;
   [["Cylinder", String(cy.model).length > 24 ? String(cy.model).slice(0, 23) + "…" : cy.model], ["Quantity", `${c.n} No.`], ["Volume", `${cy.vol} L each`], ["Fill each", `${c.fill.toFixed(1)} kg`], ["Fill range", `${cy.minFill}–${cy.maxFill} kg`],
    ["Total agent", `${c.Wsup.toFixed(1)} kg`], ["Filled weight", c.filledWt ? `${c.filledWt.toFixed(0)} kg each` : "—"], ["Pressure", `${cy.pressure} bar`], ["Valve", cy.valve || "—"]]
-    .forEach(([a, b], i) => { o += t(tx, 58 + i*21, a, {s:10, f:"#6e6e73"}) + t(tx + 78, 58 + i*21, b, {s:10.5, b:true}); });
+    .forEach(([a, b], i) => { const y = (compact ? 30 : 58) + i*(compact ? 15.5 : 21); o += t(tx, y, a, {s:10, f:"#6e6e73"}) + t(tx + 78, y, b, {s:10.5, b:true}); });
+  return {svg:o + `</svg>`, w:W, h:H};
+}
+// Short drawing for the calculation sheet: the cylinder bank with height, diameter and the selection line only —
+// the cylinder details are already rows on the sheet (v1.85.1).
+function caCylSheetFigure(c) {
+  const cy = c.cyl, W = 520, H = 150, e = v => sxEsc(String(v));
+  const t = (x, y, v, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(v)}</text>`;
+  const yB = 118, hh = 100, yT = yB - hh, more = c.n > 8, nd = more ? 7 : c.n, gap = 8;
+  const natW = Math.max(26, Math.min(70, (Number(cy.dia) || 300)*hh/Math.max(Number(cy.height) || 1000, 1)));
+  const dw = Math.max(18, Math.min(natW, (300 - (more ? 40 : 0) - (nd - 1)*gap)/nd)), bw = nd*(dw + gap) - gap + (more ? 40 : 0), x0 = (W - bw)/2;
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" style="height:118px"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  const fy0 = Math.min(1, c.fill/Math.max(Number(cy.maxFill), 1));
+  for (let i = 0; i < nd; i++) { const x = x0 + i*(dw + gap), r = dw/2, top = yT + 12;
+    o += `<path d="M${x} ${yB} L${x} ${top + r*0.55} Q${x} ${top} ${x + r} ${top} Q${x + dw} ${top} ${x + dw} ${top + r*0.55} L${x + dw} ${yB} Z" fill="#f3f6fa" stroke="#000" stroke-width="1.2"/>`;
+    const fy = yB - (yB - top)*fy0*0.88; o += `<rect x="${x + 1.2}" y="${fy}" width="${dw - 2.4}" height="${yB - fy - 1}" fill="#cfe3fb"/>`;
+    o += `<rect x="${x + r - 4}" y="${yT + 3}" width="8" height="${top - yT - 2}" fill="#fff" stroke="#000"/><rect x="${x + r - 7}" y="${yT}" width="14" height="4" fill="#fff" stroke="#000"/>`; }
+  if (more) o += `<text x="${x0 + nd*(dw + gap) + 4}" y="${(yT + yB)/2 + 6}" font-size="16" style="font-size:16px!important" font-weight="700" fill="#1559a6">+${c.n - nd}</text>`;
+  o += `<line x1="${x0 - 12}" y1="${yT}" x2="${x0 - 12}" y2="${yB}" stroke="#000"/>` + t(x0 - 17, (yT + yB)/2 + 4, `${(Number(cy.height)/1000).toFixed(2)} m`, {a:"end", s:10.5, b:true, f:"#c0392b"});
+  o += `<line x1="${x0}" y1="${yB + 7}" x2="${x0 + dw}" y2="${yB + 7}" stroke="#000"/>` + t(x0 + dw/2, yB + 19, `Ø ${(Number(cy.dia)/1000).toFixed(2)} m`, {a:"middle", s:10, b:true, f:"#c0392b"});
+  const tx = x0 + bw + 26;
+  [[`${c.n} No. × ${cy.vol} L`, true], [`${c.fill.toFixed(1)} kg each`, false], [`${c.Wsup.toFixed(1)} kg ${c.ag.short}`, false], [`${cy.pressure} bar · ${cy.valve || "—"}`, false]]
+    .forEach(([v, b], i) => { o += t(tx, yT + 22 + i*19, v, {s:b ? 12 : 11, b, f:b ? "#1559a6" : "#333"}); });
   return {svg:o + `</svg>`, w:W, h:H};
 }
 // <CA-CORE-END>
+
+// ══════════════════════════════════════════════════════════════════════════
+// FOAM SYSTEMS — low-expansion foam (type "foam")  v1.86.0
+// Hazards (each one system): diesel tank room / bund (NFPA 11 spill / dike), foam-water sprinkler (NFPA 16),
+// fuel storage tank (NFPA 11 fixed roof Type II outlets, or open-top floating roof seal), each with its own concentrate.
+//   Q_solution = rate × area × (1 + allowance)      V_solution = Q × t (+ supplementary hose streams for tanks)
+//   Concentrate = V_solution × % ; reserve = concentrate × reserve % ; water = Q × (1 − %)
+// The bladder tank comes from Supabase ref_foam_tanks (FOAM_TANKS). All defaults are editable per hazard.
+// Rooms / hazards live in the stage meta (meta.foam) and are calculated as pseudo items of type "foam".
+// <FOAM-CORE-BEGIN>
+const FOAM_CONC = {
+  afff3:{key:"afff3", label:"AFFF 3 %", pct:3}, afff1:{key:"afff1", label:"AFFF 1 %", pct:1},
+  arafff3:{key:"arafff3", label:"AR-AFFF 3×3 (hydrocarbon, 3 %)", pct:3}, fffp3:{key:"fffp3", label:"FFFP 3 %", pct:3},
+};
+const FOAM_KINDS = {spill:"Diesel tank room / bund", sprinkler:"Foam-water sprinkler", tank:"Fuel storage tank"};
+const FOAM_FUEL = {c1:"Class I — flash point below 37.8 °C (petrol, crude)", c2:"Class II / III — flash point 37.8 °C and above (diesel, fuel oil)"};
+const FOAM_SET_DEF = {conc:"afff3", reserve:100, tankHolds:"primary"};
+let FOAM_TANKS = [];
+let FOAM_TANK_ERR = "Foam tank library not loaded yet.";
+function foamSettings(s) { return {...FOAM_SET_DEF, ...(s || {})}; }
+// Defaults by hazard — NFPA 11 (2021 tables 5.2.5.2.1 / 5.2.5.2.2 / 5.3.5.3.1 / 5.9.2.x / 5.7.3.2) and NFPA 16; editable.
+function foamDefaults(kind, fuel, roof, D) {
+  if (kind === "sprinkler") return {rate:6.5, time:10, allow:10, src:"NFPA 16 foam-water sprinkler, 6.5 L/min·m² for 10 min"};
+  if (kind === "spill") return {rate:4.1, time:fuel === "c1" ? 30 : 20, allow:0, src:`NFPA 11 diked area, fixed outlets, 4.1 L/min·m² for ${fuel === "c1" ? 30 : 20} min`};
+  if (roof === "floating") return {rate:12.2, time:20, allow:0, src:"NFPA 11 open-top floating roof seal, 12.2 L/min·m² for 20 min"};
+  return {rate:4.1, time:fuel === "c2" ? 30 : 55, allow:0, src:`NFPA 11 fixed roof, Type II outlets, 4.1 L/min·m² for ${fuel === "c2" ? 30 : 55} min`};
+}
+function foamOutlets(D) { if (D <= 24) return 1; if (D <= 36) return 2; if (D <= 42) return 3; if (D <= 48) return 4; if (D <= 54) return 5; if (D <= 60) return 6;
+  return 6 + Math.ceil((Math.PI/4*D*D - Math.PI/4*60*60)/465); }
+function foamHoses(D) { return {n: D <= 19.5 ? 1 : D <= 36 ? 2 : 3, t: D <= 10.5 ? 10 : D <= 28.5 ? 20 : 30, q:189}; }
+function foamPickTank(V, list, pin, nPin) {
+  const fits = (t, n) => Number(t.vol)*n >= V - 1e-9;
+  if (pin) { if (nPin) return {tank:pin, n:nPin, fits:fits(pin, nPin)}; for (let n = 1; n <= 20; n++) if (fits(pin, n)) return {tank:pin, n, fits:true}; return {tank:pin, n:20, fits:false}; }
+  const sorted = list.slice().sort((a, b) => Number(a.vol) - Number(b.vol));
+  for (let n = 1; n <= 20; n++) { const t = sorted.find(x => fits(x, n)); if (t) return {tank:t, n, fits:true}; }
+  return null;
+}
+function calculateFoam(p) {
+  const errors = [], num = v => Number(v), blank = v => v === "" || v == null;
+  const set = foamSettings(p._set), lib = Array.isArray(p._lib) ? p._lib : FOAM_TANKS;
+  const kind = FOAM_KINDS[p.kind] ? p.kind : "spill", fuel = p.fuel === "c1" ? "c1" : "c2", roof = p.roof === "floating" ? "floating" : "fixed";
+  const conc = FOAM_CONC[p.conc] || FOAM_CONC[set.conc] || FOAM_CONC.afff3;
+  const pct = blank(p.pct) ? conc.pct : num(p.pct);
+  if (!(pct > 0 && pct <= 6)) errors.push("Concentrate proportion must be greater than 0 and not more than 6 %.");
+  let A = 0, area = 0, D = null, w = null, aLbl = "";
+  const useArea = !blank(p.area) && num(p.area) > 0;
+  if (kind === "tank") {
+    if (!isPositive(p.D)) errors.push("Tank diameter must be greater than zero."); else D = num(p.D);
+    if (roof === "floating") { w = blank(p.dam) ? 0.6 : num(p.dam); if (!(w > 0) || (D && w >= D/2)) errors.push("Foam dam distance from the shell must be greater than zero and less than half the diameter."); }
+  } else if (!useArea) { if (!isPositive(p.L)) errors.push("Length must be greater than zero (or enter the area)."); if (!isPositive(p.W)) errors.push("Width must be greater than zero (or enter the area)."); }
+  const ded = blank(p.deduct) ? 0 : num(p.deduct);
+  if (!(ded >= 0)) errors.push("Area to deduct must be zero or more.");
+  const def = foamDefaults(kind, fuel, roof, D || 0);
+  const rate = blank(p.rate) ? def.rate : num(p.rate), time = blank(p.time) ? def.time : num(p.time), allow = blank(p.allow) ? def.allow : num(p.allow);
+  if (!(rate > 0)) errors.push("Application rate must be greater than zero.");
+  if (!(time > 0)) errors.push("Discharge time must be greater than zero.");
+  if (!(allow >= 0)) errors.push("Discharge allowance must be zero or more.");
+  const reserve = blank(p.reserve) ? num(set.reserve) : num(p.reserve);
+  if (!(reserve >= 0)) errors.push("Reserve must be zero or more.");
+  if (!errors.length && !lib.length) errors.push(FOAM_TANK_ERR || "The foam tank library is empty — add tanks in Reference Data → Foam Bladder Tanks.");
+  if (errors.length) return calcError(errors);
+
+  // Area foam is applied to
+  if (kind === "tank") {
+    if (roof === "floating") { A = Math.PI/4*(D*D - (D - 2*w)*(D - 2*w)); aLbl = `seal area between the shell and the foam dam (${w} m)`; }
+    else { A = Math.PI/4*D*D; aLbl = "liquid surface"; }
+    area = A;
+  } else {
+    area = useArea ? num(p.area) : num(p.L)*num(p.W);
+    A = Math.max(0, area - ded); aLbl = ded > 0 ? "net area" : "area";
+  }
+  let Ades = A;
+  if (kind === "sprinkler" && !blank(p.desArea)) { const da = num(p.desArea); if (!(da > 0)) return calcError(["Design area must be greater than zero."]); Ades = Math.min(da, A); }
+  if (!(Ades > 0)) return calcError(["The area to protect works out at zero — check the size and the deduction."]);
+  const Q = rate*Ades*(1 + allow/100), Vmain = Q*time;
+  const outlets = kind === "tank" && roof === "fixed" ? foamOutlets(D) : null;
+  const hoseOn = kind === "tank" && p.hoses !== false;
+  const hs = hoseOn ? foamHoses(D) : null;
+  if (hs) { if (!blank(p.hoseN)) hs.n = Math.max(0, Math.round(num(p.hoseN))); if (!blank(p.hoseQ)) hs.q = num(p.hoseQ); if (!blank(p.hoseT)) hs.t = num(p.hoseT); }
+  const Qh = hs ? hs.n*hs.q : 0, Vh = hs ? Qh*hs.t : 0;
+  const Vsol = Vmain + Vh, Vc = Vsol*pct/100, Vres = Vc*reserve/100, Vtot = Vc + Vres;
+  const Qpeak = Q + Qh, Qc = Qpeak*pct/100, Qw = Qpeak*(1 - pct/100), Vw = (Vmain + Vh)*(1 - pct/100);
+  const holds = (p.tankHolds || set.tankHolds) === "both" ? "both" : "primary", Vtank = holds === "both" ? Vtot : Vc;
+  const pin = p.tankKey && p.tankKey !== "auto" ? lib.find(t => t.key === p.tankKey) || null : null;
+  if (p.tankKey && p.tankKey !== "auto" && !pin) return calcError(["The bladder tank chosen is no longer in the tank library (Reference Data) — choose another or set it back to Auto."]);
+  const pick = foamPickTank(Vtank, lib, pin, isPositive(p.tankN) ? Math.round(num(p.tankN)) : null);
+  if (!pick) return calcError([`No bladder tank in the library can hold ${Vtank.toFixed(0)} L — add a larger tank in Reference Data → Foam Bladder Tanks.`]);
+  const okRateMax = !(kind === "tank" && roof === "fixed" && rate > 8.1 + 1e-9);
+  const c = {kind, fuel, roof, conc, pct, area, ded, A, Ades, aLbl, D, w, rate, time, allow, def, Q, Vmain, outlets, hs, Qh, Vh, Vsol, Vc, reserve, Vres, Vtot,
+    Qpeak, Qc, Qw, Vw, holds, Vtank, tank:pick.tank, n:pick.n, okTank:pick.fits, okRateMax, auto:!pin, useArea};
+  const f0 = v => Math.round(v).toLocaleString("en-GB"), f1 = v => v.toFixed(1), f2 = v => v.toFixed(2);
+  const steps = [
+    {s:"Hazard", label:"Hazard", value:FOAM_KINDS[kind] + (kind === "tank" ? ` — ${roof === "floating" ? "open-top floating roof (seal)" : "fixed roof, Type II outlets"}` : "")},
+    ...(kind !== "sprinkler" ? [{label:"Fuel", value:FOAM_FUEL[fuel]}] : []),
+    {label:"Concentrate", value:`${conc.label}${blank(p.pct) ? "" : ` at ${pct} %`}`},
+    {label:"Basis", value:def.src},
+    {s:"Foam solution", label: kind === "tank" ? `${roof === "floating" ? "Seal" : "Liquid surface"} area  [D = ${D} m${roof === "floating" ? `, dam ${w} m` : ""}]` : `Area${useArea ? "" : `  [${num(p.L)} × ${num(p.W)} m]`}${ded ? ` − ${f2(ded)} m²` : ""}`, value:`${f2(A)} m²`},
+    ...(kind === "sprinkler" && Ades < A ? [{label:"Design area", value:`${f2(Ades)} m²`}] : []),
+    {label:`Solution flow  [${rate} L/min·m²${allow ? ` + ${allow} %` : ""}]`, value:`${f0(Q)} L/min (${f2(Q/60)} L/s)`, hl:true, ...(okRateMax ? {} : {flag:"warn"})},
+    {label:`Solution for ${time} min`, value:`${f0(Vmain)} L`},
+    ...(outlets ? [{label:"Foam chambers (Type II outlets)", value:`${outlets} No. at ${f0(Q/outlets)} L/min each`}] : []),
+    ...(hs ? [{label:`Supplementary hose streams  [${hs.n} × ${hs.q} L/min × ${hs.t} min]`, value:`${f0(Vh)} L`}] : []),
+    {label:"Total foam solution", value:`${f0(Vsol)} L`},
+    {s:"Concentrate", label:`Concentrate  [${pct} % of solution]`, value:`${f0(Vc)} L`, hl:true},
+    {label:`Reserve  [${reserve} %]`, value:`${f0(Vres)} L`},
+    {label:"Concentrate on site", value:`${f0(Vtot)} L`, hl:true},
+    {s:"Tank and water", label:`Bladder tank${pin ? " (chosen)" : " (auto)"}  [holds ${holds === "both" ? "primary + reserve" : "primary; reserve in drums or a second tank"}]`, value:`${pick.n} × ${pick.tank.model}`, ...(pick.fits ? {} : {flag:"warn"})},
+    {label:"Water flow at peak", value:`${f2(Qw/60)} L/s (${f0(Qw)} L/min)`, hl:true},
+    {label:"Water quantity", value:`${f1(Vw/1000)} m³`},
+  ];
+  const sizeStr = `${pick.n} × ${pick.tank.vol} L`;
+  const selStr = `Provide ${pick.n} No. ${pick.tank.vol} L bladder tank${pick.n > 1 ? "s" : ""} (${conc.label}) — ${f0(Vc)} L concentrate + ${f0(Vres)} L reserve; foam solution ${f0(Qpeak)} L/min, water ${f2(Qw/60)} L/s`;
+  return {valid:true, foam:c, flowLsPerPump:Qpeak/60, flowTotal:Qpeak/60, designFlow:Qpeak/60, totalH:"—", pwrSel:"—", config:sizeStr, setText:`${pick.n} tank${pick.n > 1 ? "s" : ""}`,
+    set:{duty:pick.n, standby:0, installed:pick.n, sharing:"full"}, connectedKw:0, installedKw:0, velOk:true, pipe:null, dutyPoints:[], steps, selStr};
+}
+function foamItems(meta) {
+  const fo = (meta && meta.foam) || {}, set = foamSettings(fo.set);
+  return (fo.hazards || []).map((h, i) => ({...h, type:"foam", id:"foam-" + h.id, tag:h.tag || `FM-${String(i + 1).padStart(2, "0")}`, name:h.name || `Hazard ${i + 1}`, _set:set, _lib:FOAM_TANKS}));
+}
+function foamTitle(p) { return `Foam System Calculation (${(FOAM_CONC[p && p.conc] || FOAM_CONC[foamSettings(p && p._set).conc] || FOAM_CONC.afff3).label})`; }
+function foamDesignBasis(p) {
+  const r = (() => { try { return calculateFoam(p); } catch (e) { return null; } })(), c = r && r.foam;
+  const nm = (p && p.name) || "The hazard", kind = FOAM_KINDS[p && p.kind] ? p.kind : "spill";
+  const what = kind === "tank" ? `${nm} is protected by ${c && c.roof === "floating" ? "foam on the rim seal of an open-top floating roof" : "Type II foam outlets on a fixed-roof tank"} with supplementary hose streams to NFPA 11.`
+    : kind === "sprinkler" ? `${nm} is protected by a foam-water sprinkler system to NFPA 16.` : `${nm} is protected by low-expansion foam over the spill / bund area to NFPA 11.`;
+  return [
+    what + (c ? ` ${c.conc.label} is applied at ${c.rate} L/min·m² for ${c.time} min.` : ""),
+    `Concentrate = foam solution × ${c ? c.pct : "the"} %; a reserve of ${c ? c.reserve : 100} % of the concentrate is kept on site; water = solution flow × (1 − concentrate %).`,
+    "Rates, times and the bladder tank (Reference Data) to be confirmed against the listed system and supplier datasheet.",
+  ];
+}
+// Short drawing for sheet and tab: bladder tank(s) with volume, and the solution split.
+function foamFigure(c) {
+  const t0 = c.tank, W = 520, H = 150, e = v => sxEsc(String(v));
+  const tx = (x, y, v, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(v)}</text>`;
+  const nd = Math.min(c.n, 4), tw = 46, th = 92, gap = 12, yB = 120, x0 = 70;
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" style="height:118px"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  const lvl = Math.min(1, c.Vtank/Math.max(Number(t0.vol)*c.n, 1));
+  for (let i = 0; i < nd; i++) { const x = x0 + i*(tw + gap), y = yB - th;
+    o += `<rect x="${x}" y="${y}" width="${tw}" height="${th}" rx="${tw/2}" ry="14" fill="#f3f6fa" stroke="#000" stroke-width="1.2"/>`;
+    o += `<rect x="${x + 4}" y="${yB - 4 - (th - 18)*lvl}" width="${tw - 8}" height="${(th - 18)*lvl}" rx="6" fill="#fde7c8"/>`;
+    o += `<line x1="${x + 6}" y1="${yB}" x2="${x + 6}" y2="${yB + 8}" stroke="#000"/><line x1="${x + tw - 6}" y1="${yB}" x2="${x + tw - 6}" y2="${yB + 8}" stroke="#000"/>`; }
+  if (c.n > 4) o += tx(x0 + 4*(tw + gap) + 2, yB - th/2 + 6, `+${c.n - 4}`, {s:16, b:true, f:"#b45309"});
+  o += tx(x0 + (nd*(tw + gap) - gap)/2, yB + 22, `${c.n} No. × ${t0.vol} L bladder tank`, {a:"middle", s:10.5, b:true, f:"#b45309"});
+  const bx = 300; const f0 = v => Math.round(v).toLocaleString("en-GB");
+  [[`${f0(c.Qpeak)} L/min foam solution`, true], [`${(c.Qw/60).toFixed(2)} L/s water`, false], [`${f0(c.Qc)} L/min concentrate (${c.pct} %)`, false], [`${f0(c.Vc)} L + ${f0(c.Vres)} L reserve`, false]]
+    .forEach(([v, b], i) => { o += tx(bx, 34 + i*20, v, {s:b ? 12 : 11, b, f:b ? "#b45309" : "#333"}); });
+  return {svg:o + `</svg>`, w:W, h:H};
+}
+// <FOAM-CORE-END>
 
 
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
@@ -3123,7 +3316,7 @@ const wsIsGas = p => !!p && p.wsService === "gas";
 const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : v/WS_BAR;
-const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
+const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
 const GAS_RD = {propane:1.55, butane:2.07, air:1.0}, GAS_MW = {propane:44.10, butane:58.12};
 const GAS_TYPES = [
   {k:"lpg",   l:"LPG",   long:"Liquefied petroleum gas (propane / butane vapour)", conv:2.40},
@@ -3428,7 +3621,7 @@ function gasFromLegacy(p) {
 // (ref_fixture_unit_codes / ref_fixture_unit_tables) and the fixtures with their loading units from
 // ref_fixtures, so IOP, IPC, UPC, BS EN 806 and national tables all work the same way.
 // <WATER-CORE-BEGIN>
-const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","water","lpg"]);
+const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","foam","water","lpg"]);
 const WS_COUNTRIES = ["UAE","Saudi Arabia (KSA)","Qatar","Oman","Bahrain","Kuwait"];
 const WS_ID = /^[A-Za-z0-9_.\-]+$/;
 const WS_CLASSES = [{k:"main", l:"Main"}, {k:"riser", l:"Riser"}, {k:"branch", l:"Branch"}];
@@ -6500,13 +6693,79 @@ function clNumFmt(r) {
   if (!r.unit) return base;
   return r.unit === "%" ? `${base}"%"` : `${base}" ${String(r.unit).replace(/"/g,"")}"`;
 }
+// ── Sheet display units (v1.87) ───────────────────────────────────────────────
+// Calculations always run in L/s and m (head). The sheets — screen, print, PDF report and Excel — can show flow and
+// pressure in other units. Only rows that are a flow (l/s) or a head / pressure (ids in CL_HEAD_IDS) change; lengths,
+// depths and levels stay in metres. In Excel a converted cell holds formula × factor, and every other formula reads it
+// back as (cell ÷ factor), so the workbook still recalculates in base units. Pressure from head assumes water (1000 kg/m³).
+const SHEET_UNITS = {
+  flow:{lps:{l:"l/s", f:1}, m3h:{l:"m³/h", f:3.6, dp:2}, lpm:{l:"L/min", f:60, dp:1}, gpm:{l:"US gpm", f:15.850323, dp:1}},
+  head:{m:{l:"m", f:1}, bar:{l:"bar", f:0.0980665, dp:2}, kpa:{l:"kPa", f:9.80665, dp:1}, psi:{l:"psi", f:1.4223343, dp:1}},
+};
+const CL_HEAD_IDS = new Set(["Hr","hf","hff","sum","H","Hp","P0","c_P0","Pmin","Ps","mm","Pneed","sucP","othL","Hraw","Hpump","sucL","Hatm","Hvp","NPSHa",
+  "c_Pmin","c_maxF","c_av","c_rq","c_mg","c_ls","c_m","c_pr","c_ps","c_po","c_ph","c_np"]);
+function sheetUnitsOf(proj) { const u = (proj && proj.sheetUnits) || {}; return {flow:SHEET_UNITS.flow[u.flow] ? u.flow : "lps", head:SHEET_UNITS.head[u.head] ? u.head : "m"}; }
+function clApplyUnits(doc, units) {
+  const F = SHEET_UNITS.flow[units.flow], Hd = SHEET_UNITS.head[units.head];
+  if (F.f === 1 && Hd.f === 1) return doc;
+  const conv = x => {
+    if (!x || (x.t && x.t !== "row") || typeof x.value !== "number" || !Number.isFinite(x.value)) return null;
+    if ((x.unit === "l/s" || x.unit === "L/s") && F.f !== 1) return F;
+    if (x.unit === "m" && x.id && CL_HEAD_IDS.has(x.id) && Hd.f !== 1) return Hd;
+    return null;
+  };
+  const byId = {...doc.byId};
+  const rows = doc.rows.map(x => { const u = conv(x); if (!u) return x; const y = {...x, value:x.value*u.f, unit:u.l, dp:u.dp != null ? u.dp : x.dp, cv:u.f, unit0:x.unit}; if (y.id) byId[y.id] = y; return y; });
+  const num = (v, dp) => Number(v).toLocaleString("en-GB", {minimumFractionDigits:dp, maximumFractionDigits:dp});
+  let text = String((doc.banner && doc.banner.text) || "");
+  if (F.f !== 1) text = text.replace(/(\d[\d,]*(?:\.\d+)?)\s*(l\/s|L\/s)/g, (m, v) => `${num(Number(v.replace(/,/g, ""))*F.f, F.dp)} ${F.l}`);
+  if (Hd.f !== 1) text = text.replace(/(@\s*|margin\s+)(\d+(?:\.\d+)?)\s*m\b(\s+Head)?/g, (m, pre, v) => `${pre}${num(Number(v)*Hd.f, Hd.dp)} ${Hd.l}`);
+  return {...doc, rows, byId, banner:doc.banner ? {text, xl:null} : doc.banner, units};
+}
+// Fire sheets (clean agent, foam) have their own units — L/min by default, and a US customary (NFPA) option (v1.88).
+const FIRE_UNITS = {flow:{lpm:{l:"L/min", fLps:60, dp:0}, lps:{l:"l/s", fLps:1, dp:2}, m3h:{l:"m³/h", fLps:3.6, dp:2}, gpm:{l:"US gpm", fLps:15.850323, dp:0}},
+  sys:{si:"Metric (SI)", us:"US customary (NFPA)"}};
+function fireUnitsOf(proj) { const u = (proj && proj.sheetUnitsFire) || {}; return {flow:FIRE_UNITS.flow[u.flow] ? u.flow : "lpm", sys:u.sys === "us" ? "us" : "si"}; }
+function clApplyFireUnits(doc, units) {
+  const Fl = FIRE_UNITS.flow[units.flow], us = units.sys === "us";
+  if (units.flow === "lpm" && !us) return doc;
+  const conv = x => {
+    if (!x || (x.t && x.t !== "row") || typeof x.value !== "number" || !Number.isFinite(x.value)) return null;
+    const u = x.unit, big = Math.abs(x.value) >= 100;
+    if (u === "L/min" && units.flow !== "lpm") return {f:Fl.fLps/60, l:Fl.l, dp:Fl.dp};
+    if ((u === "l/s" || u === "L/s") && units.flow !== "lps") return {f:Fl.fLps, l:Fl.l, dp:Fl.dp};
+    if (!us) return null;
+    if (u === "m") return {f:3.28084, l:"ft", dp:2};
+    if (u === "m²") return {f:10.76391, l:"ft²", dp:1};
+    if (u === "m³") return x.id === "fmVw" ? {f:264.17205, l:"US gal", dp:0} : {f:35.31467, l:"ft³", dp:1};
+    if (u === "L") return {f:0.26417205, l:"US gal", dp:big ? 0 : 1};
+    if (u === "kg") return {f:2.2046226, l:"lb", dp:1};
+    if (u === "°C") return {f:1.8, o:32, l:"°F", dp:1};
+    if (u === "m³/kg") return {f:16.018463, l:"ft³/lb", dp:4};
+    if (u === "L/min·m²") return {f:0.02454239, l:"gpm/ft²", dp:3};
+    return null;
+  };
+  const byId = {...doc.byId};
+  const rows = doc.rows.map(x => { const c = conv(x); if (!c) return x; const y = {...x, value:x.value*c.f + (c.o || 0), unit:c.l, dp:c.dp, cv:c.f, cvo:c.o || 0, unit0:x.unit};
+    if (us && x.id === "caS") y.label = String(x.label) + "  (SI constants, T in °C)";
+    if (y.id) byId[y.id] = y; return y; });
+  const num = (v, dp) => Number(v).toLocaleString("en-GB", {minimumFractionDigits:dp, maximumFractionDigits:dp});
+  const N = "(\\d[\\d,]*(?:\\.\\d+)?)", val = v => Number(String(v).replace(/,/g, ""));
+  let text = String((doc.banner && doc.banner.text) || "");
+  if (units.flow !== "lpm") text = text.replace(new RegExp(N + "\\s*L\\/min", "g"), (m, v) => `${num(val(v)*Fl.fLps/60, Fl.dp)} ${Fl.l}`);
+  if (units.flow !== "lps") text = text.replace(new RegExp(N + "\\s*(?:l|L)\\/s", "g"), (m, v) => `${num(val(v)*Fl.fLps, Fl.dp)} ${Fl.l}`);
+  if (us) text = text.replace(new RegExp(N + "\\s*kg\\b", "g"), (m, v) => `${num(val(v)*2.2046226, 1)} lb`)
+    .replace(new RegExp(N + "\\s*m³", "g"), (m, v) => `${num(val(v)*35.31467, 1)} ft³`)
+    .replace(new RegExp(N + "\\s*L(?![\\/\\w·])", "g"), (m, v) => `${num(val(v)*0.26417205, val(v) >= 100 ? 0 : 1)} US gal`);
+  return {...doc, rows, byId, banner:doc.banner ? {text, xl:null} : doc.banner, units};
+}
 function clFxText(r, byId) {
   if (!r.xl) return "";
-  return "= " + r.xl.replace(/\{(@?#?[\w.]+)\}/g, (m, k) => {
+  return "= " + (r.cv ? "(" : "") + r.xl.replace(/\{(@?#?[\w.]+)\}/g, (m, k) => {
     if (k[0] === "@") return k.slice(1).split(".")[0] + " table";
     if (k[0] === "#") return "row";
     const t = byId[k]; return t ? "[" + String(t.label || k).replace(/\s*\(.*?\)\s*$/, "").replace(/\s+/g," ").trim() + "]" : k;
-  });
+  }) + (r.cv ? `) × ${+r.cv.toFixed(6)}${r.cvo ? ` + ${r.cvo}` : ""}  (${r.unit0} → ${r.unit})` : "");
 }
 
 // One house style for every sheet label: Title Case, single spaces, no trailing colon.
@@ -7112,63 +7371,90 @@ function clPbcRows(B, p, res) {
 
 // ── Clean agent: calculation sheet rows (v1.80.0) ───────────────────────────
 function clCaRows(B, p, res) {
-  const c = res.ca, ag = c.ag, set = c.set, f = v => Math.round(v*1e6)/1e6;
+  // v1.85: trimmed to fit one A4 page — constants sit in the formula, single-space rooms skip the subtotal rows,
+  // the fill range and pounds go into the check lines, and the cylinder drawing is the compact version.
+  const c = res.ca, ag = c.ag, set = c.set, multi = c.spaces.length > 1;
   B.align("l");
-  B.section("1.  Protected Space");
-  B.text(`${p.location ? p.location + " · " : ""}${ag.label} · ${CA_CLASSES[c.cls]}`, {italic:true});
+  B.section(`1.  Protected Space${p.location ? " — " + p.location : ""}  ·  ${ag.short} · Class ${c.cls}`);
   if (c.useArea) B.inp("caA", "Floor area", c.area, {unit:"m²", dp:2});
   else { B.inp("caL", "Room length", c.L, {unit:"m", dp:2}); B.inp("caW", "Room width", c.W, {unit:"m", dp:2}); B.calc("caA", "Floor area  [L x W]", c.area, "{caL}*{caW}", {unit:"m²", dp:2}); }
-  c.spaces.forEach(x => {
-    B.inp("caH_" + x.k, x.k === "room" ? "Room height" : x.l + " depth", x.h, {unit:"m", dp:2});
-    if (x.ded > 0) B.inp("caD_" + x.k, `${x.l} — fixed objects deducted`, x.ded, {unit:"m³", dp:2});
-    B.calc("caV_" + x.k, `${x.l} net volume`, x.V, `{caA}*{caH_${x.k}}` + (x.ded > 0 ? `-{caD_${x.k}}` : ""), {unit:"m³", dp:2});
-  });
-  B.calc("caVt", "Total protected volume (V)", c.Vtot, c.spaces.map(x => `{caV_${x.k}}`).join("+"), {unit:"m³", dp:2, key:true, bold:true});
-  B.gap();
-  B.section("2.  Design Concentration and Agent Properties  (NFPA 2001)");
-  B.text("W = V / s x C / (100 - C) x ACF      s = k1 + k2 x T", {cls:"fx"});
+  const one = !multi && !(c.spaces[0] && c.spaces[0].ded > 0);
+  if (one) { const x = c.spaces[0]; B.inp("caH_" + x.k, x.k === "room" ? "Room height" : x.l + " depth", x.h, {unit:"m", dp:2}); }
+  else c.spaces.forEach(x => B.calc("caV_" + x.k, `${x.l} volume  [${x.h} m ${x.k === "room" ? "high" : "deep"}${x.ded > 0 ? ` − ${x.ded} m³ fixed objects` : ""}]`, x.V, `{caA}*${x.h}` + (x.ded > 0 ? `-${x.ded}` : ""), {unit:"m³", dp:2}));
+  B.calc("caVt", "Total protected volume (V)", c.Vtot, one ? `{caA}*{caH_${c.spaces[0].k}}` : c.spaces.map(x => `{caV_${x.k}}`).join("+"), {unit:"m³", dp:2, key:true, bold:true});
+  B.section("2.  Design Concentration  (NFPA 2001)");
   B.inp("caT", "Minimum design temperature (T)", c.T, {unit:"°C", dp:1});
-  B.inp("caK1", `${ag.short} constant k1`, ag.k1, {unit:"m³/kg", dp:4});
-  B.inp("caK2", `${ag.short} constant k2`, ag.k2, {unit:"m³/kg/°C", dp:7});
-  B.calc("caS", "Specific vapour volume  s = k1 + k2 x T", c.s, "{caK1}+{caK2}*{caT}", {unit:"m³/kg", dp:5});
+  B.calc("caS", `Specific vapour volume  s = ${ag.k1} + ${ag.k2} x T`, c.s, `${ag.k1}+${ag.k2}*{caT}`, {unit:"m³/kg", dp:5});
   if (c.cOv != null) B.inp("caC", "Design concentration (entered by designer)", c.C, {unit:"%", dp:2, key:true});
   else {
-    const needA = c.cls !== "B", needB = c.cls === "B" || set.heptFloor;
-    if (needA) B.inp("caMa", `Minimum extinguishing concentration, Class A (${ag.short})`, c.dc.mecA, {unit:"%", dp:2});
-    if (needB) B.inp("caMb", `Minimum extinguishing concentration, heptane (${ag.short})`, c.dc.mecB, {unit:"%", dp:2});
-    if (c.cls !== "B") B.inp("caSa", "Safety factor, Class A", Number(set.sfA), {dp:2});
-    if (c.cls === "B") B.inp("caSb", "Safety factor, Class B", Number(set.sfB), {dp:2});
-    if (c.cls === "C") B.inp("caSc", "Safety factor, Class C", Number(set.sfC), {dp:2});
-    const cA = set.heptFloor ? "MAX({caMa}*{caSa},{caMb})" : "{caMa}*{caSa}";
-    const xl = c.cls === "A" ? cA : c.cls === "B" ? "{caMb}*{caSb}" : `MAX({caMa}*{caSc},${cA})`;
+    const A = c.dc.mecA, Bh = c.dc.mecB, sfA = Number(set.sfA), sfB = Number(set.sfB), sfC = Number(set.sfC);
+    const cA = Math.max(A*sfA, set.heptFloor ? Bh : 0), cGov = c.cls === "C" && A*sfC < cA - 1e-9;   // Class C governed by Class A?
+    if (c.cls === "B") { B.inp("caMb", `MEC, heptane (${ag.short})`, Bh, {unit:"%", dp:2}); B.inp("caSb", "Safety factor, Class B", sfB, {dp:2}); }
+    else if (c.cls === "C" && !cGov) { B.inp("caMa", `MEC, Class A (${ag.short})`, A, {unit:"%", dp:2}); B.inp("caSc", "Safety factor, Class C", sfC, {dp:2}); }
+    else { B.inp("caMa", `MEC, Class A (${ag.short})`, A, {unit:"%", dp:2}); B.inp("caSa", "Safety factor, Class A", sfA, {dp:2}); if (set.heptFloor) B.inp("caMb", `MEC, heptane (${ag.short}) — Class A minimum`, Bh, {unit:"%", dp:2}); }
+    const xA = set.heptFloor ? "MAX({caMa}*{caSa},{caMb})" : "{caMa}*{caSa}";
+    const xl = c.cls === "B" ? "{caMb}*{caSb}" : c.cls === "C" && !cGov ? "{caMa}*{caSc}" : xA;
     B.calc("caC", `Design concentration (C) — ${c.dc.basis}`, c.C, xl, {unit:"%", dp:2, key:true, bold:true});
   }
-  B.inp("caAcf", `Altitude correction factor (${Number(set.altitude) || 0} m above sea level)`, c.acf, {dp:3});
-  B.gap();
+  const acfOn = Math.abs(c.acf - 1) > 1e-9, ACF = acfOn ? "{caAcf}" : "1";   // at sea level the factor is 1 and the row is left out
+  if (acfOn) B.inp("caAcf", `Altitude correction factor (${Number(set.altitude) || 0} m above sea level)`, c.acf, {dp:3});
   B.section("3.  Agent Quantity");
-  c.spaces.forEach(x => B.calc("caWs_" + x.k, `Agent for ${x.l.toLowerCase()}`, x.W, `{caV_${x.k}}/{caS}*{caC}/(100-{caC})*{caAcf}`, {unit:"kg", dp:2}));
-  B.calc("caWc", "Agent calculated", c.Wcalc, c.spaces.map(x => `{caWs_${x.k}}`).join("+"), {unit:"kg", dp:2});
-  if (c.margin) { B.inp("caMg", "Additional allowance", c.margin, {unit:"%", dp:1}); B.calc("caWr", "Minimum agent required (W)", c.Wreq, "{caWc}*(1+{caMg}/100)", {unit:"kg", dp:2, key:true, bold:true}); }
-  else B.calc("caWr", "Minimum agent required (W)", c.Wreq, "{caWc}", {unit:"kg", dp:2, key:true, bold:true});
-  B.gap();
+  const wSum = `{caVt}/{caS}*{caC}/(100-{caC})*${ACF}`;
+  if (c.margin) { B.inp("caMg", "Additional allowance", c.margin, {unit:"%", dp:1}); B.calc("caWr", "Minimum agent required (W)", c.Wreq, `(${wSum})*(1+{caMg}/100)`, {unit:"kg", dp:2, key:true, bold:true}); }
+  else B.calc("caWr", "Minimum agent required (W)", c.Wreq, wSum, {unit:"kg", dp:2, key:true, bold:true});
   B.section("4.  Cylinders");
-  B.text(`${c.cyl.model} · ${c.cyl.src || ""}`, {italic:true});
-  B.inp("caCv", "Cylinder capacity", Number(c.cyl.vol), {unit:"L", dp:0});
-  B.inp("caFmin", "Minimum fill per cylinder", Number(c.cyl.minFill), {unit:"kg", dp:1});
-  B.inp("caFmax", "Maximum fill per cylinder", Number(c.cyl.maxFill), {unit:"kg", dp:1});
+  B.inp("caCv", `Cylinder capacity — ${c.cyl.model}`, Number(c.cyl.vol), {unit:"L", dp:0});
   B.inp("caN", "Number of cylinders", c.n, {dp:0, key:true});
-  B.calc("caF", "Fill per cylinder  [W / n, rounded up to 0.1 kg]", c.fill, "CEILING({caWr}/{caN}-1E-9,0.1)", {unit:"kg", dp:1, bold:true});
-  B.text(c.okFill ? `Fill is within the cylinder range of ${c.cyl.minFill}–${c.cyl.maxFill} kg ✓` : `Fill is outside the cylinder range of ${c.cyl.minFill}–${c.cyl.maxFill} kg — change the cylinder or the number`, {italic:true, al:"r"});
+  B.calc("caF", `Fill per cylinder  [W / n · range ${c.cyl.minFill} to ${c.cyl.maxFill}${c.okFill ? " ✓" : " — OUTSIDE RANGE"}]`, c.fill, "CEILING({caWr}/{caN}-1E-9,0.1)", {unit:"kg", dp:1, bold:true});
   B.calc("caWsup", "Agent supplied", c.Wsup, "{caF}*{caN}", {unit:"kg", dp:1, key:true, bold:true});
-  B.calc("caLb", "Agent supplied", c.lbs, "{caWsup}*2.20462", {unit:"lb", dp:1});
-  B.calc("caCa", "Concentration achieved", c.Cact, "100*({caWsup}*{caS}/({caVt}*{caAcf}))/(1+{caWsup}*{caS}/({caVt}*{caAcf}))", {unit:"%", dp:2, bold:true});
-  B.text(c.occupied ? (c.okNoael ? `Not above the NOAEL of ${ag.noael} % for a normally occupied space ✓` : `Above the NOAEL of ${ag.noael} % — not acceptable in a normally occupied space`) : "Normally unoccupied space", {italic:true, al:"r"});
-  B.calc("caSz", "Selected Cylinders", `${c.n} No. x ${c.cyl.vol} L — ${c.fill.toFixed(1)} kg each`, 'TEXT({caN},"0")&" No. x "&TEXT({caCv},"0")&" L — "&TEXT({caF},"0.0")&" kg each"', {bold:true, box:true, key:true});
-  B.text(`Cylinder Ø ${c.cyl.dia} mm × ${c.cyl.height} mm high · ${c.cyl.pressure} bar · valve ${c.cyl.valve || "—"}${c.filledWt ? ` · filled weight ${c.filledWt.toFixed(0)} kg each` : ""} · maximum discharge time 10 s`, {italic:true});
-  const fg = caCylFigure(c, p.name || "");
+  B.calc("caCa", c.occupied ? `Concentration achieved  [NOAEL ${ag.noael} %${c.okNoael ? " ✓" : " — exceeded"}]` : "Concentration achieved  [normally unoccupied]", c.Cact, `100*({caWsup}*{caS}/({caVt}*${ACF}))/(1+{caWsup}*{caS}/({caVt}*${ACF}))`, {unit:"%", dp:2, bold:true});
+  const fg = caCylSheetFigure(c);
   B.fig(fg.svg, fg.w, fg.h);
   B.banner = {text: res.selStr,
     xl: '"Provide "&{caN}&" No. "&TEXT({caCv},"0")&" L cylinder"&IF({caN}>1,"s","")&" filled with "&TEXT({caF},"0.0")&" kg ' + ag.short + ' each — "&TEXT({caWsup},"0.0")&" kg total for "&TEXT({caVt},"0.00")&" m³ at "&TEXT({caC},"0.00")&" % design ("&TEXT({caCa},"0.00")&" % achieved)"'};
+}
+
+
+// ── Foam: calculation sheet rows (v1.86.0) — compact, one A4 page ───────────
+function clFoamRows(B, p, res) {
+  const c = res.foam, tank = c.kind === "tank", fl = c.roof === "floating";
+  B.align("l");
+  B.section(`1.  Hazard${p.location ? " — " + p.location : ""}  ·  ${FOAM_KINDS[c.kind]}${tank ? (fl ? " (floating roof seal)" : " (fixed roof)") : ""}`);
+  if (tank) {
+    B.inp("fmD", "Tank diameter (D)", c.D, {unit:"m", dp:2});
+    if (fl) { B.inp("fmW", "Foam dam distance from the shell", c.w, {unit:"m", dp:2}); B.calc("fmA", "Seal area  [PI/4 x (D² - (D - 2w)²)]", c.A, "PI()/4*({fmD}^2-({fmD}-2*{fmW})^2)", {unit:"m²", dp:2, bold:true}); }
+    else B.calc("fmA", "Liquid surface area  [PI/4 x D²]", c.A, "PI()/4*{fmD}^2", {unit:"m²", dp:2, bold:true});
+  } else {
+    const gx = c.useArea ? "{fmAr}" : "{fmL}*{fmWd}";
+    if (c.useArea) B.inp("fmAr", "Area", c.area, {unit:"m²", dp:2});
+    else { B.inp("fmL", "Length", Number(p.L), {unit:"m", dp:2}); B.inp("fmWd", "Width", Number(p.W), {unit:"m", dp:2}); }
+    if (c.ded > 0) B.calc("fmA", `Net area  [${c.useArea ? "area" : "L x W"} - ${c.ded} m² tank footprint / plinths]`, c.A, `MAX(0,${gx}-${c.ded})`, {unit:"m²", dp:2, bold:true});
+    else B.calc("fmA", c.useArea ? "Area protected" : "Area protected  [L x W]", c.A, gx, {unit:"m²", dp:2, bold:true});
+  }
+  const AX = c.kind === "sprinkler" && c.Ades < c.A - 1e-9 ? "{fmAd}" : "{fmA}";
+  if (AX === "{fmAd}") { B.inp("fmDA", "Design area (NFPA 16 — hydraulically most demanding)", Number(p.desArea), {unit:"m²", dp:2}); B.calc("fmAd", "Design area used", c.Ades, "MIN({fmA},{fmDA})", {unit:"m²", dp:2, bold:true}); }
+  B.section(`2.  Foam Solution  ·  ${c.def.src}`);
+  B.inp("fmR", c.kind === "sprinkler" ? "Design density" : "Application rate", c.rate, {unit:"L/min·m²", dp:2});
+  if (c.allow) B.inp("fmO", "Discharge allowance (overage)", c.allow, {unit:"%", dp:1});
+  B.calc("fmQ", c.outlets ? `Foam solution flow  [${c.outlets} foam chamber${c.outlets > 1 ? "s" : ""}, Type II]` : "Foam solution flow", c.Q, `${AX}*{fmR}` + (c.allow ? "*(1+{fmO}/100)" : ""), {unit:"L/min", dp:0, bold:true});
+  B.inp("fmT", "Discharge time", c.time, {unit:"min", dp:0});
+  B.calc("fmVm", "Foam solution  [Q x t]", c.Vmain, "{fmQ}*{fmT}", {unit:"L", dp:0});
+  if (c.hs) {
+    B.calc("fmVh", `Supplementary hose streams  [${c.hs.n} x ${c.hs.q} L/min x ${c.hs.t} min]`, c.Vh, `${c.hs.n}*${c.hs.q}*${c.hs.t}`, {unit:"L", dp:0});
+    B.calc("fmVs", "Total foam solution", c.Vsol, "{fmVm}+{fmVh}", {unit:"L", dp:0, key:true, bold:true});
+  } else B.calc("fmVs", "Total foam solution", c.Vsol, "{fmVm}", {unit:"L", dp:0, key:true, bold:true});
+  B.section(`3.  Concentrate  ·  ${c.conc.label}`);
+  B.inp("fmP", "Proportioning rate", c.pct, {unit:"%", dp:1});
+  B.calc("fmVc", "Concentrate required", c.Vc, "{fmVs}*{fmP}/100", {unit:"L", dp:0, bold:true});
+  B.inp("fmRs", "Reserve", c.reserve, {unit:"%", dp:0});
+  B.calc("fmVt", "Concentrate on site  [required + reserve]", c.Vtot, "{fmVc}*(1+{fmRs}/100)", {unit:"L", dp:0, key:true, bold:true});
+  B.section("4.  Bladder Tank and Water Demand");
+  B.calc("fmTc", `Bladder tank  [${c.n} x ${c.tank.vol} L · holds ${c.holds === "both" ? "concentrate + reserve" : "concentrate; reserve in drums or a second tank"}${c.okTank ? " ✓" : " — TOO SMALL"}]`, Number(c.tank.vol)*c.n, `${c.n}*${c.tank.vol}`, {unit:"L", dp:0, key:true, bold:true});
+  const qPk = c.hs ? `({fmQ}+${c.hs.n}*${c.hs.q})` : "{fmQ}";
+  B.calc("fmQw", "Water flow at peak  [solution x (1 - %)]", c.Qw/60, `${qPk}*(1-{fmP}/100)/60`, {unit:"L/s", dp:2, key:true, bold:true});
+  B.calc("fmVw", "Water quantity", c.Vw/1000, "{fmVs}*(1-{fmP}/100)/1000", {unit:"m³", dp:1});
+  const fg = foamFigure(c); B.fig(fg.svg, fg.w, fg.h);
+  B.banner = {text:res.selStr, xl:'"Provide ' + c.n + ' No. ' + c.tank.vol + ' L bladder tank' + (c.n > 1 ? "s" : "") + ' (' + c.conc.label + ') — "&TEXT({fmVc},"#,##0")&" L concentrate + "&TEXT({fmVt}-{fmVc},"#,##0")&" L reserve; foam solution "&TEXT(' + qPk + ',"#,##0")&" L/min, water "&TEXT({fmQw},"0.00")&" L/s"'};
 }
 
 // ── Water supply pipe sizing (network) ────────────────────────────────────────
@@ -7616,23 +7902,26 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : String(pump.name || typeLbl(pump) || "Calculation");
+  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
-  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
+  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "foam") clFoamRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
   const closure = closureOf(meta);
+  const _doc = (() => {
   return {
     blocked:false, type: pump.type, res, rows:(()=>{ let z = 0; for (const x of B.rows) { if (x.t === "section") z = 0; else if (x.t === "row" || x.t === "text") x.z = (z++ % 2 === 1); } return B.rows; })(), byId:B.byId, tables:B.tables, banner:B.banner,
     header:{project:String(proj.name || "—"), title:title.toUpperCase(), revision:String(proj.revision || "01"), stage:String(stageName || "—"),
       calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
       reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
     appendix:B.appendix,
-    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "foam" ? foamTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
     closure: closure.status === "closed" ? closure : null,
     watermark: closure.status === "closed" ? null : (stageStatusLabel(meta).toUpperCase() === "DRAFT" ? "DRAFT — NOT FOR ISSUE" : "DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
   };
+  })();
+  return pump.type === "ca" || pump.type === "foam" ? clApplyFireUnits(_doc, fireUnitsOf(proj)) : clApplyUnits(_doc, sheetUnitsOf(proj));
 }
 
 // ── Excel writer: live formulas, reference tables beside the sheet ───────────
@@ -7700,14 +7989,16 @@ async function clWriteSheet(wb, ws, doc, proj) {
   if (T.fu) { const n = T.fu.U.length; tr.fu = {U:`$V$${T0}:$V$${T0 + n - 1}`, F:`$W$${T0}:$W$${T0 + n - 1}`}; }
   if (T.ns) { const n = T.ns.list.length; tr.ns = {N:`$Y$${T0}:$Y$${T0 + n - 1}`}; }
   if (T.curve) { const n = T.curve.U.length; tr.curve = {U:`$AA$${T0}:$AA$${T0 + n - 1}`, F:`$AB$${T0}:$AB$${T0 + n - 1}`}; }
+  const cvOf = {}; for (const x of doc.rows) if (x.cv && x.id) cvOf[x.id] = {f:x.cv, o:x.cvo || 0};   // v1.87: converted display units (v1.88: with offset, e.g. °F)
   const resolve = (tpl, rowCtx) => String(tpl).replace(/\{([^}]+)\}/g, (m, k) => {
     if (k[0] === "@") { const [t, c] = k.slice(1).split("."); if (!tr[t] || !tr[t][c]) throw new Error("Unknown table " + k); return tr[t][c]; }
     if (k[0] === "#") return `${rowCtx.cols[k.slice(1)]}${rowCtx.r}`;
     if (k[0] === "~") { const [t, c, ix] = k.slice(1).split("."); if (tfirst[t] === undefined) throw new Error("Unknown table " + t); return `$${c}$${tfirst[t] + (ix === undefined ? rowCtx.idx : Number(ix))}`; }
     if (!(k in rowOf)) throw new Error("Unknown sheet reference " + k);
-    return `$${colOf[k] || "I"}$${rowOf[k]}`;
+    const cf = cvOf[k], ref = `$${colOf[k] || "I"}$${rowOf[k]}`; return cf ? (cf.o ? `((${ref}-${cf.o})/${cf.f})` : `(${ref}/${cf.f})`) : ref;
   });
   const setFormula = (cell, xl, value, rowCtx) => {
+    if (!xl) { cell.value = value == null ? null : value; return; }
     const f = resolve(xl, rowCtx);
     cell.value = (typeof value === "number" && Number.isFinite(value)) || typeof value === "string" ? {formula:f, result:value} : {formula:f};
   };
@@ -7771,7 +8062,7 @@ async function clWriteSheet(wb, ws, doc, proj) {
     if (x.z) for (let c = 1; c <= 9; c++) fill(ws.getCell(rr, c), ZEB);
     ws.getRow(rr).height = String(x.label || "").length > 110 ? 28 : 18;
     const vc = ws.getCell(rr, 9);
-    if (x.xl) setFormula(vc, x.xl, x.value, {r:rr});
+    if (x.xl) setFormula(vc, x.cv ? `(${x.xl})*${x.cv}` + (x.cvo ? `+${x.cvo}` : "") : x.xl, x.value, {r:rr});
     else vc.value = (x.value === null || x.value === undefined || x.value === "") ? null : x.value;
     vc.numFmt = clNumFmt(x);
     vc.font = F({bold: !!(x.bold || x.input || x.key || x.pct)});
@@ -8647,7 +8938,7 @@ function FireScheduleTable({items, density, onOpen}) {
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Room</th><th className="sticky-left">Tag</th><th>Agent</th><th className="ctr">Hazard</th><th>Spaces protected</th><th className="num">Volume (m³)</th><th className="num">Design (%)</th><th className="num">Achieved (%)</th><th className="num">Agent (kg)</th><th className="ctr">Cylinders</th><th className="num">Fill each (kg)</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(row)}</tbody></table></div>;
 }
-function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom}) {
+function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam}) {
   const [disc,setDiscS]=useState(()=>{ try { return localStorage.getItem("mep_sch_disc")==="fire"?"fire":"plumbing"; } catch(e){ return "plumbing"; } });
   const setDisc=v=>{ setDiscS(v); try { localStorage.setItem("mep_sch_disc",v); } catch(e){} };
   const [agentFilter,setAgentFilter]=useState('all');
@@ -8664,9 +8955,13 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0);
   const kpi=(key,cls,label,val)=><button type="button" key={key} className={"sch-kpi "+cls+(statusFilter===key?" on":"")} onClick={()=>key&&setStatusFilter(statusFilter===key&&key!=="all"?"all":key)} disabled={!key} title={key?`Show ${label.toLowerCase()} only`:""}><b>{val}</b><span>{label}</span></button>;
   const nf=[statusFilter,typeFilter,methodFilter].filter(v=>v!=="all").length+(query.trim()?1:0);
-  const fItems=useMemo(()=>caItems.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[caItems]);
-  const fVisible=fItems.filter(item=>{const q=query.trim().toLowerCase(); const ag=(item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent;
-    return (!q||[item.p.name,item.p.tag,item.p.location,(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter);});
+  const caRows=useMemo(()=>caItems.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[caItems]);
+  const fmRows=useMemo(()=>fmIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fmIn]);
+  const fItems=[...caRows,...fmRows];
+  const fMatch=item=>{const q=query.trim().toLowerCase(); const ag=item.p.type==="foam"?"foam":((item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent);
+    return (!q||[item.p.name,item.p.tag,item.p.location,item.p.type==="foam"?"foam "+(FOAM_KINDS[item.p.kind]||""):(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter||(agentFilter==="ca"&&item.p.type==="ca"));};
+  const caVis=caRows.filter(fMatch), fmVis=fmRows.filter(fMatch), fVisible=[...caVis,...fmVis];
+  const fConc=fmRows.reduce((s,x)=>s+(x.result&&x.result.foam?x.result.foam.Vtot:0),0);
   const fCounts=fItems.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
   const fKg=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.Wsup:0),0), fCyl=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.n:0),0);
   const fire=disc==="fire";
@@ -8674,22 +8969,22 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   return <div className={"schedule-review sch2"+(full?" sch-full":"")}>
     <div className="sch-head">
       <div className="sch-title"><b>Equipment Schedule</b><span>{stageName||'Active stage'} · Rev {proj.revision||'—'} · <i className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'}</span></div>
-      <div className="sch-disc no-print" role="tablist" aria-label="Discipline">
-        <button type="button" role="tab" aria-selected={!fire} className={!fire?"on":""} onClick={()=>switchDisc("plumbing")}>Plumbing<em>{items.length}</em></button>
-        <button type="button" role="tab" aria-selected={fire} className={fire?"on fire":"fire"} onClick={()=>switchDisc("fire")}>Fire Protection<em>{fItems.length}</em></button>
-      </div>
       <div className="sch-kpis">
-        {kpi("all","all",fire?"Rooms":"Items",fire?fItems.length:items.length)}
+        {kpi("all","all",fire?"Systems":"Items",fire?fItems.length:items.length)}
         {kpi("pass","pass","Pass",fire?fCounts.pass:counts.pass)}
         {kpi("review","review","Review",fire?fCounts.review:counts.review)}
         {kpi("blocked","blocked","Blocked",fire?fCounts.blocked:counts.blocked)}
-        {fire ? kpi(null,"kw","Agent",`${fKg.toFixed(1)} kg · ${fCyl} cyl`) : kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
+        {fire ? kpi(null,"kw","Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`) : kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
       </div>
     </div>
     <section className="schedule-card">
       <div className="sch-bar no-print">
-        <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder={fire?"Search room, tag, location or agent…":"Search system, tag, pipe or type…"} />
-        {fire ? <select aria-label="Filter by agent" value={agentFilter} onChange={e=>setAgentFilter(e.target.value)}><option value="all">All agents</option>{Object.values(CA_AGENTS).map(a=><option key={a.key} value={a.key}>{a.label}</option>)}</select> : <>
+        <div className="sch-disc cs-disc" role="tablist" aria-label="Discipline">
+          <button type="button" role="tab" aria-selected={!fire} className={!fire?"on":""} onClick={()=>switchDisc("plumbing")}>Plumbing<em>{items.length}</em></button>
+          <button type="button" role="tab" aria-selected={fire} className={fire?"on fire":"fire"} onClick={()=>switchDisc("fire")}>Fire Protection<em>{fItems.length}</em></button>
+        </div>
+        <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder={fire?"Search room, hazard, tag, location or system…":"Search system, tag, pipe or type…"} />
+        {fire ? <select aria-label="Filter by system" value={agentFilter} onChange={e=>setAgentFilter(e.target.value)}><option value="all">All fire systems</option><option value="ca">Clean agent — all</option>{Object.values(CA_AGENTS).map(a=><option key={a.key} value={a.key}>Clean agent — {a.short}</option>)}<option value="foam">Foam</option></select> : <>
         <select aria-label="Filter by equipment type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All types</option><TypeOptions/></select>
         <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select></>}
         {(fire ? (query.trim()||statusFilter!=='all'||agentFilter!=='all') : nf>0) && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');setAgentFilter('all');}}>✕ Clear filters</button>}
@@ -8698,7 +8993,10 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
         <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
       </div>
-      {fire ? <FireScheduleTable items={fVisible} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/> : <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>}
+      {fire ? <div className="sch-fire">
+          {(caRows.length>0||!fmRows.length) && <><div className="sch-sub">Clean agent systems <em>{caVis.length}</em></div><FireScheduleTable items={caVis} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/></>}
+          {fmRows.length>0 && <><div className="sch-sub">Foam systems <em>{fmVis.length}</em></div><FoamScheduleTable items={fmVis} density={density} onOpen={id=>onEditFoam&&onEditFoam(id)}/></>}
+        </div> : <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>}
     </section>
     <PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/>
   </div>;
@@ -8801,6 +9099,7 @@ function defaultDesignBasis(p) {
   if (p && p.type === 'grease') return greaseDesignBasis(p);
   if (p && p.type === 'pbc') return pbcDesignBasis(p);
   if (p && p.type === 'ca') return caDesignBasis(p);
+  if (p && p.type === 'foam') return foamDesignBasis(p);
   if (p && p.type === 'water') return wsIsDrain(p) ? drainDesignBasis(p) : wsIsGas(p) ? gasDesignBasis(p) : waterDesignBasis(p);
   const system = (p && (p.name || typeLbl(p))) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
@@ -8811,6 +9110,7 @@ function defaultDesignBasis(p) {
 }
 function basisOf(proj, meta, p) {
   if (p && p.type === "ca") return caDesignBasis(p);                 // a fire sheet never takes the plumbing stage / project statements
+  if (p && p.type === "foam") return foamDesignBasis(p);
   const stageBasis = Array.isArray(meta?.designBasis) ? meta.designBasis.filter(Boolean) : [];
   const projectBasis = Array.isArray(proj?.designBasis) ? proj.designBasis.filter(Boolean) : [];
   return stageBasis.length ? stageBasis : (projectBasis.length ? projectBasis : defaultDesignBasis(p));
@@ -9350,6 +9650,177 @@ function CaCylindersTab() {
       ]}
     />
   );
+}
+
+
+// ─── FOAM TAB (v1.86.0) ───────────────────────────────────────────────────────
+// Hazards and settings live in the stage meta (meta.foam) and save / lock with the stage. Tanks: Supabase ref_foam_tanks.
+const FOAM_NEW = (set) => ({id:Math.random().toString(36).slice(2, 10), name:"", location:"", kind:"spill", fuel:"c2", roof:"fixed", conc:set.conc,
+  L:"", W:"", area:"", deduct:"", desArea:"", D:"", dam:"", rate:"", time:"", allow:"", pct:"", reserve:"", hoses:true, hoseN:"", hoseQ:"", hoseT:"", tankKey:"auto", tankN:""});
+function FoamTab({meta, setMeta, locked, focus}) {
+  const fo = (meta && meta.foam) || {}, set = foamSettings(fo.set), hz = fo.hazards || [], lib = FOAM_TANKS;
+  const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(false), [showAdv, setShowAdv] = useState(false);
+  useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
+  const upd = fn => { if (locked) return; setMeta(m => { const cur = m.foam || {}; return {...m, foam:fn({...cur, hazards:cur.hazards || [], set:cur.set || {}})}; }); };
+  const setH = (id, patch) => upd(x => ({...x, hazards:x.hazards.map(h => h.id === id ? {...h, ...patch} : h)}));
+  const setSet = patch => upd(x => ({...x, set:{...x.set, ...patch}}));
+  const add = () => { const h = FOAM_NEW(set); upd(x => ({...x, hazards:[...x.hazards, h]})); setSelId(h.id); };
+  const dup = h => { const n = {...h, id:FOAM_NEW(set).id, name:(h.name || "Hazard") + " (copy)"}; upd(x => { const i = x.hazards.findIndex(q => q.id === h.id), a = x.hazards.slice(); a.splice(i + 1, 0, n); return {...x, hazards:a}; }); setSelId(n.id); };
+  const del = h => { if (!window.confirm(`Delete ${h.name || "this hazard"}?`)) return; upd(x => ({...x, hazards:x.hazards.filter(q => q.id !== h.id)})); };
+  const items = useMemo(() => foamItems(meta), [meta]);
+  const results = useMemo(() => items.map(it => safeCalculate(it)), [items]);
+  const h = hz.find(x => x.id === selId) || hz[0] || null, ix = h ? hz.findIndex(x => x.id === h.id) : -1, rs = ix >= 0 ? results[ix] : null, c = rs && rs.foam;
+  const fig = useMemo(() => c ? foamFigure(c) : null, [c]);
+  const tot = results.reduce((a, r) => r && r.foam ? {...a, conc:a.conc + r.foam.Vtot, bad:a.bad + ((r.steps || []).some(s => s.flag) ? 1 : 0)} : {...a, err:a.err + 1}, {conc:0, bad:0, err:0});
+  const f0 = v => Math.round(v).toLocaleString("en-GB"), blank = v => v === "" || v == null;
+  const def = h ? foamDefaults(h.kind, h.fuel === "c1" ? "c1" : "c2", h.roof === "floating" ? "floating" : "fixed", Number(h.D) || 0) : null;
+  const nAdv = h ? ["rate", "time", "allow", "pct", "reserve", "hoseN", "hoseQ", "hoseT"].filter(k => !blank(h[k])).length + (h.tankKey && h.tankKey !== "auto" ? 1 : 0) + (h.hoses === false ? 1 : 0) : 0;
+  return (
+    <div className="ca-tab">
+      <div className="ca-head">
+        <div><h2>Foam Systems</h2><span>Low-expansion foam · NFPA 11 / NFPA 16 · {hz.length} hazard{hz.length === 1 ? "" : "s"} · {f0(tot.conc)} L concentrate on site{tot.bad ? ` · ${tot.bad} to review` : ""}{tot.err ? ` · ${tot.err} with errors` : ""}</span></div>
+        <div className="ca-acts no-print">
+          <button type="button" className={"ca-btn" + (showSet ? " on" : "")} onClick={() => setShowSet(v => !v)} title="Defaults for the whole project">⚙ Design settings</button>
+          <button type="button" className="ca-btn pri" onClick={add} disabled={locked}>+ Add hazard</button>
+        </div>
+      </div>
+      {locked && <div className="ca-note no-print">This stage is signed off — the foam hazards are read only.</div>}
+      {FOAM_TANK_ERR && <div className="ca-note bad no-print">⚠ {FOAM_TANK_ERR}</div>}
+      {showSet && <section className="ca-card no-print">
+        <h4>Design settings <em>project-wide defaults · each hazard can override them under Advanced</em></h4>
+        <div className="ca-grid">
+          <S label="Concentrate for new hazards" value={set.conc} onChange={v => setSet({conc:v})} options={Object.values(FOAM_CONC).map(x => ({value:x.key, label:x.label}))} />
+          <N label="Reserve concentrate" unit="%" value={set.reserve} onChange={v => setSet({reserve:v})} hint="100 % = a full second supply on site" />
+          <Seg label="Bladder tank holds" value={set.tankHolds} onChange={v => setSet({tankHolds:v})} options={[{value:"primary", label:"Concentrate only", title:"Reserve kept in drums or a second tank"}, {value:"both", label:"Concentrate + reserve"}]} />
+        </div>
+      </section>}
+      <section className="ca-card no-print">
+        <h4>Hazards <em>click a hazard to edit it · each hazard is one foam system</em></h4>
+        {!hz.length ? <div className="ca-empty">No foam hazards yet. <button type="button" className="ca-btn pri" onClick={add} disabled={locked}>+ Add the first hazard</button></div> :
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Hazard</th><th>Location</th><th>Type</th><th>Concentrate</th><th className="n">Area m²</th><th className="n">Solution L/min</th><th className="n">Time min</th><th className="n">Conc. + reserve L</th><th>Tank</th><th className="n">Water L/s</th><th/></tr></thead>
+          <tbody>{hz.map((q, i) => { const r = results[i], k = r && r.foam, warn = r && (r.steps || []).some(s => s.flag);
+            return <tr key={q.id} className={(h && h.id === q.id ? "sel " : "") + (r && r.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
+              <td className="n">{i + 1}</td><td><b>{q.name || `Hazard ${i + 1}`}</b></td><td>{q.location || "—"}</td>
+              <td>{FOAM_KINDS[q.kind] || "—"}{q.kind === "tank" ? (q.roof === "floating" ? " · floating" : " · fixed") : ""}</td>
+              <td>{(FOAM_CONC[q.conc] || FOAM_CONC[set.conc]).label}</td>
+              <td className="n">{k ? k.Ades.toFixed(1) : "—"}</td><td className="n">{k ? f0(k.Qpeak) : "—"}</td><td className="n">{k ? k.time : "—"}</td>
+              <td className="n"><b>{k ? f0(k.Vtot) : "—"}</b></td>
+              <td>{k ? `${k.n} × ${k.tank.vol} L` : <span className="ca-errt" title={(r && r.errors || []).join(" ")}>⚠ {(r && r.errors && r.errors[0]) || "error"}</span>}</td>
+              <td className="n">{k ? (k.Qw/60).toFixed(2) : "—"}</td>
+              <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dup(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => del(q)}>✕</button></td>
+            </tr>; })}</tbody></table></div>}
+      </section>
+      {h && <div className="ca-split no-print">
+        <section className="ca-card ca-inputs">
+          <h4>Inputs <em>hazard {ix + 1} of {hz.length}</em></h4>
+          <div className="ca-g2">
+            <T label="Hazard name" value={h.name} onChange={v => setH(h.id, {name:v})} placeholder={`Hazard ${ix + 1}`} />
+            <T label="Location" value={h.location} onChange={v => setH(h.id, {location:v})} placeholder="e.g. Basement 1" />
+          </div>
+          <div className="ca-sub">Hazard type</div>
+          <Seg label="Type" value={h.kind} onChange={v => setH(h.id, {kind:v, rate:"", time:"", allow:""})} options={Object.entries(FOAM_KINDS).map(([k, l]) => ({value:k, label:l}))} />
+          {h.kind === "tank" && <div style={{marginTop:10}}><Seg label="Roof" value={h.roof === "floating" ? "floating" : "fixed"} onChange={v => setH(h.id, {roof:v, rate:"", time:""})} options={[{value:"fixed", label:"Fixed (cone) roof — Type II outlets"}, {value:"floating", label:"Open-top floating roof — seal"}]} /></div>}
+          {h.kind !== "sprinkler" && <div style={{marginTop:10}}><Seg label="Fuel" value={h.fuel === "c1" ? "c1" : "c2"} onChange={v => setH(h.id, {fuel:v, time:""})} options={[{value:"c2", label:"Diesel / fuel oil (flash ≥ 37.8 °C)", title:FOAM_FUEL.c2}, {value:"c1", label:"Petrol / crude (flash < 37.8 °C)", title:FOAM_FUEL.c1}]} /></div>}
+          <div className="ca-sub">Size</div>
+          {h.kind === "tank" ? <div className="ca-g3">
+            <N label="Tank diameter" unit="m" value={h.D} onChange={v => setH(h.id, {D:v})} />
+            {h.roof === "floating" && <N label="Foam dam from shell" unit="m" value={h.dam} onChange={v => setH(h.id, {dam:v})} req={false} hint="Blank = 0.6 m (NFPA 11: 0.3 to 0.6 m)" />}
+          </div> : <div className="ca-g3">
+            <N label="Length" unit="m" value={h.L} onChange={v => setH(h.id, {L:v})} req={blank(h.area)} />
+            <N label="Width" unit="m" value={h.W} onChange={v => setH(h.id, {W:v})} req={blank(h.area)} />
+            <N label="Or area" unit="m²" value={h.area} onChange={v => setH(h.id, {area:v})} req={false} hint="Replaces L × W" />
+            <N label="Area to deduct" unit="m²" value={h.deduct} onChange={v => setH(h.id, {deduct:v})} req={false} hint="Tank footprint or plinths inside the bund" />
+            {h.kind === "sprinkler" && <N label="Design area" unit="m²" value={h.desArea} onChange={v => setH(h.id, {desArea:v})} req={false} hint="Blank = whole area; NFPA 16 uses the most demanding area" />}
+          </div>}
+          <div className="ca-sub">Concentrate</div>
+          <S label="Foam concentrate" value={h.conc || set.conc} onChange={v => setH(h.id, {conc:v, pct:""})} options={Object.values(FOAM_CONC).map(x => ({value:x.key, label:x.label}))} />
+          <button type="button" className="ca-adv" onClick={() => setShowAdv(v => !v)}>{showAdv ? "▾" : "▸"} Advanced for this hazard <em>{nAdv ? `${nAdv} override${nAdv === 1 ? "" : "s"} set` : "rate, time, proportioning, reserve, hose streams, tank"}</em></button>
+          {showAdv && def && <>
+            <div className="ca-g3" style={{marginTop:8}}>
+              <N label={h.kind === "sprinkler" ? "Density" : "Application rate"} unit="L/min·m²" value={h.rate} onChange={v => setH(h.id, {rate:v})} req={false} hint={`Blank = ${def.rate}`} />
+              <N label="Discharge time" unit="min" value={h.time} onChange={v => setH(h.id, {time:v})} req={false} hint={`Blank = ${def.time}`} />
+              <N label="Discharge allowance" unit="%" value={h.allow} onChange={v => setH(h.id, {allow:v})} req={false} hint={`Blank = ${def.allow} %`} />
+              <N label="Proportioning" unit="%" value={h.pct} onChange={v => setH(h.id, {pct:v})} req={false} hint={`Blank = ${(FOAM_CONC[h.conc] || FOAM_CONC[set.conc]).pct} %`} />
+              <N label="Reserve" unit="%" value={h.reserve} onChange={v => setH(h.id, {reserve:v})} req={false} hint={`Blank = ${set.reserve} % from Design settings`} />
+            </div>
+            {h.kind === "tank" && <>
+              <label className="ca-chk"><input type="checkbox" checked={h.hoses !== false} disabled={locked} onChange={e => setH(h.id, {hoses:e.target.checked})} /> Supplementary hose streams (NFPA 11)</label>
+              {h.hoses !== false && <div className="ca-g3" style={{marginTop:6}}>
+                <N label="Hose streams" value={h.hoseN} onChange={v => setH(h.id, {hoseN:v})} req={false} hint="Blank = by tank diameter" />
+                <N label="Flow each" unit="L/min" value={h.hoseQ} onChange={v => setH(h.id, {hoseQ:v})} req={false} hint="Blank = 189 L/min (50 gpm)" />
+                <N label="Operating time" unit="min" value={h.hoseT} onChange={v => setH(h.id, {hoseT:v})} req={false} hint="Blank = by tank diameter" />
+              </div>}
+            </>}
+            <div className="ca-g2" style={{marginTop:8}}>
+              <S label="Bladder tank" value={h.tankKey || "auto"} onChange={v => setH(h.id, {tankKey:v, tankN:""})} options={[{value:"auto", label:"Auto — fewest, then smallest"}, ...(h.tankKey && h.tankKey !== "auto" && !lib.some(t => t.key === h.tankKey) ? [{value:h.tankKey, label:`⚠ ${h.tankKey} — not in Reference Data`}] : []), ...lib.map(t => ({value:t.key, label:t.model}))]} />
+              {h.tankKey && h.tankKey !== "auto" && <N label="Number of tanks" value={h.tankN} onChange={v => setH(h.id, {tankN:v})} req={false} hint="Blank = fewest that hold the concentrate" />}
+            </div>
+            <div className="ca-advn">Blank = default: {def.rate} L/min·m² · {def.time} min · allowance {def.allow} % · {(FOAM_CONC[h.conc] || FOAM_CONC[set.conc]).pct} % proportioning · reserve {set.reserve} %{h.kind === "tank" && h.hoses !== false && Number(h.D) > 0 ? (() => { const hs0 = foamHoses(Number(h.D)); return ` · hoses ${hs0.n} × ${hs0.q} L/min × ${hs0.t} min`; })() : ""}. Tanks come from Reference Data → Foam Bladder Tanks.</div>
+          </>}
+        </section>
+        <section className="ca-card ca-design">
+          <h4>Design <em>{FOAM_KINDS[h.kind]} · {(FOAM_CONC[h.conc] || FOAM_CONC[set.conc]).label}</em></h4>
+          {c ? <>
+            <div className="ca-kpis">
+              <div className="hl"><span>Foam solution</span><b>{f0(c.Qpeak)} L/min</b><i>{c.hs ? `${f0(c.Q)} + ${f0(c.Qh)} hoses` : `${f0(c.Vsol)} L in total`}</i></div>
+              <div><span>Concentrate</span><b>{f0(c.Vtot)} L</b><i>{f0(c.Vc)} L + {f0(c.Vres)} L reserve</i></div>
+              <div className={c.okTank ? "" : "bad"}><span>Bladder tank</span><b>{c.n} × {c.tank.vol} L</b><i>{c.tank.orient || ""}</i></div>
+              <div><span>Water</span><b>{(c.Qw/60).toFixed(2)} L/s</b><i>{(c.Vw/1000).toFixed(1)} m³</i></div>
+            </div>
+            <div className="sump-fig ca-fig" dangerouslySetInnerHTML={{__html:fig.svg}} />
+            <div className="ca-cylsrc">{c.tank.src}</div>
+            <div className="ca-steps">{rs.steps.map((st, i) => <React.Fragment key={i}>{st.s && <div className="ca-sh">{st.s}</div>}<div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div></React.Fragment>)}</div>
+          </> : <div className="ca-errbox">{(rs && rs.errors || ["Calculation could not be produced."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+        </section>
+      </div>}
+    </div>
+  );
+}
+function FoamTanksTab() {
+  return (
+    <RefTableTab
+      title="Foam Bladder Tanks"
+      note="Bladder tanks the Foam tab chooses from. Volume is the concentrate capacity; length is the height of a vertical tank or the length of a horizontal one. The key is stored on each hazard that pins a tank, so do not change it once used — set Active off instead of deleting."
+      tableName="ref_foam_tanks"
+      conflictKey="tank_key"
+      disableKeyFor="tank_key"
+      numericKeys={["volume_l","dia_mm","length_mm","empty_wt_kg","pressure_bar"]}
+      transformIn={r => { const {id, updated_at, updated_by, ...rest} = r; return rest; }}
+      newRowTemplate={{tank_key:"", model:"", volume_l:"", orientation:"vertical", dia_mm:"", length_mm:"", empty_wt_kg:"", pressure_bar:12, source:"", notes:"", active:true}}
+      pasteKeys={["tank_key","model","volume_l","orientation","dia_mm","length_mm","empty_wt_kg","pressure_bar","source"]}
+      columns={[
+        {key:"tank_key", label:"Key", width:"0.8fr"},
+        {key:"model", label:"Model", width:"1.7fr"},
+        {key:"volume_l", label:"Vol L", type:"number", width:"0.55fr"},
+        {key:"orientation", label:"Orientation", width:"0.8fr", options:["vertical","horizontal"]},
+        {key:"dia_mm", label:"Ø mm", type:"number", width:"0.5fr"},
+        {key:"length_mm", label:"H / L mm", type:"number", width:"0.6fr"},
+        {key:"empty_wt_kg", label:"Empty kg", type:"number", width:"0.55fr"},
+        {key:"pressure_bar", label:"bar", type:"number", width:"0.4fr"},
+        {key:"source", label:"Source", width:"1.4fr"},
+        {key:"active", label:"Active", type:"checkbox", width:"0.4fr"},
+      ]}
+    />
+  );
+}
+// v1.86: Fire Protection schedule — foam hazards
+function FoamScheduleTable({items, density, onOpen}) {
+  if (!items.length) return <div className="empty-schedule">No foam hazards match — add them in the Foam tab.</div>;
+  const f0 = v => Math.round(v).toLocaleString("en-GB");
+  return <div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
+    <colgroup><col style={{width:48}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"15%"}}/><col style={{width:"13%"}}/><col style={{width:90}}/><col style={{width:100}}/><col style={{width:70}}/><col style={{width:110}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
+    <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Hazard</th><th className="sticky-left">Tag</th><th>Type</th><th>Concentrate</th><th className="num">Area (m²)</th><th className="num">Solution (L/min)</th><th className="num">Time (min)</th><th className="num">Conc. + reserve (L)</th><th className="ctr">Bladder tank</th><th className="num">Water (L/s)</th><th className="sticky-right ctr">State</th></tr></thead>
+    <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.foam;
+      return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
+        <td className="row-no sticky-left">{index + 1}</td>
+        <td className="system sticky-left" title={p.name}><div className="system-main">{p.name}</div><div className="system-sub">{p.location || "—"}</div></td>
+        <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
+        <td>{FOAM_KINDS[p.kind] || "—"}</td><td>{c ? c.conc.label : "—"}</td>
+        <td className="num">{c ? c.Ades.toFixed(1) : "—"}</td><td className="num strong">{c ? f0(c.Qpeak) : "—"}</td><td className="num">{c ? c.time : "—"}</td>
+        <td className="num strong">{c ? f0(c.Vtot) : "—"}</td><td className="ctr">{c ? `${c.n} × ${c.tank.vol} L` : "—"}</td><td className="num">{c ? (c.Qw/60).toFixed(2) : "—"}</td>
+        <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
+      </tr>; })}</tbody></table></div>;
 }
 
 // ─── GREASE INTERCEPTOR FORM ──────────────────────────────────────────────────
@@ -13392,14 +13863,14 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
 // Calculation Sheets list groups (on screen only — the printed pack and its numbering are unchanged)
-const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
+const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["foam","Foam Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
 function calcPickGroups(pumps) {
   const by = {}; (pumps || []).forEach((p, i) => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : (RPT_GROUP[p.type] || "circ"); (by[k] = by[k] || []).push({p, i}); });
   return CALC_PICK_GROUPS.filter(([k]) => by[k]).map(([k, l]) => ({k, l, items:by[k]}));
 }
-const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", water:"ws", lpg:"lpg"};
+const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", foam:"foam", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
-  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION"};
+  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", foam:"FOAM SYSTEM CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION"};
 function rptGroups(sel, names) {
   const out = [];
   sel.forEach(p => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : RPT_GROUP[p.type] || "circ"; let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k], items:[]}; out.push(g); } g.items.push(p); });
@@ -13471,7 +13942,7 @@ function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, j
 function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
   const ref = useRef(null);
   const sel = cfg.ids.map(id => pumps.find(p => p.id === id)).filter(Boolean), groups = rptGroups(sel, cfg.names);
-  const caSel = sel.filter(p => p.type === "ca"), eqSel = rptExpand(sel.filter(p => p.type !== "ca"));
+  const caSel = sel.filter(p => p.type === "ca"), fmSel = sel.filter(p => p.type === "foam"), eqSel = rptExpand(sel.filter(p => p.type !== "ca" && p.type !== "foam"));
   const draft = closureOf(meta).status !== "closed", foot = cfg.ref || cfg.title;
   useEffect(() => {
     const old = document.getElementById("rpt-page-css"); if (old) old.remove();
@@ -13499,7 +13970,7 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
         <div className="rpt-cv-title">{cfg.title}</div>
         {cfg.stageLine && <div className="rpt-cv-title">{cfg.stageLine}</div>}
         <div className="rpt-cv-meta">{proj.client && <div><span>CLIENT: </span>{proj.client}</div>}<div><span>REVISION: </span>{meta.revision || "01"}{meta.date ? <> · <span>DATE: </span>{rptDate(meta.date, ".")}</> : null}</div>
-          <div><span>CONTENTS: </span>{(() => { const n = sel.filter(p => p.type === "ca").length, m = sel.length - n; return [m ? `${m} calculation${m === 1 ? "" : "s"}` : "", n ? `${n} clean agent system${n === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · "); })()}</div></div>
+          <div><span>CONTENTS: </span>{(() => { const n = sel.filter(p => p.type === "ca").length, m = sel.length - n; const f = sel.filter(p => p.type === "foam").length, m2 = m - f; return [m2 ? `${m2} calculation${m2 === 1 ? "" : "s"}` : "", n ? `${n} clean agent system${n === 1 ? "" : "s"}` : "", f ? `${f} foam system${f === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · "); })()}</div></div>
         <div className="rpt-cv-ref"><span>REFERENCE: </span>{cfg.ref || "—"}</div>
       </div>
       {draft && <div className="rpt-cv-draft">DRAFT — NOT FOR ISSUE · {stageStatusLabel(meta).toUpperCase()}</div>}
@@ -13520,7 +13991,7 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
       {wm}{head}
       <h1 className="rpt-toc-h">Table Of Contents</h1>
       <table className="rpt-toc"><thead><tr><th style={{width:"12%"}}>SN</th><th>DESCRIPTION</th></tr></thead>
-        <tbody>{eqSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>}{caSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-ca-sched">—</a></td><td><a href="#rpt-ca-sched">CLEAN AGENT SYSTEM SCHEDULE</a></td></tr>}{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || typeLbl(p) || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
+        <tbody>{eqSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>}{caSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-ca-sched">—</a></td><td><a href="#rpt-ca-sched">CLEAN AGENT SYSTEM SCHEDULE</a></td></tr>}{fmSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-fm-sched">—</a></td><td><a href="#rpt-fm-sched">FOAM SYSTEM SCHEDULE</a></td></tr>}{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || typeLbl(p) || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
     </section>
     {caSel.length > 0 && <section className="rpt-pg" id="rpt-ca-sched">
       {wm}{head}
@@ -13530,6 +14001,15 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
           return <tr key={p.id}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name}{p.location ? <span style={{color:"#595959"}}> · {p.location}</span> : null}</td><td>{c ? c.ag.short : "—"}</td><td style={{textAlign:"center"}}>{c ? c.cls : "—"}</td>
             <td style={{textAlign:"right"}}>{c ? c.Vtot.toFixed(2) : "—"}</td><td style={{textAlign:"right"}}>{c ? c.C.toFixed(2) : "—"}</td><td style={{textAlign:"right"}}>{c ? c.Wsup.toFixed(1) : "BLOCKED"}</td><td style={{textAlign:"center"}}>{c ? `${c.n} × ${c.cyl.vol} L @ ${c.fill.toFixed(1)} kg` : "—"}</td></tr>; })}</tbody></table>
       <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Total flooding to NFPA 2001. Design = design concentration; agent = mass supplied (fill per cylinder × number of cylinders).</p>
+    </section>}
+    {fmSel.length > 0 && <section className="rpt-pg" id="rpt-fm-sched">
+      {wm}{head}
+      <h1 className="rpt-toc-h">Foam System Schedule</h1>
+      <table className="rpt-tb rpt-sch"><thead><tr><th style={{width:"5%"}}>SN</th><th style={{width:"9%"}}>Tag</th><th>Hazard</th><th style={{width:"15%"}}>Type</th><th style={{width:"12%"}}>Concentrate</th><th style={{width:"9%"}}>Area (m²)</th><th style={{width:"10%"}}>Solution (L/min)</th><th style={{width:"11%"}}>Conc. + reserve (L)</th><th style={{width:"11%"}}>Bladder tank</th><th style={{width:"8%"}}>Water (L/s)</th></tr></thead>
+        <tbody>{fmSel.map((p, i) => { const r = safeCalculate(p), c = r && r.foam, f0 = v => Math.round(v).toLocaleString("en-GB");
+          return <tr key={p.id}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name}{p.location ? <span style={{color:"#595959"}}> · {p.location}</span> : null}</td><td>{FOAM_KINDS[p.kind] || "—"}</td><td>{c ? c.conc.label : "—"}</td>
+            <td style={{textAlign:"right"}}>{c ? c.Ades.toFixed(1) : "—"}</td><td style={{textAlign:"right"}}>{c ? f0(c.Qpeak) : "—"}</td><td style={{textAlign:"right"}}>{c ? f0(c.Vtot) : "BLOCKED"}</td><td style={{textAlign:"center"}}>{c ? `${c.n} × ${c.tank.vol} L` : "—"}</td><td style={{textAlign:"right"}}>{c ? (c.Qw/60).toFixed(2) : "—"}</td></tr>; })}</tbody></table>
+      <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Low-expansion foam to NFPA 11 / NFPA 16. Concentrate includes the reserve; water is the peak demand at the proportioning rate.</p>
     </section>}
     {eqSel.length > 0 && <section className="rpt-pg" id="rpt-sched">
       {wm}{head}
@@ -13559,7 +14039,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [editId, setEditId]   = useState(null);
   const [pumpQuery, setPumpQuery] = useState("");
   const [printPick, setPrintPick] = useState(null);
-  const [caFocus, setCaFocus] = useState(null);   // v1.84: room to open in the Clean Agent tab (from the Fire Protection schedule)
+  const [caFocus, setCaFocus] = useState(null);
+  const [foamFocus, setFoamFocus] = useState(null);   // v1.86: hazard to open in the Foam tab   // v1.84: room to open in the Clean Agent tab (from the Fire Protection schedule)
   // v1.73: the Calculation Sheets list is grouped by kind — a filter and collapsible groups (remembered in this browser)
   const [pickFilter, setPickFilter] = useState("all");
   const [pickClosed, setPickClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_pick_closed") || "{}"); } catch (e) { return {}; } });
@@ -13573,7 +14054,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   // Fire (clean agent rooms from the Clean Agent tab) — or both together.
   const [sheetDisc, setSheetDiscS] = useState(() => { try { const v = localStorage.getItem("mep_sheet_disc"); return v === "fire" ? v : "plumbing"; } catch (e) { return "plumbing"; } });
   const setSheetDisc = v => { try { localStorage.setItem("mep_sheet_disc", v); } catch (e) {} setSheetDiscS(v); };
-  const pickList = sheetDisc === "fire" ? caRoomItems(meta) : sheetDisc === "all" ? [...pumps, ...caRoomItems(meta)] : pumps;
+  const pickList = sheetDisc === "fire" ? [...caRoomItems(meta), ...foamItems(meta)] : pumps;
   const pickIds = pickList.map(p => p.id).join("|");
   React.useEffect(() => {
     // Keep a valid selection: first load, after a pump is deleted, and when the discipline changes.
@@ -14000,7 +14481,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const closureSnapshot = closure.snapshot || null;
   const issueProject = closureSnapshot?.project ? {...proj,...closureSnapshot.project} : proj;
   const issueMeta = closureSnapshot?.meta_before_closure ? {...meta,...closureSnapshot.meta_before_closure,closure:meta.closure} : meta;
-  const caIssueItems = caRoomItems(issueMeta);
+  const caIssueItems = [...caRoomItems(issueMeta), ...foamItems(issueMeta)];   // Fire discipline: clean agent rooms + foam hazards
   const sheetItems = sheetDisc === "fire" ? caIssueItems : sheetDisc === "all" ? [...pumps, ...caIssueItems] : pumps;
   const discLbl = sheetDisc === "fire" ? "Fire" : sheetDisc === "plumbing" ? "Plumbing" : "";
   const issueStageName = closureSnapshot?.stage_name || currentStage?.stage_name;
@@ -14134,7 +14615,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 4. Workspace ── */}
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
-              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["agent","❄","Clean Agent"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
+              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["agent","❄","Clean Agent"],["foam","◍","Foam"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="foam"&&<span className="pill">{((meta.foam||{}).hazards||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
               <a href="spec.html" className="sbx-applink" style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",fontSize:12,fontWeight:600,color:"#424245",textDecoration:"none",borderTop:"1px dashed #e5e5ea",marginTop:4}}><span className="ic" style={{width:18,textAlign:"center"}}>§</span><span className="tx" style={{flex:1}}>Specifications</span><span className="pill">↗</span></a>
             </nav>
             {(meta.trash||[]).length>0 && <details className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
@@ -14151,7 +14632,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {tab==="print" && <>
               <div className="sbx-label">Export</div>
               <div className="sbx-disc" role="tablist" aria-label="Discipline">
-                {[["plumbing","Plumbing",pumps.length],["fire","Fire",caIssueItems.length]].map(([k,l,n])=><button key={k} type="button" className={sheetDisc===k?"on":""} onClick={()=>setSheetDisc(k)}>{l}<em>{n}</em></button>)}
+                {[["plumbing","Plumbing",pumps.length],["fire","Fire",caIssueItems.length]].map(([k,l,n])=><button key={k} type="button" className={(sheetDisc===k?"on ":"")+(k==="fire"?"fire":"")} onClick={()=>setSheetDisc(k)}>{l}<em>{n}</em></button>)}
               </div>
               <div className="sbx-export">
                 <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
@@ -14183,7 +14664,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -14313,9 +14794,11 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             onBack={()=>setTab("pumps")} />
         )}
         {tab==="agent" && <CleanAgentTab meta={meta} setMeta={setMeta} locked={stageLocked} proj={projForDisplay} stageName={issueStageName} focus={caFocus} />}
+        {tab==="foam" && <FoamTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={foamFocus} />}
         {tab==="schedule" && (
           <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus}
             caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
+            foamItems={foamItems(meta)} onEditFoam={id=>{ setFoamFocus({id:String(id).replace(/^foam-/,""), t:Date.now()}); setTab("foam"); }}
             onEditPump={id=>{if(stageLocked) return; const t=pumps.find(x=>x.id===id); setEditId(id); if(t&&t.type==="water"){setPipeId(id);setTab("pipe");} else setTab("pumps");}}
             onOpenCalculationSheet={()=>setTab("print")} />
         )}
@@ -14330,8 +14813,21 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
             <div className="cs-bar no-print">
+              <div className="sch-disc cs-disc" role="tablist" aria-label="Discipline">
+                <button type="button" role="tab" aria-selected={sheetDisc!=="fire"} className={sheetDisc!=="fire"?"on":""} onClick={()=>setSheetDisc("plumbing")}>Plumbing<em>{pumps.length}</em></button>
+                <button type="button" role="tab" aria-selected={sheetDisc==="fire"} className={sheetDisc==="fire"?"on fire":"fire"} onClick={()=>setSheetDisc("fire")}>Fire Protection<em>{caIssueItems.length}</em></button>
+              </div>
               {staleWater.length>0 && <span className="pz-stale-inline">⚠ {staleWater.length} Pipe Sizing calculation{staleWater.length===1?"":"s"} changed since last calculated — <button type="button" onClick={calcAll}>Calculate</button></span>}
               <label className="cs-chk"><input type="checkbox" checked={showFx} onChange={e=>setShowFx(e.target.checked)}/> Show formulas</label>
+              {sheetDisc === "fire" ? (() => { const fu = fireUnitsOf(proj), setF = (k, v) => { if (stageLocked) return; setProj(x => ({...x, sheetUnitsFire:{...fireUnitsOf(x), [k]:v}})); };
+                return <span className="cs-units" title={"Units on the fire sheets (clean agent, foam) — screen, print, PDF and Excel. Calculations still run in SI." + (stageLocked ? " This stage is locked — reopen it to change the units." : "")}>
+                  <label>Flow<select value={fu.flow} disabled={stageLocked} onChange={e => setF("flow", e.target.value)}>{Object.entries(FIRE_UNITS.flow).map(([k, u]) => <option key={k} value={k}>{u.l}</option>)}</select></label>
+                  <label>Units<select value={fu.sys} disabled={stageLocked} onChange={e => setF("sys", e.target.value)}>{Object.entries(FIRE_UNITS.sys).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
+                </span>; })() : (() => { const su = sheetUnitsOf(proj), setU = (k, v) => { if (stageLocked) return; setProj(x => ({...x, sheetUnits:{...sheetUnitsOf(x), [k]:v}})); };
+                return <span className="cs-units" title={"Units on every calculation sheet — screen, print, PDF and Excel. Calculations still run in L/s and m; pressure from head assumes water (1000 kg/m³)." + (stageLocked ? " This stage is locked — reopen it to change the units." : "")}>
+                  <label>Flow<select value={su.flow} disabled={stageLocked} onChange={e => setU("flow", e.target.value)}>{Object.entries(SHEET_UNITS.flow).map(([k, u]) => <option key={k} value={k}>{u.l}</option>)}</select></label>
+                  <label>Pressure<select value={su.head} disabled={stageLocked} onChange={e => setU("head", e.target.value)}>{Object.entries(SHEET_UNITS.head).map(([k, u]) => <option key={k} value={k}>{k === "m" ? "m (head)" : u.l}</option>)}</select></label>
+                </span>; })()}
               <span className="cs-key">Bold values are inputs and key results · the Excel export keeps every formula live</span>
             </div>
             {sheetDisc==="plumbing" && pumps.some(q=>q.type==="water") && <details className="wsp-wrap no-print"><summary>Water supply print content — what the printed / PDF sheet shows</summary>
@@ -14383,7 +14879,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             </div>
             {!sheetItems.length && (
               <div style={{background:"white",borderRadius:12,border:"1px solid #d2d2d7",padding:40,textAlign:"center",color:"#86868b",fontSize:13}}>
-                {sheetDisc === "fire" ? "No clean agent rooms in this stage yet — add them in the Clean Agent tab." : "No calculations in this stage yet."}
+                {sheetDisc === "fire" ? "No fire calculations in this stage yet — add rooms in the Clean Agent tab or hazards in the Foam tab." : "No calculations in this stage yet."}
               </div>
             )}
           </div>
@@ -14787,7 +15283,7 @@ function RefDataEditor({onBack}) {
   const [tab, setTab] = useState("materials");
   const tabs = [
     ["materials","Pipe Materials"], ["sizes","Pipe Sizes"], ["motors","Motor kW"],
-    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"], ["cacyl","Clean Agent Cylinders"],
+    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"], ["cacyl","Clean Agent Cylinders"], ["foamtank","Foam Bladder Tanks"],
   ];
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
@@ -14816,6 +15312,7 @@ function RefDataEditor({onBack}) {
           {tab==="fluids" && <FluidsTab/>}
           {tab==="drain" && <DrainageRefTab/>}
           {tab==="cacyl" && <CaCylindersTab/>}
+          {tab==="foamtank" && <FoamTanksTab/>}
         </div>
       </div>
     </div>
@@ -15167,7 +15664,7 @@ ReactDOM.createRoot(document.getElementById("root")).render(<RootApp />);
   function putCached(key,code){ withDB(function(db){ if(!db) return; try{ var st=db.transaction("c","readwrite").objectStore("c"); st.clear(); st.put(code,key); }catch(e){} }); }
   function compileAndRun(SRC,KEY){
     var m=document.getElementById("boot-msg"); if(m){ m.innerHTML="Starting… preparing the app for the first time. A few seconds now, instant every time after."; }
-    function go(){ try{ var out=Babel.transform(SRC,{presets:["react"],compact:true}).code; try{ putCached(KEY,out); }catch(e){} runScript(out); }catch(e){ fail("Could not compile the app: "+e.message); } }
+    function go(){ window.__mepCompiling=true; setTimeout(function(){ try{ var out=Babel.transform(SRC,{presets:["react"],compact:true}).code; window.__mepCompiling=false; window.__mepCompiledAt=Date.now(); try{ putCached(KEY,out); }catch(e){} runScript(out); }catch(e){ window.__mepCompiling=false; fail("Could not compile the app: "+e.message); } }, 30); }
     if(window.Babel) return go();
     var s=document.createElement("script"); s.src=BABEL_URL; s.onload=go; s.onerror=function(){ fail("Could not load the one-time compiler from the internet."); }; document.head.appendChild(s);
   }
