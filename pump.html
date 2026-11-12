@@ -9,6 +9,7 @@
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" crossorigin></script>
+<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js"></script>
 <script src="mep-core.js"></script>
 <style>
   :root { --rp-bg:#f5f5f7; --rp-surface:#fff; --rp-border:#d2d2d7; --rp-text:#1d1d1f; --rp-muted:#86868b; --rp-accent:#007aff; --rp-accent-soft:#e8f0fe; --rp-danger:#ff3b30; --rp-radius:10px; --rp-radius-large:14px; }
@@ -217,6 +218,82 @@
   .calcsplit-pane{min-width:0}
   .ppreview{position:relative;overflow:hidden;overflow:clip;width:100%}
   .ppreview-page{position:absolute;top:0;left:0;transform-origin:top left}
+
+  /* ── Clean agent tab (v1.80.0) ── */
+  .ca-tab{display:flex;flex-direction:column;gap:14px}
+  .ca-head{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;flex-wrap:wrap}
+  .ca-head h2{margin:0;font-size:20px;font-weight:800;color:#1d1d1f}.ca-head span{font-size:12px;color:#6e6e73}
+  .ca-acts{display:flex;gap:8px;flex-wrap:wrap}
+  .ca-btn{border:1px solid #d2d2d7;background:#fff;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;color:#1d1d1f;cursor:pointer}
+  .ca-btn:hover:not(:disabled){border-color:#007aff;color:#007aff}.ca-btn.on{background:#e8f0fe;border-color:#007aff;color:#007aff}
+  .ca-btn.pri{background:#007aff;border-color:#007aff;color:#fff}.ca-btn:disabled{opacity:.45;cursor:default}
+  .ca-card{background:#fff;border:1px solid #e1e1e6;border-radius:14px;padding:14px 16px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .ca-card h4{margin:0 0 10px;font-size:14px;font-weight:800;color:#1d1d1f}.ca-card h4 em{font-style:normal;font-weight:500;color:#86868b;font-size:12px;margin-left:8px}
+  .ca-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px 12px}
+  .ca-chk{display:flex;gap:8px;align-items:center;font-size:12px;color:#424245;margin-top:10px;cursor:pointer}
+  .ca-dc{margin-top:8px;font-size:11.5px;color:#424245;display:flex;gap:18px;flex-wrap:wrap}
+  .ca-note{background:#fff7e6;border:1px solid #f5d491;color:#7a5200;border-radius:10px;padding:8px 12px;font-size:12px}
+  .ca-scroll{overflow:auto}
+  .ca-tbl{border-collapse:collapse;width:100%;font-size:12px}
+  .ca-tbl th{background:#f5f5f7;color:#6e6e73;font-weight:700;text-align:left;padding:7px 6px;border-bottom:1px solid #e1e1e6;white-space:nowrap;font-size:11px}
+  .ca-tbl td{padding:5px 6px;border-bottom:1px solid #f0f0f2;vertical-align:middle}
+  .ca-tbl td.n,.ca-tbl th.n{text-align:right;white-space:nowrap}.ca-tbl td.c,.ca-tbl th.c{text-align:center}
+  .ca-rooms tr{cursor:pointer}.ca-rooms tr:hover td{background:#fafbff}.ca-rooms tr.sel td{background:#eef4ff}
+  .ca-rooms tr.warn td:first-child{box-shadow:inset 3px 0 #f0a020}.ca-rooms tr.err td:first-child{box-shadow:inset 3px 0 #e0443a}
+  .ca-in{border:1px solid #d2d2d7;border-radius:7px;padding:5px 7px;font-size:12px;font-family:inherit;background:#fff;box-sizing:border-box}
+  .ca-in:focus{outline:none;border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12)}.ca-in:disabled{background:#f5f5f7;color:#86868b}
+  .ca-sp{display:inline-flex;gap:5px;align-items:center}
+  .ca-x{border:1px solid #e1e1e6;background:#fff;border-radius:7px;width:26px;height:26px;cursor:pointer;color:#6e6e73;margin-left:4px}.ca-x:hover:not(:disabled){color:#e0443a;border-color:#e0443a}
+  .ca-ra{white-space:nowrap}.ca-errt{color:#c0392b;font-size:11px;font-weight:700;max-width:220px;display:inline-block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;vertical-align:middle}
+  .ca-empty{padding:18px;text-align:center;color:#6e6e73;font-size:13px;display:flex;gap:12px;justify-content:center;align-items:center}
+  .ca-detail{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,1fr);gap:18px}
+  @media (max-width:1100px){.ca-detail{grid-template-columns:1fr}}
+  .ca-steps{margin-top:12px;border:1px solid #ececf0;border-radius:10px;overflow:hidden}
+  .ca-sh{background:#f5f5f7;font-size:10.5px;font-weight:800;color:#6e6e73;text-transform:uppercase;letter-spacing:.04em;padding:6px 10px}
+  .ca-st{display:flex;justify-content:space-between;gap:12px;padding:6px 10px;font-size:12px;border-top:1px solid #f2f2f4}
+  .ca-st span{color:#424245}.ca-st b{text-align:right;color:#1d1d1f}.ca-st.hl{background:#eef4ff}.ca-st.hl b{color:#1559a6}.ca-st.bad b{color:#c0392b}
+  .ca-errbox{margin-top:12px;background:#fdecea;border:1px solid #f5c2bd;color:#9b2c22;border-radius:10px;padding:10px 12px;font-size:12px;display:flex;flex-direction:column;gap:4px}
+  .ca-cylcard{display:flex;flex-direction:column;gap:8px}
+  .ca-big{background:#eef4ff;border:1px solid #c8dafa;border-radius:12px;padding:10px 14px;display:flex;flex-direction:column}
+  .ca-big span{font-size:10.5px;font-weight:800;color:#1559a6;text-transform:uppercase;letter-spacing:.04em}.ca-big b{font-size:24px;color:#1559a6}.ca-big i{font-style:normal;font-size:11.5px;color:#424245}
+  .ca-cylsrc{font-size:11px;color:#86868b;text-align:center}
+  @media print{.ca-head,.ca-card{display:none!important}}
+  .sbx-disc{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:#f1f1f3;border-radius:10px;padding:3px;margin-bottom:8px}
+  .sbx-disc button{border:0;background:transparent;border-radius:8px;padding:6px 4px;font-size:11.5px;font-weight:700;color:#6e6e73;cursor:pointer;display:flex;gap:5px;justify-content:center;align-items:center}
+  .sbx-disc button em{font-style:normal;font-size:10px;background:#e1e1e6;border-radius:8px;padding:0 6px;color:#424245}
+  .sbx-disc button.on{background:#fff;color:#007aff;box-shadow:0 1px 3px rgba(0,0,0,.1)}.sbx-disc button.on em{background:#e8f0fe;color:#1559a6}
+  .ca-adv{margin-top:14px;border:1px dashed #c8c8d0;background:#fafafc;border-radius:9px;padding:8px 11px;width:100%;text-align:left;font-size:12px;font-weight:700;color:#1d1d1f;cursor:pointer}
+  .ca-adv:hover{border-color:#007aff;color:#007aff}.ca-adv em{font-style:normal;font-weight:500;color:#86868b;margin-left:6px}
+  .ca-advn{font-size:11px;color:#86868b;margin-top:8px}
+  .sch-disc{display:inline-flex;gap:3px;background:#f1f1f3;border-radius:11px;padding:3px;margin-left:18px;align-self:center}
+  .sch-disc button{border:0;background:transparent;border-radius:9px;padding:7px 14px;font-size:13px;font-weight:700;color:#6e6e73;cursor:pointer;display:flex;gap:7px;align-items:center}
+  .sch-disc button em{font-style:normal;font-size:11px;background:#e1e1e6;border-radius:8px;padding:1px 7px;color:#424245}
+  .sch-disc button.on{background:#fff;color:#007aff;box-shadow:0 1px 3px rgba(0,0,0,.1)}.sch-disc button.on em{background:#e8f0fe;color:#1559a6}
+  .sch-disc button.on.fire{color:#c0392b}.sch-disc button.on.fire em{background:#fdecea;color:#c0392b}
+  .ca-note.bad{background:#fdecea;border-color:#f5c2bd;color:#9b2c22}
+  .ca-def{font-style:normal;color:#86868b;font-size:10.5px}.ca-src{color:#6e6e73;font-size:11px}
+  .ca-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
+  @media (max-width:1100px){.ca-split{grid-template-columns:1fr}}
+  .ca-inputs{position:sticky;top:12px}
+  .ca-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}.ca-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
+  .ca-space{min-width:0}.ca-space .pf-in{min-width:0}.ca-space .pf-in input{width:100%}
+  .ca-sub{font-size:10.5px;font-weight:800;color:#6e6e73;text-transform:uppercase;letter-spacing:.05em;margin:16px 0 8px;padding-top:12px;border-top:1px solid #f0f0f2}
+  .ca-sub em{font-style:normal;font-weight:500;text-transform:none;letter-spacing:0;color:#86868b;margin-left:6px}
+  .ca-space{display:flex;flex-direction:column;gap:5px;opacity:.7}.ca-space.on{opacity:1}
+  .ca-space-h{display:flex;gap:6px;align-items:center;font-size:11px;font-weight:700;color:#1d1d1f;cursor:pointer}
+  .ca-space-n{font-size:10.5px;color:#86868b}
+  .ca-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px;margin-bottom:8px}
+  .ca-design{padding:12px 14px}.ca-design h4{margin-bottom:8px}
+  .ca-design .ca-kpis>div{padding:6px 9px;border-radius:9px}.ca-design .ca-kpis b{font-size:14.5px}.ca-design .ca-kpis span{font-size:9.5px}.ca-design .ca-kpis i{font-size:10.5px}
+  .ca-design .ca-fig{padding:2px;border-radius:9px}.ca-design .ca-fig svg{display:block;max-height:300px;width:100%}
+  .ca-design .ca-cylsrc{font-size:10.5px;margin:-2px 0 2px}
+  .ca-design .ca-steps{margin-top:8px;border-radius:9px}.ca-design .ca-sh{padding:4px 9px;font-size:9.5px}
+  .ca-design .ca-st{padding:3.5px 9px;font-size:11.5px;line-height:1.35}.ca-design .ca-chk{margin-top:8px}
+  .ca-kpis>div{background:#f7f7f9;border:1px solid #ececf0;border-radius:11px;padding:8px 11px;display:flex;flex-direction:column;min-width:0}
+  .ca-kpis span{font-size:10px;font-weight:800;color:#6e6e73;text-transform:uppercase;letter-spacing:.04em}
+  .ca-kpis b{font-size:17px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.ca-kpis i{font-style:normal;font-size:11px;color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ca-kpis .hl{background:#eef4ff;border-color:#c8dafa}.ca-kpis .hl b{color:#1559a6}.ca-kpis .bad{background:#fdecea;border-color:#f5c2bd}.ca-kpis .bad b{color:#c0392b}
+  .ca-fig{border:1px solid #ececf0;border-radius:11px;padding:6px}.ca-fig svg{width:100%;height:auto}
   .screen-hide{display:none}
   @media screen and (max-width:900px){.calcwrap{grid-template-columns:1fr}.calcpick{flex-direction:row;overflow-x:auto;position:static;max-height:none}.calcpick-item{width:auto;max-width:230px}}
   /* ── Phone layout ──────────────────────────────────────────────────────
@@ -1221,6 +1298,10 @@
   #mep-report .rpt-cv-proj{font-size:22pt;font-weight:700;line-height:1.12;margin-bottom:3mm}
   #mep-report .rpt-cv-title{font-size:16pt;line-height:1.15;margin-bottom:2.5mm}
   #mep-report .rpt-cv-ref{margin-top:auto;font-size:9pt}
+  #mep-report .rpt-cv-disc{align-self:flex-start;font-size:8.5pt;font-weight:700;letter-spacing:.12em;padding:1.2mm 3mm;margin-bottom:3mm;border:1px solid rgba(255,255,255,.85);border-radius:1mm;background:rgba(21,89,166,.55)}
+  #mep-report .rpt-cv-disc.fire{background:rgba(192,57,43,.8);border-color:rgba(255,255,255,.9)}
+  #mep-report .rpt-cv-meta{font-size:8.5pt;line-height:1.5;margin-top:3mm;opacity:.95}
+  #mep-report .rpt-cv-meta span,#mep-report .rpt-cv-ref span{opacity:.75}
   #mep-report .rpt-cv-draft{position:absolute;left:12mm;top:12mm;color:#fff;font-size:9pt;font-weight:700;letter-spacing:.06em}
   #mep-report .rpt-pg{position:relative;min-height:262mm;break-after:page;page-break-after:always;overflow:hidden}
   #mep-report .rpt-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1.2px solid #0e4891;padding-bottom:1.5mm;margin-bottom:8mm}
@@ -1280,7 +1361,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.78.0 · Build 2026.11.11.09";
+const BUILD_LABEL = "v1.84.0 · Build 2026.11.12.10";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1499,6 +1580,9 @@ let FU_LOAD_ERROR = "";
 // fixture name → loading units per code: {code: [{name, lu, luHot, flow, minP}]}  (filled by loadReferenceData from ref_fixtures)
 let FU_FIXTURES = {};
 let FU_FIX_ERROR = "";
+// Clean agent cylinder library (v1.81): Supabase ref_ca_cylinders only — nothing is built in. Filled by loadReferenceData.
+let CA_CYLS = [];
+let CA_CYL_ERR = "Cylinder library not loaded yet.";
 
 // Fetches reference tables from Supabase and replaces the in-memory bindings.
 // Pipe/material and motor tables retain the embedded defaults when the response
@@ -1538,6 +1622,14 @@ async function loadReferenceData() {
         for (const k of Object.keys(built)) { const b = built[k]; if (!(b.k.length && b.sizes.length && b.stack.primary.length && b.branch.unvent.length && b.branch.vent.length && b.limits.unvent && b.limits.vent && b.params)) delete built[k]; else { b.sizes.sort((a, c) => a.dn - c.dn); b.stack.primary.sort((a, c) => a.dn - c.dn); b.stack.secondary.sort((a, c) => a.dn - c.dn); } }
         if (Object.keys(built).length) { DRAIN = built; DRAIN_SRC = "supabase"; } else { DRAIN = DRAIN_DEFAULT; DRAIN_SRC = "defaults"; }
       } else { DRAIN = DRAIN_DEFAULT; DRAIN_SRC = "defaults"; } } catch (e) { DRAIN = DRAIN_DEFAULT; DRAIN_SRC = "defaults"; }
+    // Clean agent cylinders (v1.81). A missing table must not block everything else — the Clean Agent tab says so.
+    try { const cy = await sb.from("ref_ca_cylinders").select("*").eq("active", true).order("sort_order");
+      if (cy.error) { CA_CYLS = []; CA_CYL_ERR = "The clean agent cylinder library could not be loaded from Supabase (" + cy.error.message + "). Run mep-clean-agent-cylinders.sql."; }
+      else { const nv = v => v === null || v === undefined || v === "" ? "" : Number(v);
+        CA_CYLS = (cy.data || []).map(r => ({key:r.cyl_key, agent:r.agent, model:r.model, vol:nv(r.volume_l), minFill:nv(r.min_fill_kg), maxFill:nv(r.max_fill_kg),
+          dia:nv(r.dia_mm), height:nv(r.height_mm), emptyWt:nv(r.empty_wt_kg), pressure:nv(r.pressure_bar), valve:r.valve || "", src:r.source || "", notes:r.notes || ""}));
+        CA_CYL_ERR = CA_CYLS.length ? "" : "The clean agent cylinder library in Supabase is empty. Add cylinders in Reference Data → Clean Agent Cylinders."; }
+    } catch (e) { CA_CYLS = []; CA_CYL_ERR = "The clean agent cylinder library could not be loaded (" + (e.message || e) + ")."; }
     // Fixtures (loading units per fixture, per demand table). A missing table must not block everything else.
     FU_FIXTURES = {}; FU_FIX_ERROR = "";
     if (fixRes.error) FU_FIX_ERROR = "Fixture loading units could not be loaded from Supabase (" + fixRes.error.message + "). Run mep-fixture-units-fixtures.sql.";
@@ -1722,13 +1814,13 @@ function dwLoss(Q_m3s, D_m, L, roughness_mm, nuIn) {
 // ══════════════════════════════════════════════════════════════════════════
 const TYPE_LBL = {
   rcp:"Tank Recirculation", ffp:"Filter Feed", tp:"Transfer", hex:"HEX Circulation",
-  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
+  booster:"Booster", sewage:"Sewage / Drainage", irrigation:"Irrigation", sump:"Sump / Drainage Pit", grease:"Grease Interceptor", pbc:"Pressure Break Chamber", ca:"Clean Agent", water:"Water Supply Pipe Sizing", lpg:"LPG Pipe Sizing (test build)", gas:"Gas Pipe Sizing", drain:"Drainage Pipe Sizing", fuel:"Fuel Transfer", custom:"Custom",
 };
 
 // Equipment groups, used by the Add menu and the schedule filter.
 const TYPE_GROUPS = [
   {label:"Pumps",        types:["rcp","ffp","tp","fuel","hex","booster","irrigation","custom"]},
-  {label:"Drainage",     types:["sewage","sump","drain"]},
+  {label:"Drainage",     types:["sewage","sump","pbc","drain"]},
   {label:"Water Supply", types:["water"]},
   {label:"Interceptors", types:["grease"]},
   {label:"Gas",          types:["gas"]},
@@ -1979,6 +2071,8 @@ function safeCalculate(p) {
 function calculate(p) {
   if (p.type === "sump") return calculateSump(p);
   if (p.type === "grease") return calculateGrease(p);
+  if (p.type === "pbc") return calculatePbc(p);
+  if (p.type === "ca") return calculateCa(p);
   if (p.type === "water") return wsIsDrain(p) ? calculateDrain(p) : wsIsGas(p) ? calculateGas(p) : calculateWater(p);
   if (p.type === "lpg") return calcError(["This item was made with the LPG test build — open it and press Convert to Gas Pipe Sizing."]);
   const set = pumpSetOf(p);
@@ -2681,6 +2775,341 @@ DEFS.grease = {type:"grease", name:"Grease Interceptor", tag:"GI-01",
   giTable: GI_KITCHEN_DEFAULT.map(t => ({...t})),
   giRows:[{building:"", level:"", area:"", kitArea:"", kitchen:"St. Restaurant Kitchens"}]};
 
+// ══════════════════════════════════════════════════════════════════════════
+// PRESSURE BREAK CHAMBER  — rising main discharge chamber (type "pbc")  v1.79.0
+// A pumped rising main discharges into a chamber; a gravity sewer carries the flow away.
+// Inflow Qin (pump duty, rising main capacity at a set velocity, or the greater of the two) is compared with the
+// part-full capacity of the outgoing sewer Qout (Colebrook-White, ks 1.5 mm foul, or Manning n). Storage is needed
+// only for the net inflow during one pump run:  V = max(0, Qin − Qout) × t.
+// Build depth = dead depth (floor → outlet invert) + storage depth + inlet drop (TWL → rising main invert) + freeboard.
+// References: BS EN 16933-2:2017 (hydraulic design, Colebrook-White / Manning, roughness, self-cleansing);
+// Water UK Design and Construction Guidance (ks 1.5 mm foul, 0.75 m/s self-cleansing); local authority guidelines
+// (e.g. Dubai Municipality Sewerage Design Guidelines) for chamber sizes and discharge details.
+// <PBC-CORE-BEGIN>
+const PBC_G = 9.81, PBC_NU = 1.31e-6;                     // m/s², kinematic viscosity at 15 °C (m²/s)
+const PBC_IN_MODES = {duty:"Pump duty flow", main:"Rising main capacity at the set velocity", max:"Greater of pump duty and rising main capacity"};
+// Wetted area and hydraulic radius of a circular pipe flowing at depth ratio y/D.
+function pbcSection(D, y) {
+  const th = 2*Math.acos(1 - 2*y), A = D*D/8*(th - Math.sin(th)), P = D*th/2;
+  return {th, A, R: A/P};
+}
+// Velocity (m/s) and flow (L/s) in a gravity pipe: D internal (m), S gradient (m/m), y depth ratio.
+function pbcGravity(D, S, y, o) {
+  const {th, A, R} = pbcSection(D, y);
+  let V;
+  if (o.eq === "manning") V = Math.pow(R, 2/3)*Math.sqrt(S)/o.n;
+  else { const r = Math.sqrt(2*PBC_G*4*R*S); V = -2*r*Math.log10(o.ks/1000/(14.8*R) + 2.51*PBC_NU/(4*R*r)); }
+  return {th, A, R, V, Q: A*V*1000};
+}
+// Depth ratio at which the pipe carries Q (L/s); null if Q is above the maximum part-full capacity (y/D ≈ 0.94).
+function pbcDepthFor(D, S, Q, o) {
+  if (!(Q > 0)) return null;
+  const top = 0.938; if (pbcGravity(D, S, top, o).Q < Q) return null;
+  let lo = 0.001, hi = top;
+  for (let i = 0; i < 60; i++) { const m = (lo + hi)/2; if (pbcGravity(D, S, m, o).Q < Q) lo = m; else hi = m; }
+  return (lo + hi)/2;
+}
+function calculatePbc(p) {
+  const errors = [], num = v => Number(v);
+  const rp = (v, l) => { if (!isPositive(v)) errors.push(`${l} must be greater than zero.`); };
+  const nn = (v, l) => { if (!(Number.isFinite(num(v)) && num(v) >= 0)) errors.push(`${l} must be zero or more.`); };
+  const mode = PBC_IN_MODES[p.inMode] ? p.inMode : "duty";
+  if (mode !== "main") rp(p.qDuty, "Pump duty flow");
+  // Rising main: a material and size from the pipe reference data, or a typed internal diameter ("custom").
+  const rmCustom = !p.rmMat || p.rmMat === "custom";
+  let rmId = null, rmOd = null, rmMatLbl = "";
+  if (rmCustom) { rp(p.rmDn, "Rising main internal diameter"); rmId = num(p.rmDn); }
+  else {
+    const mt = matOf(p.rmMat);
+    if (!mt) errors.push(`Rising main material "${p.rmMat}" is not in the pipe reference data — choose another or type the internal diameter.`);
+    else {
+      const row = (mt.table || []).find(r => Number(r.od) === Number(p.rmOd));
+      if (!row) errors.push(`Choose a rising main size for ${mt.label || p.rmMat}.`);
+      else { rmId = Number(row.id); rmOd = Number(row.od); rmMatLbl = mt.label || p.rmMat; }
+    }
+  }
+  if (mode !== "duty") rp(p.rmVel, "Rising main design velocity");
+  rp(p.outD, "Outgoing sewer internal diameter"); rp(p.outSlope, "Outgoing sewer gradient");
+  if (!(num(p.outFill) > 0 && num(p.outFill) <= 0.9)) errors.push("Outgoing sewer filling ratio must be greater than 0 and not more than 0.90.");
+  const eq = p.flowEq === "manning" ? "manning" : "cw";
+  if (eq === "manning") rp(p.mann, "Manning n"); else rp(p.ks, "Roughness ks");
+  rp(p.tRun, "Pump run time"); rp(p.L, "Chamber internal length"); rp(p.W, "Chamber internal width");
+  nn(p.hDead, "Dead depth below the outlet invert"); nn(p.hDrop, "Drop from top water level to the rising main invert");
+  nn(p.hFree, "Freeboard above the rising main crown"); nn(p.minDepth, "Minimum internal depth");
+  nn(p.vMinOut, "Minimum self-cleansing velocity in the outgoing sewer"); nn(p.vMinRm, "Minimum rising main velocity");
+  if (num(p.outSlope) > 20) errors.push("Outgoing sewer gradient looks too steep — enter it in %, e.g. 1 for 1 in 100.");
+  if (errors.length) return calcError(errors);
+
+  const o = {eq, ks:num(p.ks), n:num(p.mann)};
+  const rmD = rmId/1000, rmA = Math.PI/4*rmD*rmD;
+  const qDuty = mode === "main" ? null : num(p.qDuty);
+  const qMain = mode === "duty" ? null : rmA*num(p.rmVel)*1000;
+  const Qin = mode === "duty" ? qDuty : mode === "main" ? qMain : Math.max(qDuty, qMain);
+  const vRm = Qin/1000/rmA;
+  const D = num(p.outD)/1000, S = num(p.outSlope)/100, fill = num(p.outFill);
+  const out = pbcGravity(D, S, fill, o), Qout = out.Q, full = pbcGravity(D, S, 0.9999, o);
+  const yAt = pbcDepthFor(D, S, Math.min(Qin, Qout), o), atQ = yAt ? pbcGravity(D, S, yAt, o) : null;
+  const Qret = Math.max(0, Qin - Qout), t = num(p.tRun), Vstore = Qret*t*60/1000;
+  const L = num(p.L), W = num(p.W), area = L*W;
+  const hDead = num(p.hDead), hStore = Vstore/area, hDrop = num(p.hDrop), hFree = num(p.hFree);
+  const padPos = p.padPos === "top" ? "top" : "bottom", hPipe = (rmOd || rmId)/1000;
+  const hCalc = hDead + hStore + hDrop + hPipe + hFree, hBuild = Math.max(num(p.minDepth), hCalc), hSel = Math.ceil(hBuild*10 - 1e-9)/10;
+  const hExtra = Math.max(0, hSel - hCalc);                                   // minimum depth + rounding allowance
+  const hDeadB = hDead + (padPos === "bottom" ? hExtra : 0), hFreeB = hFree + (padPos === "top" ? hExtra : 0);
+  const Vdead = area*hDeadB, Vwater = Vdead + Vstore;
+  const vMinOut = num(p.vMinOut), vMinRm = num(p.vMinRm);
+  const okOut = !atQ || vMinOut <= 0 || atQ.V >= vMinOut, okRm = vMinRm <= 0 || mode === "main" || vRm >= vMinRm, okCap = Qret <= 0;
+  const sizeStr = `${L.toFixed(2)} x ${W.toFixed(2)} x ${hSel.toFixed(2)} m`;
+  const c = {mode, qDuty, qMain, Qin, rmDn:rmId, rmOd, rmMatLbl, rmName: rmOd ? `${rmOd} mm OD` : `Ø${rmId} mm`, rmVel:num(p.rmVel), rmA, vRm, eq, ks:o.ks, n:o.n,
+    outD:num(p.outD), slope:num(p.outSlope), fill, th:out.th, A:out.A, R:out.R, Vout:out.V, Qout, Qfull:full.Q,
+    yAt, vAt: atQ ? atQ.V : null, Qret, t, Vstore, L, W, area, hDead, hStore, hDrop, hFree, hPipe, hCalc, hExtra, padPos, hDeadB, hFreeB, minDepth:num(p.minDepth),
+    hBuild, hSel, Vdead, Vwater, vMinOut, vMinRm, okOut, okRm, okCap, sizeStr};
+  const eqTxt = eq === "manning" ? `Manning, n = ${o.n}` : `Colebrook-White, ks = ${o.ks} mm`;
+  const steps = [
+    {s:"Inflow (rising main)", label:"Inflow basis", value:PBC_IN_MODES[mode]},
+    ...(qDuty != null ? [{label:"Pump duty flow", value:`${qDuty.toFixed(2)} L/s`}] : []),
+    ...(rmOd ? [{label:"Rising main pipe", value:`${rmMatLbl} · ${rmOd} mm OD`}] : []),
+    {label:"Rising main internal diameter", value:`${c.rmDn} mm`},
+    ...(qMain != null ? [{label:`Rising main capacity  [π/4 × D² × ${c.rmVel} m/s]`, value:`${qMain.toFixed(2)} L/s`}] : []),
+    {label:"Design inflow  Qin", value:`${Qin.toFixed(2)} L/s`, hl:true},
+    {label:"Rising main velocity at Qin", value:`${vRm.toFixed(2)} m/s`, ...(okRm ? {} : {flag:"warn"})},
+    {s:"Outgoing gravity sewer", label:"Internal diameter / gradient / filling ratio", value:`${c.outD} mm / ${c.slope} % / ${fill}`},
+    {label:"Flow formula", value:eqTxt},
+    {label:`Capacity at ${Math.round(fill*100)} % depth  Qout`, value:`${Qout.toFixed(2)} L/s at ${out.V.toFixed(2)} m/s`, hl:true},
+    {label:"Capacity flowing full", value:`${full.Q.toFixed(2)} L/s`},
+    {label: atQ ? `Velocity carrying ${Math.min(Qin, Qout).toFixed(2)} L/s (depth ${(yAt*100).toFixed(0)} %)` : "Velocity at design flow",
+      value: atQ ? `${atQ.V.toFixed(2)} m/s${vMinOut > 0 ? (okOut ? ` ≥ ${vMinOut} ✓` : ` < ${vMinOut}`) : ""}` : "—", ...(okOut ? {} : {flag:"warn"})},
+    {s:"Storage", label:"Retention flow  [Qin − Qout, not less than 0]", value:`${Qret.toFixed(2)} L/s`, ...(okCap ? {} : {flag:"warn"})},
+    {label:"Pump run time", value:`${t} min`},
+    {label:"Storage volume  [Qret × t]", value:`${Vstore.toFixed(2)} m³`, hl:true},
+    {s:"Chamber", label:"Internal plan  L × W", value:`${L.toFixed(2)} × ${W.toFixed(2)} m = ${area.toFixed(2)} m²`},
+    {label:"Dead depth (floor → outlet invert)", value:`${hDead.toFixed(2)} m`},
+    {label:"Storage depth  [V ÷ area]", value:`${hStore.toFixed(2)} m`},
+    {label:"Drop, top water level → rising main invert", value:`${hDrop.toFixed(2)} m`},
+    {label:"Rising main diameter", value:`${hPipe.toFixed(2)} m`},
+    {label:"Freeboard above the rising main crown", value:`${hFree.toFixed(2)} m`},
+    {label:"Sum of levels", value:`${hCalc.toFixed(2)} m`},
+    {label:`Internal depth  [sum${c.minDepth > 0 ? `, not less than ${c.minDepth} m` : ""}, rounded up to 0.1 m]`, value:`${hSel.toFixed(2)} m`},
+    ...(hExtra > 0.0005 ? [{label:`Extra depth ${hExtra.toFixed(2)} m added at the ${padPos === "bottom" ? "bottom" : "top"}`, value: padPos === "bottom" ? `dead depth as built ${hDeadB.toFixed(2)} m (${Vdead.toFixed(2)} m³)` : `freeboard as built ${hFreeB.toFixed(2)} m`}] : []),
+    {label:"Selected chamber size", value:sizeStr, hl:true},
+  ];
+  const selStr = `Provide Pressure Break Chamber ${sizeStr} (internal) — Inflow ${Qin.toFixed(2)} l/s, Outlet DN${c.outD} at ${c.slope} % carries ${Qout.toFixed(2)} l/s${Qret > 0 ? `, storage ${Vstore.toFixed(2)} m³` : ", no storage needed"}`;
+  return {valid:true, pbc:c, flowLsPerPump:Qin, flowTotal:Qin, designFlow:Qin, totalH:"—", pwrSel:"—",
+    config: sizeStr, setText: "1 chamber", set:{duty:1, standby:0, installed:1, sharing:"full"}, connectedKw:0, installedKw:0,
+    velOk:true, pipe:null, dutyPoints:[], steps, selStr};
+}
+function pbcDesignBasis(p) {
+  const system = (p && (p.name || typeLbl(p))) || "Pressure break chamber";
+  const cw = !(p && p.flowEq === "manning");
+  return [
+    `${system} receives the pumped rising main and discharges to the outgoing gravity sewer.`,
+    `The design inflow is the ${(PBC_IN_MODES[p && p.inMode] || PBC_IN_MODES.duty).toLowerCase()}.`,
+    cw ? "The capacity of the outgoing sewer is calculated part full by the Colebrook-White formula with ks = 1.5 mm for foul sewers (BS EN 16933-2; Water UK Design and Construction Guidance)."
+       : "The capacity of the outgoing sewer is calculated part full by the Manning formula (BS EN 16933-2).",
+    "Storage is provided only for the net inflow during one pump run: V = max(0, Qin − Qout) × run time.",
+    "The internal depth is the dead depth below the outlet, the storage depth, the drop from top water level to the rising main invert, the rising main diameter and the freeboard above its crown, rounded up to 0.1 m; any extra depth needed to reach the minimum is added " + (p && p.padPos === "top" ? "above the inlet" : "below the outlet") + "; minimum chamber sizes and access follow the local authority requirements.",
+  ];
+}
+// Section figure: SVG string {svg, w, h}
+function pbcFigure(c, caption) {
+  const W = 640, H = 330, x0 = 210, x1 = 430, yTop = 40, yBot = 280, k = (yBot - yTop)/Math.max(c.hSel, 0.1);
+  const yOf = h => yBot - h*k, yInv = yOf(c.hDeadB), yTWL = yOf(c.hDeadB + c.hStore), yRM = yOf(c.hDeadB + c.hStore + c.hDrop);
+  const e = s => sxEsc(String(s));
+  const t = (x, y, s, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(s)}</text>`;
+  const dim = (x, ya, yb, lab) => Math.abs(yb - ya) < 2 ? "" : `<line x1="${x}" y1="${ya}" x2="${x}" y2="${yb}" stroke="#000"/><path d="M${x-3} ${ya+6} L${x} ${ya} L${x+3} ${ya+6}M${x-3} ${yb-6} L${x} ${yb} L${x+3} ${yb-6}" fill="none" stroke="#000"/>` + t(x + 6, (ya + yb)/2 + 4, lab, {s:10});
+  const dRm = Math.max(6, c.rmDn/1000*k), dOut = Math.max(12, Math.min(34, c.outD/1000*k));
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  if (c.hStore > 0) o += `<rect x="${x0}" y="${yTWL}" width="${x1 - x0}" height="${yInv - yTWL}" fill="#cfe3fb"/>`;
+  o += `<rect x="${x0}" y="${yInv}" width="${x1 - x0}" height="${yBot - yInv}" fill="#e8eef6"/>`;
+  o += `<polyline points="${x0},${yTop} ${x0},${yBot} ${x1},${yBot} ${x1},${yTop}" fill="none" stroke="#000" stroke-width="3"/>`;
+  o += `<line x1="${x0 - 8}" y1="${yTop}" x2="${x1 + 8}" y2="${yTop}" stroke="#000" stroke-width="4"/>` + t((x0 + x1)/2, yTop - 8, "Cover slab", {a:"middle", s:10});
+  // rising main (left, enters at its invert level)
+  o += `<rect x="40" y="${yRM - dRm}" width="${x0 - 40}" height="${dRm}" fill="#fff" stroke="#000" stroke-width="1.4"/>` + t(44, yRM - dRm - 6, `Rising main ${c.rmName} · ${c.Qin.toFixed(2)} l/s`, {s:10, b:true});
+  // outgoing sewer (right, invert at dead depth)
+  o += `<rect x="${x1}" y="${yInv - dOut}" width="${W - 30 - x1}" height="${dOut}" fill="#fff" stroke="#000" stroke-width="1.4"/>` + t(x1 + 6, yInv + 14, `Outlet DN${c.outD} @ ${c.slope} % · ${c.Qout.toFixed(2)} l/s`, {s:10, b:true});
+  if (c.hStore > 0) o += `<line x1="${x0}" y1="${yTWL}" x2="${x1}" y2="${yTWL}" stroke="#1559a6" stroke-dasharray="5 3"/>` + t(x1 - 60, yTWL - 4, "TWL", {s:9.5, f:"#1559a6", b:true, a:"end"});
+  const dx = x0 + 16;
+  o += dim(dx, yInv, yBot, `${c.hDeadB.toFixed(2)}`) + dim(dx, yTWL, yInv, c.hStore > 0 ? `${c.hStore.toFixed(2)}` : "") + dim(dx, yRM, yTWL, `${c.hDrop.toFixed(2)}`) + dim(dx, yTop, yRM - dRm, `${c.hFreeB.toFixed(2)}`);
+  o += dim(x1 - 44, yTop, yBot, `${c.hSel.toFixed(2)} m`);
+  o += t((x0 + x1)/2, yBot + 20, `${c.L.toFixed(2)} x ${c.W.toFixed(2)} m internal${c.hStore > 0 ? ` · storage ${c.Vstore.toFixed(2)} m³` : " · no storage needed"}`, {a:"middle", s:10.5, b:true});
+  if (caption) o += t((x0 + x1)/2, H - 10, String(caption).toUpperCase(), {a:"middle", s:11, b:true});
+  o += `</svg>`;
+  return {svg:o, w:W, h:H};
+}
+// <PBC-CORE-END>
+DEFS.pbc = {type:"pbc", name:"Pressure Break Chamber", tag:"PBC-01",
+  inMode:"duty", qDuty:4.2, rmMat:"HDPE", rmOd:110, rmDn:100, rmVel:2.0, vMinRm:0.75,
+  outD:150, outSlope:1, outFill:0.7, flowEq:"cw", ks:1.5, mann:0.013, vMinOut:0.75,
+  tRun:15, L:1.2, W:1.2, hDead:0.3, hDrop:0.15, hFree:0.3, minDepth:1.0, padPos:"bottom"};
+
+// ══════════════════════════════════════════════════════════════════════════
+// CLEAN AGENT TOTAL FLOODING — FM-200 (HFC-227ea) and Novec 1230 (FK-5-1-12)  v1.80.0
+// NFPA 2001 halocarbon flooding:  W = V / s × C / (100 − C) × ACF
+//   s = k1 + k2·T  (m³/kg, T = minimum design temperature °C)   ACF = atmospheric correction for altitude
+// Design concentration: Class A = MEC(A) × 1.2, not less than the heptane cup-burner MEC when that option is on;
+// Class B = heptane MEC × 1.3; Class C = MEC(A) × 1.35, not less than Class A (NFPA 2001, 2012 edition onwards).
+// A room is protected as one system: the room and any ceiling and floor void are each calculated at the same
+// concentration, added together, and one cylinder bank is sized for the total.
+// Rooms live in the stage meta (meta.cleanAgent) and are calculated as pseudo items of type "ca", so the sheet
+// renderer and the formula workbook treat them like any other calculation.
+// <CA-CORE-BEGIN>
+const CA_AGENTS = {
+  novec: {key:"novec", label:"Novec 1230 (FK-5-1-12)", short:"Novec 1230", k1:0.0664, k2:0.0002741, mecA:3.5, mecB:4.5, noael:10.0, loael:null},
+  fm200: {key:"fm200", label:"FM-200 (HFC-227ea)", short:"FM-200", k1:0.1269, k2:0.0005132, mecA:5.2, mecB:6.7, noael:9.0, loael:10.5},
+};
+const CA_CLASSES = {A:"Class A — surface fires (ordinary combustibles)", B:"Class B — flammable liquids (heptane)", C:"Class C — energised electrical equipment"};
+// NFPA 2001 atmospheric correction factors (altitude m → factor)
+const CA_ACF = [[-920,1.11],[-610,1.07],[-305,1.04],[0,1.00],[305,0.96],[610,0.93],[915,0.89],[1220,0.86],[1525,0.82],[1830,0.78],[2135,0.75],[2440,0.72],[2745,0.69],[3050,0.66]];
+function caAcf(alt) {
+  const a = Number(alt) || 0, T = CA_ACF;
+  if (a <= T[0][0]) return T[0][1]; if (a >= T[T.length-1][0]) return T[T.length-1][1];
+  for (let i = 1; i < T.length; i++) if (a <= T[i][0]) { const [x0,y0] = T[i-1], [x1,y1] = T[i]; return y0 + (y1-y0)*(a-x0)/(x1-x0); }
+  return 1;
+}
+const CA_SET_DEF = {agent:"novec", altitude:0, temp:20, occupied:true, sfA:1.2, sfB:1.3, sfC:1.35, heptFloor:true, margin:0,
+  mec:{novec:{A:3.5, B:4.5}, fm200:{A:5.2, B:6.7}}};
+// Cylinders come from Supabase (ref_ca_cylinders → CA_CYLS); see mep-clean-agent-cylinders.sql for the typical seed rows.
+function caSettings(s) { const d = CA_SET_DEF, x = s || {}; return {...d, ...x, mec:{novec:{...d.mec.novec, ...((x.mec||{}).novec||{})}, fm200:{...d.mec.fm200, ...((x.mec||{}).fm200||{})}}}; }
+function caDesignConc(agent, cls, set) {
+  const m = set.mec[agent] || {}, A = Number(m.A), B = Number(m.B);
+  const cA = Math.max(A*Number(set.sfA), set.heptFloor ? B : 0);
+  if (cls === "B") return {C:B*Number(set.sfB), basis:`heptane MEC ${B} % × ${set.sfB}`, mecA:A, mecB:B};
+  if (cls === "A") return {C:cA, basis: set.heptFloor && B > A*Number(set.sfA) ? `heptane MEC ${B} % governs (greater than ${A} % × ${set.sfA})` : `MEC ${A} % × ${set.sfA}`, mecA:A, mecB:B};
+  const cC = Math.max(A*Number(set.sfC), cA);
+  return {C:cC, basis: cC > A*Number(set.sfC) + 1e-9 ? `Class A design ${cA.toFixed(2)} % governs` : `MEC ${A} % × ${set.sfC}`, mecA:A, mecB:B};
+}
+// Pick cylinders: fewest cylinders first, then the smallest cylinder whose fill range takes W / n.
+function caPickCyl(W, list, pin, nPin) {
+  const ok = (c, n) => W/n <= Number(c.maxFill) + 1e-9 && W/n >= Number(c.minFill) - 1e-9;
+  if (pin) {
+    if (nPin) return {cyl:pin, n:nPin, fits:ok(pin, nPin)};
+    for (let n = 1; n <= 40; n++) if (W/n <= Number(pin.maxFill) + 1e-9) return {cyl:pin, n, fits:ok(pin, n)};
+    return {cyl:pin, n:40, fits:false};
+  }
+  const sorted = list.slice().sort((a,b) => Number(a.vol) - Number(b.vol));
+  for (let n = 1; n <= 40; n++) { const c = sorted.find(x => ok(x, n)); if (c) return {cyl:c, n, fits:true}; }
+  return null;
+}
+function calculateCa(p) {
+  const errors = [], num = v => Number(v), set = caSettings(p._set), lib = Array.isArray(p._lib) ? p._lib : CA_CYLS;
+  const agentKey = CA_AGENTS[p.agent] ? p.agent : (CA_AGENTS[set.agent] ? set.agent : "novec"), ag = CA_AGENTS[agentKey];
+  const cls = CA_CLASSES[p.cls] ? p.cls : "C";
+  const useArea = p.area !== "" && p.area != null && Number(p.area) > 0;
+  if (!useArea) { if (!isPositive(p.L)) errors.push("Room length must be greater than zero (or enter the floor area)."); if (!isPositive(p.W)) errors.push("Room width must be greater than zero (or enter the floor area)."); }
+  const roomOn = p.roomOn !== false;
+  const spaces = [];
+  if (roomOn) { if (!isPositive(p.H)) errors.push("Room height must be greater than zero."); else spaces.push({k:"room", l:"Room", h:num(p.H)}); }
+  if (p.cvOn) { if (!isPositive(p.cv)) errors.push("Ceiling void depth must be greater than zero."); else spaces.push({k:"cv", l:"Ceiling void", h:num(p.cv)}); }
+  if (p.fvOn) { if (!isPositive(p.fv)) errors.push("Floor void depth must be greater than zero."); else spaces.push({k:"fv", l:"Floor void", h:num(p.fv)}); }
+  if (!spaces.length && !errors.length) errors.push("Tick at least one space to protect — room, ceiling void or floor void.");
+  const T = p.temp === "" || p.temp == null ? num(set.temp) : num(p.temp);
+  if (!Number.isFinite(T) || T < -40 || T > 60) errors.push("Design temperature must be between −40 and 60 °C.");
+  const ded = p.deduct === "" || p.deduct == null ? 0 : num(p.deduct);
+  if (!(ded >= 0)) errors.push("Volume deduction must be zero or more.");
+  const cOv = p.cOvr === "" || p.cOvr == null ? null : num(p.cOvr);
+  if (cOv != null && !(cOv > 0 && cOv < 30)) errors.push("Design concentration override must be between 0 and 30 %.");
+  const dc = caDesignConc(agentKey, cls, set);
+  if (!(dc.C > 0 && dc.C < 30)) errors.push(`Check the ${ag.short} MEC and safety factors in Settings — the design concentration came out at ${dc.C}.`);
+  if (!errors.length && !lib.length) errors.push(CA_CYL_ERR || "The clean agent cylinder library is empty — add cylinders in Reference Data → Clean Agent Cylinders.");
+  if (errors.length) return calcError(errors);
+
+  const area = useArea ? num(p.area) : num(p.L)*num(p.W);
+  const s = ag.k1 + ag.k2*T, acf = caAcf(set.altitude), C = cOv != null ? cOv : dc.C, ff = C/(100 - C);
+  let dedLeft = ded;
+  spaces.forEach(x => { x.Vg = area*x.h; x.ded = x.k === "room" ? Math.min(dedLeft, x.Vg) : 0; x.V = x.Vg - x.ded; x.W = x.V/s*ff*acf; });
+  if (spaces[0] && spaces[0].k !== "room" && ded > 0) { spaces[0].ded = Math.min(ded, spaces[0].Vg); spaces[0].V = spaces[0].Vg - spaces[0].ded; spaces[0].W = spaces[0].V/s*ff*acf; }
+  const Vtot = spaces.reduce((a,x) => a + x.V, 0), Wcalc = spaces.reduce((a,x) => a + x.W, 0), margin = num(set.margin) || 0, Wreq = Wcalc*(1 + margin/100);
+  const pool = lib.filter(c => c.agent === agentKey && Number(c.maxFill) > 0);
+  const pin = p.cylKey && p.cylKey !== "auto" ? lib.find(c => c.key === p.cylKey) || null : null;
+  const nPin = pin && isPositive(p.cylN) ? Math.round(num(p.cylN)) : null;
+  if (p.cylKey && p.cylKey !== "auto" && !pin) return calcError([`The cylinder chosen for ${p.name || "this room"} is no longer in the cylinder library (Reference Data) — choose another or set it back to Auto.`]);
+  if (pin && pin.agent !== agentKey) return calcError([`${pin.model} is a ${CA_AGENTS[pin.agent] ? CA_AGENTS[pin.agent].short : pin.agent} cylinder — choose a ${ag.short} cylinder or set it back to Auto.`]);
+  const pick = caPickCyl(Wreq, pool, pin, nPin);
+  if (!pick) return calcError([`No ${ag.short} cylinder in the library can hold ${Wreq.toFixed(1)} kg within its fill range — add a larger cylinder in Reference Data → Clean Agent Cylinders.`]);
+  const {cyl, n} = pick, fill = Math.ceil(Wreq/n*10 - 1e-9)/10, Wsup = fill*n;
+  const X = Wsup*s/(Vtot*acf), Cact = 100*X/(1 + X);
+  const occupied = p.occupied == null || p.occupied === "" ? !!set.occupied : !!p.occupied;
+  const okFill = pick.fits && fill <= Number(cyl.maxFill) + 1e-9 && fill >= Number(cyl.minFill) - 1e-9;
+  const okNoael = !occupied || Cact <= ag.noael + 1e-9, okLoael = ag.loael == null || Cact <= ag.loael + 1e-9;
+  const filledWt = Number(cyl.emptyWt) > 0 ? Number(cyl.emptyWt) + fill : null;
+  const c = {agent:agentKey, ag, cls, set, area, useArea, L:num(p.L), W:num(p.W), spaces, ded, T, s, acf, C, dc, cOv, ff, Vtot, Wcalc, margin, Wreq,
+    cyl, n, fill, Wsup, Cact, occupied, okFill, okNoael, okLoael, filledWt, auto:!pin, lbs:Wsup*2.20462};
+  const f2 = v => v.toFixed(2);
+  const steps = [
+    {s:"Agent and hazard", label:"Agent", value:ag.label},
+    {label:"Hazard class", value:CA_CLASSES[cls]},
+    {label:"Design concentration" + (cOv != null ? " (entered)" : ""), value:`${f2(C)} %` + (cOv != null ? "" : `  [${dc.basis}]`), hl:true},
+    {label:`Specific vapour volume  s = ${ag.k1} + ${ag.k2} × ${T} °C`, value:`${s.toFixed(5)} m³/kg`},
+    {label:`Altitude correction factor (${num(set.altitude) || 0} m)`, value:acf.toFixed(3)},
+    {s:"Volumes and agent", label:`Floor area${useArea ? " (entered)" : `  [${num(p.L)} × ${num(p.W)} m]`}`, value:`${f2(area)} m²`},
+    ...spaces.map(x => ({label:`${x.l}  [${f2(area)} m² × ${x.h} m${x.ded ? ` − ${f2(x.ded)} m³` : ""} = ${f2(x.V)} m³]`, value:`${x.W.toFixed(2)} kg`})),
+    {label:"Total protected volume", value:`${f2(Vtot)} m³`},
+    {label:`Agent required  [W = V/s × C/(100 − C) × ACF${margin ? ` + ${margin} %` : ""}]`, value:`${Wreq.toFixed(2)} kg`, hl:true},
+    {s:"Cylinders", label:`Cylinder${pin ? " (chosen)" : " (auto)"}`, value:`${n} × ${cyl.model}`, ...(okFill ? {} : {flag:"warn"})},
+    {label:`Fill per cylinder  [range ${cyl.minFill}–${cyl.maxFill} kg]`, value:`${fill.toFixed(1)} kg`, ...(okFill ? {} : {flag:"warn"})},
+    {label:"Agent supplied", value:`${Wsup.toFixed(1)} kg (${(Wsup*2.20462).toFixed(1)} lb)`, hl:true},
+    {label:`Concentration achieved${occupied ? `, NOAEL ${ag.noael} %` : ""}`, value:`${f2(Cact)} %`, ...(okNoael && okLoael ? {} : {flag:"warn"})},
+    {label:"Maximum discharge time", value:"10 s (NFPA 2001, halocarbon agents)"},
+  ];
+  const sizeStr = `${n} × ${cyl.vol} L`;
+  const selStr = `Provide ${n} No. ${cyl.model} cylinder${n > 1 ? "s" : ""} filled with ${fill.toFixed(1)} kg ${ag.short} each — ${Wsup.toFixed(1)} kg total for ${f2(Vtot)} m³ at ${f2(C)} % design (${f2(Cact)} % achieved)`;
+  return {valid:true, ca:c, flowLsPerPump:0, flowTotal:0, designFlow:0, totalH:"—", pwrSel:"—", config:sizeStr, setText:`${n} cylinder${n > 1 ? "s" : ""}`,
+    set:{duty:n, standby:0, installed:n, sharing:"full"}, connectedKw:0, installedKw:0, velOk:true, pipe:null, dutyPoints:[], steps, selStr};
+}
+// Rooms are stored in the stage meta; each becomes a pseudo calculation item for calculate() and the sheets.
+function caRoomItems(meta) {
+  const ca = (meta && meta.cleanAgent) || {}, set = caSettings(ca.set), lib = CA_CYLS;
+  return (ca.rooms || []).map((r, i) => ({...r, type:"ca", id:"ca-" + r.id, tag:r.tag || `CA-${String(i + 1).padStart(2, "0")}`, name:r.name || `Room ${i + 1}`, _set:set, _lib:lib}));
+}
+function caTitle(p) { const a = CA_AGENTS[p && p.agent] || CA_AGENTS[caSettings(p && p._set).agent] || CA_AGENTS.novec; return `Clean Agent Calculation (${a.short})`; }
+function caDesignBasis(p) {
+  const r = (() => { try { return calculateCa(p); } catch (e) { return null; } })(), c = r && r.ca;
+  const a = CA_AGENTS[p && p.agent] || CA_AGENTS[caSettings(p && p._set).agent] || CA_AGENTS.novec, set = caSettings(p && p._set);
+  const cls = CA_CLASSES[p && p.cls] ? p.cls : "C";
+  return [
+    (() => { const nm = (p && p.name) || "The room", ex = c ? c.spaces.filter(x => x.k !== "room").map(x => x.l.toLowerCase()) : [], roomIn = !c || c.spaces.some(x => x.k === "room");
+      const who = roomIn ? `${nm}${ex.length ? `, including its ${ex.join(" and ")},` : ""} is` : `The ${ex.join(" and ")} of ${nm} ${ex.length > 1 ? "are" : "is"}`;
+      return `${who} protected by a total flooding ${a.label} clean agent system designed to NFPA 2001.`; })(),
+    `Agent quantity W = V / s × C / (100 − C) × ACF, with s = ${a.k1} + ${a.k2} × T m³/kg at the minimum design temperature${c ? ` of ${c.T} °C` : ""} and the NFPA 2001 altitude correction factor${c ? ` of ${c.acf.toFixed(3)}` : ""}.`,
+    c && c.cOv != null ? `The design concentration of ${c.C.toFixed(2)} % is set by the designer for this ${CA_CLASSES[cls].split(" — ")[0]} hazard.`
+      : `The design concentration for this ${CA_CLASSES[cls].split(" — ")[0]} hazard is ${c ? c.C.toFixed(2) + " %" : "the MEC times the NFPA 2001 safety factor"} (${c ? c.dc.basis : ""}${cls === "A" && set.heptFloor ? ", not less than the heptane MEC" : ""}); the ${a.short} MEC values are those of the listed system and shall be confirmed with the supplier.`,
+    `The achieved concentration is checked against the ${a.short} NOAEL of ${a.noael} %${c && !c.occupied ? "; the space is not normally occupied" : " for a normally occupied space"}, and the agent is discharged within 10 s.`,
+    `The ${a.short} cylinder size, fill range and dimensions are taken from the cylinder library in Reference Data and shall be confirmed against the approved supplier datasheet.`,
+  ];
+}
+// Cylinder sketch — SVG {svg, w, h}. The bank is drawn to fit a fixed band (up to 6 cylinders; more are shown as "+ n");
+// the details table sits in its own column so they never overlap.
+function caCylFigure(c, caption) {
+  const cy = c.cyl, W = 640, H = 312, e = s => sxEsc(String(s));
+  const t = (x, y, s, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(s)}</text>`;
+  const bandX = 78, bandW = 300, yB = 248, hh = 196, yT = yB - hh;
+  const more = c.n > 6, nd = more ? 5 : c.n, gap = 10;
+  const natW = Math.max(40, Math.min(120, (Number(cy.dia) || 300)*hh/Math.max(Number(cy.height) || 1000, 1)));
+  const dw = Math.max(26, Math.min(natW, (bandW - (more ? 46 : 0) - (nd - 1)*gap)/nd));
+  let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
+  if (caption) o += t(W/2, 18, String(caption).toUpperCase(), {a:"middle", s:11, b:true});
+  const fy0 = Math.min(1, c.fill/Math.max(Number(cy.maxFill), 1));
+  for (let i = 0; i < nd; i++) {
+    const x = bandX + i*(dw + gap), r = dw/2, top = yT + 18;
+    o += `<path d="M${x} ${yB} L${x} ${top + r*0.55} Q${x} ${top} ${x + r} ${top} Q${x + dw} ${top} ${x + dw} ${top + r*0.55} L${x + dw} ${yB} Z" fill="#f3f6fa" stroke="#000" stroke-width="1.4"/>`;
+    const fy = yB - (yB - top)*fy0*0.88; o += `<rect x="${x + 1.5}" y="${fy}" width="${dw - 3}" height="${yB - fy - 1}" fill="#cfe3fb"/>`;
+    o += `<rect x="${x + r - 6}" y="${yT + 5}" width="12" height="${top - yT - 3}" fill="#fff" stroke="#000"/><rect x="${x + r - 10}" y="${yT}" width="20" height="6" fill="#fff" stroke="#000"/>`;
+  }
+  const endX = bandX + nd*(dw + gap) - gap;
+  if (more) o += `<text x="${endX + 8}" y="${(yT + yB)/2 + 6}" font-size="18" style="font-size:18px!important" font-weight="700" fill="#1559a6">+${c.n - nd}</text>`;
+  o += t((bandX + endX + (more ? 40 : 0))/2, yB + 48, `${c.n} No. × ${cy.vol} L · ${c.fill.toFixed(1)} kg each`, {a:"middle", s:11, b:true, f:"#1559a6"});
+  o += `<line x1="${bandX - 16}" y1="${yT}" x2="${bandX - 16}" y2="${yB}" stroke="#000"/><path d="M${bandX-19} ${yT+6} L${bandX-16} ${yT} L${bandX-13} ${yT+6}M${bandX-19} ${yB-6} L${bandX-16} ${yB} L${bandX-13} ${yB-6}" fill="none" stroke="#000"/>` + t(bandX - 22, (yT + yB)/2 + 4, `${(Number(cy.height)/1000).toFixed(2)} m`, {a:"end", s:10.5, b:true, f:"#c0392b"});
+  o += `<line x1="${bandX}" y1="${yB + 10}" x2="${bandX + dw}" y2="${yB + 10}" stroke="#000"/><path d="M${bandX+5} ${yB+7} L${bandX} ${yB+10} L${bandX+5} ${yB+13}M${bandX+dw-5} ${yB+7} L${bandX+dw} ${yB+10} L${bandX+dw-5} ${yB+13}" fill="none" stroke="#000"/>` + t(bandX + dw/2, yB + 22, `Ø ${(Number(cy.dia)/1000).toFixed(2)} m`, {a:"middle", s:10, b:true, f:"#c0392b"});
+  const tx = 404;
+  o += `<line x1="${tx - 16}" y1="44" x2="${tx - 16}" y2="${yB}" stroke="#e1e1e6"/>`;
+  [["Cylinder", String(cy.model).length > 24 ? String(cy.model).slice(0, 23) + "…" : cy.model], ["Quantity", `${c.n} No.`], ["Volume", `${cy.vol} L each`], ["Fill each", `${c.fill.toFixed(1)} kg`], ["Fill range", `${cy.minFill}–${cy.maxFill} kg`],
+   ["Total agent", `${c.Wsup.toFixed(1)} kg`], ["Filled weight", c.filledWt ? `${c.filledWt.toFixed(0)} kg each` : "—"], ["Pressure", `${cy.pressure} bar`], ["Valve", cy.valve || "—"]]
+    .forEach(([a, b], i) => { o += t(tx, 58 + i*21, a, {s:10, f:"#6e6e73"}) + t(tx + 78, 58 + i*21, b, {s:10.5, b:true}); });
+  return {svg:o + `</svg>`, w:W, h:H};
+}
+// <CA-CORE-END>
+
+
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 // GAS PIPE SIZING ENGINE — v1.68.0
 // A gas item is a normal Pipe Sizing item (type "water") with wsService "gas". It uses the SAME canvas, nodes, pipes,
@@ -2694,7 +3123,7 @@ const wsIsGas = p => !!p && p.wsService === "gas";
 const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : v/WS_BAR;
-const typeLbl = p => !p ? "" : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
+const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
 const GAS_RD = {propane:1.55, butane:2.07, air:1.0}, GAS_MW = {propane:44.10, butane:58.12};
 const GAS_TYPES = [
   {k:"lpg",   l:"LPG",   long:"Liquefied petroleum gas (propane / butane vapour)", conv:2.40},
@@ -2999,7 +3428,7 @@ function gasFromLegacy(p) {
 // (ref_fixture_unit_codes / ref_fixture_unit_tables) and the fixtures with their loading units from
 // ref_fixtures, so IOP, IPC, UPC, BS EN 806 and national tables all work the same way.
 // <WATER-CORE-BEGIN>
-const CLASSIC_ONLY = new Set(["sump","grease","water","lpg"]);
+const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","water","lpg"]);
 const WS_COUNTRIES = ["UAE","Saudi Arabia (KSA)","Qatar","Oman","Bahrain","Kuwait"];
 const WS_ID = /^[A-Za-z0-9_.\-]+$/;
 const WS_CLASSES = [{k:"main", l:"Main"}, {k:"riser", l:"Riser"}, {k:"branch", l:"Branch"}];
@@ -6618,6 +7047,130 @@ function clGreaseRows(B, p, res) {
   };
 }
 
+
+// ── Pressure break chamber: calculation sheet rows (v1.79.0) ─────────────────
+function clPbcRows(B, p, res) {
+  const c = res.pbc, cw = c.eq !== "manning";
+  B.align("l");
+  B.section("1.  Inflow from the Rising Main");
+  B.text("Inflow basis: " + PBC_IN_MODES[c.mode], {italic:true});
+  if (c.mode !== "main") B.inp("pbQd", "Pump duty flow", c.qDuty, {unit:"l/s", dp:2});
+  if (c.rmOd) { B.text("Rising main pipe: " + c.rmMatLbl, {italic:true}); B.inp("pbRmO", "Rising main outside diameter", c.rmOd, {unit:"mm", dp:0}); }
+  B.inp("pbRmD", c.rmOd ? "Rising main internal diameter (pipe table)" : "Rising main internal diameter", c.rmDn, {unit:"mm", dp:1});
+  if (c.mode !== "duty") {
+    B.inp("pbRmV", "Rising main design velocity", c.rmVel, {unit:"m/s", dp:2});
+    B.calc("pbQm", "Rising main capacity  Q = PI/4 x D² x v", c.qMain, "PI()/4*({pbRmD}/1000)^2*{pbRmV}*1000", {unit:"l/s", dp:2});
+  }
+  B.calc("pbQin", "Design inflow (Qin)", c.Qin, c.mode === "duty" ? "{pbQd}" : c.mode === "main" ? "{pbQm}" : "MAX({pbQd},{pbQm})", {unit:"l/s", dp:2, key:true, bold:true});
+  B.calc("pbVrm", "Rising main velocity at Qin", c.vRm, "{pbQin}/1000/(PI()/4*({pbRmD}/1000)^2)", {unit:"m/s", dp:2});
+  if (c.vMinRm > 0 && c.mode !== "main") B.text(c.okRm ? `Rising main velocity is not less than ${c.vMinRm} m/s ✓` : `Rising main velocity is below ${c.vMinRm} m/s — check self-cleansing of the rising main`, {italic:true, al:"r"});
+  B.gap();
+  B.section("2.  Outgoing Gravity Sewer Capacity");
+  B.text(cw ? "Colebrook-White, part full:  V = -2 x SQRT(2g x 4R x S) x LOG10( ks/(14.8R) + 2.51v/(4R x SQRT(2g x 4R x S)) ),  v = 1.31E-6 m²/s (15 °C)"
+            : "Manning, part full:  V = R^(2/3) x S^(1/2) / n", {cls:"fx"});
+  B.inp("pbD", "Outgoing sewer internal diameter", c.outD, {unit:"mm", dp:0});
+  B.inp("pbS", "Outgoing sewer gradient", c.slope, {unit:"%", dp:2});
+  B.inp("pbY", "Outgoing sewer filling ratio (depth / diameter)", c.fill, {dp:2});
+  if (cw) B.inp("pbKs", "Roughness ks (foul sewer)", c.ks, {unit:"mm", dp:2}); else B.inp("pbN", "Manning roughness n", c.n, {dp:3});
+  B.calc("pbTh", "Wetted angle  θ = 2 x ACOS(1 - 2 x y/D)", c.th, "2*ACOS(1-2*{pbY})", {unit:"rad", dp:3});
+  B.calc("pbA", "Wetted area  A = D²/8 x (θ - SIN θ)", c.A, "({pbD}/1000)^2/8*({pbTh}-SIN({pbTh}))", {unit:"m²", dp:5});
+  B.calc("pbR", "Hydraulic radius  R = A / (D x θ / 2)", c.R, "{pbA}/(({pbD}/1000)*{pbTh}/2)", {unit:"m", dp:4});
+  B.calc("pbV", "Velocity at the filling ratio", c.Vout, cw
+    ? "-2*SQRT(2*9.81*4*{pbR}*{pbS}/100)*LOG10({pbKs}/1000/(14.8*{pbR})+2.51*1.31E-6/(4*{pbR}*SQRT(2*9.81*4*{pbR}*{pbS}/100)))"
+    : "{pbR}^(2/3)*SQRT({pbS}/100)/{pbN}", {unit:"m/s", dp:2});
+  B.calc("pbQo", "Outgoing sewer capacity (Qout)", c.Qout, "{pbA}*{pbV}*1000", {unit:"l/s", dp:2, key:true, bold:true});
+  if (c.vAt != null) B.calc("pbVat", `Velocity carrying ${Math.min(c.Qin, c.Qout).toFixed(2)} l/s (depth ${(c.yAt*100).toFixed(0)} % — solved iteratively)`, c.vAt, null, {unit:"m/s", dp:2});
+  if (c.vMinOut > 0 && c.vAt != null) B.text(c.okOut ? `Self-cleansing velocity of ${c.vMinOut} m/s is achieved ✓` : `Velocity is below the ${c.vMinOut} m/s self-cleansing velocity — review gradient or diameter`, {italic:true, al:"r"});
+  B.gap();
+  B.section("3.  Storage");
+  B.calc("pbQr", "Retention flow  [Qin - Qout, not less than zero]", c.Qret, "MAX(0,{pbQin}-{pbQo})", {unit:"l/s", dp:2});
+  B.inp("pbT", "Pump run time", c.t, {unit:"min", dp:1});
+  B.calc("pbVs", "Required storage volume  [Qret x t]", c.Vstore, "{pbQr}*{pbT}*60/1000", {unit:"m³", dp:2, key:true});
+  B.gap();
+  B.section("4.  Chamber Size");
+  B.inp("pbL", "Chamber internal length", c.L, {unit:"m", dp:2});
+  B.inp("pbW", "Chamber internal width", c.W, {unit:"m", dp:2});
+  B.inp("pbHd", "Dead depth, floor to outlet invert", c.hDead, {unit:"m", dp:2});
+  B.calc("pbHs", "Storage depth  [V / (L x W)]", c.hStore, "{pbVs}/({pbL}*{pbW})", {unit:"m", dp:2});
+  B.inp("pbHr", "Drop, top water level to rising main invert", c.hDrop, {unit:"m", dp:2});
+  B.calc("pbHp", c.rmOd ? "Rising main outside diameter" : "Rising main diameter", c.hPipe, c.rmOd ? "{pbRmO}/1000" : "{pbRmD}/1000", {unit:"m", dp:2});
+  B.inp("pbHf", "Freeboard, rising main crown to cover soffit", c.hFree, {unit:"m", dp:2});
+  B.calc("pbHc", "Sum of levels", c.hCalc, "{pbHd}+{pbHs}+{pbHr}+{pbHp}+{pbHf}", {unit:"m", dp:3});
+  B.inp("pbHm", "Minimum internal depth", c.minDepth, {unit:"m", dp:2});
+  B.calc("pbHb", "Internal depth required", c.hBuild, "MAX({pbHm},{pbHc})", {unit:"m", dp:3});
+  B.calc("pbHsel", "Selected internal depth (rounded up to 0.1 m)", c.hSel, "CEILING({pbHb}-1E-10,0.1)", {unit:"m", dp:2, bold:true});
+  B.calc("pbHx", `Extra depth, added at the ${c.padPos === "top" ? "top (above the inlet)" : "bottom (below the outlet)"}`, c.hExtra, "MAX(0,{pbHsel}-{pbHc})", {unit:"m", dp:2});
+  if (c.padPos === "top") B.calc("pbHfb", "Freeboard as built", c.hFreeB, "{pbHf}+{pbHx}", {unit:"m", dp:2});
+  else B.calc("pbHdb", "Dead depth as built, floor to outlet invert", c.hDeadB, "{pbHd}+{pbHx}", {unit:"m", dp:2});
+  B.calc("pbSz", "Selected Pressure Break Chamber Size (internal)", c.sizeStr, 'TEXT({pbL},"0.00")&" x "&TEXT({pbW},"0.00")&" x "&TEXT({pbHsel},"0.00")&" m"', {bold:true, box:true, key:true});
+  const f = pbcFigure(c, p.name || "");
+  B.fig(f.svg, f.w, f.h);
+  B.banner = {text: res.selStr,
+    xl: '"Provide Pressure Break Chamber "&{pbSz}&" (internal) — Inflow "&TEXT({pbQin},"0.00")&" l/s, Outlet DN"&{pbD}&" at "&{pbS}&" % carries "&TEXT({pbQo},"0.00")&" l/s"&IF({pbQr}>0,", storage "&TEXT({pbVs},"0.00")&" m³",", no storage needed")'};
+}
+
+
+// ── Clean agent: calculation sheet rows (v1.80.0) ───────────────────────────
+function clCaRows(B, p, res) {
+  const c = res.ca, ag = c.ag, set = c.set, f = v => Math.round(v*1e6)/1e6;
+  B.align("l");
+  B.section("1.  Protected Space");
+  B.text(`${p.location ? p.location + " · " : ""}${ag.label} · ${CA_CLASSES[c.cls]}`, {italic:true});
+  if (c.useArea) B.inp("caA", "Floor area", c.area, {unit:"m²", dp:2});
+  else { B.inp("caL", "Room length", c.L, {unit:"m", dp:2}); B.inp("caW", "Room width", c.W, {unit:"m", dp:2}); B.calc("caA", "Floor area  [L x W]", c.area, "{caL}*{caW}", {unit:"m²", dp:2}); }
+  c.spaces.forEach(x => {
+    B.inp("caH_" + x.k, x.k === "room" ? "Room height" : x.l + " depth", x.h, {unit:"m", dp:2});
+    if (x.ded > 0) B.inp("caD_" + x.k, `${x.l} — fixed objects deducted`, x.ded, {unit:"m³", dp:2});
+    B.calc("caV_" + x.k, `${x.l} net volume`, x.V, `{caA}*{caH_${x.k}}` + (x.ded > 0 ? `-{caD_${x.k}}` : ""), {unit:"m³", dp:2});
+  });
+  B.calc("caVt", "Total protected volume (V)", c.Vtot, c.spaces.map(x => `{caV_${x.k}}`).join("+"), {unit:"m³", dp:2, key:true, bold:true});
+  B.gap();
+  B.section("2.  Design Concentration and Agent Properties  (NFPA 2001)");
+  B.text("W = V / s x C / (100 - C) x ACF      s = k1 + k2 x T", {cls:"fx"});
+  B.inp("caT", "Minimum design temperature (T)", c.T, {unit:"°C", dp:1});
+  B.inp("caK1", `${ag.short} constant k1`, ag.k1, {unit:"m³/kg", dp:4});
+  B.inp("caK2", `${ag.short} constant k2`, ag.k2, {unit:"m³/kg/°C", dp:7});
+  B.calc("caS", "Specific vapour volume  s = k1 + k2 x T", c.s, "{caK1}+{caK2}*{caT}", {unit:"m³/kg", dp:5});
+  if (c.cOv != null) B.inp("caC", "Design concentration (entered by designer)", c.C, {unit:"%", dp:2, key:true});
+  else {
+    const needA = c.cls !== "B", needB = c.cls === "B" || set.heptFloor;
+    if (needA) B.inp("caMa", `Minimum extinguishing concentration, Class A (${ag.short})`, c.dc.mecA, {unit:"%", dp:2});
+    if (needB) B.inp("caMb", `Minimum extinguishing concentration, heptane (${ag.short})`, c.dc.mecB, {unit:"%", dp:2});
+    if (c.cls !== "B") B.inp("caSa", "Safety factor, Class A", Number(set.sfA), {dp:2});
+    if (c.cls === "B") B.inp("caSb", "Safety factor, Class B", Number(set.sfB), {dp:2});
+    if (c.cls === "C") B.inp("caSc", "Safety factor, Class C", Number(set.sfC), {dp:2});
+    const cA = set.heptFloor ? "MAX({caMa}*{caSa},{caMb})" : "{caMa}*{caSa}";
+    const xl = c.cls === "A" ? cA : c.cls === "B" ? "{caMb}*{caSb}" : `MAX({caMa}*{caSc},${cA})`;
+    B.calc("caC", `Design concentration (C) — ${c.dc.basis}`, c.C, xl, {unit:"%", dp:2, key:true, bold:true});
+  }
+  B.inp("caAcf", `Altitude correction factor (${Number(set.altitude) || 0} m above sea level)`, c.acf, {dp:3});
+  B.gap();
+  B.section("3.  Agent Quantity");
+  c.spaces.forEach(x => B.calc("caWs_" + x.k, `Agent for ${x.l.toLowerCase()}`, x.W, `{caV_${x.k}}/{caS}*{caC}/(100-{caC})*{caAcf}`, {unit:"kg", dp:2}));
+  B.calc("caWc", "Agent calculated", c.Wcalc, c.spaces.map(x => `{caWs_${x.k}}`).join("+"), {unit:"kg", dp:2});
+  if (c.margin) { B.inp("caMg", "Additional allowance", c.margin, {unit:"%", dp:1}); B.calc("caWr", "Minimum agent required (W)", c.Wreq, "{caWc}*(1+{caMg}/100)", {unit:"kg", dp:2, key:true, bold:true}); }
+  else B.calc("caWr", "Minimum agent required (W)", c.Wreq, "{caWc}", {unit:"kg", dp:2, key:true, bold:true});
+  B.gap();
+  B.section("4.  Cylinders");
+  B.text(`${c.cyl.model} · ${c.cyl.src || ""}`, {italic:true});
+  B.inp("caCv", "Cylinder capacity", Number(c.cyl.vol), {unit:"L", dp:0});
+  B.inp("caFmin", "Minimum fill per cylinder", Number(c.cyl.minFill), {unit:"kg", dp:1});
+  B.inp("caFmax", "Maximum fill per cylinder", Number(c.cyl.maxFill), {unit:"kg", dp:1});
+  B.inp("caN", "Number of cylinders", c.n, {dp:0, key:true});
+  B.calc("caF", "Fill per cylinder  [W / n, rounded up to 0.1 kg]", c.fill, "CEILING({caWr}/{caN}-1E-9,0.1)", {unit:"kg", dp:1, bold:true});
+  B.text(c.okFill ? `Fill is within the cylinder range of ${c.cyl.minFill}–${c.cyl.maxFill} kg ✓` : `Fill is outside the cylinder range of ${c.cyl.minFill}–${c.cyl.maxFill} kg — change the cylinder or the number`, {italic:true, al:"r"});
+  B.calc("caWsup", "Agent supplied", c.Wsup, "{caF}*{caN}", {unit:"kg", dp:1, key:true, bold:true});
+  B.calc("caLb", "Agent supplied", c.lbs, "{caWsup}*2.20462", {unit:"lb", dp:1});
+  B.calc("caCa", "Concentration achieved", c.Cact, "100*({caWsup}*{caS}/({caVt}*{caAcf}))/(1+{caWsup}*{caS}/({caVt}*{caAcf}))", {unit:"%", dp:2, bold:true});
+  B.text(c.occupied ? (c.okNoael ? `Not above the NOAEL of ${ag.noael} % for a normally occupied space ✓` : `Above the NOAEL of ${ag.noael} % — not acceptable in a normally occupied space`) : "Normally unoccupied space", {italic:true, al:"r"});
+  B.calc("caSz", "Selected Cylinders", `${c.n} No. x ${c.cyl.vol} L — ${c.fill.toFixed(1)} kg each`, 'TEXT({caN},"0")&" No. x "&TEXT({caCv},"0")&" L — "&TEXT({caF},"0.0")&" kg each"', {bold:true, box:true, key:true});
+  B.text(`Cylinder Ø ${c.cyl.dia} mm × ${c.cyl.height} mm high · ${c.cyl.pressure} bar · valve ${c.cyl.valve || "—"}${c.filledWt ? ` · filled weight ${c.filledWt.toFixed(0)} kg each` : ""} · maximum discharge time 10 s`, {italic:true});
+  const fg = caCylFigure(c, p.name || "");
+  B.fig(fg.svg, fg.w, fg.h);
+  B.banner = {text: res.selStr,
+    xl: '"Provide "&{caN}&" No. "&TEXT({caCv},"0")&" L cylinder"&IF({caN}>1,"s","")&" filled with "&TEXT({caF},"0.0")&" kg ' + ag.short + ' each — "&TEXT({caWsup},"0.0")&" kg total for "&TEXT({caVt},"0.00")&" m³ at "&TEXT({caC},"0.00")&" % design ("&TEXT({caCa},"0.00")&" % achieved)"'};
+}
+
 // ── Water supply pipe sizing (network) ────────────────────────────────────────
 function clWaterRows(B, p, res) {
   const w = res.water, T = (v, span, o={}) => ({v, span, ...o}), fmt = (v, d) => Number(v).toFixed(d);
@@ -7063,12 +7616,12 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = String(pump.name || typeLbl(pump) || "Calculation");
+  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
-  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
+  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
   const closure = closureOf(meta);
   return {
     blocked:false, type: pump.type, res, rows:(()=>{ let z = 0; for (const x of B.rows) { if (x.t === "section") z = 0; else if (x.t === "row" || x.t === "text") x.z = (z++ % 2 === 1); } return B.rows; })(), byId:B.byId, tables:B.tables, banner:B.banner,
@@ -7076,7 +7629,7 @@ function clBuildDoc(proj, pump, meta, stageName, opts) {
       calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
       reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
     appendix:B.appendix,
-    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
     closure: closure.status === "closed" ? closure : null,
     watermark: closure.status === "closed" ? null : (stageStatusLabel(meta).toUpperCase() === "DRAFT" ? "DRAFT — NOT FOR ISSUE" : "DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
   };
@@ -7535,7 +8088,11 @@ function LiveCalcPanel({pump}) {
       {/* headline numbers */}
       <div className="live-calc-summary" style={{background:"#1d1d1f",padding:"12px 14px"}}>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-          {(res.grease ? [["Waste Flow Qs",`${res.grease.Qs.toFixed(2)} L/s`],
+          {(res.pbc ? [["Inflow Qin",`${res.pbc.Qin.toFixed(2)} L/s`],
+            ["Outlet Qout",`${res.pbc.Qout.toFixed(2)} L/s`],
+            ["Storage",`${res.pbc.Vstore.toFixed(2)} m³`],
+            ["Chamber",res.pbc.sizeStr]] :
+           res.grease ? [["Waste Flow Qs",`${res.grease.Qs.toFixed(2)} L/s`],
             ["Selected NS",res.grease.nsLabel],
             ["Separators",`${res.grease.n} No.`],
             ["F&B Connected",`${res.grease.count}`]] :
@@ -7566,7 +8123,7 @@ function LiveCalcPanel({pump}) {
           ))}
         </div>
         <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5}}>
-          {res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.lpg ? <>{res.lpg.gas.l} · {res.lpg.nSec} sections{res.lpg.chords.length?` · ${res.lpg.chords.length} ring`:""} · S = {res.lpg.S.toFixed(3)} · supply {res.lpg.P0} mbar<br/>Lowest end node {res.lpg.critNode||"—"} · <span style={{color:res.lpg.status==="valid"?"#4ade80":"#f87171",fontWeight:700}}>{res.lpg.status==="valid"?"all checks pass ✓":"review warnings ✗"}</span></> : res.water && res.water.drainMode ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} appliances · ΣDU {res.water.totLU.toFixed(1)}<br/>Largest drain {res.water.mainSec&&res.water.mainSec.cls==="main"?"DN"+res.water.mainSec.pipe.od:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} {res.water.gasMode ? "connections · " + res.water.gas.type.l + " · S " + res.water.gas.S.toFixed(3) : "fixtures · " + wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
+          {res.pbc ? <>Rising main {res.pbc.rmName} (ID {res.pbc.rmDn} mm) at {res.pbc.vRm.toFixed(2)} m/s · outlet DN{res.pbc.outD} at {res.pbc.slope} %, {Math.round(res.pbc.fill*100)} % full<br/>Outlet velocity {res.pbc.vAt!=null?res.pbc.vAt.toFixed(2)+" m/s":"—"} · <span style={{color:res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"#4ade80":"#f87171",fontWeight:700}}>{res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"all checks pass ✓":"review warnings ✗"}</span></> : res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.lpg ? <>{res.lpg.gas.l} · {res.lpg.nSec} sections{res.lpg.chords.length?` · ${res.lpg.chords.length} ring`:""} · S = {res.lpg.S.toFixed(3)} · supply {res.lpg.P0} mbar<br/>Lowest end node {res.lpg.critNode||"—"} · <span style={{color:res.lpg.status==="valid"?"#4ade80":"#f87171",fontWeight:700}}>{res.lpg.status==="valid"?"all checks pass ✓":"review warnings ✗"}</span></> : res.water && res.water.drainMode ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} appliances · ΣDU {res.water.totLU.toFixed(1)}<br/>Largest drain {res.water.mainSec&&res.water.mainSec.cls==="main"?"DN"+res.water.mainSec.pipe.od:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} {res.water.gasMode ? "connections · " + res.water.gas.type.l + " · S " + res.water.gas.S.toFixed(3) : "fixtures · " + wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
           {res.set.installed} pumps installed · {res.setText || `${res.set.duty} duty, ${res.set.standby} standby`}
           <br/>Pipe: {res.pipe.od} mm OD{res.pipe.wall!==undefined?` × ${res.pipe.wall} mm wall`:""} · Velocity{" "}
           <span style={{color:res.velOk?"#4ade80":"#f87171",fontWeight:700}}>
@@ -8048,7 +8605,9 @@ function ScheduleReviewTable({items, density, selectedId, onSelect}) {
   if (!items.length) return <div className="empty-schedule">No equipment matches the current filters.</div>;
   const row = item => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
     <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left" title={`${p.name} — ${typeLbl(p)||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{typeLbl(p)||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
-    {p.type==='grease'
+    {p.type==='pbc'
+      ? <><td><div className="pipe-main">Pressure break chamber</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.pbc.sizeStr} · outlet DN${r.pbc.outD}`}</div></td><td className="ctr"><span className="method-chip">{r.error||r.pbc.eq!=='manning'?'C–W':'Manning'}</span></td></>
+      : p.type==='grease'
       ? <><td><div className="pipe-main">Grease separator</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.set.installed} × ${r.nsLabel}`}</div></td><td className="ctr"><span className="method-chip">EN 1825</span></td></>
       : p.type==='lpg'
       ? <><td><div className="pipe-main">Steel Sch 40 · {r.error?'Gas':r.lpg.gas.l}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.lpg.nSec} sections · ${r.lpg.tot.Q.toFixed(1)} m³/h`}</div></td><td className="ctr"><span className="method-chip">IGE/UP/2</span></td></>
@@ -8062,9 +8621,36 @@ function ScheduleReviewTable({items, density, selectedId, onSelect}) {
 }
 function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
   if (!item) return null; const {p,result:r,status,index}=item; const mat=matOf(p.pipeType)||{};
-  return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Equipment inspection"><header><div><div className="schedule-eyebrow">Item {index+1} · {typeLbl(p)}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : r.grease ? <><div className="drawer-summary"><div className="drawer-metric"><span>Waste flow</span><b>{r.grease.Qs.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Selected</span><b>{r.grease.nsLabel}</b></div><div className="drawer-metric"><span>Separators</span><b>{r.grease.n} No.</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>BS EN 1825-2</b></div><div className="drawer-line"><span>F&amp;B areas connected</span><b>{r.grease.count}</b></div><div className="drawer-line"><span>Total area</span><b>{r.grease.tot.A.toFixed(0)} m²</b></div><div className="drawer-line"><span>Total persons / meals per day</span><b>{r.grease.tot.P.toFixed(1)} / {r.grease.mealsDay.toFixed(0)}</b></div><div className="drawer-line"><span>NS per separator</span><b>{r.grease.perGI.toFixed(2)}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.lpg ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.lpg.gas.l} flow</span><b>{r.lpg.tot.Q.toFixed(2)} m³/h</b></div><div className="drawer-metric"><span>Largest main</span><b>{r.lpg.mainBig?r.lpg.mainBig.pipe.nps:'—'}</b></div><div className="drawer-metric"><span>Lowest P</span><b>{r.lpg.critNode?`${r.lpg.critP.toFixed(1)} mbar`:'—'}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>IGE/UP/2 · S {r.lpg.S.toFixed(3)}</b></div><div className="drawer-line"><span>Sections / connections / rings</span><b>{r.lpg.nSec} / {r.lpg.tot.n} / {r.lpg.chords.length}</b></div><div className="drawer-line"><span>Critical route</span><b>{r.lpg.route.join(' → ')||'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.water ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.water.drainMode?'Design flow':r.water.gasMode?'Gas flow':'Peak flow'}</span><b>{r.water.Qsrc.toFixed(2)} {wsQU(r.water)}</b></div><div className="drawer-metric"><span>{r.water.drainMode?'Largest drain':'Main pipe'}</span><b>{r.water.mainSec?(r.water.drainMode?`DN${r.water.mainSec.pipe.od}`:`${r.water.mainSec.pipe.od} mm`):'—'}</b></div><div className="drawer-metric"><span>{r.water.drainMode?'Max filling':r.water.gasMode?'Lowest P':'Min residual'}</span><b>{r.water.drainMode?(r.water.drain.maxFill*100).toFixed(0)+' %':<>{r.water.gasMode&&r.water.crit?r.water.crit.res.toFixed(1):r.water.minMargin.toFixed(1)} {wsPU(r.water)}</>}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Demand data</span><b>{r.water.dem.label}</b></div><div className="drawer-line"><span>Sections / fixtures</span><b>{r.water.nSec} / {r.water.totN.toFixed(0)}</b></div><div className="drawer-line"><span>Total {r.water.dem.unit}</span><b>{r.water.totLU.toFixed(0)}</b></div>{!r.water.drainMode && <div className="drawer-line"><span>Critical node</span><b>{r.water.crit?r.water.crit.node:'—'}</b></div>}</div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD{r.pipe.wall!==undefined?` × ${r.pipe.wall} mm wall`:""}</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit inputs</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
+  return <><div className="drawer-backdrop" onClick={onClose}/><aside className="inspection-drawer" role="dialog" aria-modal="true" aria-label="Equipment inspection"><header><div><div className="schedule-eyebrow">Item {index+1} · {typeLbl(p)}</div><h3>{p.name}</h3><div className="schedule-subtitle"><span className="tag-code">{p.tag||'—'}</span> · <StatusChip status={status}/></div></div><button className="close" onClick={onClose} aria-label="Close inspection">×</button></header><main>{r.error ? <div className="drawer-warning blocked"><b>Calculation blocked.</b><br/>{status.reason}</div> : r.pbc ? <><div className="drawer-summary"><div className="drawer-metric"><span>Inflow</span><b>{r.pbc.Qin.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Outlet capacity</span><b>{r.pbc.Qout.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Storage</span><b>{r.pbc.Vstore.toFixed(2)} m³</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Chamber (internal)</span><b>{r.pbc.sizeStr}</b></div><div className="drawer-line"><span>Method</span><b>{r.pbc.eq==='manning'?`Manning n ${r.pbc.n}`:`Colebrook-White ks ${r.pbc.ks} mm`}</b></div><div className="drawer-line"><span>Outlet</span><b>DN{r.pbc.outD} · {r.pbc.slope} % · {Math.round(r.pbc.fill*100)} % full</b></div><div className="drawer-line"><span>Rising main velocity</span><b>{r.pbc.vRm.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.grease ? <><div className="drawer-summary"><div className="drawer-metric"><span>Waste flow</span><b>{r.grease.Qs.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Selected</span><b>{r.grease.nsLabel}</b></div><div className="drawer-metric"><span>Separators</span><b>{r.grease.n} No.</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>BS EN 1825-2</b></div><div className="drawer-line"><span>F&amp;B areas connected</span><b>{r.grease.count}</b></div><div className="drawer-line"><span>Total area</span><b>{r.grease.tot.A.toFixed(0)} m²</b></div><div className="drawer-line"><span>Total persons / meals per day</span><b>{r.grease.tot.P.toFixed(1)} / {r.grease.mealsDay.toFixed(0)}</b></div><div className="drawer-line"><span>NS per separator</span><b>{r.grease.perGI.toFixed(2)}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.lpg ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.lpg.gas.l} flow</span><b>{r.lpg.tot.Q.toFixed(2)} m³/h</b></div><div className="drawer-metric"><span>Largest main</span><b>{r.lpg.mainBig?r.lpg.mainBig.pipe.nps:'—'}</b></div><div className="drawer-metric"><span>Lowest P</span><b>{r.lpg.critNode?`${r.lpg.critP.toFixed(1)} mbar`:'—'}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Method</span><b>IGE/UP/2 · S {r.lpg.S.toFixed(3)}</b></div><div className="drawer-line"><span>Sections / connections / rings</span><b>{r.lpg.nSec} / {r.lpg.tot.n} / {r.lpg.chords.length}</b></div><div className="drawer-line"><span>Critical route</span><b>{r.lpg.route.join(' → ')||'—'}</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : r.water ? <><div className="drawer-summary"><div className="drawer-metric"><span>{r.water.drainMode?'Design flow':r.water.gasMode?'Gas flow':'Peak flow'}</span><b>{r.water.Qsrc.toFixed(2)} {wsQU(r.water)}</b></div><div className="drawer-metric"><span>{r.water.drainMode?'Largest drain':'Main pipe'}</span><b>{r.water.mainSec?(r.water.drainMode?`DN${r.water.mainSec.pipe.od}`:`${r.water.mainSec.pipe.od} mm`):'—'}</b></div><div className="drawer-metric"><span>{r.water.drainMode?'Max filling':r.water.gasMode?'Lowest P':'Min residual'}</span><b>{r.water.drainMode?(r.water.drain.maxFill*100).toFixed(0)+' %':<>{r.water.gasMode&&r.water.crit?r.water.crit.res.toFixed(1):r.water.minMargin.toFixed(1)} {wsPU(r.water)}</>}</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Demand data</span><b>{r.water.dem.label}</b></div><div className="drawer-line"><span>Sections / fixtures</span><b>{r.water.nSec} / {r.water.totN.toFixed(0)}</b></div><div className="drawer-line"><span>Total {r.water.dem.unit}</span><b>{r.water.totLU.toFixed(0)}</b></div>{!r.water.drainMode && <div className="drawer-line"><span>Critical node</span><b>{r.water.crit?r.water.crit.node:'—'}</b></div>}</div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div></div></> : <><div className="drawer-summary"><div className="drawer-metric"><span>Q / pump</span><b>{r.flowLsPerPump.toFixed(2)} L/s</b></div><div className="drawer-metric"><span>Total head</span><b>{r.totalH} m</b></div><div className="drawer-metric"><span>Motor</span><b>{r.pwrSel} kW</b></div></div><div className="drawer-section"><h4>Selection</h4><div className="drawer-line"><span>Pipe</span><b>{mat.label} · {r.pipe.od} mm OD{r.pipe.wall!==undefined?` × ${r.pipe.wall} mm wall`:""}</b></div><div className="drawer-line"><span>Method</span><b>{p.headLossMethod==='DW'?'Darcy–Weisbach':'Hazen–Williams'}</b></div><div className="drawer-line"><span>Arrangement</span><b>{r.config} · {r.set.installed} installed</b></div><div className="drawer-line"><span>Velocity</span><b>{r.vel.toFixed(2)} m/s</b></div></div><div className="drawer-section"><h4>Review status</h4><div className={`drawer-warning ${status.key}`}><b>{status.label}.</b> {status.reason}</div><div className="drawer-line"><span>Stage action</span><b>Use full calculation sheet for issue record</b></div></div></>}</main><footer className="drawer-footer"><button onClick={onClose}>Close</button><button onClick={onEdit}>Edit inputs</button><button className="primary" onClick={onOpenCalc}>Calculation sheet</button></footer></aside></>;
 }
-function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet}) {
+// v1.84: Fire Protection schedule — one row per clean agent room (Clean Agent tab, stage meta).
+function FireScheduleTable({items, density, onOpen}) {
+  if (!items.length) return <div className="empty-schedule">No clean agent rooms match — add rooms in the Clean Agent tab.</div>;
+  const row = ({p, result:r, status, index}) => { const c = r && r.ca;
+    return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
+      <td className="row-no sticky-left">{index + 1}</td>
+      <td className="system sticky-left" title={p.name}><div className="system-main">{p.name}</div><div className="system-sub">{p.location || "—"}</div></td>
+      <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
+      <td><div className="pipe-main">{c ? c.ag.short : (CA_AGENTS[p.agent] || {}).short || "—"}</div><div className="pipe-sub">{c ? c.ag.label.replace(/^.*\(|\)$/g, "") : ""}</div></td>
+      <td className="ctr"><span className="method-chip">Class {p.cls || "C"}</span></td>
+      <td>{c ? c.spaces.map(x => x.l).join(" + ") : "—"}</td>
+      <td className="num">{c ? c.Vtot.toFixed(2) : "—"}</td>
+      <td className="num strong">{c ? c.C.toFixed(2) : "—"}</td>
+      <td className="num">{c ? c.Cact.toFixed(2) : "—"}</td>
+      <td className="num strong">{c ? c.Wsup.toFixed(1) : "—"}</td>
+      <td className="ctr">{c ? `${c.n} × ${c.cyl.vol} L` : "—"}</td>
+      <td className="num">{c ? c.fill.toFixed(1) : "—"}</td>
+      <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
+    </tr>; };
+  return <div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
+    <colgroup><col style={{width:48}}/><col style={{width:"20%"}}/><col style={{width:110}}/><col style={{width:"11%"}}/><col style={{width:84}}/><col style={{width:"15%"}}/><col style={{width:96}}/><col style={{width:84}}/><col style={{width:90}}/><col style={{width:90}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
+    <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Room</th><th className="sticky-left">Tag</th><th>Agent</th><th className="ctr">Hazard</th><th>Spaces protected</th><th className="num">Volume (m³)</th><th className="num">Design (%)</th><th className="num">Achieved (%)</th><th className="num">Agent (kg)</th><th className="ctr">Cylinders</th><th className="num">Fill each (kg)</th><th className="sticky-right ctr">State</th></tr></thead>
+    <tbody>{items.map(row)}</tbody></table></div>;
+}
+function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom}) {
+  const [disc,setDiscS]=useState(()=>{ try { return localStorage.getItem("mep_sch_disc")==="fire"?"fire":"plumbing"; } catch(e){ return "plumbing"; } });
+  const setDisc=v=>{ setDiscS(v); try { localStorage.setItem("mep_sch_disc",v); } catch(e){} };
+  const [agentFilter,setAgentFilter]=useState('all');
   // v1.55: compact schedule — one header line with the counts, one toolbar line, one-line rows, the table fills the window, full-screen mode
   const [query,setQuery]=useState(''),[statusFilter,setStatusFilter]=useState('all'),[typeFilter,setTypeFilter]=useState('all'),[methodFilter,setMethodFilter]=useState('all'),[selectedId,setSelectedId]=useState(null);
   const [density,setDensityS]=useState(()=>{ try { return localStorage.getItem("mep_sch_density")==="comfortable"?"comfortable":"compact"; } catch(e){ return "compact"; } });
@@ -8078,29 +8664,41 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0);
   const kpi=(key,cls,label,val)=><button type="button" key={key} className={"sch-kpi "+cls+(statusFilter===key?" on":"")} onClick={()=>key&&setStatusFilter(statusFilter===key&&key!=="all"?"all":key)} disabled={!key} title={key?`Show ${label.toLowerCase()} only`:""}><b>{val}</b><span>{label}</span></button>;
   const nf=[statusFilter,typeFilter,methodFilter].filter(v=>v!=="all").length+(query.trim()?1:0);
+  const fItems=useMemo(()=>caItems.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[caItems]);
+  const fVisible=fItems.filter(item=>{const q=query.trim().toLowerCase(); const ag=(item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent;
+    return (!q||[item.p.name,item.p.tag,item.p.location,(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter);});
+  const fCounts=fItems.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
+  const fKg=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.Wsup:0),0), fCyl=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.n:0),0);
+  const fire=disc==="fire";
+  const switchDisc=v=>{ setDisc(v); setStatusFilter('all'); setQuery(''); };
   return <div className={"schedule-review sch2"+(full?" sch-full":"")}>
     <div className="sch-head">
       <div className="sch-title"><b>Equipment Schedule</b><span>{stageName||'Active stage'} · Rev {proj.revision||'—'} · <i className={`save-dot ${savedClass}`}/>{saveStatus==='saving'?'Saving…':saveStatus==='error'?'Save failed':'Saved'}</span></div>
+      <div className="sch-disc no-print" role="tablist" aria-label="Discipline">
+        <button type="button" role="tab" aria-selected={!fire} className={!fire?"on":""} onClick={()=>switchDisc("plumbing")}>Plumbing<em>{items.length}</em></button>
+        <button type="button" role="tab" aria-selected={fire} className={fire?"on fire":"fire"} onClick={()=>switchDisc("fire")}>Fire Protection<em>{fItems.length}</em></button>
+      </div>
       <div className="sch-kpis">
-        {kpi("all","all","Items",items.length)}
-        {kpi("pass","pass","Pass",counts.pass)}
-        {kpi("review","review","Review",counts.review)}
-        {kpi("blocked","blocked","Blocked",counts.blocked)}
-        {kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
+        {kpi("all","all",fire?"Rooms":"Items",fire?fItems.length:items.length)}
+        {kpi("pass","pass","Pass",fire?fCounts.pass:counts.pass)}
+        {kpi("review","review","Review",fire?fCounts.review:counts.review)}
+        {kpi("blocked","blocked","Blocked",fire?fCounts.blocked:counts.blocked)}
+        {fire ? kpi(null,"kw","Agent",`${fKg.toFixed(1)} kg · ${fCyl} cyl`) : kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
       </div>
     </div>
     <section className="schedule-card">
       <div className="sch-bar no-print">
-        <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder="Search system, tag, pipe or type…" />
+        <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder={fire?"Search room, tag, location or agent…":"Search system, tag, pipe or type…"} />
+        {fire ? <select aria-label="Filter by agent" value={agentFilter} onChange={e=>setAgentFilter(e.target.value)}><option value="all">All agents</option>{Object.values(CA_AGENTS).map(a=><option key={a.key} value={a.key}>{a.label}</option>)}</select> : <>
         <select aria-label="Filter by equipment type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All types</option><TypeOptions/></select>
-        <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select>
-        {nf>0 && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');}}>✕ Clear filters</button>}
-        <span className="sch-count">{visible.length} of {items.length} shown</span>
+        <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select></>}
+        {(fire ? (query.trim()||statusFilter!=='all'||agentFilter!=='all') : nf>0) && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');setAgentFilter('all');}}>✕ Clear filters</button>}
+        <span className="sch-count">{fire ? `${fVisible.length} of ${fItems.length} shown` : `${visible.length} of ${items.length} shown`}</span>
         <span style={{flex:1}}/>
         <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
       </div>
-      <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>
+      {fire ? <FireScheduleTable items={fVisible} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/> : <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>}
     </section>
     <PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/>
   </div>;
@@ -8201,6 +8799,8 @@ function isDraftStatus(st) { return !st || st==='draft' || st==='reopened'; }
 function defaultDesignBasis(p) {
   if (p && p.type === 'sump') return sumpDesignBasis(p);
   if (p && p.type === 'grease') return greaseDesignBasis(p);
+  if (p && p.type === 'pbc') return pbcDesignBasis(p);
+  if (p && p.type === 'ca') return caDesignBasis(p);
   if (p && p.type === 'water') return wsIsDrain(p) ? drainDesignBasis(p) : wsIsGas(p) ? gasDesignBasis(p) : waterDesignBasis(p);
   const system = (p && (p.name || typeLbl(p))) || 'MEP calculation';
   const flow = p?.type==='tp' ? 'Transfer time and storage volume are used to establish the required system flow.' : 'The system demand and selected duty arrangement establish the required design flow.';
@@ -8210,6 +8810,7 @@ function defaultDesignBasis(p) {
   return [`${system} is assessed using the current coordinated project information and design inputs.`, ...fluidTxt, method, flow, 'Pipe and motor selections use the approved in-application reference schedules.'];
 }
 function basisOf(proj, meta, p) {
+  if (p && p.type === "ca") return caDesignBasis(p);                 // a fire sheet never takes the plumbing stage / project statements
   const stageBasis = Array.isArray(meta?.designBasis) ? meta.designBasis.filter(Boolean) : [];
   const projectBasis = Array.isArray(proj?.designBasis) ? proj.designBasis.filter(Boolean) : [];
   return stageBasis.length ? stageBasis : (projectBasis.length ? projectBasis : defaultDesignBasis(p));
@@ -8541,27 +9142,289 @@ function SumpForm({pump, onChange}) {
 // ─── SUMP SECTION CARD — left column of Pump Inputs; click to enlarge ─────────
 function SumpFigCard({pump}) {
   const res = useMemo(()=>safeCalculate(pump),[pump]);
-  const fig = useMemo(()=>res && res.sump ? sumpFigure(res.sump, pump.pitCaption || pump.name || "") : null, [res, pump.pitCaption, pump.name]);
+  const fig = useMemo(()=>res && res.sump ? sumpFigure(res.sump, pump.pitCaption || pump.name || "") : res && res.pbc ? pbcFigure(res.pbc, pump.name || "") : null, [res, pump.pitCaption, pump.name]);
+  const ttl = pump.type === "pbc" ? "Chamber section" : "Sump section";
   const [big, setBig] = useState(false);
   useEffect(()=>{ if(!big) return; const k=e=>{ if(e.key==="Escape") setBig(false); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[big]);
   return (
     <div className="piw-fig">
-      <div className="piw-h"><b>Sump section</b>{fig && <button type="button" className="piw-fig-zoom" onClick={()=>setBig(true)} title="Enlarge">⤢</button>}</div>
+      <div className="piw-h"><b>{ttl}</b>{fig && <button type="button" className="piw-fig-zoom" onClick={()=>setBig(true)} title="Enlarge">⤢</button>}</div>
       {fig ? <>
           <div className="sump-fig piw-fig-svg" onClick={()=>setBig(true)} title="Click to enlarge" dangerouslySetInnerHTML={{__html:fig.svg}} />
-          <div className="piw-fig-meta">{res.sump.sizeStr} · {res.sump.installed} pump{res.sump.installed>1?"s":""} · inlet −{res.sump.IL.toFixed(2)} m</div>
+          <div className="piw-fig-meta">{res.pbc ? <>{res.pbc.sizeStr} · outlet DN{res.pbc.outD} · {res.pbc.Vstore > 0 ? `storage ${res.pbc.Vstore.toFixed(2)} m³` : "no storage"}</> : <>{res.sump.sizeStr} · {res.sump.installed} pump{res.sump.installed>1?"s":""} · inlet −{res.sump.IL.toFixed(2)} m</>}</div>
         </>
         : <div className="sump-fig-empty">{res && res.errors ? res.errors.join(" ") : "Calculation could not be produced."}</div>}
       {big && fig && ReactDOM.createPortal(<div className="ai-back piw-fig-back" onClick={()=>setBig(false)}>
         <div className="piw-fig-modal" onClick={e=>e.stopPropagation()}>
-          <div className="piw-h"><b>Sump section — {pump.name||"Sump"}</b><button type="button" className="piw-fig-zoom" onClick={()=>setBig(false)}>✕</button></div>
+          <div className="piw-h"><b>{ttl} — {pump.name||(pump.type === "pbc" ? "Chamber" : "Sump")}</b><button type="button" className="piw-fig-zoom" onClick={()=>setBig(false)}>✕</button></div>
           <div className="sump-fig piw-fig-big" dangerouslySetInnerHTML={{__html:fig.svg}} />
         </div>
       </div>, document.body)}
     </div>
   );
 }
+
+// ─── CLEAN AGENT TAB (v1.80.0) ────────────────────────────────────────────────
+// Rooms, settings and the cylinder library are kept in the stage meta (meta.cleanAgent), so they save, merge and
+// lock with the stage. Each room is calculated as a pseudo item of type "ca" (see caRoomItems).
+const CA_NEW_ROOM = () => ({id: Math.random().toString(36).slice(2, 10), name:"", location:"", agent:"", cls:"C", L:"", W:"", H:"", area:"",
+  roomOn:true, cvOn:false, cv:"", fvOn:false, fv:"", deduct:"", temp:"", cOvr:"", occupied:"", cylKey:"auto", cylN:""});
+function CaCell({value, onChange, w=70, ro, ph, type="number", step="any"}) {
+  return <input className="ca-in" style={{width:w}} type={type} step={step} value={value ?? ""} placeholder={ph || ""} disabled={ro} onChange={e=>onChange(e.target.value)} />;
+}
+// One protected space in the room form: a tick box and its height / depth.
+function CaSpace({label, on, onToggle, value, onChange, ro, hint}) {
+  return <div className={"ca-space" + (on ? " on" : "")}>
+    <label className="ca-space-h"><input type="checkbox" checked={on} disabled={ro} onChange={e => onToggle(e.target.checked)} /> {label}</label>
+    <div className="pf-in"><input type="number" step="any" value={value ?? ""} disabled={ro || !on} onChange={e => onChange(e.target.value)} placeholder={on ? "" : "not protected"} /><span>m</span></div>
+    {hint && <div className="ca-space-n">{hint}</div>}
+  </div>;
+}
+function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
+  const ca = (meta && meta.cleanAgent) || {};
+  const set = caSettings(ca.set), lib = CA_CYLS, rooms = ca.rooms || [];
+  const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(false), [showLib, setShowLib] = useState(false), [showAdv, setShowAdv] = useState(false);
+  useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
+  const upd = fn => { if (locked) return; setMeta(m => { const cur = m.cleanAgent || {}; const {lib:_old, ...keep} = cur; return {...m, cleanAgent:fn({...keep, rooms:cur.rooms || [], set:cur.set || {}})}; }); };
+  const setRoom = (id, patch) => upd(x => ({...x, rooms:x.rooms.map(r => r.id === id ? {...r, ...patch} : r)}));
+  const setSet = patch => upd(x => ({...x, set:{...x.set, ...patch}}));
+  const setMec = (ag, k, v) => upd(x => ({...x, set:{...x.set, mec:{...(x.set.mec || {}), [ag]:{...((x.set.mec || {})[ag] || {}), [k]:v}}}}));
+  const addRoom = () => { const r = {...CA_NEW_ROOM(), agent:set.agent, occupied:!!set.occupied}; upd(x => ({...x, rooms:[...x.rooms, r]})); setSelId(r.id); };
+  const dupRoom = r => { const n = {...r, id:CA_NEW_ROOM().id, name:(r.name || "Room") + " (copy)"}; upd(x => { const i = x.rooms.findIndex(q => q.id === r.id); const a = x.rooms.slice(); a.splice(i + 1, 0, n); return {...x, rooms:a}; }); setSelId(n.id); };
+  const delRoom = r => { if (!window.confirm(`Delete ${r.name || "this room"}?`)) return; upd(x => ({...x, rooms:x.rooms.filter(q => q.id !== r.id)})); };
+  const items = useMemo(() => caRoomItems(meta), [meta]);
+  const results = useMemo(() => items.map(it => safeCalculate(it)), [items]);
+  const sel = rooms.find(r => r.id === selId) || rooms[0] || null;
+  const selIx = sel ? rooms.findIndex(r => r.id === sel.id) : -1, selRes = selIx >= 0 ? results[selIx] : null;
+  const tot = results.reduce((a, r) => r && r.ca ? {...a, kg:a.kg + r.ca.Wsup, n:a.n + r.ca.n, bad:a.bad + ((r.steps || []).some(s => s.flag) ? 1 : 0)} : {...a, err:a.err + 1}, {kg:0, n:0, bad:0, err:0});
+  const fig = useMemo(() => selRes && selRes.ca ? caCylFigure(selRes.ca, sel.name || "") : null, [selRes, sel && sel.name]);
+  const agOf = r => CA_AGENTS[r.agent] ? r.agent : set.agent;
+  const hasArea = r => r.area !== "" && r.area != null;
+  const exportXl = () => { const ok = items.filter((it, i) => results[i] && results[i].ca); if (!ok.length) { alert("No rooms with a complete calculation to export."); return; } if (ok.length < items.length && !window.confirm(`${items.length - ok.length} room(s) have errors and will be left out. Export the rest?`)) return; exportWorkbook(proj, ok, stageName, meta, "Fire_Clean_Agent"); };
+  const r = sel, ro = locked;
+  return (
+    <div className="ca-tab">
+      <div className="ca-head">
+        <div><h2>Clean Agent Sizing</h2><span>FM-200 (HFC-227ea) and Novec 1230 (FK-5-1-12) · NFPA 2001 total flooding · {rooms.length} room{rooms.length === 1 ? "" : "s"} · {tot.kg.toFixed(1)} kg in {tot.n} cylinder{tot.n === 1 ? "" : "s"}{tot.bad ? ` · ${tot.bad} to review` : ""}{tot.err ? ` · ${tot.err} with errors` : ""}</span></div>
+        <div className="ca-acts no-print">
+          <button type="button" className={"ca-btn" + (showSet ? " on" : "")} onClick={() => setShowSet(v => !v)} title="Safety factors, MEC values, altitude and defaults for the whole project">⚙ Design settings</button>
+          <button type="button" className="ca-btn pri" onClick={addRoom} disabled={locked}>+ Add room</button>
+        </div>
+      </div>
+      {locked && <div className="ca-note no-print">This stage is signed off — the clean agent rooms are read only.</div>}
+      {CA_CYL_ERR && <div className="ca-note bad no-print">⚠ {CA_CYL_ERR}</div>}
+
+      {showSet && <section className="ca-card no-print">
+        <h4>Design settings <em>project-wide · safety factors and MEC values must be the same for every room in the submission</em></h4>
+        <div className="ca-grid">
+          <Seg label="Agent for new rooms" value={set.agent} onChange={v => setSet({agent:v})} options={[{value:"novec", label:"Novec 1230"}, {value:"fm200", label:"FM-200"}]} />
+          <N label="Altitude above sea level" unit="m" value={set.altitude} onChange={v => setSet({altitude:v})} req={false} hint={`Correction factor ${caAcf(set.altitude).toFixed(3)}`} />
+          <N label="Minimum design temperature" unit="°C" value={set.temp} onChange={v => setSet({temp:v})} hint="Lowest expected room temperature; a room can override it" />
+          <Seg label="New rooms normally occupied" value={set.occupied ? "y" : "n"} onChange={v => setSet({occupied:v === "y"})} options={[{value:"y", label:"Yes"}, {value:"n", label:"No"}]} />
+          <N label="Safety factor Class A" value={set.sfA} onChange={v => setSet({sfA:v})} step={0.05} />
+          <N label="Safety factor Class B" value={set.sfB} onChange={v => setSet({sfB:v})} step={0.05} />
+          <N label="Safety factor Class C" value={set.sfC} onChange={v => setSet({sfC:v})} step={0.05} />
+          <N label="Additional agent allowance" unit="%" value={set.margin} onChange={v => setSet({margin:v})} req={false} hint="0 unless the supplier or client asks for one" />
+          {Object.values(CA_AGENTS).map(a => <React.Fragment key={a.key}>
+            <N label={`${a.short} MEC Class A`} unit="%" value={set.mec[a.key].A} onChange={v => setMec(a.key, "A", v)} step={0.1} hint="From the system's UL / FM listing" />
+            <N label={`${a.short} MEC heptane`} unit="%" value={set.mec[a.key].B} onChange={v => setMec(a.key, "B", v)} step={0.1} hint="Cup burner value" />
+          </React.Fragment>)}
+        </div>
+        <label className="ca-chk"><input type="checkbox" checked={!!set.heptFloor} onChange={e => setSet({heptFloor:e.target.checked})} disabled={locked} /> Class A design concentration not less than the heptane MEC (NFPA 2001, 2012 edition onwards)</label>
+        <div className="ca-dc">Design concentrations now: {Object.values(CA_AGENTS).map(a => <span key={a.key}><b>{a.short}</b> A {caDesignConc(a.key, "A", set).C.toFixed(2)} % · B {caDesignConc(a.key, "B", set).C.toFixed(2)} % · C {caDesignConc(a.key, "C", set).C.toFixed(2)} %</span>)}</div>
+      </section>}
+
+
+      <section className="ca-card no-print">
+        <h4>Rooms <em>click a room to edit it · each room is one system, the room and its voids share one cylinder bank</em></h4>
+        {!rooms.length ? <div className="ca-empty">No rooms yet. <button type="button" className="ca-btn pri" onClick={addRoom} disabled={locked}>+ Add the first room</button></div> :
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Room</th><th>Location</th><th>Agent</th><th className="c">Class</th><th>Size m</th><th>Spaces</th><th className="n">Volume m³</th><th className="n">Conc %</th><th className="n">Agent kg</th><th>Cylinders</th><th/></tr></thead>
+          <tbody>{rooms.map((q, i) => { const rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
+            return <tr key={q.id} className={(sel && sel.id === q.id ? "sel " : "") + (rs && rs.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
+              <td className="n">{i + 1}</td>
+              <td><b>{q.name || `Room ${i + 1}`}</b></td>
+              <td>{q.location || "—"}</td>
+              <td>{CA_AGENTS[agOf(q)].short}</td>
+              <td className="c">{q.cls || "C"}</td>
+              <td>{hasArea(q) ? `${q.area} m²` : `${q.L || "?"} × ${q.W || "?"}`} × {q.H || "?"}</td>
+              <td>{[q.roomOn !== false && "Room", q.cvOn && "Ceiling", q.fvOn && "Floor"].filter(Boolean).join(" + ") || "—"}</td>
+              <td className="n">{c ? c.Vtot.toFixed(2) : "—"}</td>
+              <td className="n">{c ? c.C.toFixed(2) : "—"}</td>
+              <td className="n"><b>{c ? c.Wsup.toFixed(1) : "—"}</b></td>
+              <td>{c ? `${c.n} × ${c.cyl.vol} L` : <span className="ca-errt" title={(rs && rs.errors || []).join(" ")}>⚠ {(rs && rs.errors && rs.errors[0]) || "error"}</span>}</td>
+              <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dupRoom(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => delRoom(q)}>✕</button></td>
+            </tr>; })}</tbody></table></div>}
+      </section>
+
+      {r && <div className="ca-split no-print">
+        <section className="ca-card ca-inputs">
+          <h4>Inputs <em>room {selIx + 1} of {rooms.length}</em></h4>
+          <div className="ca-g2">
+            <T label="Room name" value={r.name} onChange={v => setRoom(r.id, {name:v})} placeholder={`Room ${selIx + 1}`} />
+            <T label="Location" value={r.location} onChange={v => setRoom(r.id, {location:v})} placeholder="e.g. 1st Floor" />
+          </div>
+          <div className="ca-sub">Agent and hazard</div>
+          <div className="ca-g2">
+            <Seg label="Agent" value={agOf(r)} onChange={v => setRoom(r.id, {agent:v, cylKey:v === agOf(r) ? r.cylKey : "auto", cylN:v === agOf(r) ? r.cylN : ""})} options={[{value:"novec", label:"Novec 1230 (FK-5-1-12)"}, {value:"fm200", label:"FM-200 (HFC-227ea)"}]} />
+            <Seg label="Hazard class" value={r.cls || "C"} onChange={v => setRoom(r.id, {cls:v})} options={Object.keys(CA_CLASSES).map(k => ({value:k, label:"Class " + k, title:CA_CLASSES[k]}))} />
+          </div>
+          <div className="ca-sub">Room size</div>
+          <div className="ca-g3">
+            <N label="Length" unit="m" value={r.L} onChange={v => setRoom(r.id, {L:v})} req={!hasArea(r)} />
+            <N label="Width" unit="m" value={r.W} onChange={v => setRoom(r.id, {W:v})} req={!hasArea(r)} />
+            <N label="Or floor area" unit="m²" value={r.area} onChange={v => setRoom(r.id, {area:v})} req={false} hint="Replaces L × W" />
+          </div>
+          <div className="ca-sub">Spaces protected <em>same floor area, one cylinder bank</em></div>
+          <div className="ca-g3">
+            <CaSpace label="Room height" on={r.roomOn !== false} onToggle={v => setRoom(r.id, {roomOn:v})} value={r.H} onChange={v => setRoom(r.id, {H:v})} ro={ro} />
+            <CaSpace label="Ceiling void" on={!!r.cvOn} onToggle={v => setRoom(r.id, {cvOn:v})} value={r.cv} onChange={v => setRoom(r.id, {cv:v})} ro={ro} hint="Depth above the ceiling" />
+            <CaSpace label="Floor void" on={!!r.fvOn} onToggle={v => setRoom(r.id, {fvOn:v})} value={r.fv} onChange={v => setRoom(r.id, {fv:v})} ro={ro} hint="Raised floor depth" />
+          </div>
+          <div className="ca-sub">Occupancy</div>
+          <div className="ca-g2">
+            <Seg label="Normally occupied" value={(r.occupied === "" || r.occupied == null ? set.occupied : r.occupied) ? "y" : "n"} onChange={v => setRoom(r.id, {occupied:v === "y"})} options={[{value:"y", label:"Yes", title:"Achieved concentration is checked against the NOAEL"}, {value:"n", label:"No"}]} />
+          </div>
+          {(() => { const nAdv = [r.deduct, r.temp, r.cOvr].filter(v => v !== "" && v != null).length + (r.cylKey && r.cylKey !== "auto" ? 1 : 0);
+            return <button type="button" className="ca-adv" onClick={() => setShowAdv(v => !v)}>{showAdv ? "▾" : "▸"} Advanced for this room <em>{nAdv ? `${nAdv} override${nAdv === 1 ? "" : "s"} set` : "deductions, temperature, concentration, cylinder"}</em></button>; })()}
+          {showAdv && <>
+            <div className="ca-g2" style={{marginTop:8}}>
+              <N label="Fixed objects to deduct" unit="m³" value={r.deduct} onChange={v => setRoom(r.id, {deduct:v})} req={false} hint="Solid, impervious volumes only" />
+              <N label="Design temperature" unit="°C" value={r.temp} onChange={v => setRoom(r.id, {temp:v})} req={false} hint={`Blank = ${set.temp} °C from Design settings`} />
+              <N label="Design concentration override" unit="%" value={r.cOvr} onChange={v => setRoom(r.id, {cOvr:v})} req={false} hint="Blank = MEC × safety factor" />
+              <S label="Cylinder" value={r.cylKey || "auto"} onChange={v => setRoom(r.id, {cylKey:v, cylN:""})} options={[{value:"auto", label:"Auto — fewest, then smallest"}, ...(r.cylKey && r.cylKey !== "auto" && !lib.some(c => c.key === r.cylKey) ? [{value:r.cylKey, label:`⚠ ${r.cylKey} — not in Reference Data`}] : []), ...lib.filter(c => c.agent === agOf(r)).map(c => ({value:c.key, label:`${c.model} (${c.minFill}–${c.maxFill} kg)`}))]} />
+              {r.cylKey && r.cylKey !== "auto" && <N label="Number of cylinders" value={r.cylN} onChange={v => setRoom(r.id, {cylN:v})} req={false} hint="Blank = fewest that hold the agent" />}
+            </div>
+            <div className="ca-advn">Blank fields use the Design settings. Cylinders come from Reference Data → Clean Agent Cylinders.</div>
+          </>}
+        </section>
+
+        <section className="ca-card ca-design">
+          <h4>Design <em>{CA_AGENTS[agOf(r)].label} · {CA_CLASSES[r.cls || "C"]}</em></h4>
+          {selRes && selRes.ca ? <>
+            <div className="ca-kpis">
+              <div className="hl"><span>Agent supplied</span><b>{selRes.ca.Wsup.toFixed(1)} kg</b><i>{selRes.ca.lbs.toFixed(1)} lb</i></div>
+              <div><span>Cylinders</span><b>{selRes.ca.n} × {selRes.ca.cyl.vol} L</b><i>{selRes.ca.fill.toFixed(1)} kg each</i></div>
+              <div className={selRes.ca.okNoael && selRes.ca.okLoael ? "" : "bad"}><span>Concentration</span><b>{selRes.ca.Cact.toFixed(2)} %</b><i>design {selRes.ca.C.toFixed(2)} %{selRes.ca.occupied ? ` · NOAEL ${selRes.ca.ag.noael} %` : ""}</i></div>
+              <div><span>Volume</span><b>{selRes.ca.Vtot.toFixed(1)} m³</b><i>{selRes.ca.spaces.map(x => x.l).join(" + ")}</i></div>
+            </div>
+            <div className="sump-fig ca-fig" dangerouslySetInnerHTML={{__html:fig.svg}} />
+            <div className="ca-cylsrc">{selRes.ca.cyl.src}</div>
+            <div className="ca-steps">{selRes.steps.map((st, i) => <React.Fragment key={i}>
+              {st.s && <div className="ca-sh">{st.s}</div>}
+              <div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div>
+            </React.Fragment>)}</div>
+          </> : <div className="ca-errbox">{(selRes && selRes.errors || ["Calculation could not be produced."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+        </section>
+      </div>}
+
+    </div>
+  );
+}
+function CaCylindersTab() {
+  return (
+    <RefTableTab
+      title="Clean Agent Cylinders"
+      note="Cylinders the Clean Agent tab chooses from, by agent. Fill range is the minimum and maximum agent mass per cylinder from the supplier's datasheet; height is overall including the valve. The key is stored on each room that pins a cylinder, so do not change it once used — set Active off instead of deleting."
+      tableName="ref_ca_cylinders"
+      conflictKey="cyl_key"
+      disableKeyFor="cyl_key"
+      numericKeys={["volume_l","min_fill_kg","max_fill_kg","dia_mm","height_mm","empty_wt_kg","pressure_bar"]}
+      transformIn={r => { const {id, updated_at, updated_by, ...rest} = r; return rest; }}
+      newRowTemplate={{cyl_key:"", agent:"novec", model:"", volume_l:"", min_fill_kg:"", max_fill_kg:"", dia_mm:"", height_mm:"", empty_wt_kg:"", pressure_bar:25, valve:"", source:"", notes:"", active:true}}
+      pasteKeys={["cyl_key","agent","model","volume_l","min_fill_kg","max_fill_kg","dia_mm","height_mm","empty_wt_kg","pressure_bar","valve","source"]}
+      columns={[
+        {key:"cyl_key", label:"Key", width:"0.9fr"},
+        {key:"agent", label:"Agent", width:"0.8fr", options:["novec","fm200"]},
+        {key:"model", label:"Model", width:"1.6fr"},
+        {key:"volume_l", label:"Vol L", type:"number", width:"0.5fr"},
+        {key:"min_fill_kg", label:"Min kg", type:"number", step:"0.1", width:"0.55fr"},
+        {key:"max_fill_kg", label:"Max kg", type:"number", step:"0.1", width:"0.55fr"},
+        {key:"dia_mm", label:"Ø mm", type:"number", width:"0.5fr"},
+        {key:"height_mm", label:"H mm", type:"number", width:"0.55fr"},
+        {key:"empty_wt_kg", label:"Empty kg", type:"number", width:"0.55fr"},
+        {key:"pressure_bar", label:"bar", type:"number", width:"0.4fr"},
+        {key:"valve", label:"Valve", width:"0.5fr"},
+        {key:"source", label:"Source", width:"1.4fr"},
+        {key:"active", label:"Active", type:"checkbox", width:"0.4fr"},
+      ]}
+    />
+  );
+}
+
 // ─── GREASE INTERCEPTOR FORM ──────────────────────────────────────────────────
+
+// ── Pressure break chamber: input form (v1.79.0) ─────────────────────────────
+function PbcForm({pump, onChange}) {
+  const u = (f,v) => onChange({...pump,[f]:v});
+  const res = useMemo(()=>safeCalculate(pump),[pump]);
+  const c = res && res.pbc;
+  const mode = PBC_IN_MODES[pump.inMode] ? pump.inMode : "duty";
+  const cw = pump.flowEq !== "manning";
+  const rmMat = pump.rmMat || "custom", rmTable = (rmMat!=="custom" && PIPE_MATERIALS[rmMat] && PIPE_MATERIALS[rmMat].table) || [];
+  const rmRow = rmTable.find(r=>Number(r.od)===Number(pump.rmOd));
+  return (
+    <div className="pf">
+      <div className="pf-row pf-id">
+        <T label="Name" value={pump.name} onChange={v=>u("name",v)} />
+        <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. PBC-01" />
+      </div>
+      <section className="pf-sec">
+        <h5><i>1</i>Inflow from the rising main <em>use the pump duty; pipe capacity at a velocity is a ceiling, not a flow</em></h5>
+        <Seg label="Inflow basis" value={mode} onChange={v=>u("inMode",v)} options={[
+          {value:"duty",label:"Pump duty",title:PBC_IN_MODES.duty},
+          {value:"main",label:"Main capacity",title:PBC_IN_MODES.main},
+          {value:"max",label:"Greater of both",title:PBC_IN_MODES.max+" (as the older master sheet)"}]} />
+        <div className="pf-row pf-grid">
+          {mode!=="main" && <N label="Pump duty flow" unit="L/s" value={pump.qDuty} onChange={v=>u("qDuty",v)} min={0.01} />}
+          <div className="pf-f"><label>Rising main material</label><div className="pf-in"><select value={rmMat} onChange={e=>{ const k=e.target.value; if(k==="custom") return onChange({...pump, rmMat:"custom"}); const t=(PIPE_MATERIALS[k]&&PIPE_MATERIALS[k].table)||[]; const keep=t.find(r=>Number(r.od)===Number(pump.rmOd)); const near=keep||t.reduce((b,r)=>!b||Math.abs(r.id-(c?c.rmDn:100))<Math.abs(b.id-(c?c.rmDn:100))?r:b,null); onChange({...pump, rmMat:k, rmOd: near?near.od:""}); }}>
+            {rmMat!=="custom" && !PIPE_MATERIALS[rmMat] && <option value={rmMat}>{`⚠ ${rmMat} — not in Reference Data`}</option>}
+            {Object.entries(PIPE_MATERIALS).map(([k,x])=><option key={k} value={k}>{x.label||k}</option>)}
+            <option value="custom">Custom — type the internal Ø</option></select></div></div>
+          {rmMat==="custom" ? <N label="Rising main internal Ø" unit="mm" value={pump.rmDn} onChange={v=>u("rmDn",v)} min={1} />
+            : <div className="pf-f"><label>Rising main size</label><div className="pf-in"><select value={String(pump.rmOd||"")} onChange={e=>u("rmOd",Number(e.target.value))}>
+                {!rmRow && <option value="">Choose a size</option>}
+                {rmTable.map(r=><option key={r.od} value={String(r.od)}>{`${r.od} mm OD · ID ${r.id} mm${r.nb&&r.nb!==r.od?` · DN${r.nb}`:""}`}</option>)}</select></div></div>}
+          <N label="Rising main velocity" unit="m/s" value={pump.rmVel} onChange={v=>u("rmVel",v)} min={0.01} hint="Velocity used for the main's capacity" />
+          {mode!=="main" && <N label="Min rising main velocity" unit="m/s" value={pump.vMinRm} onChange={v=>u("vMinRm",v)} req={false} hint="Check only · 0 = off" />}
+        </div>
+        {c && <div className="pf-note" style={{fontSize:12,color:"#424245",marginTop:8}}>Internal Ø <b>{c.rmDn} mm</b> · velocity at {c.Qin.toFixed(2)} L/s <b style={{color:c.okRm?"#1f7a3a":"#c0392b"}}>{c.vRm.toFixed(2)} m/s</b> · capacity at {Number(pump.rmVel)||2} m/s <b>{(c.rmA*(Number(pump.rmVel)||2)*1000).toFixed(2)} L/s</b></div>}
+      </section>
+      <section className="pf-sec">
+        <h5><i>2</i>Outgoing gravity sewer <em>{cw?"Colebrook-White, part full · BS EN 16933-2":"Manning, part full · BS EN 16933-2"}</em></h5>
+        <div className="pf-row pf-grid">
+          <N label="Internal diameter" unit="mm" value={pump.outD} onChange={v=>u("outD",v)} min={1} hint="Use the pipe bore, not the nominal size" />
+          <N label="Gradient" unit="%" value={pump.outSlope} onChange={v=>u("outSlope",v)} min={0.01} max={20} step={0.05} hint="1 % = 1 in 100" />
+          <N label="Filling ratio y/D" value={pump.outFill} onChange={v=>u("outFill",v)} min={0.05} max={0.9} step={0.05} hint="Design depth ÷ diameter, e.g. 0.70" />
+          <div style={{gridColumn:"span 2"}}><Seg label="Flow formula" value={cw?"cw":"manning"} onChange={v=>u("flowEq",v)} options={[{value:"cw",label:"Colebrook-White"},{value:"manning",label:"Manning"}]} /></div>
+          {cw ? <N label="Roughness ks" unit="mm" value={pump.ks} onChange={v=>u("ks",v)} min={0.001} step={0.1} hint="1.5 mm for foul sewers (Water UK DCG)" />
+              : <N label="Manning n" value={pump.mann} onChange={v=>u("mann",v)} min={0.005} step={0.001} hint="0.013 typical" />}
+          <N label="Min self-cleansing velocity" unit="m/s" value={pump.vMinOut} onChange={v=>u("vMinOut",v)} req={false} hint="Check only · 0 = off" />
+        </div>
+      </section>
+      <section className="pf-sec">
+        <h5><i>3</i>Chamber <em>storage only for the net inflow during one pump run</em></h5>
+        <div className="pf-row pf-grid">
+          <N label="Pump run time" unit="min" value={pump.tRun} onChange={v=>u("tRun",v)} min={0.1} />
+          <N label="Internal length" unit="m" value={pump.L} onChange={v=>u("L",v)} min={0.1} step={0.05} />
+          <N label="Internal width" unit="m" value={pump.W} onChange={v=>u("W",v)} min={0.1} step={0.05} />
+          <N label="Dead depth below outlet" unit="m" value={pump.hDead} onChange={v=>u("hDead",v)} step={0.05} hint="Floor or benching to outlet invert" />
+          <N label="Drop TWL → main invert" unit="m" value={pump.hDrop} onChange={v=>u("hDrop",v)} step={0.05} hint="Keep low — a high drop adds turbulence and odour" />
+          <N label="Freeboard above main crown" unit="m" value={pump.hFree} onChange={v=>u("hFree",v)} step={0.05} hint="Clear space from the top of the rising main to the cover soffit" />
+          <N label="Minimum internal depth" unit="m" value={pump.minDepth} onChange={v=>u("minDepth",v)} req={false} step={0.1} />
+          <div style={{gridColumn:"span 2"}}><Seg label="Extra depth goes to" value={pump.padPos==="top"?"top":"bottom"} onChange={v=>u("padPos",v)} options={[{value:"bottom",label:"Bottom",title:"Deepen below the outlet; the inlet stays close to the cover"},{value:"top",label:"Top",title:"Add the extra above the inlet"}]} /></div>
+        </div>
+        {c ? <div className="gi-res">
+          <div><span>Inflow Qin</span><b>{c.Qin.toFixed(2)} L/s</b><span className="gi-sub">rising main {c.vRm.toFixed(2)} m/s</span></div>
+          <div className={c.okOut?"":"badbox"}><span>Outlet capacity Qout</span><b>{c.Qout.toFixed(2)} L/s</b><span className="gi-sub">{c.vAt!=null?`${c.vAt.toFixed(2)} m/s at design flow`:"—"}</span></div>
+          <div className={c.okCap?"":"badbox"}><span>Storage</span><b>{c.Vstore.toFixed(2)} m³</b><span className="gi-sub">{c.okCap?"outlet carries the inflow":`retention ${c.Qret.toFixed(2)} L/s`}</span></div>
+          <div className="sel"><span>Chamber (internal)</span><b>{c.sizeStr}</b></div>
+        </div> : <div className="sump-fig-empty" style={{marginTop:10}}>{res && res.errors ? res.errors.join(" ") : "Calculation could not be produced."}</div>}
+      </section>
+    </div>
+  );
+}
+
 function GreaseForm({pump, onChange}) {
   const u  = (f,v) => onChange({...pump,[f]:v});
   const uu = (o)   => onChange({...pump,...o});
@@ -12529,14 +13392,14 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
 // Calculation Sheets list groups (on screen only — the printed pack and its numbering are unchanged)
-const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
+const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["lpg","Gas Pipe Sizing"]];
 function calcPickGroups(pumps) {
   const by = {}; (pumps || []).forEach((p, i) => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : (RPT_GROUP[p.type] || "circ"); (by[k] = by[k] || []).push({p, i}); });
   return CALC_PICK_GROUPS.filter(([k]) => by[k]).map(([k, l]) => ({k, l, items:by[k]}));
 }
-const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", water:"ws", lpg:"lpg"};
+const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
-  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION"};
+  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION"};
 function rptGroups(sel, names) {
   const out = [];
   sel.forEach(p => { const k = p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : RPT_GROUP[p.type] || "circ"; let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k], items:[]}; out.push(g); } g.items.push(p); });
@@ -12546,13 +13409,20 @@ function rptDefaultHistory(meta, stageName, title) {
   return [{rev:String(meta.revision || "01"), desc:title.toUpperCase(), purpose:(stageName || "Stage").toUpperCase() + " SUBMISSION", date:rptDate(meta.date, ".")},
     {rev:"", desc:"", purpose:"", date:""}, {rev:"", desc:"", purpose:"", date:""}, {rev:"", desc:"", purpose:"", date:""}];
 }
-function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, jobsDef, locked, onClose, onGo}) {
-  const defTitle = "Plumbing & Drainage Calculations";
-  const [title, setTitle] = useState(proj.reportTitle || defTitle);
-  const [stageLine, setStageLine] = useState(meta.reportStage || stageName || "");
-  const [ref, setRef] = useState(proj.reference || "");
-  const [hist, setHist] = useState(() => Array.isArray(meta.reportHistory) && meta.reportHistory.length ? meta.reportHistory.map(r => ({...r})) : rptDefaultHistory(meta, stageName, proj.reportTitle || defTitle));
-  const [jobs, setJobs] = useState(() => { const j = {...(meta.reportJobs || {})}, d = jobsDef || {}; ["prep","rev","app"].forEach(k => { if (!j[k]) j[k] = d[k] || ""; }); return j; });
+// v1.82: each discipline keeps its own cover — title, stage line, reference, document history and job titles.
+// Plumbing uses the original fields (proj.reference / reportTitle, meta.reportHistory …); Fire and All use their own buckets.
+const RPT_DISC = {plumbing:{key:null, label:"Plumbing & Drainage", def:"Plumbing & Drainage Calculations"},
+  fire:{key:"reportFire", label:"Fire Protection", def:"Fire Protection Calculations"},
+  all:{key:"reportAll", label:"Plumbing & Fire Protection", def:"Plumbing & Fire Protection Calculations"}};
+function rptBucket(src, disc) { const d = RPT_DISC[disc] || RPT_DISC.plumbing; return d.key ? ((src && src[d.key]) || {}) : (src || {}); }
+function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, jobsDef, locked, onClose, onGo, disc="plumbing"}) {
+  const D = RPT_DISC[disc] || RPT_DISC.plumbing, P0 = rptBucket(proj, disc), M0 = rptBucket(meta, disc);
+  const defTitle = D.def;
+  const [title, setTitle] = useState(P0.reportTitle || defTitle);
+  const [stageLine, setStageLine] = useState(M0.reportStage || stageName || "");
+  const [ref, setRef] = useState(P0.reference || "");
+  const [hist, setHist] = useState(() => Array.isArray(M0.reportHistory) && M0.reportHistory.length ? M0.reportHistory.map(r => ({...r})) : rptDefaultHistory(meta, stageName, P0.reportTitle || defTitle));
+  const [jobs, setJobs] = useState(() => { const j = {...(M0.reportJobs || meta.reportJobs || {})}, d = jobsDef || {}; ["prep","rev","app"].forEach(k => { if (!j[k]) j[k] = d[k] || ""; }); return j; });
   const names = {};
   const [pick, setPick] = useState(() => new Set(pumps.map(p => p.id)));
   const [wsp, setWsp] = useState(() => ({...WS_PRINT_DEF, ...(proj.wsPrint || {})}));
@@ -12560,19 +13430,23 @@ function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, j
   const tog = id => setPick(s => { const n = new Set(s); n.has(id) ? n.delete(id) : n.add(id); return n; });
   const sel = pumps.filter(p => pick.has(p.id));
   const go = () => {
-    if (!locked) { setProj(x => ({...x, reference:ref, reportTitle:title === defTitle ? "" : title, wsPrint:wsp})); setMeta(m => ({...m, reportHistory:hist, reportJobs:jobs, reportStage:stageLine})); }
-    onGo({title:title.trim() || defTitle, stageLine:stageLine.trim(), ref:ref.trim(), hist, jobs, names, wsPrint:wsp, ids:sel.map(p => p.id)});
+    if (!locked) {
+      const pv = {reference:ref, reportTitle:title === defTitle ? "" : title}, mv = {reportHistory:hist, reportJobs:jobs, reportStage:stageLine};
+      if (D.key) { setProj(x => ({...x, [D.key]:{...(x[D.key] || {}), ...pv}, wsPrint:wsp})); setMeta(m => ({...m, [D.key]:{...(m[D.key] || {}), ...mv}})); }
+      else { setProj(x => ({...x, ...pv, wsPrint:wsp})); setMeta(m => ({...m, ...mv})); }
+    }
+    onGo({title:title.trim() || defTitle, stageLine:stageLine.trim(), ref:ref.trim(), hist, jobs, names, wsPrint:wsp, ids:sel.map(p => p.id), disc, discLabel:D.label});
   };
   const inp = {width:"100%", padding:"6px 8px", border:"1px solid #d2d2d7", borderRadius:7, fontSize:12};
   const th = {fontSize:9.5, fontWeight:800, color:"#6e6e73", textAlign:"left", padding:"0 4px 4px", textTransform:"uppercase", letterSpacing:".04em"};
   return ReactDOM.createPortal(<div className="ai-back no-print" onClick={onClose}>
     <div className="ai-modal" onClick={e => e.stopPropagation()} style={{width:"min(860px,96vw)", maxHeight:"92vh", overflow:"auto", gap:10}}>
-      <h3>PDF Report</h3>
+      <h3>PDF Report — {D.label}</h3>
       <p className="ai-sub">Cover · Document History &amp; Approval · Table of Contents · a divider page and the sheets for each section · back cover. In the print window choose <b>Save as PDF</b>, paper A4, and keep <b>Background graphics</b> ticked.</p>
       <div style={{display:"grid", gridTemplateColumns:"1.4fr 1fr 1.2fr", gap:10}}>
         <div><label>Report title (cover)</label><input style={inp} value={title} onChange={e => setTitle(e.target.value)} /></div>
         <div><label>Stage line (cover)</label><input style={inp} value={stageLine} placeholder="e.g. 100% Schematic Design" onChange={e => setStageLine(e.target.value)} /></div>
-        <div><label>Reference no. (cover and footer)</label><input style={inp} value={ref} placeholder="XXXXX-XXX-XXX-XXX-XXXXX" onChange={e => setRef(e.target.value)} /></div>
+        <div><label>Reference no. (cover and footer)</label><input style={inp} value={ref} placeholder={disc === "fire" ? "e.g. XXX-MHT-ZZZ-ZZZ-CAL-FPS-0001" : "XXXXX-XXX-XXX-XXX-XXXXX"} onChange={e => setRef(e.target.value)} /></div>
       </div>
       <label style={{marginTop:6}}>Document History</label>
       <table style={{width:"100%", borderCollapse:"separate", borderSpacing:"4px 3px"}}><thead><tr><th style={{...th, width:70}}>Revision</th><th style={th}>Description</th><th style={th}>Purpose of Issue</th><th style={{...th, width:110}}>Date</th></tr></thead>
@@ -12597,6 +13471,7 @@ function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, j
 function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
   const ref = useRef(null);
   const sel = cfg.ids.map(id => pumps.find(p => p.id === id)).filter(Boolean), groups = rptGroups(sel, cfg.names);
+  const caSel = sel.filter(p => p.type === "ca"), eqSel = rptExpand(sel.filter(p => p.type !== "ca"));
   const draft = closureOf(meta).status !== "closed", foot = cfg.ref || cfg.title;
   useEffect(() => {
     const old = document.getElementById("rpt-page-css"); if (old) old.remove();
@@ -12619,9 +13494,12 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
     <section className="rpt-cover">
       <img className="rpt-bg" src={RPT_COVER} alt="" />
       <div className="rpt-cv-box">
+        {cfg.discLabel && <div className={"rpt-cv-disc" + (cfg.disc === "fire" ? " fire" : "")}>{cfg.discLabel}</div>}
         <div className="rpt-cv-proj">{proj.name || "Project"}</div>
         <div className="rpt-cv-title">{cfg.title}</div>
         {cfg.stageLine && <div className="rpt-cv-title">{cfg.stageLine}</div>}
+        <div className="rpt-cv-meta">{proj.client && <div><span>CLIENT: </span>{proj.client}</div>}<div><span>REVISION: </span>{meta.revision || "01"}{meta.date ? <> · <span>DATE: </span>{rptDate(meta.date, ".")}</> : null}</div>
+          <div><span>CONTENTS: </span>{(() => { const n = sel.filter(p => p.type === "ca").length, m = sel.length - n; return [m ? `${m} calculation${m === 1 ? "" : "s"}` : "", n ? `${n} clean agent system${n === 1 ? "" : "s"}` : ""].filter(Boolean).join(" · "); })()}</div></div>
         <div className="rpt-cv-ref"><span>REFERENCE: </span>{cfg.ref || "—"}</div>
       </div>
       {draft && <div className="rpt-cv-draft">DRAFT — NOT FOR ISSUE · {stageStatusLabel(meta).toUpperCase()}</div>}
@@ -12642,20 +13520,29 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
       {wm}{head}
       <h1 className="rpt-toc-h">Table Of Contents</h1>
       <table className="rpt-toc"><thead><tr><th style={{width:"12%"}}>SN</th><th>DESCRIPTION</th></tr></thead>
-        <tbody><tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || typeLbl(p) || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
+        <tbody>{eqSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-sched">—</a></td><td><a href="#rpt-sched">EQUIPMENT SCHEDULE</a></td></tr>}{caSel.length > 0 && <tr className="g"><td className="n"><a href="#rpt-ca-sched">—</a></td><td><a href="#rpt-ca-sched">CLEAN AGENT SYSTEM SCHEDULE</a></td></tr>}{groups.map((g, i) => <React.Fragment key={g.k}><tr className="g"><td className="n"><a href={"#rpt-g-" + i}>{i + 1}</a></td><td><a href={"#rpt-g-" + i}>{g.title.toUpperCase()}</a></td></tr>{g.items.map((p, j) => <tr key={p.id}><td className="n"><a href={"#rpt-p-" + p.id}>{i + 1}.{j + 1}</a></td><td className="s"><a href={"#rpt-p-" + p.id}>{(p.name || typeLbl(p) || "Calculation").toUpperCase()}</a></td></tr>)}</React.Fragment>)}</tbody></table>
     </section>
-    <section className="rpt-pg" id="rpt-sched">
+    {caSel.length > 0 && <section className="rpt-pg" id="rpt-ca-sched">
+      {wm}{head}
+      <h1 className="rpt-toc-h">Clean Agent System Schedule</h1>
+      <table className="rpt-tb rpt-sch"><thead><tr><th style={{width:"5%"}}>SN</th><th style={{width:"10%"}}>Tag</th><th>Room</th><th style={{width:"12%"}}>Agent</th><th style={{width:"6%"}}>Class</th><th style={{width:"10%"}}>Volume (m³)</th><th style={{width:"9%"}}>Design (%)</th><th style={{width:"10%"}}>Agent (kg)</th><th style={{width:"16%"}}>Cylinders</th></tr></thead>
+        <tbody>{caSel.map((p, i) => { const r = safeCalculate(p), c = r && r.ca;
+          return <tr key={p.id}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name}{p.location ? <span style={{color:"#595959"}}> · {p.location}</span> : null}</td><td>{c ? c.ag.short : "—"}</td><td style={{textAlign:"center"}}>{c ? c.cls : "—"}</td>
+            <td style={{textAlign:"right"}}>{c ? c.Vtot.toFixed(2) : "—"}</td><td style={{textAlign:"right"}}>{c ? c.C.toFixed(2) : "—"}</td><td style={{textAlign:"right"}}>{c ? c.Wsup.toFixed(1) : "BLOCKED"}</td><td style={{textAlign:"center"}}>{c ? `${c.n} × ${c.cyl.vol} L @ ${c.fill.toFixed(1)} kg` : "—"}</td></tr>; })}</tbody></table>
+      <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Total flooding to NFPA 2001. Design = design concentration; agent = mass supplied (fill per cylinder × number of cylinders).</p>
+    </section>}
+    {eqSel.length > 0 && <section className="rpt-pg" id="rpt-sched">
       {wm}{head}
       <h1 className="rpt-toc-h">Equipment Schedule</h1>
       <table className="rpt-tb rpt-sch"><thead><tr><th style={{width:"5%"}}>SN</th><th style={{width:"15%"}}>Tag</th><th>Description</th><th style={{width:"12%"}}>Arrangement</th><th style={{width:"11%"}}>Flow (L/s)</th><th style={{width:"10%"}}>Head (m)</th><th style={{width:"11%"}}>Motor (kW each)</th></tr></thead>
-        <tbody>{rptExpand(sel).map((p, i) => { const r = safeCalculate(p), ok = r && !r.error;
-          const fl = !ok ? "—" : r.grease ? r.grease.Qs.toFixed(2) : r.water ? (r.water.gasMode ? r.water.Qsrc/3.6 : r.water.Qsrc).toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
+        <tbody>{eqSel.map((p, i) => { const r = safeCalculate(p), ok = r && !r.error;
+          const fl = !ok ? "—" : r.ca ? "—" : r.grease ? r.grease.Qs.toFixed(2) : r.water ? (r.water.gasMode ? r.water.Qsrc/3.6 : r.water.Qsrc).toFixed(2) : Number(r.flowLsPerPump).toFixed(2);
           const hd = !ok ? "—" : (r.grease || r.lpg) ? "—" : r.water ? (r.pumpHead ? (r.pumpHead.noPump ? "0" : String(r.pumpHead.head)) : "—") : (typeof r.totalH === "number" ? (p.type === "sump" ? r.totalH.toFixed(1) : String(r.totalH)) : "—");
           const kw = !ok ? "—" : (r.grease || r.water || r.lpg) ? "—" : String(r.pwrSel);
-          const ar = !ok ? "BLOCKED" : r.lpg ? r.lpg.nSec + " sections" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
+          const ar = !ok ? "BLOCKED" : r.ca ? `${r.ca.n} × ${r.ca.cyl.vol} L · ${r.ca.Wsup.toFixed(1)} kg` : r.lpg ? r.lpg.nSec + " sections" : r.grease ? r.grease.n + " × " + r.grease.nsLabel : r.water ? (r.pumpHead && !r.pumpHead.noPump ? r.pumpHead.duty + "D" + (r.pumpHead.standby ? " + " + r.pumpHead.standby + "S" : "") : "—") : r.config;
           return <tr key={i}><td style={{textAlign:"center"}}>{i + 1}</td><td>{p.tag || "—"}</td><td>{p.name || typeLbl(p)}</td><td style={{textAlign:"center"}}>{ar}</td><td style={{textAlign:"right"}}>{fl}</td><td style={{textAlign:"right"}}>{hd}</td><td style={{textAlign:"right"}}>{kw}</td></tr>; })}</tbody></table>
       <p style={{fontSize:"8pt",color:"#595959",marginTop:"3mm"}}>Flow is per duty pump (grease interceptors: total waste water flow; pipe sizing: peak flow at the source). D = duty, A = assist, S = standby.</p>
-    </section>
+    </section>}
     {groups.map((g, i) => <React.Fragment key={g.k}>
       <section className="rpt-pg" id={"rpt-g-" + i}>{wm}{head}<div className="rpt-div">{i + 1}.<span>{g.title.toUpperCase()}</span></div></section>
       {g.items.map(p => <div className="rpt-sheet" id={"rpt-p-" + p.id} key={p.id}><ClassicSheet proj={proj} stageName={stageName} pump={p} meta={meta} showFx={false} /></div>)}
@@ -12672,6 +13559,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [editId, setEditId]   = useState(null);
   const [pumpQuery, setPumpQuery] = useState("");
   const [printPick, setPrintPick] = useState(null);
+  const [caFocus, setCaFocus] = useState(null);   // v1.84: room to open in the Clean Agent tab (from the Fire Protection schedule)
   // v1.73: the Calculation Sheets list is grouped by kind — a filter and collapsible groups (remembered in this browser)
   const [pickFilter, setPickFilter] = useState("all");
   const [pickClosed, setPickClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_pick_closed") || "{}"); } catch (e) { return {}; } });
@@ -12681,11 +13569,17 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const sheetStyle = "classic";   // the Meinhardt classic sheet is the only layout
   const [showFx, setShowFxS] = useState(SheetPrefs.fx);
   const setShowFx = v => { SheetPrefs.fx = v; try { localStorage.setItem("mep_sheet_fx", v ? "1" : "0"); } catch(e){} setShowFxS(v); };   // which calculation the sheets tab is showing
+  // v1.81: Calculation Sheets show and export one discipline at a time — Plumbing (every calculation item) or
+  // Fire (clean agent rooms from the Clean Agent tab) — or both together.
+  const [sheetDisc, setSheetDiscS] = useState(() => { try { const v = localStorage.getItem("mep_sheet_disc"); return v === "fire" ? v : "plumbing"; } catch (e) { return "plumbing"; } });
+  const setSheetDisc = v => { try { localStorage.setItem("mep_sheet_disc", v); } catch (e) {} setSheetDiscS(v); };
+  const pickList = sheetDisc === "fire" ? caRoomItems(meta) : sheetDisc === "all" ? [...pumps, ...caRoomItems(meta)] : pumps;
+  const pickIds = pickList.map(p => p.id).join("|");
   React.useEffect(() => {
-    // Keep a valid selection: first load, and after a pump is deleted.
-    if (!pumps.length) { if (printPick!==null) setPrintPick(null); return; }
-    if (!printPick || !pumps.some(p=>p.id===printPick)) setPrintPick(pumps[0].id);
-  }, [pumps, printPick]);
+    // Keep a valid selection: first load, after a pump is deleted, and when the discipline changes.
+    if (!pickList.length) { if (printPick!==null) setPrintPick(null); return; }
+    if (!printPick || !pickList.some(p=>p.id===printPick)) setPrintPick(pickList[0].id);
+  }, [pickIds, printPick]);
   const [tab, _setTab]        = useState("setup");
   // Browser Back used to leave the site entirely from any in-app view, because
   // switching workspace tabs never touched history — the previous entry was
@@ -13106,6 +14000,9 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const closureSnapshot = closure.snapshot || null;
   const issueProject = closureSnapshot?.project ? {...proj,...closureSnapshot.project} : proj;
   const issueMeta = closureSnapshot?.meta_before_closure ? {...meta,...closureSnapshot.meta_before_closure,closure:meta.closure} : meta;
+  const caIssueItems = caRoomItems(issueMeta);
+  const sheetItems = sheetDisc === "fire" ? caIssueItems : sheetDisc === "all" ? [...pumps, ...caIssueItems] : pumps;
+  const discLbl = sheetDisc === "fire" ? "Fire" : sheetDisc === "plumbing" ? "Plumbing" : "";
   const issueStageName = closureSnapshot?.stage_name || currentStage?.stage_name;
   // The closure snapshot is used for issued outputs; therefore a later project
   // header or logo change cannot silently alter an approved stage package.
@@ -13116,6 +14013,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     checkedDate: issueMeta.checkedDate || "",
     reviewedBy:  issueMeta.reviewedBy  || "",
     reviewedDate:issueMeta.reviewedDate|| ""};
+  // Fire / All keep their own reference number (Report dialog), used for file names and the print title.
+  const projSheets = sheetDisc === "plumbing" ? projForDisplay : {...projForDisplay, reference:rptBucket(proj, sheetDisc).reference || ""};
   const invalidPumps = useMemo(()=>pumps.filter(p=>safeCalculate(p).error),[pumps]);
   const stageReadyForIssue = invalidPumps.length===0 && pumps.length>0;
   const staleWater = pumps.filter(p => calcIsStale(p));
@@ -13126,23 +14025,25 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const rptFull = w => { const t = rptMember(w); return t && t.name ? t.name : (w || ""); };
   const rptPeople = {prep:rptFull(projForDisplay.calcBy), rev:rptFull(projForDisplay.checkedBy), app:rptFull(projForDisplay.reviewedBy)};
   const rptJobs = {prep:(rptMember(projForDisplay.calcBy)||{}).desig||"", rev:(rptMember(projForDisplay.checkedBy)||{}).desig||"", app:(rptMember(projForDisplay.reviewedBy)||{}).desig||""};
-  const printNamed = () => { const old = document.title, ref = String(proj.reference||"").trim(); if (ref) document.title = ref + (closureOf(issueMeta).status!=="closed" ? "_DRAFT" : "");
+  const printNamed = () => { const old = document.title, ref = String(projSheets.reference||"").trim(); if (ref) document.title = ref + (closureOf(issueMeta).status!=="closed" ? "_DRAFT" : "");
     const back = () => { document.title = old; window.removeEventListener("afterprint", back); }; window.addEventListener("afterprint", back); window.print(); };
   const confirmFresh = what => staleWater.length === 0 || window.confirm(`${staleWater.length} Pipe Sizing calculation${staleWater.length === 1 ? " has" : "s have"} changed since ${staleWater.length === 1 ? "it was" : "they were"} last calculated, so this ${what} would contain the PREVIOUS results.\n\nPress Cancel, then Calculate (Ctrl+Enter in Pipe Sizing) — or OK to continue with the previous results.`);
   const issueExcel = async () => {
     if (!confirmFresh("export")) return;
     try { await flushProjectSave(); await flushPumpsSave(); } catch(e) { alert('Save failed before export: '+(e.message||e)); return; }
-    exportWorkbook(projForDisplay,pumps,issueStageName||"",issueMeta);
+    const bad = sheetItems.filter(p => { const r = safeCalculate(p); return !r || r.error; });
+    if (bad.length) { alert(`Cannot export — ${bad.length} calculation${bad.length === 1 ? " has" : "s have"} errors: ${bad.map(p => p.name || p.tag).join(", ")}.`); return; }
+    exportWorkbook(projSheets,sheetItems,issueStageName||"",issueMeta,projSheets.reference ? "" : discLbl);
   };
   const stagesOrdered=[...stages].sort((a,b)=>(a.sort_order||0)-(b.sort_order||0));
   const latestStage=stagesOrdered[stagesOrdered.length-1];
   const onOldStage=!!(latestStage && currentStageId && latestStage.id!==currentStageId);
   const issueExcelCurrent = async () => {
     if (!confirmFresh("export")) return;
-    const selected = pumps.find(p=>p.id===printPick);
+    const selected = sheetItems.find(p=>p.id===printPick);
     if (!selected) { alert("Select a calculation sheet first."); return; }
     try { await flushProjectSave(); await flushPumpsSave(); } catch(e) { alert('Save failed before export: '+(e.message||e)); return; }
-    exportWorkbook(projForDisplay,[selected],issueStageName||"",issueMeta,selected.tag||selected.name||"Calc");
+    exportWorkbook(projSheets,[selected],issueStageName||"",issueMeta,selected.tag||selected.name||"Calc");
   };
   // ── Sign-off workflow. The Supabase mep_wf_* functions are the authorization
   //    boundary; these client checks provide early, user-friendly validation only.
@@ -13233,7 +14134,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 4. Workspace ── */}
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
-              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
+              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["agent","❄","Clean Agent"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
               <a href="spec.html" className="sbx-applink" style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",fontSize:12,fontWeight:600,color:"#424245",textDecoration:"none",borderTop:"1px dashed #e5e5ea",marginTop:4}}><span className="ic" style={{width:18,textAlign:"center"}}>§</span><span className="tx" style={{flex:1}}>Specifications</span><span className="pill">↗</span></a>
             </nav>
             {(meta.trash||[]).length>0 && <details className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
@@ -13249,14 +14150,17 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 5. Export (Calculation Sheets only) ── */}
             {tab==="print" && <>
               <div className="sbx-label">Export</div>
-              <div className="sbx-export">
-                <button disabled={!pumps.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
-                <button disabled={!pumps.length} onClick={issueExcel} className="xl2">↓ Excel — Full Pack</button>
-                <button disabled={!pumps.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — all {pumps.length}</button>
-                <button disabled={!pumps.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
+              <div className="sbx-disc" role="tablist" aria-label="Discipline">
+                {[["plumbing","Plumbing",pumps.length],["fire","Fire",caIssueItems.length]].map(([k,l,n])=><button key={k} type="button" className={sheetDisc===k?"on":""} onClick={()=>setSheetDisc(k)}>{l}<em>{n}</em></button>)}
               </div>
-              {rptOpen && <ReportDialog pumps={pumps} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); setRptCfg({...c, k:Date.now()}); }} />}
-              {rptCfg && <ReportPrint key={rptCfg.k} cfg={rptCfg} pumps={pumps} proj={{...projForDisplay, reference:rptCfg.ref, wsPrint:rptCfg.wsPrint || projForDisplay.wsPrint}} stageName={issueStageName} meta={issueMeta} people={rptPeople} onDone={()=>setRptCfg(null)} />}
+              <div className="sbx-export">
+                <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
+                <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel — {discLbl || "Full"} Pack</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
+              </div>
+              {rptOpen && <ReportDialog key={sheetDisc} disc={sheetDisc} pumps={sheetItems} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); setRptCfg({...c, k:Date.now()}); }} />}
+              {rptCfg && <ReportPrint key={rptCfg.k} cfg={rptCfg} pumps={sheetItems} proj={{...projForDisplay, reference:rptCfg.ref, wsPrint:rptCfg.wsPrint || projForDisplay.wsPrint}} stageName={issueStageName} meta={issueMeta} people={rptPeople} onDone={()=>setRptCfg(null)} />}
             </>}
           </div>
           {/* ── 6. Footer: save status + actions, always visible ── */}
@@ -13279,7 +14183,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -13362,7 +14266,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 </select>
               </div>
             </aside>
-            {editing && editing.type==="sump" && <SumpFigCard pump={editing} />}
+            {editing && (editing.type==="sump" || editing.type==="pbc") && <SumpFigCard pump={editing} />}
             </div>
             <ColDrag w={piwL} set={setPiwL} def={piwLd} dir={1} title="Drag to widen the list · double-click to reset" />
 
@@ -13377,14 +14281,14 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                       <em>{editing.tag||"No tag"}</em>
                     </div>
                     <div className="piw-nav">
-                      {!["grease","water","lpg"].includes(editing.type) && <AiAssistant key={editing.id} pump={editing} locked={stageLocked} onApply={patch=>updPump({...editing,...patch,id:editing.id})} />}
+                      {!["grease","pbc","water","lpg"].includes(editing.type) && <AiAssistant key={editing.id} pump={editing} locked={stageLocked} onApply={patch=>updPump({...editing,...patch,id:editing.id})} />}
                       <button disabled={!prev} onClick={()=>prev&&setEditId(prev.id)} title="Previous calculation">‹</button>
                       <span>{idx+1} / {pumps.length}</span>
                       <button disabled={!next} onClick={()=>next&&setEditId(next.id)} title="Next calculation">›</button>
                     </div>
                   </div>
                   {stageLocked&&<LockedNotice/>}
-                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>{editing.type==="sump" ? <SumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="grease" ? <GreaseForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="lpg" ? <LegacyLpgCard pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={id=>{setPipeId(id);setTab("pipe");}} /> : editing.type==="water" ? <WaterLaunch pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={()=>{setPipeId(editing.id);setTab("pipe");}} /> : <PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} />}</fieldset>
+                  <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>{editing.type==="sump" ? <SumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="grease" ? <GreaseForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="pbc" ? <PbcForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} /> : editing.type==="lpg" ? <LegacyLpgCard pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={id=>{setPipeId(id);setTab("pipe");}} /> : editing.type==="water" ? <WaterLaunch pump={editing} onChange={u=>updPump({...u,id:editing.id})} onOpen={()=>{setPipeId(editing.id);setTab("pipe");}} /> : <PumpForm pump={editing} onChange={u=>updPump({...u,id:editing.id})} />}</fieldset>
                 </>); })() : (
                 <div className="piw-empty big">Select a calculation from the list, or add a new one.</div>
               )}
@@ -13408,8 +14312,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             proj={proj} setProj={setProj} stageName={issueStageName} stageLocked={stageLocked} saveStatus={saveStatus} saveNow={saveNow}
             onBack={()=>setTab("pumps")} />
         )}
+        {tab==="agent" && <CleanAgentTab meta={meta} setMeta={setMeta} locked={stageLocked} proj={projForDisplay} stageName={issueStageName} focus={caFocus} />}
         {tab==="schedule" && (
           <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus}
+            caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
             onEditPump={id=>{if(stageLocked) return; const t=pumps.find(x=>x.id===id); setEditId(id); if(t&&t.type==="water"){setPipeId(id);setTab("pipe");} else setTab("pumps");}}
             onOpenCalculationSheet={()=>setTab("print")} />
         )}
@@ -13428,15 +14334,15 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               <label className="cs-chk"><input type="checkbox" checked={showFx} onChange={e=>setShowFx(e.target.checked)}/> Show formulas</label>
               <span className="cs-key">Bold values are inputs and key results · the Excel export keeps every formula live</span>
             </div>
-            {pumps.some(q=>q.type==="water") && <details className="wsp-wrap no-print"><summary>Water supply print content — what the printed / PDF sheet shows</summary>
+            {sheetDisc==="plumbing" && pumps.some(q=>q.type==="water") && <details className="wsp-wrap no-print"><summary>Water supply print content — what the printed / PDF sheet shows</summary>
               <WsPrintOptions value={proj.wsPrint} disabled={stageLocked} onChange={v=>setProj(x=>({...x,wsPrint:v}))} />{stageLocked && <div className="ai-note">This stage is locked — reopen it to change the print content.</div>}</details>}
             <div className="calcwrap rz" style={{"--csL":csL+"px"}}>
             <div className="calcpick no-print">
-              {(() => { const groups = calcPickGroups(pumps), shown = pickFilter === "all" ? groups : groups.filter(g => g.k === pickFilter);
+              {(() => { const groups = calcPickGroups(sheetItems), shown = pickFilter === "all" ? groups : groups.filter(g => g.k === pickFilter);
                 return <>
                   <div className="calcpick-filter">
                     <select value={groups.some(g => g.k === pickFilter) ? pickFilter : "all"} onChange={e => setPickFilter(e.target.value)} title="Show one kind of calculation">
-                      <option value="all">All calculations ({pumps.length})</option>
+                      <option value="all">All {discLbl ? discLbl.toLowerCase() + " " : ""}calculations ({sheetItems.length})</option>
                       {groups.map(g => <option key={g.k} value={g.k}>{g.l} ({g.items.length})</option>)}
                     </select>
                     {pickFilter === "all" && groups.length > 1 && <button type="button" title={groups.every(g => pickClosed[g.k]) ? "Expand all groups" : "Collapse all groups"}
@@ -13461,7 +14367,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             </div>
             <ColDrag w={csL} set={setCsL} def={csLd} dir={1} title="Drag to widen the list · double-click to reset" />
             <div className="calcsplit">
-              {pumps.map((p,i)=>{
+              {sheetItems.map((p,i)=>{
                 const sel = printPick===p.id;
                 return (
                   <React.Fragment key={p.id}>
@@ -13475,9 +14381,9 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               })}
             </div>
             </div>
-            {!pumps.length && (
+            {!sheetItems.length && (
               <div style={{background:"white",borderRadius:12,border:"1px solid #d2d2d7",padding:40,textAlign:"center",color:"#86868b",fontSize:13}}>
-                No calculations in this stage yet.
+                {sheetDisc === "fire" ? "No clean agent rooms in this stage yet — add them in the Clean Agent tab." : "No calculations in this stage yet."}
               </div>
             )}
           </div>
@@ -13881,7 +14787,7 @@ function RefDataEditor({onBack}) {
   const [tab, setTab] = useState("materials");
   const tabs = [
     ["materials","Pipe Materials"], ["sizes","Pipe Sizes"], ["motors","Motor kW"],
-    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"],
+    ["fu","Fixture Units (WSFU / LU)"], ["fluids","Fluids (density / viscosity)"], ["drain","Drainage (EN 12056-2)"], ["cacyl","Clean Agent Cylinders"],
   ];
   return (
     <div className="global-page" style={{minHeight:"100vh",background:"#f5f5f7"}}>
@@ -13909,6 +14815,7 @@ function RefDataEditor({onBack}) {
           {tab==="fu" && <FixtureUnitsTab/>}
           {tab==="fluids" && <FluidsTab/>}
           {tab==="drain" && <DrainageRefTab/>}
+          {tab==="cacyl" && <CaCylindersTab/>}
         </div>
       </div>
     </div>
