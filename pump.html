@@ -6,7 +6,6 @@
 <title>Equipment Calculator — Meinhardt</title>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
-<script src="https://unpkg.com/@babel/standalone@7.26.4/babel.min.js" crossorigin></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js" crossorigin></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js" crossorigin></script>
 <style>
@@ -1259,18 +1258,18 @@
 /* Boot guard (plain JS, not Babel): if a library or the in-browser compile fails, show why instead of a white screen. */
 (function () {
   function msg(html, bad) { var m = document.getElementById("boot-msg"); if (m) { m.innerHTML = html; m.style.color = bad ? "#b91c1c" : "#86868b"; } }
-  window.__bootError = function (t) { msg("⚠ " + t + "<br><br><span style='font-size:12.5px;color:#6b7280'>This calculator loads React, Babel, Supabase and ExcelJS from the internet each time it opens. If you are offline, on a restricted company network, or opening the file inside a preview pane that blocks external scripts, these will not load and the page stays blank. Open the file in Chrome, Edge or Safari with a normal internet connection and reload.</span>", true); };
+  window.__bootError = function (t) { msg("⚠ " + t + "<br><br><span style='font-size:12.5px;color:#6b7280'>This calculator loads React, Supabase and ExcelJS from the internet. If you are offline, on a restricted company network, or opening the file inside a preview pane that blocks external scripts, these will not load and the page stays blank. Open the file in Chrome, Edge or Safari with a normal internet connection and reload.</span>", true); };
   window.addEventListener("error", function (e) { if (e && e.message && /Babel|transform|Unexpected token|SyntaxError|is not defined/i.test(e.message) && document.getElementById("boot")) window.__bootError("The app could not start: " + e.message); });
   setTimeout(function () {
-    var miss = []; if (typeof React === "undefined") miss.push("React"); if (typeof ReactDOM === "undefined") miss.push("ReactDOM"); if (typeof Babel === "undefined") miss.push("Babel"); if (!window.supabase) miss.push("Supabase");
+    var miss = []; if (typeof React === "undefined") miss.push("React"); if (typeof ReactDOM === "undefined") miss.push("ReactDOM"); if (!window.supabase) miss.push("Supabase");
     if (miss.length) window.__bootError("Could not load: " + miss.join(", ") + ".");
     else if (document.getElementById("boot")) msg("Starting… compiling the app (this can take a few seconds the first time).");
   }, 6000);
-  setTimeout(function () { if (document.getElementById("boot") && typeof React !== "undefined" && typeof Babel !== "undefined") window.__bootError("The libraries loaded but the app did not start — in-browser compilation may have failed. Please reload; if it keeps happening, send this note to the developer."); }, 22000);
+  setTimeout(function () { if (document.getElementById("boot") && typeof React !== "undefined") window.__bootError("The libraries loaded but the app did not start — in-browser compilation may have failed. Please reload; if it keeps happening, send this note to the developer."); }, 22000);
 })();
 </script>
 
-<script type="text/babel">
+<script type="application/x-app-src" id="__appsrc">
 const { useState, useCallback, useMemo, useEffect, useRef, useLayoutEffect } = React;
 
 // ══════════════════════════════════════════════════════════════════════════
@@ -14466,5 +14465,31 @@ function RootApp() {
 
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp />);
 </script>
+<script>
+/* Compile-once loader (v1): the app above is plain source. The first time this file is
+   opened (or the first time after it is edited) it is compiled once and the result is
+   saved in this browser. Every open after that skips the compiler and starts instantly.
+   Edit the app source exactly as before — changing it makes a new fingerprint, so it
+   recompiles once and then caches again. No build step, one file. */
+(function () {
+  var BABEL_URL = "https://unpkg.com/@babel/standalone@7.26.4/babel.min.js";
+  var el = document.getElementById("__appsrc"); var SRC = el ? el.textContent : "";
+  function msg(t, bad) { var m = document.getElementById("boot-msg"); if (m) { m.innerHTML = t; if (bad) m.style.color = "#b91c1c"; } }
+  function runScript(code) { var s = document.createElement("script"); s.textContent = code; document.head.appendChild(s); }
+  function cyrb53(s) { var h1 = 0xdeadbeef ^ s.length, h2 = 0x41c6ce57 ^ s.length; for (var i = 0, ch; i < s.length; i++) { ch = s.charCodeAt(i); h1 = Math.imul(h1 ^ ch, 2654435761); h2 = Math.imul(h2 ^ ch, 1597334677); } h1 = Math.imul(h1 ^ (h1 >>> 16), 2246822507) ^ Math.imul(h2 ^ (h2 >>> 13), 3266489909); h2 = Math.imul(h2 ^ (h2 >>> 16), 2246822507) ^ Math.imul(h1 ^ (h1 >>> 13), 3266489909); return "c1_" + (4294967296 * (2097151 & h2) + (h1 >>> 0)).toString(36); }
+  var KEY = cyrb53(SRC);
+  function withDB(cb) { try { var r = indexedDB.open("eqcalc-compiled", 1); r.onupgradeneeded = function () { r.result.createObjectStore("c"); }; r.onsuccess = function () { cb(r.result); }; r.onerror = function () { cb(null); }; } catch (e) { cb(null); } }
+  function getCached(cb) { withDB(function (db) { if (!db) return cb(null); try { var q = db.transaction("c", "readonly").objectStore("c").get(KEY); q.onsuccess = function () { cb(q.result || null); }; q.onerror = function () { cb(null); }; } catch (e) { cb(null); } }); }
+  function putCached(code) { withDB(function (db) { if (!db) return; try { var st = db.transaction("c", "readwrite").objectStore("c"); st.clear(); st.put(code, KEY); } catch (e) {} }); }
+  function compileAndRun() {
+    msg("Starting… compiling the app for the first time. This takes a few seconds, and it will be instant every time after this.");
+    function go() { try { var out = Babel.transform(SRC, { presets: ["react"], compact: true }).code; try { putCached(out); } catch (e) {} runScript(out); } catch (e) { if (window.__bootError) window.__bootError("Could not compile the app: " + e.message); } }
+    if (window.Babel) { go(); return; }
+    var s = document.createElement("script"); s.src = BABEL_URL; s.crossOrigin = "anonymous"; s.onload = go; s.onerror = function () { if (window.__bootError) window.__bootError("Could not load the one-time compiler from the internet."); }; document.head.appendChild(s);
+  }
+  getCached(function (cached) { if (cached) { try { runScript(cached); } catch (e) { compileAndRun(); } } else { compileAndRun(); } });
+})();
+</script>
+
 </body>
 </html>
