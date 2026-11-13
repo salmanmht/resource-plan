@@ -363,7 +363,7 @@
   .calc-export-btn.xl{background:#167344}.calc-export-btn.xl2{background:#0f5c36}.calc-export-btn.pdf{background:#1e3a5f}
   @media screen and (max-width:700px){.calc-export-actions{width:100%}.calc-export-btn{flex:1 1 100%}}
   .setup-card{background:#fff;border:1px solid #d2d2d7;border-radius:14px;padding:18px 20px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
-  .setup-grid{display:grid;grid-template-columns:2fr 1.2fr .6fr .9fr;gap:12px}
+  .setup-grid{display:grid;grid-template-columns:1.6fr 1.1fr 1fr 1fr .55fr .85fr;gap:12px}
   .setup-grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
   .setup-logo{display:flex;align-items:center;gap:14px;margin-top:14px;flex-wrap:wrap}
   .setup-logo .client-brand-preview{width:120px;height:48px}.setup-logo .client-brand-preview img{width:110px;height:40px}
@@ -1409,6 +1409,35 @@
 
   .sw-h4 svg{max-height:none!important}
   .ca-btn.pri:hover{color:#fff;background:#0062cc;border-color:#0062cc}
+
+  .sbx-nav .sbx-grp{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;padding:9px 10px;border-radius:9px;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;text-align:left}
+  .sbx-nav .sbx-grp:hover{background:#f0f0f3}.sbx-nav .sbx-grp.has{color:#007aff}
+  .sbx-nav .sbx-grp .ic{width:18px;text-align:center}.sbx-nav .sbx-grp .tx{flex:1}.sbx-nav .sbx-grp .car{font-size:10px;color:#86868b;margin-left:4px}
+  .pump-sidebar.sbx .sbx-nav button.sbx-sub{padding-left:26px!important;font-size:11px!important}.sbx-nav button.sbx-sub .ic{font-size:11px;color:#86868b}.sbx-nav button.sbx-sub.active .ic{color:#007aff}
+  .pump-sidebar.sbx .sbx-nav .sbx-grp{font-size:11.5px;padding:6px 9px;color:#424245}.pump-sidebar.sbx .sbx-nav .sbx-grp.has{color:#007aff}
+  .sbx-minor{display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px 2px;border-top:1px dashed #e5e5ea;margin-top:6px}
+  .sbx-minor a,.sbx-minor button{font-size:11px;font-weight:600;color:#6e6e73;text-decoration:none;border:0;background:none;padding:0;cursor:pointer}
+  .sbx-minor a:hover,.sbx-minor button:hover{color:#007aff}
+  .sbx-wfline{display:flex;justify-content:space-between;align-items:center;gap:8px;width:100%;margin-top:8px;padding:7px 9px;border:1px solid #e1e1e6;border-radius:9px;background:#fafafa;font-size:11px;color:#424245;cursor:pointer;text-align:left}
+  .sbx-wfline b{color:#007aff;font-size:10.5px;white-space:nowrap}.sbx-wfline.warn{background:#fff7ed;border-color:#fcd9a8;color:#9a3412}.sbx-wfline.ok{background:#f0fdf4;border-color:#bbe5c8;color:#166534}
+  .cs-issue{margin-bottom:12px}
+  .cs-issue .sbx-export{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+  @media (max-width:1100px){.cs-issue .sbx-export{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  .cs-issue .cs-wf{background:#fff;border:1px solid #e1e1e6;border-radius:12px;padding:8px}
+  @media (max-width:900px){.cs-issue{grid-template-columns:1fr}}
+
+  .piw-fold{margin-left:auto;margin-right:6px;border:1px solid #d2d2d7;background:#fff;border-radius:7px;width:24px;height:22px;font-size:12px;line-height:1;cursor:pointer;color:#424245}
+  .piw-items .calcpick-grp{margin-bottom:2px}
+
+  .tl-lrow input[type=number]{-moz-appearance:textfield;padding:5px 5px}
+  .tl-lrow input[type=number]::-webkit-outer-spin-button,.tl-lrow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .hwd-t th{font-size:9.5px;line-height:1.2;vertical-align:bottom;white-space:normal;padding:6px 4px}
+  .hwd-t td{vertical-align:middle;padding:4px 3px}
+  .hwd-t input,.hwd-t select{border:1px solid #d2d2d7;border-radius:7px;padding:5px 6px;font-size:12px;background:#fff;-moz-appearance:textfield}
+  .hwd-t input::-webkit-outer-spin-button,.hwd-t input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+  .hwd-t input.w1{width:46px;text-align:right;padding:5px 4px}.hwd-t input.w2{width:84px}.hwd-t input.w3{width:110px}.hwd-t select{width:118px}.hwd-t input.tg{width:76px}
+  .hwd-t .hwd-sel b{display:block;font-size:11.5px;white-space:nowrap}.hwd-t .hwd-sel em{font-style:normal;font-size:10.5px;color:#6e6e73;white-space:nowrap}
+  .hwd-t tr.warn .hwd-sel em{color:#b45309}
 </style>
 </head>
 <body>
@@ -1446,7 +1475,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.98.2 · Build 2026.11.13.17";
+const BUILD_LABEL = "v1.101.2 · Build 2026.11.13.27";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1675,6 +1704,12 @@ let CA_CYL_ERR = "Cylinder library not loaded yet.";
 // fixture-unit calculations when unavailable. RootApp surfaces a failed request
 // before allowing the user to continue.
 async function loadReferenceData() {
+  // v1.101: UAE FLS fire pump and tank tables — Supabase only (uae-fls-fire-pump.sql)
+  try { const [fb, fo, fr, fc] = await Promise.all([sb.from("ref_fls_height_bands").select("*").order("sort"), sb.from("ref_fls_occupancies").select("*").eq("active", true).order("sort"),
+      sb.from("ref_fls_rules").select("*").eq("active", true), sb.from("ref_fls_rule_conditions").select("*")]);
+    const fe = [fb, fo, fr, fc].find(x => x.error);
+    FLS_REF = fe ? {...FLS_REF, err:"The UAE FLS tables could not be loaded from Supabase (" + fe.error.message + "). Run uae-fls-fire-pump.sql."} : flsBuildRef(fb.data, fo.data, fr.data, fc.data);
+  } catch (e) { FLS_REF = {...FLS_REF, err:"The UAE FLS tables could not be loaded (" + ((e && e.message) || "request failed") + ")."}; }
   try {
     const [mats, sizes, motors, fuCodes, fuRows, fixRes] = await Promise.all([
       sb.from("ref_pipe_materials").select("*").order("sort_order"),
@@ -2176,8 +2211,9 @@ function calculate(p) {
   if (p.type === "pbc") return calculatePbc(p);
   if (p.type === "ca") return calculateCa(p);
   if (p.type === "foam") return calculateFoam(p);
+  if (p.type === "fls") return calculateFls(p);
   if (p.type === "storm") return calculateStorm(p);
-  if (p.type === "fuelp") return calculateFuelPipe(p);
+  if (p.type === "fuelp") return p.kind === "sys" ? calculateFuelSys(p) : calculateFuelPipe(p);
   if (p.type === "tool") return calculateTool(p);
   if (p.type === "water") return wsIsDrain(p) ? calculateDrain(p) : wsIsGas(p) ? calculateGas(p) : calculateWater(p);
   if (p.type === "lpg") return calcError(["This item was made with the LPG test build — open it and press Convert to Gas Pipe Sizing."]);
@@ -3361,6 +3397,131 @@ function calculateFoam(p) {
   return {valid:true, foam:c, flowLsPerPump:Qpeak/60, flowTotal:Qpeak/60, designFlow:Qpeak/60, totalH:"—", pwrSel:"—", config:sizeStr, setText:`${pick.n} tank${pick.n > 1 ? "s" : ""}`,
     set:{duty:pick.n, standby:0, installed:pick.n, sharing:"full"}, connectedKw:0, installedKw:0, velOk:true, pipe:null, dutyPoints:[], steps, selStr};
 }
+// ════════════════════════════════════════════════════════════════════════════════════════════════════
+// FIRE PUMP AND FIRE WATER TANK — UAE FLS CODE (type "fls")  v1.101.0
+// Selection from the UAE Fire and Life Safety Code Chapter 9, Tables 9.18 to 9.28. Every value comes from the
+// Supabase tables ref_fls_height_bands, ref_fls_occupancies, ref_fls_rules and ref_fls_rule_conditions
+// (uae-fls-fire-pump.sql); nothing is built in. Buildings live in the stage meta (meta.fls).
+// ════════════════════════════════════════════════════════════════════════════════════════════════════
+let FLS_REF = {bands:[], occ:{}, occList:[], rules:[], err:"The UAE FLS tables have not loaded yet.", n:0};
+function flsBuildRef(bands, occ, rules, conds) {
+  const by = {}; (conds || []).forEach(c => { const g = (by[c.rule_key] = by[c.rule_key] || {}); (g[c.grp || 0] = g[c.grp || 0] || []).push({p:c.param, lo:c.lo == null ? null : Number(c.lo), li:!!c.lo_incl, hi:c.hi == null ? null : Number(c.hi), hii:!!c.hi_incl}); });
+  const num = v => v == null || v === "" ? null : Number(v);
+  const R = (rules || []).map(r => ({key:r.rule_key, ed:r.edition, table:r.table_ref, cat:r.cat, case:Number(r.case_no), role:r.role, label:r.label, systems:r.systems || "", basis:r.pump_basis,
+    gpm:num(r.pump_gpm), g2:num(r.pump_gpm_2), gm:num(r.pump_gpm_more), countBy:r.count_by || "standpipes", bar:num(r.pressure_bar), at:r.pressure_at || "", tank:num(r.tank_min), foam:num(r.foam_min),
+    hyd:!!r.yard_hydrant, waiver:num(r.hydrant_waiver_m), up2:num(r.upper_gpm_2), upm:num(r.upper_gpm_more), upTank:num(r.upper_tank_min), notes:r.notes || "", page:num(r.page),
+    groups:Object.keys(by[r.rule_key] || {}).sort().map(k => by[r.rule_key][k])}));
+  const O = (occ || []).map(o => ({key:o.key, label:o.label, group:o.group_name, low:o.lowrise, mid:o.midrise, high:o.highrise, sup:o.super_highrise, lowS:o.lowrise_single_exit, midS:o.midrise_single_exit, ft:o.fixed_table, fc:o.fixed_cat}));
+  return {bands:(bands || []).map(b => ({band:b.band, label:b.label, lo:num(b.min_m), li:!!b.min_incl, hi:num(b.max_m), hii:!!b.max_incl, clause:b.clause || "", note:b.note || ""})),
+    occ:Object.fromEntries(O.map(o => [o.key, o])), occList:O, rules:R, err:R.length && O.length && (bands || []).length ? "" : "The UAE FLS tables in Supabase are empty — run uae-fls-fire-pump.sql.", n:R.length};
+}
+const FLS_BAND_KEY = {lowrise:"low", midrise:"mid", highrise:"high", super_highrise:"sup"};
+const FLS_PARAMS = {height_m:["Building height", "m", "From the fire access level to the highest occupied floor, as the code defines it"], gf_m2:["Built-up ground floor area", "m²", "Ground floor of this building, incl. walls, columns and shafts (4.1.12)"],
+  plot_m2:["Plot area", "m²", "The whole plot, incl. setbacks, landscape and parking (4.1.10)"], unit_m2:["Largest unit / compartment area", "m²", "Built-up ground floor area of the largest fire-separated unit (4.1.14)"],
+  sum_gf_m2:["Sum of all ground floor built-up areas", "m²", "All buildings in the plot (4.1.13); blank = the ground floor area above"], basement_m2:["Basement built-up area", "m²", "Blank = no basement"],
+  yard_m2:["Open storage yard area", "m²", ""], area_m2:["Covered / storage area", "m²", "Covered parking area, or the flammable liquid storage area"], length_m:["Tunnel length", "m", ""], tank_m3:["Largest liquid storage tank", "m³", ""]};
+const FLS_GPM = 3.785411784;   // litres per US gallon
+function flsBand(h) { const b = FLS_REF.bands.find(x => (x.lo == null || (x.li ? h >= x.lo : h > x.lo)) && (x.hi == null || (x.hii ? h <= x.hi : h < x.hi))); return b || null; }
+function flsTables(o, v) {   // the tables to try, in order (single exit stair table first, where it applies)
+  if (o.ft) return {tables:[[o.ft, o.fc || "*"]]};
+  const h = Number(v.height_m); if (!(h > 0)) return {err:"Enter the building height."};
+  const b = flsBand(h); if (!b) return {err:`${h} m is not inside any height band of the code (the text leaves 23 m and 90 m exactly between bands) — confirm the band with Civil Defence.`};
+  const k = FLS_BAND_KEY[b.band], t = o[k]; if (!t) return {err:`The code gives no ${b.label.toLowerCase()} table for ${o.label}.`, band:b};
+  const s = v.single_exit && k === "low" ? o.lowS : v.single_exit && k === "mid" ? o.midS : null;
+  return {band:b, tables:[...(s ? [[s, "*"]] : []), [t, "*"]]};
+}
+function flsParamsOf(o, cur) {   // which inputs this occupancy needs — for the height band of the building when its height is known
+  const P = new Set(), cat = o.ft ? (o.fc || "*") : "*";
+  let ts = o.ft ? [o.ft] : [o.low, o.mid, o.high, o.sup, o.lowS, o.midS].filter(Boolean);
+  if (!o.ft && cur && Number(cur.height_m) > 0) { const T = flsTables(o, {height_m:Number(cur.height_m), single_exit:true}); ts = T.tables ? T.tables.map(x => x[0]) : []; }
+  const rs = FLS_REF.rules.filter(r => ts.includes(r.table) && (cat === "*" || r.cat === cat || r.cat === "*"));
+  rs.forEach(r => r.groups.flat().forEach(c => P.add(c.p)));
+  if (!o.ft) P.add("height_m");
+  return {params:[...P], standpipes:rs.some(r => r.basis === "standpipes" || r.up2 != null), countBy:(rs.find(r => r.basis === "standpipes") || {}).countBy || "standpipes",
+    waiver:Math.max(0, ...rs.filter(r => r.waiver).map(r => r.waiver)),
+    singleExit:!o.ft && (() => { const h = Number(cur && cur.height_m), b = h > 0 ? flsBand(h) : null, k = b && FLS_BAND_KEY[b.band]; return h > 0 ? (k === "low" && !!o.lowS) || (k === "mid" && !!o.midS) : !!(o.lowS || o.midS); })()};
+}
+function flsMatch(r, v) {
+  if (!r.groups.length) return {ok:true};
+  const miss = new Set();
+  for (const g of r.groups) { let ok = true;
+    for (const c of g) { const x = v[c.p];
+      if (x == null || x === "" || !Number.isFinite(Number(x))) { miss.add(c.p); ok = false; continue; }
+      const n = Number(x); if (c.lo != null && !(c.li ? n >= c.lo : n > c.lo)) ok = false; if (c.hi != null && !(c.hii ? n <= c.hi : n < c.hi)) ok = false; }
+    if (ok) return {ok:true}; }
+  return {ok:false, miss:[...miss]};
+}
+const flsFlow = (r, n) => r.basis === "standpipes" ? (n > 2 ? r.gm : r.g2) : r.basis === "fixed" ? r.gpm : null;
+function calculateFls(p) {
+  if (FLS_REF.err) return calcError([FLS_REF.err]);
+  const o = FLS_REF.occ[p.occ]; if (!o) return calcError(["Choose the occupancy (UAE FLS Chapter 9)."]);
+  const need = flsParamsOf(o, p), v = {}, errors = [];
+  need.params.forEach(k => { const x = p[k];
+    if (k === "sum_gf_m2" && (x === "" || x == null)) { v[k] = p.gf_m2 === "" || p.gf_m2 == null ? null : Number(p.gf_m2); return; }
+    if (k === "basement_m2" && (x === "" || x == null)) { v[k] = 0; return; }
+    if (k === "two_exit_stairs") { v[k] = p.two_exit_stairs === false || p.two_exit_stairs === "no" ? 0 : 1; return; }
+    if (x === "" || x == null || !Number.isFinite(Number(x))) errors.push(`Enter the ${(FLS_PARAMS[k] || [k])[0].toLowerCase()}.`); else if (Number(x) < 0) errors.push(`${(FLS_PARAMS[k] || [k])[0]} cannot be negative.`); else v[k] = Number(x); });
+  if (need.standpipes) { const n = Math.round(Number(p.standpipes) || 2); if (n < 1) errors.push(`Enter the number of ${need.countBy}.`); v.standpipes = n; }
+  v.single_exit = !!p.single_exit; v.infra = !!p.infra_hydrant;
+  if (errors.length) return calcError(errors);
+  const T = flsTables(o, v); if (T.err) return calcError([T.err]);
+  let hit = null, tried = [];
+  for (const [t, cat] of T.tables) {
+    const rs = FLS_REF.rules.filter(r => r.table === t && (cat === "*" || r.cat === cat || r.cat === "*"));
+    const base = rs.filter(r => r.role === "base").map(r => ({r, m:flsMatch(r, v)})), ok = base.filter(x => x.m.ok).sort((a, b) => b.r.case - a.r.case);
+    tried.push(t);
+    if (ok.length) { hit = {t, cat, rs, base:ok[0].r, also:ok.slice(1).map(x => x.r)}; break; }
+  }
+  if (!hit) return calcError([`No case of Table ${tried.join(" or ")} covers these values exactly (the code leaves some boundaries, such as exactly 3,600 m², between cases) — check the code.`]);
+  const B = hit.base, H = hit.rs.find(r => r.role === "hydrant" && flsMatch(r, v).ok) || null, useH = !!H && !(v.infra && H.waiver);
+  const n = v.standpipes || 2, P = useH ? H : B;
+  const gpm = flsFlow(P, n) ?? (useH ? flsFlow(B, n) : null), bar = P.bar ?? B.bar, at = P.bar != null ? P.at : B.at, tank = P.tank ?? B.tank, foam = P.foam ?? B.foam;
+  const gpmI = flsFlow(B, n), Q = g => g == null ? null : g*FLS_GPM/60, V = (g, m) => g == null || m == null ? null : g*FLS_GPM*m/1000;
+  const yard = useH || B.hyd, systems = [B.systems, useH ? H.systems : ""].filter(Boolean).join("; ");
+  const pumpRated = /first pump/i.test(at || ""), pHyd = Number(p.pump_bar) > 0 ? Number(p.pump_bar) : null;   // the code gives the pump rating only for the super highrise first pump
+  const resTxt = bar == null ? "" : pumpRated ? `${bar} bar pump rating (code)` : `${bar} bar residual at the most remote ${at}`;
+  const flowTxt = gpm != null ? `${gpm.toLocaleString("en-GB")} gpm (${Q(gpm).toFixed(1)} l/s)` : B.basis === "sprinkler_demand" ? "per the sprinkler demand" : B.basis === "deluge_2_zones" ? "2 adjacent deluge zones" : B.basis === "largest_hazard_plus_1000" ? "largest single hazard + 1,000 gpm" : B.basis === "domestic" ? "domestic / residential sprinkler" : B.basis === "other_chapter" ? "per Chapter 21" : "no fire pump";
+  const ref = r => `Table ${r.table}${r.cat !== "*" ? " " + r.cat : ""}.${r.case}${r.page ? `, p. ${r.page}` : ""}`;
+  const c = {o, band:T.band || null, table:hit.t, base:B, hyd:H, useH, also:hit.also, n, countBy:B.countBy || "standpipes", gpm, gpmI, Q:Q(gpm), QI:Q(gpmI), bar, at, tank, tankI:B.tank, foam, V:V(gpm, tank), VI:V(gpmI, B.tank),
+    yard, systems, flowTxt, edition:B.ed, pumpRated, pHyd, resTxt, up:B.up2 != null ? {g:n > 2 ? B.upm : B.up2, tank:B.upTank} : null, v};
+  const steps = [
+    {s:"Code selection", label:"Occupancy", value:o.label},
+    ...(c.band ? [{label:`Height band  [${v.height_m} m, clause ${c.band.clause}]`, value:c.band.label}] : []),
+    {label:`Case  [${ref(B)}]`, value:B.label, hl:true},
+    ...(hit.also.length ? [{label:"Also matches (lower cases, superseded)", value:hit.also.map(r => r.case).join(", ")}] : []),
+    ...(H ? [{label:`Yard hydrants  [${ref(H)}]`, value:useH ? "required — combined pump and tank" : `not required: infrastructure hydrants within ${H.waiver} m`}] : B.hyd ? [{label:"Yard hydrants", value:"required by this case"}] : []),
+    {s:"Systems", label:"Required", value:systems || "—"},
+    {s:"Fire pump", label:`Flow${B.basis === "standpipes" && !useH ? `  [${n} ${c.countBy}]` : ""}`, value:flowTxt, hl:true},
+    ...(bar != null ? [{label:pumpRated ? "First pump pressure  [stated by the code]" : `Residual pressure required  [at the most remote ${at}]`, value:`${bar} bar`, hl:true}] : []),
+    ...(!pumpRated && gpm != null ? [{label:"Pump pressure  [static + friction + residual, by hydraulic calculation]", value:pHyd ? `${pHyd} bar (entered)` : "by hydraulic calculation", ...(pHyd ? {hl:true} : {})}] : []),
+    ...(useH && gpmI != null && gpmI !== gpm ? [{label:"Internal systems alone would need", value:`${gpmI.toLocaleString("en-GB")} gpm, ${B.tank} min`}] : []),
+    ...(c.up ? [{label:"Upper pump sets every 90 m", value:`${c.up.g.toLocaleString("en-GB")} gpm at 6.9 bar, tanks ${c.up.tank} min`}] : []),
+    {s:"Fire water tank", label:"Duration", value:tank != null ? `${tank} min` : "—", hl:true},
+    ...(c.V != null ? [{label:`Volume  [${gpm} gpm × 3.785 L × ${tank} min]`, value:`${c.V.toFixed(1)} m³`, hl:true}] : []),
+    ...(foam ? [{label:"Foam concentrate", value:`${foam} min`}] : []),
+    ...([B.notes, useH ? H.notes : ""].filter(Boolean).map((x, i) => ({...(i === 0 ? {s:"Notes"} : {}), label:x, value:""}))),
+  ];
+  const pTxt = pumpRated ? ` at ${bar} bar` : pHyd ? ` at ${pHyd} bar (hydraulic calculation)` : bar != null ? `, pressure by hydraulic calculation for ${bar} bar at the most remote ${at}` : "";
+  const selStr = gpm != null ? `Fire pump ${gpm.toLocaleString("en-GB")} gpm (${c.Q.toFixed(1)} l/s)${pTxt}; fire water tank ${tank} min = ${c.V.toFixed(0)} m³ — UAE FLS ${ref(useH ? H : B)}`
+    : `${flowTxt.charAt(0).toUpperCase() + flowTxt.slice(1)}${tank ? `; fire water tank ${tank} min` : ""} — UAE FLS ${ref(B)}`;
+  return {valid:true, fls:c, steps, selStr, flowLsPerPump:c.Q || 0, flowTotal:c.Q || 0, designFlow:c.Q || 0, totalH:pumpRated ? bar*10.2 : pHyd ? pHyd*10.2 : "—", pwrSel:"—", config:gpm != null ? `${gpm} gpm${pumpRated ? ` @ ${bar} bar` : pHyd ? ` @ ${pHyd} bar` : ""}` : flowTxt,
+    setText:"", set:{duty:1, standby:0, installed:1, sharing:"full"}, connectedKw:0, installedKw:0, velOk:true, pipe:null, dutyPoints:[]};
+}
+// v1.101.2: the UAE FLS fire pump applies to UAE projects only (Setup → Country); a blank country still shows it, with a reminder
+const FLS_COUNTRIES = [["", "— choose —"], ["UAE", "United Arab Emirates"], ["KSA", "Saudi Arabia"], ["QAT", "Qatar"], ["OMN", "Oman"], ["BHR", "Bahrain"], ["KWT", "Kuwait"], ["EGY", "Egypt"], ["OTHER", "Other"]];
+let FLS_OFF = false;
+const flsCountryOn = c => !c || c === "UAE";
+function flsItems(meta) {
+  if (FLS_OFF) return [];
+  const f = (meta && meta.fls) || {};
+  return (f.items || []).map((h, i) => ({...h, type:"fls", id:"fls-" + h.id, tag:h.tag || `FP-${String(i + 1).padStart(2, "0")}`, name:h.name || `Building ${i + 1}`}));
+}
+const flsTitle = () => "Fire Pump and Fire Water Tank (UAE FLS Code)";
+function flsDesignBasis(p) {
+  const r = (() => { try { return calculateFls(p); } catch (e) { return null; } })(), c = r && r.fls;
+  return [`Fire pump capacity, pressure and fire water tank duration selected from the UAE Fire and Life Safety Code of Practice, Chapter 9, Section 4${c ? ` (${c.edition}), ${c.useH ? "Table " + c.hyd.table : "Table " + c.base.table}` : ""}, for the predominant occupancy, building height, plot and built-up areas.`,
+    "Where a fire pump set serves both the yard hydrants and the internal systems, the combined capacity and tank of the code apply. Values are the code minimum (Clause 4.1.9): confirm with Civil Defence and the relevant NFPA standards; the pump head and sprinkler demand to be confirmed by hydraulic calculation."];
+}
 function foamItems(meta) {
   const fo = (meta && meta.foam) || {}, set = foamSettings(fo.set);
   return (fo.hazards || []).map((h, i) => ({...h, type:"foam", id:"foam-" + h.id, tag:h.tag || `FM-${String(i + 1).padStart(2, "0")}`, name:h.name || `Hazard ${i + 1}`, _set:set, _lib:FOAM_TANKS}));
@@ -3809,7 +3970,7 @@ function gateFp(p, r) {
   return wsHash(JSON.stringify([(r.steps || []).map(s => [s.label, s.value, s.flag || ""]), r.selStr || "", !!r.velOk, w ? [w.status, (w.issues || []).map(x => x.code + ":" + x.text)] : 0]));
 }
 function gateItemsOf(pumps, meta, disc) {
-  const pl = [...(pumps || []), ...stormSheetItems(meta), ...fuelItems(meta), ...toolItems(meta)], fi = [...caRoomItems(meta), ...foamItems(meta)];
+  const pl = [...(pumps || []), ...stormSheetItems(meta), ...fuelSheetItems(meta), ...toolItems(meta)], fi = [...caRoomItems(meta), ...foamItems(meta), ...flsItems(meta)];
   return disc === "fire" ? fi : disc === "plumbing" ? pl : [...pl, ...fi];
 }
 function gateCheck(items, meta) {
@@ -4089,9 +4250,60 @@ function fuelItems(meta) {
   const lines = raw.map((h, i) => ({...h, type:"fuelp", id:"fuelp-" + h.id, tag:h.tag || `FO-${String(i + 1).padStart(2, "0")}`, name:h.name || FP_SHORT[h.kind] || "Line", _set:set}));
   return lines.map(x => ({...x, _lines:lines}));
 }
-function fuelTitle(p) { return `Fuel Oil Pipe Sizing — ${FP_SHORT[p && p.kind] || "Line"}`; }
+// v1.98.3: one fuel calculation sheet — the transfer pump first, then every pipe
+function fuelSheetItems(meta) {
+  const fu = (meta && meta.fuel) || {};
+  return fuelItems(meta).length ? [{type:"fuelp", kind:"sys", id:"fuel-sys", tag:"FO", name:"Fuel Oil System", location:"", _fu:fu}] : [];
+}
+function calculateFuelSys(p) {
+  const its = fuelItems({fuel:p._fu}), R = its.map(it => { try { return calculate(it); } catch (e) { return calcError([String(e && e.message || e)]); } });
+  if (!its.length) return calcError(["Add the generators on the Fuel tab."]);
+  const L = its.map((it, i) => ({it, r:R[i]})), pump = L.find(x => x.it.kind === "transfer"), pipes = L.filter(x => x.it.kind !== "transfer"), bad = L.filter(x => x.r && x.r.error);
+  if (bad.length === L.length) return calcError(bad.map(x => `${x.it.name}: ${x.r.errors[0]}`));
+  const pc = pump && pump.r && pump.r.fuel, f1 = v => v.toFixed(1);
+  const c = {kind:"sys", its, R, L, pump, pipes, H:pc ? pc.H : null, motor:pc ? pc.motor : null, Q:pc ? pc.Q : 0};
+  const steps = [...(pc ? [{s:"Transfer pump", label:`Flow  [${pc.how}]`, value:`${f1(pc.Q*60)} L/min`, hl:true}, {label:"Head", value:`${f1(pc.H)} m`}, {label:"Suction / discharge", value:`DN${pc.ps.dn} / DN${pc.pd.dn}`}] : []),
+    ...pipes.filter(x => x.r && x.r.fuel).map((x, i) => ({...(i === 0 ? {s:"Pipes"} : {}), label:x.it.name, value:`DN${x.r.fuel.pipe.dn} · ${x.r.fuel.h.v.toFixed(2)} m/s · ${f1(x.r.fuel.dp)} kPa`, ...(x.r.fuel.okP === false ? {flag:"warn"} : {})})),
+    ...bad.map((x, i) => ({...(i === 0 ? {s:"To fix"} : {}), label:x.it.name, value:x.r.errors[0], flag:"warn"}))];
+  const sup = pipes.filter(x => x.it.kind === "supply" && x.r && x.r.fuel), ret = pipes.filter(x => x.it.kind === "ret" && x.r && x.r.fuel);
+  const selStr = `${pc ? `Transfer pump ${Math.round(pc.Q*60)} L/min at ${f1(pc.H)} m (DN${pc.ps.dn} / DN${pc.pd.dn})` : "No transfer pump"}${sup.length ? ` · supply ${[...new Set(sup.map(x => "DN" + x.r.fuel.pipe.dn))].join(", ")}` : ""}${ret.length ? ` · return ${[...new Set(ret.map(x => "DN" + x.r.fuel.pipe.dn))].join(", ")}` : ""}${bad.length ? ` — ${bad.length} TO FIX` : ""}`;
+  return {valid:true, fuel:c, flowLsPerPump:c.Q, flowTotal:c.Q, designFlow:c.Q, totalH:pc ? pc.H : "—", pwrSel:"—", config:pc ? `${Math.round(pc.Q*60)} L/min · ${f1(pc.H)} m` : `${pipes.length} pipes`, setText:"fuel",
+    set:{duty:1, standby:0, installed:1, sharing:"full"}, connectedKw:0, installedKw:0, velOk:!bad.length, pipe:null, dutyPoints:[], steps, selStr};
+}
+// copy a sub-sheet into B with every id it defines renamed (keep = ids shared with the first sheet, left as they are)
+function clMergeIds(B, sub, px, keep) {
+  const own = new Set([...sub.rows.map(r => r.id).filter(Boolean), ...Object.keys(sub.tables || {})].filter(id => !keep.has(id)));
+  const rn = v => typeof v === "string" ? v.replace(/\{([~@]?)([A-Za-z]\w*)/g, (m, t, k) => own.has(k) ? `{${t}${px}${k}` : m) : v;
+  sub.rows.forEach(r => { const o = {...r}; if (o.id && own.has(o.id)) o.id = px + o.id; if (o.xl) o.xl = rn(o.xl);
+    if (o.t === "table") o.rows = (o.rows || []).map(row => row.map(c => c.xl ? {...c, xl:rn(c.xl)} : c));
+    B.rows.push(o); if (o.id) B.byId[o.id] = o; });
+  if (sub.tables) Object.entries(sub.tables).forEach(([k, v]) => { B.tables[own.has(k) ? px + k : k] = v; });
+}
+function clFuelSysRows(B, p, res) {
+  const c = res.fuel, T = (v, sp, o = {}) => ({v, span:sp, ...o}), shared = new Set(["fpRho", "fpNu", "fpKb", "fpFit"]);
+  B.align("l");
+  const first = c.L.find(x => x.r && x.r.fuel);
+  let sec = 2, n = 0;
+  const add = (x, num, skipFluid) => { const sub = clBuilder(); clFuelRows(sub, x.it, x.r); let inFluid = false;
+    sub.rows = sub.rows.filter(r => { if (r.t === "section") { const m = /^(\d+)\.\s+/.exec(r.title || ""); inFluid = m && m[1] === "1"; if (inFluid) return !skipFluid; r.title = r.title.replace(/^(\d+)\.\s+/, (q, k) => `${num}.${Number(k) - 1}  `); return true; } return !(inFluid && skipFluid); });
+    clMergeIds(B, sub, `L${++n}_`, shared); };
+  if (first) { const sub = clBuilder(); clFuelRows(sub, first.it, first.r); const s1 = []; let on = false;
+    sub.rows.forEach(r => { if (r.t === "section") on = /^1\.\s/.test(r.title || ""); if (on) s1.push(r); });
+    s1.forEach(r => { B.rows.push({...r}); if (r.id) B.byId[r.id] = r; }); }
+  if (c.pump) { B.gap(); B.section(`${sec}.  Transfer Pump  ·  bulk tank to day tank`);
+    if (c.pump.r && c.pump.r.fuel) add(c.pump, sec, true); else B.text(`⚠ ${c.pump.r.errors[0]}`, {warn:true}); sec++; }
+  const P = c.pipes.filter(x => x.r && x.r.fuel);
+  B.gap(); B.section(`${sec}.  Pipe Sizes  ·  day tank to the generators`);
+  if (P.length) B.tbl("fsum", {head:[[T("Line", [1,3]), T("Flow (L/h)", [4,4]), T("Size", [5,5]), T("Velocity (m/s)", [6,6]), T("Length (m)", [7,7]), T("Pressure (kPa)", [8,8]), T("Status", [9,9])]],
+    rows:P.map(x => { const k = x.r.fuel; return [T(x.it.name, [1,3], {al:"l"}), T(Math.round(k.Q*3600), [4,4], {dp:0}), T(`DN${k.pipe.dn}`, [5,5]), T(Number(k.h.v.toFixed(2)), [6,6], {dp:2}), T(k.L, [7,7], {dp:1}), T(Number(k.dp.toFixed(1)), [8,8], {dp:1}), T(k.okP === false ? "REVIEW" : "OK", [9,9])]; })});
+  c.pipes.filter(x => x.r && x.r.error).forEach(x => B.text(`⚠ ${x.it.name}: ${x.r.errors[0]}`, {warn:true}));
+  P.forEach((x, i) => { B.gap(); B.section(`${sec}.${i + 1}  ${x.it.name}`); add(x, `${sec}.${i + 1}`, true); });
+  B.banner = {text:res.selStr, xl:'"' + res.selStr.replace(/"/g, '""') + '"'};
+}
+function fuelTitle(p) { return p && p.kind === "sys" ? "Fuel Oil System — Transfer Pump and Pipe Sizing" : `Fuel Oil Pipe Sizing — ${FP_SHORT[p && p.kind] || "Line"}`; }
 function fuelDesignBasis(p) {
   const k = p && p.kind;
+  if (k === "sys") { const its = fuelItems({fuel:p._fu}), one = kk => its.find(x => x.kind === kk); return [...(one("transfer") ? fuelDesignBasis(one("transfer")) : []), ...(one("supply") ? ["Engine supply and return lines are sized to the same method: the supply carries the engine fuel flow (a multiple of the burn rate unless the datasheet gives it), the return carries the supply less the burn, and the suction and back pressure at the engine are checked against the limits of the generator datasheet."] : [])]; }
   if (k === "vent") return ["Normal vent sized to NFPA 30: not smaller than the largest filling or withdrawal connection of the tank and not below 32 mm nominal (1¼ in). Emergency venting to be confirmed separately for the tank type.", "Vent to terminate outside, above the fill point, with a flame arrester / weatherproof cap as required by the authority."];
   if (k === "overflow") return ["The overflow returns the day tank surplus to the bulk tank by gravity. It must carry the full transfer pump flow (plus any engine return) without surcharging: Colebrook-White part-full flow at h/d 0.5 with the fuel viscosity.", "It is not smaller than the pipe filling the day tank and falls continuously to the bulk tank."];
   return [
@@ -4202,7 +4414,7 @@ let TOOL_REG_SYS = {};   // system → head (m) from every Equipment Register it
 function toolRegSystems(meta) { const o = {}; toolItems(meta).filter(x => x.mod === "register").forEach(x => { const r = calculateTool(x); if (r.error) return; Object.entries(r.tool.sysDp || {}).forEach(([k, dp]) => { o[k] = (o[k] || 0) + dp/9.81; }); }); return o; }
 function toolItems(meta) {
   const to = (meta && meta.tools) || {}, cnt = {};
-  return (to.items || []).filter(h => TOOL_MODS[h.mod]).map(h => { const m = TOOL_MODS[h.mod]; cnt[h.mod] = (cnt[h.mod] || 0) + 1;
+  return (to.items || []).filter(h => TOOL_MODS[h.mod] && !(h.mod === "stormx" && h.kind !== "scup")).map(h => { const m = TOOL_MODS[h.mod]; cnt[h.mod] = (cnt[h.mod] || 0) + 1;
     return {...h, type:"tool", id:"tool-" + h.id, tag:h.tag || `${m.tag}-${String(cnt[h.mod]).padStart(2, "0")}`, name:h.name || `${m.short} ${cnt[h.mod]}`}; });
 }
 const toolTitle = p => { const m = TOOL_MODS[p && p.mod]; return m ? m.title : "Engineering Calculation"; };
@@ -4549,6 +4761,84 @@ TOOL({key:"ewh", group:"hw", title:"Electric Storage Water Heaters (Residential)
   },
   basis:["Recovery power P = V × 4.186 × (Ts − Tc) ÷ (3600 × t); usable mixed water from a heat balance at the delivery temperature; heater rating the next standard size.", "Expansion vessel by the Boyle relation using the water density at the cold and storage temperatures. T&P relief, tundish, drip tray, mixing valve and electrical protection to BS 6700 / BS EN 806 and the authority."]});
 
+// 11b. Hot water demand and electric water heater selection — ASPE Data Book Vol. 4 (1989) Table 1, per heater
+const T_ASPE_B = {apt:["Apartment house", 0.30, 1.25], club:["Club", 0.30, 0.90], gym:["Gymnasium", 0.40, 1.00], hosp:["Hospital", 0.25, 0.60], hotel:["Hotel", 0.25, 0.80],
+  ind:["Industrial plant", 0.40, 1.00], office:["Office building", 0.30, 2.00], priv:["Private residence", 0.30, 0.70], school:["School", 0.40, 1.00], ymca:["YMCA", 0.40, 1.00]};
+const T_ASPE_BK = ["apt", "club", "gym", "hosp", "hotel", "ind", "office", "priv", "school", "ymca"];
+// litres per hour per fixture at 60 °C, in the building order above; null = not listed (dishwashers: the top of the range — use the manufacturer figure where known)
+const T_ASPE_F = {
+  bpriv:["Basin, private lavatory", [7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6, 7.6]], bpub:["Basin, public lavatory", [15, 23, 30, 23, 30, 45.5, 23, null, 57, 30]],
+  bath:["Bathtub", [76, 76, 114, 76, 76, null, null, 76, null, 114]], dish:["Dishwasher", [57, 570, null, 570, 760, 380, null, 57, 380, 380]],
+  foot:["Foot basin", [11, 11, 46, 11, 11, 46, null, 11, 11, 46]], ksink:["Kitchen sink", [38, 76, null, 76, 114, 76, 76, 38, 76, 76]],
+  laund:["Laundry, stationary tub", [76, 106, null, 106, 106, null, null, 76, null, 106]], pantry:["Pantry sink", [19, 38, null, 38, 38, null, 38, 19, 38, 38]],
+  shower:["Shower", [114, 568, 850, 284, 284, 850, 114, 114, 850, 850]], service:["Service sink", [76, 76, null, 76, 114, 76, 76, 57, 76, 76]],
+  hydro:["Hydrotherapeutic shower", [null, null, null, 1520, null, null, null, null, null, null]], hub:["Hubbard bath", [null, null, null, 2270, null, null, null, null, null, null]],
+  leg:["Leg bath", [null, null, null, 380, null, null, null, null, null, null]], arm:["Arm bath", [null, null, null, 130, null, null, null, null, null, null]],
+  sitz:["Sitz bath", [null, null, null, 114, null, null, null, null, null, null]], cont:["Continuous-flow bath", [null, null, null, 625, null, null, null, null, null, null]],
+  cwash:["Circular wash sink", [null, null, null, 76, 76, 114, 76, null, 114, null]], swash:["Semicircular wash sink", [null, null, null, 38, 38, 57, 38, null, 57, null]]};
+const T_ASPE_Q = (bld, fix) => { const f = T_ASPE_F[fix], i = T_ASPE_BK.indexOf(bld); return f && i >= 0 ? f[1][i] : null; };
+// heater catalogues: [litres, kW, model]
+const T_EWH_CAT = {
+  ariston:["Ariston (PRO R Hidden, ARI Thermo)", [[50, 1.2, "PRO R HIDDEN 50 H"], [80, 1.5, "PRO R HIDDEN 80 H"], [100, 1.5, "PRO R HIDDEN 100 H"], [150, 1.8, "ARI 150 V THER"], [150, 2.0, "ARI 150 H THER"], [200, 2.2, "ARI 200 V THER"], [200, 2.0, "ARI 200 H THER"]]],
+  std:["Standard sizes 50 to 300 L", [[50, 1.5, "50 L 1.5 kW"], [100, 2.2, "100 L 2.2 kW"], [150, 3.0, "150 L 3.0 kW"], [200, 3.0, "200 L 3.0 kW"], [250, 3.0, "250 L 3.0 kW"], [300, 4.0, "300 L 4.0 kW"]]]};
+const tEwhCat = (cat, mount) => (T_EWH_CAT[cat] || T_EWH_CAT.ariston)[1].filter(u => mount === "any" || !/ [VH] /.test(u[2] + " ") || new RegExp(` ${mount === "v" ? "V" : "H"}( |$)`).test(u[2]))
+  .map(u => ({V:u[0], kw:u[1], model:u[2]})).sort((a, b) => a.V - b.V || a.kw - b.kw);
+// smallest heater that holds the storage (as the workbook's lookup), several of the largest if one is not enough; prefer one that also covers the kW
+function tEwhPick(list, V, P) {
+  if (!list.length) return null;
+  const big = list[list.length - 1].V, n = Math.max(1, Math.ceil(V/big - 1e-9)), fit = list.filter(u => u.V*n >= V - 1e-9);
+  const u = fit.find(x => x.kw*n >= P - 1e-9) || fit[0]; return u ? {...u, n} : null;
+}
+TOOL({key:"hwd", group:"hw", title:"Hot Water Demand and Electric Water Heater Selection", short:"Hot water demand", tag:"EWH", std:"ASPE Data Book Vol. 4, Table 1",
+  list:{k:"rows", l:"Heaters (one row per heater location · blank L/h = ASPE table · blank temperatures = the project values)", min:1, cols:[{k:"tag", l:"Tag", t:"t", w:0.9}, {k:"loc", l:"Level and location", t:"t", w:1.5},
+    {k:"fix", l:"Fixture", t:"s", opts:Object.entries(T_ASPE_F).map(([k, x]) => ({value:k, label:x[0]})), w:1.1}, {k:"qty", l:"Qty", t:"n", w:0.45}, {k:"q", l:"L/h each", t:"n", w:0.6},
+    {k:"Tc", l:"In °C", t:"n", w:0.5}, {k:"Th", l:"Out °C", t:"n", w:0.5}]},
+  wide:true,
+  fields:[tf("bld","Building type (ASPE Table 1 column)","", "office",{t:"s", opts:T_ASPE_BK.map(k => ({value:k, label:`${T_ASPE_B[k][0]} — demand ${T_ASPE_B[k][1]}, storage ${T_ASPE_B[k][2]}`}))}),
+    tf("cat","Heater range","", "ariston",{t:"s", opts:Object.entries(T_EWH_CAT).map(([k, x]) => ({value:k, label:x[0]}))}),
+    tf("mount","Mounting","", "any",{t:"seg", opts:[{value:"any", label:"Any"}, {value:"v", label:"Vertical"}, {value:"h", label:"Horizontal"}]}),
+    tf("cp","Specific heat of water","kJ/kg·K", 4.18, {adv:true})],
+  calc(v) {
+    const errs = [], cat = tEwhCat(v.cat, v.mount);
+    if (!cat.length) return {errors:["No heater in that range has that mounting — choose Any."]};
+    const R = v.rows.map((r, i) => { const tag = r.tag || `EWH-${String(i + 1).padStart(2, "0")}`, fix = T_ASPE_F[r.fix] ? r.fix : "shower", qty = Number(r.qty) || 0;
+      const qt = T_ASPE_Q(v.bld, fix), q = Number(r.q) > 0 ? Number(r.q) : qt, Tc = r.Tc === "" || r.Tc == null ? 30 : Number(r.Tc), Th = r.Th === "" || r.Th == null ? 50 : Number(r.Th);
+      const df = Number(r.df) > 0 ? Number(r.df) : T_ASPE_B[v.bld][1], sf = Number(r.sf) > 0 ? Number(r.sf) : T_ASPE_B[v.bld][2];
+      if (!(qty > 0)) errs.push(`${tag}: enter the number of fixtures.`);
+      if (!(q > 0)) errs.push(`${tag}: ASPE gives no figure for a ${T_ASPE_F[fix][0].toLowerCase()} in a ${T_ASPE_B[v.bld][0].toLowerCase()} — enter the L/h per fixture.`);
+      if (!(Th > Tc)) errs.push(`${tag}: the outlet temperature must be above the inlet.`);
+      const tot = qty*q, L = tot*df, Vs = L*sf, P = L*(Th - Tc)*v.cp/3600, sel = tEwhPick(cat, Vs, P);
+      return {tag, lvl:r.lvl || "", loc:r.loc || "", fix, fl:T_ASPE_F[fix][0], qty, q, own:Number(r.q) > 0, df, sf, Tc, Th, tot, L, Vs, P, sel, okV:sel && sel.V*sel.n >= Vs - 1e-9, okP:sel && sel.kw*sel.n >= P - 1e-9}; });
+    if (errs.length) return {errors:errs};
+    const kw = R.reduce((a, x) => a + x.sel.kw*x.sel.n, 0), nU = R.reduce((a, x) => a + x.sel.n, 0), nBad = R.filter(x => !x.okP).length, bt = T_ASPE_B[v.bld][0];
+    const mdl = x => `${x.sel.n > 1 ? x.sel.n + " × " : ""}${x.sel.model}`;
+    return {kw:+kw.toFixed(2), R, sum:[["Heaters", `${nU} No.`], ["Connected load", `${tF(kw, 1)} kW`], ["kW check", nBad ? `${nBad} to review` : "all OK"]],
+      steps:[{s:"Basis", label:`ASPE Table 1  [${bt}]`, value:`demand ${T_ASPE_B[v.bld][1]}, storage ${T_ASPE_B[v.bld][2]}`},
+        ...R.map((x, i) => ({...(i === 0 ? {s:"Heaters"} : {}), label:`${x.tag} ${[x.lvl, x.loc].filter(Boolean).join(" ")}  [${x.qty} × ${x.fl.toLowerCase()} ${x.q} L/h; probable ${tF(x.L, 1)} L/h; storage ${tF(x.Vs, 1)} L; ${tF(x.P, 2)} kW]`,
+          value:`${mdl(x)} (${x.sel.V} L, ${x.sel.kw} kW)`, hl:true, ...(x.okP ? {} : {flag:"warn"})})),
+        ...(nBad ? [{label:"Heater power below the probable demand", value:"the store still covers the peak, but recovers slower than it is drawn — check the use pattern or choose a larger heater", flag:"warn"}] : [])],
+      sel:`${nU} electric water heater${nU === 1 ? "" : "s"}, ${tF(kw, 1)} kW connected — ${R.map(x => `${x.tag} ${mdl(x)}`).join("; ")}${nBad ? ` · ${nBad} BELOW THE kW DEMAND` : ""}`,
+      rows(B) {
+        const T = (val, sp, o = {}) => ({v:val, span:[sp, sp], ...o});
+        B.section(`1.  Basis  ·  ASPE Data Book Vol. 4, Table 1  ·  ${bt}`);
+        B.inp("hcp", "Specific heat of water", v.cp, {unit:"kJ/kg·K", dp:2});
+        B.text("Total = Qty × HW demand per fixture   ·   Probable maximum demand = Total × demand factor   ·   Required storage = probable maximum demand × storage factor   ·   Required heater capacity = probable maximum demand × (outlet − inlet) × 4.18 ÷ 3600", {cls:"fx"});
+        B.section("2.  Hot Water Demand");
+        B.tbl("hwA", {head:[[T("Level", 1), T("Location", 2), T("Fixture type", 3), T("Qty", 4), T("HW demand per fixture (lph/fix.)", 5), T("Total (lph)", 6), T("Demand factor", 7), T("Probable max. demand (lph)", 8), T("Storage factor", 9)]],
+          rows:R.map(x => [T(x.lvl || "—", 1, {al:"l"}), T(x.loc || "—", 2, {al:"l"}), T(x.fl, 3, {al:"l"}), T(x.qty, 4, {dp:0, input:true}), T(x.q, 5, {dp:1, input:true}),
+            T(x.tot, 6, {dp:1, xl:"{#D}*{#E}"}), T(x.df, 7, {dp:2, input:true}), T(x.L, 8, {dp:1, xl:"{#F}*{#G}"}), T(x.sf, 9, {dp:2, input:true})])});
+        B.section(`3.  Water Heaters  ·  ${(T_EWH_CAT[v.cat] || T_EWH_CAT.ariston)[0]}${v.mount === "any" ? "" : v.mount === "v" ? ", vertical" : ", horizontal"}`);
+        B.tbl("hwB", {head:[[T("Tag", 1), T("Inlet water temp. (°C)", 2), T("Outlet water temp. (°C)", 3), T("Required storage (L)", 4), T("Required heater capacity (kW)", 5), T("Selected water heater", 6), T("", 7), T("No.", 8), T("Check", 9)]],
+          rows:R.map((x, i) => [T(x.tag, 1, {al:"l"}), T(x.Tc, 2, {dp:1, input:true}), T(x.Th, 3, {dp:1, input:true}), T(x.Vs, 4, {dp:1, xl:`{~hwA.H.${i}}*{~hwA.I.${i}}`}),
+            T(x.P, 5, {dp:2, xl:`({~hwA.H.${i}}*({#C}-{#B})*{hcp})/3600`}), {v:`${x.sel.model} (${x.sel.V} L, ${x.sel.kw} kW)`, span:[6, 7], al:"l"}, T(x.sel.n, 8, {dp:0}), T(x.okV && x.okP ? "OK" : "REVIEW", 9)])});
+        B.text("Selection: the smallest heater in the range that holds the storage (several of the largest where one is not enough); where two heaters of that size exist, the one whose rating also covers the kW needed. Ratings from the manufacturer's data sheets.", {italic:true});
+        B.calc("hkw", "Connected electrical load", kw, null, {unit:"kW", dp:1, key:true, bold:true});
+        R.filter(x => !x.okP).forEach(x => B.text(`⚠ ${x.tag}: ${x.sel.n > 1 ? x.sel.n + " × " : ""}${x.sel.kw} kW is below the ${tF(x.P, 2)} kW needed to keep up with the probable demand — the store covers the peak, but check the use pattern or choose a larger heater.`, {warn:true}));
+      }};
+  },
+  basis:["Hot water demand to the ASPE Data Book Vol. 4 Table 1 (1989): hot water per fixture at 60 °C for the building type; the probable maximum demand is the possible demand times the demand factor, and the storage is the probable demand times the storage capacity factor.",
+    "Heater power = probable demand (L/h) × (outlet − inlet temperature) × 4.18 ÷ 3600. Heaters selected from the manufacturer's range by storage, with the rating checked against that power. T&P relief, expansion, mixing valves and electrical supply to BS EN 806 and the authority."]});
+
 // 12. Domestic hot water — calorifier storage, recovery and secondary circulation
 TOOL({key:"dhw", group:"hw", title:"Domestic Hot Water — Storage, Recovery and Circulation", short:"DHW system", tag:"DHW", std:"CIBSE Guide G / BS EN 806 / HSG274",
   fields:[tf("Vpk","Hot water drawn in the peak period","L", 3000, {h:"At storage temperature"}), tf("tp","Peak period","h", 2), tf("Tc","Cold water temperature","°C", 30, {neg:true}), tf("Ts","Storage temperature","°C", 60),
@@ -4829,8 +5119,8 @@ TOOL({key:"meter", group:"pres", title:"Water Meter and Backflow Preventer", sho
   basis:["Meter selected so that the permanent flow Q3 covers the normal flow and the overload flow Q4 = 1.25 Q3 covers the peak (ISO 4064); the minimum flow is checked against Q1 = Q3 / R.", "Pressure loss scales with flow squared; backflow protection category to BS EN 1717 and the authority. Meter sizes and losses are typical — confirm with the utility."]});
 
 // 22. Stormwater additions: attenuation tank and emergency overflow scupper
-TOOL({key:"stormx", group:"drn", title:"Stormwater Attenuation and Overflow", short:"Attenuation", tag:"ATT", std:"BS EN 752 / CIRIA C753 / BS EN 12056-3",
-  fields:[tf("kind","Calculation","", "att",{t:"seg", opts:[{value:"att", label:"Attenuation tank"}, {value:"scup", label:"Overflow scupper"}]}),
+TOOL({key:"stormx", group:"drn", title:"Roof Overflow Scupper", short:"Scupper", tag:"SCP", std:"BS EN 12056-3",
+  fields:[tf("kind","Calculation","", "scup",{t:"s", show:() => false, opts:[{value:"scup", label:"Overflow scupper"}]}),
     tf("A","Catchment area","m²", 5000), tf("C","Runoff coefficient","", 0.9, {max:1}), tf("i","Rainfall intensity for the storm","mm/h", 75), tf("d","Storm duration","min", 60, {show:v => v.kind === "att"}),
     tf("qo","Allowed discharge","l/s", 20, {z:true, show:v => v.kind === "att"}), tf("fs","Safety factor on volume","%", 10, {z:true, adv:true, show:v => v.kind === "att"}),
     tf("h","Allowed water depth over the scupper","mm", 50, {show:v => v.kind === "scup"}), tf("cd","Weir coefficient","", 1.6, {adv:true, show:v => v.kind === "scup", h:"Q = Cd L h^1.5 (m³/s, m), 1.6 broad-crested"})],
@@ -4981,7 +5271,7 @@ const wsIsGas = p => !!p && p.wsService === "gas";
 const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : (w && w.fuelMode && w.fuelFl) ? v*w.fuelFl.rho/1000/WS_BAR : v/WS_BAR;
-const typeLbl = p => !p ? "" : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : p.type === "storm" ? stormTitle(p) : p.type === "fuelp" ? fuelTitle(p) : p.type === "tool" ? toolTitle(p) : (p.type === "water" && wsIsStormNet(p)) ? "Stormwater Pipe Sizing" : (p.type === "water" && wsIsFuelNet(p)) ? "Fuel Oil Pipe Sizing" : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
+const typeLbl = p => !p ? "" : p.type === "fls" ? flsTitle(p) : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : p.type === "storm" ? stormTitle(p) : p.type === "fuelp" ? fuelTitle(p) : p.type === "tool" ? toolTitle(p) : (p.type === "water" && wsIsStormNet(p)) ? "Stormwater Pipe Sizing" : (p.type === "water" && wsIsFuelNet(p)) ? "Fuel Oil Pipe Sizing" : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
 const GAS_RD = {propane:1.55, butane:2.07, air:1.0}, GAS_MW = {propane:44.10, butane:58.12};
 const GAS_TYPES = [
   {k:"lpg",   l:"LPG",   long:"Liquefied petroleum gas (propane / butane vapour)", conv:2.40},
@@ -5287,7 +5577,7 @@ function gasFromLegacy(p) {
 // (ref_fixture_unit_codes / ref_fixture_unit_tables) and the fixtures with their loading units from
 // ref_fixtures, so IOP, IPC, UPC, BS EN 806 and national tables all work the same way.
 // <WATER-CORE-BEGIN>
-const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","foam","storm","fuelp","tool","water","lpg"]);
+const CLASSIC_ONLY = new Set(["sump","grease","pbc","ca","foam","fls","storm","fuelp","tool","water","lpg"]);
 const WS_COUNTRIES = ["UAE","Saudi Arabia (KSA)","Qatar","Oman","Bahrain","Kuwait"];
 const WS_ID = /^[A-Za-z0-9_.\-]+$/;
 const WS_CLASSES = [{k:"main", l:"Main"}, {k:"riser", l:"Riser"}, {k:"branch", l:"Branch"}];
@@ -9277,6 +9567,40 @@ function clCaRows(B, p, res) {
 
 
 // ── Foam: calculation sheet rows (v1.86.0) — compact, one A4 page ───────────
+function clFlsRows(B, p, res) {
+  const c = res.fls, v = c.v, B0 = c.base, ref = r => `Table ${r.table}${r.cat !== "*" ? " " + r.cat : ""}, case ${r.case}${r.page ? " (page " + r.page + ")" : ""}`;
+  B.align("l");
+  B.section(`1.  Building  ·  ${c.o.label}`);
+  Object.keys(FLS_PARAMS).forEach(k => { if (v[k] != null && k !== "two_exit_stairs") B.inp("fl" + k.replace(/_.*/, ""), FLS_PARAMS[k][0], v[k], {unit:FLS_PARAMS[k][1], dp:k === "height_m" ? 1 : 0}); });
+  if (v.two_exit_stairs != null) B.text(`Second exit stair: ${v.two_exit_stairs ? "available" : "not available"}`);
+  if (v.single_exit) B.text("Single exit stair");
+  B.section(`2.  Code Selection  ·  UAE FLS Code, Chapter 9  ·  ${c.edition}`);
+  if (c.band) B.text(`Height band: ${c.band.label} (${c.band.note}, clause ${c.band.clause})`);
+  B.text(`${ref(B0)}: ${B0.label}`, {bold:true});
+  if (c.also.length) B.text(`Lower cases also met and superseded: ${c.also.map(r => r.case).join(", ")}`, {italic:true});
+  if (c.hyd) B.text(`${ref(c.hyd)}: ${c.hyd.label} — ${c.useH ? "applies (combined fire pump set and tank)" : `not applied: infrastructure yard hydrants are within ${c.hyd.waiver} m`}`, {bold:c.useH});
+  B.section("3.  Systems Required");
+  c.systems.split("; ").forEach(s => B.text(s));
+  B.section("4.  Fire Pump");
+  if (c.gpm != null) {
+    if (B0.basis === "standpipes" && !c.useH) B.inp("flN", `Number of ${c.countBy}  [750 gpm for 2, 1,000 gpm for more]`, c.n, {unit:"No.", dp:0});
+    B.inp("flG", `Fire pump capacity  [${ref(c.useH ? c.hyd : B0)}]`, c.gpm, {unit:"gpm", dp:0, bold:true});
+    B.calc("flQ", "Fire pump capacity  [gpm × 3.785 ÷ 60]", c.Q, "{flG}*3.785411784/60", {unit:"l/s", dp:2, key:true, bold:true});
+  } else B.text(`Fire pump: ${c.flowTxt}.`, {bold:true});
+  if (c.bar != null) B.inp("flP", c.pumpRated ? "First pump pressure  [stated by the code]" : `Residual pressure required at the most remote ${c.at}  [code]`, c.bar, {unit:"bar", dp:1, bold:c.pumpRated});
+  if (!c.pumpRated && c.gpm != null) { if (c.pHyd) B.inp("flPh", "Fire pump pressure  [from the hydraulic calculation]", c.pHyd, {unit:"bar", dp:2, bold:true});
+    else B.text("Fire pump pressure: by hydraulic calculation (static height + friction losses + the residual pressure above).", {bold:true}); }
+  if (c.useH && c.gpmI != null && c.gpmI !== c.gpm) B.text(`The internal systems alone would need ${c.gpmI} gpm with a ${c.tankI} minute tank (${ref(B0)}).`, {italic:true});
+  if (c.up) B.text(`Upper pump sets every 90 m: ${c.up.g} gpm at a pressure to satisfy 6.9 bar at the most remote landing valve, each with a ${c.up.tank} minute tank.`);
+  B.section("5.  Fire Water Tank");
+  if (c.tank != null) B.inp("flT", "Duration", c.tank, {unit:"min", dp:0});
+  if (c.V != null) B.calc("flV", "Fire water tank volume  [gpm × 3.785 L × minutes ÷ 1000]", c.V, "{flG}*3.785411784*{flT}/1000", {unit:"m³", dp:1, key:true, bold:true});
+  else if (c.tank != null) B.text("Volume from the design flow of the selected system (sprinkler, deluge or hazard demand) × the duration above.", {italic:true});
+  if (c.foam) B.inp("flF", "Foam concentrate duration", c.foam, {unit:"min", dp:0});
+  B.text("Tank with low water level detection, dedicated direct breeching inlet for refilling and instantaneous refilling arrangement, as the code requires.");
+  [B0.notes, c.useH ? c.hyd.notes : ""].filter(Boolean).forEach(x => B.text("Note: " + x, {italic:true}));
+  B.banner = {text:res.selStr, xl:'"' + res.selStr.replace(/"/g, '""') + '"'};
+}
 function clFoamRows(B, p, res) {
   const c = res.foam, tank = c.kind === "tank", fl = c.roof === "floating";
   B.align("l");
@@ -9567,6 +9891,7 @@ function clFuelRun(B, px, c, o) {   // one Darcy-Weisbach run: length → veloci
 }
 function clFuelRows(B, p, res) {
   const c = res.fuel, k = c.kind; B.align("l");
+  if (k === "sys") { clFuelSysRows(B, p, res); return; }
   B.section(`1.  Fluid and Pipe  ·  ${c.fl.name}`);
   B.inp("fpRho", `Density  [${c.fl.T} °C]`, c.fl.rho, {unit:"kg/m³", dp:0});
   B.inp("fpNu", "Kinematic viscosity", c.fl.nuCst, {unit:"cSt", dp:2});
@@ -9617,7 +9942,7 @@ function clFuelRows(B, p, res) {
   else {
     B.inp("fgN", "Generators served", c.n || 1, {unit:"No.", dp:0});
     B.inp("fgC", "Fuel consumption at full load, each", c.cons, {unit:"L/h", dp:0});
-    B.inp("fgS", `Fuel supply flow, each${p.sup === "" || p.sup == null ? `  [${fuelSettings(p._set).supFactor} x consumption]` : "  [generator datasheet]"}`, c.sup, {unit:"L/h", dp:0});
+    B.inp("fgS", `Fuel supply flow, each${p.sup === "" || p.sup == null ? `  [${fuelSettings(p._set).supFactor} x consumption]` : p.supHow && !/datasheet/.test(p.supHow) ? `  [${p.supHow.replace("×", "x")}]` : "  [generator datasheet]"}`, c.sup, {unit:"L/h", dp:0});
     B.calc("fpQ", k === "supply" ? "Supply flow  [n x supply]" : "Return flow  [n x (supply - consumption)]", c.Q, k === "supply" ? "{fgN}*{fgS}/3600" : "{fgN}*({fgS}-{fgC})/3600", {unit:"l/s", dp:3, key:true, bold:true});
   }
   B.section("3.  Pipe");
@@ -10072,12 +10397,12 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : pump.type === "tool" ? `${toolTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "storm" || pump.type === "fuelp" ? `${pump.type === "fuelp" ? "Fuel Oil Pipe Sizing" : typeLbl(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : String(pump.name || typeLbl(pump) || "Calculation");
+  const title = pump.type === "fls" ? `${flsTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : pump.type === "tool" ? `${toolTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "storm" || pump.type === "fuelp" && pump.kind === "sys" ? "Fuel Oil System — Transfer Pump and Pipe Sizing" : pump.type === "fuelp" ? `${pump.type === "fuelp" ? "Fuel Oil Pipe Sizing" : typeLbl(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
   const B = clBuilder(); B.levels = lvOwn;
-  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "foam") clFoamRows(B, pump, res); else if (pump.type === "storm") clStormRows(B, pump, res); else if (pump.type === "fuelp") clFuelRows(B, pump, res); else if (pump.type === "tool") clToolRows(B, pump, res); else if (pump.type === "water" && wsIsStormNet(pump)) clStormNetRows(B, pump, res); else if (pump.type === "water" && wsIsFuelNet(pump)) clFuelNetRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
+  if (pump.type === "sump") clSumpRows(B, pump, res); else if (pump.type === "grease") clGreaseRows(B, pump, res); else if (pump.type === "pbc") clPbcRows(B, pump, res); else if (pump.type === "ca") clCaRows(B, pump, res); else if (pump.type === "foam") clFoamRows(B, pump, res); else if (pump.type === "fls") clFlsRows(B, pump, res); else if (pump.type === "storm") clStormRows(B, pump, res); else if (pump.type === "fuelp") clFuelRows(B, pump, res); else if (pump.type === "tool") clToolRows(B, pump, res); else if (pump.type === "water" && wsIsStormNet(pump)) clStormNetRows(B, pump, res); else if (pump.type === "water" && wsIsFuelNet(pump)) clFuelNetRows(B, pump, res); else if (pump.type === "water" && wsIsDrain(pump)) clDrainRows(B, pump, res); else if (pump.type === "water" && wsIsGas(pump)) clGasRows(B, pump, res); else if (pump.type === "water") { if (opts && opts.compact) clWaterCompact(B, pump, res, wsPrintOf(proj)); else clWaterRows(B, pump, res); } else clPumpRows(B, pump, res);
   const closure = closureOf(meta);
   const _gst = gateStatus(pump, res), _ga = _gst.key === "review" ? (((meta && meta.reviewGate) || {}).acks || {})[pump.id] : null, _gok = !!(_ga && _ga.fp === gateFp(pump, res));
   const gateTxt = _gst.key !== "review" ? "" : _gok ? `Review items acknowledged by ${_ga.by} on ${fmtDay(_ga.at)}: ${_gst.reason}` : `REVIEW — NOT ACKNOWLEDGED: ${_gst.reason}`;
@@ -10088,7 +10413,7 @@ function clBuildDoc(proj, pump, meta, stageName, opts) {
       calcBy:proj.calcBy || "", calcDate:clDate(proj.calcDate), checkedBy:proj.checkedBy || "", checkedDate:clDate(proj.checkedDate),
       reviewedBy:proj.reviewedBy || "", reviewedDate:clDate(proj.reviewedDate), client:proj.client || ""},
     appendix:B.appendix,
-    basis:{lead: pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "foam" ? foamTitle(pump) : pump.type === "storm" ? stormTitle(pump) : pump.type === "fuelp" ? fuelTitle(pump) : pump.type === "tool" ? toolTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
+    basis:{lead: pump.type === "fls" ? flsTitle(pump) : pump.type === "sump" ? "Sump Pump" : pump.type === "grease" ? "Grease Interceptor" : pump.type === "pbc" ? "Pressure Break Chamber" : pump.type === "ca" ? caTitle(pump) : pump.type === "foam" ? foamTitle(pump) : pump.type === "storm" ? stormTitle(pump) : pump.type === "fuelp" ? fuelTitle(pump) : pump.type === "tool" ? toolTitle(pump) : pump.type === "water" && wsIsDrain(pump) ? "Drainage Pipe Sizing" : pump.type === "water" && wsIsGas(pump) ? "Gas Pipe Sizing" : pump.type === "water" ? "Water Supply Pipe Sizing" : pump.type === "custom" ? "Custom Pump" : `${typeLbl(pump) || ""} Pump`.trim(), tag: pump.tag || "", items:basisOf(proj, meta, pump)},
     closure: closure.status === "closed" ? closure : null,
     gate: gateTxt ? {text:gateTxt.length > 400 ? gateTxt.slice(0, 397) + "…" : gateTxt, ok:_gok} : null,
     watermark: closure.status === "closed" ? null : (stageStatusLabel(meta).toUpperCase() === "DRAFT" ? "DRAFT — NOT FOR ISSUE" : "DRAFT — NOT FOR ISSUE · " + stageStatusLabel(meta).toUpperCase()),
@@ -11299,6 +11624,7 @@ function defaultDesignBasis(p) {
   if (p && p.type === 'pbc') return pbcDesignBasis(p);
   if (p && p.type === 'ca') return caDesignBasis(p);
   if (p && p.type === 'foam') return foamDesignBasis(p);
+  if (p && p.type === 'fls') return flsDesignBasis(p);
   if (p && p.type === 'storm') return stormDesignBasis(p);
   if (p && p.type === 'fuelp') return fuelDesignBasis(p);
   if (p && p.type === 'tool') return toolDesignBasis(p);
@@ -11313,6 +11639,7 @@ function defaultDesignBasis(p) {
 function basisOf(proj, meta, p) {
   if (p && p.type === "ca") return caDesignBasis(p);                 // a fire sheet never takes the plumbing stage / project statements
   if (p && p.type === "foam") return foamDesignBasis(p);
+  if (p && p.type === "fls") return flsDesignBasis(p);
   if (p && p.type === "storm") return stormDesignBasis(p);   // v1.89: standard-specific statements
   if (p && p.type === "fuelp") return fuelDesignBasis(p);
   if (p && p.type === "tool") return toolDesignBasis(p);
@@ -11864,6 +12191,84 @@ function CaCylindersTab() {
 // Hazards and settings live in the stage meta (meta.foam) and save / lock with the stage. Tanks: Supabase ref_foam_tanks.
 const FOAM_NEW = (set) => ({id:Math.random().toString(36).slice(2, 10), name:"", location:"", kind:"spill", fuel:"c2", roof:"fixed", conc:set.conc,
   L:"", W:"", area:"", deduct:"", desArea:"", D:"", dam:"", rate:"", time:"", allow:"", pct:"", reserve:"", hoses:true, hoseN:"", hoseQ:"", hoseT:"", tankKey:"auto", tankN:""});
+// Fire pump selection page — buildings live in meta.fls.items
+const FLS_NEW = () => ({id:Math.random().toString(36).slice(2, 10), name:"", location:"", occ:"", height_m:"", gf_m2:"", plot_m2:"", unit_m2:"", sum_gf_m2:"", basement_m2:"", yard_m2:"", area_m2:"", length_m:"", tank_m3:"",
+  standpipes:"2", single_exit:false, two_exit_stairs:true, infra_hydrant:false});
+function FlsTab({meta, setMeta, locked, focus}) {
+  const f = (meta && meta.fls) || {}, list = f.items || [];
+  const [selId, setSelId] = useState(null);
+  useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
+  const upd = fn => { if (locked) return; setMeta(m => { const cur = m.fls || {}; return {...m, fls:fn({...cur, items:cur.items || []})}; }); };
+  const setH = (id, patch) => upd(x => ({...x, items:x.items.map(h => h.id === id ? {...h, ...patch} : h)}));
+  const add = () => { const h = FLS_NEW(); upd(x => ({...x, items:[...x.items, h]})); setSelId(h.id); };
+  const dup = h => { const n = {...h, id:FLS_NEW().id, name:(h.name || "Building") + " (copy)"}; upd(x => { const i = x.items.findIndex(q => q.id === h.id), a = x.items.slice(); a.splice(i + 1, 0, n); return {...x, items:a}; }); setSelId(n.id); };
+  const del = h => { if (!window.confirm(`Delete ${h.name || "this building"}?`)) return; upd(x => ({...x, items:x.items.filter(q => q.id !== h.id)})); };
+  const items = useMemo(() => flsItems(meta), [meta]), results = useMemo(() => items.map(it => safeCalculate(it)), [items]);
+  const h = list.find(x => x.id === selId) || list[0] || null, ix = h ? list.findIndex(x => x.id === h.id) : -1, rs = ix >= 0 ? results[ix] : null, c = rs && rs.fls;
+  const o = h && FLS_REF.occ[h.occ], need = o ? flsParamsOf(o, h) : null, groups = [...new Set(FLS_REF.occList.map(x => x.group))];
+  const order = ["height_m", "gf_m2", "plot_m2", "unit_m2", "sum_gf_m2", "basement_m2", "yard_m2", "area_m2", "length_m", "tank_m3"];
+  const f0 = v => v == null ? "—" : Math.round(v).toLocaleString("en-GB");
+  return (
+    <div className="ca-tab">
+      <div className="ca-head">
+        <div><h2>Fire Pump and Fire Water Tank</h2><span>UAE Fire and Life Safety Code, Chapter 9, Tables 9.18 to 9.28 · UAE projects only · {list.length} building{list.length === 1 ? "" : "s"}{FLS_REF.n ? ` · ${FLS_REF.n} rules from Supabase` : ""}</span></div>
+        <div className="ca-acts no-print"><button type="button" className="ca-btn pri" onClick={add} disabled={locked || !!FLS_REF.err}>+ Add building</button></div>
+      </div>
+      {locked && <div className="ca-note no-print">This stage is signed off — read only.</div>}
+      {FLS_REF.err && <div className="ca-note bad no-print">⚠ {FLS_REF.err}</div>}
+      <section className="ca-card no-print">
+        <h4>Buildings <em>one row per building or fire pump set · click to edit</em></h4>
+        {!list.length ? <div className="ca-empty">No buildings yet. <button type="button" className="ca-btn pri" onClick={add} disabled={locked || !!FLS_REF.err}>+ Add the first building</button></div> :
+        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Tag</th><th>Building</th><th>Occupancy</th><th>Code case</th><th className="n">Pump gpm</th><th className="n">Pump bar</th><th className="n">Tank min</th><th className="n">Tank m³</th><th/></tr></thead>
+          <tbody>{list.map((q, i) => { const r = results[i], k = r && r.fls, it = items[i];
+            return <tr key={q.id} className={(h && h.id === q.id ? "sel " : "") + (r && r.error ? "err" : "")} onClick={() => setSelId(q.id)}>
+              <td className="n">{i + 1}</td><td><b>{it.tag}</b></td><td><b>{it.name}</b>{q.location ? <span className="tl-loc"> · {q.location}</span> : null}</td><td>{(FLS_REF.occ[q.occ] || {}).label || "—"}</td>
+              <td>{k ? `${(k.useH ? k.hyd : k.base).table}${(k.useH ? k.hyd : k.base).cat !== "*" ? " " + (k.useH ? k.hyd : k.base).cat : ""}.${(k.useH ? k.hyd : k.base).case}` : <span className="ca-errt" title={(r && r.errors || []).join(" ")}>⚠ {(r && r.errors && r.errors[0]) || "error"}</span>}</td>
+              <td className="n"><b>{k ? (k.gpm != null ? f0(k.gpm) : "—") : "—"}</b></td><td className="n" title={k && !k.pumpRated && !k.pHyd ? "By hydraulic calculation" : ""}>{k ? (k.pumpRated ? k.bar : k.pHyd ? k.pHyd : k.gpm != null ? "hydraulic" : "—") : "—"}</td><td className="n">{k && k.tank != null ? k.tank : "—"}</td><td className="n"><b>{k && k.V != null ? k.V.toFixed(0) : "—"}</b></td>
+              <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dup(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => del(q)}>✕</button></td>
+            </tr>; })}</tbody></table></div>}
+      </section>
+      {h && <div className="ca-split no-print">
+        <section className="ca-card ca-inputs">
+          <h4>Inputs <em>the boxes shown are the ones the code needs for this occupancy</em></h4>
+          <fieldset disabled={locked} style={{border:0, padding:0, margin:0, minWidth:0}}>
+          <div className="ca-g2">
+            <T label="Name" value={h.name} onChange={x => setH(h.id, {name:x})} placeholder="e.g. Tower A" />
+            <T label="Location / system" value={h.location} onChange={x => setH(h.id, {location:x})} placeholder="e.g. Plot 05" />
+          </div>
+          <div className="pf-f" style={{marginTop:8}}><label>Occupancy (predominant)</label><div className="pf-in"><select value={h.occ || ""} onChange={e => setH(h.id, {occ:e.target.value})}>
+            <option value="">— choose —</option>{groups.map(g => <optgroup key={g} label={g}>{FLS_REF.occList.filter(x => x.group === g).map(x => <option key={x.key} value={x.key}>{x.label}</option>)}</optgroup>)}</select></div></div>
+          {need && <>
+            <div className="ca-g3" style={{marginTop:8}}>{order.filter(k => need.params.includes(k)).map(k => <N key={k} label={FLS_PARAMS[k][0]} unit={FLS_PARAMS[k][1]} value={h[k]} onChange={x => setH(h.id, {[k]:x})}
+              req={!(k === "sum_gf_m2" || k === "basement_m2")} hint={FLS_PARAMS[k][2]} />)}
+              <N label="Pump pressure from hydraulic calc." unit="bar" value={h.pump_bar} onChange={x => setH(h.id, {pump_bar:x})} req={false} hint="Optional: static + friction + residual, from your hydraulic calculation" />
+              {need.standpipes && <N label={`Number of ${need.countBy}`} value={h.standpipes} onChange={x => setH(h.id, {standpipes:x})} hint="2 → 750 gpm, more than 2 → 1,000 gpm" />}
+            </div>
+            <div className="ca-g3" style={{marginTop:8}}>
+              {need.singleExit && <Seg label="Single exit stair" value={h.single_exit ? "yes" : "no"} onChange={x => setH(h.id, {single_exit:x === "yes"})} options={[{value:"no", label:"No"}, {value:"yes", label:"Yes"}]} />}
+              {need.params.includes("two_exit_stairs") && <Seg label="Second exit stair available" value={h.two_exit_stairs === false ? "no" : "yes"} onChange={x => setH(h.id, {two_exit_stairs:x === "yes"})} options={[{value:"yes", label:"Yes"}, {value:"no", label:"No"}]} />}
+              {need.waiver > 0 && <Seg label={`Infrastructure yard hydrants within ${need.waiver} m`} value={h.infra_hydrant ? "yes" : "no"} onChange={x => setH(h.id, {infra_hydrant:x === "yes"})} options={[{value:"no", label:"No"}, {value:"yes", label:"Yes"}]} />}
+            </div></>}
+          </fieldset>
+          <div className="ca-advn" style={{marginTop:8}}>Values are the code minimum (Clause 4.1.9). Confirm with Civil Defence; pump head and sprinkler demand by hydraulic calculation.</div>
+        </section>
+        <section className="ca-card ca-design">
+          <h4>Selection <em>{c ? `${c.edition}` : "UAE FLS Code"}</em></h4>
+          {c ? <>
+            <div className="ca-kpis">
+              <div className="hl"><span>Fire pump</span><b>{c.gpm != null ? `${f0(c.gpm)} gpm` : "—"}</b><i>{c.gpm != null ? `${c.Q.toFixed(1)} l/s · ${c.pumpRated ? `${c.bar} bar (code)` : c.pHyd ? `${c.pHyd} bar (hydraulic)` : `${c.bar} bar residual at the ${c.at}`}` : c.flowTxt}</i></div>
+              <div><span>Fire water tank</span><b>{c.V != null ? `${c.V.toFixed(0)} m³` : c.tank != null ? `${c.tank} min` : "—"}</b><i>{c.tank != null ? `${c.tank} minutes` : "no tank"}</i></div>
+              <div><span>Yard hydrants</span><b>{c.yard ? "Required" : "No"}</b><i>{c.useH ? "combined pump and tank" : c.hyd ? "infrastructure hydrants nearby" : "not by this case"}</i></div>
+            </div>
+            <div className="tl-sel">{rs.selStr}</div>
+            <div className="ca-steps">{rs.steps.map((st, i) => <React.Fragment key={i}>{st.s && <div className="ca-sh">{st.s}</div>}<div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div></React.Fragment>)}</div>
+          </> : <div className="ca-errbox">{(rs && rs.errors || ["Choose the occupancy."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+        </section>
+      </div>}
+    </div>
+  );
+}
 function FoamTab({meta, setMeta, locked, focus}) {
   const fo = (meta && meta.foam) || {}, set = foamSettings(fo.set), hz = fo.hazards || [], lib = FOAM_TANKS;
   const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(false), [showAdv, setShowAdv] = useState(false);
@@ -12931,13 +13336,52 @@ function ToolField({f, h, v, set}) {
   return <div className="tl-nf"><N label={f.l} unit={f.u} value={val ?? ""} onChange={x => set({[f.k]:x})} req={false} min={f.neg ? -1e9 : 0} max={f.max} hint={f.h} />
     <i className="tl-def">{tblank(val) ? (tblank(dflt) ? (f.opt ? "auto" : "") : `default ${typeof dflt === "number" ? +dflt.toFixed(4) : dflt}`) : <button type="button" onClick={() => set({[f.k]:""})} title="Back to the default">reset</button>}</i></div>;
 }
+// v1.100.1: hot water demand editor — the workbook's columns, inputs and results in one row per heater
+function HwdEditor({h, set, locked, c, m}) {
+  const rows = Array.isArray(h.rows) ? h.rows : [], bld = T_ASPE_B[h.bld] ? h.bld : "office", B = T_ASPE_B[bld];
+  const put = r => set({rows:r}), upd = (i, p) => put(rows.map((r, j) => j === i ? {...r, ...p} : r));
+  const fresh = prev => { const n = rows.length + 1, fx = prev ? prev.fix || "shower" : "shower", keep = k => prev && prev[k] !== "" && prev[k] != null;
+    return {tag:`EWH-${String(n).padStart(2, "0")}`, lvl:prev ? prev.lvl || "" : "", loc:"", fix:fx, qty:"", q:T_ASPE_Q(bld, fx) ?? "", df:B[1], sf:B[2], Tc:keep("Tc") ? prev.Tc : 30, Th:keep("Th") ? prev.Th : 50}; };
+  const setBld = k => { const b = T_ASPE_B[k]; set({bld:k, rows:rows.map(r => ({...r, q:T_ASPE_Q(k, r.fix || "shower") ?? r.q, df:b[1], sf:b[2]}))}); };
+  const R = c && c.R, f1 = (v, d = 1) => v == null || !Number.isFinite(v) ? "—" : v.toFixed(d);
+  // rows saved before the values were filled in: write the table values into the empty boxes, so every box shows what the calculation uses
+  useEffect(() => { if (locked || !rows.length) return; const bl = v => v === "" || v == null;
+    if (!rows.some(r => ["q", "df", "sf", "Tc", "Th"].some(k => bl(r[k])))) return;
+    put(rows.map(r => ({...r, q:bl(r.q) ? T_ASPE_Q(bld, r.fix || "shower") ?? "" : r.q, df:bl(r.df) ? B[1] : r.df, sf:bl(r.sf) ? B[2] : r.sf, Tc:bl(r.Tc) ? 30 : r.Tc, Th:bl(r.Th) ? 50 : r.Th}))); }, [h.id]);
+  const inp = (i, k, o = {}) => <input type={o.text ? "text" : "number"} className={o.cls || ""} value={rows[i][k] ?? ""} disabled={locked} placeholder={o.ph || ""} onChange={e => upd(i, {[k]:e.target.value})} onWheel={e => e.currentTarget.blur()} />;
+  return <>
+    <div className="ca-g3" style={{marginBottom:10}}>
+      <S label="Building type (ASPE Table 1)" value={bld} onChange={setBld} options={T_ASPE_BK.map(k => ({value:k, label:`${T_ASPE_B[k][0]} — demand ${T_ASPE_B[k][1]}, storage ${T_ASPE_B[k][2]}`}))} />
+      <S label="Water heater range" value={T_EWH_CAT[h.cat] ? h.cat : "ariston"} onChange={x => set({cat:x})} options={Object.entries(T_EWH_CAT).map(([k, x]) => ({value:k, label:x[0]}))} />
+      <Seg label="Mounting" value={h.mount || "any"} onChange={x => set({mount:x})} options={[{value:"any", label:"Any"}, {value:"v", label:"Vertical"}, {value:"h", label:"Horizontal"}]} />
+    </div>
+    <div className="ca-advn" style={{margin:"-4px 0 10px"}}>Models in this range{h.mount === "v" ? " (vertical)" : h.mount === "h" ? " (horizontal)" : ""}: {tEwhCat(T_EWH_CAT[h.cat] ? h.cat : "ariston", h.mount || "any").map(u => `${u.model} ${u.V} L ${u.kw} kW`).join(" · ") || "none"}</div>
+    <div className="ca-scroll"><table className="ca-tbl hwd-t">
+      <thead><tr><th>Level</th><th>Location</th><th>Fixture type</th><th className="n">Qty</th><th className="n">HW demand<br/>per fixture<br/>(lph / fix.)</th><th className="n">Total<br/>(lph)</th><th className="n">Demand<br/>factor</th><th className="n">Storage<br/>factor</th>
+        <th className="n">Inlet water<br/>temp. (°C)</th><th className="n">Outlet water<br/>temp. (°C)</th><th className="n">Probable max.<br/>demand (lph)</th><th className="n">Required<br/>storage (L)</th><th className="n">Required heater<br/>capacity (kW)</th><th>Selected water heater</th><th>Tag</th><th/></tr></thead>
+      <tbody>{rows.map((r, i) => { const x = R && R[i];
+        return <tr key={i} className={x && !(x.okV && x.okP) ? "warn" : ""}>
+          <td>{inp(i, "lvl", {text:true, cls:"w2"})}</td><td>{inp(i, "loc", {text:true, cls:"w3"})}</td>
+          <td><select value={T_ASPE_F[r.fix] ? r.fix : "shower"} disabled={locked} onChange={e => upd(i, {fix:e.target.value, q:T_ASPE_Q(bld, e.target.value) ?? ""})}>{Object.entries(T_ASPE_F).map(([k, f]) => <option key={k} value={k}>{f[0]}</option>)}</select></td>
+          <td className="n">{inp(i, "qty", {cls:"w1"})}</td><td className="n">{inp(i, "q", {cls:"w1"})}</td><td className="n"><b>{x ? f1(x.tot) : "—"}</b></td>
+          <td className="n">{inp(i, "df", {cls:"w1"})}</td><td className="n">{inp(i, "sf", {cls:"w1"})}</td><td className="n">{inp(i, "Tc", {cls:"w1"})}</td><td className="n">{inp(i, "Th", {cls:"w1"})}</td>
+          <td className="n"><b>{x ? f1(x.L) : "—"}</b></td><td className="n"><b>{x ? f1(x.Vs) : "—"}</b></td><td className="n"><b>{x ? f1(x.P, 2) : "—"}</b></td>
+          <td className="hwd-sel">{x ? <><b>{x.sel.n > 1 ? x.sel.n + " × " : ""}{x.sel.model}</b><em>{x.sel.n > 1 ? "each " : ""}{x.sel.V} L · {x.sel.kw} kW{x.okP ? "" : " · kW LOW"}</em></> : "—"}</td>
+          <td>{inp(i, "tag", {text:true, cls:"w2 tg"})}</td>
+          <td><button type="button" className="ca-x" disabled={locked} title="Remove this water heater" onClick={() => put(rows.filter((_, j) => j !== i))}>✕</button></td></tr>; })}</tbody></table></div>
+    <button type="button" className="ca-btn pri" style={{marginTop:10}} disabled={locked} onClick={() => put([...rows, fresh(rows[rows.length - 1])])}>+ Add water heater</button>
+    {c ? <div className="ca-kpis" style={{marginTop:12}}>{c.sum.map(([l, x], i) => <div key={i} className={i === 0 ? "hl" : ""}><span>{l}</span><b>{x}</b></div>)}</div>
+      : rows.length > 0 && h._err && <div className="ca-errbox" style={{marginTop:10}}>{h._err.map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
+    <div className="ca-advn" style={{marginTop:8}}>Basis: {m.std} at 60 °C. HW demand per fixture, demand factor and storage factor fill in from the table for the building type and can be overwritten. The selected heater is the smallest in the range that holds the required storage.</div>
+  </>;
+}
 function ToolsTab({meta, setMeta, locked, focus}) {
   const to = (meta && meta.tools) || {}, all = to.items || [];
   const [selId, setSelId] = useState(null), [grp, setGrp] = useState("all"), [showAdv, setShowAdv] = useState(false), [pick, setPick] = useState(false);
   useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
   const upd = fn => { if (locked) return; setMeta(m => { const cur = m.tools || {}; return {...m, tools:fn({...cur, items:cur.items || []})}; }); };
   const setI = (id, patch) => upd(x => ({...x, items:x.items.map(h => h.id === id ? {...h, ...patch} : h)}));
-  const add = k => { const m = TOOL_MODS[k], h = {id:Math.random().toString(36).slice(2, 10), mod:k, name:"", location:"", ...(m.list ? {[m.list.k]:[]} : {})}; upd(x => ({...x, items:[...x.items, h]})); setSelId(h.id); setPick(false); };
+  const add = k => { const m = TOOL_MODS[k], h = {id:Math.random().toString(36).slice(2, 10), mod:k, name:"", location:"", ...(k === "stormx" ? {kind:"scup"} : {}), ...(m.list ? {[m.list.k]:k === "hwd" ? [{tag:"EWH-01", lvl:"", loc:"", fix:"shower", qty:"", q:114, df:0.3, sf:2, Tc:30, Th:50}] : []} : {})}; upd(x => ({...x, items:[...x.items, h]})); setSelId(h.id); setPick(false); };
   const dup = h => { const n = {...h, id:Math.random().toString(36).slice(2, 10), name:(h.name || TOOL_MODS[h.mod].short) + " (copy)"}; upd(x => { const a = x.items.slice(), i = a.findIndex(q => q.id === h.id); a.splice(i + 1, 0, n); return {...x, items:a}; }); setSelId(n.id); };
   const del = h => { if (!window.confirm(`Delete ${h.name || TOOL_MODS[h.mod].short}?`)) return; upd(x => ({...x, items:x.items.filter(q => q.id !== h.id)})); };
   const items = useMemo(() => toolItems(meta), [meta]);
@@ -12970,7 +13414,12 @@ function ToolsTab({meta, setMeta, locked, focus}) {
               <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dup(raw)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => del(raw)}>✕</button></td>
             </tr>; })}</tbody></table></div>}
       </section>
-      {h && m && <div className="ca-split no-print">
+      {h && m && m.wide && <section className="ca-card no-print">
+        <h4>{m.title} <em>{h.name || m.short}</em></h4>
+        <div className="ca-g2" style={{marginBottom:10}}><T label="Name" value={h.name} onChange={x => setI(h.id, {name:x})} placeholder={m.short} /><T label="Location / system" value={h.location} onChange={x => setI(h.id, {location:x})} placeholder="e.g. Tower A" /></div>
+        <HwdEditor h={{...h, _err:rs && rs.errors}} set={p => setI(h.id, p)} locked={locked} c={c} m={m} />
+      </section>}
+      {h && m && !m.wide && <div className="ca-split no-print">
         <section className="ca-card ca-inputs">
           <h4>Inputs <em>{m.title}</em></h4>
           <div className="ca-g2">
@@ -16099,9 +16548,28 @@ function wsRunSelfTest() {
       const items = fuelItems({fuel:fu}), R = items.map(it => calculate(it));
       txt(rows, "Lines: one transfer pump, a supply and a return per generator", "5", String(items.length));
       txt(rows, "Every line calculates", "0 errors", R.filter(r => r.error).length + " errors");
+      const FS = fuelSheetItems({fuel:fu}), FR = FS.length ? calculate(FS[0]) : null; txt(rows, "One calculation sheet for the whole fuel system", "1 sheet, calculates", `${FS.length} sheet${FS.length === 1 ? "" : "s"}, ${FR && FR.valid ? "calculates" : "error"}`);
       const s1 = R[1] && R[1].fuel, r1 = R[2] && R[2].fuel; num(rows, "G1 supply flow: 3 × 500 L/h (l/s)", 1500/3600, s1 ? s1.Q : null, 1e-9); num(rows, "G1 return flow: 1 500 − 500 L/h (l/s)", 1000/3600, r1 ? r1.Q : null, 1e-9);
       } finally { PIPE_MATERIALS = synMat; }
       out.push({id:"T97", name:"Simple fuel — transfer pump and generator supply pipes", why:"Pump flow is the larger of the day tank volume over the fill time and 1.5 × the total fuel use; each supply pipe carries 3 × its generator's fuel use unless a datasheet figure is set.", rows}); }
+    // ── T98 hot water demand and electric water heater selection, ASPE Table 1 (v1.100) ─────────────────────────────────────
+    { const rows = [], R = calculateTool({type:"tool", mod:"hwd", bld:"office", cat:"std", rows:[{tag:"EWH-B01", fix:"shower", qty:3, Tc:28, Th:50}, {tag:"EWH-B02", fix:"shower", qty:4, Tc:28, Th:50}]}), H = R.tool;
+      num(rows, "Office building, 3 showers: storage 3 × 114 × 0.30 × 2.00 = 205.2 L", 205.2, H ? H.R[0].Vs : null, 1e-9);
+      txt(rows, "Selected for 205.2 L and 273.6 L (the DIFC workbook)", "250 L 3.0 kW · 300 L 4.0 kW", H ? H.R.map(x => x.sel.model).join(" · ") : "error");
+      num(rows, "Heater kW for 3 showers: 102.6 L/h × 22 K × 4.18 ÷ 3600 (workbook 2.62086)", 2.62086, H ? H.R[0].P : null, 1e-5);
+      out.push({id:"T98", name:"Hot water demand and electric water heater selection", why:"Reproduces the DIFC daily hot water demand workbook: ASPE Table 1 office building (114 L/h per shower, demand 0.30, storage 2.00); storage = qty × L/h × demand × storage factor; heater picked as the smallest that holds the storage.", rows}); }
+    // ── T99 UAE FLS fire pump and tank selection, against the Supabase tables (v1.101) ─────────────────────────────────────
+    { const rows = [], F = (p) => { const r = calculate({type:"fls", id:"fls-t", ...p}); return r.error ? null : r.fls; };
+      if (FLS_REF.err) txt(rows, "UAE FLS tables loaded from Supabase (uae-fls-fire-pump.sql)", "loaded", "not loaded");
+      else {
+        const a = F({occ:"residential", height_m:12, gf_m2:3000, plot_m2:5000}); txt(rows, "Lowrise residential, GF 3,000 m² (Table 9.21.b case 1): 50 gpm, 4.5 bar, 30 min", "50 · 4.5 · 30", a ? `${a.gpm} · ${a.bar} · ${a.tank}` : "error");
+        const b = F({occ:"residential", height_m:60, plot_m2:25000, standpipes:2}); txt(rows, "Highrise on a 25,000 m² plot (Table 9.19 A): combined 1,000 gpm, 60 min", "1000 · 60", b ? `${b.gpm} · ${b.tank}` : "error");
+        num(rows, "Tank volume 1,000 gpm × 3.785 L × 60 min (m³)", 1000*3.785411784*60/1000, b ? b.V : null, 1e-9);
+        const c = F({occ:"mall_covered", infra_hydrant:true}); txt(rows, "Covered mall with infrastructure hydrants within 120 m (Table 9.22 A): internal 1,500 gpm", "1500", c ? String(c.gpm) : "error");
+        const d = F({occ:"business", height_m:23, plot_m2:8000}); txt(rows, "23.0 m exactly is between bands in the code text: no guess", "refused", d ? "selected" : "refused");
+        const e = F({occ:"wh_single_eh2", gf_m2:5000, sum_gf_m2:5000}); txt(rows, "Single-tenant EH2, 5,000 m² (Table 9.27 J case 2): 1,500 gpm, 120 min", "1500 · 120", e ? `${e.gpm} · ${e.tank}` : "error");
+      }
+      out.push({id:"T99", name:"Fire pump and fire water tank — UAE FLS Code Chapter 9", why:"Selection from the Supabase tables seeded from CDGH-OP-25 (Sept 2018) Tables 9.18–9.28: height band, occupancy case (highest case met), yard hydrant combined case, tank volume = gpm × 3.785 × minutes.", rows}); }
     // ── T23 sump operating volume V = Q × T ÷ 4 (v1.40) ─────────────────────────────────────────────────────────────────────────────────
     { const rows = [], synMat = PIPE_MATERIALS; PIPE_MATERIALS = keep.PIPE_MATERIALS;
       try {
@@ -17213,16 +17681,16 @@ function rptDate(s, sep) { const d = s ? new Date(s) : new Date(); if (isNaN(d))
 const rptCssStr = s => String(s == null ? "" : s).replace(/\\/g, "\\\\").replace(/"/g, '\\"').replace(/[\r\n]+/g, " ");
 // Report sections: the calculations are grouped by equipment type; each group gets one TOC line and a divider page.
 // Calculation Sheets list groups (on screen only — the printed pack and its numbering are unchanged)
-const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["foam","Foam Systems"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["sw","Stormwater"],["fp","Fuel Oil Pipework"],["lpg","Gas Pipe Sizing"]];
+const CALC_PICK_GROUPS = [["pump","Domestic Booster Pumps"],["circ","Transfer & Circulation Pumps"],["irr","Irrigation Pumps"],["sew","Sewage Pumps"],["sump","Sump Pumps"],["gi","Grease Interceptors"],["pbc","Pressure Break Chambers"],["ca","Clean Agent Systems"],["foam","Foam Systems"],["fls","Fire Pumps (UAE FLS)"],["ws","Water Supply Pipe Sizing"],["dr","Drainage Pipe Sizing"],["sw","Stormwater"],["fp","Fuel Oil Pipework"],["lpg","Gas Pipe Sizing"]];
 const rptKeyOf = p => p.type === "tool" ? "tl-" + p.mod : p.type === "water" && wsIsStormNet(p) ? "sw" : p.type === "water" && wsIsFuelNet(p) ? "fp" : p.type === "water" && wsIsDrain(p) ? "dr" : p.type === "water" && wsIsGas(p) ? "lpg" : (RPT_GROUP[p.type] || "circ");
 function calcPickGroups(pumps) {
   const by = {}; (pumps || []).forEach((p, i) => { const k = rptKeyOf(p); (by[k] = by[k] || []).push({p, i}); });
   const tl = Object.keys(TOOL_MODS).map(k => ["tl-" + k, TOOL_MODS[k].title]);
   return [...CALC_PICK_GROUPS, ...tl].filter(([k]) => by[k]).map(([k, l]) => ({k, l, items:by[k]}));
 }
-const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", foam:"foam", storm:"sw", fuelp:"fp", water:"ws", lpg:"lpg"};
+const RPT_GROUP = {booster:"pump", rcp:"circ", ffp:"circ", tp:"circ", hex:"circ", custom:"circ", irrigation:"irr", sewage:"sew", sump:"sump", grease:"gi", pbc:"pbc", ca:"ca", foam:"foam", fls:"fls", storm:"sw", fuelp:"fp", water:"ws", lpg:"lpg"};
 const RPT_GROUP_LBL = {pump:"DOMESTIC WATER PUMP CALCULATION", circ:"TRANSFER AND CIRCULATION PUMPS CALCULATION", irr:"IRRIGATION PUMP CALCULATION",
-  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", foam:"FOAM SYSTEM CALCULATION", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION", sw:"STORMWATER DRAINAGE CALCULATION", fp:"FUEL OIL PIPE SIZING CALCULATION"};
+  sew:"SEWAGE PUMP CALCULATION", sump:"SUMP PITS AND SUMP PUMPS CALCULATION", gi:"GREASE INTERCEPTOR CALCULATION", pbc:"PRESSURE BREAK CHAMBER CALCULATION", ca:"CLEAN AGENT FIRE SUPPRESSION CALCULATION", foam:"FOAM SYSTEM CALCULATION", fls:"FIRE PUMP AND FIRE WATER TANK (UAE FLS)", ws:"WATER SUPPLY PIPE SIZING CALCULATION", lpg:"GAS PIPE SIZING CALCULATION", dr:"DRAINAGE PIPE SIZING CALCULATION", sw:"STORMWATER DRAINAGE CALCULATION", fp:"FUEL OIL PIPE SIZING CALCULATION"};
 function rptGroups(sel, names) {
   const out = [];
   sel.forEach(p => { const k = rptKeyOf(p); let g = out.find(x => x.k === k); if (!g) { g = {k, title:(names && names[k]) || RPT_GROUP_LBL[k] || (k.startsWith("tl-") && TOOL_MODS[k.slice(3)] ? TOOL_MODS[k.slice(3)].title.toUpperCase() : "CALCULATIONS"), items:[]}; out.push(g); } g.items.push(p); });
@@ -17294,7 +17762,7 @@ function ReportDialog({pumps, proj, setProj, meta, setMeta, stageName, people, j
 function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
   const ref = useRef(null);
   const sel = cfg.ids.map(id => pumps.find(p => p.id === id)).filter(Boolean), groups = rptGroups(sel, cfg.names);
-  const caSel = sel.filter(p => p.type === "ca"), fmSel = sel.filter(p => p.type === "foam"), eqSel = rptExpand(sel.filter(p => p.type !== "ca" && p.type !== "foam"));
+  const caSel = sel.filter(p => p.type === "ca"), fmSel = sel.filter(p => p.type === "foam"), eqSel = rptExpand(sel.filter(p => p.type !== "ca" && p.type !== "foam" && p.type !== "fls"));
   const draft = closureOf(meta).status !== "closed", foot = cfg.ref || cfg.title;
   useEffect(() => {
     const old = document.getElementById("rpt-page-css"); if (old) old.remove();
@@ -17386,6 +17854,7 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
 function App({session, projectId, projectRow, onBackToProjects, team, roles=[], isAdmin=false}) {
   const userId = session.user.id;
   const [proj, setProj] = useState(projectRow.project); // shared across stages: name + client only
+  FLS_OFF = !flsCountryOn(proj && proj.country);   // v1.101.2: hide the UAE FLS fire pump outside the UAE
   const [pumps, setPumps] = useState([]);
   const [meta, setMeta]   = useState(EMPTY_META);        // PER-STAGE: revision/date/calcBy/checkedBy/approvedBy
   const [editId, setEditId]   = useState(null);
@@ -17405,9 +17874,11 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const setShowFx = v => { SheetPrefs.fx = v; try { localStorage.setItem("mep_sheet_fx", v ? "1" : "0"); } catch(e){} setShowFxS(v); };   // which calculation the sheets tab is showing
   // v1.81: Calculation Sheets show and export one discipline at a time — Plumbing (every calculation item) or
   // Fire (clean agent rooms from the Clean Agent tab) — or both together.
+  const [inClosed, setInClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_input_closed") || "{}") || {}; } catch (e) { return {}; } });
+  const [navOpen, setNavOpen] = useState(() => { try { return JSON.parse(localStorage.getItem("ec.navOpen") || "{}") || {}; } catch (e) { return {}; } }), [trashOpen, setTrashOpen] = useState(false);
   const [sheetDisc, setSheetDiscS] = useState(() => { try { const v = localStorage.getItem("mep_sheet_disc"); return v === "fire" ? v : "plumbing"; } catch (e) { return "plumbing"; } });
   const setSheetDisc = v => { try { localStorage.setItem("mep_sheet_disc", v); } catch (e) {} setSheetDiscS(v); };
-  const pickList = sheetDisc === "fire" ? [...caRoomItems(meta), ...foamItems(meta)] : [...pumps, ...stormSheetItems(meta), ...fuelItems(meta), ...toolItems(meta)];   // v1.89: stormwater and fuel are plumbing sheets (v1.96: stormwater is one sheet)
+  const pickList = sheetDisc === "fire" ? [...caRoomItems(meta), ...foamItems(meta), ...flsItems(meta)] : [...pumps, ...stormSheetItems(meta), ...fuelSheetItems(meta), ...toolItems(meta)];   // v1.89: stormwater and fuel are plumbing sheets (v1.96: stormwater is one sheet)
   const pickIds = pickList.map(p => p.id).join("|");
   React.useEffect(() => {
     // Keep a valid selection: first load, after a pump is deleted, and when the discipline changes.
@@ -17834,9 +18305,9 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const closureSnapshot = closure.snapshot || null;
   const issueProject = closureSnapshot?.project ? {...proj,...closureSnapshot.project} : proj;
   const issueMeta = closureSnapshot?.meta_before_closure ? {...meta,...closureSnapshot.meta_before_closure,closure:meta.closure} : meta;
-  const caIssueItems = [...caRoomItems(issueMeta), ...foamItems(issueMeta)];   // Fire discipline: clean agent rooms + foam hazards
+  const caIssueItems = [...caRoomItems(issueMeta), ...foamItems(issueMeta), ...flsItems(issueMeta)];   // Fire discipline: clean agent rooms + foam hazards
   TOOL_REG_SYS = toolRegSystems(meta); STORM_PROJ_SET = (meta && meta.storm && meta.storm.set) || {};
-  const plIssueItems = [...pumps, ...stormSheetItems(issueMeta), ...fuelItems(issueMeta), ...toolItems(issueMeta)];   // Plumbing discipline: calculation items + stormwater + fuel lines
+  const plIssueItems = [...pumps, ...stormSheetItems(issueMeta), ...fuelSheetItems(issueMeta), ...toolItems(issueMeta)];   // Plumbing discipline: calculation items + stormwater + fuel lines
   const sheetItems = sheetDisc === "fire" ? caIssueItems : sheetDisc === "all" ? [...plIssueItems, ...caIssueItems] : plIssueItems;
   const discLbl = sheetDisc === "fire" ? "Fire" : sheetDisc === "plumbing" ? "Plumbing" : "";
   const issueStageName = closureSnapshot?.stage_name || currentStage?.stage_name;
@@ -17976,11 +18447,21 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 4. Workspace ── */}
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
-              {[["setup","⚙","Setup"],["pumps","⊕","Calculation Inputs"],["pipe","▦","Pipe Sizing"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"],["agent","❄","Clean Agent"],["foam","◍","Foam"],["schedule","▤","Equipment Schedule"],["print","◈","Calculation Sheets"]].map(([key,icon,label])=><button key={key} className={tab===key?"active":""} onClick={()=>{setTab(key);setSidebarOpen(false);}}><span className="ic">{icon}</span><span className="tx">{label}</span>{key==="pumps"&&<span className="pill">{pumps.length}</span>}{key==="agent"&&<span className="pill">{((meta.cleanAgent||{}).rooms||[]).length}</span>}{key==="foam"&&<span className="pill">{((meta.foam||{}).hazards||[]).length}</span>}{key==="storm"&&<span className="pill">{((meta.storm||{}).roofs||[]).length+((meta.storm||{}).drains||[]).length}</span>}{key==="fuel"&&<span className="pill">{((meta.fuel||{}).lines||[]).length}</span>}{key==="tools"&&<span className="pill">{((meta.tools||{}).items||[]).length}</span>}{key==="pipe"&&<span className="pill">{pumps.filter(x=>x.type==="water").length}</span>}</button>)}
-              <a href="spec.html" className="sbx-applink" style={{display:"flex",alignItems:"center",gap:10,padding:"9px 10px",fontSize:12,fontWeight:600,color:"#424245",textDecoration:"none",borderTop:"1px dashed #e5e5ea",marginTop:4}}><span className="ic" style={{width:18,textAlign:"center"}}>§</span><span className="tx" style={{flex:1}}>Specifications</span><span className="pill">↗</span></a>
+              {(()=>{ const nW=pumps.filter(x=>x.type==="water").length, cnt={pumps:pumps.length, storm:((meta.storm||{}).roofs||[]).length+((meta.storm||{}).drains||[]).length, fuel:(((meta.fuel||{}).simple||{}).gens||[]).length, tools:((meta.tools||{}).items||[]).length, flsp:((meta.fls||{}).items||[]).length, agent:((meta.cleanAgent||{}).rooms||[]).length, foam:((meta.foam||{}).hazards||[]).length, pipe:nW};
+                const go=k=>{setTab(k);setSidebarOpen(false);};
+                const item=(k,ic,l,sub)=><button key={k} className={(tab===k?"active":"")+(sub?" sbx-sub":"")} onClick={()=>go(k)}><span className="ic">{ic}</span><span className="tx">{l}</span>{cnt[k]!=null&&<span className="pill">{cnt[k]}</span>}</button>;
+                const group=(g,ic,l,kids)=>{ const on=kids.some(x=>x[0]===tab), open=navOpen[g]!=null?navOpen[g]||on:on, tot=kids.reduce((a,x)=>a+(cnt[x[0]]||0),0);
+                  return <React.Fragment key={g}><button className={"sbx-grp"+(on?" has":"")} onClick={()=>setNavOpen(o=>{ const n={...o,[g]:!open}; try{localStorage.setItem("ec.navOpen",JSON.stringify(n));}catch(e){} return n; })} aria-expanded={open}><span className="ic">{ic}</span><span className="tx">{l}</span>{!open&&<span className="pill">{tot}</span>}<span className="car">{open?"▾":"▸"}</span></button>
+                    {open&&kids.map(x=>item(x[0],x[1],x[2],true))}</React.Fragment>; };
+                return <>{item("setup","⚙","Setup")}
+                  {group("inputs","⊕","Calculation Inputs",[["pumps","◎","Pumps and equipment"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"]])}
+                  {item("pipe","▦","Pipe Sizing")}
+                  {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲","Fire Pump (UAE FLS)"]]),["agent","❄","Clean Agent"],["foam","◍","Foam"]])}
+                  {item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
+              <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recently deleted ({meta.trash.length})</button>}</div>
             </nav>
-            {(meta.trash||[]).length>0 && <details className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
-              <summary style={{cursor:"pointer",fontSize:11,fontWeight:700,color:"#6e6e73"}}>🗑 Recently deleted ({meta.trash.length})</summary>
+            {(meta.trash||[]).length>0 && trashOpen && <details open className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
+              <summary style={{cursor:"pointer",fontSize:11,fontWeight:700,color:"#6e6e73"}} onClick={e=>{e.preventDefault();setTrashOpen(false);}}>🗑 Recently deleted ({meta.trash.length}) ✕</summary>
               <div style={{display:"flex",flexDirection:"column",gap:5,marginTop:6,maxHeight:220,overflow:"auto"}}>
                 {meta.trash.map((t,i)=><div key={i} style={{display:"flex",gap:6,alignItems:"center",fontSize:10.5,lineHeight:1.3}}>
                   <div style={{flex:1,minWidth:0}}><b style={{display:"block",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{(t.pump&&(t.pump.name||typeLbl(t.pump)))||"Calculation"}</b>
@@ -17989,21 +18470,6 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 </div>)}
               </div>
             </details>}
-            {/* ── 5. Export (Calculation Sheets only) ── */}
-            {tab==="print" && <>
-              <div className="sbx-label">Export</div>
-              <div className="sbx-disc" role="tablist" aria-label="Discipline">
-                {[["plumbing","Plumbing",pumps.length],["fire","Fire",caIssueItems.length]].map(([k,l,n])=><button key={k} type="button" className={(sheetDisc===k?"on ":"")+(k==="fire"?"fire":"")} onClick={()=>setSheetDisc(k)}>{l}<em>{n}</em></button>)}
-              </div>
-              <div className="sbx-export">
-                <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
-                <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel — {discLbl || "Full"} Pack</button>
-                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
-                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
-              </div>
-              {rptOpen && <ReportDialog key={sheetDisc} disc={sheetDisc} pumps={sheetItems} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); const sel = sheetItems.filter(p => (c.ids || []).includes(p.id)), g = gateCheck(sel, issueMeta); if (g.blocked.length || g.open.length) { alert(`Cannot create the report — ${gateLine(g)} in the selected calculations. Fix or acknowledge them under Review items.`); setGateOpen("sheets"); return; } setRptCfg({...c, k:Date.now()}); }} />}
-              {rptCfg && <ReportPrint key={rptCfg.k} cfg={rptCfg} pumps={sheetItems} proj={{...projForDisplay, reference:rptCfg.ref, wsPrint:rptCfg.wsPrint || projForDisplay.wsPrint}} stageName={issueStageName} meta={issueMeta} people={rptPeople} onDone={()=>setRptCfg(null)} />}
-            </>}
           </div>
           {/* ── 6. Footer: save status + actions, always visible ── */}
           <div className="sbx-foot">
@@ -18025,7 +18491,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="storm"||tab==="fuel"||tab==="tools" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="flsp"||tab==="storm"||tab==="fuel"||tab==="tools" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -18034,6 +18500,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               <div className="setup-grid">
                 <Field label="Project Name" value={proj.name} onChange={v=>setProj(p=>({...p,name:v}))} />
                 <Field label="Client" value={proj.client} onChange={v=>setProj(p=>({...p,client:v}))} />
+                <Sel label="Country" value={proj.country||""} onChange={v=>setProj(p=>({...p,country:v}))} options={FLS_COUNTRIES.map(([value,label])=>({value,label}))} />
+                <Field label="Location" value={proj.location} onChange={v=>setProj(p=>({...p,location:v}))} note="City / emirate, e.g. Dubai" />
                 <Field label="Revision" value={meta.revision} onChange={v=>setMeta(m=>({...m,revision:v}))} />
                 <Field label="Date" type="date" value={meta.date} onChange={v=>setMeta(m=>({...m,date:v}))} />
               </div>
@@ -18083,11 +18551,14 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             <div className="piw-left">
             <aside className="piw-list">
               <div className="piw-list-head">
-                <div className="piw-h"><b>Calculations in stage</b><span>{pumps.length}</span></div>
+                <div className="piw-h"><b>Calculations in stage</b>{pumps.length>0&&(()=>{ const ks=calcPickGroups(pumps).map(g=>g.k), all=ks.every(k=>inClosed[k]);
+                  return <button type="button" className="piw-fold" title={all?"Expand all groups":"Collapse all groups"} onClick={()=>{ const n={}; ks.forEach(k=>{n[k]=!all;}); setInClosed(n); try{localStorage.setItem("mep_input_closed",JSON.stringify(n));}catch(e){} }}>{all?"⊞":"⊟"}</button>; })()}<span>{pumps.length}</span></div>
                 <input className="piw-search" value={pumpQuery} onChange={e=>setPumpQuery(e.target.value)} placeholder="Search name or tag" />
               </div>
               <div className="piw-items">
-                {pumps.map((p,i)=>({p,i})).filter(({p})=>{const q=pumpQuery.trim().toLowerCase();return !q||[(p.name||""),(p.tag||""),typeLbl(p)||""].join(" ").toLowerCase().includes(q);}).map(({p,i})=>(
+                {(()=>{ const q=pumpQuery.trim().toLowerCase(), hit=p=>!q||[(p.name||""),(p.tag||""),typeLbl(p)||""].join(" ").toLowerCase().includes(q);
+                  const groups=calcPickGroups(pumps).map(g=>({...g,items:g.items.filter(x=>hit(x.p))})).filter(g=>g.items.length);
+                  const row=({p,i})=>(
                   <div key={p.id} onClick={()=>setEditId(p.id)} className={"piw-item"+(editId===p.id?" on":"")} title={p.name}>
                     <span className="piw-no">{i+1}</span>
                     <span className="piw-txt"><b>{p.name||typeLbl(p)}</b><em>{p.tag||typeLbl(p)}</em></span>
@@ -18098,7 +18569,12 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                       <button type="button" className="del" title="Delete calculation" onClick={()=>{ if(window.confirm(`Delete "${p.name||"this calculation"}"?`)) delPump(p.id); }}>✕</button>
                     </span>}
                   </div>
-                ))}
+);
+                  return groups.map(g=>{ const closed=!q&&!!inClosed[g.k], hasSel=g.items.some(x=>x.p.id===editId);
+                    return <div key={g.k} className="calcpick-grp">
+                      <button type="button" className={"calcpick-gh"+(hasSel?" sel":"")} onClick={()=>setInClosed(o=>{ const n={...o,[g.k]:!o[g.k]}; try{localStorage.setItem("mep_input_closed",JSON.stringify(n));}catch(e){} return n; })}><span>{closed?"▸":"▾"}</span><b>{g.l}</b><em>{g.items.length}</em></button>
+                      {!closed&&g.items.map(row)}
+                    </div>; }); })()}
                 {!pumps.length && <div className="piw-empty">Nothing added yet. Add a calculation below.</div>}
               </div>
               <div className="piw-add">
@@ -18156,6 +18632,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         )}
         {tab==="agent" && <CleanAgentTab meta={meta} setMeta={setMeta} locked={stageLocked} proj={projForDisplay} stageName={issueStageName} focus={caFocus} />}
         {tab==="foam" && <FoamTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={foamFocus} />}
+        {tab==="flsp" && (FLS_OFF ? <div className="ca-note">The UAE FLS fire pump applies to UAE projects only — this project's country is {(FLS_COUNTRIES.find(c=>c[0]===proj.country)||[,proj.country])[1]} (Setup).</div>
+          : <><FlsTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={null} />{!proj.country && <div className="ca-note no-print" style={{marginTop:10}}>Set the project country in Setup — this page is for UAE projects only.</div>}</>)}
         {tab==="storm" && <StormTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={stormFocus} />}
         {tab==="fuel" && <FuelTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={fuelFocus} />}
         {tab==="tools" && <ToolsTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={toolFocus} />}
@@ -18179,6 +18657,17 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 hidden with .screen-hide, which is display:none on screen and
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
+            <div className="ca-head no-print" style={{marginBottom:10}}><div><h2>Submission</h2><span>Calculation sheets and export · Rev {meta.revision||"—"}{currentStage?.stage_name ? " · " + currentStage.stage_name : ""}</span></div></div>
+            <div className="cs-issue no-print">
+              <div className="sbx-export">
+                <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
+                <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel — {discLbl || "Full"} Pack</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
+              </div>
+              {rptOpen && <ReportDialog key={sheetDisc} disc={sheetDisc} pumps={sheetItems} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); const sel = sheetItems.filter(p => (c.ids || []).includes(p.id)), g = gateCheck(sel, issueMeta); if (g.blocked.length || g.open.length) { alert(`Cannot create the report — ${gateLine(g)} in the selected calculations. Fix or acknowledge them under Review items.`); setGateOpen("sheets"); return; } setRptCfg({...c, k:Date.now()}); }} />}
+              {rptCfg && <ReportPrint key={rptCfg.k} cfg={rptCfg} pumps={sheetItems} proj={{...projForDisplay, reference:rptCfg.ref, wsPrint:rptCfg.wsPrint || projForDisplay.wsPrint}} stageName={issueStageName} meta={issueMeta} people={rptPeople} onDone={()=>setRptCfg(null)} />}
+            </div>
             <div className="cs-bar no-print">
               <div className="sch-disc cs-disc" role="tablist" aria-label="Discipline">
                 <button type="button" role="tab" aria-selected={sheetDisc!=="fire"} className={sheetDisc!=="fire"?"on":""} onClick={()=>setSheetDisc("plumbing")}>Plumbing<em>{plIssueItems.length}</em></button>
