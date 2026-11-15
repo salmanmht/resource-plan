@@ -857,9 +857,18 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   body.wt-printing .wt-row:nth-child(even) td{background:#f3f5f8!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-row:nth-child(odd) td{background:#fff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;}
   body.wt-printing .wt-name{padding:3px 5px!important;font-size:10px!important;font-weight:600;}
-  /* Avatars are screen-only: the printed tracker is deliberately dense (10px
-     text, 3px padding) and photos would push rows taller and eat column width. */
-  body.wt-printing .wt-name [data-photo-slot]{display:none!important;}
+  /* Keep employee photos in the Weekly Tracker PDF export. The compact 24 px
+     size preserves the dense A3 layout while making each employee identifiable. */
+  body.wt-printing .wt-name [data-photo-slot]{
+    display:flex!important;width:24px!important;height:24px!important;
+    min-width:24px!important;flex:0 0 24px!important;border-radius:50%!important;
+    overflow:hidden!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body.wt-printing .wt-name [data-photo-slot] img{
+    display:block!important;width:100%!important;height:100%!important;
+    object-fit:cover!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;
+  }
+  body.wt-printing .wt-name>div{gap:5px!important;align-items:center!important;}
   body.wt-printing .wt-name-sub{font-size:8px!important;color:#64748b!important;margin-top:0!important;}
   body.wt-printing .wt-loc{font-size:8px!important;color:#86868b;}
   body.wt-printing .wt-tasks{background:#fafcff!important;-webkit-print-color-adjust:exact;print-color-adjust:exact;border-left:1px solid #d2d2d7!important;border-right:1px solid #d2d2d7!important;}
@@ -995,7 +1004,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.4 · 27 Oct 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.5 · 15 Nov 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1100,7 +1109,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.4 · 27 Oct 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.5 · 15 Nov 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -6409,7 +6418,23 @@ function wtExportPDF(){
     }
 
     document.body.classList.add('wt-printing');
-    setTimeout(()=>{
+    setTimeout(async()=>{
+      // Lazy-loaded employee photos may not have been fetched for rows below the
+      // viewport. Force them to load and wait briefly before opening print preview.
+      const avatarImgs=[...document.querySelectorAll('.wt-table .wt-name [data-photo-slot] img')];
+      avatarImgs.forEach(img=>{img.loading='eager';});
+      const avatarReady=avatarImgs.map(img=>{
+        if(img.complete&&img.naturalWidth>0)return Promise.resolve();
+        return new Promise(resolve=>{
+          const done=()=>resolve();
+          img.addEventListener('load',done,{once:true});
+          img.addEventListener('error',done,{once:true});
+        });
+      });
+      await Promise.race([
+        Promise.all(avatarReady),
+        new Promise(resolve=>setTimeout(resolve,2500))
+      ]);
       // Set the document title so the browser's Save-as-PDF defaults to
       // "DDMMYYYY_Weekly Resource Planner" for the viewed week.
       const _savedTitle=document.title;
