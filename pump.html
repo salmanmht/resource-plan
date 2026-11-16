@@ -280,6 +280,23 @@
   .ca-note.bad{background:#fdecea;border-color:#f5c2bd;color:#9b2c22}
   .ca-def{font-style:normal;color:#86868b;font-size:10.5px}.ca-src{color:#6e6e73;font-size:11px}
   .ca-split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.15fr);gap:14px;align-items:start}
+  /* v1.113.0 three columns: rooms | inputs | design — each scrolls on its own */
+  .ca-1{display:flex;flex-direction:column;gap:14px}
+  .ca-3{display:grid;grid-template-columns:minmax(240px,.72fr) minmax(0,1fr) minmax(0,1.12fr);gap:12px;align-items:start}
+  .ca-3>.ca-split{display:contents}
+  .ca-3>section,.ca-3>.ca-split>section{position:sticky!important;top:8px;max-height:calc(100vh - 120px);overflow:auto;min-width:0}
+  .ca-list{padding:12px 8px 8px}.ca-list h4{padding:0 6px}
+  .ca-li-wrap{display:flex;flex-direction:column;gap:2px}
+  .ca-li{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:6px 6px;border-radius:9px;cursor:pointer;border-left:3px solid transparent}
+  .ca-li:hover{background:#f6f8fc}.ca-li.sel{background:#eef4ff;border-left-color:#007aff}.ca-li.warn{border-left-color:#f0a020}.ca-li.err{border-left-color:#e0443a}.ca-li.sel.warn{border-left-color:#f0a020}
+  .ca-li>i{font-style:normal;font-size:10.5px;color:#a1a1a6;text-align:right}
+  .ca-li b{display:block;font-size:12px;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ca-li div>span{display:block;font-size:10.5px;color:#6e6e73;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .ca-li>em{font-style:normal;font-size:12px;font-weight:800;color:#1559a6;white-space:nowrap}
+  .ca-li-a{display:none;gap:2px}.ca-li:hover .ca-li-a,.ca-li.sel .ca-li-a{display:inline-flex}.ca-li-a .ca-x{width:22px;height:22px}
+  .ca-unit{margin-right:4px}
+  .ca-3 .ca-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+  @media (max-width:1250px){.ca-3{display:flex;flex-direction:column}.ca-3>.ca-split{display:grid}.ca-3>section,.ca-3>.ca-split>section{position:static!important;max-height:none}}
   @media (max-width:1100px){.ca-split{grid-template-columns:1fr}}
   .ca-inputs{position:sticky;top:12px}
   .ca-g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px 12px}.ca-g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px 12px}
@@ -1419,7 +1436,10 @@
   .sch2 .sch-fire,.sch-full .sch-fire{overflow:auto!important;flex:1 1 auto;min-height:0;max-height:calc(100dvh - 150px)}
   .sch-fire .sch-sub{position:relative;z-index:3;background:#fff}
   /* tool picker flows in columns so a short group does not leave a gap */
-  .tl-pick{display:block!important;column-width:260px;column-gap:16px}.tl-pick>div{break-inside:avoid;margin-bottom:8px}
+  /* v1.111.0: module picker — one card per group, headings in line */
+  .tl-pick{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;align-items:start}
+  .tl-pick>div{border:1px solid #ececf0;border-radius:12px;padding:10px 10px 4px;background:#fbfbfd}
+  .tl-pick .ca-sub{margin:0 0 8px;padding:0;border:0;display:flex;justify-content:space-between}.tl-pick .ca-sub em{font-style:normal;font-weight:600;color:#a1a1a6}
   /* stormwater / fuel / clean agent figures fill the design panel */
   .ca-fig svg{width:100%!important;height:auto!important;max-height:240px}
 
@@ -1461,6 +1481,16 @@
   .tl-lrow input[type=number]{-moz-appearance:textfield;padding:5px 5px}
   .tl-lrow input[type=number]::-webkit-outer-spin-button,.tl-lrow input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
   .hwd-t th{font-size:9.5px;line-height:1.2;vertical-align:bottom;white-space:normal;padding:6px 4px}
+  .hwd-top{display:grid;grid-template-columns:minmax(0,1.3fr) minmax(0,1fr) auto;gap:10px 14px;align-items:end;margin-bottom:6px}
+  .hwd-models{display:flex;flex-wrap:wrap;align-items:center;gap:4px 6px;margin:0 0 10px;font-size:11px;color:#6e6e73}.hwd-models>span{font-weight:700;margin-right:4px}
+  .hwd-models i{font-style:normal;background:#f5f5f7;border:1px solid #ececf0;border-radius:6px;padding:1px 7px;white-space:nowrap}
+  .hwd-t tbody.hwd-grp{border-top:2px solid #e1e1e6}.hwd-t tbody.hwd-grp:nth-of-type(even){background:#fbfbfd}.hwd-t tbody.warn td.hwd-sel em{color:#b45309}
+  .hwd-t td.hwd-h{vertical-align:top;padding-top:6px}.hwd-t .hwd-g{border-left:1px solid #ececf0}
+  .hwd-t tr.hwd-add td{border-bottom:0;padding:2px 3px 8px}.hwd-t tr.hwd-add button{border:1px dashed #b9c7dd;background:#fff;color:#0b4f8a;border-radius:7px;padding:3px 9px;font-size:11px;font-weight:700;cursor:pointer}
+  .hwd-t tr.hwd-add span{margin-left:10px;font-size:11px;color:#6e6e73}
+  .hwd-xs{border:0;background:none;color:#a1a1a6;cursor:pointer;font-size:11px;padding:2px 4px}.hwd-xs:hover{color:#b91c1c}
+  .hwd-kpis{grid-template-columns:repeat(3,minmax(0,1fr))}
+  @media screen and (max-width:900px){.hwd-top{grid-template-columns:1fr}}
   .hwd-t td{vertical-align:middle;padding:4px 3px}
   .hwd-t input,.hwd-t select{border:1px solid #d2d2d7;border-radius:7px;padding:5px 6px;font-size:12px;background:#fff;-moz-appearance:textfield}
   .hwd-t input::-webkit-outer-spin-button,.hwd-t input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
@@ -1504,7 +1534,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.109.0 · Build 2026.11.16.9";
+const BUILD_LABEL = "v1.113.0 · Build 2026.11.16.13";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -2223,7 +2253,7 @@ function calcIsStale(p) { if (!calcKeyed(p) || CALC.mode === "auto") return fals
 function calcNow(p) { if (calcKeyed(p)) CALC.snap[p.id] = p; }
 function calcReset() { CALC.snap = {}; CALC.res = {}; }
 // what undo / redo in Pipe Sizing covers: the network and every Setup value that changes the result
-const WS_SNAP_KEYS = ["drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc"];
+const WS_SNAP_KEYS = ["drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc", "wsSvcCol"];
 function wsSnapOf(c) { const o = {}; WS_SNAP_KEYS.forEach(k => { o[k] = c[k]; }); o.wsNet = c.wsNet || []; o.wsNodes = c.wsNodes || []; o.wsFix = c.wsFix || []; o.wsNotes = c.wsNotes || []; return o; }
 function safeCalculate(p) {
   const src = calcSnapOf(p), keyed = calcKeyed(p) && CALC.mode === "manual";
@@ -3178,9 +3208,13 @@ function calculateCa(p) {
   if (!useArea) { if (!isPositive(p.L)) errors.push("Room length must be greater than zero (or enter the floor area)."); if (!isPositive(p.W)) errors.push("Room width must be greater than zero (or enter the floor area)."); }
   const roomOn = p.roomOn !== false;
   const spaces = [];
-  if (roomOn) { if (!isPositive(p.H)) errors.push("Room height must be greater than zero."); else spaces.push({k:"room", l:"Room", h:num(p.H)}); }
-  if (p.cvOn) { if (!isPositive(p.cv)) errors.push("Ceiling void depth must be greater than zero."); else spaces.push({k:"cv", l:"Ceiling void", h:num(p.cv)}); }
-  if (p.fvOn) { if (!isPositive(p.fv)) errors.push("Floor void depth must be greater than zero."); else spaces.push({k:"fv", l:"Floor void", h:num(p.fv)}); }
+  // v1.112.0: a void or another space may have its own floor area (a trench void under part of an LV room; the other rooms of a building on one cylinder bank)
+  const own = v => v !== "" && v != null && Number(v) > 0 ? Number(v) : null, rn = String(p.rn || "").trim();
+  if (roomOn) { if (!isPositive(p.H)) errors.push("Room height must be greater than zero."); else spaces.push({k:"room", l:rn || "Room", h:num(p.H)}); }
+  if (p.cvOn) { if (!isPositive(p.cv)) errors.push("Ceiling void depth must be greater than zero."); else spaces.push({k:"cv", l:"Ceiling void", h:num(p.cv), a:own(p.cvA)}); }
+  if (p.fvOn) { if (!isPositive(p.fv)) errors.push("Floor void depth must be greater than zero."); else spaces.push({k:"fv", l:p.fvL ? String(p.fvL) : "Floor void", h:num(p.fv), a:own(p.fvA)}); }
+  (Array.isArray(p.xs) ? p.xs : []).forEach((x, i) => { const nm = String(x.n || "").trim() || `Space ${i + 2}`;
+    if (!isPositive(x.a) || !isPositive(x.h)) errors.push(`${nm}: enter its floor area and height.`); else spaces.push({k:"x" + (i + 1), l:nm, h:num(x.h), a:num(x.a)}); });
   if (!spaces.length && !errors.length) errors.push("Tick at least one space to protect — room, ceiling void or floor void.");
   const T = p.temp === "" || p.temp == null ? num(set.temp) : num(p.temp);
   if (!Number.isFinite(T) || T < -40 || T > 60) errors.push("Design temperature must be between −40 and 60 °C.");
@@ -3196,7 +3230,7 @@ function calculateCa(p) {
   const area = useArea ? num(p.area) : num(p.L)*num(p.W);
   const s = ag.k1 + ag.k2*T, acf = caAcf(set.altitude), C = cOv != null ? cOv : dc.C, ff = C/(100 - C);
   let dedLeft = ded;
-  spaces.forEach(x => { x.Vg = area*x.h; x.ded = x.k === "room" ? Math.min(dedLeft, x.Vg) : 0; x.V = x.Vg - x.ded; x.W = x.V/s*ff*acf; });
+  spaces.forEach(x => { if (!(x.a > 0)) x.a = area; x.Vg = x.a*x.h; x.ded = x.k === "room" ? Math.min(dedLeft, x.Vg) : 0; x.V = x.Vg - x.ded; x.W = x.V/s*ff*acf; });
   if (spaces[0] && spaces[0].k !== "room" && ded > 0) { spaces[0].ded = Math.min(ded, spaces[0].Vg); spaces[0].V = spaces[0].Vg - spaces[0].ded; spaces[0].W = spaces[0].V/s*ff*acf; }
   const Vtot = spaces.reduce((a,x) => a + x.V, 0), Wcalc = spaces.reduce((a,x) => a + x.W, 0), margin = num(set.margin) || 0, Wreq = Wcalc*(1 + margin/100);
   const pool = lib.filter(c => c.agent === agentKey && Number(c.maxFill) > 0);
@@ -3222,7 +3256,7 @@ function calculateCa(p) {
     {label:`Specific vapour volume  s = ${ag.k1} + ${ag.k2} × ${T} °C`, value:`${s.toFixed(5)} m³/kg`},
     {label:`Altitude correction factor (${num(set.altitude) || 0} m)`, value:acf.toFixed(3)},
     {s:"Volumes and agent", label:`Floor area${useArea ? " (entered)" : `  [${num(p.L)} × ${num(p.W)} m]`}`, value:`${f2(area)} m²`},
-    ...spaces.map(x => ({label:`${x.l}  [${f2(area)} m² × ${x.h} m${x.ded ? ` − ${f2(x.ded)} m³` : ""} = ${f2(x.V)} m³]`, value:`${x.W.toFixed(2)} kg`})),
+    ...spaces.map(x => ({label:`${x.l}  [${f2(x.a)} m² × ${x.h} m${x.ded ? ` − ${f2(x.ded)} m³` : ""} = ${f2(x.V)} m³]`, value:`${x.W.toFixed(2)} kg`})),
     {label:"Total protected volume", value:`${f2(Vtot)} m³`},
     {label:`Agent required  [W = V/s × C/(100 − C) × ACF${margin ? ` + ${margin} %` : ""}]`, value:`${Wreq.toFixed(2)} kg`, hl:true},
     {s:"Cylinders", label:`Cylinder${pin ? " (chosen)" : " (auto)"}`, value:`${n} × ${cyl.model}`, ...(okFill ? {} : {flag:"warn"})},
@@ -4813,6 +4847,8 @@ const T_EWH_CAT = {
 const tEwhCat = (cat, mount) => (T_EWH_CAT[cat] || T_EWH_CAT.ariston)[1].filter(u => mount === "any" || !/ [VH] /.test(u[2] + " ") || new RegExp(` ${mount === "v" ? "V" : "H"}( |$)`).test(u[2]))
   .map(u => ({V:u[0], kw:u[1], model:u[2]})).sort((a, b) => a.V - b.V || a.kw - b.kw);
 // smallest heater that holds the storage (as the workbook's lookup), several of the largest if one is not enough; prefer one that also covers the kW
+// v1.111.0: the fixtures one heater serves — [{fix, qty, q}]; a row saved before keeps its single fixture
+const hwdFx = r => Array.isArray(r && r.fx) && r.fx.length ? r.fx : [{fix:(r && r.fix) || "shower", qty:r ? r.qty : "", q:r ? r.q : ""}];
 function tEwhPick(list, V, P) {
   if (!list.length) return null;
   const big = list[list.length - 1].V, n = Math.max(1, Math.ceil(V/big - 1e-9)), fit = list.filter(u => u.V*n >= V - 1e-9);
@@ -4830,20 +4866,24 @@ TOOL({key:"hwd", group:"hw", title:"Hot Water Demand and Electric Water Heater S
   calc(v) {
     const errs = [], cat = tEwhCat(v.cat, v.mount);
     if (!cat.length) return {errors:["No heater in that range has that mounting — choose Any."]};
-    const R = v.rows.map((r, i) => { const tag = r.tag || `EWH-${String(i + 1).padStart(2, "0")}`, fix = T_ASPE_F[r.fix] ? r.fix : "shower", qty = Number(r.qty) || 0;
-      const qt = T_ASPE_Q(v.bld, fix), q = Number(r.q) > 0 ? Number(r.q) : qt, Tc = r.Tc === "" || r.Tc == null ? 30 : Number(r.Tc), Th = r.Th === "" || r.Th == null ? 50 : Number(r.Th);
+    const R = v.rows.map((r, i) => { const tag = r.tag || `EWH-${String(i + 1).padStart(2, "0")}`, Tc = r.Tc === "" || r.Tc == null ? 30 : Number(r.Tc), Th = r.Th === "" || r.Th == null ? 50 : Number(r.Th);
       const df = Number(r.df) > 0 ? Number(r.df) : T_ASPE_B[v.bld][1], sf = Number(r.sf) > 0 ? Number(r.sf) : T_ASPE_B[v.bld][2];
-      if (!(qty > 0)) errs.push(`${tag}: enter the number of fixtures.`);
-      if (!(q > 0)) errs.push(`${tag}: ASPE gives no figure for a ${T_ASPE_F[fix][0].toLowerCase()} in a ${T_ASPE_B[v.bld][0].toLowerCase()} — enter the L/h per fixture.`);
+      // v1.111.0: a heater serves one or more fixture types (r.fx); rows saved before keep their single fixture
+      const F = hwdFx(r).map(f => { const fix = T_ASPE_F[f.fix] ? f.fix : "shower", qty = Number(f.qty) || 0, qt = T_ASPE_Q(v.bld, fix), q = Number(f.q) > 0 ? Number(f.q) : qt;
+        if (!(qty > 0)) errs.push(`${tag}: enter the number of ${T_ASPE_F[fix][0].toLowerCase()}s.`);
+        if (!(q > 0)) errs.push(`${tag}: ASPE gives no figure for a ${T_ASPE_F[fix][0].toLowerCase()} in ${/^[aeiou]/i.test(T_ASPE_B[v.bld][0]) ? "an" : "a"} ${T_ASPE_B[v.bld][0].toLowerCase()} — enter the L/h per fixture.`);
+        return {fix, fl:T_ASPE_F[fix][0], qty, q, own:Number(f.q) > 0, tot:qty*(q || 0)}; });
+      if (!F.length) errs.push(`${tag}: add at least one fixture.`);
       if (!(Th > Tc)) errs.push(`${tag}: the outlet temperature must be above the inlet.`);
-      const tot = qty*q, L = tot*df, Vs = L*sf, P = L*(Th - Tc)*v.cp/3600, sel = tEwhPick(cat, Vs, P);
-      return {tag, lvl:r.lvl || "", loc:r.loc || "", fix, fl:T_ASPE_F[fix][0], qty, q, own:Number(r.q) > 0, df, sf, Tc, Th, tot, L, Vs, P, sel, okV:sel && sel.V*sel.n >= Vs - 1e-9, okP:sel && sel.kw*sel.n >= P - 1e-9}; });
+      const tot = F.reduce((a, f) => a + f.tot, 0), L = tot*df, Vs = L*sf, P = L*(Th - Tc)*v.cp/3600, sel = tEwhPick(cat, Vs, P);
+      const fl = F.map(f => `${f.qty} × ${f.fl.toLowerCase()}`).join(" + ");
+      return {tag, lvl:r.lvl || "", loc:r.loc || "", F, fl, qty:F.reduce((a, f) => a + f.qty, 0), df, sf, Tc, Th, tot, L, Vs, P, sel, okV:sel && sel.V*sel.n >= Vs - 1e-9, okP:sel && sel.kw*sel.n >= P - 1e-9}; });
     if (errs.length) return {errors:errs};
     const kw = R.reduce((a, x) => a + x.sel.kw*x.sel.n, 0), nU = R.reduce((a, x) => a + x.sel.n, 0), nBad = R.filter(x => !x.okP).length, bt = T_ASPE_B[v.bld][0];
     const mdl = x => `${x.sel.n > 1 ? x.sel.n + " × " : ""}${x.sel.model}`;
     return {kw:+kw.toFixed(2), R, sum:[["Heaters", `${nU} No.`], ["Connected load", `${tF(kw, 1)} kW`], ["kW check", nBad ? `${nBad} to review` : "all OK"]],
       steps:[{s:"Basis", label:`ASPE Table 1  [${bt}]`, value:`demand ${T_ASPE_B[v.bld][1]}, storage ${T_ASPE_B[v.bld][2]}`},
-        ...R.map((x, i) => ({...(i === 0 ? {s:"Heaters"} : {}), label:`${x.tag} ${[x.lvl, x.loc].filter(Boolean).join(" ")}  [${x.qty} × ${x.fl.toLowerCase()} ${x.q} L/h; probable ${tF(x.L, 1)} L/h; storage ${tF(x.Vs, 1)} L; ${tF(x.P, 2)} kW]`,
+        ...R.map((x, i) => ({...(i === 0 ? {s:"Heaters"} : {}), label:`${x.tag} ${[x.lvl, x.loc].filter(Boolean).join(" ")}  [${x.F.map(f => `${f.qty} × ${f.fl.toLowerCase()} ${f.q} L/h`).join(" + ")}; probable ${tF(x.L, 1)} L/h; storage ${tF(x.Vs, 1)} L; ${tF(x.P, 2)} kW]`,
           value:`${mdl(x)} (${x.sel.V} L, ${x.sel.kw} kW)`, hl:true, ...(x.okP ? {} : {flag:"warn"})})),
         ...(nBad ? [{label:"Heater power below the probable demand", value:"the store still covers the peak, but recovers slower than it is drawn — check the use pattern or choose a larger heater", flag:"warn"}] : [])],
       sel:`${nU} electric water heater${nU === 1 ? "" : "s"}, ${tF(kw, 1)} kW connected — ${R.map(x => `${x.tag} ${mdl(x)}`).join("; ")}${nBad ? ` · ${nBad} BELOW THE kW DEMAND` : ""}`,
@@ -4852,14 +4892,18 @@ TOOL({key:"hwd", group:"hw", title:"Hot Water Demand and Electric Water Heater S
         B.section(`1.  Basis  ·  ASPE Data Book Vol. 4, Table 1  ·  ${bt}`);
         B.inp("hcp", "Specific heat of water", v.cp, {unit:"kJ/kg·K", dp:2});
         B.text("Total = Qty × HW demand per fixture   ·   Probable maximum demand = Total × demand factor   ·   Required storage = probable maximum demand × storage factor   ·   Required heater capacity = probable maximum demand × (outlet − inlet) × 4.18 ÷ 3600", {cls:"fx"});
-        B.section("2.  Hot Water Demand");
-        B.tbl("hwA", {head:[[T("Level", 1), T("Location", 2), T("Fixture type", 3), T("Qty", 4), T("HW demand per fixture (lph/fix.)", 5), T("Total (lph)", 6), T("Demand factor", 7), T("Probable max. demand (lph)", 8), T("Storage factor", 9)]],
-          rows:R.map(x => [T(x.lvl || "—", 1, {al:"l"}), T(x.loc || "—", 2, {al:"l"}), T(x.fl, 3, {al:"l"}), T(x.qty, 4, {dp:0, input:true}), T(x.q, 5, {dp:1, input:true}),
-            T(x.tot, 6, {dp:1, xl:"{#D}*{#E}"}), T(x.df, 7, {dp:2, input:true}), T(x.L, 8, {dp:1, xl:"{#F}*{#G}"}), T(x.sf, 9, {dp:2, input:true})])});
-        B.section(`3.  Water Heaters  ·  ${(T_EWH_CAT[v.cat] || T_EWH_CAT.ariston)[0]}${v.mount === "any" ? "" : v.mount === "v" ? ", vertical" : ", horizontal"}`);
-        B.tbl("hwB", {head:[[T("Tag", 1), T("Inlet water temp. (°C)", 2), T("Outlet water temp. (°C)", 3), T("Required storage (L)", 4), T("Required heater capacity (kW)", 5), T("Selected water heater", 6), T("", 7), T("No.", 8), T("Check", 9)]],
-          rows:R.map((x, i) => [T(x.tag, 1, {al:"l"}), T(x.Tc, 2, {dp:1, input:true}), T(x.Th, 3, {dp:1, input:true}), T(x.Vs, 4, {dp:1, xl:`{~hwA.H.${i}}*{~hwA.I.${i}}`}),
-            T(x.P, 5, {dp:2, xl:`({~hwA.H.${i}}*({#C}-{#B})*{hcp})/3600`}), {v:`${x.sel.model} (${x.sel.V} L, ${x.sel.kw} kW)`, span:[6, 7], al:"l"}, T(x.sel.n, 8, {dp:0}), T(x.okV && x.okP ? "OK" : "REVIEW", 9)])});
+        B.section("2.  Fixtures Served");
+        const fr = []; let k0 = 0; const span = R.map(x => { const a = k0; k0 += x.F.length; return [a, k0 - 1]; });
+        R.forEach(x => x.F.forEach((f, k) => fr.push([T(k ? "" : x.tag, 1, {al:"l"}), T(k ? "" : (x.lvl || "—"), 2, {al:"l"}), T(k ? "" : (x.loc || "—"), 3, {al:"l"}), {v:f.fl, span:[4, 5], al:"l"},
+          T(f.qty, 6, {dp:0, input:true}), T(f.q, 7, {dp:1, input:true}), T(f.tot, 8, {dp:1, xl:"{#F}*{#G}"})])));
+        B.tbl("hwA", {head:[[T("Tag", 1), T("Level", 2), T("Location", 3), {v:"Fixture type", span:[4, 5]}, T("Qty", 6), T("HW demand per fixture (lph/fix.)", 7), T("Total (lph)", 8)]], rows:fr});
+        B.section("3.  Hot Water Demand");
+        B.tbl("hwD", {head:[[T("Tag", 1), T("Total (lph)", 2), T("Demand factor", 3), T("Probable max. demand (lph)", 4), T("Storage factor", 5), T("Required storage (L)", 6), T("Inlet water temp. (°C)", 7), T("Outlet water temp. (°C)", 8), T("Required heater capacity (kW)", 9)]],
+          rows:R.map((x, i) => [T(x.tag, 1, {al:"l"}), T(x.tot, 2, {dp:1, xl:`SUM({~hwA.H.${span[i][0]}}:{~hwA.H.${span[i][1]}})`}), T(x.df, 3, {dp:2, input:true}), T(x.L, 4, {dp:1, xl:"{#B}*{#C}"}), T(x.sf, 5, {dp:2, input:true}),
+            T(x.Vs, 6, {dp:1, xl:"{#D}*{#E}"}), T(x.Tc, 7, {dp:1, input:true}), T(x.Th, 8, {dp:1, input:true}), T(x.P, 9, {dp:2, xl:"{#D}*({#H}-{#G})*{hcp}/3600"})])});
+        B.section(`4.  Water Heaters  ·  ${(T_EWH_CAT[v.cat] || T_EWH_CAT.ariston)[0]}${v.mount === "any" ? "" : v.mount === "v" ? ", vertical" : ", horizontal"}`);
+        B.tbl("hwB", {head:[[T("Tag", 1), T("Required storage (L)", 2), T("Required heater capacity (kW)", 3), {v:"Selected water heater", span:[4, 7]}, T("No.", 8), T("Check", 9)]],
+          rows:R.map((x, i) => [T(x.tag, 1, {al:"l"}), T(x.Vs, 2, {dp:1, xl:`{~hwD.F.${i}}`}), T(x.P, 3, {dp:2, xl:`{~hwD.I.${i}}`}), {v:`${x.sel.model} (${x.sel.V} L, ${x.sel.kw} kW)`, span:[4, 7], al:"l"}, T(x.sel.n, 8, {dp:0}), T(x.okV && x.okP ? "OK" : "REVIEW", 9)])});
         B.text("Selection: the smallest heater in the range that holds the storage (several of the largest where one is not enough); where two heaters of that size exist, the one whose rating also covers the kW needed. Ratings from the manufacturer's data sheets.", {italic:true});
         B.calc("hkw", "Connected electrical load", kw, null, {unit:"kW", dp:1, key:true, bold:true});
         R.filter(x => !x.okP).forEach(x => B.text(`⚠ ${x.tag}: ${x.sel.n > 1 ? x.sel.n + " × " : ""}${x.sel.kw} kW is below the ${tF(x.P, 2)} kW needed to keep up with the probable demand — the store covers the peak, but check the use pattern or choose a larger heater.`, {warn:true}));
@@ -6877,6 +6921,9 @@ function wsMergeNetworks(p, R) {
 // The engine is the same; "Loading units from" picks the fixture column (cold / hot / combined) the service draws on.
 const WS_SVC_LIST = ["Domestic cold water", "Domestic hot water", "Ambient water", "Grey water", "Flushing water", "Treated sewage effluent (TSE)", "Irrigation water", "Chilled drinking water", "Soft water", "RO water", "Process water", "Make-up water", "Raw water"];
 const wsSvcName = p => String((p && p.wsSvc) || "").trim();
+// v1.110.0: a colour per water service — every pipe of the calculation (main, riser, branch) is drawn in it when Colour = Class; the class still shows by line weight
+const WS_SVC_DEF_COL = {"Domestic cold water":"#1f6fd1", "Domestic hot water":"#c2410c", "Ambient water":"#0e7490", "Grey water":"#6b7280", "Flushing water":"#7c3aed", "Treated sewage effluent (TSE)":"#a16207", "Irrigation water":"#65a30d", "Chilled drinking water":"#0891b2", "Soft water":"#2563eb", "RO water":"#4f46e5", "Process water":"#9333ea", "Make-up water":"#0d9488", "Raw water":"#78350f"};
+const wsSvcCol = p => (!p || p.wsService || p.type !== "water") ? null : (/^#[0-9a-f]{6}$/i.test(String(p.wsSvcCol || "")) ? p.wsSvcCol : null);
 function waterDesignBasis(p) {
   const name = (p && (p.name || typeLbl(p))) || "Water supply";
   const sysTxt = wsSvcName(p) ? wsSvcName(p).toLowerCase() + ` (loading units from the ${p.system === "hot" ? "hot" : p.system === "total" ? "combined" : "cold"} water column)` : p && p.system === "hot" ? "hot water" : p && p.system === "total" ? "combined hot and cold water" : "cold water", code = p && p.wsDemand && FU_CODES[p.wsDemand] ? FU_CODES[p.wsDemand].label : "the selected demand table";
@@ -6898,7 +6945,8 @@ function waterDesignBasis(p) {
 // v1.75.0: soil and waste pipes keep their own colour from the branch to the stack; the class colour stays for drains and vents
 const WS_SVC_COL = {soil:"#8a5a2b", waste:"#1e90d6", mixed:"#6b7280", kitchen:"#e08a1e"};
 const wsSvcOfDr = x => { const d = x && x.dr; if (!d) return ""; if (d.svcTag === "soil" || d.svcTag === "waste") return d.svcTag; return d.svc === "black" ? "soil" : d.svc === "grey" ? "waste" : d.svc === "mixed" ? "mixed" : ""; };
-const wsPipeCol = (w, x) => { const st = w && w.drainMode && x && x.s ? x.s.str : "";      // v1.77.0: a pipe may carry its stream (S soil · W waste · K kitchen waste) — it keeps that colour even where it turns horizontal
+const wsPipeCol = (w, x, p) => { const sc = p && w && !w.drainMode && !w.gasMode && !w.fuelMode && x && (x.cls === "main" || x.cls === "riser" || x.cls === "branch") ? wsSvcCol(p) : null; if (sc) return sc;
+  const st = w && w.drainMode && x && x.s ? x.s.str : "";      // v1.77.0: a pipe may carry its stream (S soil · W waste · K kitchen waste) — it keeps that colour even where it turns horizontal
   if (st === "S") return WS_SVC_COL.soil; if (st === "W") return WS_SVC_COL.waste; if (st === "K") return WS_SVC_COL.kitchen;
   return (w && w.drainMode && x && (x.cls === "branch" || x.cls === "riser") && WS_SVC_COL[wsSvcOfDr(x)]) || WS_COL[x && x.cls] || "#555"; };
 const WS_COL = {eq:"#6d3fd6", main:"#0b4f8a", riser:"#0e8f83", branch:"#e07a1f", vent:"#7c3aed", crit:"#fde68a", fix:"#1f9d55", fixBg:"#ecf8f0", bad:"#d8332b", ink:"#1d1d1f", sub:"#4a4a4f", root:"#0b2f57"};
@@ -6946,7 +6994,7 @@ function wsSchematicLarge(w, p, opt = {}) {
   const ticks = [], tickInfo = []; { const zStep = 17.5; for (let z = Math.ceil(v0/zStep)*zStep; z <= v1 + 1e-6; z += zStep) { const y = Y(z); tickInfo.push({y, t:`${z.toFixed(1)} m`}); ticks.push(`<line x1="${LEFT - 60}" y1="${y.toFixed(1)}" x2="${W - 60}" y2="${y.toFixed(1)}" stroke="#eef1f6" stroke-width="1"/>` + T(LEFT - 66, y + 3, `${z.toFixed(1)} m`, {a:"end", s:9, f:"#8a94a6", w:2})); } }
   out.forEach(x => {
     const a = P[x.from], b = P[x.to]; if (!a || !b) return;
-    const x0 = X(a.u), y0 = Y(a.v), x1 = X(b.u), y1 = Y(b.v), bad = !x.ok || x.noSize, col = bad ? "#d8332b" : wsPipeCol(w, x), sw = x.cls === "main" ? 5 : x.cls === "riser" ? 3.4 : 2.4;
+    const x0 = X(a.u), y0 = Y(a.v), x1 = X(b.u), y1 = Y(b.v), bad = !x.ok || x.noSize, col = bad ? "#d8332b" : wsPipeCol(w, x, p), sw = x.cls === "main" ? 5 : x.cls === "riser" ? 3.4 : 2.4;
     const d = x.dr || {}, st = x.s && x.s.str, flowTxt = `${f1(x.Qd, x.Qd >= 100 ? 1 : 2)} L/s · DN${x.pipe.od}`, duTxt = `${f1(d.DU, 1)} DU · K${d.K}`;
     const tip = `${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\nΣDU ${f1(d.DU, 2)} · K ${d.K} · Qww = K√ΣDU = ${f1(d.Qww, 3)} L/s\nDesign flow ${f1(x.Qd, 3)} L/s · DN${x.pipe.od} (ID ${x.pipe.id} mm)${d.table ? "\n" + d.table : ""}${x.why && x.why.t ? "\n" + x.why.t : ""}${bad ? "\nREVIEW: " + ((d.fails || []).join("; ") || "exceeds the limit or no size available") : ""}`;
     let g = `<g data-sec="${esc(x.id)}"><title>${esc(tip)}</title>`;
@@ -7274,7 +7322,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const dAll = "M" + pts.map(q => q.join(",")).join(" L"), d = "M" + real.map(q => q.join(",")).join(" L"), sw = G ? (x.cls === "main" ? 5 : x.cls === "riser" ? 4 : 2.8) : (x.cls === "main" ? 5.5 : x.cls === "riser" ? 3.8 : 2.4);
     const bad = !x.ok || x.noSize, [s0, s1] = real;
     const len = Math.hypot(s1[0]-s0[0], s1[1]-s0[1]) || 1, ux = (s1[0]-s0[0])/len, uy = (s1[1]-s0[1])/len, mx = (s0[0]+s1[0])/2, my = (s0[1]+s1[1])/2;
-    const fdx = w.drainMode ? -1 : 1, dux = ux*fdx, duy = uy*fdx, arr = x.ori === "up" ? (w.drainMode ? "↓" : "↑") : x.ori === "down" ? (w.drainMode ? "↑" : "↓") : ((cx < px) !== !!w.drainMode ? "←" : "→"), rb = opt.colorBy && opt.colorBy !== "class" ? wsResBand(w, x, opt.colorBy, p.maxFixP) : null, col = rb ? rb.c : (bad ? C.bad : wsPipeCol(w, x));
+    const fdx = w.drainMode ? -1 : 1, dux = ux*fdx, duy = uy*fdx, arr = x.ori === "up" ? (w.drainMode ? "↓" : "↑") : x.ori === "down" ? (w.drainMode ? "↑" : "↓") : ((cx < px) !== !!w.drainMode ? "←" : "→"), rb = opt.colorBy && opt.colorBy !== "class" ? wsResBand(w, x, opt.colorBy, p.maxFixP) : null, col = rb ? rb.c : (bad ? C.bad : wsPipeCol(w, x, p));
     const l1 = w.drainMode ? `${x.id} · ${x.cd.l} · DN${x.pipe.od} (ID ${x.pipe.id})` : `${x.id} · ${wsClsLabel(x.cls)} · ${x.pipe.od} mm (ID ${x.pipe.id})`, l2 = w.drainMode ? `Σ ${lu1(x.LU)} DU · ${x.Qd.toFixed(2)} L/s · ${x.cls === "main" ? (x.dr.fill*100).toFixed(0) + " % full" : (x.dr.util*100).toFixed(0) + " % of " + x.dr.cap.toFixed(1)}` : `Σ ${lu1(x.LU)} ${unit} · ${x.Qd.toFixed(2)} ${wsQU(w)}${w.gasMode ? " · " + x.Pto.toFixed(1) + " mbar" : ""}`, l3 = w.drainMode ? `${x.dr.grad > 0 ? drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${lu1(x.L)} m ${arr}${bad ? "  ⚠ REVIEW" : ""}` : `${x.v.toFixed(2)} m/s · ${lu1(x.L)} m ${arr} · ${Math.abs(x.dz) < 0.005 ? "level" : (x.dz > 0 ? "rise +" : "drop −") + Math.abs(x.dz).toFixed(1) + " m"}${bad ? "  ⚠ REVIEW" : ""}`;
     let s = `<g data-sec="${sxEsc(x.id)}"><title>${sxEsc(`${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\n${w.drainMode ? "DN" + x.pipe.od + " (ID " + x.pipe.id + " mm)" : x.pipe.od + " mm OD / " + x.pipe.id + " mm ID"}\nCumulative ${lu1(x.LU)} ${unit} · ${x.N} fixtures · ${x.Qd.toFixed(3)} ${wsQU(w)}${w.drainMode ? `\n${x.dr.grad > 0 ? "Gradient " + drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${(x.dr.util*100).toFixed(0)} % of capacity (${x.dr.cap.toFixed(2)} L/s)\nLength ${lu1(x.L)} m` : `\nVelocity ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\nLength ${lu1(x.L)} m · pressure at ${x.to}: ${x.Pto.toFixed(1)} ${wsPU(w)}`}${bad ? "\nREVIEW: exceeds the limit or no size available" : ""}`)}</title>`;
     geo.sec[x.id] = {x0:Math.min(...pts.map(q => q[0])), x1:Math.max(...pts.map(q => q[0])), y0:Math.min(...pts.map(q => q[1])), y1:Math.max(...pts.map(q => q[1]))};
@@ -7324,7 +7372,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const feeder = {}; out.forEach(x => { feeder[x.to] = x; });
   nodes.forEach(n => {
     const [nx, ny] = PXY[n], fx = fixAt[n], isRoot = rootSet.has(n);
-    const req = w.nodeReq[n], neg = press[n] < -1e-9, low = (fx && req != null && press[n] < req - 1e-9) || neg, accent = low ? C.bad : fx ? C.fix : (feeder[n] ? wsPipeCol(w, feeder[n]) : C.root);
+    const req = w.nodeReq[n], neg = press[n] < -1e-9, low = (fx && req != null && press[n] < req - 1e-9) || neg, accent = low ? C.bad : fx ? C.fix : (feeder[n] ? wsPipeCol(w, feeder[n], p) : C.root);
     geo.node[n] = {x:nx, y:ny};
     const ring = sel && sel.kind === "node" && sel.id === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="${SELC}" fill-opacity=".18" stroke="${SELC}" stroke-width="2"/>` : "";
     const critC = G && w.crit && w.crit.node === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="#fde68a" fill-opacity=".85" stroke="#d99a14" stroke-width="2"/>` : "", rr = G ? 6 : 9, dr = G ? (fx ? 6 : 4.6) : 7, dst = G ? (fx ? "#fff" : (low ? C.bad : "#33415c")) : (fx ? "#fff" : accent);
@@ -7459,7 +7507,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const cbyLeg = (() => { const m = opt.colorBy, B = WS_BANDS[m]; if (!B) return ""; let x = G ? 20 : 420; const head = wsCbyHead(m); let o = T(x, L3 + 4, head, {halo:false, s:10.5, b:1}); x += wsTxtW(head, 10.5, 1) + 10;
     wsCbyList(m, !!(w && w.gasMode)).forEach(b => { o += `<rect x="${x.toFixed(1)}" y="${L3 - 3}" width="22" height="6" rx="2" fill="${b.c}"/>`; x += 27; o += T(x, L3 + 4, b.l, {halo:false, s:10.5}); x += wsTxtW(b.l, 10.5, 0) + 14; }); return o; })();
   const leg = `<rect x="0" y="${lg - 16}" width="${W}" height="96" fill="#fff"/><line x1="14" y1="${lg - 16}" x2="${W - 14}" y2="${lg - 16}" stroke="#ccc"/>`
-        + (w.drainMode ? (() => { let xx = 20; return [["Drain", C.main, 5.5], ["Soil — branch, stack", WS_SVC_COL.soil, 3.4], ["Waste — branch, stack", WS_SVC_COL.waste, 3.4]].map(([n, c, sw]) => { const o = `<line x1="${xx}" y1="${L1}" x2="${xx + 34}" y2="${L1}" stroke="${c}" stroke-width="${sw}"/>` + T(xx + 40, L1 + 4, n, {halo:false, s:10.5}); xx += 40 + wsTxtW(n, 10.5, 0) + 14; return o; }).join(""); })() : [["Main", "main", 5.5], ["Riser", "riser", 3.8], ["Branch", "branch", 2.4]].map(([n, k, sw], i) => `<line x1="${20 + i*104}" y1="${L1}" x2="${60 + i*104}" y2="${L1}" stroke="${C[k]}" stroke-width="${sw}"/>` + T(68 + i*104, L1 + 4, n, {halo:false, s:10.5})).join(""))
+        + (w.drainMode ? (() => { let xx = 20; return [["Drain", C.main, 5.5], ["Soil — branch, stack", WS_SVC_COL.soil, 3.4], ["Waste — branch, stack", WS_SVC_COL.waste, 3.4]].map(([n, c, sw]) => { const o = `<line x1="${xx}" y1="${L1}" x2="${xx + 34}" y2="${L1}" stroke="${c}" stroke-width="${sw}"/>` + T(xx + 40, L1 + 4, n, {halo:false, s:10.5}); xx += 40 + wsTxtW(n, 10.5, 0) + 14; return o; }).join(""); })() : [["Main", "main", 5.5], ["Riser", "riser", 3.8], ["Branch", "branch", 2.4]].map(([n, k, sw], i) => `<line x1="${20 + i*104}" y1="${L1}" x2="${60 + i*104}" y2="${L1}" stroke="${wsSvcCol(p) || C[k]}" stroke-width="${sw}"/>` + T(68 + i*104, L1 + 4, n, {halo:false, s:10.5})).join(""))
     + `<rect x="${crX}" y="${L1 - 8}" width="40" height="16" rx="8" fill="${C.crit}"/><line x1="${crX + 6}" y1="${L1}" x2="${crX + 34}" y2="${L1}" stroke="${C.main}" stroke-width="2.6"/>` + T(crX + 48, L1 + 4, "Critical route (to the remote fixture)", {halo:false, s:10.5})
     + `<circle cx="27" cy="${L2}" r="6.5" fill="${C.fix}"/>` + T(40, L2 + 4, "Fixtures / direct load", {halo:false, s:10.5})
     + `<circle cx="172" cy="${L2}" r="6" fill="#fff" stroke="${C.main}" stroke-width="2"/>` + T(185, L2 + 4, "Junction", {halo:false, s:10.5})
@@ -9812,11 +9860,11 @@ function clCaRows(B, p, res) {
   const c = res.ca, ag = c.ag, set = c.set, multi = c.spaces.length > 1;
   B.align("l");
   B.section(`1.  Protected Space${p.location ? " — " + p.location : ""}  ·  ${ag.short} · Class ${c.cls}`);
-  if (c.useArea) B.inp("caA", "Floor area", c.area, {unit:"m²", dp:2});
+  if (c.useArea) B.inp("caA", c.spaces.length > 1 && c.spaces[0].k === "room" ? `Floor area — ${c.spaces[0].l.toLowerCase()}` : "Floor area", c.area, {unit:"m²", dp:2});
   else { B.inp("caL", "Room length", c.L, {unit:"m", dp:2}); B.inp("caW", "Room width", c.W, {unit:"m", dp:2}); B.calc("caA", "Floor area  [L x W]", c.area, "{caL}*{caW}", {unit:"m²", dp:2}); }
-  const one = !multi && !(c.spaces[0] && c.spaces[0].ded > 0);
+  const one = !multi && !(c.spaces[0] && c.spaces[0].ded > 0) && !(c.spaces[0] && c.spaces[0].a !== c.area);
   if (one) { const x = c.spaces[0]; B.inp("caH_" + x.k, x.k === "room" ? "Room height" : x.l + " depth", x.h, {unit:"m", dp:2}); }
-  else c.spaces.forEach(x => B.calc("caV_" + x.k, `${x.l} volume  [${x.h} m ${x.k === "room" ? "high" : "deep"}${x.ded > 0 ? ` − ${x.ded} m³ fixed objects` : ""}]`, x.V, `{caA}*${x.h}` + (x.ded > 0 ? `-${x.ded}` : ""), {unit:"m³", dp:2}));
+  else c.spaces.forEach(x => B.calc("caV_" + x.k, `${x.l} volume  [${x.a !== c.area ? `${+x.a.toFixed(2)} m² × ` : ""}${x.h} m ${x.k === "room" || x.k[0] === "x" ? "high" : "deep"}${x.ded > 0 ? ` − ${x.ded} m³ fixed objects` : ""}]`, x.V, (x.a !== c.area ? `${x.a}*${x.h}` : `{caA}*${x.h}`) + (x.ded > 0 ? `-${x.ded}` : ""), {unit:"m³", dp:2}));
   B.calc("caVt", "Total protected volume (V)", c.Vtot, one ? `{caA}*{caH_${c.spaces[0].k}}` : c.spaces.map(x => `{caV_${x.k}}`).join("+"), {unit:"m³", dp:2, key:true, bold:true});
   B.section("2.  Design Concentration  (NFPA 2001)");
   B.inp("caT", "Minimum design temperature (T)", c.T, {unit:"°C", dp:1});
@@ -11724,7 +11772,7 @@ function FireScheduleTable({items, density, onOpen}) {
       <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
       <td><div className="pipe-main">{c ? c.ag.short : (CA_AGENTS[p.agent] || {}).short || "—"}</div><div className="pipe-sub">{c ? c.ag.label.replace(/^.*\(|\)$/g, "") : ""}</div></td>
       <td className="ctr"><span className="method-chip">Class {p.cls || "C"}</span></td>
-      <td>{c ? c.spaces.map(x => x.l).join(" + ") : "—"}</td>
+      <td title={c ? c.spaces.map(x => x.l).join(" + ") : ""}>{c ? (c.spaces.length > 2 ? `${c.spaces.length} spaces` : c.spaces.map(x => x.l).join(" + ")) : "—"}</td>
       <td className="num">{c ? c.Vtot.toFixed(2) : "—"}</td>
       <td className="num strong">{c ? c.C.toFixed(2) : "—"}</td>
       <td className="num">{c ? c.Cact.toFixed(2) : "—"}</td>
@@ -12294,10 +12342,11 @@ function CaCell({value, onChange, w=70, ro, ph, type="number", step="any"}) {
   return <input className="ca-in" style={{width:w}} type={type} step={step} value={value ?? ""} placeholder={ph || ""} disabled={ro} onChange={e=>onChange(e.target.value)} />;
 }
 // One protected space in the room form: a tick box and its height / depth.
-function CaSpace({label, on, onToggle, value, onChange, ro, hint}) {
+function CaSpace({label, on, onToggle, value, onChange, ro, hint, area, onArea}) {
   return <div className={"ca-space" + (on ? " on" : "")}>
     <label className="ca-space-h"><input type="checkbox" checked={on} disabled={ro} onChange={e => onToggle(e.target.checked)} /> {label}</label>
     <div className="pf-in"><input type="number" step="any" value={value ?? ""} disabled={ro || !on} onChange={e => onChange(e.target.value)} placeholder={on ? "" : "not protected"} /><span>m</span></div>
+    {onArea && on && <div className="pf-in" style={{marginTop:4}} title="Floor area of this void when it is not the whole room (e.g. a cable trench)"><input type="number" step="any" value={area ?? ""} disabled={ro} onChange={e => onArea(e.target.value)} placeholder="area = room" /><span>m²</span></div>}
     {hint && <div className="ca-space-n">{hint}</div>}
   </div>;
 }
@@ -12323,11 +12372,25 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
   const hasArea = r => r.area !== "" && r.area != null;
   const exportXl = () => { const ok = items.filter((it, i) => results[i] && results[i].ca); if (!ok.length) { alert("No rooms with a complete calculation to export."); return; } if (ok.length < items.length && !window.confirm(`${items.length - ok.length} room(s) have errors and will be left out. Export the rest?`)) return; exportWorkbook(proj, ok, stageName, meta, "Fire_Clean_Agent"); };
   const r = sel, ro = locked;
+  // v1.113.0: agent shown in kg or lb (screen only — the calculation and the sheet stay in kg); three-column layout: rooms | inputs | design
+  const [unit, setUnitS] = useState(() => { try { return localStorage.getItem("mep_ca_unit") === "lb" ? "lb" : "kg"; } catch (e) { return "kg"; } });
+  const setUnit = v => { setUnitS(v); try { localStorage.setItem("mep_ca_unit", v); } catch (e) {} };
+  const [wide, setWideS] = useState(() => { try { return localStorage.getItem("mep_ca_wide") === "1"; } catch (e) { return false; } });
+  const setWide = v => { setWideS(v); try { localStorage.setItem("mep_ca_wide", v ? "1" : "0"); } catch (e) {} };
+  const LB = 2.20462, wU = kg => unit === "lb" ? `${(kg*LB).toFixed(1)} lb` : `${kg.toFixed(1)} kg`, wO = kg => unit === "lb" ? `${kg.toFixed(1)} kg` : `${(kg*LB).toFixed(1)} lb`;
+  const N_ = "(\\d[\\d,]*(?:\\.\\d+)?)", toLb = x => (Number(String(x).replace(/,/g, ""))*LB).toFixed(1);
+  const stU = v => unit !== "lb" || typeof v !== "string" ? v : v
+    .replace(new RegExp(N_ + "\\s?kg\\s*\\(\\s*" + N_ + "\\s?lb\\)", "g"), (m, a, b) => `${b} lb`)
+    .replace(new RegExp(N_ + "\\s?[–-]\\s?" + N_ + "\\s?kg\\b", "g"), (m, a, b) => `${toLb(a)}–${toLb(b)} lb`)
+    .replace(new RegExp(N_ + "\\s?kg\\b", "g"), (m, a) => `${toLb(a)} lb`);
+  const unitSeg = <div className="ws-seg2 ca-unit" role="group" aria-label="Agent unit"><button type="button" className={unit === "kg" ? "on" : ""} onClick={() => setUnit("kg")}>kg</button><button type="button" className={unit === "lb" ? "on" : ""} onClick={() => setUnit("lb")}>lb</button></div>;
   return (
     <div className="ca-tab">
       <div className="ca-head">
-        <div><h2>Clean Agent Sizing</h2><span>FM-200 (HFC-227ea) and Novec 1230 (FK-5-1-12) · NFPA 2001 total flooding · {rooms.length} room{rooms.length === 1 ? "" : "s"} · {tot.kg.toFixed(1)} kg in {tot.n} cylinder{tot.n === 1 ? "" : "s"}{tot.bad ? ` · ${tot.bad} to review` : ""}{tot.err ? ` · ${tot.err} with errors` : ""}</span></div>
+        <div><h2>Clean Agent Sizing</h2><span>FM-200 (HFC-227ea) and Novec 1230 (FK-5-1-12) · NFPA 2001 total flooding · {rooms.length} room{rooms.length === 1 ? "" : "s"} · {wU(tot.kg)} in {tot.n} cylinder{tot.n === 1 ? "" : "s"}{tot.bad ? ` · ${tot.bad} to review` : ""}{tot.err ? ` · ${tot.err} with errors` : ""}</span></div>
         <div className="ca-acts no-print">
+          {unitSeg}
+          <button type="button" className={"ca-btn" + (wide ? " on" : "")} onClick={() => setWide(!wide)} title={wide ? "Back to three columns: rooms · inputs · design" : "Show the full rooms table across the page"}>{wide ? "▥ Three columns" : "☰ Full table"}</button>
           <button type="button" className={"ca-btn" + (showSet ? " on" : "")} onClick={() => setShowSet(v => !v)} title="Safety factors, MEC values, altitude and defaults for the whole project">⚙ Design settings</button>
           <button type="button" className="ca-btn pri" onClick={addRoom} disabled={locked}>+ Add room</button>
         </div>
@@ -12356,11 +12419,18 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
       </section>}
 
 
-      <section className="ca-card no-print">
-        <h4>Rooms <em>click a room to edit it · each room is one system, the room and its voids share one cylinder bank</em></h4>
+      <div className={wide ? "ca-1" : "ca-3"}>
+      <section className={"ca-card no-print" + (wide ? "" : " ca-list")}>
+        <h4>Rooms <em>{wide ? "click a room to edit it · each room is one system, the room and its voids share one cylinder bank" : `${rooms.length} · click to edit`}</em></h4>
+        {!wide && rooms.length > 0 && <div className="ca-li-wrap">{rooms.map((q, i) => { const rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
+          return <div key={q.id} role="button" tabIndex={0} className={"ca-li" + (sel && sel.id === q.id ? " sel" : "") + (rs && rs.error ? " err" : warn ? " warn" : "")} onClick={() => setSelId(q.id)} onKeyDown={e => { if (e.key === "Enter") setSelId(q.id); }}>
+            <i>{i + 1}</i><div><b title={q.name}>{q.name || `Room ${i + 1}`}</b><span>{q.location || "—"}{c ? ` · ${c.Vtot.toFixed(1)} m³ · ${c.n} × ${c.cyl.vol} L` : rs && rs.error ? " · ⚠ check inputs" : ""}</span></div>
+            <em>{c ? wU(c.Wsup) : "—"}</em>
+            <span className="ca-li-a" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dupRoom(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => delRoom(q)}>✕</button></span>
+          </div>; })}</div>}
         {!rooms.length ? <div className="ca-empty">No rooms yet. <button type="button" className="ca-btn pri" onClick={addRoom} disabled={locked}>+ Add the first room</button></div> :
-        <div className="ca-scroll"><table className="ca-tbl ca-rooms">
-          <thead><tr><th className="n">#</th><th>Room</th><th>Location</th><th>Agent</th><th className="c">Class</th><th>Size m</th><th>Spaces</th><th className="n">Volume m³</th><th className="n">Conc %</th><th className="n">Agent kg</th><th>Cylinders</th><th/></tr></thead>
+        !wide ? null : <div className="ca-scroll"><table className="ca-tbl ca-rooms">
+          <thead><tr><th className="n">#</th><th>Room</th><th>Location</th><th>Agent</th><th className="c">Class</th><th>Size m</th><th>Spaces</th><th className="n">Volume m³</th><th className="n">Conc %</th><th className="n">Agent {unit}</th><th>Cylinders</th><th/></tr></thead>
           <tbody>{rooms.map((q, i) => { const rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
             return <tr key={q.id} className={(sel && sel.id === q.id ? "sel " : "") + (rs && rs.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
               <td className="n">{i + 1}</td>
@@ -12369,10 +12439,10 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
               <td>{CA_AGENTS[agOf(q)].short}</td>
               <td className="c">{q.cls || "C"}</td>
               <td>{hasArea(q) ? `${q.area} m²` : `${q.L || "?"} × ${q.W || "?"}`} × {q.H || "?"}</td>
-              <td>{[q.roomOn !== false && "Room", q.cvOn && "Ceiling", q.fvOn && "Floor"].filter(Boolean).join(" + ") || "—"}</td>
+              <td title={c ? c.spaces.map(x => `${x.l} ${x.a.toFixed(1)} m² × ${x.h} m`).join("\n") : ""}>{c ? (c.spaces.length > 2 ? `${c.spaces.length} spaces` : c.spaces.map(x => x.l).join(" + ")) : [q.roomOn !== false && "Room", q.cvOn && "Ceiling", q.fvOn && "Floor"].filter(Boolean).join(" + ") || "—"}</td>
               <td className="n">{c ? c.Vtot.toFixed(2) : "—"}</td>
               <td className="n">{c ? c.C.toFixed(2) : "—"}</td>
-              <td className="n"><b>{c ? c.Wsup.toFixed(1) : "—"}</b></td>
+              <td className="n"><b>{c ? (unit === "lb" ? c.Wsup*LB : c.Wsup).toFixed(1) : "—"}</b></td>
               <td>{c ? `${c.n} × ${c.cyl.vol} L` : <span className="ca-errt" title={(rs && rs.errors || []).join(" ")}>⚠ {(rs && rs.errors && rs.errors[0]) || "error"}</span>}</td>
               <td className="ca-ra" onClick={e => e.stopPropagation()}><button type="button" className="ca-x" disabled={locked} title="Duplicate" onClick={() => dupRoom(q)}>⧉</button><button type="button" className="ca-x" disabled={locked} title="Delete" onClick={() => delRoom(q)}>✕</button></td>
             </tr>; })}</tbody></table></div>}
@@ -12396,12 +12466,20 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
             <N label="Width" unit="m" value={r.W} onChange={v => setRoom(r.id, {W:v})} req={!hasArea(r)} />
             <N label="Or floor area" unit="m²" value={r.area} onChange={v => setRoom(r.id, {area:v})} req={false} hint="Replaces L × W" />
           </div>
-          <div className="ca-sub">Spaces protected <em>same floor area, one cylinder bank</em></div>
+          <div className="ca-sub">Spaces protected <em>one cylinder bank · a void takes the room's floor area unless its own is entered</em></div>
           <div className="ca-g3">
             <CaSpace label="Room height" on={r.roomOn !== false} onToggle={v => setRoom(r.id, {roomOn:v})} value={r.H} onChange={v => setRoom(r.id, {H:v})} ro={ro} />
-            <CaSpace label="Ceiling void" on={!!r.cvOn} onToggle={v => setRoom(r.id, {cvOn:v})} value={r.cv} onChange={v => setRoom(r.id, {cv:v})} ro={ro} hint="Depth above the ceiling" />
-            <CaSpace label="Floor void" on={!!r.fvOn} onToggle={v => setRoom(r.id, {fvOn:v})} value={r.fv} onChange={v => setRoom(r.id, {fv:v})} ro={ro} hint="Raised floor depth" />
+            <CaSpace label="Ceiling void" on={!!r.cvOn} onToggle={v => setRoom(r.id, {cvOn:v})} value={r.cv} onChange={v => setRoom(r.id, {cv:v})} ro={ro} hint="Depth above the ceiling" area={r.cvA} onArea={v => setRoom(r.id, {cvA:v})} />
+            <CaSpace label={r.fvL || "Floor void"} on={!!r.fvOn} onToggle={v => setRoom(r.id, {fvOn:v})} value={r.fv} onChange={v => setRoom(r.id, {fv:v})} ro={ro} hint="Raised floor / trench depth" area={r.fvA} onArea={v => setRoom(r.id, {fvA:v})} />
           </div>
+          <div className="ca-sub">Other rooms on this cylinder bank <em>own floor area and height</em></div>
+          <table className="ca-tbl ca-xs"><thead><tr><th>Space</th><th className="n">Area m²</th><th className="n">Height m</th><th className="n">Volume m³</th><th/></tr></thead><tbody>
+            {(r.xs || []).map((x, i) => { const sx = p => setRoom(r.id, {xs:(r.xs || []).map((q, j) => j === i ? {...q, ...p} : q)});
+              return <tr key={x.id || i}><td><CaCell type="text" w={220} value={x.n} onChange={v => sx({n:v})} ro={ro} ph={`Space ${i + 2}`} /></td><td className="n"><CaCell value={x.a} onChange={v => sx({a:v})} ro={ro} /></td>
+                <td className="n"><CaCell value={x.h} onChange={v => sx({h:v})} ro={ro} /></td><td className="n">{Number(x.a) > 0 && Number(x.h) > 0 ? (x.a*x.h).toFixed(2) : "—"}</td>
+                <td><button type="button" className="ca-x" disabled={ro} onClick={() => setRoom(r.id, {xs:(r.xs || []).filter((_, j) => j !== i)})}>✕</button></td></tr>; })}
+          </tbody></table>
+          <button type="button" className="ca-btn" disabled={ro} style={{marginTop:6}} onClick={() => setRoom(r.id, {xs:[...(r.xs || []), {id:Math.random().toString(36).slice(2, 8), n:"", a:"", h:""}]})}>+ Add room to this bank</button>
           <div className="ca-sub">Occupancy</div>
           <div className="ca-g2">
             <Seg label="Normally occupied" value={(r.occupied === "" || r.occupied == null ? set.occupied : r.occupied) ? "y" : "n"} onChange={v => setRoom(r.id, {occupied:v === "y"})} options={[{value:"y", label:"Yes", title:"Achieved concentration is checked against the NOAEL"}, {value:"n", label:"No"}]} />
@@ -12424,8 +12502,8 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
           <h4>Design <em>{CA_AGENTS[agOf(r)].label} · {CA_CLASSES[r.cls || "C"]}</em></h4>
           {selRes && selRes.ca ? <>
             <div className="ca-kpis">
-              <div className="hl"><span>Agent supplied</span><b>{selRes.ca.Wsup.toFixed(1)} kg</b><i>{selRes.ca.lbs.toFixed(1)} lb</i></div>
-              <div><span>Cylinders</span><b>{selRes.ca.n} × {selRes.ca.cyl.vol} L</b><i>{selRes.ca.fill.toFixed(1)} kg each</i></div>
+              <div className="hl"><span>Agent supplied</span><b>{wU(selRes.ca.Wsup)}</b><i>{wO(selRes.ca.Wsup)}</i></div>
+              <div><span>Cylinders</span><b>{selRes.ca.n} × {selRes.ca.cyl.vol} L</b><i>{wU(selRes.ca.fill)} each</i></div>
               <div className={selRes.ca.okNoael && selRes.ca.okLoael ? "" : "bad"}><span>Concentration</span><b>{selRes.ca.Cact.toFixed(2)} %</b><i>design {selRes.ca.C.toFixed(2)} %{selRes.ca.occupied ? ` · NOAEL ${selRes.ca.ag.noael} %` : ""}</i></div>
               <div><span>Volume</span><b>{selRes.ca.Vtot.toFixed(1)} m³</b><i>{selRes.ca.spaces.map(x => x.l).join(" + ")}</i></div>
             </div>
@@ -12433,11 +12511,12 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
             <div className="ca-cylsrc">{selRes.ca.cyl.src}</div>
             <div className="ca-steps">{selRes.steps.map((st, i) => <React.Fragment key={i}>
               {st.s && <div className="ca-sh">{st.s}</div>}
-              <div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{st.label}</span><b>{st.value}</b></div>
+              <div className={"ca-st" + (st.hl ? " hl" : "") + (st.flag ? " bad" : "")}><span>{stU(st.label)}</span><b>{stU(st.value)}</b></div>
             </React.Fragment>)}</div>
           </> : <div className="ca-errbox">{(selRes && selRes.errors || ["Calculation could not be produced."]).map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
         </section>
       </div>}
+      </div>
 
     </div>
   );
@@ -13627,39 +13706,52 @@ function ToolField({f, h, v, set}) {
 function HwdEditor({h, set, locked, c, m}) {
   const rows = Array.isArray(h.rows) ? h.rows : [], bld = T_ASPE_B[h.bld] ? h.bld : "office", B = T_ASPE_B[bld];
   const put = r => set({rows:r}), upd = (i, p) => put(rows.map((r, j) => j === i ? {...r, ...p} : r));
-  const fresh = prev => { const n = rows.length + 1, fx = prev ? prev.fix || "shower" : "shower", keep = k => prev && prev[k] !== "" && prev[k] != null;
-    return {tag:`EWH-${String(n).padStart(2, "0")}`, lvl:prev ? prev.lvl || "" : "", loc:"", fix:fx, qty:"", q:T_ASPE_Q(bld, fx) ?? "", df:B[1], sf:B[2], Tc:keep("Tc") ? prev.Tc : 30, Th:keep("Th") ? prev.Th : 50}; };
-  const setBld = k => { const b = T_ASPE_B[k]; set({bld:k, rows:rows.map(r => ({...r, q:T_ASPE_Q(k, r.fix || "shower") ?? r.q, df:b[1], sf:b[2]}))}); };
+  // v1.111.0: one heater serves several fixture types — each heater is a group of fixture lines
+  const setFx = (i, fx) => upd(i, {fx, fix:"", qty:"", q:""}), fxs = i => hwdFx(rows[i]);
+  const updFx = (i, k, p) => setFx(i, fxs(i).map((f, j) => j === k ? {...f, ...p} : f));
+  const addFx = i => { const used = new Set(fxs(i).map(f => f.fix)), nx = Object.keys(T_ASPE_F).find(k => !used.has(k) && T_ASPE_Q(bld, k) != null) || "bpriv"; setFx(i, [...fxs(i), {fix:nx, qty:"", q:T_ASPE_Q(bld, nx) ?? ""}]); };
+  const fresh = prev => { const n = rows.length + 1, keep = k => prev && prev[k] !== "" && prev[k] != null;
+    return {tag:`EWH-${String(n).padStart(2, "0")}`, lvl:prev ? prev.lvl || "" : "", loc:"", fx:prev ? hwdFx(prev).map(f => ({...f, qty:""})) : [{fix:"shower", qty:"", q:T_ASPE_Q(bld, "shower") ?? ""}],
+      df:B[1], sf:B[2], Tc:keep("Tc") ? prev.Tc : 30, Th:keep("Th") ? prev.Th : 50}; };
+  const setBld = k => { const b = T_ASPE_B[k]; set({bld:k, rows:rows.map(r => ({...r, fx:hwdFx(r).map(f => ({...f, q:T_ASPE_Q(k, f.fix || "shower") ?? f.q})), fix:"", qty:"", q:"", df:b[1], sf:b[2]}))}); };
   const R = c && c.R, f1 = (v, d = 1) => v == null || !Number.isFinite(v) ? "—" : v.toFixed(d);
-  // rows saved before the values were filled in: write the table values into the empty boxes, so every box shows what the calculation uses
+  // rows saved before: move the single fixture into the list and write the table values into the empty boxes
   useEffect(() => { if (locked || !rows.length) return; const bl = v => v === "" || v == null;
-    if (!rows.some(r => ["q", "df", "sf", "Tc", "Th"].some(k => bl(r[k])))) return;
-    put(rows.map(r => ({...r, q:bl(r.q) ? T_ASPE_Q(bld, r.fix || "shower") ?? "" : r.q, df:bl(r.df) ? B[1] : r.df, sf:bl(r.sf) ? B[2] : r.sf, Tc:bl(r.Tc) ? 30 : r.Tc, Th:bl(r.Th) ? 50 : r.Th}))); }, [h.id]);
+    if (!rows.some(r => !Array.isArray(r.fx) || hwdFx(r).some(f => bl(f.q)) || ["df", "sf", "Tc", "Th"].some(k => bl(r[k])))) return;
+    put(rows.map(r => ({...r, fx:hwdFx(r).map(f => ({...f, q:bl(f.q) ? T_ASPE_Q(bld, f.fix || "shower") ?? "" : f.q})), fix:"", qty:"", q:"", df:bl(r.df) ? B[1] : r.df, sf:bl(r.sf) ? B[2] : r.sf, Tc:bl(r.Tc) ? 30 : r.Tc, Th:bl(r.Th) ? 50 : r.Th}))); }, [h.id]);
   const inp = (i, k, o = {}) => <input type={o.text ? "text" : "number"} className={o.cls || ""} value={rows[i][k] ?? ""} disabled={locked} placeholder={o.ph || ""} onChange={e => upd(i, {[k]:e.target.value})} onWheel={e => e.currentTarget.blur()} />;
+  const finp = (i, k, key, cls) => <input type="number" className={cls} value={fxs(i)[k][key] ?? ""} disabled={locked} onChange={e => updFx(i, k, {[key]:e.target.value})} onWheel={e => e.currentTarget.blur()} />;
+  const models = tEwhCat(T_EWH_CAT[h.cat] ? h.cat : "ariston", h.mount || "any");
   return <>
-    <div className="ca-g3" style={{marginBottom:10}}>
+    <div className="hwd-top">
       <S label="Building type (ASPE Table 1)" value={bld} onChange={setBld} options={T_ASPE_BK.map(k => ({value:k, label:`${T_ASPE_B[k][0]} — demand ${T_ASPE_B[k][1]}, storage ${T_ASPE_B[k][2]}`}))} />
       <S label="Water heater range" value={T_EWH_CAT[h.cat] ? h.cat : "ariston"} onChange={x => set({cat:x})} options={Object.entries(T_EWH_CAT).map(([k, x]) => ({value:k, label:x[0]}))} />
       <Seg label="Mounting" value={h.mount || "any"} onChange={x => set({mount:x})} options={[{value:"any", label:"Any"}, {value:"v", label:"Vertical"}, {value:"h", label:"Horizontal"}]} />
     </div>
-    <div className="ca-advn" style={{margin:"-4px 0 10px"}}>Models in this range{h.mount === "v" ? " (vertical)" : h.mount === "h" ? " (horizontal)" : ""}: {tEwhCat(T_EWH_CAT[h.cat] ? h.cat : "ariston", h.mount || "any").map(u => `${u.model} ${u.V} L ${u.kw} kW`).join(" · ") || "none"}</div>
+    <div className="hwd-models"><span>Models in this range{h.mount === "v" ? " (vertical)" : h.mount === "h" ? " (horizontal)" : ""}</span>{models.length ? models.map((u, k) => <i key={k}>{u.V} L · {u.kw} kW</i>) : <i>none</i>}</div>
     <div className="ca-scroll"><table className="ca-tbl hwd-t">
-      <thead><tr><th>Level</th><th>Location</th><th>Fixture type</th><th className="n">Qty</th><th className="n">HW demand<br/>per fixture<br/>(lph / fix.)</th><th className="n">Total<br/>(lph)</th><th className="n">Demand<br/>factor</th><th className="n">Storage<br/>factor</th>
-        <th className="n">Inlet water<br/>temp. (°C)</th><th className="n">Outlet water<br/>temp. (°C)</th><th className="n">Probable max.<br/>demand (lph)</th><th className="n">Required<br/>storage (L)</th><th className="n">Required heater<br/>capacity (kW)</th><th>Selected water heater</th><th>Tag</th><th/></tr></thead>
-      <tbody>{rows.map((r, i) => { const x = R && R[i];
-        return <tr key={i} className={x && !(x.okV && x.okP) ? "warn" : ""}>
-          <td>{inp(i, "lvl", {text:true, cls:"w2"})}</td><td>{inp(i, "loc", {text:true, cls:"w3"})}</td>
-          <td><select value={T_ASPE_F[r.fix] ? r.fix : "shower"} disabled={locked} onChange={e => upd(i, {fix:e.target.value, q:T_ASPE_Q(bld, e.target.value) ?? ""})}>{Object.entries(T_ASPE_F).map(([k, f]) => <option key={k} value={k}>{f[0]}</option>)}</select></td>
-          <td className="n">{inp(i, "qty", {cls:"w1"})}</td><td className="n">{inp(i, "q", {cls:"w1"})}</td><td className="n"><b>{x ? f1(x.tot) : "—"}</b></td>
-          <td className="n">{inp(i, "df", {cls:"w1"})}</td><td className="n">{inp(i, "sf", {cls:"w1"})}</td><td className="n">{inp(i, "Tc", {cls:"w1"})}</td><td className="n">{inp(i, "Th", {cls:"w1"})}</td>
-          <td className="n"><b>{x ? f1(x.L) : "—"}</b></td><td className="n"><b>{x ? f1(x.Vs) : "—"}</b></td><td className="n"><b>{x ? f1(x.P, 2) : "—"}</b></td>
-          <td className="hwd-sel">{x ? <><b>{x.sel.n > 1 ? x.sel.n + " × " : ""}{x.sel.model}</b><em>{x.sel.n > 1 ? "each " : ""}{x.sel.V} L · {x.sel.kw} kW{x.okP ? "" : " · kW LOW"}</em></> : "—"}</td>
-          <td>{inp(i, "tag", {text:true, cls:"w2 tg"})}</td>
-          <td><button type="button" className="ca-x" disabled={locked} title="Remove this water heater" onClick={() => put(rows.filter((_, j) => j !== i))}>✕</button></td></tr>; })}</tbody></table></div>
+      <thead><tr><th>Tag</th><th>Level</th><th>Location</th><th>Fixture type</th><th className="n">Qty</th><th className="n">L/h per<br/>fixture</th><th className="n">Total<br/>(L/h)</th><th/>
+        <th className="n hwd-g">Demand<br/>factor</th><th className="n">Storage<br/>factor</th><th className="n">Inlet<br/>(°C)</th><th className="n">Outlet<br/>(°C)</th>
+        <th className="n hwd-g">Probable<br/>demand (L/h)</th><th className="n">Required<br/>storage (L)</th><th className="n">Required<br/>heater (kW)</th><th>Selected water heater</th><th/></tr></thead>
+      {rows.map((r, i) => { const x = R && R[i], F = fxs(i), n = F.length + 1, rs = {rowSpan:n};
+        return <tbody key={i} className={"hwd-grp" + (x && !(x.okV && x.okP) ? " warn" : "")}>
+          {F.map((f, k) => <tr key={k}>
+            {k === 0 && <><td {...rs} className="hwd-h">{inp(i, "tag", {text:true, cls:"tg"})}</td><td {...rs} className="hwd-h">{inp(i, "lvl", {text:true, cls:"w2"})}</td><td {...rs} className="hwd-h">{inp(i, "loc", {text:true, cls:"w3"})}</td></>}
+            <td><select value={T_ASPE_F[f.fix] ? f.fix : "shower"} disabled={locked} onChange={e => updFx(i, k, {fix:e.target.value, q:T_ASPE_Q(bld, e.target.value) ?? ""})}>{Object.entries(T_ASPE_F).map(([kk, ff]) => <option key={kk} value={kk}>{ff[0]}</option>)}</select></td>
+            <td className="n">{finp(i, k, "qty", "w1")}</td><td className="n">{finp(i, k, "q", "w1")}</td><td className="n">{x && x.F[k] ? f1(x.F[k].tot) : "—"}</td>
+            <td>{F.length > 1 && <button type="button" className="hwd-xs" disabled={locked} title="Remove this fixture" onClick={() => setFx(i, F.filter((_, j) => j !== k))}>✕</button>}</td>
+            {k === 0 && <><td {...rs} className="n hwd-h hwd-g">{inp(i, "df", {cls:"w1"})}</td><td {...rs} className="n hwd-h">{inp(i, "sf", {cls:"w1"})}</td><td {...rs} className="n hwd-h">{inp(i, "Tc", {cls:"w1"})}</td><td {...rs} className="n hwd-h">{inp(i, "Th", {cls:"w1"})}</td>
+              <td {...rs} className="n hwd-h hwd-g"><b>{x ? f1(x.L) : "—"}</b></td><td {...rs} className="n hwd-h"><b>{x ? f1(x.Vs) : "—"}</b></td><td {...rs} className="n hwd-h"><b>{x ? f1(x.P, 2) : "—"}</b></td>
+              <td {...rs} className="hwd-sel hwd-h">{x ? <><b>{x.sel.n > 1 ? x.sel.n + " × " : ""}{x.sel.model}</b><em>{x.sel.n > 1 ? "each " : ""}{x.sel.V} L · {x.sel.kw} kW{x.okP ? "" : " · kW LOW"}</em></> : "—"}</td>
+              <td {...rs} className="hwd-h"><button type="button" className="ca-x" disabled={locked} title="Remove this water heater" onClick={() => put(rows.filter((_, j) => j !== i))}>✕</button></td></>}
+          </tr>)}
+          <tr className="hwd-add"><td colSpan={4}><button type="button" disabled={locked} onClick={() => addFx(i)}>+ Add fixture</button>{x && <span>{f1(x.tot)} L/h connected</span>}</td><td colSpan={1} /></tr>
+        </tbody>; })}
+    </table></div>
     <button type="button" className="ca-btn pri" style={{marginTop:10}} disabled={locked} onClick={() => put([...rows, fresh(rows[rows.length - 1])])}>+ Add water heater</button>
-    {c ? <div className="ca-kpis" style={{marginTop:12}}>{c.sum.map(([l, x], i) => <div key={i} className={i === 0 ? "hl" : ""}><span>{l}</span><b>{x}</b></div>)}</div>
+    {c ? <div className="ca-kpis hwd-kpis" style={{marginTop:12}}>{c.sum.map(([l, x], i) => <div key={i} className={i === 0 ? "hl" : ""}><span>{l}</span><b>{x}</b></div>)}</div>
       : rows.length > 0 && h._err && <div className="ca-errbox" style={{marginTop:10}}>{h._err.map((e, i) => <div key={i}>⚠ {e}</div>)}</div>}
-    <div className="ca-advn" style={{marginTop:8}}>Basis: {m.std} at 60 °C. HW demand per fixture, demand factor and storage factor fill in from the table for the building type and can be overwritten. The selected heater is the smallest in the range that holds the required storage.</div>
+    <div className="ca-advn" style={{marginTop:8}}>Basis: {m.std} at 60 °C. Each heater adds up the fixtures it serves; L/h per fixture, demand factor and storage factor fill in from the table for the building type and can be overwritten. The selected heater is the smallest in the range that holds the required storage.</div>
   </>;
 }
 function ToolsTab({meta, setMeta, locked, focus}) {
@@ -13668,7 +13760,7 @@ function ToolsTab({meta, setMeta, locked, focus}) {
   useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
   const upd = fn => { if (locked) return; setMeta(m => { const cur = m.tools || {}; return {...m, tools:fn({...cur, items:cur.items || []})}; }); };
   const setI = (id, patch) => upd(x => ({...x, items:x.items.map(h => h.id === id ? {...h, ...patch} : h)}));
-  const add = k => { const m = TOOL_MODS[k], h = {id:Math.random().toString(36).slice(2, 10), mod:k, name:"", location:"", ...(k === "stormx" ? {kind:"scup"} : {}), ...(m.list ? {[m.list.k]:k === "hwd" ? [{tag:"EWH-01", lvl:"", loc:"", fix:"shower", qty:"", q:114, df:0.3, sf:2, Tc:30, Th:50}] : []} : {})}; upd(x => ({...x, items:[...x.items, h]})); setSelId(h.id); setPick(false); };
+  const add = k => { const m = TOOL_MODS[k], h = {id:Math.random().toString(36).slice(2, 10), mod:k, name:"", location:"", ...(k === "stormx" ? {kind:"scup"} : {}), ...(m.list ? {[m.list.k]:k === "hwd" ? [{tag:"EWH-01", lvl:"", loc:"", fx:[{fix:"shower", qty:"", q:114}], df:0.3, sf:2, Tc:30, Th:50}] : []} : {})}; upd(x => ({...x, items:[...x.items, h]})); setSelId(h.id); setPick(false); };
   const dup = h => { const n = {...h, id:Math.random().toString(36).slice(2, 10), name:(h.name || TOOL_MODS[h.mod].short) + " (copy)"}; upd(x => { const a = x.items.slice(), i = a.findIndex(q => q.id === h.id); a.splice(i + 1, 0, n); return {...x, items:a}; }); setSelId(n.id); };
   const del = h => { if (!window.confirm(`Delete ${h.name || TOOL_MODS[h.mod].short}?`)) return; upd(x => ({...x, items:x.items.filter(q => q.id !== h.id)})); };
   const items = useMemo(() => toolItems(meta), [meta]);
@@ -13687,7 +13779,7 @@ function ToolsTab({meta, setMeta, locked, focus}) {
       </div>
       {locked && <div className="ca-note no-print">This stage is signed off — the calculations are read only.</div>}
       {pick && <section className="ca-card no-print"><h4>Add a calculation <em>pick a module</em></h4>
-        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => <div key={g}><div className="ca-sub">{gl}</div>{Object.values(TOOL_MODS).filter(x => x.group === g).map(x => <button type="button" key={x.key} className="tl-mod" onClick={() => add(x.key)}><b>{x.title}</b><span>{x.std}</span></button>)}</div>)}</div></section>}
+        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => <div key={g}><div className="ca-sub">{gl}<em>{Object.values(TOOL_MODS).filter(x => x.group === g).length}</em></div>{Object.values(TOOL_MODS).filter(x => x.group === g).map(x => <button type="button" key={x.key} className="tl-mod" onClick={() => add(x.key)}><b>{x.title}</b><span>{x.std}</span></button>)}</div>)}</div></section>}
       <section className="ca-card no-print">
         <h4>Calculations <em>click one to edit it</em></h4>
         <div className="tl-grps">{[["all", "All"], ...TOOL_GROUPS].map(([g, gl]) => <button type="button" key={g} className={grp === g ? "on" : ""} onClick={() => setGrp(g)}>{gl}<em>{g === "all" ? items.length : items.filter(x => TOOL_MODS[x.mod].group === g).length}</em></button>)}</div>
@@ -14475,7 +14567,9 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
             <div className="pf-f" title="Any water system: pick one or type your own (e.g. Ambient water, Grey water, TSE). Blank = cold / hot as set on the right.">
               <label>Water service</label>
               <div className="pf-in"><input list="ws-svc-list" value={pump.wsSvc || ""} placeholder="e.g. Ambient water" onChange={e => { const v = e.target.value, old = wsSvcName(pump), nm = String(pump.name || "");
-                  uu({wsSvc:v, ...((!nm || nm === "Water Supply Pipe Sizing" || (old && nm === old + " Pipe Sizing")) && v.trim() ? {name:v.trim() + " Pipe Sizing"} : {})}); }} /></div>
+                  uu({wsSvc:v, ...(!wsSvcCol(pump) && WS_SVC_DEF_COL[v.trim()] ? {wsSvcCol:WS_SVC_DEF_COL[v.trim()]} : {}), ...((!nm || nm === "Water Supply Pipe Sizing" || (old && nm === old + " Pipe Sizing")) && v.trim() ? {name:v.trim() + " Pipe Sizing"} : {})}); }} />
+                <input type="color" value={wsSvcCol(pump) || "#0b4f8a"} onChange={e => u("wsSvcCol", e.target.value)} title="Pipe colour of this service on the drawing and the schematic (Colour = Class)" style={{width:34, minWidth:34, padding:2, border:0, background:"none", cursor:"pointer"}} />
+                {wsSvcCol(pump) && <button type="button" onClick={() => u("wsSvcCol", "")} title="Back to the class colours (main / riser / branch)" style={{border:0, background:"none", cursor:"pointer", color:"#86868b", padding:"0 4px"}}>✕</button>}</div>
               <datalist id="ws-svc-list">{WS_SVC_LIST.map(x => <option key={x} value={x} />)}</datalist></div>
             <Seg label="Loading units from" value={pump.system === "hot" ? "hot" : pump.system === "total" ? "total" : "cold"} onChange={setSystem} options={[{value:"cold", label:"Cold"}, {value:"hot", label:"Hot"}, {value:"total", label:"Combined", title:"Uses each fixture's combined (total) value, e.g. for a building main feeding both cold and hot"}]} />
             <div style={{gridColumn:"span 2"}}><Seg label="Water source" value={pump.wsSource === "fixed" ? "fixed" : "pump"} onChange={v => u("wsSource", v)} options={[{value:"pump", label:"Pump — calculate the head", title:"The calculation works out the flow and the pump head the network needs"}, {value:"fixed", label:"Mains / tank — fixed pressure", title:"The pressure at the supply node is given; the calculation checks the network against it"}]} /></div>
@@ -14911,24 +15005,41 @@ function wsPlanReal(p, L, lv, patch, planZ) {
   if (out.wsNet || out.wsNodes) { const full = {...p, ...out}; if (Array.isArray(full.wsNet) && full.wsNet.length) out.wsNet = wsEdNormalise(full).wsNet; }
   return out;
 }
+// v1.110.0: Move to floor — the selected nodes go straight up / down by the FFL difference (plan position, pipes and fixtures kept).
+// A pipe from a moved node to one that stays now runs between floors; it is reported, and becomes a riser by the drawing rule.
+function wsPlanMoveFloor(p, L, lv, ids, key) {
+  const tgt = wsPlanLevels(L).find(l => l.key === key); if (!tgt) return {msg:{text:"That floor no longer exists."}};
+  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], set = new Set(ids.filter(id => nodes.some(n => n.id === id && wsHasXYZ(n))));
+  if (!set.size) return {msg:{text:"Select the nodes to move first."}};
+  const dz = tgt.ffl - lv.ffl, twNew = tgt.tower.id !== lv.tower.id ? tgt.tower.id : null; if (Math.abs(dz) < 1e-9 && !twNew) return {msg:{text:"That is the same floor."}};
+  const wsNodes = nodes.map(n => set.has(n.id) ? {...n, z:wsEdR(Number(n.z) + dz), ...(twNew ? {tower:twNew} : {})} : n);
+  const ln = lv.tower.levels[lv.idx] && lv.tower.levels[lv.idx].name, tn = tgt.tower.levels[tgt.idx] && tgt.tower.levels[tgt.idx].name;
+  const wsFix = (Array.isArray(p.wsFix) ? p.wsFix : []).map(f => set.has(f.node) && ln && String(f.level || "").trim() === ln ? {...f, level:tn} : f);
+  const full = {...p, wsNodes, wsFix}, net = Array.isArray(p.wsNet) ? p.wsNet : [], wsNet = net.length ? wsEdNormalise(full).wsNet : net;
+  const cut = net.filter(s => set.has(s.from) !== set.has(s.to)).map(s => s.id);
+  return {patch:{wsNodes, wsFix, wsNet}, msg:{ok:!cut.length, text:`Moved ${set.size} node${set.size > 1 ? "s" : ""} to ${tgt.name} (${dz >= 0 ? "+" : "−"}${Math.abs(dz).toFixed(2)} m).` + (cut.length ? ` ${cut.join(", ")} now run${cut.length > 1 ? "" : "s"} between floors — check ${cut.length > 1 ? "them" : "it"} in Riser view.` : " Ctrl+Z undoes.")}};
+}
 function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
   const lvs = wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
-  const [zOff, setZOff] = useState({});
+  const [zOff, setZOff] = useState({}), [msg, setMsg] = useState(null);
+  useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(null), 7000); return () => clearTimeout(t); }, [msg]);
   const vp = useMemo(() => lv ? wsPlanVirt(pump, lvls, lv) : null, [pump, lvls, lv && lv.key]);
   if (!lv) return <div className="sump-fig-empty" style={{margin:8}}><b>Plan view needs the floor levels.</b> Add the towers and their floors (name + FFL) under Setup → Levels; each floor then gets its own plan.</div>;
   const planZ = zOff[lv.key] != null && zOff[lv.key] !== "" && Number.isFinite(Number(zOff[lv.key])) ? lv.ffl + Number(zOff[lv.key]) : lv.pipeZ;
   const vEdit = (patch, key) => edit(wsPlanReal(pump, lvls, lv, patch, planZ), key);
   const nOn = vp.wsNodes.length;
+  const onFloor = (ids, key) => { const r = wsPlanMoveFloor(pump, lvls, lv, ids, key); setMsg(r.msg); if (r.patch) { edit(r.patch); setPlan(key); } };
   return <div style={{display:"flex", flexDirection:"column", flex:"1 1 auto", minHeight:0}}>
     <div className="wd-bar" style={{background:"#f4f8ff"}}>
       <label className="nc-l" title="The floor shown from above">Floor<select value={lv.key} onChange={e => setPlan(e.target.value)}>{lvs.map(l => <option key={l.key} value={l.key}>{l.name} · FFL {wsLvSigned(l.ffl)}</option>)}</select></label>
       <label className="nc-l" title="Height above this floor's FFL of a node placed on empty canvas. A pipe drawn from an existing node keeps that node's height.">New nodes at FFL +<input type="number" step="0.1" value={zOff[lv.key] ?? ""} placeholder={(lv.pipeZ - lv.ffl).toFixed(2)} onChange={e => setZOff(o => ({...o, [lv.key]:e.target.value}))} style={{width:54}} /> m</label>
+      {msg && <span style={{fontSize:11.5, fontWeight:700, color:msg.ok ? "#1b6b3a" : "#b91c1c"}}>{msg.text}</span>}
       <span style={{fontSize:11.5, color:"#6e6e73"}}>{nOn ? `${nOn} node${nOn > 1 ? "s" : ""} on this floor` : "Nothing on this floor yet"} · risers are drawn in Riser view; connect branches to the riser node on this floor</span>
     </div>
-    <WsDraw key={"plan" + lv.key} {...rest} pump={vp} calcPump={pump} edit={vEdit} lvls={{towers:[]}} plan={lv.key} />
+    <WsDraw key={"plan" + lv.key} {...rest} pump={vp} calcPump={pump} edit={vEdit} lvls={{towers:[]}} plan={lv.key} floors={lvs} onFloor={onFloor} />
   </div>;
 }
-function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, initTool, initState, lvls, colorBy, stale, onCalc, rlbl, calcPump, plan}) {
+function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, initTool, initState, lvls, colorBy, stale, onCalc, rlbl, calcPump, plan, floors, onFloor}) {
   const ist = initState || {};   // optional starting state — lets the render test draw hover previews without a pointer
   const box = useRef(null), touched = useRef(false), R = useRef({}), spaceRef = useRef(false), overRef = useRef(false), panRef = useRef(null), dragRef = useRef(null);
   const net = Array.isArray(pump.wsNet) ? pump.wsNet : [], nodesAll = Array.isArray(pump.wsNodes) ? pump.wsNodes : [], placed = wsEdPlaced(pump), blockList = Array.isArray(blocks) ? blocks : [];
@@ -15198,7 +15309,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const pipeEls = net.map(s => {
     const a = pos(s.from), b = pos(s.to); if (!a || !b) return null;
     const [x1, y1] = PP(a), [x2, y2] = PP(b), mk = marks.sec[s.id], bad = !!mk && mk.sev === "error", isSkew = skew.has(s.id) || (!!drag && !drag.copy && !!drag.set && (drag.set.includes(s.from) !== drag.set.includes(s.to))), on = !!sel && sel.kind === "sec" && sel.id === s.id, inM = inMulti.has(s.from) && inMulti.has(s.to);
-    const rb = cbyOn ? (outById[s.id] ? wsResBand(water, outById[s.id], colorBy, pump.maxFixP) : WS_BAND_NONE) : null, col = rb ? rb.c : bad ? WS_COL.bad : (water && water.drainMode ? wsPipeCol(water, outById[s.id] || {cls:s.cls, dr:{svcTag:s.svcTag}}) : (WS_COL[s.cls] || "#555")), w = s.cls === "main" ? 5 : s.cls === "riser" ? 4 : 2.8, mx = (x1 + x2)/2, my = (y1 + y2)/2, L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1)/L, uy = (y2 - y1)/L, vert = Math.abs(uy) > 0.7, fdv = water && water.drainMode ? -1 : 1, dux = ux*fdv, duy = uy*fdv;
+    const rb = cbyOn ? (outById[s.id] ? wsResBand(water, outById[s.id], colorBy, pump.maxFixP) : WS_BAND_NONE) : null, col = rb ? rb.c : bad ? WS_COL.bad : (water && water.drainMode ? wsPipeCol(water, outById[s.id] || {cls:s.cls, dr:{svcTag:s.svcTag}}) : ((wsSvcCol(pump) && (s.cls === "main" || s.cls === "riser" || s.cls === "branch") ? wsSvcCol(pump) : null) || WS_COL[s.cls] || "#555")), w = s.cls === "main" ? 5 : s.cls === "riser" ? 4 : 2.8, mx = (x1 + x2)/2, my = (y1 + y2)/2, L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1)/L, uy = (y2 - y1)/L, vert = Math.abs(uy) > 0.7, fdv = water && water.drainMode ? -1 : 1, dux = ux*fdv, duy = uy*fdv;
     return <g key={s.id}>
       {netInfo.sec[s.id] && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={netInfo.sec[s.id]} strokeOpacity=".22" strokeWidth={w + 8} strokeLinecap="round" />}
       {critOn && cr.ids.has(s.id) && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={WS_COL.crit} strokeWidth={w + 11} strokeLinecap="round" />}
@@ -15290,6 +15401,8 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       <button type="button" className="nc-c" onClick={doSaveBlock} title="Keep the selection as a named block that can be placed again with one click">Save as block</button>
       <button type="button" className={"nc-c" + (mvOpen ? " on" : "")} onClick={() => setMvOpen(!mvOpen)} title="Move the selection by a distance — a whole riser with its floors: select the riser pipe, then Move">Move…</button>
       {mvOpen && <span className="wd-mv">{["dx", "dy", "dz"].map(k => <label key={k} className="nc-l">{k === "dx" ? "Δx" : k === "dy" ? "Δy" : "Δz"}<input type="number" step="0.5" value={mv[k]} placeholder="0" onChange={e => setMv({...mv, [k]:e.target.value})} onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); doMove(); } }} /></label>)}<button type="button" className="nc-c on" onClick={doMove}>Apply</button></span>}
+      {plan && onFloor && (floors || []).length > 1 && <select className="nc-sel" value="" title="Move the selected nodes (with their pipes and fixtures) straight up or down to another floor — the plan position stays" onChange={e => { const k = e.target.value; if (!k) return; const ids = wdSelSet(pump, multiX, sel).ids; if (!ids.length) { flash("Select the nodes to move first."); return; } setMultiS(WD_NONE); setSel(null); onFloor(ids, k); }}>
+        <option value="">Move to floor…</option>{floors.filter(f => f.key !== plan).map(f => <option key={f.key} value={f.key}>{f.name} · FFL {wsLvSigned(f.ffl)}</option>)}</select>}
       {wsLvTowers(lvls).length > 0 && <label className="nc-l" title="Put the selected pipes and nodes in a tower (a selected pipe: that pipe and everything beyond it). Auto gives them back to their position."><select value="" onChange={e => { if (e.target.value) assignTw(e.target.value); }}><option value="">Assign to tower…</option><option value="__auto">Auto (by position)</option>{wsTowerChoices(lvls).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
       <button type="button" className="nc-c bad" onClick={doDelete} title="Delete only what is selected (Del) — whatever is beyond it stays, not connected, until you draw a pipe to it">Delete</button>
       <button type="button" className="nc-c bad" onClick={doDeleteBeyond} title="Delete the selection and everything beyond it">Delete + beyond</button>
@@ -15324,6 +15437,8 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
             <input type="checkbox" checked={!!u.on} disabled={locked} onChange={e => ulSet(u.id, {on:e.target.checked})} title="Show / hide" />
             <button type="button" className="nc-c" style={{fontWeight:act ? 700 : 400}} onClick={() => setUlAct(act ? null : u.id)} title={c.st === "err" ? c.err : `${u.name} · page ${u.page} · ${u.w.toFixed(2)} m wide${u.path ? "" : " · NOT uploaded"}`}>{c.st === "load" ? "⏳ " : c.st === "err" ? "⚠ " : ""}{u.name}</button>
             {act && <>
+              {plan && (floors || []).length > 0 && <select value={u.lvl || ""} disabled={locked} title="The floor this plan belongs to — it shows only on that floor's plan (All floors = every plan)" onChange={e => { const k = e.target.value, f = floors.find(q => q.key === k); ulSet(u.id, {lvl:k}); if (k && k !== plan) { setUlAct(null); flash(`“${u.name}” now belongs to ${f ? f.name : "that floor"} — pick that floor to see it.`, "ok"); } }}>
+                <option value="">All floors</option>{floors.map(f => <option key={f.key} value={f.key}>{f.name}</option>)}</select>}
               <select value={u.kind || "riser"} disabled={locked} onChange={e => ulSet(u.id, {kind:e.target.value})} title="What this sheet is">{UL_KINDS.map(k => <option key={k.k} value={k.k}>{k.l}</option>)}</select>
               <label className="nc-l" title="Transparency">Fade<input type="range" min="0.1" max="1" step="0.05" value={Number(u.op) || 0.45} disabled={locked} onChange={e => ulSet(u.id, {op:Number(e.target.value)}, "ulop" + u.id)} style={{width:70}} /></label>
               <button type="button" className={"nc-c" + (tool === "uscale" ? " on" : "")} disabled={locked || u.lock} onClick={() => setTool(tool === "uscale" ? "select" : "uscale")} title="Click both ends of a known dimension, then type its real length">Scale ⟷</button>
@@ -17024,6 +17139,12 @@ function wsRunSelfTest() {
       num(rows, "Office building, 3 showers: storage 3 × 114 × 0.30 × 2.00 = 205.2 L", 205.2, H ? H.R[0].Vs : null, 1e-9);
       txt(rows, "Selected for 205.2 L and 273.6 L (the DIFC workbook)", "250 L 3.0 kW · 300 L 4.0 kW", H ? H.R.map(x => x.sel.model).join(" · ") : "error");
       num(rows, "Heater kW for 3 showers: 102.6 L/h × 22 K × 4.18 ÷ 3600 (workbook 2.62086)", 2.62086, H ? H.R[0].P : null, 1e-5);
+      // v1.111.0: one heater serving several fixture types — the demands add up before the demand and storage factors
+      { const M = calculateTool({type:"tool", mod:"hwd", bld:"office", cat:"std", rows:[{tag:"EWH-M", fx:[{fix:"shower", qty:3}, {fix:"bpriv", qty:2}, {fix:"pantry", qty:1}], Tc:28, Th:50}]}), x = M.tool && M.tool.R[0];
+        num(rows, "One heater: 3 showers + 2 private basins + 1 pantry sink = 3×114 + 2×7.6 + 1×38 = 395.2 L/h", 395.2, x ? x.tot : null, 1e-9);
+        num(rows, "…storage 395.2 × 0.30 × 2.00 = 237.12 L", 237.12, x ? x.Vs : null, 1e-9);
+        txt(rows, "…237.12 L fits 250 L, but 3.03 kW needed > 3.0 kW, so the 300 L 4.0 kW", "300 L 4.0 kW", x ? x.sel.model : "error");
+        txt(rows, "A row saved with one fixture (no list) still calculates the same", "205.2", H ? String(+H.R[0].Vs.toFixed(4)) : "error"); }
       out.push({id:"T98", name:"Hot water demand and electric water heater selection", why:"Reproduces the DIFC daily hot water demand workbook: ASPE Table 1 office building (114 L/h per shower, demand 0.30, storage 2.00); storage = qty × L/h × demand × storage factor; heater picked as the smallest that holds the storage.", rows}); }
     // ── T99 UAE FLS fire pump and tank selection, against the Supabase tables (v1.101) ─────────────────────────────────────
     { const rows = [], F = (p) => { const r = calculate({type:"fls", id:"fls-t", ...p}); return r.error ? null : r.fls; };
