@@ -1498,6 +1498,49 @@
   .hwd-t .hwd-sel b{display:block;font-size:11.5px;white-space:nowrap}.hwd-t .hwd-sel em{font-style:normal;font-size:10.5px;color:#6e6e73;white-space:nowrap}
   .hwd-t tr.warn .hwd-sel em{color:#b45309}
 </style>
+
+<style id="mobile-v114">
+/* v1.114.0 — deliberate mobile layouts, not squeezed desktop */
+.sbx-mobile-close{display:none;margin-left:auto;width:34px;height:34px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;color:#424245;font-size:18px;align-items:center;justify-content:center}
+@media screen and (max-width:760px){
+  html,body,#root{max-width:100%;overflow-x:hidden}
+  input,select,textarea{font-size:16px!important}
+  button{touch-action:manipulation}
+  /* projects home */
+  .pl-head-in{padding:9px 12px!important;gap:8px!important;flex-wrap:nowrap!important}
+  .pl-brand{min-width:0;margin-right:auto!important}.pl-brand b{font-size:16px!important}.pl-brand .build-pill{font-size:10px!important;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .pl-user{display:none!important}.pl-nav{order:0!important;width:auto!important;max-width:44px;overflow:hidden!important;background:transparent!important;padding:0!important}
+  .pl-nav button,.pl-nav a{display:none!important}.pl-nav button:last-child,.pl-nav a:last-child{display:inline-flex!important;width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;border:1px solid #d2d2d7!important;background:#fff!important}
+  .pl-nav button:last-child:after,.pl-nav a:last-child:after{content:'☰';font-size:20px;color:#1d1d1f}
+  .pl-main{padding:12px!important}.pl-top{gap:8px!important;margin-bottom:12px!important}.pl-top h1{font-size:22px!important}
+  .pl-grid{grid-template-columns:1fr!important;gap:12px!important}
+  .pl-card{padding:0!important;gap:0!important;border-radius:16px!important;overflow:hidden!important}
+  .pl-card:hover{transform:none!important}.pl-banner{margin:0!important;width:100%!important;height:auto!important;min-height:0!important;max-height:none!important;border-radius:0!important;background:#eef1f5!important;display:flex!important;align-items:center;justify-content:center}
+  .pl-banner img{display:block!important;width:100%!important;height:auto!important;max-height:240px!important;object-fit:contain!important;object-position:center!important}
+  .pl-card-top{padding:12px 14px 8px!important}.pl-stages{padding:0 14px 8px!important}.pl-card-foot{margin:0 14px!important;padding:10px 0 14px!important}.pl-open{min-height:44px!important;padding:0 24px!important}
+  /* project sidebar */
+  .pump-sidebar.sbx{width:min(88vw,360px)!important;max-width:360px!important}.sbx-mobile-close{display:inline-flex!important}
+  .pump-sidebar.sbx .sbx-head{padding:9px 12px!important}.pump-sidebar.sbx .sbx-body{padding:6px 9px 8px!important}.pump-sidebar.sbx .sbx-label{padding:6px 4px 3px!important}
+  .pump-sidebar.sbx .sbx-nav button,.pump-sidebar.sbx .sbx-nav a{min-height:43px!important;padding:7px 9px!important;font-size:13px!important}.sb-signoff{max-height:300px;overflow:auto}.sbx-foot{padding:8px 10px!important}
+  /* engineering schedule keeps cards and compact filters */
+  .sch-head{padding:12px!important;gap:8px!important}.sch-title b{font-size:22px!important}.sch-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.sch-kpi{min-width:0!important;padding:10px!important}.sch-filter{padding:10px!important}.sch-bar{gap:8px!important}.sch-bar>*{min-width:0!important}.sch-card{padding:12px!important;border-radius:14px!important}
+  /* clean agent — room-master then one selected room; no sticky desktop columns */
+  .ca-head{position:sticky!important;top:0;z-index:25;background:#f5f5f7;padding:7px 2px!important;gap:6px!important}.ca-head h2{font-size:20px!important}.ca-head>div:last-child{overflow-x:auto;flex-wrap:nowrap!important}.ca-head .ca-btn{white-space:nowrap;min-height:40px}
+  .ca-3{display:flex!important;flex-direction:column!important;gap:10px!important}.ca-3>.ca-split{display:flex!important;flex-direction:column!important;gap:10px!important}.ca-3>section,.ca-3>.ca-split>section{position:static!important;max-height:none!important;overflow:visible!important}
+  .ca-list{padding:10px 7px!important}.ca-li{min-height:58px!important;grid-template-columns:22px minmax(0,1fr) auto!important;padding:7px 6px!important}.ca-li-a{display:none!important}.ca-li b{font-size:13px!important}.ca-li div>span{font-size:11px!important}.ca-inputs,.ca-design{padding:12px!important}.ca-g2,.ca-g3,.ca-grid{grid-template-columns:1fr!important}.ca-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ca-design svg{max-width:100%!important;height:auto!important}
+  /* full-table mode remains scrollable */ .ca-1 .ca-scroll{overflow-x:auto!important}.ca-1 .ca-tbl{min-width:1080px!important}
+  /* pipe sizing canvas-first */
+  .pz{min-height:calc(100dvh - 54px)!important}.pz-top{padding:6px!important;overflow-x:auto!important;flex-wrap:nowrap!important}.pz-top>*{flex:0 0 auto}.pz-split.pz-design .pz-right{padding:4px!important}.wd{margin:2px!important;border-radius:8px!important}.wd-bar,.wd-ctx{overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;scrollbar-width:none}.wd-bar::-webkit-scrollbar,.wd-ctx::-webkit-scrollbar{display:none}.wd-stage{min-height:62dvh!important}.nc-insp{max-height:44dvh!important}.pz-drawer{width:94%!important}
+  /* engineering forms */
+  .pf-grid,.hwd-top,.ca-grid{grid-template-columns:1fr!important}.ca-scroll{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.hwd-t{min-width:1100px!important}
+  /* reference data — readable wide editor, header and fields no longer clipped */
+  .ref-main{padding:12px!important}.ref-main>div:first-child{max-width:none!important;margin-bottom:10px!important}.ref-card{padding:12px!important;border-radius:12px!important}.refgrid-scroll{width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;padding-bottom:10px!important}.refgrid-scroll>div{min-width:1180px!important}.refgrid-scroll>div>div:nth-child(2){max-height:none!important;overflow-y:visible!important}.ref-card-cacyl .refgrid-scroll>div{min-width:1460px!important}.ref-card-cacyl input{min-width:72px!important}.ref-card-cacyl input:nth-of-type(3){min-width:240px!important}
+  .app-header{padding:8px 12px!important}.app-header>div{gap:6px!important}.app-header button{min-height:40px}
+  /* touch sizes */
+  .ca-btn,.pz-btn,.pl-open,.calc-export-btn{min-height:42px}
+}
+@media screen and (min-width:761px) and (max-width:1250px){.ca-3{grid-template-columns:minmax(220px,.7fr) minmax(0,1fr) minmax(0,1.05fr)!important}.ref-card-cacyl .refgrid-scroll>div{min-width:1460px!important}}
+</style>
 </head>
 <body>
 <div id="root"><div id="boot" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f7;color:#1d1d1f;z-index:9"><div style="text-align:center;max-width:540px;padding:24px"><div style="font-size:30px">▥</div><div style="font-weight:700;margin-top:8px">Equipment Calculator</div><div id="boot-msg" style="color:#86868b;margin-top:12px;line-height:1.5">Loading…</div></div></div></div>
@@ -1534,7 +1577,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.113.0 · Build 2026.11.16.13";
+const BUILD_LABEL = "v1.114.0 · Build 2026.11.16.14";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -19005,6 +19048,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           <div className="sbx-head">
             <div className="sbx-icon">▥</div>
             <div className="sbx-head-txt"><b>Equipment Calculator</b><span>{BUILD_LABEL}</span></div>
+            <button type="button" className="sbx-mobile-close no-print" onClick={() => setSidebarOpen(false)} aria-label="Close navigation" title="Close">✕</button>
           </div>
           <div className="sbx-body">
             {/* ── 2. Project ── */}
@@ -19746,12 +19790,12 @@ function RefDataEditor({onBack}) {
           </button>
         </div>
       </div>
-      <div style={{maxWidth:1100,margin:"0 auto",padding:"28px"}}>
+      <div className="ref-main" style={{maxWidth:1100,margin:"0 auto",padding:"28px"}}>
         <div style={{marginBottom:20, maxWidth:320}}>
           <Sel label="Table" value={tab} onChange={setTab}
             options={tabs.map(([k,l])=>({value:k,label:l}))} />
         </div>
-        <div style={{background:"white",borderRadius:16,border:"1px solid #d2d2d7",padding:24,boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
+        <div className={"ref-card ref-card-" + tab} style={{background:"white",borderRadius:16,border:"1px solid #d2d2d7",padding:24,boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
           {tab==="materials" && <PipeMaterialsTab/>}
           {tab==="sizes" && <PipeSizesTab/>}
           {tab==="motors" && <MotorsTab/>}
