@@ -1541,6 +1541,20 @@
 }
 @media screen and (min-width:761px) and (max-width:1250px){.ca-3{grid-template-columns:minmax(220px,.7fr) minmax(0,1fr) minmax(0,1.05fr)!important}.ref-card-cacyl .refgrid-scroll>div{min-width:1460px!important}}
 </style>
+
+<style id="tools-v115">
+/* v1.115.0: Engineering Tools picker is dense masonry instead of equal-height grid rows. */
+.tl-pick{display:block!important;columns:5 245px;column-gap:12px;align-items:initial!important}
+.tl-pick-group{display:inline-block;width:100%;break-inside:avoid;page-break-inside:avoid;margin:0 0 12px;border:1px solid #e1e4e8;border-radius:12px;background:#fbfbfd;overflow:hidden;vertical-align:top}
+.tl-pick-head{width:100%;min-height:38px;border:0;background:#f7f8fa;padding:8px 10px;display:grid;grid-template-columns:minmax(0,1fr) auto 16px;align-items:center;gap:7px;text-align:left;cursor:pointer;color:#424245}
+.tl-pick-head:hover{background:#eef4ff}.tl-pick-head span{font-size:10.5px;font-weight:850;text-transform:uppercase;letter-spacing:.045em;white-space:normal}.tl-pick-head em{font-style:normal;font-size:10px;color:#86868b;font-weight:700}.tl-pick-head i{font-style:normal;font-size:13px;color:#86868b;text-align:center}
+.tl-pick-body{padding:7px 8px 2px}.tl-pick-group.closed{margin-bottom:8px}.tl-pick-group.closed .tl-pick-head{background:#fafafa}
+.tl-pick-group .tl-mod{margin-bottom:5px;padding:7px 9px}.tl-pick-group .tl-mod b{font-size:11.5px;line-height:1.2}.tl-pick-group .tl-mod span{font-size:9.5px;line-height:1.2}
+@media screen and (max-width:1500px){.tl-pick{columns:4 235px}}
+@media screen and (max-width:1200px){.tl-pick{columns:3 230px}}
+@media screen and (max-width:900px){.tl-pick{columns:2 220px}}
+@media screen and (max-width:600px){.tl-pick{columns:1 auto}.tl-pick-group{margin-bottom:8px}.tl-pick-head{min-height:44px}.tl-pick-group .tl-mod{min-height:44px}}
+</style>
 </head>
 <body>
 <div id="root"><div id="boot" style="position:fixed;inset:0;display:flex;align-items:center;justify-content:center;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f7;color:#1d1d1f;z-index:9"><div style="text-align:center;max-width:540px;padding:24px"><div style="font-size:30px">▥</div><div style="font-weight:700;margin-top:8px">Equipment Calculator</div><div id="boot-msg" style="color:#86868b;margin-top:12px;line-height:1.5">Loading…</div></div></div></div>
@@ -1577,7 +1591,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.114.0 · Build 2026.11.16.14";
+const BUILD_LABEL = "v1.115.0 · Build 2026.11.17.1";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -13800,6 +13814,8 @@ function HwdEditor({h, set, locked, c, m}) {
 function ToolsTab({meta, setMeta, locked, focus}) {
   const to = (meta && meta.tools) || {}, all = to.items || [];
   const [selId, setSelId] = useState(null), [grp, setGrp] = useState("all"), [showAdv, setShowAdv] = useState(false), [pick, setPick] = useState(false);
+  const [pickClosed, setPickClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_tool_groups_closed") || "{}"); } catch(e) { return {}; } });
+  const togglePickGroup = g => setPickClosed(x => { const n={...x,[g]:!x[g]}; try { localStorage.setItem("mep_tool_groups_closed",JSON.stringify(n)); } catch(e) {} return n; });
   useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
   const upd = fn => { if (locked) return; setMeta(m => { const cur = m.tools || {}; return {...m, tools:fn({...cur, items:cur.items || []})}; }); };
   const setI = (id, patch) => upd(x => ({...x, items:x.items.map(h => h.id === id ? {...h, ...patch} : h)}));
@@ -13822,7 +13838,10 @@ function ToolsTab({meta, setMeta, locked, focus}) {
       </div>
       {locked && <div className="ca-note no-print">This stage is signed off — the calculations are read only.</div>}
       {pick && <section className="ca-card no-print"><h4>Add a calculation <em>pick a module</em></h4>
-        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => <div key={g}><div className="ca-sub">{gl}<em>{Object.values(TOOL_MODS).filter(x => x.group === g).length}</em></div>{Object.values(TOOL_MODS).filter(x => x.group === g).map(x => <button type="button" key={x.key} className="tl-mod" onClick={() => add(x.key)}><b>{x.title}</b><span>{x.std}</span></button>)}</div>)}</div></section>}
+        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => { const mods=Object.values(TOOL_MODS).filter(x => x.group === g), closed=!!pickClosed[g]; return <div key={g} className={"tl-pick-group"+(closed?" closed":"")}>
+          <button type="button" className="tl-pick-head" onClick={() => togglePickGroup(g)} aria-expanded={!closed} title={closed?"Expand group":"Collapse group"}><span>{gl}</span><em>{mods.length}</em><i>{closed?"▸":"▾"}</i></button>
+          {!closed && <div className="tl-pick-body">{mods.map(x => <button type="button" key={x.key} className="tl-mod" onClick={() => add(x.key)}><b>{x.title}</b><span>{x.std}</span></button>)}</div>}
+        </div>; })}</div></section>}
       <section className="ca-card no-print">
         <h4>Calculations <em>click one to edit it</em></h4>
         <div className="tl-grps">{[["all", "All"], ...TOOL_GROUPS].map(([g, gl]) => <button type="button" key={g} className={grp === g ? "on" : ""} onClick={() => setGrp(g)}>{gl}<em>{g === "all" ? items.length : items.filter(x => TOOL_MODS[x.mod].group === g).length}</em></button>)}</div>
