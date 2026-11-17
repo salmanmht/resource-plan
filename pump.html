@@ -237,6 +237,7 @@
   .ca-tbl{border-collapse:collapse;width:100%;font-size:12px}
   .ca-tbl th{background:#f5f5f7;color:#6e6e73;font-weight:700;text-align:left;padding:7px 6px;border-bottom:1px solid #e1e1e6;white-space:nowrap;font-size:11px}
   .ca-tbl td{padding:5px 6px;border-bottom:1px solid #f0f0f2;vertical-align:middle}
+  .ca-tbl th.ca-sh{cursor:pointer;user-select:none}.ca-tbl th.ca-sh:hover{color:#1d1d1f}.ca-tbl th.ca-sh.on{color:#0071e3}.ca-sa{margin-left:4px;font-size:9px;opacity:.55}.ca-sh.on .ca-sa{opacity:1}
   .ca-tbl td.n,.ca-tbl th.n{text-align:right;white-space:nowrap}.ca-tbl td.c,.ca-tbl th.c{text-align:center}
   .ca-rooms tr{cursor:pointer}.ca-rooms tr:hover td{background:#fafbff}.ca-rooms tr.sel td{background:#eef4ff}
   .ca-rooms tr.warn td:first-child{box-shadow:inset 3px 0 #f0a020}.ca-rooms tr.err td:first-child{box-shadow:inset 3px 0 #e0443a}
@@ -415,7 +416,8 @@
   .pf-set{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;justify-content:start}.pf-set>.pf-f{min-width:90px}
   .pf-sec{border:1px solid #e5e5ea;border-radius:10px;padding:10px 12px;background:#fcfcfd}
   .pf-sec h5{display:flex;align-items:center;gap:8px;margin:0 0 8px;font-size:11px;font-weight:800;color:#1d1d1f;letter-spacing:.02em;min-height:24px}
-  .pf-sec h5 i{font-style:normal;width:18px;height:18px;border-radius:50%;background:#1e3a5f;color:#fff;font-size:10px;display:inline-flex;align-items:center;justify-content:center}
+  .pf-sec h5 i{font-style:normal;flex:0 0 18px;min-width:18px;width:18px;height:18px;line-height:1;border-radius:50%;background:#1e3a5f;color:#fff;font-size:10px;display:inline-flex;align-items:center;justify-content:center}
+  .pf-in.off{opacity:.45;background:#f2f2f4}.pf-in.off input{cursor:not-allowed}
   .pf-sec h5 em,.pf-adv summary em{font-style:normal;font-weight:500;color:#86868b;font-size:10.5px;margin-left:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pf-h-ctl{margin-left:auto}.pf-h-ctl .pf-f label{display:none}
   .pf-f{min-width:0}
@@ -1554,6 +1556,24 @@
 @media screen and (max-width:1200px){.tl-pick{columns:3 230px}}
 @media screen and (max-width:900px){.tl-pick{columns:2 220px}}
 @media screen and (max-width:600px){.tl-pick{columns:1 auto}.tl-pick-group{margin-bottom:8px}.tl-pick-head{min-height:44px}.tl-pick-group .tl-mod{min-height:44px}}
+/* v1.115.2: one row per group (title on the left, its modules tiled to the right) so there are no blank gaps */
+.tl-pick{columns:auto!important;display:flex!important;flex-direction:column;gap:8px}
+.tl-pick-group{display:grid;grid-template-columns:200px minmax(0,1fr);width:100%;margin:0!important;align-items:stretch}
+.tl-pick-head{height:100%;min-height:0;border-right:1px solid #e1e4e8;grid-template-columns:minmax(0,1fr) auto 14px;align-content:start;padding:10px 12px}
+.tl-pick-head span{white-space:normal}
+.tl-pick-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:6px;padding:8px}
+.tl-pick-group .tl-mod{margin:0;height:100%;justify-content:center}
+.tl-pick-group.closed{grid-template-columns:1fr}.tl-pick-group.closed .tl-pick-head{border-right:0;padding:8px 12px}
+/* v1.115.3: every module always visible — group heading above, tiles below, no collapsing */
+.tl-pick{gap:8px!important}
+.tl-pick-group{display:block!important;border:0!important;background:transparent!important;overflow:visible!important}
+.tl-pick-head{display:flex!important;align-items:center;gap:8px;height:auto!important;min-height:0!important;width:auto;background:transparent!important;border:0!important;border-bottom:1px solid #0071e3!important;border-radius:0;padding:0 2px 2px!important;margin:0 0 5px;pointer-events:none;cursor:default}
+.tl-pick-head span{font-size:11px!important;color:#1d1d1f}.tl-pick-head em{background:#eef4ff;color:#0071e3!important;border-radius:9px;padding:1px 7px}.tl-pick-head i{display:none}
+.tl-pick-body{display:grid!important;grid-template-columns:repeat(auto-fill,minmax(230px,1fr))!important;gap:5px!important;padding:0!important}
+.tl-pick-group .tl-mod{height:100%;padding:5px 9px!important;border-color:#dcdfe5;box-shadow:0 1px 1px rgba(0,0,0,.03)}
+.tl-pick-group .tl-mod:hover{border-color:#0071e3;box-shadow:0 2px 8px rgba(0,113,227,.15)}
+.tl-pick-group .tl-mod b{font-size:11.5px!important;line-height:1.2}.tl-pick-group .tl-mod span{font-size:9.5px!important;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
+@media screen and (max-width:600px){.tl-pick-body{grid-template-columns:1fr!important}}
 </style>
 </head>
 <body>
@@ -1591,7 +1611,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.115.0 · Build 2026.11.17.1";
+const BUILD_LABEL = "v1.118.10 · Build 2026.11.17.31";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -2577,6 +2597,8 @@ const ceilTenth = x => Math.ceil(x*10 - 1e-9)/10;
 const sumpMarginNeedsAck = p => !!p && p.type === "sump" && p.motorMarginPct !== "" && p.motorMarginPct != null && Number(p.motorMarginPct) === 0 && p.motorMarginAck !== true;
 const sxEsc = s => String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 
+// A sand trap is for car park drainage only: if any inflow is marked as carrying soil / waste (WC, basins), there is no sand trap. Floor drains counted in drainage units (DFU) do not count as soil.
+const sumpSoil = p => (Array.isArray(p && p.sumpSources) ? p.sumpSources : []).some(x => x && x.soil === true);
 function sumpSourceFlow(s) {
   if (s.kind === "tank") { const vol = Number(s.vol)*Number(s.pct)/100, min = Number(s.hrs)*60; return {q: vol*1000/(min*60), vol, min}; }
   if (s.kind === "du")   return {q: Number(s.k)*Math.sqrt(Number(s.du))};
@@ -2637,12 +2659,13 @@ function calculateSump(p) {
     else errors.push(`${L} has an unknown inflow type.`);
   });
 
-  rp(p.pitL, "Sump length"); rp(p.pitW, "Sump width");
-  const sand = p.sandTrap !== false;
+  const round = p.pitShape === "round";
+  if (round) rp(p.pitD, "Tank diameter"); else { rp(p.pitL, "Sump length"); rp(p.pitW, "Sump width"); }
+  const sand = !round && !sumpSoil(p) && p.sandTrap !== false;
   if (sand) { rp(p.trapL, "Sand trap length"); rp(p.trapW, "Sand trap width"); rn(p.trapSetdown, "Sand trap setdown"); }
   if (!(Number(p.starts) >= 1 && Number(p.starts) <= 60)) errors.push("Pump starts per hour must be between 1 and 60.");
-  const dry = p.install === "dry";
-  if (dry) { rp(p.pumpCLht, "Pump centreline height above floor"); rn(p.suctionLoss, "Suction-side loss"); }
+  const dry = p.install === "dry" || round;
+  if (dry) rn(p.suctionLoss, "Suction-side loss");
   rn(p.alarmInlet, "Inlet alarm band"); rn(p.alarmHigh, "High-level alarm band"); rp(p.submergence, "Minimum submergence");
   rn(p.ilStart, "Inlet start invert"); rn(p.ilRun, "Inlet run length"); rp(p.ilFall, "Inlet fall (1 in …)"); rn(p.ilAllow, "Inlet allowance");
   const crit = sizingCriterionOf(p), useV = crit !== "pressure", useP = crit !== "velocity";
@@ -2677,33 +2700,31 @@ function calculateSump(p) {
   const starts = Number(p.starts), cycle = 60/starts;
   const qWork = Q/work;
   const vol = cycle*60*qWork/1000/4;                             // m³  V = Q × T ÷ 4  (worst case: inflow = half the pump flow)
-  const L = Number(p.pitL), W = Number(p.pitW), area = L*W;
+  const D = Number(p.pitD), L = round ? D : Number(p.pitL), W = round ? D : Number(p.pitW), area = round ? Math.PI/4*D*D : L*W;
   const pdRaw = vol/area, pd = Math.max(0.1, ceilTenth(pdRaw));
 
   // ── 4. Float levels, depth below SSL ──
   const aIn = num(p.alarmInlet,0), aHL = num(p.alarmHigh,0), sub = Number(p.submergence);
-  const hCL = dry ? Number(p.pumpCLht) : 0, sucLoss = dry ? num(p.suctionLoss,0) : 0;
+  const hCL = dry ? sub : 0, sucLoss = dry ? num(p.suctionLoss,0) : 0;
   const lv = [];
   lv.push({k:"IL", d: IL, label: "Inlet Alarm", band: null});
   const dHL = IL + aIn;                lv.push({k:"HL", d: dHL, label: "H/L Alarm", band: aIn});
   let d = dHL + aHL;
   for (let k = stages; k >= 1; k--) { lv.push({k:"P"+k, d, label: `Pump P${k} Start-Float ${k+1}`, band: (k === stages ? aHL : pd), pn:k}); d += pd; }
   const dStop = d;
-  lv.push({k:"STOP", d: dStop, label: stages === 1 ? "Pump P1 Stop-Float 1" : stages === 2 ? "Pump P1/P2 Stop-Float 1" : `Pumps P1–P${stages} Stop-Float 1`, band: pd});
-  let dBot = dStop + sub;
-  if (dry) { lv.push({k:"CL", d: dBot, label: "Pump Centreline", band: sub}); dBot += hCL; }
-  lv.push({k:"BOT", d: dBot, label: dry ? "Pit Floor" : "Submerge Level", band: dry ? hCL : sub});
+  // Stop level: all pumps stop here. Dry room: this is the pump centreline. Below it is the submergence (dead volume + the water that keeps the pump wet) down to the pit floor.
+  lv.push({k:"STOP", d: dStop, label: (stages === 1 ? "Pump P1 Stop-Float 1" : stages === 2 ? "Pump P1/P2 Stop-Float 1" : `Pumps P1–P${stages} Stop-Float 1`), band: pd});
+  const dBot = dStop + sub;
+  lv.push({k:"BOT", d: dBot, label: dry ? "Pit Floor / Pump Base Level" : "Submerge Level", band: sub});
   const sumpDepth = dBot;
 
   // ── 5. Sand trap and selected pit depth ──
   const tL = Number(p.trapL), tW = Number(p.trapW), setdown = num(p.trapSetdown,0);
   const trapDepth = IL + setdown;
-  const selDepth = ceilTenth(Math.max(sumpDepth, sand ? trapDepth : 0));
-  const governsDepth = sand && ceilTenth(trapDepth) > ceilTenth(sumpDepth) ? "sand trap" : "sump";
-  if (selDepth - dBot > 0.0049) {
-    lv.push({k:"FLOOR", d: selDepth, label: "Pit Floor", band: selDepth - dBot});
-    if (dry) lv.find(l => l.k === "BOT").label = "Pump Base Level";
-  }
+  // The sand trap is its own pit, set by the inlet level (IL + setdown) — it does not deepen the pump pit.
+  const selDepth = ceilTenth(sumpDepth);
+  const governsDepth = "sump";
+  if (selDepth - dBot > 0.0049) lv.push({k:"FLOOR", d: selDepth, label: "Pit Floor", band: selDepth - dBot});
 
   // ── 6. Pump set, pipe, head, power ──
   const qSel = ceilTenth(Q/work);
@@ -2754,11 +2775,11 @@ function calculateSump(p) {
   if (!pwrSel) return calcError([`Required motor rating ${pwrReq.toFixed(3)} kW exceeds the approved standard motor schedule. Add an approved motor rating or revise the design.`]);
 
   const config = sumpConfigStr(set), setText = sumpSetText(set);
-  const sizeStr = `${L.toFixed(2)} × ${W.toFixed(2)} × ${selDepth.toFixed(2)} m`;
+  const sizeStr = round ? `Ø${D.toFixed(2)} × ${selDepth.toFixed(2)} m` : `${L.toFixed(2)} × ${W.toFixed(2)} × ${selDepth.toFixed(2)} m`;
   const sump = {
     sources, Q, simul, letters, governing, inl, IL, work, stages, installed: set.installed, duty: set.duty, lead: set.lead, assist: set.assist, standby: set.standby, dry, hCL, sucLoss,
-    starts, cycle, qWork, vol, L, W, area, pdRaw, pd, aIn, aHL, sub, levels: lv,
-    sumpDepth, sand, tL, tW, setdown, trapDepth, selDepth, governsDepth, sizeStr,
+    starts, cycle, qWork, vol, L, W, round, D, area, pdRaw, pd, aIn, aHL, sub, levels: lv,
+    sumpDepth, sand, tL, tW, setdown, trapDepth, selDepth, governsDepth, sizeStr, ssl: num(p.sslLevel, 0),
     Hdis, Hs, sf, rawH, Qh, qSel, pwrReq,
   };
 
@@ -2778,12 +2799,12 @@ function calculateSump(p) {
     {label:"Min. Cycle Time  [60 ÷ starts]", value:`${cycle.toFixed(2)} min`},
     {label:`Flow per Working Pump  [Q ÷ ${work}]`, value:`${qWork.toFixed(2)} L/s`},
     {label:"Required Operating Volume  [V = Q × T ÷ 4,  T = 60 ÷ starts]", value:`${vol.toFixed(4)} m³`},
-    {label:`Pump-down Depth  [V ÷ (${L.toFixed(2)} × ${W.toFixed(2)}), up to 0.1 m]`, value:`${pdRaw.toFixed(4)} → ${pd.toFixed(2)} m`},
+    {label:`Pump-down Depth  [V ÷ ${round ? `(π/4 × ${D.toFixed(2)}²)` : `(${L.toFixed(2)} × ${W.toFixed(2)})`}, up to 0.1 m]`, value:`${pdRaw.toFixed(4)} → ${pd.toFixed(2)} m`},
   );
   if (sand) steps.push({label:`Sand Trap Depth  [IL + ${setdown.toFixed(2)} setdown]`, value:`${trapDepth.toFixed(3)} m  (${tL.toFixed(2)} × ${tW.toFixed(2)} × ${ceilTenth(trapDepth).toFixed(1)})`});
   steps.push(
     {label:"Total Sump Depth  [IL + alarms + pump bands + submergence]", value:`${sumpDepth.toFixed(3)} m`},
-    {label:`Selected Pit Size  (${governsDepth} depth governs)`, value:sizeStr, hl:true},
+    {label:"Selected Pit Size", value:sizeStr, hl:true},
     {s:"Operating Levels (below SSL)", label:"Top of pit (SSL)", value:"±0.000 m"},
   );
   lv.forEach(l => steps.push({label:l.label, value:`− ${l.d.toFixed(2)} m`}));
@@ -2805,8 +2826,8 @@ function calculateSump(p) {
     {label:`Static Head  [${selDepth.toFixed(2)} pit + ${Hdis} discharge height]`, value:`${Hs.toFixed(2)} m`},
     {label:"Residual Pressure", value:`${Hr} m`},
     ...(dry ? [{label:"Suction-side Loss  (suction pipework and valves)", value:`${sucLoss} m`}] : []),
-    ...(dry ? (() => { const npa = 10.33 - 0.57 + sub - sucLoss, rq = Number.isFinite(Number(p.npshr)) && p.npshr !== "" ? Number(p.npshr) : null, ok = rq == null ? npa > 1 : npa >= rq + 0.5;
-      return [{label:`NPSH available at stop level  [10.33 atm − 0.57 vapour (35 °C) + ${sub} submergence − ${sucLoss} suction loss]${rq != null ? `  ≥ NPSHr ${rq} + 0.5` : ""}`, value:`${npa.toFixed(2)} m`, ...(ok ? {} : {flag:"warn"})}]; })() : []),
+    ...(dry ? (() => { const npa = 10.33 - 0.57 - sucLoss, rq = Number.isFinite(Number(p.npshr)) && p.npshr !== "" ? Number(p.npshr) : null, ok = rq == null ? npa > 1 : npa >= rq + 0.5;
+      return [{label:`NPSH available at stop level (= pump centreline)  [10.33 atm − 0.57 vapour (35 °C) − ${sucLoss} suction loss]${rq != null ? `  ≥ NPSHr ${rq} + 0.5` : ""}`, value:`${npa.toFixed(2)} m`, ...(ok ? {} : {flag:"warn"})}]; })() : []),
     {s:"Total Head", label:"Sum of Heads (pre-safety)", value:`${rawH.toFixed(4)} m`},
     {label:`Total Pump Head  [× ${(1+sf/100).toFixed(2)}, up to 0.1 m]`, value:`${totalH.toFixed(1)} m`, hl:true},
     {s:"Motor Power", label:`Shaft Power  [Ps = Q × 9.81 × H ÷ ηp, ηp = ${(pumpE*100).toFixed(0)}%]`, value:`${pwrShaft.toFixed(3)} kW`},
@@ -2830,7 +2851,12 @@ function calculateSump(p) {
 // Wet = submersibles in the sump; dry = pumps in an adjoining room with flooded suction.
 // Text carries inline !important sizes so print CSS cannot shrink it.
 function sumpFigure(s, caption) {
-  const lv = s.levels, n = lv.length, S = n - 1, dry = s.dry, NP = s.installed;
+  // Dry pump room: when the pit is deeper than the float stack needs (sand trap governs), the pumps stand on the same floor as the pit.
+  // The 0.3 m minimum water above the centreline is kept; the extra depth goes below the centreline, so "pump base level" and "pit floor" are one level.
+  const lv = (() => { const a = s.levels; const fl = a.find(l => l.k === "FLOOR");
+    if (!(s.dry && fl)) return a;
+    return a.filter(l => l.k !== "BOT" && l.k !== "FLOOR").concat([{k:"BOT", d:fl.d, label:"Pit Floor / Pump Base Level", band:fl.d - a.find(l => l.k === "STOP").d}]); })();
+  const n = lv.length, S = n - 1, dry = s.dry, NP = s.installed;
   const pitL = 330, pitR = 640, y0 = 64;
   const gapD = 42, roomW = dry ? NP*gapD + 34 : 0, roomR = pitR + roomW, labX = pitR + 8 + roomW;
   const W = dry ? Math.round(labX + 215 - 90) : 730;
@@ -2838,7 +2864,14 @@ function sumpFigure(s, caption) {
   const yIL = y0 + Math.min(170, 40 + s.IL*26);
   const segH = Math.max(46, Math.min(52, (470 - yIL)/S));
   const ys = lv.map((l, i) => yIL + i*segH);
-  const yBot = ys[n-1], H = Math.round(yBot + 92);
+  const yBot = ys[n-1];
+  // sand trap (car park drainage only): a chamber on the incoming drain, drawn beside the pit; its floor is IL + setdown
+  const ssl = Number.isFinite(Number(s.ssl)) ? Number(s.ssl) : 0, lvTxt = d => { const z = ssl - d; return `${z < 0 ? "-" : "+"} ${Math.abs(z).toFixed(2)} M`; };   // level boxes are absolute: SSL level minus the depth below SSL
+  const trapOn = !!(s.sand && !s.round), trapW = 96, bafX = Math.round(trapW * Math.max(0.5, Math.min(0.75, (s.tL - 0.4)/s.tL || 0.6)));
+  const yOfD = d => { const L = lv; if (d >= L[n-1].d) return yBot + (d - L[n-1].d)*45; for (let i = 1; i < n; i++) if (d <= L[i].d) return ys[i-1] + (ys[i] - ys[i-1])*(d - L[i-1].d)/Math.max(1e-9, L[i].d - L[i-1].d); return yBot; };
+  const yTrap = trapOn ? Math.max(yIL + 26, yOfD(s.trapDepth)) : yBot, yCap = Math.max(yBot, yTrap);
+  const H = Math.round(yCap + (trapOn ? 128 : 112));
+  const iBOT = lv.findIndex(l => l.k === "BOT"), yRF = (dry && !s.round && lv.some(l => l.k === "FLOOR") && iBOT >= 0) ? ys[iBOT] : yBot;   // dry pump room floor = pump base level; only the wet well / sand trap goes deeper
   const role = i => i < s.lead ? "D" : i < s.duty ? "A" : "S";
   const T = (x, y, txt, px, o={}) => { const f = o.rot ? px : +(px*k).toFixed(1);
     return `<text x="${x}" y="${y}"${o.anchor?` text-anchor="${o.anchor}"`:""} font-size="${f}" style="font-size:${f}px!important"${o.bold?' font-weight="700"':""}${o.rot?` transform="rotate(-90 ${x} ${y})"`:""}${o.ul?' text-decoration="underline"':""}>${sxEsc(txt)}</text>`; };
@@ -2846,59 +2879,106 @@ function sumpFigure(s, caption) {
     + `<path d="M${x-3} ${y1+7} L${x} ${y1+1} L${x+3} ${y1+7}" fill="none" stroke="#000" stroke-width="1.1"/>`
     + `<path d="M${x-3} ${y2-7} L${x} ${y2-1} L${x+3} ${y2-7}" fill="none" stroke="#000" stroke-width="1.1"/>`;
   const pumpSym = (x, y, i) => { const st = role(i) === "S";
-    return `<circle cx="${x}" cy="${y}" r="14" fill="#fff" stroke="#000" stroke-width="1.4"${st?' stroke-dasharray="3 2"':""}/><path d="M${x} ${y-9} L${x+9} ${y+8} L${x-9} ${y+8}z" fill="${st?"#fff":"#000"}" stroke="#000" stroke-width="1"/>`; };
+    return `<circle cx="${x}" cy="${y}" r="14" fill="#fff" stroke="#1d4ed8" stroke-width="1.6"${st?' stroke-dasharray="3 2"':""}/><path d="M${x} ${y-9} L${x+9} ${y+8} L${x-9} ${y+8}z" fill="${st?"#fff":"#1d4ed8"}" stroke="#1d4ed8" stroke-width="1"/>`; };
   let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="90 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" fill="#000">`;
   o += `<rect x="90" y="0" width="${W}" height="${H}" fill="#fff"/>`;
+  if (!s.round) o += `<rect x="${pitL+2}" y="${yIL}" width="${pitR-pitL-4}" height="${yBot-yIL-1}" fill="#cfe8ff"/>`;   // water in the pit, behind the walls
   o += T(450, 22, "Top Level", 12, {anchor:"middle", bold:true, ul:true});
   o += `<line x1="405" y1="34" x2="495" y2="34" stroke="#000"/><path d="M443 38 h14 l-7 9z" fill="#fff" stroke="#000"/>`;
-  o += `<rect x="${pitR-130}" y="${y0-34}" width="130" height="34" fill="#fff" stroke="#000"/>` + T(pitR-65, y0-12, "SSL (+0.000)", 12, {anchor:"middle", bold:true});
+  o += `<rect x="${pitR-130}" y="${y0-34}" width="130" height="34" fill="#fff" stroke="#000"/>` + T(pitR-65, y0-12, `SSL (${ssl < 0 ? "-" : "+"}${Math.abs(ssl).toFixed(3)})`, 12, {anchor:"middle", bold:true});
+  const rd = !!s.round, roomL = rd ? pitL - 26 : pitL, tcx = (pitL + pitR)/2, trx = (pitR - pitL)/2;
   const right = dry ? roomR : pitR;
-  o += `<line x1="${pitL}" y1="${y0}" x2="${right}" y2="${y0}" stroke="#000" stroke-width="1.3" stroke-dasharray="4 3"/>`;
-  o += `<polyline points="${pitL},${y0} ${pitL},${yBot} ${right},${yBot} ${right},${y0}" fill="none" stroke="#000" stroke-width="3.2"/>`;
-  if (dry) {
-    o += `<line x1="${pitR}" y1="${y0}" x2="${pitR}" y2="${yBot}" stroke="#000" stroke-width="3.2"/>`;
+  o += `<line x1="${roomL}" y1="${y0}" x2="${right}" y2="${y0}" stroke="#000" stroke-width="1.3" stroke-dasharray="4 3"/>`;
+  o += yRF !== yBot
+    ? `<polyline points="${pitL},${y0} ${pitL},${yBot} ${pitR},${yBot} ${pitR},${yRF} ${right},${yRF} ${right},${y0}" fill="none" stroke="#000" stroke-width="2"/>`
+    : `<polyline points="${roomL},${y0} ${roomL},${yBot} ${right},${yBot} ${right},${y0}" fill="none" stroke="#000" stroke-width="2"/>`;
+  if (rd) {
+    // circular steel tank standing in the same room as the pumps (no wall between them)
+    o += `<path d="M${pitL} ${y0} L${pitL} ${yBot-9} A${trx} 9 0 0 0 ${pitR} ${yBot-9} L${pitR} ${y0}" fill="#fff" stroke="#000" stroke-width="2"/>`;
+    o += `<ellipse cx="${tcx}" cy="${y0}" rx="${trx}" ry="9" fill="#fff" stroke="#000" stroke-width="2"/>`;
+    o += T(tcx, y0+26, "CIRCULAR STEEL TANK", 10.5, {anchor:"middle", bold:true}) + T(tcx, y0+40, `Ø ${s.D.toFixed(2)} m`, 10.5, {anchor:"middle"});
+    o += T(labX, y0-4, "TANK + PUMP ROOM (COMBINED)", 10, {bold:true});
+  }
+  if (dry && !rd) {
+    o += `<line x1="${pitR}" y1="${y0}" x2="${pitR}" y2="${yBot}" stroke="#000" stroke-width="2"/>`;
     o += T(pitL+12, y0+18, "WET WELL", 10.5, {bold:true});
     o += T(pitR + roomW/2, y0-10, "DRY PUMP ROOM", 10.5, {anchor:"middle", bold:true});
   }
-  o += `<polygon points="140,${yIL-46} ${pitL},${yIL-8} ${pitL},${yIL+10} 140,${yIL-28}" fill="#fff" stroke="#000" stroke-width="1.2"/>`;
+  const pipeEnd = trapOn ? pitL - trapW : pitL;
+  if (trapOn) {
+    // suspended sand trap (standard detail): inlet drops into a removable perforated basket (500 x 500 x 400), a low baffle wall (200 high) separates the outlet section, and the outlet is a dip pipe taking water from 160 mm above the floor
+    const tl = pitL - trapW, ox = tl + bafX + (trapW - bafX)/2;
+    o += `<rect x="${tl+2}" y="${yIL}" width="${trapW-4}" height="${yTrap-yIL-1}" fill="#cfe8ff"/>`;   // water in the sand trap
+    o += `<polyline points="${tl},${y0} ${tl},${yTrap} ${pitL},${yTrap}" fill="none" stroke="#000" stroke-width="2"/>`;
+    o += `<line x1="${pitL}" y1="${yBot}" x2="${pitL}" y2="${yTrap}" stroke="#000" stroke-width="2"/>`;
+    o += `<line x1="${tl}" y1="${y0}" x2="${pitL}" y2="${y0}" stroke="#000" stroke-width="1.3" stroke-dasharray="4 3"/>`;
+    // basket
+    const bl = tl + 7, br = tl + bafX - 7, bm = (bl + br)/2, bb = yTrap - 2, bh = Math.min((br - bl)*0.8, bb - (yIL + 14)), bt = bb - bh, ppm = bh/0.4;   // basket drawn 500 wide x 400 high; the other trap heights follow its scale
+    // inlet: incoming drain turns down and discharges into the basket
+    o += `<rect x="${tl}" y="${yIL-24}" width="${bm+5-tl}" height="18" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`;
+    o += `<rect x="${bm-5}" y="${yIL-24}" width="10" height="${bt-6-(yIL-24)}" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`;
+    o += `<line x1="${bm-4}" y1="${yIL-23}" x2="${bm-4}" y2="${yIL-7}" stroke="#fff" stroke-width="2.4"/><line x1="${tl}" y1="${yIL-23}" x2="${tl}" y2="${yIL-7}" stroke="#fff" stroke-width="3.4"/>`;
+    // low baffle wall (200 mm)
+    o += `<rect x="${tl+bafX-3}" y="${yTrap-0.2*ppm}" width="6" height="${0.2*ppm}" fill="#fff" stroke="#92400e" stroke-width="2.2"/>`;
+    // outlet: dip pipe from 160 mm above the floor, rising to the outlet at the pit inlet level (IL)
+    const dipB = yTrap - 0.16*ppm;
+    o += `<rect x="${ox-5}" y="${yIL-8}" width="10" height="${dipB-(yIL-8)}" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`;
+    o += `<rect x="${ox-5}" y="${yIL-8}" width="${pitL+34-(ox-5)}" height="18" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`;
+    o += `<line x1="${ox-4}" y1="${yIL-7}" x2="${ox-4}" y2="${yIL+9}" stroke="#fff" stroke-width="2.4"/><line x1="${ox-4}" y1="${yIL+10}" x2="${ox-4}" y2="${yIL+12}" stroke="#fff" stroke-width="2.4"/><line x1="${pitL}" y1="${yIL-7}" x2="${pitL}" y2="${yIL+9}" stroke="#fff" stroke-width="3.4"/>`;
+    o += T(tl + trapW/2, y0+18, "SAND TRAP", 9.5, {anchor:"middle", bold:true});
+    // level box for the trap floor: kept clear of the other level boxes
+    const others = ys.filter(v => Math.abs(v - yTrap) < 26), yBox = others.length ? Math.max(...others) + 26 : yTrap;
+    o += `<rect x="100" y="${yBox-11}" width="132" height="22" fill="#fff" stroke="#92400e" stroke-width="1.5"/>` + T(166, yBox+4, lvTxt(s.trapDepth), 11.5, {anchor:"middle", bold:true});
+    o += `<line x1="232" y1="${yBox}" x2="${tl}" y2="${yTrap}" stroke="#000" stroke-width=".8"/>`;
+    o += T(tl + trapW/2, yTrap+16, "Trap floor", 10, {anchor:"middle", bold:true});
+  }
+  o += trapOn ? `<polygon points="140,${yIL-52} ${pipeEnd},${yIL-24} ${pipeEnd},${yIL-6} 140,${yIL-34}" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`
+    : `<polygon points="140,${yIL-46} ${pipeEnd},${yIL-8} ${pipeEnd},${yIL+10} 140,${yIL-28}" fill="#fff" stroke="#0f766e" stroke-width="1.5"/>`;
   const arrX = pitL + 34, hasFloor = lv.some(l => l.k === "FLOOR");
   lv.forEach((l, i) => {
-    const y = ys[i], dashed = (l.k !== "BOT" || hasFloor) && l.k !== "FLOOR";
-    if (dashed) o += `<line x1="${pitL}" y1="${y}" x2="${pitR}" y2="${y}" stroke="#000" stroke-width="1.1" stroke-dasharray="9 3 2 3"/>`;
-    if (dry && dashed) o += `<line x1="${pitR}" y1="${y}" x2="${roomR}" y2="${y}" stroke="#000" stroke-width=".8" stroke-dasharray="2 4"/>`;
+    const y = ys[i], dashed = (l.k !== "BOT" || hasFloor) && l.k !== "FLOOR", lc = ({IL:"#1d4ed8", HL:"#dc2626", STOP:"#ea580c", BOT:"#475569", FLOOR:"#475569"})[l.k] || "#15803d";   // inlet blue, high level red, starts green, stop orange
+    if (dashed) o += `<line x1="${pitL}" y1="${y}" x2="${pitR}" y2="${y}" stroke="${lc}" stroke-width="1.6" stroke-dasharray="9 3 2 3"/>`;
+    if (dry && dashed) o += `<line x1="${pitR}" y1="${y}" x2="${roomR}" y2="${y}" stroke="${lc}" stroke-width="1" stroke-dasharray="2 4"/>`;
     if (l.k === "BOT" && !dry) o += T(labX, ys[i-1]+19, "Submerge Level", 11.5, {bold:true});
     else if (l.k === "FLOOR") o += T(labX, y-4, "Pit Floor", 11.5, {bold:true});
-    else o += T(labX, y+4, l.label, 11.5, {bold:true, ul: l.k === "STOP"});
+    else { o += T(labX, y+4, l.label, 11.5, {bold:true, ul: l.k === "STOP"}); if (dry && l.k === "STOP") o += T(labX, y+19, "= Pump Centreline", 11, {bold:true}); }
     if (l.k !== "IL") {
-      o += `<rect x="100" y="${y-11}" width="132" height="22" fill="#fff" stroke="#000"/>` + T(166, y+4, `- ${l.d.toFixed(2)} M`, 11.5, {anchor:"middle", bold:true});
-      o += `<line x1="232" y1="${y}" x2="${pitL}" y2="${y}" stroke="#000" stroke-width=".8"/>`;
+      o += `<rect x="100" y="${y-11}" width="132" height="22" fill="#fff" stroke="${lc}" stroke-width="1.6"/>` + T(166, y+4, lvTxt(l.d), 11.5, {anchor:"middle", bold:true});
+      o += `<line x1="232" y1="${y}" x2="${pitL}" y2="${y}" stroke="${lc}" stroke-width="1"/>`;
     }
     if (i > 0) { const yp = ys[i-1]; o += arrow(arrX, yp, y) + T(arrX-8, (yp+y)/2, `${l.band.toFixed(2)} m`, 9.5, {anchor:"middle", bold:true, rot:true}); }
   });
   o += T(pitL+120, yIL-9, "IL =", 11.5, {bold:true});
-  o += `<rect x="${pitL+158}" y="${yIL-26}" width="100" height="22" fill="#fff" stroke="#000" stroke-width="1.5"/>` + T(pitL+208, yIL-11, `- ${s.IL.toFixed(2)} M`, 11.5, {anchor:"middle", bold:true});
+  o += `<rect x="${pitL+158}" y="${yIL-26}" width="100" height="22" fill="#fff" stroke="#1d4ed8" stroke-width="1.8"/>` + T(pitL+208, yIL-11, lvTxt(s.IL), 11.5, {anchor:"middle", bold:true});
   if (!dry) {
     const gap = Math.min(40, (pitR - pitL - 50)/Math.max(1, NP-1)), py = yBot - 17, fz = gap < 34 ? 9 : 11;
     for (let i = 0; i < NP; i++) { const x = pitR - 30 - (NP-1-i)*gap;
       o += T(x, py-19, `P${i+1}/${role(i)}`, fz, {anchor:"middle"}) + pumpSym(x, py, i); }
   } else {
-    const yCL = ys[lv.findIndex(l => l.k === "CL")], xs = Array.from({length:NP}, (_, i) => pitR + 17 + gapD/2 + gapD*i);
+    const yCL = ys[lv.findIndex(l => l.k === "STOP")], xs = Array.from({length:NP}, (_, i) => pitR + 17 + gapD/2 + gapD*i);
     const yRis = y0 + 22;
-    o += `<rect x="${pitR-16}" y="${yCL-4}" width="${xs[NP-1] - (pitR-16)}" height="8" fill="#fff" stroke="#000" stroke-width="1.1"/>`;
-    o += `<path d="M${pitR-16} ${yCL-9} L${pitR-26} ${yCL-14} L${pitR-26} ${yCL+14} L${pitR-16} ${yCL+9}z" fill="#fff" stroke="#000" stroke-width="1.1"/>`;
+    // suction header: runs from the pumps through the wall, then a 90° bend turning down into the water, ending in a bellmouth
+    const xb = pitR - 40, rb = 12, yD = Math.min(yCL + 28, yBot - 16);
+    o += `<rect x="${pitR}" y="${yCL-4}" width="${xs[NP-1] - pitR}" height="8" fill="#fff" stroke="#000" stroke-width="1.1"/>`;
+    const bend = `M${pitR + 2} ${yCL} L${xb + rb} ${yCL} A${rb} ${rb} 0 0 0 ${xb} ${yCL + rb} L${xb} ${yD}`;
+    o += `<path d="${bend}" fill="none" stroke="#0f766e" stroke-width="8.4" stroke-linejoin="round"/><path d="${bend}" fill="none" stroke="#fff" stroke-width="5.6"/>`;
+    o += `<path d="M${xb-6} ${yD} L${xb+6} ${yD} L${xb+11} ${yD+9} L${xb-11} ${yD+9}z" fill="#fff" stroke="#0f766e" stroke-width="1.4"/>`;
+    o += `<rect x="${pitR-3}" y="${yCL-9}" width="7" height="18" fill="#fff" stroke="#000" stroke-width="1.3"/>`;   // flange where the pipe passes through the wall
     xs.forEach((x, i) => {
-      o += `<line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#000" stroke-width="5"/><line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#fff" stroke-width="2.4"/>`;
-      o += `<rect x="${x-9}" y="${yCL+14}" width="18" height="${Math.max(2, yBot-yCL-14)}" fill="#fff" stroke="#000" stroke-width="1"/>`;
+      o += `<line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#0f766e" stroke-width="5"/><line x1="${x}" y1="${yRis}" x2="${x}" y2="${yCL-14}" stroke="#fff" stroke-width="2.4"/>`;
+      o += `<rect x="${x-9}" y="${yCL+14}" width="18" height="${Math.max(2, yRF-yCL-14)}" fill="#fff" stroke="#000" stroke-width="1"/>`;
       o += pumpSym(x, yCL, i);
-      o += T(x, yBot+14, `P${i+1}/${role(i)}`, NP > 6 ? 9 : 10.5, {anchor:"middle"});
+      o += T(x, yRF+14, `P${i+1}/${role(i)}`, NP > 6 ? 9 : 10.5, {anchor:"middle"});
     });
-    o += `<line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#000" stroke-width="5"/><line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#fff" stroke-width="2.4"/>`;
+    o += `<line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#0f766e" stroke-width="5"/><line x1="${xs[0]}" y1="${yRis}" x2="${roomR+26}" y2="${yRis}" stroke="#fff" stroke-width="2.4"/>`;
     o += `<path d="M${roomR+22} ${yRis-5} L${roomR+30} ${yRis} L${roomR+22} ${yRis+5}z" fill="#000"/>` + T(roomR+36, yRis+4, "To discharge", 11, {bold:true});
   }
   const capR = dry ? roomR : pitR;
-  o += `<rect x="${pitL-20}" y="${yBot+34}" width="${capR-pitL+40}" height="20" fill="#fff" stroke="#000"/>` + T((pitL+capR)/2, yBot+48, caption || "SUMP PIT", 11.5, {anchor:"middle", bold:true});
+  o += `<rect x="${pitL-20}" y="${yCap+34}" width="${capR-pitL+40}" height="20" fill="#fff" stroke="#000"/>` + T((pitL+capR)/2, yCap+48, caption || "SUMP PIT", 11.5, {anchor:"middle", bold:true});
   const lg = ["D duty", s.assist ? "A assist" : "", s.standby ? "S standby (dashed)" : ""].filter(Boolean).join("   ·   ");
-  o += T((pitL+capR)/2, yBot+72, lg, 10, {anchor:"middle"});
+  o += T((pitL+capR)/2, yCap+72, lg, 10, {anchor:"middle"});
+  o += T((pitL+capR)/2, yCap+92, `${s.round ? "Tank size (Ø × depth)" : "Pit size (L × W × depth)"}:  ${s.sizeStr}`, 11.5, {anchor:"middle", bold:true});
+  if (trapOn) o += T((pitL+capR)/2, yCap+109, `Sand trap size (L × W × depth):  ${s.tL.toFixed(2)} × ${s.tW.toFixed(2)} × ${ceilTenth(s.trapDepth).toFixed(2)} m`, 11, {anchor:"middle"});
   o += `</svg>`;
   return {svg:o, w:W, h:H};
 }
@@ -2908,7 +2988,7 @@ function sumpDesignBasis(p) {
     `${system} is assessed using the current coordinated project information and design inputs.`,
     p && p.srcCombine === "sum" ? "Pit inflow is the sum of the cases considered, which can occur together." : "Pit inflow is the greatest of the cases considered (tank drain, drainage units, sprinkler discharge); the cases are alternatives and are not added together.",
     "Operating volume V = Q × T ÷ 4, where Q is the capacity of one working pump and T the minimum cycle time; this is the worst case, reached when the inflow is half the pump capacity. Duty and assist pumps share the inflow by control; float levels are set downward from the inlet invert and static lift is taken from the pit floor (conservative).",
-    ...(p && p.install === "dry" ? ["Pumps are installed dry in an adjoining pump room with flooded suction. NPSH available is calculated at the stop level (sea-level atmosphere, water at 35 °C) and must exceed the NPSH required of the selected pump by at least 0.5 m."] : []),
+    ...(p && (p.install === "dry" || p.pitShape === "round") ? [p.pitShape === "round" ? "The tank is a circular steel tank with the pumps outside it, in the same room, on flooded suction. NPSH available is calculated at the stop level (sea-level atmosphere, water at 35 °C)." : "Pumps are installed dry in an adjoining pump room with flooded suction. NPSH available is calculated at the stop level (sea-level atmosphere, water at 35 °C) and must exceed the NPSH required of the selected pump by at least 0.5 m."] : []),
     `${p && p.headLossMethod === "DW" ? "Darcy-Weisbach" : "Hazen-Williams"} friction loss, pipe sizes and motor ratings use the approved in-application reference schedules.`,
   ];
 }
@@ -2930,8 +3010,8 @@ function svgToPngDataUrl(svg, w, h, scale=2) {
 DEFS.sump = {type:"sump", name:"Sump Pump", tag:"SP", pitCaption:"", pipeType:"HDPE", headLossMethod:"HW", pipeSizingBasis:"design",
   sumpSources:[SUMP_SRC_NEW.tank(), SUMP_SRC_NEW.spr()],
   ilStart:1.2, ilRun:80, ilFall:90, ilAllow:10, ilOverride:"",
-  sandTrap:true, trapL:2.2, trapW:2.5, trapSetdown:1.37,
-  pitL:2.2, pitW:3.1, starts:10, alarmInlet:0.1, alarmHigh:0.1, submergence:0.3,
+  sandTrap:true, trapL:1.0, trapW:0.6, trapSetdown:0.6,
+  pitL:2.2, pitW:3.1, pitShape:"rect", pitD:2.0, starts:10, alarmInlet:0.1, alarmHigh:0.1, submergence:0.3,
   install:"wet", pumpCLht:0.3, suctionLoss:0.3,
   configPreset:"1D1A", numDuty:1, numAssist:1, numStandby:0, sharingMode:"assist",
   maxVelocity:1.85, maxLossPaM:300, minVelocity:0, hwCoeff:150, pipeOdOverride:"",
@@ -3179,27 +3259,53 @@ function pbcDesignBasis(p) {
 }
 // Section figure: SVG string {svg, w, h}
 function pbcFigure(c, caption) {
-  const W = 640, H = 330, x0 = 210, x1 = 430, yTop = 40, yBot = 280, k = (yBot - yTop)/Math.max(c.hSel, 0.1);
+  // Section and plan after the standard pressure reducing manhole detail: the rising main drops into the chamber through a dip pipe, a low block baffle separates the outlet side, and the outlet leaves by gravity at the dead depth.
+  const W = 640, H = 424, iw = 280, x0 = 150, x1 = x0 + iw, tw = 12, yTop = 78, yBot = 304, k = (yBot - yTop)/Math.max(c.hSel, 0.1);
   const yOf = h => yBot - h*k, yInv = yOf(c.hDeadB), yTWL = yOf(c.hDeadB + c.hStore), yRM = yOf(c.hDeadB + c.hStore + c.hDrop);
   const e = s => sxEsc(String(s));
-  const t = (x, y, s, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""} fill="${o.f || "#000"}">${e(s)}</text>`;
-  const dim = (x, ya, yb, lab) => Math.abs(yb - ya) < 2 ? "" : `<line x1="${x}" y1="${ya}" x2="${x}" y2="${yb}" stroke="#000"/><path d="M${x-3} ${ya+6} L${x} ${ya} L${x+3} ${ya+6}M${x-3} ${yb-6} L${x} ${yb} L${x+3} ${yb-6}" fill="none" stroke="#000"/>` + t(x + 6, (ya + yb)/2 + 4, lab, {s:10});
-  const dRm = Math.max(6, c.rmDn/1000*k), dOut = Math.max(12, Math.min(34, c.outD/1000*k));
+  const t = (x, y, s, o={}) => `<text x="${x}" y="${y}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important"${o.b ? ' font-weight="700"' : ""}${o.rot ? ` transform="rotate(-90 ${x} ${y})"` : ""}${o.ul ? ' text-decoration="underline"' : ""} fill="${o.f || "#000"}">${e(s)}</text>`;
+  const tick = (x, y) => `<line x1="${x-4}" y1="${y+4}" x2="${x+4}" y2="${y-4}" stroke="#000" stroke-width="1.2"/>`;
+  const vdim = (x, ya, yb, lab, side) => Math.abs(yb - ya) < 3 ? "" : `<line x1="${x}" y1="${ya}" x2="${x}" y2="${yb}" stroke="#000" stroke-width=".9"/>` + tick(x, ya) + tick(x, yb) + (lab ? t(x + (side || -5), (ya + yb)/2 + 3, lab, {s:10, a:"middle", rot:true, b:true}) : "");
+  const hdim = (y, xa, xb, lab) => `<line x1="${xa}" y1="${y}" x2="${xb}" y2="${y}" stroke="#000" stroke-width=".9"/>` + tick(xa, y) + tick(xb, y) + t((xa + xb)/2, y - 5, lab, {s:10, a:"middle", b:true});
+  const dRm = Math.max(7, Math.min(22, c.rmDn/1000*k)), dOut = Math.max(12, Math.min(30, c.outD/1000*k));
+  const xBaf = x0 + Math.round(iw*0.64), xDip = x0 + 66, yDipEnd = Math.min(yBot - 8, Math.max(yInv + (yBot - yInv)*0.5, yInv + 16));
+  const pipe = "#0f766e";
   let o = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>`;
-  if (c.hStore > 0) o += `<rect x="${x0}" y="${yTWL}" width="${x1 - x0}" height="${yInv - yTWL}" fill="#cfe3fb"/>`;
-  o += `<rect x="${x0}" y="${yInv}" width="${x1 - x0}" height="${yBot - yInv}" fill="#e8eef6"/>`;
-  o += `<polyline points="${x0},${yTop} ${x0},${yBot} ${x1},${yBot} ${x1},${yTop}" fill="none" stroke="#000" stroke-width="3"/>`;
-  o += `<line x1="${x0 - 8}" y1="${yTop}" x2="${x1 + 8}" y2="${yTop}" stroke="#000" stroke-width="4"/>` + t((x0 + x1)/2, yTop - 8, "Cover slab", {a:"middle", s:10});
-  // rising main (left, enters at its invert level)
-  o += `<rect x="40" y="${yRM - dRm}" width="${x0 - 40}" height="${dRm}" fill="#fff" stroke="#000" stroke-width="1.4"/>` + t(44, yRM - dRm - 6, `Rising main ${c.rmName} · ${c.Qin.toFixed(2)} l/s`, {s:10, b:true});
-  // outgoing sewer (right, invert at dead depth)
-  o += `<rect x="${x1}" y="${yInv - dOut}" width="${W - 30 - x1}" height="${dOut}" fill="#fff" stroke="#000" stroke-width="1.4"/>` + t(x1 + 6, yInv + 14, `Outlet DN${c.outD} @ ${c.slope} % · ${c.Qout.toFixed(2)} l/s`, {s:10, b:true});
-  if (c.hStore > 0) o += `<line x1="${x0}" y1="${yTWL}" x2="${x1}" y2="${yTWL}" stroke="#1559a6" stroke-dasharray="5 3"/>` + t(x1 - 60, yTWL - 4, "TWL", {s:9.5, f:"#1559a6", b:true, a:"end"});
-  const dx = x0 + 16;
-  o += dim(dx, yInv, yBot, `${c.hDeadB.toFixed(2)}`) + dim(dx, yTWL, yInv, c.hStore > 0 ? `${c.hStore.toFixed(2)}` : "") + dim(dx, yRM, yTWL, `${c.hDrop.toFixed(2)}`) + dim(dx, yTop, yRM - dRm, `${c.hFreeB.toFixed(2)}`);
-  o += dim(x1 - 44, yTop, yBot, `${c.hSel.toFixed(2)} m`);
-  o += t((x0 + x1)/2, yBot + 20, `${c.L.toFixed(2)} x ${c.W.toFixed(2)} m internal${c.hStore > 0 ? ` · storage ${c.Vstore.toFixed(2)} m³` : " · no storage needed"}`, {a:"middle", s:10.5, b:true});
-  if (caption) o += t((x0 + x1)/2, H - 10, String(caption).toUpperCase(), {a:"middle", s:11, b:true});
+  o += `<defs><pattern id="pbcDots" width="7" height="7" patternUnits="userSpaceOnUse"><circle cx="1.6" cy="2" r=".75" fill="#6b7280"/><circle cx="5.2" cy="5.4" r=".65" fill="#6b7280"/></pattern><pattern id="pbcHat" width="5" height="5" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><line x1="0" y1="0" x2="0" y2="5" stroke="#000" stroke-width="1"/></pattern></defs>`;
+  // water: dead volume, and the storage above it
+  o += `<rect x="${x0}" y="${c.hStore > 0 ? yTWL : yInv}" width="${iw}" height="${yBot - (c.hStore > 0 ? yTWL : yInv)}" fill="#cfe8ff"/>`;
+  // concrete: walls, base and cover slab (stippled), with outlines
+  const conc = (x, y, w, h) => `<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#fff" stroke="#000" stroke-width="1.3"/><rect x="${x}" y="${y}" width="${w}" height="${h}" fill="url(#pbcDots)"/>`;
+  const cvW = 78, cvX = x0 + (iw - cvW)/2;
+  o += conc(x0 - tw, yTop - 14, tw, yBot - yTop + 14 + tw) + conc(x1, yTop - 14, tw, yBot - yTop + 14 + tw) + conc(x0, yBot, iw, tw);
+  o += conc(x0, yTop - 14, cvX - x0, 14) + conc(cvX + cvW, yTop - 14, x1 - (cvX + cvW), 14);
+  o += `<rect x="${cvX}" y="${yTop - 14}" width="${cvW}" height="5" fill="#000"/>` + t(cvX + cvW/2, yTop - 40, "600 x 600 MH cover", {a:"middle", s:10, b:true}) + `<line x1="${cvX + cvW/2}" y1="${yTop - 36}" x2="${cvX + cvW/2}" y2="${yTop - 15}" stroke="#000" stroke-width=".8"/>`;
+  // low block baffle, up to the outlet invert
+  o += `<rect x="${xBaf}" y="${yInv}" width="${tw}" height="${yBot - yInv}" fill="#fff" stroke="#000" stroke-width="1.2"/><rect x="${xBaf}" y="${yInv}" width="${tw}" height="${yBot - yInv}" fill="url(#pbcHat)"/>`;
+  o += t(xBaf + tw/2, yBot + tw + 36, "100 mm block baffle", {a:"middle", s:9.5}) + `<line x1="${xBaf + tw/2}" y1="${yBot + tw + 28}" x2="${xBaf + tw/2}" y2="${(yInv + yBot)/2}" stroke="#000" stroke-width=".7" stroke-dasharray="3 2"/>`;
+  // rising main: through the left wall, then a dip pipe down into the water on the inlet side
+  const pw = 5;
+  o += `<rect x="46" y="${yRM - dRm}" width="${xDip + dRm - 46}" height="${dRm}" fill="#fff" stroke="${pipe}" stroke-width="1.6"/>`;
+  o += `<rect x="${xDip}" y="${yRM - dRm}" width="${dRm}" height="${yDipEnd - (yRM - dRm)}" fill="#fff" stroke="${pipe}" stroke-width="1.6"/>`;
+  o += `<line x1="${xDip + 1}" y1="${yRM - dRm + 1}" x2="${xDip + 1}" y2="${yRM - 1}" stroke="#fff" stroke-width="2.4"/>`;
+  o += `<line x1="${x0 - tw}" y1="${yRM - dRm + 1}" x2="${x0 - tw}" y2="${yRM - 1}" stroke="#fff" stroke-width="2"/><line x1="${x0}" y1="${yRM - dRm + 1}" x2="${x0}" y2="${yRM - 1}" stroke="#fff" stroke-width="2"/>`;
+  o += t(48, yRM - dRm - 20, "Rising main", {s:10, b:true}) + t(48, yRM - dRm - 8, String(c.rmName), {s:9.5}) + t(48, yRM + 14, `${c.Qin.toFixed(2)} l/s`, {s:10});
+  // outgoing sewer: leaves through the right wall at the dead depth
+  o += `<rect x="${x1 - 14}" y="${yInv - dOut}" width="${x1 + tw + 84 - (x1 - 14)}" height="${dOut}" fill="#fff" stroke="${pipe}" stroke-width="1.6"/>`;
+  o += `<line x1="${x1}" y1="${yInv - dOut + 1}" x2="${x1}" y2="${yInv - 1}" stroke="#fff" stroke-width="2"/><line x1="${x1 + tw}" y1="${yInv - dOut + 1}" x2="${x1 + tw}" y2="${yInv - 1}" stroke="#fff" stroke-width="2"/>`;
+  o += t(x1 + tw + 6, yInv - dOut - 8, `Outlet DN${c.outD} @ ${c.slope} %`, {s:9.5, b:true}) + t(x1 + tw + 6, yInv + 14, `${c.Qout.toFixed(2)} l/s`, {s:10});
+  // levels
+  if (c.hStore > 0) o += `<line x1="${x0}" y1="${yTWL}" x2="${x1}" y2="${yTWL}" stroke="#1d4ed8" stroke-width="1.4" stroke-dasharray="9 3 2 3"/>` + t(xBaf + tw + 8, yTWL - 4, "TWL", {s:9.5, f:"#1d4ed8", b:true});
+  o += `<line x1="${x0}" y1="${yInv}" x2="${xBaf}" y2="${yInv}" stroke="#ea580c" stroke-width="1.2" stroke-dasharray="5 3"/>` + t(xDip + dRm + 8, yInv - 4, "Outlet invert", {s:9, f:"#ea580c", b:true});
+  // dimensions
+  const dx = x0 + 18;
+  o += vdim(dx, yInv, yBot, `${c.hDeadB.toFixed(2)}`) + (c.hStore > 0 ? vdim(dx, yTWL, yInv, `${c.hStore.toFixed(2)}`) : "") + vdim(dx, yRM, yTWL, `${c.hDrop.toFixed(2)}`) + vdim(dx, yTop, yRM - dRm, `${c.hFreeB.toFixed(2)}`);
+  o += `<line x1="${x1 + tw + 4}" y1="${yTop}" x2="${x1 + tw + 128}" y2="${yTop}" stroke="#000" stroke-width=".7"/><line x1="${x1 + tw + 4}" y1="${yBot + tw}" x2="${x1 + tw + 128}" y2="${yBot + tw}" stroke="#000" stroke-width=".7"/>`;
+  o += vdim(x1 + tw + 124, yTop, yBot, `${c.hSel.toFixed(2)} m`, 14);
+  o += hdim(yBot + tw + 16, x0, x1, `${c.L.toFixed(2)} m`);
+  o += t((x0 + x1)/2, yBot + tw + 52, "SECTION", {a:"middle", s:11, b:true, ul:true});
+  o += t((x0 + x1)/2, yBot + tw + 70, c.hStore > 0 ? `Storage ${c.Vstore.toFixed(2)} m³` : "No storage needed", {a:"middle", s:10.5, b:true});
+  if (caption) o += t(W/2, H - 10, String(caption).toUpperCase(), {a:"middle", s:11, b:true});
   o += `</svg>`;
   return {svg:o, w:W, h:H};
 }
@@ -9527,17 +9633,20 @@ function clSumpRows(B, p, res) {
   B.calc("qW", "Flow per working pump", s.qWork, "{Qg}/{work}", {unit:"l/s", dp:2});
   B.calc("vol", "Required sump volume  [V = Q × T ÷ 4; Q = pump capacity, worst case inflow = Q/2]", s.vol, "{cycle}*60*{qW}/4000", {unit:"m³", dp:3, key:true, bold:true});
   B.gap();
+  if (s.round) { B.text("Pit shape: CIRCULAR tank", {italic:true}); B.inp("pitD", "Tank internal diameter", s.D, {unit:"m", dp:2}); B.calc("area", "Area of tank considered  [π/4 × D²]", s.area, "PI()/4*{pitD}^2", {unit:"m²", dp:2}); }
+  else {
   B.inp("pitL", "Sump length", s.L, {unit:"m", dp:2});
   B.inp("pitW", "Sump width", s.W, {unit:"m", dp:2});
   B.calc("area", "Area of sump pit considered", s.area, "{pitL}*{pitW}", {unit:"m²", dp:2});
+  }
   B.calc("pdRaw", "Pump-down depth required  (volume / area)", s.pdRaw, "{vol}/{area}", {unit:"m", dp:4});
   B.calc("pd", "Depth of pump down volume (rounded up to 0.1 m)", s.pd, "MAX(0.1,CEILING({pdRaw}-1E-10,0.1))", {unit:"m", dp:2, bold:true});
   B.gap();
   B.inp("aIn", "Alarm - Inlet pipe", s.aIn, {unit:"m", dp:2});
   B.inp("aHL", "Alarm - High level (Float " + (s.work + 2) + ")", s.aHL, {unit:"m", dp:2});
-  B.inp("sub", dry ? "Min. water above pump centreline" : "Submerged - pumps OFF - Float 1", s.sub, {unit:"m", dp:2});
-  if (dry) B.inp("hCL", "Pump centreline height above floor", s.hCL, {unit:"m", dp:2});
+  B.inp("sub", dry ? "Submergence (dead volume + water to keep the pumps wet) - pit floor to pump centreline" : "Submerged - pumps OFF - Float 1", s.sub, {unit:"m", dp:2});
   B.gap();
+  B.inp("ssl", "SSL level (structural slab level; the drawing shows absolute levels from it)", s.ssl, {unit:"m", dp:3});
   B.text("Operating levels (depth below SSL)", {bold:true});
   const lvl = k => s.levels.find(l => l.k === k);
   B.calc("lIL", "Inlet alarm  (IL)", lvl("IL").d, "{IL}", {unit:"m", dp:3});
@@ -9547,19 +9656,21 @@ function clSumpRows(B, p, res) {
     B.calc("lP" + k, `Pump P${k} Start - Float ${k + 1}`, l.d, k === s.stages ? "{lHL}+{aHL}" : `{lP${k + 1}}+{pd}`, {unit:"m", dp:3});
   }
   B.calc("lSTOP", lvl("STOP").label, lvl("STOP").d, "{lP1}+{pd}", {unit:"m", dp:3});
-  if (dry) B.calc("lCL", "Pump centreline", lvl("CL").d, "{lSTOP}+{sub}", {unit:"m", dp:3});
-  B.calc("lBOT", "Total depth of sump pit required", s.sumpDepth, dry ? "{lCL}+{hCL}" : "{lSTOP}+{sub}", {unit:"m", dp:3, key:true, bold:true});
+  if (dry) B.text("The pump centreline is at the stop level (all pumps stop at the centreline).", {italic:true});
+  B.calc("lBOT", "Total depth of sump pit required", s.sumpDepth, "{lSTOP}+{sub}", {unit:"m", dp:3, key:true, bold:true});
   B.gap();
   if (s.sand) {
     B.inp("tL", "Sand trap length", s.tL, {unit:"m", dp:2});
     B.inp("tW", "Sand trap width", s.tW, {unit:"m", dp:2});
-    B.inp("set", "Setdown for trap collection", s.setdown, {unit:"m", dp:2});
+    B.inp("set", "Trap depth below the trap outlet (sand bucket depth)", s.setdown, {unit:"m", dp:2});
+    B.text("Suspended sand trap: the inlet drops into a removable perforated basket (500 x 500 x 400 mm, 10 mm holes, lifting handle). A 100 mm thick, 200 mm high baffle wall separates the outlet section. The outlet is a dip pipe taking water from 160 mm above the trap floor, rising to the pit inlet level. The trap inlet invert is at or above the outlet invert. Water seal at least 150 mm. 600 x 600 access cover with rungs at 300 mm centres.", {italic:true});
+    if (s.setdown < 0.4) B.text("Warning: trap depth below the outlet is under 0.4 m, so the 400 mm basket does not fit. The UPC reference is 0.61 m.", {italic:true});
     B.calc("trap", "Total depth of sand trap pit required", s.trapDepth, "{IL}+{set}", {unit:"m", dp:3, key:true});
     B.calc("trapSz", "Selected Sand Trap Pit Size", `${s.tL.toFixed(2)} x ${s.tW.toFixed(2)} x ${ceilTenth(s.trapDepth).toFixed(2)} m`,
       'TEXT({tL},"0.00")&" x "&TEXT({tW},"0.00")&" x "&TEXT(CEILING({trap}-1E-10,0.1),"0.00")&" m"', {});
   }
-  B.calc("selDepth", "Selected pit depth (greater of sump and sand trap, rounded up to 0.1 m)", s.selDepth, `CEILING(MAX({lBOT}${s.sand ? ",{trap}" : ""})-1E-10,0.1)`, {unit:"m", dp:2, bold:true});
-  B.calc("sumpSz", "Selected Sump Size", `${s.L.toFixed(2)} x ${s.W.toFixed(2)} x ${s.selDepth.toFixed(2)} m`, 'TEXT({pitL},"0.00")&" x "&TEXT({pitW},"0.00")&" x "&TEXT({selDepth},"0.00")&" m"', {bold:true, box:true});
+  B.calc("selDepth", "Selected pit depth (rounded up to 0.1 m)", s.selDepth, "CEILING({lBOT}-1E-10,0.1)", {unit:"m", dp:2, bold:true});
+  B.calc("sumpSz", s.round ? "Selected Tank Size (diameter × depth)" : "Selected Sump Size", s.round ? `Ø${s.D.toFixed(2)} x ${s.selDepth.toFixed(2)} m` : `${s.L.toFixed(2)} x ${s.W.toFixed(2)} x ${s.selDepth.toFixed(2)} m`, s.round ? '"Ø"&TEXT({pitD},"0.00")&" x "&TEXT({selDepth},"0.00")&" m"' : 'TEXT({pitL},"0.00")&" x "&TEXT({pitW},"0.00")&" x "&TEXT({selDepth},"0.00")&" m"', {bold:true, box:true});
   const f = sumpFigure(s, p.pitCaption || p.name || "");
   B.fig(f.svg, f.w, f.h);
   B.section("3.  Pump Sizing");
@@ -11365,15 +11476,15 @@ function ColDrag({w, set, def, dir, title}) {
 // ── Compact form primitives (pump form only) ────────────────────────────────
 // N  : number input with the unit inside the box, live range check, red when invalid.
 // Seg: segmented control — replaces dropdowns that only ever had 2–4 choices.
-function N({label, value, onChange, unit, min=0, max, step="any", hint, req=true}) {
+function N({label, value, onChange, unit, min=0, max, step="any", hint, req=true, off=false}) {
   const raw = value===undefined||value===null ? "" : value;
   const n = Number(raw);
-  const bad = (raw===""&&req) || (raw!==""&&(!Number.isFinite(n) || n<min || (max!==undefined&&n>max)));
+  const bad = !off && ((raw===""&&req) || (raw!==""&&(!Number.isFinite(n) || n<min || (max!==undefined&&n>max))));
   return (
     <div className="pf-f">
       <label title={hint||""}>{label}</label>
-      <div className={"pf-in"+(bad?" bad":"")}>
-        <input type="number" inputMode="decimal" value={raw} min={min} max={max} step={step}
+      <div className={"pf-in"+(bad?" bad":"")+(off?" off":"")}>
+        <input type="number" inputMode="decimal" value={raw} min={min} max={max} step={step} disabled={off} title={off?"Not used while an inlet depth is typed in":undefined}
           onChange={e=>onChange(e.target.value)} onWheel={e=>e.currentTarget.blur()} />
         {unit && <span>{unit}</span>}
       </div>
@@ -12197,13 +12308,17 @@ function SumpSourcesEditor({pump, onPatch}) {
             {s.kind==="du" && <>
               <N label="Discharge units" unit="DU" value={s.du} onChange={v=>set(i,{du:v})} min={0} />
               <N label="K factor" value={s.k} onChange={v=>set(i,{k:v})} min={0.1} step={0.05} hint="Per BS standard, e.g. 0.7 for intermittent use" />
+              <Seg label="Carries soil / waste?" value={s.soil ? "yes" : "no"} onChange={v=>set(i,{soil:v==="yes"})} options={[{value:"no",label:"No (floor drains)",title:"Car park floor drains: a sand trap can apply"},{value:"yes",label:"Yes (WC, basins)",title:"Soil or waste drainage: no sand trap"}]} />
             </>}
             {s.kind==="spr" && <>
               <N label="Sprinklers operating" value={s.n} onChange={v=>set(i,{n:v})} min={0} step={1} />
               <N label="Total in wet area" value={s.of} onChange={v=>set(i,{of:v})} min={0} step={1} req={false} />
               <N label="Flow per sprinkler" unit="L/s" value={s.q1} onChange={v=>set(i,{q1:v})} min={0.01} />
             </>}
-            {s.kind==="manual" && <N label="Inflow" unit="L/s" value={s.q} onChange={v=>set(i,{q:v})} min={0.01} />}
+            {s.kind==="manual" && <>
+              <N label="Inflow" unit="L/s" value={s.q} onChange={v=>set(i,{q:v})} min={0.01} />
+              <Seg label="Carries soil / waste?" value={s.soil ? "yes" : "no"} onChange={v=>set(i,{soil:v==="yes"})} options={[{value:"no",label:"No"},{value:"yes",label:"Yes (WC, basins)"}]} />
+            </>}
           </div>
         </div>
       ))}
@@ -12240,11 +12355,14 @@ function SumpForm({pump, onChange}) {
   };
   const cs = (o) => uu({configPreset:"custom", numDuty:set.lead, numAssist:set.assist, numStandby:set.standby, ...o});
   const eachPct = Math.round(100/Math.max(1,set.duty));
-  const dry = pump.install === "dry";
+  const round = pump.pitShape === "round";
+  const dry = pump.install === "dry" || round;
   // ── live result + section drawing ──
   const res = useMemo(()=>safeCalculate(pump),[pump]);
   const inl = sumpInletDepth(pump);
-  const sand = pump.sandTrap !== false;
+  const ilOv = inl.user === true;   // an inlet depth was typed in: the invert, run, fall and allowance are not used
+  const soil = sumpSoil(pump);
+  const sand = !round && !soil && pump.sandTrap !== false;
   const isDW = pump.headLossMethod==="DW";
   return (
     <div className="pf">
@@ -12267,9 +12385,8 @@ function SumpForm({pump, onChange}) {
           </>}
         </div>
         <div className="pf-row pf-grid" style={{marginTop:10}}>
-          <div style={{gridColumn:"span 2"}}><Seg label="Installation" value={dry?"dry":"wet"} onChange={v=>u("install",v)} options={[{value:"wet",label:"Wet — submersible",title:"Pumps stand in the sump"},{value:"dry",label:"Dry — pump room",title:"Pumps in an adjoining dry room, flooded suction from the wet well"}]} /></div>
+          <div style={{gridColumn:"span 2"}}>{round ? <div className="pf-f"><label>Installation</label><div className="ca-note" style={{margin:0}}>Dry only — a circular steel tank has its pumps outside, in the same room, on flooded suction.</div></div> : <Seg label="Installation" value={dry?"dry":"wet"} onChange={v=>u("install",v)} options={[{value:"wet",label:"Wet — submersible",title:"Pumps stand in the sump"},{value:"dry",label:"Dry — pump room",title:"Pumps in an adjoining dry room, flooded suction from the wet well"}]} />}</div>
           {dry && <>
-            <N label="Pump centreline above floor" unit="m" value={pump.pumpCLht ?? ""} onChange={v=>u("pumpCLht",v)} min={0.05} hint="Pit floor = pump centreline + this height" />
             <N label="Suction-side loss" unit="m" value={pump.suctionLoss ?? ""} onChange={v=>u("suctionLoss",v)} req={false} hint="Suction pipework and valves, added to total head" />
             <N label="Pump NPSH required" unit="m" value={pump.npshr ?? ""} onChange={v=>u("npshr",v)} req={false} hint="From the pump datasheet; blank = NPSH available is reported only" />
           </>}
@@ -12287,24 +12404,30 @@ function SumpForm({pump, onChange}) {
       <section className="pf-sec">
         <h5><i>3</i>Inlet &amp; pits <em>inlet depth {inl.IL.toFixed(3)} m below SSL</em></h5>
         <div className="pf-row pf-grid">
-          <N label="Start invert at source" unit="m" value={pump.ilStart} onChange={v=>u("ilStart",v)} />
-          <N label="Gravity run to pit" unit="m" value={pump.ilRun} onChange={v=>u("ilRun",v)} />
-          <N label="Fall 1 in" value={pump.ilFall} onChange={v=>u("ilFall",v)} min={1} step={1} />
-          <N label="Allowance" unit="%" value={pump.ilAllow} onChange={v=>u("ilAllow",v)} max={100} />
-          <N label="Override inlet depth" unit="m" value={pump.ilOverride ?? ""} onChange={v=>u("ilOverride",v)} req={false} hint="Blank = calculated from the invert, run and fall" />
+          <N label="Start invert at source" unit="m" value={pump.ilStart} onChange={v=>u("ilStart",v)} off={ilOv} />
+          <N label="Gravity run to pit" unit="m" value={pump.ilRun} onChange={v=>u("ilRun",v)} off={ilOv} />
+          <N label="Fall 1 in" value={pump.ilFall} onChange={v=>u("ilFall",v)} min={1} step={1} off={ilOv} />
+          <N label="Allowance" unit="%" value={pump.ilAllow} onChange={v=>u("ilAllow",v)} max={100} off={ilOv} />
+          <N label="Override inlet depth" unit="m" value={pump.ilOverride ?? ""} onChange={v=>u("ilOverride",v)} req={false} hint="Type a depth to use it directly (the four fields above switch off). Blank = calculated from the invert, run and fall" />
+          <N label="SSL level" unit="m" value={pump.sslLevel ?? ""} onChange={v=>u("sslLevel",v)} min={-10000} max={10000} req={false} hint="Structural slab level, used as the datum for the level boxes on the section. Blank = 0.000, which shows depths below SSL" />
         </div>
         <div className="pf-row pf-grid" style={{marginTop:10}}>
+          <Seg label="Pit shape" value={round?"round":"rect"} onChange={v=>u("pitShape",v)} options={[{value:"rect",label:"Rectangular"},{value:"round",label:"Circular tank",title:"Circular steel tank, pumps outside (dry installation)"}]} />
+          {round && <N label="Tank diameter" unit="m" value={pump.pitD} onChange={v=>u("pitD",v)} min={0.5} hint="Pumps sit outside the tank (dry installation); no sand trap" />}
+        </div>
+        {!round && soil && <div className="ca-note" style={{marginTop:10}}>No sand trap: an inflow is marked as carrying soil / waste. A sand trap is for car park drainage only.</div>}
+        {!round && !soil && <div className="pf-row pf-grid" style={{marginTop:10}}>
           <Seg label="Sand trap pit" value={sand?"on":"off"} onChange={v=>u("sandTrap",v==="on")} options={[{value:"on",label:"On"},{value:"off",label:"Off"}]} />
           {sand && <>
             <N label="Trap length" unit="m" value={pump.trapL} onChange={v=>u("trapL",v)} min={0.5} />
             <N label="Trap width" unit="m" value={pump.trapW} onChange={v=>u("trapW",v)} min={0.5} />
-            <N label="Setdown for trap" unit="m" value={pump.trapSetdown} onChange={v=>u("trapSetdown",v)} />
+            <N label="Trap depth below outlet" unit="m" value={pump.trapSetdown} onChange={v=>u("trapSetdown",v)} hint={Number(pump.trapSetdown) < 0.4 ? "Under 0.4 m the 400 mm basket does not fit. UPC asks for 0.61 m below the outlet invert." : "Depth below the outlet invert (UPC reference 0.61 m). Trap outlet = pit inlet, so trap depth = inlet level + this"} />
           </>}
-        </div>
-        <div className="pf-row pf-grid" style={{marginTop:10}}>
+        </div>}
+        {!round && <div className="pf-row pf-grid" style={{marginTop:10}}>
           <N label="Sump length" unit="m" value={pump.pitL} onChange={v=>u("pitL",v)} min={0.5} />
           <N label="Sump width" unit="m" value={pump.pitW} onChange={v=>u("pitW",v)} min={0.5} />
-        </div>
+        </div>}
       </section>
 
       {/* 4 · Controls */}
@@ -12314,7 +12437,7 @@ function SumpForm({pump, onChange}) {
           <N label="Starts per hour" unit="/h" value={pump.starts} onChange={v=>u("starts",v)} min={1} max={60} step={1} hint="Per pump" />
           <N label="Inlet alarm band" unit="m" value={pump.alarmInlet} onChange={v=>u("alarmInlet",v)} />
           <N label="High-level alarm band" unit="m" value={pump.alarmHigh} onChange={v=>u("alarmHigh",v)} />
-          <N label={dry?"Min. water above pump CL":"Min. submergence"} unit="m" value={pump.submergence} onChange={v=>u("submergence",v)} min={0.05} hint={dry?"Water kept above the pump centreline at the stop level":"Water kept above the pit floor at the stop level"} />
+          <N label={dry?"Submergence (floor to pump CL)":"Min. submergence"} unit="m" value={pump.submergence} onChange={v=>u("submergence",v)} min={0.05} hint={dry?"Dead volume + water to keep the pump wet. The pump centreline is the stop level for all pumps":"Water kept above the pit floor at the stop level"} />
         </div>
       </section>
 
@@ -12411,6 +12534,7 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
   const ca = (meta && meta.cleanAgent) || {};
   const set = caSettings(ca.set), lib = CA_CYLS, rooms = ca.rooms || [];
   const [selId, setSelId] = useState(null), [showSet, setShowSet] = useState(false), [showLib, setShowLib] = useState(false), [showAdv, setShowAdv] = useState(false);
+  const [caSort, setCaSort] = useState({k:"", d:1});
   useEffect(() => { if (focus && focus.id) setSelId(focus.id); }, [focus]);
   const upd = fn => { if (locked) return; setMeta(m => { const cur = m.cleanAgent || {}; const {lib:_old, ...keep} = cur; return {...m, cleanAgent:fn({...keep, rooms:cur.rooms || [], set:cur.set || {}})}; }); };
   const setRoom = (id, patch) => upd(x => ({...x, rooms:x.rooms.map(r => r.id === id ? {...r, ...patch} : r)}));
@@ -12427,6 +12551,14 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
   const fig = useMemo(() => selRes && selRes.ca ? caCylFigure(selRes.ca, sel.name || "") : null, [selRes, sel && sel.name]);
   const agOf = r => CA_AGENTS[r.agent] ? r.agent : set.agent;
   const hasArea = r => r.area !== "" && r.area != null;
+  // v1.115.1: sortable room list (screen only — the stored order, the numbering and the exported sheet are unchanged)
+  const areaOf = q => hasArea(q) ? (parseFloat(q.area) || 0) : ((parseFloat(q.L) || 0) * (parseFloat(q.W) || 0));
+  const sortVal = (q, i) => { const c = results[i] && results[i].ca; switch (caSort.k) {
+    case "n": return i; case "name": return (q.name || "").toLowerCase(); case "loc": return (q.location || "").toLowerCase(); case "cls": return q.cls || "C";
+    case "area": return areaOf(q); case "H": return parseFloat(q.H) || 0; case "vol": return c ? c.Vtot : -1; case "kg": return c ? c.Wsup : -1; default: return i; } };
+  const order = rooms.map((_, i) => i); if (caSort.k) order.sort((a, b) => { const x = sortVal(rooms[a], a), y = sortVal(rooms[b], b); const d = typeof x === "string" ? x.localeCompare(y, undefined, {numeric:true}) : x - y; return (d || a - b) * caSort.d; });
+  const clickSort = k => setCaSort(s => s.k !== k ? {k, d:1} : s.d === 1 ? {k, d:-1} : {k:"", d:1});
+  const SH = ({k, children, cls}) => <th className={(cls ? cls + " " : "") + "ca-sh" + (caSort.k === k ? " on" : "")} title="Click to sort: ascending, descending, original order" onClick={() => clickSort(k)}>{children}<span className="ca-sa">{caSort.k === k ? (caSort.d === 1 ? "▲" : "▼") : "↕"}</span></th>;
   const exportXl = () => { const ok = items.filter((it, i) => results[i] && results[i].ca); if (!ok.length) { alert("No rooms with a complete calculation to export."); return; } if (ok.length < items.length && !window.confirm(`${items.length - ok.length} room(s) have errors and will be left out. Export the rest?`)) return; exportWorkbook(proj, ok, stageName, meta, "Fire_Clean_Agent"); };
   const r = sel, ro = locked;
   // v1.113.0: agent shown in kg or lb (screen only — the calculation and the sheet stay in kg); three-column layout: rooms | inputs | design
@@ -12479,7 +12611,7 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
       <div className={wide ? "ca-1" : "ca-3"}>
       <section className={"ca-card no-print" + (wide ? "" : " ca-list")}>
         <h4>Rooms <em>{wide ? "click a room to edit it · each room is one system, the room and its voids share one cylinder bank" : `${rooms.length} · click to edit`}</em></h4>
-        {!wide && rooms.length > 0 && <div className="ca-li-wrap">{rooms.map((q, i) => { const rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
+        {!wide && rooms.length > 0 && <div className="ca-li-wrap">{order.map(i => { const q = rooms[i], rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
           return <div key={q.id} role="button" tabIndex={0} className={"ca-li" + (sel && sel.id === q.id ? " sel" : "") + (rs && rs.error ? " err" : warn ? " warn" : "")} onClick={() => setSelId(q.id)} onKeyDown={e => { if (e.key === "Enter") setSelId(q.id); }}>
             <i>{i + 1}</i><div><b title={q.name}>{q.name || `Room ${i + 1}`}</b><span>{q.location || "—"}{c ? ` · ${c.Vtot.toFixed(1)} m³ · ${c.n} × ${c.cyl.vol} L` : rs && rs.error ? " · ⚠ check inputs" : ""}</span></div>
             <em>{c ? wU(c.Wsup) : "—"}</em>
@@ -12487,15 +12619,16 @@ function CleanAgentTab({meta, setMeta, locked, proj, stageName, focus}) {
           </div>; })}</div>}
         {!rooms.length ? <div className="ca-empty">No rooms yet. <button type="button" className="ca-btn pri" onClick={addRoom} disabled={locked}>+ Add the first room</button></div> :
         !wide ? null : <div className="ca-scroll"><table className="ca-tbl ca-rooms">
-          <thead><tr><th className="n">#</th><th>Room</th><th>Location</th><th>Agent</th><th className="c">Class</th><th>Size m</th><th>Spaces</th><th className="n">Volume m³</th><th className="n">Conc %</th><th className="n">Agent {unit}</th><th>Cylinders</th><th/></tr></thead>
-          <tbody>{rooms.map((q, i) => { const rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
+          <thead><tr><SH k="n" cls="n">#</SH><SH k="name">Room</SH><SH k="loc">Location</SH><th>Agent</th><SH k="cls" cls="c">Class</SH><SH k="area" cls="n">Area m²</SH><SH k="H" cls="n">Height m</SH><th>Spaces</th><SH k="vol" cls="n">Volume m³</SH><th className="n">Conc %</th><SH k="kg" cls="n">Agent {unit}</SH><th>Cylinders</th><th/></tr></thead>
+          <tbody>{order.map(i => { const q = rooms[i], rs = results[i], c = rs && rs.ca, warn = rs && (rs.steps || []).some(s => s.flag);
             return <tr key={q.id} className={(sel && sel.id === q.id ? "sel " : "") + (rs && rs.error ? "err" : warn ? "warn" : "")} onClick={() => setSelId(q.id)}>
               <td className="n">{i + 1}</td>
               <td><b>{q.name || `Room ${i + 1}`}</b></td>
               <td>{q.location || "—"}</td>
               <td>{CA_AGENTS[agOf(q)].short}</td>
               <td className="c">{q.cls || "C"}</td>
-              <td>{hasArea(q) ? `${q.area} m²` : `${q.L || "?"} × ${q.W || "?"}`} × {q.H || "?"}</td>
+              <td className="n">{hasArea(q) ? q.area : (q.L && q.W ? areaOf(q).toFixed(2) : `${q.L || "?"} × ${q.W || "?"}`)}</td>
+              <td className="n">{q.H || "?"}</td>
               <td title={c ? c.spaces.map(x => `${x.l} ${x.a.toFixed(1)} m² × ${x.h} m`).join("\n") : ""}>{c ? (c.spaces.length > 2 ? `${c.spaces.length} spaces` : c.spaces.map(x => x.l).join(" + ")) : [q.roomOn !== false && "Room", q.cvOn && "Ceiling", q.fvOn && "Floor"].filter(Boolean).join(" + ") || "—"}</td>
               <td className="n">{c ? c.Vtot.toFixed(2) : "—"}</td>
               <td className="n">{c ? c.C.toFixed(2) : "—"}</td>
@@ -13838,7 +13971,7 @@ function ToolsTab({meta, setMeta, locked, focus}) {
       </div>
       {locked && <div className="ca-note no-print">This stage is signed off — the calculations are read only.</div>}
       {pick && <section className="ca-card no-print"><h4>Add a calculation <em>pick a module</em></h4>
-        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => { const mods=Object.values(TOOL_MODS).filter(x => x.group === g), closed=!!pickClosed[g]; return <div key={g} className={"tl-pick-group"+(closed?" closed":"")}>
+        <div className="tl-pick">{TOOL_GROUPS.map(([g, gl]) => { const mods=Object.values(TOOL_MODS).filter(x => x.group === g), closed=false; return <div key={g} className={"tl-pick-group"+(closed?" closed":"")}>
           <button type="button" className="tl-pick-head" onClick={() => togglePickGroup(g)} aria-expanded={!closed} title={closed?"Expand group":"Collapse group"}><span>{gl}</span><em>{mods.length}</em><i>{closed?"▸":"▾"}</i></button>
           {!closed && <div className="tl-pick-body">{mods.map(x => <button type="button" key={x.key} className="tl-mod" onClick={() => add(x.key)}><b>{x.title}</b><span>{x.std}</span></button>)}</div>}
         </div>; })}</div></section>}
@@ -17229,8 +17362,8 @@ function wsRunSelfTest() {
         num(rows, "…minimum cycle time T = 60 ÷ 10 starts = 6 min", 6, s ? s.cycle : null, 1e-9);
         num(rows, "…V = Q × T ÷ 4 = 7.38 × 360 ÷ 1000 ÷ 4 = 0.6642 m³ (before v1.40 it was 4× larger, 2.657 m³)", 7.38*360/1000/4, s ? s.vol : null, 1e-9);
         num(rows, "…pit area 2.2 × 3.1 = 6.82 m²: pump-down depth 0.0974 m, rounded up to the 0.1 m minimum", 0.1, s ? s.pd : null, 1e-9);
-        num(rows, "…the sand trap governs the selected pit depth: 3.7 m", 3.7, s ? s.selDepth : null, 1e-9);
-        { const r2 = calculate({...D, sandTrap:false}); num(rows, "Without the sand trap the sump itself governs: (1.2 + 80 ÷ 90) × 1.10 + 0.7 = 2.9978 → 3.0 m (submergence 0.3 m since v1.91)", 3.0, r2.error ? null : r2.sump.selDepth, 1e-9); }
+        num(rows, "…the pit depth is the float stack plus submergence (the sand trap is its own pit): 3.0 m", 3.0, s ? s.selDepth : null, 1e-9);
+        { const r2 = calculate({...D, sandTrap:false}); num(rows, "Same with the sand trap off: (1.2 + 80 ÷ 90) × 1.10 + 0.7 = 2.9978 → 3.0 m (submergence 0.3 m since v1.91)", 3.0, r2.error ? null : r2.sump.selDepth, 1e-9); }
         const big = calculate({...D, sumpSources:[{kind:"manual", name:"m", q:40}], configPreset:"custom", numDuty:1, numAssist:0, numStandby:1}), sb = big.error ? null : big.sump;
         num(rows, "One 40 L/s pump, 10 starts/h: V = 40 × 360 ÷ 1000 ÷ 4 = 3.6 m³", 3.6, sb ? sb.vol : null, 1e-9);
         num(rows, "…pump-down depth 3.6 ÷ 6.82 = 0.5279 → 0.6 m", 0.6, sb ? sb.pd : null, 1e-9);
@@ -18629,7 +18762,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         const ps = (full && full.pumps) || [];
         if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
         setCurrentStageId(first.id);
-        stageBaseline(ps);
+        stageBaseline(ps, full && full.meta);
         setPumps(ps);
         setMeta(normalizeStageMeta(full && full.meta));
         setEditId(ps[0]?.id ?? null);
@@ -18686,7 +18819,22 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   // what is in the database at that moment. Other people's additions are kept and pulled in. The write is conditional on the stage
   // version (meta.sv) so two saves at the same time cannot both win — the loser re-reads and merges again. A calculation is removed only
   // by an explicit delete, and every removed or overwritten calculation goes to "Recently deleted" (meta.trash) where it can be restored.
-  const stageBaseline = ps => { const arr = (ps || []).slice(), map = {}; arr.forEach(p => { map[p.id] = stableStr(p); }); baseRef.current = {arr, map}; savedPumpsRef.current = stableStr(arr); setSaveIssue(null); };
+  // v1.118.10: meta is merged key by key as well. metaBaseRef holds what each top level meta key looked like at the last sync with the database.
+  // A key this window has not changed always takes the database value, so data written elsewhere (SQL scripts, another person, the Clean Agent
+  // and Foam lists) is no longer overwritten by a window that was opened before it arrived.
+  const metaBaseRef = useRef(null);
+  const metaStrMap = m => { const o = {}; Object.keys(m || {}).forEach(k => { o[k] = stableStr(m[k]); }); return o; };
+  const META_SYNC_SKIP = new Set(["trash", "sv", "closure", "checkedBy", "checkedDate", "reviewedBy", "reviewedDate"]);
+  const takeRemoteKeys = (cur, baseMap, remoteMeta) => {
+    const out = {}; if (!baseMap) return out;
+    Object.keys(remoteMeta || {}).forEach(k => {
+      if (META_SYNC_SKIP.has(k)) return;
+      const b = baseMap[k], loc = stableStr(cur[k]);
+      if ((b === undefined ? cur[k] === undefined : loc === b) && stableStr(remoteMeta[k]) !== loc) out[k] = remoteMeta[k];
+    });
+    return out;
+  };
+  const stageBaseline = (ps, metaObj) => { const arr = (ps || []).slice(), map = {}; arr.forEach(p => { map[p.id] = stableStr(p); }); baseRef.current = {arr, map}; savedPumpsRef.current = stableStr(arr); if (metaObj) metaBaseRef.current = metaStrMap(normalizeStageMeta(metaObj)); setSaveIssue(null); };
   const TRASH_MAX = 30;
   // apply the changes other people made (remote vs base) onto a list, without touching anything this window changed since `snap`
   const rebaseOnto = (cur, snapMap, merged) => {
@@ -18719,7 +18867,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     const rT = Array.isArray(remoteMeta && remoteMeta.trash) ? remoteMeta.trash : [];
     const allTrash = [...trash, ...rT].slice(0, TRASH_MAX);
     const rClos = remoteMeta && remoteMeta.closure, mClos = myMeta && myMeta.closure;
-    const meta2 = {...myMeta, trash:allTrash, sv:(Number(remoteMeta && remoteMeta.sv) || 0) + 1};
+    const meta2 = {...myMeta, ...takeRemoteKeys(myMeta || {}, metaBaseRef.current, remoteMeta), trash:allTrash, sv:(Number(remoteMeta && remoteMeta.sv) || 0) + 1};
     if (rClos && (!mClos || (rClos.status || "draft") !== (mClos.status || "draft")) && (rClos.status || "draft") !== "draft") meta2.closure = rClos;
     return {merged, meta2, trashAdded:trash.length};
   };
@@ -18750,9 +18898,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         // bring other people's changes into this window, keeping anything typed since this save started
         const snapMap = {}; (ps || []).forEach(p => { snapMap[p.id] = stableStr(p); });
         const finalMeta = same ? {...remoteMeta} : meta2;
-        stageBaseline(merged);
+        const oldMB = metaBaseRef.current;
+        stageBaseline(merged, finalMeta);
         setPumps(cur => { const nx = rebaseOnto(cur, snapMap, merged); if (nx.length) _id = Math.max(_id, ...nx.map(p => Number(p.id) || 0)) + 1; return stableStr(nx) === stableStr(cur) ? cur : nx; });
-        setMeta(cur => { const nx = {...cur, trash:finalMeta.trash || [], sv:finalMeta.sv, ...(finalMeta.closure && (finalMeta.closure.status || "draft") !== ((cur.closure || {}).status || "draft") ? {closure:finalMeta.closure} : {})}; return stableStr(nx) === stableStr(cur) ? cur : nx; });
+        setMeta(cur => { const nx = {...cur, ...takeRemoteKeys(cur, oldMB, finalMeta), trash:finalMeta.trash || [], sv:finalMeta.sv, ...(finalMeta.closure && (finalMeta.closure.status || "draft") !== ((cur.closure || {}).status || "draft") ? {closure:finalMeta.closure} : {})}; return stableStr(nx) === stableStr(cur) ? cur : nx; });
         if (saveIssueRef.current && saveIssueRef.current.kind !== "perm") setSaveIssue(null);
         return;
       }
@@ -18766,18 +18915,19 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     const { data } = await sb.from("project_stages").select("pumps,meta").eq("id", currentStageId).maybeSingle();
     if (!data || !baseRef.current) return;
     const remoteArr = Array.isArray(data.pumps) ? data.pumps : [];
-    if (stableStr(remoteArr) === stableStr(baseRef.current.arr) && Number((data.meta || {}).sv || 0) === Number(meta.sv || 0)) return;
-    const snapMap = baseRef.current.map;
-    stageBaseline(remoteArr);
+    const nm = metaStrMap(normalizeStageMeta(data.meta)), bm = metaBaseRef.current || {}, metaChanged = metaBaseRef.current ? Object.keys({...nm, ...bm}).some(k => !META_SYNC_SKIP.has(k) && nm[k] !== bm[k]) : false;
+    if (stableStr(remoteArr) === stableStr(baseRef.current.arr) && Number((data.meta || {}).sv || 0) === Number(meta.sv || 0) && !metaChanged) return;
+    const snapMap = baseRef.current.map, oldMB = metaBaseRef.current;
+    stageBaseline(remoteArr, data.meta);
     setPumps(cur => { const nx = rebaseOnto(cur, snapMap, remoteArr); if (nx.length) _id = Math.max(_id, ...nx.map(p => Number(p.id) || 0)) + 1; return stableStr(nx) === stableStr(cur) ? cur : nx; });
-    setMeta(cur => ({...cur, trash:(data.meta || {}).trash || [], sv:(data.meta || {}).sv, ...((data.meta || {}).closure ? {closure:data.meta.closure} : {})}));
+    setMeta(cur => ({...cur, ...takeRemoteKeys(cur, oldMB, data.meta || {}), trash:(data.meta || {}).trash || [], sv:(data.meta || {}).sv, ...((data.meta || {}).closure ? {closure:data.meta.closure} : {})}));
   };
   const reloadStage = async () => {
     const { data } = await sb.from("project_stages").select("pumps,meta").eq("id", currentStageId).single();
     const ps = (data && data.pumps) || [];
     if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
     if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
-    stageBaseline(ps); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null); setSaveStatus("saved");
+    stageBaseline(ps, data && data.meta); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null); setSaveStatus("saved");
   };
   const restoreTrash = i => {
     const t = (meta.trash || [])[i]; if (!t || !t.pump) return;
@@ -18801,7 +18951,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
       if (ps.length) _id = Math.max(_id, ...ps.map(p => p.id)) + 1;
       if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
       const before = pumps.length;
-      stageBaseline(ps); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta));
+      stageBaseline(ps, data && data.meta); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta));
       setEditId(ps.some(p => p.id === keep) ? keep : (ps[0]?.id ?? null)); setSaveStatus("saved");
       setRefreshMsg(`Refreshed ${new Date().toLocaleTimeString()} · ${ps.length} calculation${ps.length === 1 ? "" : "s"}${ps.length !== before ? ` (was ${before})` : ""}`);
     } catch (e) { setRefreshMsg("Refresh failed: " + (e.message || e)); }
@@ -18886,7 +19036,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     const ps = (data && data.pumps) || [];
     if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
     setCurrentStageId(id);
-    stageBaseline(ps);
+    stageBaseline(ps, data && data.meta);
     setPumps(ps);
     setMeta(normalizeStageMeta(data && data.meta));
     setEditId(ps[0]?.id ?? null);
@@ -18907,7 +19057,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     if (error) { alert("Could not create stage: "+error.message); return; }
     setStages(s=>[...s, {id:data.id, stage_name:name, sort_order:maxSort+1}]);
     setCurrentStageId(data.id);
-    stageBaseline(newPumps);
+    stageBaseline(newPumps, newMeta);
     setPumps(newPumps);
     setMeta(newMeta);
     setEditId(newPumps[0]?.id ?? null);
@@ -18932,7 +19082,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
       const next = remaining[0];
       const { data } = await sb.from("project_stages").select("pumps,meta").eq("id", next.id).single();
       const ps = (data && data.pumps) || [];
-      setCurrentStageId(next.id); stageBaseline(ps); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null);
+      setCurrentStageId(next.id); stageBaseline(ps, data && data.meta); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null);
     }
   };
 
