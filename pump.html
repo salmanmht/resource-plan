@@ -364,6 +364,7 @@
   @media print{
     /* Everything prints, selected or not, and the picker never does. */
     .screen-hide{display:block!important}
+    body.print-current .screen-hide{display:none!important}
     .calcsplit{display:block!important}
     .calcsplit-pane{display:block!important}
     .calcpick{display:none!important}
@@ -734,6 +735,7 @@
   .cs-gap td{height:8px;border:0!important;padding:0!important}
   .cs-pt{padding:2px 6px 4px!important}
   table.cs .cs-ptab{width:100%;border-collapse:collapse;table-layout:fixed}
+.cs-tblcell{padding:0!important;border:0!important}.cs-sub{width:100%;border-collapse:collapse;table-layout:fixed}.cs-sub thead{display:table-header-group}.cs-tblrow{break-inside:auto!important;page-break-inside:auto!important}
   table.cs .cs-ptab thead{display:table-header-group}
   table.cs .cs-ptab tr{break-inside:avoid;page-break-inside:avoid}
   table.cs .cs-row th.pt-h{background:#0e4891;color:#fff!important;font-weight:700;font-size:9px!important;line-height:1.15;text-align:center;padding:2px 3px!important;border:1px solid #8e8e93;overflow-wrap:anywhere}
@@ -1473,7 +1475,15 @@
   .sbx-wfline b{color:#007aff;font-size:10.5px;white-space:nowrap}.sbx-wfline.warn{background:#fff7ed;border-color:#fcd9a8;color:#9a3412}.sbx-wfline.ok{background:#f0fdf4;border-color:#bbe5c8;color:#166534}
   .cs-issue{margin-bottom:12px}
   .cs-issue .sbx-export{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-  @media (max-width:1100px){.cs-issue .sbx-export{grid-template-columns:repeat(2,minmax(0,1fr))}}
+  @media (max-width:1100px){.cs-issue .sbx-export{grid-template-columns:repeat(2,minmax(0,1fr))}
+/* v1.118.32: compact export buttons in one row, kept in view with the discipline bar while scrolling */
+.cs-sticky{position:sticky;top:0;z-index:40;background:#f5f5f7;padding:6px 0 2px;margin:0 0 6px}
+.cs-sticky .cs-bar{position:static!important;margin:0 0 6px;box-shadow:none}
+.cs-sticky .cs-issue{margin-bottom:6px}
+.cs-sticky .cs-issue .sbx-export{display:flex!important;flex-wrap:wrap;gap:6px;align-items:center}
+.cs-sticky .sbx-export button{padding:6px 12px!important;font-size:11px!important;border-radius:8px;white-space:nowrap;width:auto;flex:0 0 auto;text-align:center}
+.cs-sticky .sbx-export button.pdc{background:#fff;color:#1d1d1f;border:1px solid #d2d2d7}
+.cs-sticky>.cs-issue>div:not(.sbx-export){max-height:55vh;overflow:auto}}
   .cs-issue .cs-wf{background:#fff;border:1px solid #e1e1e6;border-radius:12px;padding:8px}
   @media (max-width:900px){.cs-issue{grid-template-columns:1fr}}
 
@@ -1611,7 +1621,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.23 · Build 2026.11.17.44";
+const BUILD_LABEL = "v1.118.32 · Build 2026.11.17.53";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -1680,28 +1690,28 @@ const DEFAULT_PPR_PN6_PIPES = [
 const DEFAULT_HDPE_PN16_PIPES = [
   {nb:20,od:20,id:16},{nb:25,od:25,id:20.4},{nb:32,od:32,id:26},{nb:40,od:40,id:32.6},
   {nb:50,od:50,id:40.8},{nb:63,od:63,id:51.4},{nb:75,od:75,id:61.4},{nb:90,od:90,id:73.6},
-  {nb:110,od:110,id:90},{nb:125,od:125,id:102.2},{nb:140,od:140,id:114.6},{nb:160,od:160,id:130.8},
+  {nb:110,od:110,id:90},{nb:125,od:125,id:102.2},{nb:160,od:160,id:130.8},
   {nb:180,od:180,id:147.2},{nb:200,od:200,id:163.6},{nb:225,od:225,id:184},{nb:250,od:250,id:204.6},
   {nb:280,od:280,id:229.2},{nb:315,od:315,id:257.8},{nb:355,od:355,id:290.6},{nb:400,od:400,id:327.4},
 ];
 const DEFAULT_HDPE_PN10_PIPES = [
   {nb:25,od:25,id:22},{nb:32,od:32,id:28.2},{nb:40,od:40,id:35.2},{nb:50,od:50,id:44},
   {nb:63,od:63,id:55.4},{nb:75,od:75,id:66},{nb:90,od:90,id:79.2},{nb:110,od:110,id:96.8},
-  {nb:125,od:125,id:110.2},{nb:140,od:140,id:123.4},{nb:160,od:160,id:141},{nb:180,od:180,id:158.6},
+  {nb:125,od:125,id:110.2},{nb:160,od:160,id:141},{nb:180,od:180,id:158.6},
   {nb:200,od:200,id:176.2},{nb:225,od:225,id:198.2},{nb:250,od:250,id:220.4},{nb:280,od:280,id:246.8},
   {nb:315,od:315,id:277.6},{nb:355,od:355,id:312.8},{nb:400,od:400,id:352.6},
 ];
 const DEFAULT_HDPE_PN8_PIPES = [
   {nb:32,od:32,id:28.8},{nb:40,od:40,id:36.2},{nb:50,od:50,id:45.2},{nb:63,od:63,id:57},
   {nb:75,od:75,id:67.8},{nb:90,od:90,id:81.4},{nb:110,od:110,id:99.4},{nb:125,od:125,id:113},
-  {nb:140,od:140,id:126.6},{nb:160,od:160,id:144.6},{nb:180,od:180,id:162.8},{nb:200,od:200,id:180.8},
+  {nb:160,od:160,id:144.6},{nb:180,od:180,id:162.8},{nb:200,od:200,id:180.8},
   {nb:225,od:225,id:203.4},{nb:250,od:250,id:226.2},{nb:280,od:280,id:253.2},{nb:315,od:315,id:285},
   {nb:355,od:355,id:321.2},{nb:400,od:400,id:361.8},
 ];
 const DEFAULT_HDPE_PN6_PIPES = [
   {nb:32,od:32,id:29},{nb:40,od:40,id:36.8},{nb:50,od:50,id:46},{nb:63,od:63,id:58},
   {nb:75,od:75,id:69.2},{nb:90,od:90,id:83},{nb:110,od:110,id:101.6},{nb:125,od:125,id:115.4},
-  {nb:140,od:140,id:129.2},{nb:160,od:160,id:147.6},{nb:180,od:180,id:166.2},{nb:200,od:200,id:184.6},
+  {nb:160,od:160,id:147.6},{nb:180,od:180,id:166.2},{nb:200,od:200,id:184.6},
   {nb:225,od:225,id:207.8},{nb:250,od:250,id:230.8},{nb:280,od:280,id:258.6},{nb:315,od:315,id:290.8},
   {nb:355,od:355,id:327.8},{nb:400,od:400,id:369.4},
 ];
@@ -1713,7 +1723,7 @@ const DEFAULT_HDPE_PN20_PIPES = [
 const DEFAULT_HDPE_PN125_PIPES = [
   {nb:25,od:25,id:21.2},{nb:32,od:32,id:27.2},{nb:40,od:40,id:34},{nb:50,od:50,id:42.6},
   {nb:63,od:63,id:53.6},{nb:75,od:75,id:63.8},{nb:90,od:90,id:76.6},{nb:110,od:110,id:93.8},
-  {nb:125,od:125,id:106.6},{nb:140,od:140,id:119.4},{nb:160,od:160,id:136.4},{nb:180,od:180,id:153.4},
+  {nb:125,od:125,id:106.6},{nb:160,od:160,id:136.4},{nb:180,od:180,id:153.4},
   {nb:200,od:200,id:170.6},{nb:225,od:225,id:191.8},{nb:250,od:250,id:213.2},{nb:280,od:280,id:238.8},
   {nb:315,od:315,id:268.6},
 ];
@@ -4205,8 +4215,12 @@ function stormItems(meta) {
 function stormTitle(p) { return p && p.kind === "sys" ? "Stormwater Drainage Calculation (BS EN 12056-3)" : p && p.kind === "atten" ? "Stormwater Attenuation Tank" : p && p.kind === "drain" ? "Stormwater Collector Sizing (BS EN 12056-3)" : "Roof Drainage Calculation (BS EN 12056-3)"; }
 function stormDesignBasis(p) {
   const r = (() => { try { return calculateStorm(p); } catch (e) { return null; } })(), c = r && r.storm;
-  if (p && p.kind === "sys") { const sw = p._sw || {}, it = stormItems({storm:sw}), one = k => it.find(x => x.kind === k);
-    return [...(one("roof") ? stormDesignBasis(one("roof")) : []), ...(one("drain") ? stormDesignBasis(one("drain")) : []), ...(one("atten") ? stormDesignBasis(one("atten")) : [])]; }
+  // v1.118.31: short design basis — standards and the key figures only
+  if (p && p.kind === "sys") { const sw = p._sw || {}, it = stormItems({storm:sw}), set = stormSettings(sw.set), rain = swRainOf(set, SW_RAIN), out = [];
+    const tt = it.filter(x => x.kind === "atten").map(x => { try { return calculateStorm(x); } catch (e) { return null; } }).map(z => z && z.storm).filter(Boolean);
+    if (it.some(x => x.kind === "roof")) out.push(`Roof drainage to BS EN 12056-3:2000 — runoff cl. 4 (${rain.err ? "" : `${rain.mmhr} mm/h, `}C ${set.C}), outlets Table 7${isPositive(set.oCap) ? " / manufacturer rating" : ""}, rainwater pipes Table 8 (f ${set.fill})${it.some(x => x.kind === "drain") ? `, collectors Annex C (h/d ${set.dFill})` : ""}.`);
+    if (tt.length) { const k = tt[0], a = k.a || {}; out.push(`Attenuation to DM Stormwater Design Guidelines (DM-WSA-SRPD-SW1, 2022)${k.method === "scs" ? ` — SCS CN, DM 24-hour storm, design ${a.rpD || ""}${a.p24c ? `, check ${a.rpC || ""}` : ""}` : " — rational method"}, 5 % sediment allowance.`); }
+    return out; }
   if (p && p.kind === "atten") return c && c.method === "rational" ? [
     `${(p && p.name) || "The tank"} stores the difference between the peak inflow (rational method, Q = I × A × C) and the allowable discharge to the infrastructure for the storage time stated.`,
     "Allowable discharge, intensity and storage time to be confirmed with the authority (NOC)."] : [
@@ -4217,7 +4231,7 @@ function stormDesignBasis(p) {
     "The flow builds up along the collector: each length between two rainwater pipe connections carries the runoff collected so far (clause 4.1) and is sized for it. No length is smaller than DN 100 nor than the pipes connected to it (6.3.3), and the size is never reduced downstream.",
   ];
   return [
-    `${(p && p.name) || "The roof"} is drained to BS EN 12056-3:2000. Runoff Q = r × A × C with C = 1.0 (clause 4.1); r is the design rainfall intensity${c ? ` of ${c.rain.mmhr} mm/h (${c.rain.label})` : ""} multiplied by the Table 2 risk factor.`,
+    `${(p && p.name) || "The roof"} is drained to BS EN 12056-3:2000. Runoff Q = r × A × C with C = ${c ? c.C : 1} (clause 4.1); r is the design rainfall intensity${c ? ` of ${c.rain.mmhr} mm/h (${c.rain.label})` : ""} multiplied by the Table 2 risk factor.`,
     "Effective area to Table 3, plus 50 % of walls draining onto the roof (4.3.4). Outlets by the Table 7 weir or orifice equation (or the manufacturer rating); rainwater pipes by the Wyly-Eaton equation of Table 8 at a filling degree not above 0.33. Rainfall and outlet data to be confirmed with the authority and manufacturer.",
   ];
 }
@@ -10313,7 +10327,7 @@ function swHydro4(c, st, W0) {
   return {svg:o + "</svg>", w:W, h:H};
 }
 function clAttenRows(B, p, res) {
-  const c = res.storm, a = c.a; B.align("l");
+  const c = res.storm, a = c.a, pos0 = v => isPositive(v); B.align("l");
   if (c.share) B.text(`This tank takes ${c.share} % of the inflow from a ${c.Afull.toFixed(1)} m² catchment shared with other tank(s); the catchment area below is its share.`, {italic:true});
   if (c.level) {
     const T = (v, k, o = {}) => ({v, span:[k, k], ...o}), f2 = v => Number(v.toFixed(2));
@@ -10330,6 +10344,8 @@ function clAttenRows(B, p, res) {
       B.calc(id + "Q", "Peak inflow", st.qm, null, {unit:"l/s", dp:1}); B.calc(id + "Qo", "Highest outflow", st.outMax, null, {unit:"l/s", dp:2});
       B.calc(id + "H", "Highest water depth", st.hm, null, {unit:"m", dp:2, bold:true}); B.calc(id + "V", "Storage needed (largest stored volume, no overflow)", st.Vneed, null, {unit:"m³", dp:1, bold:true, key:id === "atR"});
       if (c.hov < Infinity) B.calc(id + "Ov", "Overflow volume", st.ovVol, null, {unit:"m³", dp:1});
+      if (id === "atR") { const lb = `${c.out === "pump" ? "Back below the pump start level" : "Empty again"} after  [limit ${c.tmax} h${pos0(a.tmax) ? "" : ", 5 days, DM Table 0-8"}]`;
+        if (c.tE != null) B.calc(id + "E", lb, c.tE, null, {unit:"h", dp:1, bold:true}); else B.text(`⚠ ${lb}: not within ${c.tmax} h`, {warn:true}); }
       const fg = swHydro4(c, st); B.fig(fg.svg, fg.w, fg.h);
       // v1.118.16: every step. Storm profile (DM Table 0-4) with the SCS runoff, then the tank routing (the sheet grid has 9 columns)
       const f3 = v => Number(v.toFixed(3)), pr = st.rows.filter(r => r.k <= SW_DM24.length);
@@ -10404,29 +10420,38 @@ function clMergeSub(B, sub, px) {   // copy a sub-sheet into B with its ids rena
   if (sub.tables) Object.assign(B.tables, sub.tables);
 }
 function clStormSysRows(B, p, res) {
-  const c = res.storm, set = stormSettings(c.sw.set), T = (v, sp, o = {}) => ({v, span:sp, ...o}), f2 = v => Number(v.toFixed(2));
+  const c = res.storm, set = stormSettings(c.sw.set), T = (v, sp, o = {}) => ({v, span:sp, ...o}), f2 = v => Number(v.toFixed(2)), blank0 = v => v === "" || v == null;
   const rc = c.roofs.find(x => x.r && x.r.storm), r0 = rc ? rc.r.storm : null;
   B.align("l");
   B.section("1.  Basis of Design  ·  BS EN 12056-3:2000");
   if (r0) { B.inp("swI", `Design rainfall intensity  [${r0.rain.label}]`, r0.rain.mmhr, {unit:"mm/h", dp:1}); B.inp("swC", "Runoff coefficient C", r0.C, {dp:2}); }
   B.inp("swF", "Rainwater pipe filling degree f  [Table 8, ≤ 0.33]", Number(set.fill), {dp:2}); B.inp("swKb", "Rainwater pipe roughness kb", Number(set.kbR), {unit:"mm", dp:2});
   B.inp("swMin", "Fewest rainwater pipes per roof  [project; a roof may differ]", Number(set.nMin), {unit:"No.", dp:0});
+  B.text(`Pipe material: ${swSizes(set.mat).label || "—"}`);
+  if (isPositive(set.rwpMaxDN)) B.inp("swMax", "Largest rainwater pipe allowed", Number(set.rwpMaxDN), {unit:"DN", dp:0});
+  if (!blank0(set.rwpDN) && set.rwpDN !== "auto") B.inp("swPin", "Rainwater pipe size, all roofs  [chosen]", Number(set.rwpDN), {unit:"DN", dp:0});
+  B.inp("swOd", "Outlet effective diameter D  [Table 7]", Number(set.oD), {unit:"mm", dp:0}); B.inp("swH", "Head at the outlet h", Number(set.h), {unit:"mm", dp:0});
+  if (isPositive(set.oCap)) B.inp("swOc", "Rated outlet capacity  [manufacturer, replaces Table 7]", Number(set.oCap), {unit:"l/s", dp:2});
   if (c.drains.length) { B.inp("swDf", "Collector filling degree h/d  [Annex C, Colebrook-White]", Number(set.dFill), {dp:2}); B.inp("swDk", "Collector roughness kb", Number(set.kbD), {unit:"mm", dp:2});
-    const sz = swSizes(set.mat), sl = (set.slopes || []).filter(r => Number(r.dn) > 0 && Number(r.grad) > 0);
-    if (sl.length) B.tbl("swSl", {head:[[T("Size", [1,2]), T("ID (mm)", [3,3]), T("Slope (%)", [4,4]), T("1 in", [5,5]), T(`Capacity at h/d ${set.dFill} (l/s)`, [6,7]), T("Velocity (m/s)", [8,9])]],
-      rows:sl.map(r => { const z = sz.rows.find(q => q.dn === Number(r.dn)), cp = z ? drCap(z.di, Number(r.grad), Number(set.dFill), Number(set.kbD), Number(set.nu)) : null;
-        return [T(`DN${r.dn}`, [1,2], {al:"l"}), T(z ? z.di : "—", [3,3]), T(Number(r.grad), [4,4], {dp:3, input:true}), T(Math.round(100/Number(r.grad)), [5,5], {dp:0}), T(cp ? f2(cp.Q) : "—", [6,7], {dp:2}), T(cp ? f2(cp.v) : "—", [8,9], {dp:2})]; })}); }
+    // v1.118.29: every size of the chosen material, with the slope it takes from the project table (a size not listed takes the next smaller size's slope)
+    const sz = swSizes(set.mat), sl = (set.slopes || []).filter(r => Number(r.dn) > 0 && Number(r.grad) > 0), dMin = Number(set.dMinDN) || 0;
+    const rowsS = sl.length ? sz.rows.filter(z => z.dn >= dMin - 1e-9 || z.di >= dMin - 1e-9).sort((a, b) => a.di - b.di).map(z => ({z, s:swSlopeAt(sl, z.dn)})).filter(x => x.s) : [];
+    if (rowsS.length) { B.text(`Collector capacity, horizontal and part full (Annex C, h/d ${set.dFill}), for every size of ${sz.label}. A size not in the project slope table takes the slope of the next smaller size listed.`, {italic:true});
+      B.tbl("swSl", {head:[[T("Size", [1,2]), T("ID (mm)", [3,3]), T("Slope (%)", [4,4]), T("1 in", [5,5]), T(`Capacity at h/d ${set.dFill} (l/s)`, [6,7]), T("Velocity (m/s)", [8,9])]],
+        rows:rowsS.map(({z, s:r}) => { const cp = drCap(z.di, Number(r.grad), Number(set.dFill), Number(set.kbD), Number(set.nu)), own = sl.some(q => Number(q.dn) === z.dn);
+          return [T(`${swDN(z)}${own ? "" : `  (slope of DN${r.dn})`}`, [1,2], {al:"l"}), T(z.di, [3,3], {dp:1}), T(Number(r.grad), [4,4], {dp:3, input:true}), T(Math.round(100/Number(r.grad)), [5,5], {dp:0}), T(f2(cp.Q), [6,7], {dp:2}), T(f2(cp.v), [8,9], {dp:2})]; })}); } }
   B.text("Runoff Q = r × A × C, r = intensity × risk ÷ 3 600   ·   rainwater pipes: Q = 2.5×10⁻⁴ kb^-0.167 di^2.667 f^1.667 (Table 8)   ·   pipes per roof = the more of runoff ÷ largest pipe allowed and the fewest per roof", {cls:"fx"});
   B.gap();
   B.section("2.  Roof Catchments and Rainwater Pipes");
   const RR = c.roofs.filter(x => x.r && x.r.storm);
-  if (RR.length) B.tbl("swRf", {head:[[T("Roof", [1,1]), T("Area (m²)", [2,2]), T("Risk", [3,3]), T("Runoff (l/s)", [4,4]), T("Outlets", [5,5]), T("RWPs (No.)", [6,6]), T("RWP size", [7,7]), T("ID (mm)", [8,8]), T("Capacity each (l/s)", [9,9])]],
+  if (RR.length) B.tbl("swRf", {head:[[T("Roof", [1,1]), T("Area (m²)", [2,2]), T("Risk", [3,3]), T("Runoff (l/s)", [4,4]), T("Outlets", [5,5]), T("RWPs (No.)", [6,6]), T("RWP size", [7,7]), T("ID (mm)", [8,8]), T("RWP capacity, vertical (l/s)", [9,9])]],
     rows:RR.map(x => { const k = x.r.storm; return [T(`${x.it.tag} ${x.it.name}`, [1,1], {al:"l"}), T(f2(k.A), [2,2], {dp:1, input:true}), T(k.risk, [3,3], {dp:1, input:true}),
       T(k.Q, [4,4], {dp:2, xl:k.C === (r0 && r0.C) && k.rain.mmhr === (r0 && r0.rain.mmhr) ? "{#B}*{swI}/3600*{#C}*{swC}" : null}), T(k.n, [5,5], {dp:0}), T(k.nR, [6,6], {dp:0, input:true}), T(swDN(k.pipe), [7,7]), T(k.pipe.di, [8,8], {dp:1}),
       T(k.capR, [9,9], {dp:2, xl:k.fill === Number(set.fill) && k.kbR === Number(set.kbR) ? "2.5E-4*{swKb}^-0.167*{#H}^2.667*{swF}^1.667" : null})]; })});
-  if (RR.length) B.tbl("swRc", {head:[[T("Roof", [1,2]), T("Flow per pipe (l/s)", [3,3]), T("Capacity (l/s)", [4,4]), T("Number of pipes governed by", [5,7]), T("Discharges", [8,8]), T("Status", [9,9])]],
+  if (RR.length) B.text("Rainwater pipe capacity is for the vertical pipe (Table 8, Wyly-Eaton). It is not the horizontal collector capacity of Section 1, which is lower for the same size because the collector runs part full at a slope.", {italic:true});
+  if (RR.length) B.tbl("swRc", {head:[[T("Roof", [1,2]), T("Flow per pipe (l/s)", [3,3]), T("RWP capacity (l/s)", [4,4]), T("Flow per outlet / outlet capacity (l/s)", [5,5]), T("Number of pipes governed by", [6,7]), T("Discharges", [8,8]), T("Status", [9,9])]],
     rows:RR.map((x, i) => { const k = x.r.storm, ok = k.okR && !k.smallR && k.okO, sb = c.NW.servedBy[x.it.id.replace(/^storm-/, "")], o = (c.sw.outs || []).find(q => q.id === x.it.to);
-      return [T(`${x.it.tag} ${x.it.name}`, [1,2], {al:"l"}), T(k.Qr, [3,3], {dp:2, xl:`{~swRf.D.${i}}/{~swRf.F.${i}}`}), T(k.capR, [4,4], {dp:2, xl:`{~swRf.I.${i}}`}), T(k.nWhy, [5,7], {al:"l"}),
+      return [T(`${x.it.tag} ${x.it.name}`, [1,2], {al:"l"}), T(k.Qr, [3,3], {dp:2, xl:`{~swRf.D.${i}}/{~swRf.F.${i}}`}), T(k.capR, [4,4], {dp:2, xl:`{~swRf.I.${i}}`}), T(`${f2(k.Qo)} / ${f2(k.capO)}${k.oCap != null ? " rated" : " T7"}`, [5,5]), T(k.nWhy, [6,7], {al:"l"}),
         T(sb ? "via " + sb.map(id => (c.its.find(q => q.id === "storm-" + id) || {}).tag).join(", ") : o ? o.tag : "—", [8,8]), T(ok ? "OK" : "REVIEW", [9,9], {xl:'IF({#C}<={#D},"OK","REVIEW")'})]; })});
   c.roofs.filter(x => x.r && x.r.error).forEach(x => B.text(`⚠ ${x.it.tag} ${x.it.name}: ${x.r.errors[0]}`, {warn:true}));
   if (c.drains.length) { B.gap(); B.section("3.  Horizontal Collectors  ·  sized length by length at the project slopes");
@@ -10445,7 +10470,7 @@ function clStormSysRows(B, p, res) {
     const sub = clBuilder(); clAttenRows(sub, x.it, x.r);
     sub.rows.forEach(r => { if (r.t === "section") r.title = r.title.replace(/^(\d+)\.\s+/, (m, n) => `${sec}.${n}  `); });
     B.section(`${sec++}.  Attenuation Tank ${x.it.tag} ${x.it.name || ""}`); clMergeSub(B, sub, j ? "a" + (j + 1) : "at"); });
-  try { const rs = swRiserSvg(c.sw, c.its, c.R); if (rs) B.appendix.push({t:"section", title:"Riser Diagram"}, {t:"text", text:"Generated from the roofs, collectors and discharge points. Levels are spaced for clarity, not to scale."}, {t:"figure", svg:rs.svg, w:rs.w, h:rs.h, wide:true, px:900}); } catch (e) { /* the diagram is optional */ }
+  try { const rs = swRiserCompact(c.sw, c.its, c.R); if (rs) B.appendix.push({t:"section", title:"Riser Diagram"}, {t:"text", text:"Generated from the roofs, collectors and discharge points. Levels are spaced for clarity, not to scale."}, {t:"figure", svg:rs.svg, w:rs.w, h:rs.h, wide:true, px:900}); } catch (e) { /* the diagram is optional */ }
   B.banner = {text:res.selStr, xl:'"' + res.selStr.replace(/"/g, '""') + '"'};
 }
 function clStormRows(B, p, res) {
@@ -11029,7 +11054,7 @@ function WsPrintOptions({value, onChange, disabled}) {
 function clBuildDoc(proj, pump, meta, stageName, opts) {
   const lvOwn = wsLevelsOf(proj, pump);
   const res = safeCalculate(pump);
-  const title = pump.type === "fls" ? `${flsTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : pump.type === "tool" ? `${toolTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "storm" || pump.type === "fuelp" && pump.kind === "sys" ? "Fuel Oil System — Transfer Pump and Pipe Sizing" : pump.type === "fuelp" ? `${pump.type === "fuelp" ? "Fuel Oil Pipe Sizing" : typeLbl(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : String(pump.name || typeLbl(pump) || "Calculation");
+  const title = pump.type === "fls" ? `${flsTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "ca" ? `${caTitle(pump)} — ${pump.name || "Room"}` : pump.type === "foam" ? `${foamTitle(pump)} — ${pump.name || "Hazard"}` : pump.type === "tool" ? `${toolTitle(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : pump.type === "storm" ? stormTitle(pump) : pump.type === "fuelp" && pump.kind === "sys" ? "Fuel Oil System — Transfer Pump and Pipe Sizing" : pump.type === "fuelp" ? `${pump.type === "fuelp" ? "Fuel Oil Pipe Sizing" : typeLbl(pump)} — ${pump.tag ? pump.tag + " " : ""}${pump.name || ""}`.trim() : String(pump.name || typeLbl(pump) || "Calculation");
   if (!res || res.error) return {blocked:true, title, errors:(res && res.errors) || ["Calculation could not be produced."]};
   if (res.pumpIn) pump = res.pumpIn;                             // v1.70: e.g. Darcy-Weisbach forced for a non-water fluid
   if (res.water && res.water.pumpIn) pump = res.water.pumpIn;   // v1.40: the sheet is built from the inputs the result was calculated from
@@ -13907,23 +13932,29 @@ function swRiserSvg(sw, items, results) {
   let o = "", x = 120, maxY = top + 120;
   const lv = new Set(), col = c => !c ? "#c0392b" : c.ok === false ? "#d08a00" : "#1d6fb8";
   const st = id => { const z = R[id]; return z && z.r && z.r.storm ? z.r.storm : null; }, tag = id => ((R[id] || {}).it || {}).tag || "—";
-  const roofW = r => { const c = st(r.id); return Math.max(170, (c ? Math.min(c.nR, 8) : 1)*26 + 50); };
+  // v1.118.28: total catchment area behind a collector (its roofs and every upstream collector) and into a discharge point
+  const roofA = id => (st(id) || {}).A || 0, drA = (d, k) => (d.roofs || []).reduce((a, id) => a + roofA(id), 0) + (k < 8 ? (d.ups || []).map(u => drains.find(q => q.id === u)).filter(Boolean).reduce((a, u) => a + drA(u, k + 1), 0) : 0);
+  const m2 = v => `${Math.round(v).toLocaleString("en-US")} m²`;
+  // v1.118.24: a roof is as wide as its full label, so tags and names are never cut
+  const roofLab = r => `${tag(r.id)} · ${r.name || "Roof"}`;
+  const roofW = r => { const c = st(r.id); return Math.max(170, (c ? Math.min(c.nR, 8) : 1)*26 + 50, Math.ceil(roofLab(r).length*6.7) + 34); };
   // one roof: slab at its level, its rainwater pipes dropping to yTo; returns the x of each pipe
   const drawRoof = (r, x0, yTo) => { const c = st(r.id), w = roofW(r), yR = Y(roofL(r)), n = c ? Math.min(c.nR, 8) : 1, ok = c && c.okO && c.okR && !c.smallR, cc = !c ? "#c0392b" : ok ? "#1d6fb8" : "#d08a00";
     lv.add(roofL(r));
     o += `<rect x="${x0}" y="${yR - 5}" width="${w - 20}" height="5" fill="${cc}"/>`;
-    o += `<text x="${x0}" y="${yR - 26}" font-size="11" font-weight="700" fill="#1d1d1f"><title>${e(tag(r.id))} · ${e(r.name || "Roof")}</title>${e(fit(`${tag(r.id)} · ${r.name || "Roof"}`, w - 24, 6.4) || tag(r.id))}</text>`;
+    o += `<text x="${x0}" y="${yR - 26}" font-size="11" font-weight="700" fill="#1d1d1f">${e(roofLab(r))}</text>`;
     o += `<text x="${x0}" y="${yR - 12}" font-size="10" fill="#424245">${c ? `${c.A.toFixed(0)} m² · ${c.Q.toFixed(2)} l/s` : "⚠ not calculated"}</text>`;
     const xs = []; for (let i = 0; i < n; i++) { const px = x0 + 14 + i*26; xs.push(px); o += `<line x1="${px}" y1="${yR}" x2="${px}" y2="${yTo}" stroke="${cc}" stroke-width="2.4"/>`; }
     if (c) { const lb = `${c.nR} × ${e(swDN(c.pipe))} RWP${c.nR > 8 ? " (8 shown)" : ""}`;
       if (yTo - yR > 130) o += `<text transform="translate(${xs[0] - 5},${(yR + yTo)/2 + 30}) rotate(-90)" font-size="10.5" font-weight="700" fill="${cc}">${lb}</text>`;
       else o += `<text x="${xs[xs.length - 1] + 8}" y="${(yR + yTo)/2 + 4}" font-size="10.5" font-weight="700" fill="${cc}">${lb}</text>`; }
     maxY = Math.max(maxY, yTo); return {xs, x1:x0 + w, c}; };
-  const outBox = (oo, xA, y, Q) => { const L = oo ? `${oo.tag || "DP"} ${oo.name || SW_OUT_KINDS[oo.kind] || ""}` : "⚠ not connected", c2 = oo ? "#2e7d32" : "#c0392b";
+  const outBox = (oo, xA, y, Q, Ain) => { const L = oo ? `${oo.tag || "DP"} ${oo.name || SW_OUT_KINDS[oo.kind] || ""}` : "⚠ not connected", c2 = oo ? "#2e7d32" : "#c0392b";
     o += `<line x1="${xA}" y1="${y}" x2="${xA + 26}" y2="${y}" stroke="${c2}" stroke-width="3"/><polygon points="${xA + 26},${y - 6} ${xA + 36},${y} ${xA + 26},${y + 6}" fill="${c2}"/>`;
-    o += `<rect x="${xA + 40}" y="${y - 20}" width="${oo && oo.kind === "tank" ? 250 : 190}" height="40" rx="6" fill="${oo ? "#eef7ee" : "#fff3f0"}" stroke="${c2}"/>`;
-    o += `<text x="${xA + 48}" y="${y - 4}" font-size="11" font-weight="700" fill="${c2}">${e(L.slice(0, 30))}</text><text x="${xA + 48}" y="${y + 11}" font-size="10" fill="#424245">${oo ? e(SW_OUT_KINDS[oo.kind] || "") + " · " : ""}${Q.toFixed(2)} l/s${oo && oo.kind === "tank" && st(oo.id) ? ` · ${Math.ceil(st(oo.id).V)} m³ storage` : ""}</text>`;
-    return xA + (oo && oo.kind === "tank" ? 300 : 240); };
+    const bw = Math.max(oo && oo.kind === "tank" ? 250 : 190, Math.ceil(L.length*6.9) + 20);
+    o += `<rect x="${xA + 40}" y="${y - 20}" width="${bw}" height="40" rx="6" fill="${oo ? "#eef7ee" : "#fff3f0"}" stroke="${c2}"/>`;
+    o += `<text x="${xA + 48}" y="${y - 4}" font-size="11" font-weight="700" fill="${c2}">${e(L)}</text><text x="${xA + 48}" y="${y + 11}" font-size="10" fill="#424245">${oo ? e(SW_OUT_KINDS[oo.kind] || "") + " · " : ""}${Q.toFixed(2)} l/s${Ain ? ` · ${m2(Ain)}` : ""}${oo && oo.kind === "tank" && st(oo.id) ? ` · ${Math.ceil(st(oo.id).V)} m³ storage` : ""}</text>`;
+    return xA + bw + 50; };
   // a collector: its upstream collectors first, then its roofs; the lengths coloured and labelled by run
   const drawDrain = (d, x0, depth) => { const c = st(d.id), yD = dY(d, depth); lv.add(drainL(d)); const conX = [];
     (d.ups || []).forEach(uid => { const u = drains.find(q => q.id === uid); if (!u || depth > 6) return; const r = drawDrain(u, x0, depth + 1); x0 = r.x1 + 20;
@@ -13935,15 +13966,18 @@ function swRiserSvg(sw, items, results) {
     const xEnd = x0 + 10, xs = conX.map(q => q.x);
     if (c && c.segs) c.runs.forEach((rn, ri) => { const xa = xs[rn.from] != null ? xs[rn.from] : head, xb = rn.to + 1 < xs.length ? xs[rn.to + 1] : xEnd, cc = rn.ok ? "#0e4891" : "#d08a00";
         o += `<line x1="${xa}" y1="${yD}" x2="${xb}" y2="${yD}" stroke="${cc}" stroke-width="5"/>`;
-        { const full = `${swDN(rn.pipe)} @ 1:${Math.round(100/rn.grad)}`, lb = xb - xa >= full.length*6.2 ? full : fit(swDN(rn.pipe), xb - xa, 6.2);
+        { const full = `${swDN(rn.pipe)} @ 1:${Math.round(100/rn.grad)}`, lb = xb - xa >= full.length*6.2 ? full : xb - xa >= swDN(rn.pipe).length*6.2 ? swDN(rn.pipe) : "";
           if (lb) o += `<text x="${(xa + xb)/2}" y="${yD + 17 + (ri % 2)*12}" font-size="10" font-weight="700" text-anchor="middle" fill="${cc}">${e(lb)}</text>`; } });
     else o += `<line x1="${head}" y1="${yD}" x2="${xEnd}" y2="${yD}" stroke="#c0392b" stroke-width="5"/>`;
     o += `<polygon points="${xEnd - 4},${yD - 6} ${xEnd + 6},${yD} ${xEnd - 4},${yD + 6}" fill="#0e4891"/>`;
-    { const room = Math.max(60, xEnd - head + 6), info = c ? `${c.Q.toFixed(2)} l/s · ${c.nRwp} RWP` : "⚠ " + (((R[d.id] || {}).r || {}).errors ? R[d.id].r.errors[0].slice(0, 70) : "not calculated");
+    { const room = Math.max(60, xEnd - head + 6), info = c ? `${c.Q.toFixed(2)} l/s · ${m2(drA(d, 0))} · ${c.nRwp} RWP` : "⚠ " + (((R[d.id] || {}).r || {}).errors ? R[d.id].r.errors[0].slice(0, 70) : "not calculated");
       const full = `${tag(d.id)} ${d.name || "Collector"} — ${info}`, mid = `${tag(d.id)} — ${info}`;
       const lb = full.length*6.6 <= room ? full : mid.length*6.6 <= room ? mid : fit(tag(d.id), room, 6.6);
-      o += `<text x="${head}" y="${yD + 46}" font-size="11" font-weight="700" fill="${c ? "#0e4891" : "#c0392b"}"><title>${e(full)}</title>${e(lb)}</text>`; }
-    maxY = Math.max(maxY, yD + 50); return {x1:xEnd + 10, xEnd, y:yD, Q:c ? c.Q : 0}; };
+      o += `<text x="${head}" y="${yD + 46}" font-size="11" font-weight="700" fill="${c ? "#0e4891" : "#c0392b"}"><title>${e(full)}</title>${e(lb)}</text>`;
+      // the sizes along the collector, head to outlet, written out in full under its name (short lengths cannot carry their own label)
+      if (c && c.runs && c.runs.length) { const end = c.runs[c.runs.length - 1], sz = `${[...new Set(c.runs.map(x => swDN(x.pipe)))].join(" → ")} · outlet ${swDN(end.pipe)} @ 1:${Math.round(100/end.grad)}`;
+        o += `<text x="${head}" y="${yD + 61}" font-size="10" fill="#0e4891"><title>${e(sz)}</title>${e(sz.length*6 <= room + 14 ? sz : (() => { const u = [...new Set(c.runs.map(x => swDN(x.pipe)))], tail = `${swDN(end.pipe)} @ 1:${Math.round(100/end.grad)}`, s2 = u.length > 1 ? `${u[0]} → … → ${tail}` : tail; return s2.length*6 <= room + 14 ? s2 : tail; })())}</text>`; } }
+    maxY = Math.max(maxY, yD + 66); return {x1:xEnd + 10, xEnd, y:yD, Q:c ? c.Q : 0}; };
   // per discharge point: its collectors and its direct roofs
   const groups = [...outs.map(oo => ({oo, b:NW.byOut[oo.id] || {drains:[], roofs:[]}})), {oo:null, b:{drains:NW.loose.filter(z => z.kind === "drain").map(z => z.h), roofs:NW.loose.filter(z => z.kind === "roof").map(z => z.h)}}];
   groups.forEach(({oo, b}) => { if (!b.drains.length && !b.roofs.length) return;
@@ -13955,14 +13989,113 @@ function swRiserSvg(sw, items, results) {
     b.roofs.forEach(r => { const rr = drawRoof(r, x, yO); Qt += rr.c ? rr.c.Q : 0; if (xFirst == null) xFirst = rr.xs[0]; x = rr.x1 + 10; });
     o += `<line x1="${xFirst}" y1="${yO}" x2="${x}" y2="${yO}" stroke="${oo ? "#2e7d32" : "#c0392b"}" stroke-width="3"/>`;
     o += `<text x="${xFirst}" y="${yO + 16}" font-size="10" fill="#2e7d32">${b.roofs.length ? "direct" + (b.drains.length ? " and collected" : "") + " to " + e(oo ? oo.tag || "DP" : "—") : ""}</text>`;
-    x = outBox(oo, x, yO, Qt) + 40; maxY = Math.max(maxY, yO + 30); });
+    x = outBox(oo, x, yO, Qt, b.drains.reduce((a, d) => a + drA(d, 0), 0) + b.roofs.reduce((a, r) => a + roofA(r.id), 0)) + 40; maxY = Math.max(maxY, yO + 30); });
   const W = Math.max(x, 500), H = maxY + 30;
   let lvl = ""; [...lv].sort((a, b) => b - a).forEach(L => { const nl = noRoofLv && Math.abs(L - ROOF_NL) < 1e-9, txt = nl ? "roof level not set" : hasLv || L !== 0 ? `${L >= 0 ? "+" : ""}${L.toFixed(2)}` : "";
     if (txt) lvl += `<line x1="0" y1="${Y(L)}" x2="${W}" y2="${Y(L)}" stroke="#c7c7cc" stroke-dasharray="5 4"/><text x="4" y="${Y(L) - 3}" font-size="10" fill="#86868b">${txt}</text>`; });
   return {svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Arial,Helvetica,sans-serif">${lvl}${o}</svg>`, w:W, h:H};
 }
+// v1.118.26: simplified riser diagram, drawn like the storm water schematic: one narrow column per riser, catchments grouped by level
+// with short wrapped labels beside a short bar, the riser size written beside its foot, each main collector drawn once (thin) with a
+// wrapped label, and the discharge point / tank box at the end. Columns sit close together; no label crosses a neighbour.
+function swTagRange(tags) {
+  const parts = tags.map(t => { const m = /^(.*?)(\d+)$/.exec(String(t)); return m ? {p:m[1], n:Number(m[2]), t} : {p:String(t), n:null, t}; }), out = [];
+  for (let i = 0; i < parts.length; ) { const a = parts[i]; let j = i;
+    while (a.n != null && j + 1 < parts.length && parts[j + 1].p === a.p && parts[j + 1].n === parts[j].n + 1) j++;
+    out.push(j - i >= 2 ? `${a.t} to ${parts[j].t}` : j - i === 1 ? `${a.t}, ${parts[j].t}` : a.t); i = j + 1; }
+  return out.join(", ");
+}
+function swRiserCompact(sw, items, results) {
+  const NW = swNetwork(sw, items, results), R = NW.res, roofs = sw.roofs || [], drains = sw.drains || [], outs = sw.outs || [];
+  if (!roofs.length) return null;
+  const e = v => sxEsc(String(v)), num = v => (v === "" || v == null || !isFinite(parseFloat(v))) ? null : Number(v);
+  const st = id => { const z = R[id]; return z && z.r && z.r.storm ? z.r.storm : null; }, bad = id => { const z = R[id]; return !z || !z.r || z.r.error; };
+  const warn = id => { const z = R[id]; return z && z.r && (z.r.steps || []).some(s => s.flag); }, tag = id => ((R[id] || {}).it || {}).tag || "—";
+  const f2 = v => Number(v).toFixed(2), byId = id => drains.find(d => d.id === id), roofById = id => roofs.find(r => r.id === id);
+  const dn = p => p ? `DN${p.dn}` : "—";
+  const roofA = id => (st(id) || {}).A || 0, drA = (d, k) => (d.roofs || []).reduce((a, id) => a + roofA(id), 0) + (k < 8 ? (d.ups || []).map(byId).filter(Boolean).reduce((a, u) => a + drA(u, k + 1), 0) : 0);
+  const m2 = v => `${Math.round(v).toLocaleString("en-US")} m²`;   // short size label; the material's OD is in the working
+  const known = [...roofs.map(r => num(r.lvl)), ...drains.map(d => num(d.lvl)), ...outs.map(o => num(o.lvl))].filter(v => v != null);
+  const Llo = known.length ? Math.min(...known) : 0, Lhi = known.length ? Math.max(...known) : 0, ROOF_NL = Lhi + 10;
+  const roofL = r => num(r.lvl) != null ? num(r.lvl) : ROOF_NL;
+  const groups = outs.map(oo => ({oo, b:NW.byOut[oo.id] || {drains:[], roofs:[]}})).concat([{oo:null, b:{drains:NW.loose.filter(z => z.kind === "drain").map(z => z.h), roofs:NW.loose.filter(z => z.kind === "roof").map(z => z.h)}}])
+    .filter(g => g.b.drains.length || g.b.roofs.length);
+  const flatUps = (d, k) => (d.ups || []).map(byId).filter(Boolean).flatMap(u => k < 6 ? [...flatUps(u, k + 1), u] : [u]);
+  const lvSet = new Set([Llo]);
+  const plan = groups.map(g => {
+    const mains = g.b.drains.map(T => { const ups = flatUps(T, 0), cols = ups.map(u => ({kind:"riser", d:u, rf:(u.roofs || []).map(roofById).filter(Boolean)}));
+      if ((T.roofs || []).length) cols.push({kind:"own", d:T, rf:T.roofs.map(roofById).filter(Boolean)});
+      const TL = num(T.lvl) != null ? num(T.lvl) : Llo; lvSet.add(TL);
+      cols.forEach(c => { c.rf.forEach(r => lvSet.add(roofL(r))); c.L = c.kind === "riser" && num(c.d.lvl) != null ? num(c.d.lvl) : TL; lvSet.add(c.L); });
+      return {T, TL, cols}; });
+    const direct = g.b.roofs.map(r => { lvSet.add(roofL(r)); return {kind:"direct", rf:[r]}; });
+    const OL = g.oo && num(g.oo.lvl) != null ? num(g.oo.lvl) : mains.length ? Math.min(...mains.map(m => m.TL)) : Llo; lvSet.add(OL);
+    return {...g, mains, direct, OL}; });
+  const allL = [...lvSet].sort((a, b) => b - a), yAt = {}, top = 96;
+  allL.forEach((L, i) => { yAt[L] = i ? yAt[allL[i - 1]] + Math.min(150, Math.max(84, (allL[i - 1] - L)*10)) : top; });
+  const Y = L => yAt[L] != null ? yAt[L] : top;
+  const CW = 6.2, WR = 17;   // character width (px, 10.5 px bold) and wrap length (characters)
+  const wrap = (s, n) => { const out = []; String(s).split(/(?<=,) /).forEach(w => { const last = out[out.length - 1]; if (last != null && (last + " " + w).length <= n) out[out.length - 1] = last + " " + w; else out.push(w); });
+    return out.flatMap(l => l.length <= n ? [l] : l.match(new RegExp(`.{1,${n}}(\\s|$)|.{1,${n}}`, "g")).map(q => q.trim()).filter(Boolean)); };
+  let o = "", x = 120, maxY = top + 100; const usedL = new Set();
+  const colour = ids => ids.some(bad) ? "#c0392b" : ids.some(warn) ? "#d08a00" : "#1d6fb8";
+  const T = (x0, y, s, o2 = {}) => `<text x="${x0}" y="${y}" font-size="${o2.s || 10}"${o2.b ? ' font-weight="700"' : ""}${o2.a ? ` text-anchor="${o2.a}"` : ""} fill="${o2.f || "#424245"}">${e(s)}</text>`;
+  // one column: a short bar at each roof level, the catchments' label wrapped above it, the riser down to yTo, its size beside its foot
+  const drawCol = (c, x0, yTo, foot) => {
+    const lv = [...new Set(c.rf.map(roofL))].sort((a, b) => b - a), ids = [...c.rf.map(r => r.id), ...(c.kind === "riser" ? [c.d.id] : [])], cc = colour(ids);
+    const blocks = lv.map(L => { const rr = c.rf.filter(r => roofL(r) === L), A = rr.reduce((a, r) => a + ((st(r.id) || {}).A || 0), 0), Q = rr.reduce((a, r) => a + ((st(r.id) || {}).Q || 0), 0);
+      const k1 = rr.length === 1 ? st(rr[0].id) : null, head = wrap(rr.length === 1 ? tag(rr[0].id) : swTagRange(rr.map(r => tag(r.id))), WR);
+      const sub = rr.length === 1 ? [`${A.toFixed(0)} m² · ${f2(Q)} l/s`, k1 ? `${k1.nR} × ${dn(k1.pipe)} RWP` : "⚠ not calculated"] : [`${rr.length} drains · ${A.toFixed(0)} m²`, `${f2(Q)} l/s`];
+      return {L, y:Y(L), head, sub, title:rr.map(r => `${tag(r.id)} · ${r.name || ""}`).join("\n")}; });
+    const foot2 = foot || [], w = Math.max(92, ...blocks.flatMap(b => [...b.head.map(t => t.length*CW), ...b.sub.map(t => t.length*5.5)]), ...foot2.map(t => t.length*5.7 + 10)) + 22;
+    const xr = x0 + 6, yTop = blocks.length ? Math.min(...blocks.map(b => b.y)) : yTo;
+    blocks.forEach(b => { usedL.add(b.L); const n = b.head.length + b.sub.length;
+      o += `<g><title>${e(b.title)}</title><line x1="${xr}" y1="${b.y}" x2="${xr + 44}" y2="${b.y}" stroke="${cc}" stroke-width="4"/>`;
+      b.head.forEach((t, i) => { o += T(xr + 4, b.y - 7 - (n - 1 - i)*11.5, t, {b:1, s:10.5, f:"#1d1d1f"}); });
+      b.sub.forEach((t, i) => { o += T(xr + 4, b.y - 7 - (b.sub.length - 1 - i)*11.5, t, {s:9.5}); });
+      o += `</g><circle cx="${xr}" cy="${b.y}" r="2.8" fill="${cc}"/>`; });
+    o += `<line x1="${xr}" y1="${yTop}" x2="${xr}" y2="${yTo}" stroke="${cc}" stroke-width="2.4"/>`;
+    const lowest = blocks.length ? Math.max(...blocks.map(b => b.y)) : yTop;
+    if (foot2.length && yTo - lowest > foot2.length*11.5 + 12) foot2.forEach((t, i) => { o += T(xr + 6, yTo - 6 - (foot2.length - 1 - i)*11.5, t, {b:i === 0, s:9.5, f:cc}); });
+    maxY = Math.max(maxY, yTo); return {w, xr}; };
+  plan.forEach(g => { const yO = Y(g.OL); usedL.add(g.OL); let xFirst = null;
+    g.mains.forEach(m => { const yT = Y(m.TL), k = st(m.T.id), cT = colour([m.T.id]), cl = cT === "#1d6fb8" ? "#0e4891" : cT; usedL.add(m.TL); const xs = []; const x00 = x;
+      m.cols.forEach(c => { const yTo = Y(c.L), ks = c.kind === "riser" ? st(c.d.id) : null; usedL.add(c.L);
+        const foot = c.kind === "riser" ? [tag(c.d.id), ks ? `${dn(ks.pipe)} · ${f2(ks.Q)} l/s` : "⚠ check", m2(drA(c.d, 0))] : null;
+        const r = drawCol(c, x, yTo, foot); let xj = r.xr;
+        if (c.kind === "riser" && Math.abs(yTo - yT) > 0.5) { const cc = colour([c.d.id]); o += `<line x1="${r.xr}" y1="${yTo}" x2="${r.xr + 14}" y2="${yTo}" stroke="${cc}" stroke-width="2.4"/><line x1="${r.xr + 14}" y1="${yTo}" x2="${r.xr + 14}" y2="${yT}" stroke="${cc}" stroke-width="2.4"/>`; xj = r.xr + 14; }
+        xs.push(xj); x += r.w; });
+      const x0 = xs.length ? xs[0] : x, end = k && k.runs && k.runs.length ? k.runs[k.runs.length - 1] : null;
+      const lab = [`${tag(m.T.id)}`, k ? `${dn(end ? end.pipe : k.pipe)}${end ? ` @ 1:${Math.round(100/end.grad)}` : ""}` : "⚠ " + ((((R[m.T.id] || {}).r || {}).errors || ["not calculated"])[0]).slice(0, 60), k ? `${f2(k.Q)} l/s · ${m2(drA(m.T, 0))}` : ""].filter(Boolean);
+      const xEnd = Math.max(x - 10, x0 + 60);
+      o += `<line x1="${x0}" y1="${yT}" x2="${xEnd}" y2="${yT}" stroke="${cl}" stroke-width="3"/><polygon points="${xEnd - 2},${yT - 5} ${xEnd + 7},${yT} ${xEnd - 2},${yT + 5}" fill="${cl}"/>`;
+      xs.forEach(xx => { o += `<circle cx="${xx}" cy="${yT}" r="3" fill="${cl}"/>`; });
+      o += `<g><title>${e(`${tag(m.T.id)} · ${m.T.name || "Collector"}`)}</title>` + lab.map((t, i) => T(x0 + 2, yT + 15 + i*12, t, {b:i === 0, s:i ? 9.5 : 10.5, f:k ? "#0e4891" : "#c0392b"})).join("") + `</g>`;
+      x = Math.max(xEnd + 16, x0 + Math.max(...lab.map(t => t.length*5.9)) + 14);
+      if (Math.abs(yT - yO) > 0.5) o += `<line x1="${xEnd + 7}" y1="${yT}" x2="${xEnd + 7}" y2="${yO}" stroke="${cl}" stroke-width="2.4"/>`;
+      if (xFirst == null) xFirst = xEnd + 7; x += 6; maxY = Math.max(maxY, yT + 14 + lab.length*12); });
+    g.direct.forEach(c => { const r = drawCol(c, x, yO, null); if (xFirst == null) xFirst = r.xr; x += r.w; });
+    const oo = g.oo, Q = [...g.mains.map(m => (st(m.T.id) || {}).Q || 0), ...g.direct.map(c => (st(c.rf[0].id) || {}).Q || 0)].reduce((a, b) => a + b, 0);
+    const c2 = oo ? "#2e7d32" : "#c0392b";
+    o += `<line x1="${xFirst}" y1="${yO}" x2="${x}" y2="${yO}" stroke="${c2}" stroke-width="3"/><polygon points="${x},${yO - 6} ${x + 10},${yO} ${x},${yO + 6}" fill="${c2}"/>`;
+    const ks = oo && oo.kind === "tank" ? st(oo.id) : null;
+    const L1 = oo ? `${oo.tag || "DP"} ${oo.name || SW_OUT_KINDS[oo.kind] || ""}` : "⚠ not connected";
+    const Ain = g.mains.reduce((a, m) => a + drA(m.T, 0), 0) + g.direct.reduce((a, c) => a + roofA(c.rf[0].id), 0);
+    const L2 = `${oo ? (SW_OUT_KINDS[oo.kind] || "") + " · " : ""}${m2(Ain)} · in ${f2(Q)} l/s${ks ? ` · storage ${Math.ceil(ks.V)} m³` : ""}`;
+    const L3 = ks ? [ks.AT ? `${f2(ks.AT)} m²` : "", ks.hov < Infinity ? `overflow ${f2(ks.hov)} m` : "", ks.out === "pump" ? `pumps ${f2(ks.g.Qp)} l/s` : `out ${f2(ks.qo)} l/s`].filter(Boolean).join(" · ") : "";
+    const bw = Math.max(200, ...[L1, L2, L3].map(t => t.length*6.3 + 22));
+    o += `<rect x="${x + 14}" y="${yO - 26}" width="${bw}" height="${L3 ? 54 : 42}" rx="6" fill="${oo ? "#eef7ee" : "#fff3f0"}" stroke="${c2}"/>`;
+    o += T(x + 24, yO - 9, L1, {b:1, s:11.5, f:c2}) + T(x + 24, yO + 6, L2) + (L3 ? T(x + 24, yO + 20, L3) : "");
+    x += bw + 60; maxY = Math.max(maxY, yO + 40); });
+  const W = Math.max(x, 600), H = maxY + 26;
+  let lvl = ""; [...usedL].sort((a, b) => b - a).forEach(L => { const txt = Math.abs(L - ROOF_NL) < 1e-9 && !roofs.every(r => num(r.lvl) != null) ? "roof level not set" : `${L >= 0 ? "+" : ""}${L.toFixed(2)}`;
+    lvl += `<line x1="0" y1="${Y(L)}" x2="${W}" y2="${Y(L)}" stroke="#d1d1d6" stroke-dasharray="5 4"/><text x="6" y="${Y(L) - 4}" font-size="11" font-weight="700" fill="#86868b">${txt}</text>`; });
+  return {svg:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W}" height="${H}" font-family="Arial,Helvetica,sans-serif"><rect width="${W}" height="${H}" fill="#fff"/>${lvl}${o}</svg>`, w:W, h:H};
+}
 function StormSchematic({sw, items, results, projName}) {
-  const d = useMemo(() => swRiserSvg(sw || {}, items, results), [sw, items, results]);
+  const [view, setViewS] = useState(() => { try { return localStorage.getItem("mep_sw_view") === "full" ? "full" : "simple"; } catch (e) { return "simple"; } });
+  const setView = v => { setViewS(v); try { localStorage.setItem("mep_sw_view", v); } catch (e) {} };
+  const d = useMemo(() => view === "full" ? swRiserSvg(sw || {}, items, results) : swRiserCompact(sw || {}, items, results), [sw, items, results, view]);
   // v1.118.22: export the riser diagram to PDF, cut into readable sheets with a key plan (same engine as the pipe-sizing schematic)
   const [opt, setOptS] = useState(() => { try { const q = JSON.parse(localStorage.getItem("mep_sw_pdf") || "{}"); return {paper:WS_PDF_PAPER[q.paper] ? q.paper : "A1", size:WS_PDF_SIZE[q.size] ? q.size : "normal", key:q.key !== false}; } catch (e) { return {paper:"A1", size:"normal", key:true}; } });
   const setOpt = o => { setOptS(o); try { localStorage.setItem("mep_sw_pdf", JSON.stringify(o)); } catch (e) {} };
@@ -13970,13 +14103,14 @@ function StormSchematic({sw, items, results, projName}) {
   if (!d) return null;
   const make = () => { if (!plan) return;
     const roofQ = (items || []).reduce((a, it, i) => a + (it.kind === "roof" && results[i] && results[i].storm ? results[i].storm.Q : 0), 0);
-    const meta = {head:"STORMWATER RISER DIAGRAM", proj:String(projName || ""), name:"Stormwater", tag:"", flow:`Roof runoff ${roofQ.toFixed(2)} l/s · levels from the Inputs; levels spaced by rank, not to scale`,
+    const meta = {head:"STORMWATER RISER DIAGRAM", proj:String(projName || ""), name:"Stormwater", tag:"", flow:`Roof runoff ${roofQ.toFixed(2)} l/s · ${view === "full" ? "detailed view" : "simplified view, catchments grouped per riser"} · levels from the Inputs, spaced by rank, not to scale`,
       labels:"as on screen", build:BUILD_LABEL, date:rptDate(),
       legend:[["#1d6fb8", "Roof and rainwater pipes"], ["#0e4891", "Collector"], ["#2e7d32", "To discharge point / tank"], ["#d08a00", "Review"], ["#c0392b", "Error"]],
       title:[projName, "stormwater riser diagram"].filter(Boolean).join(" - ").replace(/[\\/:*?"<>|]+/g, " ").trim()};
     wsPdfPrint(wsPdfHtml(d, plan, opt, meta), meta.title); };
   return <>
     <div className="no-print" style={{display:"flex", gap:10, alignItems:"flex-end", flexWrap:"wrap", margin:"0 0 10px"}}>
+      <Seg label="View" value={view} onChange={setView} options={[{value:"simple", label:"Simplified, one column per riser"}, {value:"full", label:"Detailed, every catchment"}]} />
       <label className="nc-l" style={{display:"flex", flexDirection:"column", gap:4}}>Paper<select value={opt.paper} onChange={e => setOpt({...opt, paper:e.target.value})}>{Object.keys(WS_PDF_PAPER).map(k => <option key={k} value={k}>{k} landscape</option>)}</select></label>
       <label className="nc-l" style={{display:"flex", flexDirection:"column", gap:4}}>Scale<select value={opt.size} onChange={e => setOpt({...opt, size:e.target.value})}>{Object.keys(WS_PDF_SIZE).map(k => <option key={k} value={k}>{WS_PDF_SIZE[k].l}</option>)}</select></label>
       <label className="ca-chk" style={{marginBottom:6}}><input type="checkbox" checked={opt.key !== false} onChange={e => setOpt({...opt, key:e.target.checked})} /> Key plan sheet</label>
@@ -18269,6 +18403,37 @@ function SelfTestPanel({onClose}) {
 const CS_COLS = [12,10.5,11.5,8,11,10.5,11,11,14.5];
 // the calculations of a report, each pipe sizing calculation with several networks as one line per network
 function rptExpand(list) { const out = []; (list || []).forEach(p => { const r = p && p.type === "water" ? safeCalculate(p) : null; if (r && r.networks && r.networks.length > 1) r.networks.forEach(n => out.push(n.pump)); else out.push(p); }); return out; }
+// v1.118.30: what goes into a printed / PDF sheet. Excel keeps every row (its formulas refer to them).
+const SHEET_OPTS_DEF = {basis:true, notes:true, longTables:true, figures:true, appendix:true, gate:true, hideSec:[]};
+let SHEET_OPTS = (() => { try { return {...SHEET_OPTS_DEF, ...JSON.parse(localStorage.getItem("mep_print_opts") || "{}")}; } catch (e) { return {...SHEET_OPTS_DEF}; } })();
+const SHEET_OPT_LBL = [["basis", "Design basis statement"], ["notes", "Working notes and formulas in words"], ["longTables", "Long data tables (more than 25 rows, e.g. storm profile, tank routing)"], ["figures", "Figures and graphs"], ["appendix", "Appendix (e.g. riser diagram)"], ["gate", "Review / acknowledgement line"]];
+const sheetSecKey = t => String(t || "").replace(/^[\d.]+\s+/, "").trim();
+function sheetFilter(doc) {
+  const o = SHEET_OPTS, hide = new Set(o.hideSec || []), out = []; let off = false;
+  (doc.rows || []).forEach(r => {
+    if (r.t === "section") { off = hide.has(sheetSecKey(r.title)); if (!off) out.push(r); return; }
+    if (off) return;
+    if (!o.notes && r.t === "text" && (r.italic || r.cls === "fx")) return;
+    if (!o.figures && r.t === "figure") return;
+    if (!o.longTables && r.t === "table" && (r.rows || []).length > 25) { const last = out[out.length - 1]; if (last && last.t === "text" && last.bold && String(last.text).length < 60) out.pop(); return; }
+    out.push(r); });
+  return {rows:out, appendix:o.appendix ? (doc.appendix || []) : [], basis:o.basis !== false, gate:o.gate !== false};
+}
+function PrintContentPanel({items, proj, stageName, meta, opts, setOpts}) {
+  const secs = useMemo(() => { const m = new Map(); (items || []).forEach(p => { let d = null; try { d = clBuildDoc(proj, p, meta, stageName, {compact:true}); } catch (e) {}
+    (d && d.rows || []).forEach(r => { if (r.t === "section") { const k = sheetSecKey(r.title); m.set(k, (m.get(k) || 0) + 1); } }); }); return [...m.entries()]; }, [items, proj, stageName, meta]);
+  const hide = new Set(opts.hideSec || []), tog = k => setOpts({...opts, hideSec:hide.has(k) ? [...hide].filter(x => x !== k) : [...hide, k]});
+  return <div className="no-print" style={{background:"#fff", border:"1px solid #d2d2d7", borderRadius:12, padding:"12px 14px", margin:"8px 0 12px"}}>
+    <div style={{display:"flex", justifyContent:"space-between", alignItems:"center", gap:10, flexWrap:"wrap"}}><b style={{fontSize:13}}>PDF content</b>
+      <span style={{fontSize:11, color:"#6e6e73"}}>Applies to Print / PDF and the PDF Report. Excel keeps every row (its formulas refer to them).</span>
+      <button type="button" className="ca-btn" onClick={() => setOpts({...SHEET_OPTS_DEF})}>Include everything</button></div>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(300px,1fr))", gap:"4px 14px", marginTop:8}}>
+      {SHEET_OPT_LBL.map(([k, l]) => <label key={k} className="ca-chk" style={{margin:0}}><input type="checkbox" checked={opts[k] !== false} onChange={e => setOpts({...opts, [k]:e.target.checked})} /> {l}</label>)}</div>
+    {secs.length > 0 && <><div style={{fontSize:11, fontWeight:800, color:"#424245", textTransform:"uppercase", letterSpacing:".04em", margin:"10px 0 4px"}}>Sections <span style={{fontWeight:600, textTransform:"none", color:"#86868b"}}>untick to leave a section out of every sheet</span></div>
+      <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(260px,1fr))", gap:"3px 14px", maxHeight:220, overflow:"auto", border:"1px solid #e5e5ea", borderRadius:9, padding:8}}>
+        {secs.map(([k, n]) => <label key={k} className="ca-chk" style={{margin:0, fontSize:11.5}}><input type="checkbox" checked={!hide.has(k)} onChange={() => tog(k)} /> {k}{n > 1 ? <em className="ca-advn"> ×{n}</em> : null}</label>)}</div></>}
+  </div>;
+}
 function ClassicSheet({proj,stageName,pump,meta,showFx}) {
   if (pump && pump.type === "water") { const r0 = safeCalculate(pump);          // several networks: a summary sheet, then one full sheet per network
     if (r0 && r0.networks && r0.networks.length > 1) return <>{<WsNetworksSheet pump={pump} res={r0} />}{r0.networks.map(n => <ClassicSheet key={n.id} proj={proj} stageName={stageName} pump={n.pump} meta={meta} showFx={showFx} />)}</>; }
@@ -18278,7 +18443,7 @@ function ClassicSheet({proj,stageName,pump,meta,showFx}) {
       <div className="issue-section-title">Calculation blocked — {doc.title}</div>
       <div style={{padding:14,fontSize:11,color:'#000'}}>{doc.errors.join(' ')}</div>
     </div>);
-  const h = doc.header;
+  const h = doc.header, FL = sheetFilter(doc);
   return (
     <section className={"cs-wrap calc-page"+(doc.watermark?" is-draft":"")}>
       {doc.watermark && <div className="issue-watermark" aria-hidden="true">DRAFT</div>}
@@ -18302,11 +18467,12 @@ function ClassicSheet({proj,stageName,pump,meta,showFx}) {
           </tr>
         </thead>
         <tbody>
+          {FL.basis && <>
           <tr><td colSpan={9} className="cs-basis-h">DESIGN BASIS STATEMENT</td></tr>
           <tr><td></td><td colSpan={8} className="cs-basis-t"><b>{doc.basis.lead}</b><span className="cs-basis-tag">{doc.basis.tag}</span></td></tr>
           {doc.basis.items.map((t,i)=><tr key={"b"+i} className="cs-basis"><td></td><td colSpan={8}>{i+1}. {t}</td></tr>)}
-          <tr className="cs-gap"><td colSpan={9}/></tr>
-          {doc.rows.map((r,i)=>{
+          <tr className="cs-gap"><td colSpan={9}/></tr></>}
+          {FL.rows.map((r,i)=>{
             if (r.t==='gap') return <tr key={i} className="cs-gap"><td colSpan={8}/><td className="cs-gv"/></tr>;
             if (r.t==='text') return <tr key={i} className={"cs-row"+(r.z?" z":"")}><td colSpan={8} className={"cs-lb l cs-text"+(r.cls==='fx'?" fx":"")+(r.warn?" b":"")+(r.bold?" b":"")+(r.italic?" it":"")}>{r.text}</td><td className="cs-vl cs-vl-empty"></td></tr>;
             if (r.t==='section') return <tr key={i} className="cs-sec-row"><td colSpan={9} className="cs-sec">{r.title}</td></tr>;
@@ -18318,7 +18484,9 @@ function ClassicSheet({proj,stageName,pump,meta,showFx}) {
               const cellTxt = c => (c.v===null||c.v===undefined) ? "" : typeof c.v==="number" ? clFmt({value:c.v, dp:c.dp}) : String(c.v);
               const line = (cells, kind, k) => <tr key={i+"-"+k} className="cs-row">{cells.map((c,j)=>
                 <td key={j} colSpan={c.span[1]-c.span[0]+1} className={kind==="head" ? "cs-th" : "cs-td"+(kind==="data z"?" z":"")+(c.al==="l"?" l":"")+((kind==="total"||c.input)?" b":"")} style={c.al==="r"&&kind!=="head"?{textAlign:"right"}:undefined}>{cellTxt(c)}</td>)}</tr>;
-              return <React.Fragment key={i}>{r.head.map((h,k)=>line(h,"head","h"+k))}{r.rows.map((rw,k)=>line(rw,k%2?"data z":"data","d"+k))}{r.total && line(r.total,"total","t")}</React.Fragment>;
+              // v1.118.30: a table of the sheet is its own table inside one full-width cell, so its header repeats on every printed page
+              return <tr key={i} className="cs-tblrow"><td colSpan={9} className="cs-tblcell"><table className="cs-sub"><colgroup>{CS_COLS.map((w,k)=><col key={k} style={{width:w+"%"}}/>)}</colgroup>
+                <thead>{r.head.map((h,k)=>line(h,"head","h"+k))}</thead><tbody>{r.rows.map((rw,k)=>line(rw,k%2?"data z":"data","d"+k))}{r.total && line(r.total,"total","t")}</tbody></table></td></tr>;
             }
             if (r.hideBlank && (r.value===null || r.value===undefined || r.value==='')) return null;
             const tip = r.xl ? clFxText(r, doc.byId) : "";
@@ -18332,11 +18500,11 @@ function ClassicSheet({proj,stageName,pump,meta,showFx}) {
           })}
           <tr className="cs-gap"><td colSpan={9}/></tr>
           <tr className="cs-banner-row"><td colSpan={9} className="cs-banner">{doc.banner.text}</td></tr>
-          {doc.gate && <tr><td colSpan={9} className={"cs-gate" + (doc.gate.ok ? " ok" : "")}>{doc.gate.text}</td></tr>}
+          {doc.gate && FL.gate && <tr><td colSpan={9} className={"cs-gate" + (doc.gate.ok ? " ok" : "")}>{doc.gate.text}</td></tr>}
           {doc.closure && <tr><td colSpan={9} className="cs-closure">ISSUED · Lead sign-off {doc.closure.lead_signed_by||'—'}{doc.closure.lead_signed_at?' ('+fmtDay(doc.closure.lead_signed_at)+')':''} · Approver sign-off {doc.closure.mep_lead_signed_by||'—'}{doc.closure.closed_at?' ('+fmtDay(doc.closure.closed_at)+')':''}</td></tr>}
-          {doc.appendix && doc.appendix.length > 0 && <>
+          {FL.appendix.length > 0 && <>
             <tr className="cs-gap"><td colSpan={9}/></tr>
-            {doc.appendix.map((r,i)=> r.t==='section' ? <tr key={"a"+i} className="cs-sec-row cs-newpage"><td colSpan={9} className="cs-sec">{r.title}</td></tr>
+            {FL.appendix.map((r,i)=> r.t==='section' ? <tr key={"a"+i} className="cs-sec-row cs-newpage"><td colSpan={9} className="cs-sec">{r.title}</td></tr>
               : r.t==='figure' ? <tr key={"a"+i} className="cs-fig-row"><td colSpan={9} className={"cs-fig"+(r.wide?" wide":"")} dangerouslySetInnerHTML={{__html:r.svg}}/></tr>
               : <tr key={"a"+i} className="cs-row"><td colSpan={9} className="cs-text it">{r.text}</td></tr>)}
           </>}
@@ -18839,6 +19007,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [editId, setEditId]   = useState(null);
   const [pumpQuery, setPumpQuery] = useState("");
   const [printPick, setPrintPick] = useState(null);
+  const [printOpts, setPrintOptsS] = useState(SHEET_OPTS), [pcOpen, setPcOpen] = useState(false);
+  const setPrintOpts = o => { SHEET_OPTS = o; try { localStorage.setItem("mep_print_opts", JSON.stringify(o)); } catch (e) {} setPrintOptsS(o); };
   const [caFocus, setCaFocus] = useState(null);
   const [stormFocus, setStormFocus] = useState(null), [fuelFocus, setFuelFocus] = useState(null), [toolFocus, setToolFocus] = useState(null);   // v1.89: item to open in the Stormwater / Fuel tab
   const [foamFocus, setFoamFocus] = useState(null);   // v1.86: hazard to open in the Foam tab   // v1.84: room to open in the Clean Agent tab (from the Fire Protection schedule)
@@ -19332,6 +19502,11 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const rptFull = w => { const t = rptMember(w); return t && t.name ? t.name : (w || ""); };
   const rptPeople = {prep:rptFull(projForDisplay.calcBy), rev:rptFull(projForDisplay.checkedBy), app:rptFull(projForDisplay.reviewedBy)};
   const rptJobs = {prep:(rptMember(projForDisplay.calcBy)||{}).desig||"", rev:(rptMember(projForDisplay.checkedBy)||{}).desig||"", app:(rptMember(projForDisplay.reviewedBy)||{}).desig||""};
+  // v1.118.30: print only the sheet open on the right (the others stay hidden on paper too)
+  const printCurrent = () => { const cur = sheetItems.find(p => p.id === printPick); if (!cur) { alert("Select a calculation sheet first."); return; }
+    const old = document.title, ref = String(projSheets.reference || "").trim(); document.title = [ref, cur.tag || cur.name || "Calc"].filter(Boolean).join("_") + (closureOf(issueMeta).status !== "closed" ? "_DRAFT" : "");
+    document.body.classList.add("print-current");
+    const back = () => { document.title = old; document.body.classList.remove("print-current"); window.removeEventListener("afterprint", back); }; window.addEventListener("afterprint", back); window.print(); };
   const printNamed = () => { const old = document.title, ref = String(projSheets.reference||"").trim(); if (ref) document.title = ref + (closureOf(issueMeta).status!=="closed" ? "_DRAFT" : "");
     const back = () => { document.title = old; window.removeEventListener("afterprint", back); }; window.addEventListener("afterprint", back); window.print(); };
   const confirmFresh = what => staleWater.length === 0 || window.confirm(`${staleWater.length} Pipe Sizing calculation${staleWater.length === 1 ? " has" : "s have"} changed since ${staleWater.length === 1 ? "it was" : "they were"} last calculated, so this ${what} would contain the PREVIOUS results.\n\nPress Cancel, then Calculate (Ctrl+Enter in Pipe Sizing) — or OK to continue with the previous results.`);
@@ -19655,13 +19830,18 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
             <div className="ca-head no-print" style={{marginBottom:10}}><div><h2>Submission</h2><span>Calculation sheets and export · Rev {meta.revision||"—"}{currentStage?.stage_name ? " · " + currentStage.stage_name : ""}</span></div></div>
+            <div className="cs-sticky no-print">
             <div className="cs-issue no-print">
               <div className="sbx-export">
                 <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
                 <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel — {discLbl || "Full"} Pack</button>
+                <button disabled={!sheetItems.length || !printPick} onClick={()=>{ if (confirmFresh("print")) printCurrent(); }} className="pdf" title="Print or save as PDF only the sheet open on the right">▣ Print / PDF — Current Sheet</button>
                 <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
                 <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
+              {(() => { const off = SHEET_OPT_LBL.filter(([k]) => printOpts[k] === false).length + (printOpts.hideSec || []).length;
+                return <button type="button" className="pdc" onClick={() => setPcOpen(v => !v)} title="Choose what goes into the PDF, e.g. for a client issue">⚙ PDF content{off ? ` · ${off} left out` : " · everything"} {pcOpen ? "▴" : "▾"}</button>; })()}
               </div>
+              {pcOpen && <PrintContentPanel items={sheetItems} proj={projForDisplay} stageName={issueStageName} meta={issueMeta} opts={printOpts} setOpts={setPrintOpts} />}
               {rptOpen && <ReportDialog key={sheetDisc} disc={sheetDisc} pumps={sheetItems} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); const sel = sheetItems.filter(p => (c.ids || []).includes(p.id)), g = gateCheck(sel, issueMeta); if (g.blocked.length || g.open.length) { alert(`Cannot create the report — ${gateLine(g)} in the selected calculations. Fix or acknowledge them under Review items.`); setGateOpen("sheets"); return; } setRptCfg({...c, k:Date.now()}); }} />}
               {rptCfg && <ReportPrint key={rptCfg.k} cfg={rptCfg} pumps={sheetItems} proj={{...projForDisplay, reference:rptCfg.ref, wsPrint:rptCfg.wsPrint || projForDisplay.wsPrint}} stageName={issueStageName} meta={issueMeta} people={rptPeople} onDone={()=>setRptCfg(null)} />}
             </div>
@@ -19685,6 +19865,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                   <label>Pressure<select value={su.head} disabled={stageLocked} onChange={e => setU("head", e.target.value)}>{Object.entries(SHEET_UNITS.head).map(([k, u]) => <option key={k} value={k}>{k === "m" ? "m (head)" : u.l}</option>)}</select></label>
                 </span>; })()}
               <span className="cs-key">Bold values are inputs and key results · the Excel export keeps every formula live</span>
+            </div>
             </div>
             {sheetDisc==="plumbing" && pumps.some(q=>q.type==="water") && <details className="wsp-wrap no-print"><summary>Water supply print content — what the printed / PDF sheet shows</summary>
               <WsPrintOptions value={proj.wsPrint} disabled={stageLocked} onChange={v=>setProj(x=>({...x,wsPrint:v}))} />{stageLocked && <div className="ai-note">This stage is locked — reopen it to change the print content.</div>}</details>}
@@ -19724,7 +19905,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 return (
                   <React.Fragment key={p.id}>
                     <div className={(sel?"calcsplit-pane":"screen-hide")+" calc-page"}>
-                      <PrintPreview active={sel} measureKey={sel ? JSON.stringify([p, issueMeta.revision, issueMeta.closure?.status, sheetStyle, showFx, projForDisplay.clientLogoUrl, projForDisplay.wsPrint]) : p.id}>
+                      <PrintPreview active={sel} measureKey={sel ? JSON.stringify([printOpts, p, issueMeta.revision, issueMeta.closure?.status, sheetStyle, showFx, projForDisplay.clientLogoUrl, projForDisplay.wsPrint]) : p.id}>
                         {(sheetStyle==="classic" || CLASSIC_ONLY.has(p.type)) ? <ClassicSheet proj={projForDisplay} stageName={issueStageName} pump={p} meta={issueMeta} showFx={showFx} /> : <IssueSheet proj={projForDisplay} stageName={issueStageName} pump={p} index={i} meta={issueMeta} />}
                       </PrintPreview>
                     </div>
