@@ -1475,15 +1475,15 @@
   .sbx-wfline b{color:#007aff;font-size:10.5px;white-space:nowrap}.sbx-wfline.warn{background:#fff7ed;border-color:#fcd9a8;color:#9a3412}.sbx-wfline.ok{background:#f0fdf4;border-color:#bbe5c8;color:#166534}
   .cs-issue{margin-bottom:12px}
   .cs-issue .sbx-export{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
-  @media (max-width:1100px){.cs-issue .sbx-export{grid-template-columns:repeat(2,minmax(0,1fr))}
-/* v1.118.32: compact export buttons in one row, kept in view with the discipline bar while scrolling */
+  @media (max-width:1100px){.cs-issue .sbx-export{grid-template-columns:repeat(2,minmax(0,1fr))}}
+/* v1.118.33: all export buttons in ONE compact row, kept in view with the discipline bar while scrolling */
 .cs-sticky{position:sticky;top:0;z-index:40;background:#f5f5f7;padding:6px 0 2px;margin:0 0 6px}
 .cs-sticky .cs-bar{position:static!important;margin:0 0 6px;box-shadow:none}
 .cs-sticky .cs-issue{margin-bottom:6px}
-.cs-sticky .cs-issue .sbx-export{display:flex!important;flex-wrap:wrap;gap:6px;align-items:center}
-.cs-sticky .sbx-export button{padding:6px 12px!important;font-size:11px!important;border-radius:8px;white-space:nowrap;width:auto;flex:0 0 auto;text-align:center}
-.cs-sticky .sbx-export button.pdc{background:#fff;color:#1d1d1f;border:1px solid #d2d2d7}
-.cs-sticky>.cs-issue>div:not(.sbx-export){max-height:55vh;overflow:auto}}
+.cs-sticky .cs-issue .sbx-export{display:flex!important;flex-direction:row!important;flex-wrap:nowrap;gap:6px;align-items:center;overflow-x:auto}
+.cs-sticky .cs-issue .sbx-export button{padding:5px 10px!important;font-size:11px!important;line-height:1.2;border-radius:7px;white-space:nowrap;width:auto!important;flex:0 0 auto;text-align:center}
+.cs-sticky .cs-issue .sbx-export button.pdc{background:#fff!important;color:#1d1d1f!important;border:1px solid #d2d2d7!important}
+.cs-sticky>.cs-issue>div:not(.sbx-export){max-height:55vh;overflow:auto}
   .cs-issue .cs-wf{background:#fff;border:1px solid #e1e1e6;border-radius:12px;padding:8px}
   @media (max-width:900px){.cs-issue{grid-template-columns:1fr}}
 
@@ -1621,7 +1621,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.32 · Build 2026.11.17.53";
+const BUILD_LABEL = "v1.118.33 · Build 2026.11.17.54";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -19833,13 +19833,13 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             <div className="cs-sticky no-print">
             <div className="cs-issue no-print">
               <div className="sbx-export">
-                <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel — Current Sheet</button>
-                <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel — {discLbl || "Full"} Pack</button>
-                <button disabled={!sheetItems.length || !printPick} onClick={()=>{ if (confirmFresh("print")) printCurrent(); }} className="pdf" title="Print or save as PDF only the sheet open on the right">▣ Print / PDF — Current Sheet</button>
-                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ Print / PDF — {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
-                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report — cover + TOC</button>
+                <button disabled={!sheetItems.length} onClick={issueExcelCurrent} className="xl">↓ Excel · Sheet</button>
+                <button disabled={!sheetItems.length} onClick={issueExcel} className="xl2">↓ Excel · {discLbl || "Full"} Pack</button>
+                <button disabled={!sheetItems.length || !printPick} onClick={()=>{ if (confirmFresh("print")) printCurrent(); }} className="pdf" title="Print or save as PDF only the sheet open on the right">▣ PDF · Sheet</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) printNamed(); }} className="pdf">▣ PDF · {discLbl ? discLbl.toLowerCase() + " " : "all "}{sheetItems.length}</button>
+                <button disabled={!sheetItems.length} onClick={()=>{ if (confirmFresh("print")) setRptOpen(true); }} className="pdf" style={{background:"#0b4f8a"}} title="Cover, Document History & Approval, Table of Contents, a divider page per section with its sheets, back cover">▤ PDF Report</button>
               {(() => { const off = SHEET_OPT_LBL.filter(([k]) => printOpts[k] === false).length + (printOpts.hideSec || []).length;
-                return <button type="button" className="pdc" onClick={() => setPcOpen(v => !v)} title="Choose what goes into the PDF, e.g. for a client issue">⚙ PDF content{off ? ` · ${off} left out` : " · everything"} {pcOpen ? "▴" : "▾"}</button>; })()}
+                return <button type="button" className="pdc" onClick={() => setPcOpen(v => !v)} title="Choose what goes into the PDF, e.g. for a client issue">⚙ Content{off ? ` · ${off} off` : ""} {pcOpen ? "▴" : "▾"}</button>; })()}
               </div>
               {pcOpen && <PrintContentPanel items={sheetItems} proj={projForDisplay} stageName={issueStageName} meta={issueMeta} opts={printOpts} setOpts={setPrintOpts} />}
               {rptOpen && <ReportDialog key={sheetDisc} disc={sheetDisc} pumps={sheetItems} proj={proj} setProj={setProj} meta={meta} setMeta={setMeta} stageName={issueStageName} people={rptPeople} jobsDef={rptJobs} locked={stageLocked} onClose={()=>setRptOpen(false)} onGo={c=>{ setRptOpen(false); const sel = sheetItems.filter(p => (c.ids || []).includes(p.id)), g = gateCheck(sel, issueMeta); if (g.blocked.length || g.open.length) { alert(`Cannot create the report — ${gateLine(g)} in the selected calculations. Fix or acknowledge them under Review items.`); setGateOpen("sheets"); return; } setRptCfg({...c, k:Date.now()}); }} />}
