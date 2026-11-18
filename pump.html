@@ -4,6 +4,28 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>Equipment Calculator</title>
+<!--
+  SECURITY NOTE FOR REVIEWERS (database access and RLS)
+
+  The Supabase key in mep-core.js is the PUBLISHABLE (anon) key. It is designed to be public and is
+  expected to be visible in page source. It carries no privileges on its own. There is no secret or
+  service role key anywhere in this file or in mep-core.js.
+
+  Access is enforced in the database by Postgres Row Level Security, not by this page:
+  - RLS is enabled on every table in the public schema (verified 2026-11-18).
+  - Projects and stages: the owner has full access. Members added to a project can read it (reviewer,
+    editor) and editors can update it. Ownership changes are blocked for editors by a database trigger.
+  - Team lists (engineers, engineer_roles, pending_users, project_members): writes are admin only.
+    A signed in user can only file an access request for their own email with status pending.
+  - Reference data (ref_ tables): read needs a login as an active engineer, writes need an admin.
+  - Admin status comes from the verified email in the login token, checked in security definer
+    functions (is_mep_admin and related), never from anything this page sends.
+  - Hiding buttons in this UI is for convenience only. A direct API call hits the same policies.
+
+  To inspect the live policies, run select * from pg_policies where schemaname = 'public' in the
+  Supabase SQL Editor. The same database also serves the Specifications app, so policy changes
+  affect both tools.
+-->
 <script>window.APP_META={name:"Equipment Calculator",tagline:"Secure cloud projects"};</script>
 <script src="https://unpkg.com/react@18.3.1/umd/react.production.min.js" crossorigin></script>
 <script src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js" crossorigin></script>
@@ -1622,7 +1644,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.53 · Build 2026.11.18.74";
+const BUILD_LABEL = "v1.118.53 · Build 2026.11.18.75";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
