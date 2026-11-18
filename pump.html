@@ -1079,6 +1079,7 @@
   .pz-top{display:flex;align-items:center;gap:10px;padding:8px 16px;background:#fff;border-bottom:1px solid #e1e1e6;flex:0 0 auto;flex-wrap:wrap;min-height:54px}
   .pz-menu{border:1px solid #d2d2d7;background:#fff;border-radius:9px;padding:7px 12px;font-size:12px;font-weight:700;color:#424245;cursor:pointer}.pz-menu:hover{border-color:#007aff;color:#007aff}
   .pz-title{display:flex;flex-direction:column;line-height:1.2;min-width:0}.pz-title b{font-size:15px;font-weight:800;color:#1d1d1f;letter-spacing:-.02em}.pz-title span{font-size:10.5px;color:#86868b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:260px}
+  .pz-svc{display:flex;gap:3px;padding:3px;background:#f0f0f3;border-radius:10px;flex-wrap:wrap}.pz-svc button{border:0;background:transparent;color:#424245;border-radius:8px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.pz-svc button:hover{color:#007aff}.pz-svc button.on{background:#1e3a5f;color:#fff;box-shadow:0 1px 3px rgba(0,0,0,.15)}.pz-svc em{font-style:normal;font-size:10px;margin-left:6px;padding:1px 6px;border-radius:9px;background:rgba(0,0,0,.08)}.pz-svc button.on em{background:rgba(255,255,255,.22)}
   .pz-pick{height:34px;border:1px solid #d2d2d7;border-radius:9px;padding:0 10px;font-size:12px;font-weight:700;max-width:280px;background:#fff}
   .pz-btn{border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:9px;padding:7px 13px;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap}.pz-btn:hover:not(:disabled){border-color:#007aff;color:#007aff}.pz-btn:disabled{opacity:.45;cursor:not-allowed}
   .pz-btn.pri{background:#007aff;border-color:#007aff;color:#fff}.pz-btn.pri:hover:not(:disabled){background:#0068d9;color:#fff}
@@ -1621,7 +1622,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.33 · Build 2026.11.17.54";
+const BUILD_LABEL = "v1.118.53 · Build 2026.11.18.74";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -4610,8 +4611,10 @@ function swTankFig(c) {
   const g = c.g || {}, e = v => sxEsc(String(v)), f2 = v => Number(v).toFixed(2), a = c.a || {};
   const hTop = c.hov < Infinity ? c.hov : c.D.hneed, Ht = hTop + (c.fb || 0), ovK = c.K && c.K.ovVol > 1e-6, ovD = c.D.ovVol > 1e-6, dHm = Math.min(c.D.hm, hTop);
   const rp = s => String(s || "").replace("1-in-", "1 in ").replace("yr", " yr");
-  const L = [{h:Ht, n:"Tank Top", col:"#475569"},
-    ...(c.hov < Infinity ? [{h:c.hov, n:"Overflow Level", n2:ovD ? "design storm overflows" : ovK ? "check storm overflows" : "", col:"#dc2626", ov:true}] : []),
+  // v1.118.50: the overflow pipe, the space above the overflow and the heights are drawn. When the overflow sits at the tank top, one line carries both names
+  const ovMeta = {n2:`Overflow pipe to ${a.ovf || "route not stated"}`, n3:ovD ? "design storm overflows" : ovK ? "check storm overflows" : ""}, ovTop = c.hov < Infinity && Math.abs(c.hov - Ht) < 1e-4;
+  const L = [ovTop ? {h:Ht, n:"Tank Top and Overflow Level", ...ovMeta, col:"#dc2626", ov:true} : {h:Ht, n:"Tank Top", col:"#475569"},
+    ...(c.hov < Infinity && !ovTop ? [{h:c.hov, n:"Overflow Level", ...ovMeta, col:"#dc2626", ov:true}] : []),
     ...(c.K && !ovK && c.K.hm < hTop - 1e-3 ? [{h:c.K.hm, n:`Check Storm Peak (${rp(a.rpC)})`, col:"#60a5fa"}] : []),
     {h:dHm, n:`Design Storm Peak (${rp(a.rpD)})`, col:"#1d4ed8", wl:true},
     ...(c.out === "pump" ? [{h:g.hon, n:"Pump Start Level", col:"#15803d"}, {h:g.hoff, n:"Pump Stop Level", col:"#ea580c"}] : []),
@@ -4624,7 +4627,7 @@ function swTankFig(c) {
     if (lo != null && r[0] < lo) { r[0] = lo; for (let i = 1; i < r.length; i++) r[i] = Math.max(r[i], r[i - 1] + gap); } return r; };
   const ly = spread(ys, 27, y0 - 10, yBot);
   const dry = c.out === "pump" && a.pumpRoom === "dry", roomW = dry ? 120 : 0;
-  const pitL = 330, pitR = 560, roomR = pitR + roomW, labX = roomR + 46, W = labX + 260, H = Math.max(yBot, ly[n - 1]) + 118, arrX = 290, sbX = labX + 215;
+  const pitL = 330, pitR = 560, roomR = pitR + roomW, labX = roomR + 46, dimX = labX + 350, W = dimX + 120, H = Math.max(yBot, ly[n - 1]) + 118, arrX = 290, sbX = labX + 215;
   const lvTxt = h => c.zf != null ? `${c.zf + h < 0 ? "-" : "+"} ${Math.abs(c.zf + h).toFixed(2)} M` : `FL + ${h.toFixed(2)} M`;
   const T = (x, y, v, s, o={}) => `<text x="${x}" y="${y}" font-size="${s}" style="font-size:${s}px!important"${o.anchor ? ` text-anchor="${o.anchor}"` : ""}${o.bold ? ' font-weight="700"' : ""} fill="${o.f || "#000"}"${o.rot ? ` transform="rotate(-90 ${x} ${y})"` : ""}>${e(v)}</text>`;
   const arrow = (x, y1, y2) => y2 - y1 < 16 ? `<line x1="${x}" y1="${y1}" x2="${x}" y2="${y2}" stroke="#000" stroke-width="1"/><line x1="${x - 4}" y1="${y1}" x2="${x + 4}" y2="${y1}" stroke="#000"/><line x1="${x - 4}" y1="${y2}" x2="${x + 4}" y2="${y2}" stroke="#000"/>` : `<line x1="${x}" y1="${y1 + 3}" x2="${x}" y2="${y2 - 3}" stroke="#000" stroke-width="1"/><polygon points="${x},${y1} ${x - 3.5},${y1 + 7} ${x + 3.5},${y1 + 7}"/><polygon points="${x},${y2} ${x - 3.5},${y2 - 7} ${x + 3.5},${y2 - 7}"/>`;
@@ -4637,6 +4640,7 @@ function swTankFig(c) {
     o += `<rect x="100" y="${yl - 11}" width="132" height="22" fill="#fff" stroke="${l.col}" stroke-width="1.6"/>` + T(166, yl + 4, lvTxt(l.h), 11.5, {anchor:"middle", bold:true});
     o += `<polyline points="${roomR},${y} ${roomR + 16},${y} ${labX - 12},${yl} ${labX - 6},${yl}" fill="none" stroke="${l.col}" stroke-width="1" stroke-dasharray="3 3"/>` + T(labX, yl + 4, l.n, 11.5, {bold:true, f:l.col === "#475569" ? "#000" : l.col});
     if (l.n2) o += T(labX, yl + 17, l.n2, 10, {f:"#dc2626"});
+    if (l.n3) o += T(labX, yl + 29, l.n3, 10, {f:"#dc2626", bold:true});
     if (i > 0) { const yp = ys[i - 1], t = `${(L[i - 1].h - l.h).toFixed(2)} m`; o += arrow(arrX, yp, y);
       if (y - yp >= 40) o += T(arrX - 7, (yp + y)/2, t, 9.5, {anchor:"middle", bold:true, rot:true}); else { smallMids.push((yp + y)/2 + 3); smallTxt.push(t); } } });
   spread(smallMids, 11).forEach((y, q) => { o += T(arrX + 6, y, smallTxt[q], 8.5, {bold:true}); });
@@ -4662,7 +4666,14 @@ function swTankFig(c) {
   else { const lo = L.find(l => l.out), yo = lo ? ys[L.indexOf(lo)] - 8 : yBot - 12;
     o += `<line x1="${pitR}" y1="${yo}" x2="${pitR + 30}" y2="${yo}" stroke="${pc}" stroke-width="3"/><polygon points="${pitR + 36},${yo} ${pitR + 26},${yo - 5} ${pitR + 26},${yo + 5}" fill="${pc}"/>`;
     if (!lo) o += T(labX, yo - 8, `Flow control ${f2(c.qo)} l/s to tie-in`, 10.5, {bold:true, f:pc}); }
-  const lov = L.find(l => l.ov); if (lov) { const y = ys[L.indexOf(lov)]; o += `<line x1="${pitR}" y1="${y}" x2="${roomR + 30}" y2="${y}" stroke="#dc2626" stroke-width="2.5" stroke-dasharray="5 3"/>`; }
+  const lov = L.find(l => l.ov); if (lov) { const y = ys[L.indexOf(lov)], xe = roomR + 34;   // the overflow pipe through the tank wall
+    o += `<rect x="${pitR}" y="${y - 5}" width="${xe - pitR}" height="10" fill="#fecaca" stroke="#dc2626" stroke-width="1.6"/><polygon points="${xe + 10},${y} ${xe},${y - 7} ${xe},${y + 7}" fill="#dc2626"/>`; }
+  { const dt = (x, y1, y2, t) => arrow(x, y1, y2) + (y2 - y1 >= 70 ? T(x - 7, (y1 + y2)/2, t, 9.5, {anchor:"middle", bold:true, rot:true}) : T(x + 8, (y1 + y2)/2 + 3, t, 9.5, {bold:true})), d2 = dimX + 46;
+    o += `<line x1="${dimX - 12}" y1="${y0}" x2="${d2 + 8}" y2="${y0}" stroke="#94a3b8" stroke-dasharray="2 3"/><line x1="${dimX - 12}" y1="${yBot}" x2="${d2 + 8}" y2="${yBot}" stroke="#94a3b8" stroke-dasharray="2 3"/>`;
+    if (c.hov < Infinity) { const yv = yBot - c.hov*k, fbm = Ht - c.hov;
+      o += `<line x1="${dimX - 12}" y1="${yv}" x2="${dimX + 8}" y2="${yv}" stroke="#dc2626" stroke-dasharray="2 3"/>` + dt(dimX, yv, yBot, `Floor to overflow ${f2(c.hov)} m`);
+      if (fbm > 0.005) o += dt(dimX, y0, yv, `Above overflow ${f2(fbm)} m`); else o += T(dimX, y0 - 8, "Above overflow 0.00 m", 9.5, {anchor:"middle", bold:true, f:"#dc2626"}); }
+    o += dt(d2, y0, yBot, `Total height ${f2(Ht)} m`); }
   const cx = (pitL + pitR)/2;
   o += `<rect x="${pitL - 20}" y="${yBot + 18}" width="${pitR - pitL + 40}" height="22" fill="#fff" stroke="#000"/>` + T(cx, yBot + 33, `ATTENUATION TANK${c.nT > 1 ? ` (${c.nT} No.)` : ""}`, 11.5, {anchor:"middle", bold:true});
   o += T(cx, yBot + 58, `${c.out === "pump" ? (dry ? "Pumps in a dry room beside the tank  ·  " : "Submersible pumps in the tank  ·  ") : ""}Plan area ${c.nT > 1 ? `${c.nT} × ${f2(c.A1)} = ` : ""}${f2(c.AT)} m²  ·  overflow strategy: ${a.ovf || "not stated"}`, 10.5, {anchor:"middle"});
@@ -12644,25 +12655,173 @@ function SumpForm({pump, onChange}) {
   );
 }
 
+// v1.118.35: the pit played back from the sheet's own levels, pump flow and area. At half a pump's flow the cycle is the shortest: it must not be shorter than the design minimum (60 ÷ starts)
+function SumpAnim({s}) {
+  const fl = s.selDepth, area = s.area, Qp = s.qSel, nW = s.work, lvs = s.levels, Hh = d => Math.max(0, fl - d), find = k => lvs.find(l => l.k === k);
+  const lvP = lvs.filter(l => l.pn).sort((a, b) => a.pn - b.pn), starts = lvP.map(l => Hh(l.d)), hStop = Hh(find("STOP").d), hHL = Hh(find("HL").d), hIL = Hh(find("IL").d), hBot = Hh(find("BOT").d);
+  const init = () => ({h:hStop, on:starts.map(() => false), t:0, hist:[], lastS:null, cycs:[], inQ:0, inLeft:0, out:0, acc:0, flood:false});
+  const [qAvg, setQ] = useState(Math.round(Qp/2*10)/10), [pat, setPat] = useState("s"), [spd, setSpd] = useState(30), [play, setPlay] = useState(false), [, tick] = useState(0);
+  const R = useRef(null); if (!R.current) R.current = init();
+  const qRef = useRef(qAvg), pRef = useRef(pat); qRef.current = qAvg; pRef.current = pat;
+  useEffect(() => { R.current = init(); setPlay(false); setQ(Math.round(Qp/2*10)/10); tick(x => x + 1); }, [s]);
+  const er = m => 5 - m*Math.log(1 - Math.random());
+  const step = () => { const r = R.current, q = qRef.current;
+    r.inLeft -= 1; if (r.inLeft <= 0) { if (pRef.current === "s") { r.inQ = q; r.inLeft = 1e9; } else if (r.inQ > 0) { r.inQ = 0; r.inLeft = er(60); } else { r.inQ = q*2*(0.6 + 0.8*Math.random()); r.inLeft = er(60); } }
+    if (pRef.current === "s") r.inQ = q;
+    starts.forEach((h0, i) => { if (r.h >= h0 && !r.on[i]) { r.on[i] = true; if (i === 0) { if (r.lastS !== null) { r.cycs.push(r.t - r.lastS); if (r.cycs.length > 6) r.cycs.shift(); } r.lastS = r.t; } } });
+    if (r.h <= hStop) r.on = r.on.map(() => false);
+    let out = r.on.filter(Boolean).length*Qp; out = Math.min(out, r.inQ + r.h*area*1000);
+    r.h = Math.min(fl, Math.max(0, r.h + (r.inQ - out)/1000/area)); r.flood = r.h >= hIL; r.out = out; r.t += 1;
+    if (Math.round(r.t) % 5 === 0) { r.hist.push([r.t, r.h, r.on.filter(Boolean).length, r.inQ]); while (r.hist.length && r.t - r.hist[0][0] > 3600) r.hist.shift(); } };
+  useEffect(() => { if (!play) return; let last = performance.now(), raf;
+    const loop = now => { const dt = Math.min(0.1, (now - last)/1000); last = now; R.current.acc += dt*spd; while (R.current.acc >= 1) { step(); R.current.acc -= 1; } tick(x => x + 1); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop); return () => cancelAnimationFrame(raf); }, [play, spd]);
+  const r = R.current, h = r.h, gy = 30, by = 248, hv = Math.min(fl, Math.max(hIL*1.3, hIL + 0.25)), cut = hv < fl - 1e-6, Y = hh => by - (by - gy)*Math.min(hh, hv)/hv, running = r.on.filter(Boolean).length, over = h >= hHL;
+  const col = r.flood ? "#dc2626" : over ? "#d97706" : "#1d6fb8";
+  const items = [{hh:hIL, t:"Inlet", c:"#dc2626"}, {hh:hHL, t:"High alarm", c:"#d97706"}, ...starts.map((x, i) => ({hh:x, t:`P${i + 1} start`, c:"#16a34a"})), {hh:hStop, t:"Stop", c:"#6e6e73"}, {hh:hBot, t:"Min level", c:"#6e6e73"}].sort((a, b) => b.hh - a.hh);
+  let prevY = -99; items.forEach(it => { it.ly = Math.max(Y(it.hh), prevY + 12); prevY = it.ly; });
+  const mc = r.cycs.length ? r.cycs.reduce((a, b) => a + b, 0)/r.cycs.length : null, sph = mc ? 3600/mc : null, minDesign = s.cycle;
+  const V1 = (starts[0] - hStop)*area, tWorst = V1*1000/Qp*4/60/ (1) , tNow = r.inQ;
+  const x0 = 36, x1 = 392, y0 = 224, y1 = 16, ymax = Math.max(hIL*1.06, hHL*1.1), X = tt => x0 + (x1 - x0)*(tt - (r.t - 3600))/3600, YY = v => y0 - (y0 - y1)*v/ymax;
+  let p = "", runb = [], inb = []; r.hist.forEach((e, i) => { const xs = X(e[0]).toFixed(1), ys = YY(e[1]).toFixed(1); p += (i ? "L" : "M") + xs + " " + ys; if (i > 0) { const xa = X(r.hist[i - 1][0]).toFixed(1); if (e[2] > 0) runb.push(<line key={"r" + i} x1={xa} x2={xs} y1={y0 + 22} y2={y0 + 22} stroke="#16a34a" strokeWidth="6" />); if (e[3] > 0.02) inb.push(<line key={"i" + i} x1={xa} x2={xs} y1={y0 + 34} y2={y0 + 34} stroke="#1d6fb8" strokeWidth="6" />); } });
+  const box = {background:"#f5f5f7", borderRadius:8, padding:"6px 9px", minWidth:0}, cell = (l, v, bad) => <div style={box}><div style={{fontSize:10.5, color:"#6e6e73"}}>{l}</div><div style={{fontSize:14, fontWeight:700, color:bad ? "#dc2626" : "#1d1d1f"}}>{v}</div></div>;
+  const st = r.flood ? "Backing up the inlet" : over ? "High alarm" : running ? "Pumping" : h > hStop + 0.01 ? "Filling" : "Idle";
+  return <div className="no-print" style={{marginTop:8, border:"1px solid #e1e1e6", borderRadius:12, padding:10, background:"#fff"}}>
+    <div style={{display:"flex", gap:8, alignItems:"center", flexWrap:"wrap", marginBottom:8}}>
+      <button type="button" className="ca-btn" style={{minWidth:78}} onClick={() => setPlay(v => !v)}>{play ? "❚❚ Pause" : "▶ Play"}</button>
+      <select value={spd} onChange={e => setSpd(Number(e.target.value))} aria-label="Speed" style={{fontSize:12}}><option value="10">10x</option><option value="30">30x</option><option value="90">90x</option><option value="300">300x</option><option value="1000">1000x</option></select>
+      <select value={pat} onChange={e => { setPat(e.target.value); r.inLeft = 0; }} aria-label="Inflow pattern" style={{fontSize:12}}><option value="s">Steady inflow</option><option value="b">Intermittent inflow</option></select>
+      <button type="button" className="ca-btn" onClick={() => { R.current = init(); tick(x => x + 1); }}>Reset</button>
+    </div>
+    <label style={{display:"block", fontSize:12, color:"#6e6e73", marginBottom:8}}>Average inflow <b style={{color:"#1d1d1f"}}>{qAvg.toFixed(1)} l/s</b> <span>(half of one pump, {(Qp/2).toFixed(1)} l/s, is the worst case; design inflow {s.Q.toFixed(1)} l/s)</span>
+      <input type="range" min="0.1" max={Math.max(s.Q, Qp)} step="0.1" value={qAvg} onChange={e => setQ(Number(e.target.value))} style={{width:"100%", touchAction:"pan-y"}} /></label>
+    <div style={{display:"flex", flexWrap:"wrap", gap:10, alignItems:"flex-start"}}>
+      <div style={{flex:"0 0 270px", width:270, maxWidth:"100%", margin:"0 auto"}}>
+        <svg viewBox="0 0 270 290" style={{display:"block", width:"100%", height:"auto", aspectRatio:"270/290"}} role="img" aria-label="Pit section" fontFamily="Arial,Helvetica,sans-serif">
+          {cut ? <g><path d={`M36 ${gy + 6} l8 -6 l8 6 l8 -6 l8 6 l8 -6 l8 6 l8 -6 l8 6 l8 -6 l8 6 l8 -6 l6 4`} fill="none" stroke="#6e6e73" /><text x="4" y="12" fontSize="9.5" fill="#6e6e73">Pit continues up {(fl - hv).toFixed(1)} m to the top (SSL), not shown</text></g> : <g><rect x="0" y={gy - 6} width="270" height="6" fill="#ececf0" /><text x="4" y={gy - 9} fontSize="9.5" fill="#6e6e73">Top of pit (SSL)</text></g>}
+          <rect x="40" y={gy} width="110" height={by - gy} fill="none" stroke="#1d1d1f" strokeWidth="2.5" />
+          <rect x="42" y={Y(h)} width="106" height={Math.max(0, by - Y(h))} fill={col} fillOpacity="0.5" /><line x1="42" x2="148" y1={Y(h)} y2={Y(h)} stroke={col} strokeWidth="2.5" />
+          {items.map((it, i) => <g key={i}><line x1="34" x2="156" y1={Y(it.hh)} y2={Y(it.hh)} stroke={it.c} strokeDasharray="4 3" /><text x="160" y={it.ly + 3} fontSize="10" fill={it.c}>{it.t}</text></g>)}
+          <text x="95" y={Math.min(by - 6, Math.max(gy + 14, Y(h) + 16))} fontSize="12" fontWeight="700" textAnchor="middle" fill="#1d1d1f">{h.toFixed(2)} m</text>
+          <line x1="40" x2="14" y1={Y(hIL)} y2={Y(hIL)} stroke="#d2d2d7" strokeWidth="7" />
+          {r.inQ > 0.02 && <line x1="40" x2="14" y1={Y(hIL)} y2={Y(hIL)} stroke="#1d6fb8" strokeWidth={2 + Math.min(1, r.inQ/Math.max(s.Q, Qp))*5} strokeDasharray="6 5" strokeDashoffset={-(r.t*3) % 22} />}
+          <text x="4" y={Y(hIL) - 7} fontSize="10" fill="#185FA5">{r.inQ > 0.02 ? r.inQ.toFixed(1) + " l/s in" : "No inflow"}</text>
+          {Array.from({length:s.installed}, (_, i) => { const on = i < nW && r.on[i], sb = i >= nW; return <g key={i}><rect x={40 + i*38} y="260" width="32" height="20" rx="3" fill={on ? "#16a34a" : "#b4b2a9"} /><text x={56 + i*38} y="274" fontSize="10" textAnchor="middle" fill="#fff">{sb ? "S" + (i - nW + 1) : "P" + (i + 1)}</text></g>; })}
+          <text x={Math.max(60, 40 + s.installed*38 + 6)} y="274" fontSize="10" fill="#0F6E56">{r.out > 0.05 ? r.out.toFixed(1) + " l/s out" : ""}</text>
+        </svg>
+      </div>
+      <div style={{flex:"1 1 260px", minWidth:0}}>
+        <svg viewBox="0 0 400 290" style={{display:"block", width:"100%", height:"auto", aspectRatio:"400/290"}} role="img" aria-label="Water level over the last hour" fontFamily="Arial,Helvetica,sans-serif">
+          {items.map((it, i) => <line key={i} x1={x0} x2={x1} y1={YY(it.hh)} y2={YY(it.hh)} stroke={it.c} strokeDasharray="4 3" strokeOpacity="0.6" />)}
+          {[0, 0.5, 1, 1.5, 2, 2.5, 3].filter(v => v <= ymax).map(v => <text key={v} x={x0 - 4} y={YY(v) + 3} fontSize="9.5" textAnchor="end" fill="#6e6e73">{v}</text>)}
+          <text x="2" y="9" fontSize="9.5" fill="#6e6e73">Level above floor (m), last hour</text><text x={x1} y={y0 + 12} fontSize="9.5" textAnchor="end" fill="#6e6e73">now</text><text x={x0} y={y0 + 12} fontSize="9.5" fill="#6e6e73">60 min ago</text>
+          {r.hist.length > 1 && <path d={p} fill="none" stroke="#1d6fb8" strokeWidth="2.2" />}{runb}{inb}
+          <text x={x0} y={y0 + 54} fontSize="9.5" fill="#0F6E56">Green bar: a pump is running</text><text x={x0 + 170} y={y0 + 54} fontSize="9.5" fill="#185FA5">Blue bar: inflow</text>
+        </svg>
+      </div>
+    </div>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(92px,1fr))", gap:6, marginTop:8}}>
+      {cell("Clock", `${Math.floor(r.t/3600)} h ${String(Math.floor(r.t%3600/60)).padStart(2, "0")} min`)}{cell("Water level", `${h.toFixed(2)} m`)}{cell("Pumps running", `${running} of ${nW}`)}{cell("Cycle, average", mc ? `${(mc/60).toFixed(1)} min` : "—")}{cell("Starts per hour", sph ? `${sph.toFixed(1)} / ${s.starts}` : `— / ${s.starts}`, sph && sph > s.starts + 0.05)}{cell("State", st, r.flood || over)}
+    </div>
+    <div style={{marginTop:8, fontSize:11.5, color:"#6e6e73"}}>Shortest possible cycle of pump 1 in this pit, at an inflow of half its flow: {(V1*1000/Qp*4/60).toFixed(1)} min, against the design minimum of {minDesign.toFixed(1)} min (60 ÷ {s.starts} starts). Set the inflow to {(Qp/2).toFixed(1)} l/s and the measured cycle should match.</div>
+  </div>;
+}
+// v1.118.38: the whole event run at once (no waiting): how long the pumps work, run hours, starts, highest level
+function sumpRunSim(s, durH, qAvg, pat) {
+  const fl = s.selDepth, area = s.area, Qp = s.qSel, Hh = d => Math.max(0, fl - d), find = k => s.levels.find(l => l.k === k);
+  const starts = s.levels.filter(l => l.pn).sort((a, b) => a.pn - b.pn).map(l => Hh(l.d)), hStop = Hh(find("STOP").d), hHL = Hh(find("HL").d), hIL = Hh(find("IL").d);
+  let seed = 12345; const rnd = () => { seed = (seed + 0x6D2B79F5) | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0)/4294967296; };
+  const er = m => 5 - m*Math.log(1 - rnd()), total = durH*3600, cap = total + 6*3600;
+  let h = hStop, on = starts.map(() => false), t = 0, inQ = 0, left = 0, vin = 0, vout = 0, peak = h, flood = 0, over = 0, tStop = null, tHL = null, tIL = null; const run = starts.map(() => 0), cnt = starts.map(() => 0), pts = [], t1 = [];
+  while (t < cap) {
+    if (t < total) { if (pat === "s") inQ = qAvg; else { left -= 1; if (left <= 0) { if (inQ > 0) { inQ = 0; left = er(60); } else { inQ = qAvg*(0.6 + 0.4*rnd()); left = er(60); } } } } else inQ = 0;
+    starts.forEach((h0, i) => { if (h >= h0 && !on[i]) { on[i] = true; cnt[i]++; if (i === 0) t1.push(t); } });
+    if (h <= hStop) on = on.map(() => false);
+    const n = on.filter(Boolean).length; let out = n*Qp; out = Math.min(out, inQ + h*area*1000);
+    on.forEach((o, i) => { if (o) run[i]++; });
+    h = Math.min(fl, Math.max(0, h + (inQ - out)/1000/area)); vin += inQ/1000; vout += out/1000; peak = Math.max(peak, h); if (h >= hIL) flood++; if (h >= hHL) over++;
+    t++; if (tHL === null && h >= hHL) tHL = t; if (tIL === null && h >= hIL) tIL = t; if (t % 30 === 0) pts.push([t, h, inQ]);
+    if (t >= total && n === 0 && h <= hStop + 1e-6) { tStop = t; break; }
+  }
+  let mx = 0, j = 0; for (let i = 0; i < t1.length; i++) { while (t1[i] - t1[j] >= 3600) j++; mx = Math.max(mx, i - j + 1); }
+  const cyc = t1.length > 1 ? (t1[t1.length - 1] - t1[0])/(t1.length - 1) : null;
+  return {total, t, tStop, run, cnt, vin, vout, peak, flood, over, pts, mx, cyc, hStop, hHL, hIL, starts, tHL, tIL};
+}
+function SumpRun({s}) {
+  const g = s.governing || {}, d0 = g.kind === "tank" && Number(g.hrs) > 0 ? Number(g.hrs) : 1;
+  const [dur, setDur] = useState(d0), [q0, setQ] = useState(+s.Q.toFixed(1)), [pat, setPat] = useState("s"), [up, setUp] = useState(0);
+  const q = +(q0*(1 + up/100)).toFixed(2);
+  const r = useMemo(() => sumpRunSim(s, Math.max(0.05, dur), Math.max(0.05, q), pat), [s, dur, q, pat]);
+  const sc = useMemo(() => [0, 10, 15, 20].map(u => ({u, q:q0*(1 + u/100), r:sumpRunSim(s, Math.max(0.05, dur), Math.max(0.05, q0*(1 + u/100)), "s")})), [s, dur, q0]);
+  const fmt = sec => { const m = Math.round(sec/60); return `${Math.floor(m/60)} h ${String(m%60).padStart(2, "0")} min`; }, mm = sec => sec == null ? "not reached" : `${Math.round(sec/60)} min`;
+  const Qp = s.qSel, n = s.work, area = s.area, lim = s.starts, f2 = v => v.toFixed(2), f1 = v => v.toFixed(1), V1 = area*(r.starts[0] - r.hStop);
+  const bad = r.mx > lim, avgQ = r.vin*1000/r.total, soft = pat === "b" && avgQ < Qp*n*0.75, ok = r.flood === 0 && r.over === 0 && !bad;
+  const box = {background:"#f5f5f7", borderRadius:7, padding:"4px 8px", minWidth:0}, cell = (l, v, b) => <div style={box}><div style={{fontSize:10, color:"#6e6e73", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{l}</div><div style={{fontSize:12.5, fontWeight:700, color:b ? "#dc2626" : "#1d1d1f", whiteSpace:"nowrap"}}>{v}</div></div>;
+  const W = 520, H = 215, L = 30, R = 84, T0 = 18, B = 20, tt = r.pts.length ? r.pts[r.pts.length - 1][0] : 1, ymax = r.flood > 0 ? r.hIL*1.3 : Math.max(r.hIL*1.08, r.peak*1.05), X = x => L + (W - L - R)*x/tt, Y = v => T0 + (H - T0 - B)*(1 - v/ymax);
+  const lines = [["Inlet", r.hIL, "#dc2626"], ["High alarm", r.hHL, "#d97706"], ...r.starts.map((x, i) => [`P${i + 1} start`, x, "#16a34a"]).reverse(), ["Stop", r.hStop, "#6e6e73"]];
+  let prev = -99; const lab = lines.map(l => { const y = Math.max(Y(l[1]), prev + 11); prev = y; return y; });
+  const path = r.pts.map((e, i) => `${i ? "L" : "M"}${X(e[0]).toFixed(1)} ${Y(Math.min(e[1], r.flood > 0 ? r.hIL : ymax)).toFixed(1)}`).join(""), xt = [], shortEv = tt < 5400, stepH = shortEv ? (tt <= 900 ? 120 : tt <= 1800 ? 300 : 600)/3600 : tt/3600 > 12 ? 4 : tt/3600 > 5 ? 2 : tt/3600 > 2 ? 1 : 0.5; for (let x = 0; x <= tt/3600 + 1e-9; x += stepH) xt.push(x);
+  const yt = [], ys = ymax <= 1.2 ? 0.2 : ymax <= 3 ? 0.5 : 1; for (let v = 0; v <= ymax + 1e-9; v += ys) yt.push(v);
+  const verdict = r.flood > 0 ? "The pit backs up into the inlet: the pumps or the pit are too small for this inflow." : r.over > 0 ? "The level reaches the high alarm during the event." : bad ? `The lead pump starts up to ${r.mx} times in an hour, more than the ${lim} allowed.` : "The level stays below the high alarm and the starts stay within the limit.";
+  const th = {textAlign:"left", fontWeight:700, padding:"3px 6px", color:"#6e6e73", fontSize:10.5}, td = {padding:"3px 6px", fontSize:11.5};
+  return <div className="no-print" style={{border:"1px solid #e1e1e6", borderRadius:12, padding:"8px 10px", background:"#fff"}}>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:8, fontSize:11, color:"#6e6e73"}}>
+      <label title={g.kind === "tank" ? `Governing source: tank drain, ${(+g.vol).toFixed(0)} m³ over ${g.hrs} h` : "Design inflow. A design peak: Intermittent sends it in bursts of 60 to 100 %, on about half the time."}>Inflow, l/s<input type="number" min="0.1" step="0.1" value={q0} onChange={e => setQ(Number(e.target.value))} style={{width:"100%"}} /></label>
+      <label title="For sprinkler discharge, type the fire duration">Lasts, hours<input type="number" min="0.1" step="0.25" value={dur} onChange={e => setDur(Number(e.target.value))} style={{width:"100%"}} /></label>
+      <label>Above the design<select value={up} onChange={e => setUp(Number(e.target.value))} style={{width:"100%"}}><option value="0">None</option><option value="10">+10 %</option><option value="15">+15 %</option><option value="20">+20 %</option></select></label>
+      <label>Pattern<select value={pat} onChange={e => setPat(e.target.value)} style={{width:"100%"}}><option value="s">Steady (design case)</option><option value="b">Intermittent</option></select></label>
+    </div>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(118px,1fr))", gap:5, marginTop:8}}>
+      {cell("Inflow lasts", fmt(r.total))}{cell("Average inflow", `${f1(avgQ)} l/s`)}{cell("Pumps stop after", r.tStop ? fmt(r.tStop) : "over 6 h", !r.tStop)}{cell("Water in / pumped", `${f1(r.vin)} / ${f1(r.vout)} m³`)}
+      {r.run.map((x, i) => <React.Fragment key={i}>{cell(`Pump ${i + 1} runs`, `${fmt(x)} · ${r.cnt[i]} start${r.cnt[i] === 1 ? "" : "s"}`)}</React.Fragment>)}
+      {cell("Busiest hour, lead", `${r.mx} starts / ${lim}`, bad)}{cell("Highest level", r.flood > 0 ? `Above inlet ${f2(r.hIL)} m` : `${f2(r.peak)} m`, r.over > 0)}
+    </div>
+    <div style={{marginTop:6, padding:"6px 10px", borderRadius:8, background:ok ? "#e8f5e9" : "#fdeceb", color:ok ? "#1b5e20" : "#b91c1c", fontSize:12, fontWeight:600}}>{verdict}{soft && <span style={{display:"block", fontWeight:400, color:"#8a5a00"}}>Intermittent averages only {f1(avgQ)} l/s against the pumps' {f1(Qp*n)} l/s, so it copes easily. For continuous flow, such as sprinkler discharge or a tank drain, use Steady.</span>}</div>
+    <div style={{display:"flex", flexWrap:"wrap", gap:10, marginTop:8, alignItems:"flex-start"}}>
+      <div style={{flex:"1.3 1 380px", minWidth:0}}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{display:"block", width:"100%", height:"auto"}} role="img" aria-label="Water level over the whole event" fontFamily="Arial,Helvetica,sans-serif">
+          {yt.map(v => <g key={v}><line x1={L} x2={W - R} y1={Y(v)} y2={Y(v)} stroke="#ececf0" /><text x={L - 3} y={Y(v) + 3} fontSize="9" textAnchor="end" fill="#6e6e73">{f1(v)}</text></g>)}
+          {lines.map((l, i) => <g key={i}><line x1={L} x2={W - R} y1={Y(l[1])} y2={Y(l[1])} stroke={l[2]} strokeDasharray="4 3" /><text x={W - R + 4} y={lab[i] + 3} fontSize="9.5" fill={l[2]}>{l[0]} {f2(l[1])}</text></g>)}
+          <path d={path} fill="none" stroke="#1d6fb8" strokeWidth="1.8" />
+          {xt.map(x => <text key={x} x={X(x*3600)} y={H - 5} fontSize="9" textAnchor="middle" fill="#6e6e73">{shortEv ? `${Math.round(x*60)} min` : `${x} h`}</text>)}
+          <text x="2" y="9" fontSize="9" fill="#6e6e73">Water level above the pit floor (m){r.flood > 0 ? ", cut off at the inlet: the pit backs up" : ""}</text>
+        </svg>
+      </div>
+      <div style={{flex:"1 1 330px", minWidth:0}}>
+        <div style={{fontWeight:800, fontSize:12}}>If the inflow is higher than the design</div>
+        <div style={{fontSize:10.5, color:"#6e6e73", margin:"1px 0 3px"}}>Steady inflow for {fmt(r.total)}, the worst case. The {n} pump{n > 1 ? "s" : ""} carry {f1(n*Qp)} l/s together.</div>
+        <table style={{borderCollapse:"collapse", width:"100%"}}><thead><tr><th style={th}>Inflow</th><th style={th}>Peak level</th><th style={th}>High alarm</th><th style={th}>Backs up</th></tr></thead>
+          <tbody>{sc.map(x => { const b2 = x.r.over > 0 || x.r.flood > 0; return <tr key={x.u} style={{background:x.u === up ? "#eef4ff" : "transparent"}}><td style={td}>{x.u ? `+${x.u} %` : "Design"} · {f1(x.q)} l/s</td><td style={{...td, color:b2 ? "#dc2626" : "#1d1d1f", fontWeight:600}}>{x.r.flood > 0 ? `Above ${f2(x.r.hIL)} m` : `${f2(x.r.peak)} m`}{x.r.flood === 0 && x.r.hIL - x.r.peak < 0.05 ? <span style={{fontWeight:400, fontSize:10, color:"#d97706"}}> marginal</span> : null}</td><td style={td}>{mm(x.r.tHL)}</td><td style={{...td, color:x.r.tIL != null ? "#dc2626" : "#1d1d1f", fontWeight:x.r.tIL != null ? 700 : 400}}>{mm(x.r.tIL)}</td></tr>; })}</tbody></table>
+        <div style={{fontWeight:800, fontSize:12, marginTop:8}}>How it is calculated</div>
+        <div style={{fontSize:11, lineHeight:1.5, color:"#3a3a3c"}}>Every second: level = level + (inflow − pumps running × {f1(Qp)} l/s) ÷ 1000 ÷ {f2(area)} m². Pump 1 starts at {f2(r.starts[0])} m{r.starts.length > 1 ? `, pump 2 at ${f2(r.starts[1])} m` : ""}; all stop at {f2(r.hStop)} m.</div>
+        <div style={{fontSize:11, lineHeight:1.5, color:"#3a3a3c"}}>Check: {f2(area)} × ({f2(r.starts[0])} − {f2(r.hStop)}) = {f2(V1)} m³. Shortest cycle = 4 × {f2(V1)} × 1000 ÷ {f1(Qp)} ÷ 60 = {(4*V1*1000/Qp/60).toFixed(1)} min (design minimum {s.cycle.toFixed(1)} min).</div>
+      </div>
+    </div>
+  </div>;
+}
 // ─── SUMP SECTION CARD — left column of Pump Inputs; click to enlarge ─────────
 function SumpFigCard({pump}) {
   const res = useMemo(()=>safeCalculate(pump),[pump]);
   const fig = useMemo(()=>res && res.sump ? sumpFigure(res.sump, pump.pitCaption || pump.name || "") : res && res.pbc ? pbcFigure(res.pbc, pump.name || "") : null, [res, pump.pitCaption, pump.name]);
   const ttl = pump.type === "pbc" ? "Chamber section" : "Sump section";
-  const [big, setBig] = useState(false);
-  useEffect(()=>{ if(!big) return; const k=e=>{ if(e.key==="Escape") setBig(false); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[big]);
+  const [mod, setMod] = useState(null);   // v1.118.38: one window, three views: the drawing, the live pit, the whole event
+  useEffect(()=>{ if(!mod) return; const k=e=>{ if(e.key==="Escape") setMod(null); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[mod]);
+  const tabs = res && res.sump ? [["sec", "Section drawing"], ["run", "Run the whole event"]] : [["sec", "Section drawing"]];
   return (
     <div className="piw-fig">
-      <div className="piw-h"><b>{ttl}</b>{fig && <button type="button" className="piw-fig-zoom" onClick={()=>setBig(true)} title="Enlarge">⤢</button>}</div>
+      <div className="piw-h"><b>{ttl}</b>{fig && <button type="button" className="piw-fig-zoom" onClick={()=>setMod("sec")} title="Enlarge">⤢</button>}</div>
       {fig ? <>
-          <div className="sump-fig piw-fig-svg" onClick={()=>setBig(true)} title="Click to enlarge" dangerouslySetInnerHTML={{__html:fig.svg}} />
+          <div className="sump-fig piw-fig-svg" onClick={()=>setMod("sec")} title="Click to enlarge" dangerouslySetInnerHTML={{__html:fig.svg}} />
           <div className="piw-fig-meta">{res.pbc ? <>{res.pbc.sizeStr} · outlet DN{res.pbc.outD} · {res.pbc.Vstore > 0 ? `storage ${res.pbc.Vstore.toFixed(2)} m³` : "no storage"}</> : <>{res.sump.sizeStr} · {res.sump.installed} pump{res.sump.installed>1?"s":""} · inlet −{res.sump.IL.toFixed(2)} m</>}</div>
+          {res.sump && <button type="button" className="ca-adv no-print" onClick={() => setMod("run")}>▶ Run the whole event <em>pump stop time, starts, higher inflow</em></button>}
         </>
         : <div className="sump-fig-empty">{res && res.errors ? res.errors.join(" ") : "Calculation could not be produced."}</div>}
-      {big && fig && ReactDOM.createPortal(<div className="ai-back piw-fig-back" onClick={()=>setBig(false)}>
-        <div className="piw-fig-modal" onClick={e=>e.stopPropagation()}>
-          <div className="piw-h"><b>{ttl} — {pump.name||(pump.type === "pbc" ? "Chamber" : "Sump")}</b><button type="button" className="piw-fig-zoom" onClick={()=>setBig(false)}>✕</button></div>
-          <div className="sump-fig piw-fig-big" dangerouslySetInnerHTML={{__html:fig.svg}} />
+      {mod && fig && ReactDOM.createPortal(<div className="ai-back piw-fig-back" onClick={()=>setMod(null)}>
+        <div className="piw-fig-modal" style={res.sump ? {height:"min(640px,92vh)"} : undefined} onClick={e=>e.stopPropagation()}>
+          <div className="piw-h"><b>{ttl} — {pump.name||(pump.type === "pbc" ? "Chamber" : "Sump")}</b><button type="button" className="piw-fig-zoom" onClick={()=>setMod(null)}>✕</button></div>
+          {tabs.length > 1 && <div style={{display:"flex", gap:6, flexWrap:"wrap", margin:"2px 0 10px"}}>{tabs.map(([k, l]) => <button key={k} type="button" className="ca-btn" onClick={() => setMod(k)} style={mod === k ? {background:"#1e3a5f", color:"#fff", borderColor:"#1e3a5f"} : {}}>{l}</button>)}</div>}
+          {mod === "sec" && <div className="sump-fig piw-fig-big" dangerouslySetInnerHTML={{__html:fig.svg}} />}
+          {mod === "run" && res.sump && <SumpRun s={res.sump} />}
         </div>
       </div>, document.body)}
     </div>
@@ -13191,13 +13350,127 @@ function SwSlopeTable({set, setSet, locked}) {
   </div>;
 }
 // v1.94: attenuation tank inputs and results (a discharge point of the type Attenuation tank)
+// v1.118.34: the storm played back — tank section filling and emptying beside the inflow / outflow curves, from the routed rows
+function AttenAnim({c, st, tag}) {
+  const rows = st.rows, n = rows.length, dtm = c.dtm, hrs = n*dtm/60, hov = c.hov < Infinity ? c.hov : null, zf = c.zf;
+  const [t, setT] = useState(0), [play, setPlay] = useState(false), [spd, setSpd] = useState(1);
+  useEffect(() => { setPlay(false); setT(0); }, [st]);
+  useEffect(() => { if (!play) return; let last = performance.now(), raf;
+    const loop = now => { const dt = (now - last)/1000; last = now; setT(x => { const nx = x + dt*spd*hrs/12; if (nx >= hrs) { setPlay(false); return hrs; } return nx; }); raf = requestAnimationFrame(loop); };
+    raf = requestAnimationFrame(loop); return () => cancelAnimationFrame(raf); }, [play, spd, hrs]);
+  const val = key => { const p = Math.min(n - 1, Math.max(0, t*60/dtm - 1)), k = Math.floor(p), fr = p - k, a = rows[k], b = rows[Math.min(n - 1, k + 1)]; return (a[key] || 0)*(1 - fr) + (b[key] || 0)*fr; };
+  const q = val("q"), out = val("out"), ov = val("ov"), V = val("V"), h = V/c.AT;
+  const qMax = Math.max(1, ...rows.map(r => Math.max(r.q, r.out, r.ov || 0)), c.qo)*1.1, dMax = hov ? hov*1.12 : Math.max(0.5, st.hm*1.2);
+  const gy = 24, by = 224, ps = (by - gy)/dMax, wl = Math.min(h, dMax)*ps, over = ov > 1e-6, col = over ? "#dc2626" : "#1d6fb8", step = dMax <= 1.5 ? 0.25 : dMax <= 3.5 ? 0.5 : 1;
+  const ticks = []; for (let d = 0; d <= dMax + 1e-9; d += step) ticks.push(d);
+  const L = 42, R = 10, T0 = 14, B = 30, W = 400, Hh = 250, pw = W - L - R, ph = Hh - T0 - B, X = hh => L + pw*hh/hrs, Y = v => T0 + ph*(1 - v/qMax);
+  const px = k => X((k + 1)*dtm/60), line = f => rows.map((r, k) => `${k ? "L" : "M"}${px(k).toFixed(1)},${Y(f(r)).toFixed(1)}`).join("");
+  const kEnd = Math.min(n - 1, Math.max(0, Math.floor(t*60/dtm - 1))), part = f => rows.slice(0, kEnd + 1).map((r, k) => `${k ? "L" : "M"}${px(k).toFixed(1)},${Y(f(r)).toFixed(1)}`).join("");
+  const hasOv = rows.some(r => r.ov > 1e-6), xt = []; for (let x = 0; x <= hrs + 1e-9; x += 6) xt.push(x);
+  const status = over ? "Overflowing" : q > out + 0.05 ? "Filling" : out > 0.05 ? "Draining" : V < 1e-6 ? "Empty" : "Holding";
+  const lvl = zf != null ? `${(zf + h).toFixed(2)} m` : `${h.toFixed(2)} m`, box = {background:"#f5f5f7", borderRadius:8, padding:"6px 9px", minWidth:0};
+  const cell = (l, v, bad) => <div style={box}><div style={{fontSize:10.5, color:"#6e6e73"}}>{l}</div><div style={{fontSize:14, fontWeight:700, color:bad ? "#dc2626" : "#1d1d1f"}}>{v}</div></div>;
+  return <div className="no-print" style={{marginTop:10, border:"1px solid #e1e1e6", borderRadius:12, padding:10, background:"#fff"}}>
+    <div style={{display:"flex", gap:8, alignItems:"center", marginBottom:8}}>
+      <button type="button" className="ca-btn" style={{minWidth:78}} onClick={() => { if (!play && t >= hrs) setT(0); setPlay(p => !p); }}>{play ? "❚❚ Pause" : t >= hrs ? "↻ Replay" : "▶ Play"}</button>
+      <input type="range" min="0" max={hrs} step={hrs/600} value={t} onChange={e => { setPlay(false); setT(Number(e.target.value)); }} style={{flex:1, minWidth:0}} aria-label="Time" />
+      <select value={spd} onChange={e => setSpd(Number(e.target.value))} aria-label="Speed" style={{fontSize:12}}><option value="0.5">Slow</option><option value="1">Normal</option><option value="2.5">Fast</option></select>
+    </div>
+    <div style={{display:"flex", flexWrap:"wrap", gap:10, alignItems:"flex-start"}}>
+      <div style={{flex:"0 0 190px", width:190, maxWidth:"100%", margin:"0 auto"}}>
+        <svg viewBox="0 0 190 250" style={{display:"block", width:"100%", height:"auto", aspectRatio:"190/250"}} role="img" aria-label="Tank section" fontFamily="Arial,Helvetica,sans-serif">
+          <rect x="0" y={gy - 8} width="190" height="8" fill="#ececf0" /><text x="4" y={gy - 11} fontSize="9.5" fill="#6e6e73">Ground</text>
+          <rect x="56" y={gy} width="100" height={by - gy} fill="none" stroke="#1d1d1f" strokeWidth="2" />
+          <rect x="58" y={by - wl} width="96" height={wl} fill={col} fillOpacity="0.5" /><line x1="58" x2="154" y1={by - wl} y2={by - wl} stroke={col} strokeWidth="2" />
+          {ticks.map(d => <g key={d}><line x1="50" x2="56" y1={by - d*ps} y2={by - d*ps} stroke="#6e6e73" /><text x="46" y={by - d*ps + 3} fontSize="9.5" textAnchor="end" fill="#6e6e73">{d}</text></g>)}
+          {hov && <g><line x1="50" x2="162" y1={by - hov*ps} y2={by - hov*ps} stroke="#ea580c" strokeDasharray="4 3" /><text x="164" y={by - hov*ps + 3} fontSize="9.5" fill="#ea580c">Overflow</text></g>}
+          {c.out === "pump" && c.g.hon > 0 && <g><line x1="56" x2="156" y1={by - c.g.hon*ps} y2={by - c.g.hon*ps} stroke="#16a34a" strokeDasharray="2 3" /><text x="164" y={by - c.g.hon*ps + 3} fontSize="9.5" fill="#16a34a">Start</text>
+            <line x1="56" x2="156" y1={by - c.g.hoff*ps} y2={by - c.g.hoff*ps} stroke="#86868b" strokeDasharray="2 3" /><text x="164" y={by - c.g.hoff*ps + 3} fontSize="9.5" fill="#86868b">Stop</text></g>}
+          <line x1="106" x2="106" y1={gy - 8} y2={by - wl - 2} stroke="#1d6fb8" strokeWidth={1 + q/qMax*8} opacity={q > 0.05 ? 1 : 0.15} />
+          <line x1="156" x2={162 + out/qMax*24} y1={by - 5} y2={by - 5} stroke="#16a34a" strokeWidth={2 + out/qMax*8} opacity={out > 0.05 ? 1 : 0.15} />
+          <text x="106" y={by - wl + (wl > 30 ? 16 : -6)} fontSize="11" fontWeight="700" textAnchor="middle" fill="#1d1d1f">{h.toFixed(2)} m</text>
+          <text x="106" y="242" fontSize="9.5" textAnchor="middle" fill="#6e6e73">Depth in m, to scale</text>
+        </svg>
+      </div>
+      <div style={{flex:"1 1 260px", minWidth:0}}>
+        <svg viewBox="0 0 400 250" style={{display:"block", width:"100%", height:"auto", aspectRatio:"400/250"}} role="img" aria-label="Inflow and outflow over time" fontFamily="Arial,Helvetica,sans-serif">
+          {[0, 1, 2, 3, 4].map(i => { const v = qMax*i/4; return <g key={i}><line x1={L} x2={L + pw} y1={Y(v)} y2={Y(v)} stroke="#ececf0" /><text x={L - 4} y={Y(v) + 3} fontSize="9.5" textAnchor="end" fill="#6e6e73">{v < 10 ? v.toFixed(1) : Math.round(v)}</text></g>; })}
+          {xt.map(x => <text key={x} x={X(x)} y={Hh - 14} fontSize="9.5" textAnchor="middle" fill="#6e6e73">{x} h</text>)}
+          <text x="4" y="9" fontSize="9.5" fill="#6e6e73">Flow (l/s)</text>
+          <path d={`${part(r => r.q)} L${px(kEnd)},${Y(0)} L${px(0)},${Y(0)} Z`} fill="#1d6fb8" fillOpacity="0.15" />
+          <path d={`${part(r => r.out)} L${px(kEnd)},${Y(0)} L${px(0)},${Y(0)} Z`} fill="#16a34a" fillOpacity="0.25" />
+          <path d={line(r => r.q)} fill="none" stroke="#1d6fb8" strokeWidth="1.6" strokeOpacity="0.35" /><path d={line(r => r.out)} fill="none" stroke="#16a34a" strokeWidth="1.6" strokeOpacity="0.35" />
+          {kEnd > 0 && <g><path d={part(r => r.q)} fill="none" stroke="#1d6fb8" strokeWidth="2.2" /><path d={part(r => r.out)} fill="none" stroke="#16a34a" strokeWidth="2.2" />{hasOv && <path d={part(r => r.ov || 0)} fill="none" stroke="#ea580c" strokeWidth="1.6" strokeDasharray="4 3" />}</g>}
+          <line x1={L} x2={L + pw} y1={Y(c.qo)} y2={Y(c.qo)} stroke="#16a34a" strokeDasharray="2 3" strokeWidth="0.9" /><text x={L + pw - 2} y={Y(c.qo) - 3} fontSize="9.5" textAnchor="end" fill="#16a34a">allowable {c.qo.toFixed(2)} l/s</text>
+          <line x1={X(t)} x2={X(t)} y1={T0} y2={T0 + ph} stroke="#6e6e73" strokeDasharray="3 3" />
+          <circle cx={X(t)} cy={Y(q)} r="4" fill="#1d6fb8" /><circle cx={X(t)} cy={Y(out)} r="4" fill="#16a34a" />
+          <text x={L} y={Hh - 2} fontSize="9.5" fill="#1d6fb8">— flow in</text><text x={L + 62} y={Hh - 2} fontSize="9.5" fill="#16a34a">— flow out</text>{hasOv && <text x={L + 130} y={Hh - 2} fontSize="9.5" fill="#ea580c">- - overflow</text>}
+        </svg>
+      </div>
+    </div>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(92px,1fr))", gap:6, marginTop:8}}>
+      {cell("Time", `${t.toFixed(1)} h`)}{cell("Inflow", `${q.toFixed(1)} l/s`)}{cell("Outflow", `${out.toFixed(2)} l/s`)}{cell(zf != null ? "Water level" : "Depth", lvl)}{cell("Stored", `${V.toFixed(0)} m³`)}{cell("State", status, over)}
+    </div>
+  </div>;
+}
+// v1.118.49: run the whole storm, with the rainfall above the design (same layout as the sump run)
+function AttenRun({c}) {
+  const [sto, setSto] = useState("d"), [up, setUp] = useState(0);
+  const base = Number(sto === "c" && c.K ? c.a.p24c : c.a.p24d), hov = c.hov < Infinity ? c.hov : null, g = c.g, dtm = c.dtm, dts = c.dts;
+  const run = P => { const I = swInflow(P, c.Ai, c.Ap, c.cnI, c.cnP, dts, c.nW), R = swRouteLevel(I.rows, dts, g), k0 = R.rows.findIndex(r => r.ov > 1e-6); return {...R, tOv:k0 < 0 ? null : (k0 + 1)*dtm/60, tE:R.tEmpty != null ? R.tEmpty*dtm/60 : null}; };
+  const r = useMemo(() => run(base*(1 + up/100)), [c, sto, up]);
+  const sc = useMemo(() => [0, 10, 15, 20].map(u => ({u, P:base*(1 + u/100), r:run(base*(1 + u/100))})), [c, sto]);
+  const f1 = v => v.toFixed(1), f2 = v => v.toFixed(2), hh = v => v == null ? "not within the window" : `${v.toFixed(1)} h`, rows = r.rows, n = rows.length, hrs = n*dtm/60;
+  const ovr = r.ovVol > 1e-6, near = hov != null && !ovr && hov - r.hm < 0.05, hot = hov != null && r.outMax > c.qo*1.001 && c.out !== "pump";
+  const box = {background:"#f5f5f7", borderRadius:7, padding:"4px 8px", minWidth:0}, cell = (l, v, b) => <div style={box}><div style={{fontSize:10, color:"#6e6e73", whiteSpace:"nowrap", overflow:"hidden", textOverflow:"ellipsis"}}>{l}</div><div style={{fontSize:12.5, fontWeight:700, color:b ? "#dc2626" : "#1d1d1f", whiteSpace:"nowrap"}}>{v}</div></div>;
+  const W = 520, H = 215, L = 34, R = 84, T0 = 18, B = 20, ymax = Math.max(hov != null ? hov*1.12 : 0, hov == null ? r.hm*1.2 : 0, 0.3), X = x => L + (W - L - R)*x/hrs, Y = v => T0 + (H - T0 - B)*(1 - Math.min(v, ymax)/ymax);
+  const pth = rows.map((e, i) => `${i ? "L" : "M"}${X((i + 1)*dtm/60).toFixed(1)} ${Y(e.h).toFixed(1)}`).join(""), xs = hrs > 36 ? 12 : hrs > 18 ? 6 : 3, xt = []; for (let x = 0; x <= hrs + 1e-9; x += xs) xt.push(x);
+  const ys = ymax <= 1.2 ? 0.2 : ymax <= 3 ? 0.5 : 1, yt = []; for (let v = 0; v <= ymax + 1e-9; v += ys) yt.push(v);
+  const lines = [...(hov != null ? [["Overflow", hov, "#dc2626"]] : []), ...(c.out === "pump" ? [["Pump start", g.hon, "#16a34a"], ["Pump stop", g.hoff, "#6e6e73"]] : [])].sort((p, q) => q[1] - p[1]);
+  let prev = -99; const lab = lines.map(l => { const y = Math.max(Y(l[1]), prev + 11); prev = y; return y; });
+  const th = {textAlign:"left", fontWeight:700, padding:"3px 6px", color:"#6e6e73", fontSize:10.5}, td = {padding:"3px 6px", fontSize:11.5};
+  const verdict = hov == null ? `No overflow level is set. For this storm the tank would need ${f1(r.Vm)} m³ below a level of ${f2(r.hm)} m.` : ovr ? `The tank overflows: ${f1(r.ovVol)} m³, up to ${f1(r.ovPeak)} l/s, starting ${f1(r.tOv)} h into the storm.` : "The level stays below the overflow level and nothing spills.";
+  const ok = !ovr && !hot;
+  return <div className="no-print" style={{border:"1px solid #e1e1e6", borderRadius:12, padding:"8px 10px", background:"#fff"}}>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))", gap:8, fontSize:11, color:"#6e6e73"}}>
+      <label>Storm<select value={sto} onChange={e => setSto(e.target.value)} style={{width:"100%"}}><option value="d">Design {c.a.rpD}</option>{c.K && <option value="c">Check {c.a.rpC}</option>}</select></label>
+      <label>24 hour rainfall, mm<input type="text" readOnly value={f1(base)} style={{width:"100%"}} /></label>
+      <label>Rainfall above the design<select value={up} onChange={e => setUp(Number(e.target.value))} style={{width:"100%"}}><option value="0">None</option><option value="10">+10 %</option><option value="15">+15 %</option><option value="20">+20 %</option></select></label>
+    </div>
+    <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fit,minmax(118px,1fr))", gap:5, marginTop:8}}>
+      {cell("Rainfall", `${f1(base*(1 + up/100))} mm`)}{cell("Peak inflow", `${f1(r.qm)} l/s`)}{cell("Highest level", `${f2(r.hm)} m${hov != null && ovr ? " (overflow)" : ""}`, ovr)}{cell("Overflow starts", r.tOv != null ? `${f1(r.tOv)} h` : "none", ovr)}
+      {cell("Overflow volume", ovr ? `${f1(r.ovVol)} m³` : "none", ovr)}{cell("Highest outflow", `${f2(r.outMax)} l/s`, hot)}{c.out === "pump" && r.outMax < 1e-6 ? cell("Pumps", "never start") : cell(c.out === "pump" ? "Below pump start" : "Empty again", hh(r.tE))}{cell("Largest stored", `${f1(r.Vm)} m³`)}
+    </div>
+    <div style={{marginTop:6, padding:"6px 10px", borderRadius:8, background:ok ? "#e8f5e9" : "#fdeceb", color:ok ? "#1b5e20" : "#b91c1c", fontSize:12, fontWeight:600}}>{verdict}{near && <span style={{display:"block", fontWeight:400, color:"#8a5a00"}}>The peak level is within 50 mm of the overflow, so this is marginal.</span>}{hot && <span style={{display:"block", fontWeight:400}}>The outflow goes above the allowable {f2(c.qo)} l/s.</span>}</div>
+    <div style={{display:"flex", flexWrap:"wrap", gap:10, marginTop:8, alignItems:"flex-start"}}>
+      <div style={{flex:"1.3 1 380px", minWidth:0}}>
+        <svg viewBox={`0 0 ${W} ${H}`} style={{display:"block", width:"100%", height:"auto"}} role="img" aria-label="Water level in the tank over the storm" fontFamily="Arial,Helvetica,sans-serif">
+          {yt.map(v => <g key={v}><line x1={L} x2={W - R} y1={Y(v)} y2={Y(v)} stroke="#ececf0" /><text x={L - 3} y={Y(v) + 3} fontSize="9" textAnchor="end" fill="#6e6e73">{f1(v)}</text></g>)}
+          {lines.map((l, i) => <g key={i}><line x1={L} x2={W - R} y1={Y(l[1])} y2={Y(l[1])} stroke={l[2]} strokeDasharray="4 3" /><text x={W - R + 4} y={lab[i] + 3} fontSize="9.5" fill={l[2]}>{l[0]} {f2(l[1])}</text></g>)}
+          <path d={pth} fill="none" stroke={ovr ? "#dc2626" : "#1d6fb8"} strokeWidth="1.8" />
+          {xt.map(x => <text key={x} x={X(x)} y={H - 5} fontSize="9" textAnchor="middle" fill="#6e6e73">{x} h</text>)}
+          <text x="2" y="9" fontSize="9" fill="#6e6e73">Water level above the tank floor (m){ovr ? ", flat where it spills" : ""}</text>
+        </svg>
+      </div>
+      <div style={{flex:"1 1 330px", minWidth:0}}>
+        <div style={{fontWeight:800, fontSize:12}}>If the rainfall is higher than the design</div>
+        <div style={{fontSize:10.5, color:"#6e6e73", margin:"1px 0 3px"}}>{sto === "c" && c.K ? `Check storm ${c.a.rpC}` : `Design storm ${c.a.rpD}`}, same 24 hour profile, tank of {f1(c.AT)} m².</div>
+        <table style={{borderCollapse:"collapse", width:"100%"}}><thead><tr><th style={th}>Rainfall</th><th style={th}>Peak level</th><th style={th}>Overflow</th><th style={th}>Empty after</th></tr></thead>
+          <tbody>{sc.map(x => { const b2 = x.r.ovVol > 1e-6, nr = hov != null && !b2 && hov - x.r.hm < 0.05; return <tr key={x.u} style={{background:x.u === up ? "#eef4ff" : "transparent"}}><td style={td}>{x.u ? `+${x.u} %` : "Design"} · {f1(x.P)} mm</td><td style={{...td, color:b2 ? "#dc2626" : "#1d1d1f", fontWeight:600}}>{f2(x.r.hm)} m{nr ? <span style={{fontWeight:400, fontSize:10, color:"#d97706"}}> marginal</span> : null}</td><td style={{...td, color:b2 ? "#dc2626" : "#1d1d1f", fontWeight:b2 ? 700 : 400}}>{b2 ? `${f1(x.r.ovVol)} m³ from ${f1(x.r.tOv)} h` : "none"}</td><td style={td}>{x.r.tE != null ? `${f1(x.r.tE)} h` : "over window"}</td></tr>; })}</tbody></table>
+        <div style={{fontWeight:800, fontSize:12, marginTop:8}}>How it is calculated</div>
+        <div style={{fontSize:11, lineHeight:1.5, color:"#3a3a3c"}}>Every {dtm} min: rainfall becomes runoff with the curve numbers, so inflow = runoff change × area ÷ time. Stored volume = volume + (inflow − outflow) × time. Level = volume ÷ {f1(c.AT)} m².</div>
+        <div style={{fontSize:11, lineHeight:1.5, color:"#3a3a3c"}}>{c.out === "pump" ? `Pumps ${f1(g.Qp)} l/s start at ${f2(g.hon)} m and stop at ${f2(g.hoff)} m.` : c.out === "orifice" ? `Outflow follows the level through the Ø${c.a.dOr} mm orifice.` : `Outflow is fixed at ${f2(c.qo)} l/s while the tank holds water.`}{hov != null ? ` Overflow at ${f2(hov)} m = ${f1(c.AT*hov)} m³ of storage.` : ""}</div>
+      </div>
+    </div>
+  </div>;
+}
 function AttenPanel({o, sw, NW, res, setOut, locked}) {
   const pos0 = v => isPositive(v), set = stormSettings(sw.set), a = {...SW_ATT_DEF, ...(o.att || {})}, setA = patch => setOut(o.id, {att:{...(o.att || {}), ...patch}}), c = res && res.storm, f1 = v => v.toFixed(1), f2 = v => v.toFixed(2);
   const [work, setWork] = useState(false), [gst, setGst] = useState("d");
   const fig = useMemo(() => !c || c.method !== "scs" ? null : c.level ? swHydro4(c, gst === "c" && c.K ? c.K : c.D) : swHydro(c), [c, gst]);
   const tankFig = useMemo(() => c && c.level ? swTankFig(c) : null, [c]);
-  const [bigT, setBigT] = useState(false);
-  useEffect(() => { if (!bigT) return; const k = ev => { if (ev.key === "Escape") setBigT(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [bigT]);
+  const [bigT, setBigT] = useState(null), [anim, setAnim] = useState(false);   // bigT: null | "sec" | "run"
+  useEffect(() => { if (!bigT) return; const k = ev => { if (ev.key === "Escape") setBigT(null); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [bigT]);
   // roof area that reaches this tank, directly or through collectors
   const conn = (() => { const drains = sw.drains || [], seen = new Set(); let A = 0;
     const addRoof = id => { if (seen.has(id)) return; seen.add(id); const z = NW.res[id]; if (z && z.r && z.r.storm) A += z.r.storm.A; };
@@ -13276,14 +13549,19 @@ function AttenPanel({o, sw, NW, res, setOut, locked}) {
         </div>
         {c.level && c.K && <Seg label="Graph" value={gst} onChange={setGst} options={[{value:"d", label:`Design ${a.rpD}`}, {value:"c", label:`Check ${a.rpC}`}]} />}
         {fig && <div className="ca-fig sw-h4" dangerouslySetInnerHTML={{__html:fig.svg}} />}
+        {c.level && <><button type="button" className="ca-adv no-print" onClick={() => setAnim(v => !v)}>{anim ? "▾" : "▸"} Play the storm <em>tank filling and emptying beside the flow curves</em></button>
+          {anim && <AttenAnim c={c} st={gst === "c" && c.K ? c.K : c.D} tag={o.tag} />}</>}
         {tankFig && <div className="piw-fig" style={{marginTop:10}}>
-          <div className="piw-h"><b>Tank section</b><button type="button" className="piw-fig-zoom" onClick={() => setBigT(true)} title="Enlarge">⤢</button></div>
-          <div className="sump-fig piw-fig-svg" onClick={() => setBigT(true)} title="Click to enlarge" dangerouslySetInnerHTML={{__html:tankFig.svg}} />
+          <div className="piw-h"><b>Tank section</b><button type="button" className="piw-fig-zoom" onClick={() => setBigT("sec")} title="Enlarge">⤢</button></div>
+          <div className="sump-fig piw-fig-svg" onClick={() => setBigT("sec")} title="Click to enlarge" dangerouslySetInnerHTML={{__html:tankFig.svg}} />
+          <button type="button" className="ca-adv no-print" onClick={() => setBigT("run")}>▶ Run the whole storm <em>overflow, empty time, rainfall above the design</em></button>
         </div>}
-        {bigT && tankFig && ReactDOM.createPortal(<div className="ai-back piw-fig-back" onClick={() => setBigT(false)}>
-          <div className="piw-fig-modal" onClick={ev => ev.stopPropagation()}>
-            <div className="piw-h"><b>Tank section — {o.tag || ""} {o.name || ""}</b><button type="button" className="piw-fig-zoom" onClick={() => setBigT(false)}>✕</button></div>
-            <div className="sump-fig piw-fig-big" dangerouslySetInnerHTML={{__html:tankFig.svg}} />
+        {bigT && tankFig && ReactDOM.createPortal(<div className="ai-back piw-fig-back" onClick={() => setBigT(null)}>
+          <div className="piw-fig-modal" style={{height:"min(640px,92vh)"}} onClick={ev => ev.stopPropagation()}>
+            <div className="piw-h"><b>Tank section — {o.tag || ""} {o.name || ""}</b><button type="button" className="piw-fig-zoom" onClick={() => setBigT(null)}>✕</button></div>
+            <div style={{display:"flex", gap:6, flexWrap:"wrap", margin:"2px 0 10px"}}>{[["sec", "Tank section"], ["run", "Run the whole storm"]].map(([k, l]) => <button key={k} type="button" className="ca-btn" onClick={() => setBigT(k)} style={bigT === k ? {background:"#1e3a5f", color:"#fff", borderColor:"#1e3a5f"} : undefined}>{l}</button>)}</div>
+            {bigT === "sec" && <div className="sump-fig piw-fig-big" dangerouslySetInnerHTML={{__html:tankFig.svg}} />}
+            {bigT === "run" && <AttenRun c={c} />}
           </div>
         </div>, document.body)}
         <button type="button" className="ca-adv" onClick={() => setWork(v => !v)}>{work ? "▾" : "▸"} Show working <em>catchment, curve numbers, both storms</em></button>
@@ -16119,7 +16397,13 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
 // ─── PIPE SIZING WORKSPACE — full width, data entry on one half, the drawing on the other ───
 function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pipeId, setPipeId, updPump, addWater, addPumpWith, openPump, proj, setProj, stageName, stageLocked, saveStatus, saveNow, onBack}) {
   const waters = pumps.filter(x => x.type === "water");
-  const cur = waters.find(x => x.id === pipeId) || waters[0] || null;
+  // v1.118.51: one tab per kind of network. Each tab lists only its own calculations
+  const svcOf = x => x.wsService === "gas" ? "gas" : x.wsService === "drain" ? "drain" : x.wsService === "fuel" ? "fuel" : "water";
+  const SVCS = [["water", "Water supply", "water", "Add a water supply pipe sizing calculation"], ["drain", "Drainage", "drain", "Add a drainage pipe sizing calculation (BS EN 12056-2)"], ["gas", "Gas / LPG", "gas", "Add a gas (LPG / SNG / PNG) pipe sizing calculation"], ["fuel", "Fuel oil", "fuelnet", "Add a fuel oil network: supply pipework from the tank or pump to the engines and day tanks"]];
+  const [svc, setSvc] = useState(() => { const c0 = waters.find(x => x.id === pipeId); return c0 ? svcOf(c0) : waters[0] ? svcOf(waters[0]) : "water"; });
+  useEffect(() => { const c0 = waters.find(x => x.id === pipeId); if (c0 && svcOf(c0) !== svc) setSvc(svcOf(c0)); }, [pipeId]);
+  const inSvc = waters.filter(x => svcOf(x) === svc), svcRow = SVCS.find(r => r[0] === svc) || SVCS[0];
+  const cur = inSvc.find(x => x.id === pipeId) || inSvc[0] || null;
   const [ratio, setRatio] = useState(() => { try { const v = Number(localStorage.getItem("mep_pz_split")); return v >= 0.3 && v <= 0.7 ? v : 0.5; } catch(e) { return 0.5; } });
   const splitRef = useRef(null), dragRef = useRef(false), histRef = useRef({}), lsRef = useRef({}), [, setTick] = useState(0);
   const [sel, setSelS] = useState(null), [tabReq, setTabReq] = useState(null), [showTest, setShowTest] = useState(false);
@@ -16172,12 +16456,10 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
     <div className="pz">
       <div className="pz-top">
         <div className="pz-title"><b>Pipe Sizing</b><span>{proj.name || "Untitled project"}{stageName ? " · " + stageName : ""}</span></div>
-        {waters.length > 0 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the pipe sizing calculation">
-          {waters.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
-        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("water")} title="Add a water supply pipe sizing calculation">＋ Water</button>
-        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("gas")} title="Add a gas (LPG / SNG / PNG) pipe sizing calculation">＋ Gas</button>
-        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("drain")} title="Add a drainage pipe sizing calculation (BS EN 12056-2)">＋ Drainage</button>
-        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater("fuelnet")} title="Add a fuel oil network: draw the supply pipework from the tank or pump to the engines and day tanks (Darcy-Weisbach)">＋ Fuel</button>
+        <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
+        {inSvc.length > 1 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the calculation">
+          {inSvc.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
+        <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater(svcRow[2])} title={svcRow[3]}>＋ Add {svcRow[1].toLowerCase()}</button>
         <span className="pz-sp" />
         {cur && <div className="ws-seg2" role="group" aria-label="Panels">
           {[["", "Design", "Full-width drawing (Esc closes a panel)"], ["setup", "Setup", "Design basis, source, pressures, pipe classes"], ["pipes", "Pipes", "The pipe table — lengths, sizes, fittings"], ["results", "Results", "Design review, warnings, pump duty"]].map(([k, l, t]) =>
@@ -16208,9 +16490,9 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
         return <div className="pz-info" title={full}><span className={"pz-i1" + (fb ? " bad" : "")}>{line}</span></div>; })()}
       {showTest && <SelfTestPanel onClose={() => setShowTest(false)} />}
       {!cur ? <div className="pz-empty">
-          <div className="pz-empty-card"><div className="pz-empty-ic">▦</div><h3>No pipe sizing calculation yet</h3>
-            <p>Create one to enter the fixtures and draw the pipe network. The drawing sits beside the inputs.</p>
-            <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater("water")}>＋ Create Water Supply Pipe Sizing</button> <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater("gas")}>＋ Create Gas Pipe Sizing</button> <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater("drain")}>＋ Create Drainage Pipe Sizing</button>
+          <div className="pz-empty-card"><div className="pz-empty-ic">▦</div><h3>No {svcRow[1].toLowerCase()} calculation yet</h3>
+            <p>Create one to enter the loads and draw the pipe network.</p>
+            <button type="button" className="pz-btn pri" disabled={stageLocked} onClick={() => addWater(svcRow[2])}>＋ Create {svcRow[1].toLowerCase()} pipe sizing</button>
             {stageLocked && <p style={{color:"#b91c1c"}}>This stage is locked.</p>}</div></div>
         : <div className={"pz-split" + (design ? " pz-design" : "")} ref={splitRef} style={design ? undefined : {gridTemplateColumns:`minmax(0,${ratio}fr) 12px minmax(0,${1 - ratio}fr)`}}>
             <section className={"pz-left" + (design ? " pz-drawer" + (pzPanel ? " open" : "") : "")} aria-hidden={design && !pzPanel ? true : undefined}>
@@ -19064,7 +19346,6 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const navRestore = useRef(false);
   const toggleNav = useCallback(() => { navRestore.current = false; setNavHidden(h => { const n = !h; try { localStorage.setItem("mep_nav_hidden", n ? "1" : "0"); } catch(e) {} return n; }); }, []);
   useEffect(() => { const k = e => { if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "b") { e.preventDefault(); toggleNav(); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [toggleNav]);
-  useEffect(() => { if (tab === "pipe") { if (!navHidden) { navRestore.current = true; setNavHidden(true); } } else if (navRestore.current) { navRestore.current = false; setNavHidden(false); } }, [tab]);
   const [logoStatus, setLogoStatus] = useState(''), [cardStatus, setCardStatus] = useState('');
   const currentEmail = (session.user.email||'').toLowerCase();
   const myRoles = roles.filter(r=>r.active!==false && (r.email||'').toLowerCase()===currentEmail).map(r=>r.role);
@@ -19619,7 +19900,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             {/* ── 4. Workspace ── */}
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
-              {(()=>{ const nW=pumps.filter(x=>x.type==="water").length, cnt={pumps:pumps.length, storm:((meta.storm||{}).roofs||[]).length+((meta.storm||{}).drains||[]).length, fuel:(((meta.fuel||{}).simple||{}).gens||[]).length, tools:((meta.tools||{}).items||[]).length, flsp:((meta.fls||{}).items||[]).length, agent:((meta.cleanAgent||{}).rooms||[]).length, foam:((meta.foam||{}).hazards||[]).length, pipe:nW};
+              {(()=>{ const nW=pumps.filter(x=>x.type==="water").length, cnt={pumps:pumps.length, storm:((meta.storm||{}).roofs||[]).length, fuel:(((meta.fuel||{}).simple||{}).gens||[]).length, tools:((meta.tools||{}).items||[]).length, flsp:((meta.fls||{}).items||[]).length, agent:((meta.cleanAgent||{}).rooms||[]).length, foam:((meta.foam||{}).hazards||[]).length, pipe:nW};
                 const go=k=>{setTab(k);setSidebarOpen(false);};
                 const item=(k,ic,l,sub)=><button key={k} className={(tab===k?"active":"")+(sub?" sbx-sub":"")} onClick={()=>go(k)}><span className="ic">{ic}</span><span className="tx">{l}</span>{cnt[k]!=null&&<span className="pill">{cnt[k]}</span>}</button>;
                 const group=(g,ic,l,kids)=>{ const on=kids.some(x=>x[0]===tab), open=navOpen[g]!=null?navOpen[g]||on:on, tot=kids.reduce((a,x)=>a+(cnt[x[0]]||0),0);
