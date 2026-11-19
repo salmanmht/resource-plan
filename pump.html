@@ -462,6 +462,20 @@
   @media screen and (max-width:1100px){.pf-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
   @media screen and (max-width:600px){.pf-id,.pf-grid,.pf-set{grid-template-columns:1fr 1fr}.pf-set>.pf-f:first-child{grid-column:1/-1}.pf-sec h5{flex-wrap:wrap}.pf-sec h5 em{white-space:normal;width:100%;margin-left:26px}.pf-h-ctl{margin-left:0}}
   /* Schedule table alignment: headers follow their column, all cells vertically centred */
+  /* v1.118.60: schedule sort, reorder and print */
+  .schedule-table th.sortable{cursor:pointer;user-select:none}.schedule-table th.sortable:hover{color:#007aff}.schedule-table th.sortable i{font-style:normal;color:#007aff;font-size:8px;margin-left:3px}
+  .ord-btns{display:inline-flex;align-items:center;gap:1px}.ord-btns button{border:0;background:transparent;color:#007aff;font-size:9px;line-height:1;padding:2px 1px;cursor:pointer;border-radius:3px}.ord-btns button:hover:not(:disabled){background:#e8f0fe}.ord-btns button:disabled{color:#c7c7cc;cursor:default}
+  .schedule-table tr.ord-row{cursor:grab}.schedule-table tr.ord-drag{opacity:.4}.schedule-table tr.drop-above td{box-shadow:inset 0 2px 0 #007aff!important}.schedule-table tr.drop-below td{box-shadow:inset 0 -2px 0 #007aff!important}
+  .sch-sortbar{display:inline-flex;align-items:center;gap:4px}.sch-sortbar button,.sch-tool{height:30px;border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:8px;padding:0 10px;font-size:11px;font-weight:750;cursor:pointer;white-space:nowrap}
+  .sch-sortbar button:hover:not(:disabled),.sch-tool:hover:not(:disabled){border-color:#007aff;color:#007aff}.sch-sortbar button:disabled,.sch-tool:disabled{opacity:.45;cursor:default}.sch-tool.on{background:#e8f0fe;border-color:#007aff;color:#007aff}
+  @media print{
+    .sch2 .sch-fire,.sch2 .schedule-card{display:block!important;overflow:visible!important;height:auto!important;max-height:none!important}
+    .sch2 .schedule-table-wrap{display:block!important;overflow:visible!important;max-height:none!important;height:auto!important;min-height:0!important}
+    .sch-full{position:static!important;padding:0!important}
+    .schedule-table thead{display:table-header-group}.schedule-table tr{break-inside:avoid;page-break-inside:avoid}.sch-sub{break-after:avoid;page-break-after:avoid;margin-top:8px}
+    .schedule-table{table-layout:fixed;width:100%!important}.ord-btns button,.sch-sortbar,.schedule-table th.sortable i{display:none!important}
+    .schedule-table th,.schedule-table td{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  }
   .schedule-table{table-layout:fixed}
   .schedule-table th,.schedule-table td{vertical-align:middle!important}
   .schedule-table th.num,.schedule-table td.num{text-align:right!important;padding-right:14px!important}
@@ -1644,7 +1658,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.53 · Build 2026.11.18.75";
+const BUILD_LABEL = "v1.118.62 · Build 2026.11.19.79";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -2563,6 +2577,9 @@ function calculate(p) {
     {s:"Motor Power", label:fl.legacy ? `Shaft Power  [Ps = Q × 9.81 × H / ηp, ηp = ${(pumpE*100).toFixed(0)}%]` : `Shaft Power  [Ps = ρ/1000 × Q × 9.81 × H / ηp, ρ = ${+fl.rho.toFixed(1)}, ηp = ${(pumpE*100).toFixed(0)}%]`, value:`${pwrShaft.toFixed(3)} kW`},
     {label:mmOn ? `Required Motor Rating  [Ps × (1 + ${motorMarginPct}%)]` : `Required Motor Rating  [= shaft power; motor margin not applied — switch it on under Advanced]`, value:`${pwrReq.toFixed(3)} kW`},
     {label:"Selected Standard Motor",                                            value:`${pwrSel} kW`, hl:true},
+    {label:`Installed Flow  [${set.installed} × ${flowLsPerPump.toFixed(2)} L/s, standby included]`, value:`${+(flowLsPerPump*set.installed).toFixed(2)} L/s`, hl:true},
+    {label:`Installed Motor Capacity  [${set.installed} × ${pwrSel} kW = ${set.lead != null ? set.lead : set.duty} duty${set.assist > 0 ? ` + ${set.assist} assist` : ""} + ${set.standby} standby]`, value:`${+(pwrSel*set.installed).toFixed(2)} kW`, hl:true},
+    {label:`Running Load  [duty${set.assist > 0 ? " + assist" : ""} only, standby not counted]`, value:`${+(pwrSel*set.duty).toFixed(2)} kW`},
     {label:`Electrical Input  [Ps / ηm, ηm = ${(motE*100).toFixed(0)}%]`,       value:`${pwrInput.toFixed(3)} kW`},
   );
 
@@ -2866,6 +2883,9 @@ function calculateSump(p) {
     {s:"Motor Power", label:`Shaft Power  [Ps = Q × 9.81 × H ÷ ηp, ηp = ${(pumpE*100).toFixed(0)}%]`, value:`${pwrShaft.toFixed(3)} kW`},
     {label:`Required Motor Rating  [Ps × (1 + ${motorMarginPct}%)]${sumpMarginNeedsAck(p) ? "  — 0 % MARGIN: confirm or set a margin" : ""}`, value:`${pwrReq.toFixed(3)} kW`, ...(sumpMarginNeedsAck(p) ? {flag:"warn"} : {})},
     {label:"Selected Standard Motor", value:`${pwrSel} kW`, hl:true},
+    {label:`Installed Flow  [${set.installed} × ${qSel.toFixed(2)} L/s, standby included]`, value:`${+(qSel*set.installed).toFixed(2)} L/s`, hl:true},
+    {label:`Installed Motor Capacity  [${set.installed} × ${pwrSel} kW = ${set.lead != null ? set.lead : set.duty} duty${set.assist > 0 ? ` + ${set.assist} assist` : ""} + ${set.standby} standby]`, value:`${+(pwrSel*set.installed).toFixed(2)} kW`, hl:true},
+    {label:`Running Load  [duty${set.assist > 0 ? " + assist" : ""} only, standby not counted]`, value:`${+(pwrSel*set.duty).toFixed(2)} kW`},
     {label:`Electrical Input  [Ps ÷ ηm, ηm = ${(motE*100).toFixed(0)}%]`, value:`${pwrInput.toFixed(3)} kW`},
   );
 
@@ -7248,6 +7268,21 @@ function wsMergeNetworks(p, R) {
 // v1.103.0: water service — any water system (domestic cold / hot, ambient, grey water, TSE, irrigation, or a name typed for the project).
 // The engine is the same; "Loading units from" picks the fixture column (cold / hot / combined) the service draws on.
 const WS_SVC_LIST = ["Domestic cold water", "Domestic hot water", "Ambient water", "Grey water", "Flushing water", "Treated sewage effluent (TSE)", "Irrigation water", "Chilled drinking water", "Soft water", "RO water", "Process water", "Make-up water", "Raw water"];
+// ── Drainage symbols (v1.118.59) ─────────────────────────────────────────────────────────────────────────────────────────────────────
+// A symbol is a label on a node: it is drawn on the canvas, on the schematic and in the exports, and it does not change any sizing.
+const WS_SYMS = [
+  {k:"mh", l:"Manhole",         c:"MH", g:'<circle r="8"/><circle r="3.2" fill="@" stroke="none"/>'},
+  {k:"gt", l:"Gully trap",      c:"GT", g:'<rect x="-8" y="-8" width="16" height="16" rx="1.5"/><circle r="4.2"/>'},
+  {k:"bc", l:"Break chamber",   c:"BC", g:'<rect x="-10" y="-7" width="20" height="14" rx="1.5"/><path d="M-7 0q1.75-3 3.5 0t3.5 0t3.5 0t3.5 0" fill="none"/>'},
+  {k:"sp", l:"Sump pit",        c:"SP", g:'<rect x="-8" y="-8" width="16" height="16" rx="1.5"/><path d="M-5 -3L0 4L5 -3" fill="none"/>'},
+  {k:"oi", l:"Oil interceptor", c:"OI", g:'<rect x="-11" y="-7" width="22" height="14" rx="1.5"/><path d="M-3.5 -7V3M3.5 -3V7" fill="none"/>'},
+  {k:"pd", l:"Planter drain",   c:"PD", g:'<circle r="8"/><path d="M0 5V-1M0 1L-4 -3M0 1L4 -3" fill="none"/>'},
+  {k:"cd", l:"Car park drain",  c:"CD", g:'<circle r="8"/><path d="M-5 -3H5M-6 0H6M-5 3H5" fill="none"/>'},
+  {k:"td", l:"Trench drain",    c:"TD", g:'<rect x="-12" y="-4.5" width="24" height="9" rx="1"/><path d="M-6 -4.5V4.5M0 -4.5V4.5M6 -4.5V4.5" fill="none"/>'},
+];
+const wsSymOf = n => { const k = n && n.sym; return k ? WS_SYMS.find(q => q.k === k) || null : null; };
+const wsSymSvg = (k, x, y, col, sc) => { const q = WS_SYMS.find(t => t.k === k); if (!q) return ""; const c = /^#[0-9a-f]{3,8}$/i.test(String(col || "")) ? col : "#33415c";
+  return `<g transform="translate(${(+x).toFixed(1)} ${(+y).toFixed(1)}) scale(${sc || 1})" fill="#fff" stroke="${c}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${q.g.replace(/@/g, c)}</g>`; };
 const wsSvcName = p => String((p && p.wsSvc) || "").trim();
 // v1.110.0: a colour per water service — every pipe of the calculation (main, riser, branch) is drawn in it when Colour = Class; the class still shows by line weight
 const WS_SVC_DEF_COL = {"Domestic cold water":"#1f6fd1", "Domestic hot water":"#c2410c", "Ambient water":"#0e7490", "Grey water":"#6b7280", "Flushing water":"#7c3aed", "Treated sewage effluent (TSE)":"#a16207", "Irrigation water":"#65a30d", "Chilled drinking water":"#0891b2", "Soft water":"#2563eb", "RO water":"#4f46e5", "Process water":"#9333ea", "Make-up water":"#0d9488", "Raw water":"#78350f"};
@@ -7703,10 +7738,13 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const req = w.nodeReq[n], neg = press[n] < -1e-9, low = (fx && req != null && press[n] < req - 1e-9) || neg, accent = low ? C.bad : fx ? C.fix : (feeder[n] ? wsPipeCol(w, feeder[n], p) : C.root);
     geo.node[n] = {x:nx, y:ny};
     const ring = sel && sel.kind === "node" && sel.id === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="${SELC}" fill-opacity=".18" stroke="${SELC}" stroke-width="2"/>` : "";
+    const SYm = w.drainMode ? wsSymOf(nm0[n]) : null;
     const critC = G && w.crit && w.crit.node === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="#fde68a" fill-opacity=".85" stroke="#d99a14" stroke-width="2"/>` : "", rr = G ? 6 : 9, dr = G ? (fx ? 6 : 4.6) : 7, dst = G ? (fx ? "#fff" : (low ? C.bad : "#33415c")) : (fx ? "#fff" : accent);
-    nodeSvg.push(`<g data-node="${sxEsc(n)}" style="cursor:pointer">${critC}${ring}<circle cx="${nx}" cy="${ny}" r="14" fill="#000" fill-opacity="0"/>` + (isRoot ? `<rect x="${nx-rr}" y="${ny-rr}" width="${2*rr}" height="${2*rr}" rx="3" fill="${C.root}" stroke="#fff" stroke-width="1.5"/>`
+    nodeSvg.push(`<g data-node="${sxEsc(n)}" style="cursor:pointer">${critC}${ring}<circle cx="${nx}" cy="${ny}" r="14" fill="#000" fill-opacity="0"/>` + (SYm ? wsSymSvg(SYm.k, nx, ny, low ? C.bad : isRoot ? C.root : "#33415c")
+      : isRoot ? `<rect x="${nx-rr}" y="${ny-rr}" width="${2*rr}" height="${2*rr}" rx="3" fill="${C.root}" stroke="#fff" stroke-width="1.5"/>`
       : `<circle cx="${nx}" cy="${ny}" r="${dr}" fill="${fx ? (low ? C.bad : C.fix) : "#fff"}" stroke="${dst}" stroke-width="${G ? 1.8 : (fx ? 1.6 : 2.2)}"/>`) + "</g>");
     const lines = [{t:w.drainMode ? (isRoot ? `${n} (outfall)` : n) : isRoot ? `${n} (supply) · P ${press[n].toFixed(1)} ${wsPU(w)}` : `${n} · P ${press[n].toFixed(1)} ${wsPU(w)}${neg ? "  ⚠ NEGATIVE" : low ? "  ⚠ LOW" : ""}`, b:1, f:low ? C.bad : C.ink}];
+    if (SYm) lines.push({t:SYm.l, f:C.sub, b:1});
     if (LV && wsHasXYZ(nm0[n])) lines.push({t:`${wsLvNodeLabel(LV, nm0[n])} · EL ${wsLvSigned(Number(nm0[n].z))} m`, f:C.sub});
     else if (!isRoot && feeder[n] && Number.isFinite(feeder[n].elev)) lines.push({t:`z ${feeder[n].elev >= 0 ? "+" : "−"}${Math.abs(feeder[n].elev).toFixed(1)} m`, f:C.sub});
     if (w.drainMode) { const sv = (w.drain.vents || []).find(q => q.kind === "stack" && q.node === n), rv = (w.drain.vents || []).find(q => q.kind === "riser" && q.node === n), cc = (w.drain.vents || []).find(q => q.kind === "riser" && (q.ccNodes || []).includes(n));
@@ -8314,6 +8352,19 @@ function wsEdFixtureApply(p, plan, rows, load, lvL, tw) {
   const bad = wsEdNewErrors(p, p2); if (bad.length) return {error:bad[0].text};
   return {patch:{wsNodes:nodes, wsNet:p2.wsNet, wsFix:fix}, node:id, created:plan.kind !== "node", split, kind:plan.kind};
 }
+// Put a drainage symbol on a node. Same targeting as the fixture tool (a node, a tee on a pipe, or a stub), but allowed at the outfall. Shift-click takes it off.
+function wsEdSymbolClick(st, c) {
+  const out = {}, plan = wsEdFixturePlan(st.pump, c, {tol:st.tol, grid:st.grid, y:st.planeY, allowSupply:true});
+  if (plan.error) { out.flash = plan.error; return out; }
+  if (st.dec) { if (plan.kind !== "node") { out.flash = "Shift-click a node to take its symbol off."; return out; }
+    const nodes = Array.isArray(st.pump.wsNodes) ? st.pump.wsNodes : [], nd = nodes.find(n => n.id === plan.id);
+    if (!nd || !nd.sym) { out.flash = `${plan.id} has no symbol.`; return out; }
+    out.patch = {wsNodes:nodes.map(n => { if (n.id !== plan.id) return n; const {sym, ...rest} = n; return rest; })}; out.sel = {kind:"node", id:plan.id, src:"draw"}; return out; }
+  if (!WS_SYMS.some(q => q.k === st.symK)) { out.flash = "Choose a symbol in the palette first."; return out; }
+  plan.allowSupply = true;
+  const r = wsEdFixtureApply(st.pump, plan, [], null, st.levels, st.tower); if (r.error) { out.flash = r.error; return out; }
+  out.patch = {...r.patch, wsNodes:r.patch.wsNodes.map(n => n.id === r.node ? {...n, sym:st.symK} : n)}; out.sel = {kind:"node", id:r.node, src:"draw"}; return out;
+}
 function wsEdFixtureClick(st, c) {
   const out = {}, plan = wsEdFixturePlan(st.pump, c, {tol:st.tol, grid:st.grid, y:st.planeY});
   if (plan.error) { out.flash = plan.error; return out; }
@@ -8352,7 +8403,7 @@ function wsEdClip(p, ids, o) {
   const base = roots[0], comp = wsEdComp(secs, base); if (have.some(id => !comp.has(id))) return {error:split};
   const bp = wsEdPt(nm[base]), baseLoad = opt.baseLoad !== false;
   const nodes = have.map(id => { const n = nm[id], q = wsEdPt(n), r = {id, dx:wsEdR(q.x - bp.x), dy:wsEdR(q.y - bp.y), dz:wsEdR(q.z - bp.z)};
-    if (id !== base || baseLoad) ["luAdd", "qAdd", "reqP"].forEach(k => { if (wsFin(n[k]) && Number(n[k]) > 0) r[k] = Number(n[k]); }); if (n.tower) r.tw = n.tower; return r; });
+    if (id !== base || baseLoad) ["luAdd", "qAdd", "reqP"].forEach(k => { if (wsFin(n[k]) && Number(n[k]) > 0) r[k] = Number(n[k]); }); if (n.tower) r.tw = n.tower; if (n.sym) r.sym = n.sym; return r; });
   const pipes = secs.map(s => ({id:s.id, cls:s.cls, from:s.from, to:s.to, od:s.od == null ? "" : s.od, loss:s.loss == null ? "" : s.loss, eq:(Array.isArray(s.eq) ? s.eq : []).map(e => ({...e})), ...(s.clsAuto !== undefined ? {clsAuto:s.clsAuto} : {}), ...(s.tower ? {tw:s.tower} : {})}));
   const fix = (Array.isArray(p.wsFix) ? p.wsFix : []).filter(f => S.has(f.node) && (f.node !== base || baseLoad)).map(f => ({level:f.level || "", room:f.room || "", fixture:f.fixture, node:f.node, qty:f.qty}));
   return {v:1, base, baseLoad, baseAbs:bp, nodes, pipes, fix, counts:{nodes:nodes.length, pipes:pipes.length, fixtures:fix.reduce((a, f) => a + (Number(f.qty) || 0), 0)}};
@@ -8387,6 +8438,7 @@ function wsEdPaste(p, clip, target, o) {
     const id = wsNextNode(wsEdPseudo(w)), nn = {id, x:P.x, y:P.y, z:P.z};
     ["reqP", "qAdd", "luAdd"].forEach(k => { if (Number(cn[k]) > 0) nn[k] = Number(cn[k]); });
     { const tg = opt.tower || cn.tw; if (tg) nn.tower = tg; }
+    if (cn.sym && WS_SYMS.some(q => q.k === cn.sym)) nn.sym = cn.sym;
     w.nodes.push(nn); map[cn.id] = id; pos[cn.id] = P; newNodes.push(id); }
   // a pasted pipe must not run through an existing node
   const pastedN = new Set(newNodes);
@@ -11594,9 +11646,10 @@ function LiveCalcPanel({pump}) {
             res.water.pumpMode ? ["Pump Head",res.pumpHead.noPump?"No pump":`${res.pumpHead.head} m`] : ["Min Residual",`${res.water.minMargin.toFixed(1)} m`]] :
            [["Flow / Pump",`${res.flowLsPerPump.toFixed(2)} L/s`],
             ["Total Head",`${res.totalH} m`],
+            ...(res.set && res.set.installed > 0 && res.installedKw > 0 ? [["Installed Capacity (all pumps incl. standby)",`${+(res.flowLsPerPump*res.set.installed).toFixed(2)} L/s · ${+res.installedKw.toFixed(2)} kW`,true]] : []),
             ["Motor",`${res.pwrSel} kW`],
-            ["Arrangement",res.config]]).map(([k,v])=>(
-            <div key={k}>
+            ["Arrangement",res.config]]).map(([k,v,wide])=>(
+            <div key={k} style={wide?{gridColumn:"1 / -1",paddingTop:6,borderTop:"1px solid #334155"}:undefined}>
               <div style={{fontSize:8,color:"#86868b",textTransform:"uppercase",letterSpacing:"0.08em"}}>{k}</div>
               <div style={{fontSize:15,fontWeight:800,color:"#f5f5f7",fontFamily:"var(--app-sans)"}}>{v}</div>
             </div>
@@ -11605,6 +11658,7 @@ function LiveCalcPanel({pump}) {
         <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5}}>
           {res.pbc ? <>Rising main {res.pbc.rmName} (ID {res.pbc.rmDn} mm) at {res.pbc.vRm.toFixed(2)} m/s · outlet DN{res.pbc.outD} at {res.pbc.slope} %, {Math.round(res.pbc.fill*100)} % full<br/>Outlet velocity {res.pbc.vAt!=null?res.pbc.vAt.toFixed(2)+" m/s":"—"} · <span style={{color:res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"#4ade80":"#f87171",fontWeight:700}}>{res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"all checks pass ✓":"review warnings ✗"}</span></> : res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.lpg ? <>{res.lpg.gas.l} · {res.lpg.nSec} sections{res.lpg.chords.length?` · ${res.lpg.chords.length} ring`:""} · S = {res.lpg.S.toFixed(3)} · supply {res.lpg.P0} mbar<br/>Lowest end node {res.lpg.critNode||"—"} · <span style={{color:res.lpg.status==="valid"?"#4ade80":"#f87171",fontWeight:700}}>{res.lpg.status==="valid"?"all checks pass ✓":"review warnings ✗"}</span></> : res.water && res.water.drainMode ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} appliances · ΣDU {res.water.totLU.toFixed(1)}<br/>Largest drain {res.water.mainSec&&res.water.mainSec.cls==="main"?"DN"+res.water.mainSec.pipe.od:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} {res.water.gasMode ? "connections · " + res.water.gas.type.l + " · S " + res.water.gas.S.toFixed(3) : "fixtures · " + wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
           {res.set.installed} pumps installed · {res.setText || `${res.set.duty} duty, ${res.set.standby} standby`}
+          {res.installedKw > 0 && <><br/><b style={{color:"#f5f5f7"}}>Installed {+res.installedKw.toFixed(2)} kW</b> · {res.set.installed} × {res.pwrSel} kW · running {+res.connectedKw.toFixed(2)} kW{res.set.standby > 0 ? ` + standby ${+(res.pwrSel*res.set.standby).toFixed(2)} kW` : ""}</>}
           <br/>Pipe: {res.pipe.od} mm OD{res.pipe.wall!==undefined?` × ${res.pipe.wall} mm wall`:""} · Velocity{" "}
           <span style={{color:res.velOk?"#4ade80":"#f87171",fontWeight:700}}>
             {res.vel.toFixed(2)} m/s {res.velOk?"✓":"✗"}
@@ -12089,10 +12143,25 @@ function ScheduleToolbar({query,setQuery,status,setStatus,type,setType,method,se
   </div>;
 }
 function StatusChip({status}) { return <span className={`status-chip ${status.key}`}>{status.key==='pass'?'✓':status.key==='review'?'!':'×'} {status.label}</span>; }
-function ScheduleReviewTable({items, density, selectedId, onSelect}) {
+// v1.118.60: sort the schedule by a column
+const SCH_SORT = [["order","Saved order"],["name","System name"],["tag","Tag"],["type","Equipment type"],["flow","Flow each"],["flowTot","System flow"],["head","Head"],["kw","Motor kW"],["state","State"]];
+const schKey = (it, k) => { const p = it.p, r = it.result || {}, ok = !r.error, num = v => ok && v !== "" && v != null && Number.isFinite(Number(v)) ? Number(v) : null;
+  switch (k) { case "name": return String(p.name || "").toLowerCase(); case "tag": return String(p.tag || "").toLowerCase(); case "type": return String(typeLbl(p) || "").toLowerCase();
+    case "flow": return num(r.flowLsPerPump); case "flowTot": return num(r.flowTotal); case "head": return num(r.totalH); case "kw": return num(r.pwrSel);
+    case "state": return ({blocked:0, review:1, pass:2})[it.status && it.status.key]; default: return null; } };
+const schSort = (list, key, dir) => { if (key === "order") return list; const m = dir === "desc" ? -1 : 1;
+  return list.map((it, i) => ({it, i})).sort((a, b) => { const x = schKey(a.it, key), y = schKey(b.it, key);
+    if (x == null && y == null) return a.i - b.i; if (x == null) return 1; if (y == null) return -1;
+    const c = typeof x === "string" ? x.localeCompare(y, undefined, {numeric:true}) : x - y; return c ? c * m : a.i - b.i; }).map(o => o.it); };
+function ScheduleReviewTable({items, density, selectedId, onSelect, sort, setSort, reorder, onPlace, onMove}) {
+  const [drag, setDrag] = useState(null), [over, setOver] = useState(null);
   if (!items.length) return <div className="empty-schedule">No equipment matches the current filters.</div>;
-  const row = item => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); return <tr key={p.id||index} className={`${status.key} ${selectedId===p.id?'selected':''}`} onClick={()=>onSelect(p.id)}>
-    <td className="row-no sticky-left">{index+1}</td><td className="system sticky-left" title={`${p.name} — ${typeLbl(p)||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{typeLbl(p)||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
+  const row = (item, pos) => { const {p,result:r,status,index} = item; const pipe=(matOf(p.pipeType)||{}); const no = sort && sort.key !== 'order' ? pos+1 : index+1;
+    const dnd = reorder ? {draggable:true, onDragStart:e=>{ setDrag(p.id); try{ e.dataTransfer.effectAllowed='move'; e.dataTransfer.setData('text/plain', String(p.id)); }catch(x){} }, onDragEnd:()=>{ setDrag(null); setOver(null); },
+      onDragOver:e=>{ if(drag==null||drag===p.id) return; e.preventDefault(); const rc=e.currentTarget.getBoundingClientRect(); setOver({id:p.id, after:e.clientY>rc.top+rc.height/2}); },
+      onDrop:e=>{ e.preventDefault(); if(drag!=null&&drag!==p.id&&onPlace) onPlace(drag, p.id, !!(over&&over.after)); setDrag(null); setOver(null); }} : {};
+    return <tr key={p.id||index} {...dnd} className={`${status.key} ${selectedId===p.id?'selected':''}${reorder?' ord-row':''}${drag===p.id?' ord-drag':''}${over&&over.id===p.id&&drag!==p.id?(over.after?' drop-below':' drop-above'):''}`} onClick={()=>onSelect(p.id)}>
+    <td className="row-no sticky-left">{reorder ? <span className="ord-btns"><button type="button" title="Move up" disabled={pos===0} onClick={e=>{e.stopPropagation(); onMove&&onMove(p.id,-1);}}>▲</button>{no}<button type="button" title="Move down" disabled={pos===items.length-1} onClick={e=>{e.stopPropagation(); onMove&&onMove(p.id,1);}}>▼</button></span> : no}</td><td className="system sticky-left" title={`${p.name} — ${typeLbl(p)||'Equipment'}`}><div className="system-main">{p.name}</div><div className="system-sub">{typeLbl(p)||'Equipment'}</div></td><td className="tag sticky-left"><span className="tag-code">{p.tag||'—'}</span></td>
     {p.type==='pbc'
       ? <><td><div className="pipe-main">Pressure break chamber</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.pbc.sizeStr} · outlet DN${r.pbc.outD}`}</div></td><td className="ctr"><span className="method-chip">{r.error||r.pbc.eq!=='manning'?'C–W':'Manning'}</span></td></>
       : p.type==='grease'
@@ -12105,7 +12174,7 @@ function ScheduleReviewTable({items, density, selectedId, onSelect}) {
     <td className="num strong">{r.error?'—':r.flowLsPerPump.toFixed(2)}</td><td className="num">{r.error?'—':r.flowTotal.toFixed(2)}</td><td className="num strong">{r.error?'—':r.totalH}</td><td className="num strong">{r.error?'—':r.pwrSel}</td>
     <td className="ctr">{r.error?'—':r.config}</td><td className="ctr">{r.error||p.type==='water'||p.type==='lpg'?'—':r.set.installed}</td><td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status}/><button className="schedule-action" onClick={e=>{e.stopPropagation();onSelect(p.id)}}>View</button></div></td>
   </tr>; };
-  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:'24%'}}/><col style={{width:130}}/><col style={{width:'15%'}}/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:120}}/></colgroup><thead><tr className="labels"><th className="row-no sticky-left">No.</th><th className="system sticky-left">System</th><th className="tag sticky-left">Tag</th><th>Pipe</th><th className="ctr">Method</th><th className="num">Flow each<br/>(L/s)</th><th className="num">System flow<br/>(L/s)</th><th className="num">Head<br/>(m)</th><th className="num">Motor<br/>(kW)</th><th className="ctr">Arrangement</th><th className="ctr">Total</th><th className="sticky-right ctr">State</th></tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||typeLbl(p)}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
+  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:'24%'}}/><col style={{width:130}}/><col style={{width:'15%'}}/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:120}}/></colgroup><thead><tr className="labels">{(()=>{ const sh=(k,cls,label)=><th className={cls+(setSort?' sortable':'')} onClick={setSort?()=>setSort(k):undefined} title={setSort?'Click to sort':undefined}>{label}{sort&&sort.key===k&&k!=='order'?<i>{sort.dir==='desc'?'▼':'▲'}</i>:null}</th>; return <>{sh('order','row-no sticky-left','No.')}{sh('name','system sticky-left','System')}{sh('tag','tag sticky-left','Tag')}<th>Pipe</th><th className="ctr">Method</th>{sh('flow','num',<>Flow each<br/>(L/s)</>)}{sh('flowTot','num',<>System flow<br/>(L/s)</>)}{sh('head','num',<>Head<br/>(m)</>)}{sh('kw','num',<>Motor<br/>(kW)</>)}<th className="ctr">Arrangement</th><th className="ctr">Total</th>{sh('state','sticky-right ctr','State')}</>; })()}</tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||typeLbl(p)}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
 }
 function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
   if (!item) return null; const {p,result:r,status,index}=item; const mat=matOf(p.pipeType)||{};
@@ -12143,7 +12212,7 @@ function FireScheduleTable({items, density, onOpen}) {
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Room</th><th className="sticky-left">Tag</th><th>Agent</th><th className="ctr">Hazard</th><th>Spaces protected</th><th className="num">Volume (m³)</th><th className="num">Design (%)</th><th className="num">Achieved (%)</th><th className="num">Agent (kg)</th><th className="ctr">Cylinders</th><th className="num">Fill each (kg)</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(row)}</tbody></table></div><SchMobile items={items} onOpen={onOpen} metrics={({p, result:r}) => { const c = r && r.ca; return [["Agent", c ? `${c.Wsup.toFixed(1)} kg ${c.ag.short}` : "—"], ["Cylinders", c ? `${c.n} × ${c.cyl.vol} L` : "—"], ["Design", c ? `${c.C.toFixed(2)} %` : "—"]]; }} /></>;
 }
-function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam,stormItems:swIn=[],onEditStorm,fuelItems:fpIn=[],onEditFuel,toolItems:tlIn=[],onEditTool}) {
+function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMovePump,onPlacePump,onSetPumpOrder,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam,stormItems:swIn=[],onEditStorm,fuelItems:fpIn=[],onEditFuel,toolItems:tlIn=[],onEditTool}) {
   const [disc,setDiscS]=useState(()=>{ try { return localStorage.getItem("mep_sch_disc")==="fire"?"fire":"plumbing"; } catch(e){ return "plumbing"; } });
   const setDisc=v=>{ setDiscS(v); try { localStorage.setItem("mep_sch_disc",v); } catch(e){} };
   const [agentFilter,setAgentFilter]=useState('all');
@@ -12152,6 +12221,8 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const [density,setDensityS]=useState(()=>{ try { return localStorage.getItem("mep_sch_density")==="comfortable"?"comfortable":"compact"; } catch(e){ return "compact"; } });
   const setDensity=v=>{ setDensityS(v); try { localStorage.setItem("mep_sch_density",v); } catch(e){} };
   const [full,setFull]=useState(false);
+  const [sortKey,setSortKey]=useState('order'),[sortDir,setSortDir]=useState('asc'),[reorder,setReorder]=useState(false);
+  const setSortBy=k=>{ if(k==='order'){ setSortKey('order'); setSortDir('asc'); return; } if(k===sortKey) setSortDir(d=>d==='asc'?'desc':'asc'); else { setSortKey(k); setSortDir('asc'); } };
   useEffect(()=>{ if(!full) return; const k=e=>{ if(e.key==="Escape") setFull(false); }; window.addEventListener("keydown",k); return ()=>window.removeEventListener("keydown",k); },[full]);
   const items=useMemo(()=>pumps.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[pumps]);
   const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,typeLbl(item.p),(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
@@ -12167,7 +12238,11 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
   const fpRows=useMemo(()=>fpIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fpIn]);
   const tlRows=useMemo(()=>tlIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[tlIn]);
   const pMatch=item=>{const q=query.trim().toLowerCase(); return (!q||[item.p.name,item.p.tag,item.p.location,item.p.from,item.p.to,item.p.tank,typeLbl(item.p)].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter);};
-  const swVis=swRows.filter(pMatch), fpVis=fpRows.filter(pMatch), tlVis=tlRows.filter(pMatch), plExtra=swRows.length+fpRows.length+tlRows.length;
+  const swVis=schSort(swRows.filter(pMatch),sortKey,sortDir), fpVis=schSort(fpRows.filter(pMatch),sortKey,sortDir), tlVis=schSort(tlRows.filter(pMatch),sortKey,sortDir), plExtra=swRows.length+fpRows.length+tlRows.length;
+  const visS=schSort(visible,sortKey,sortDir), sorted=sortKey!=='order', canEdit=!locked&&!!onSetPumpOrder;
+  const saveSortAsOrder=()=>{ if(!canEdit||!sorted||nf>0) return; if(!window.confirm('Save this sort as the order of the pump list?\n\nThe list in the sidebar and the issue sheets follow this order too.')) return; onSetPumpOrder(visS.map(x=>x.p.id)); setSortKey('order'); setSortDir('asc'); };
+  const printSchedule=()=>{ const st=document.createElement('style'); st.textContent='@page{size:A4 landscape;margin:9mm}'; document.head.appendChild(st); const old=document.title; document.title=['Equipment_Schedule',proj&&proj.name,stageName].filter(Boolean).join('_').replace(/[\\/:*?"<>|]+/g,' ');
+    const back=()=>{ document.title=old; st.remove(); window.removeEventListener('afterprint',back); }; window.addEventListener('afterprint',back); window.print(); };
   const plCounts=[...swRows,...fpRows,...tlRows].reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{...counts});
   const fMatch=item=>{const q=query.trim().toLowerCase(); const ag=item.p.type==="foam"?"foam":((item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent);
     return (!q||[item.p.name,item.p.tag,item.p.location,item.p.type==="foam"?"foam "+(FOAM_KINDS[item.p.kind]||""):(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter||(agentFilter==="ca"&&item.p.type==="ca"));};
@@ -12201,6 +12276,11 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
         {(fire ? (query.trim()||statusFilter!=='all'||agentFilter!=='all') : nf>0) && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');setAgentFilter('all');}}>✕ Clear filters</button>}
         <span className="sch-count">{fire ? `${fVisible.length} of ${fItems.length} shown` : `${visible.length+swVis.length+fpVis.length+tlVis.length} of ${items.length+plExtra} shown`}</span>
         <span style={{flex:1}}/>
+        {!fire && <span className="sch-sortbar"><select aria-label="Sort the schedule" value={sortKey} onChange={e=>setSortBy(e.target.value)} title="Sort the rows. Clicking a column heading does the same.">{SCH_SORT.map(o=><option key={o[0]} value={o[0]}>{o[0]==='order'?'Sort: saved order':'Sort: '+o[1]}</option>)}</select>
+          <button type="button" disabled={!sorted} onClick={()=>setSortDir(d=>d==='asc'?'desc':'asc')} title={sortDir==='asc'?'Ascending (click for descending)':'Descending (click for ascending)'}>{sortDir==='asc'?'▲':'▼'}</button>
+          {sorted && <button type="button" disabled={!canEdit||nf>0} onClick={saveSortAsOrder} title={locked?'This stage is locked':nf>0?'Clear the filters first':'Make this sort the saved order of the pump list'}>Save as order</button>}
+          <button type="button" className={"sch-tool"+(reorder?" on":"")} disabled={!canEdit||sorted} onClick={()=>setReorder(v=>!v)} title={locked?'This stage is locked':sorted?'Set the sort to Saved order to move rows by hand':'Drag rows or use the arrows to change the order'}>{reorder?'✓ Done moving':'⇅ Move rows'}</button></span>}
+        <button type="button" className="sch-tool" onClick={printSchedule} title="Print the schedule on A4 landscape, in the order shown">⎙ Print</button>
         <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
       </div>
@@ -12208,11 +12288,11 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,onEditPump,onO
           {(caRows.length>0||!fmRows.length) && <><div className="sch-sub">Clean agent systems <em>{caVis.length}</em></div><FireScheduleTable items={caVis} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/></>}
           {fmRows.length>0 && <><div className="sch-sub">Foam systems <em>{fmVis.length}</em></div><FoamScheduleTable items={fmVis} density={density} onOpen={id=>onEditFoam&&onEditFoam(id)}/></>}
         </div> : plExtra>0 ? <div className="sch-fire">
-          {(items.length>0||!plExtra) && <><div className="sch-sub">Pumps, tanks and pipe sizing <em>{visible.length}</em></div><ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/></>}
+          {(items.length>0||!plExtra) && <><div className="sch-sub">Pumps, tanks and pipe sizing <em>{visible.length}</em></div><ScheduleReviewTable items={visS} density={density} selectedId={selectedId} onSelect={setSelectedId} sort={{key:sortKey,dir:sortDir}} setSort={setSortBy} reorder={reorder&&canEdit&&!sorted} onPlace={onPlacePump} onMove={(id,d)=>{ const k=visS.findIndex(x=>x.p.id===id), t=visS[k+d]; if(t&&onPlacePump) onPlacePump(id,t.p.id,d>0); }}/></>}
           {swRows.length>0 && <><div className="sch-sub">Stormwater <em>{swVis.length}</em></div><StormScheduleTable items={swVis} density={density} onOpen={id=>onEditStorm&&onEditStorm(id)}/></>}
           {fpRows.length>0 && <><div className="sch-sub">Fuel oil pipework <em>{fpVis.length}</em></div><FuelScheduleTable items={fpVis} density={density} onOpen={id=>onEditFuel&&onEditFuel(id)}/></>}
           {tlRows.length>0 && <><div className="sch-sub">Engineering calculations <em>{tlVis.length}</em></div><ToolScheduleTable items={tlVis} density={density} onOpen={id=>onEditTool&&onEditTool(id)}/></>}
-        </div> : <ScheduleReviewTable items={visible} density={density} selectedId={selectedId} onSelect={setSelectedId}/>}
+        </div> : <ScheduleReviewTable items={visS} density={density} selectedId={selectedId} onSelect={setSelectedId} sort={{key:sortKey,dir:sortDir}} setSort={setSortBy} reorder={reorder&&canEdit&&!sorted} onPlace={onPlacePump} onMove={(id,d)=>{ const k=visS.findIndex(x=>x.p.id===id), t=visS[k+d]; if(t&&onPlacePump) onPlacePump(id,t.p.id,d>0); }}/>}
     </section>
     <PumpInspectionDrawer item={selected} onClose={()=>setSelectedId(null)} onEdit={()=>{onEditPump(selected.p.id);setSelectedId(null)}} onOpenCalc={()=>{onOpenCalculationSheet();setSelectedId(null)}}/>
   </div>;
@@ -15641,6 +15721,7 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           <span className="nc-sep" />
           {wsIsStormNet(pump) && <label className="nc-f dl" title="Plan roof area that drains to this node (the top of a rainwater pipe or an outlet), plus half of any wall area draining onto the roof"><span>Roof area</span><CommitInput type="number" cls="r" value={wsFin(selNode.roofA) ? selNode.roofA : ""} onCommit={v => setN(selNode.id, {roofA:v})} placeholder="0" /><i>m²</i></label>}
           {!wsIsGas(pump) && !wsIsStormNet(pump) && !wsIsFuelNet(pump) && <label className="nc-f dl" title="Loading units typed straight onto this node — for a zone or riser whose fixtures are not listed"><span>Direct load</span><CommitInput type="number" cls="r" value={wsFin(selNode.luAdd) ? selNode.luAdd : ""} onCommit={v => setN(selNode.id, {luAdd:v})} placeholder="0" /><i>{unit}</i></label>}
+          {wsIsDrain(pump) && !wsIsStormNet(pump) && <label className="nc-f dl" title="The symbol drawn at this node: a label on the drawing, with no effect on sizing"><span>Symbol</span><select value={selNode.sym || ""} onChange={e => { const v = e.target.value, has = nodesArr.some(n => n.id === selNode.id); edit({wsNodes: has ? nodesArr.map(n => { if (n.id !== selNode.id) return n; if (!v) { const {sym, ...rest} = n; return rest; } return {...n, sym:v}; }) : [...nodesArr, {id:selNode.id, x:"", y:"", z:"", ...(v ? {sym:v} : {})}]}); }}><option value="">none</option>{WS_SYMS.map(q => <option key={q.k} value={q.k}>{q.l}</option>)}</select></label>}
           {!wsIsStormNet(pump) && <label className="nc-f dl" title={wsIsFuelNet(pump) ? "Fuel drawn at this node in L/s — engine supply flow or day tank fill rate (100 L/h = 0.028 L/s)" : wsIsGas(pump) ? "A gas flow at this node in m³/h, already diversified — for a load not in the load types" : "A continuous flow, e.g. make-up water, in L/s"}><span>{wsIsFuelNet(pump) ? "Fuel flow" : "Flow"}</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>{QU}</i></label>}
           {!wsIsDrain(pump) && <label className="nc-f dl" title="Pressure required at this node. It applies to every load here, fixtures included, and can raise the requirement above what the fixtures need, never lower it (blank = what the fixtures or Setup give)"><span>Req. p</span><CommitInput type="number" cls="r" value={wsFin(selNode.reqP) ? selNode.reqP : ""} onCommit={v => setN(selNode.id, {reqP:v})} placeholder="default" /><i>{wsIsGas(pump) ? "mbar" : "m"}</i></label>}
           <span style={{flex:1}} />{wsEdPlaced(pump) && net.length > 0 && !wsSupplyIds(pump).includes(selNode.id) && <button type="button" className="nc-c" title="Make this node the supply: the pipes between the old supply and it are flipped" onClick={() => { const r = wsEdSetSupply(pump, selNode.id); if (r.error) flash(r.error); else edit(r.patch); }}>Make supply</button>}{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this node's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
@@ -15721,7 +15802,7 @@ function WsPressureBanner({w, pump, edit, locked}) {
 // ─── DRAW VIEW — the canvas is the main input; the pipe table and the schematic follow it (v1.38, step 2 in v1.39) ───
 // Elevation view: x across, z up (height is exact), and depth y drawn as a sideways shift. Everything that decides what a click does lives in the
 // pure wsEd* functions above (snap, ortho end point, tee split, loop refusal, derived class, fixtures, copy / paste, blocks) so it is tested without a browser.
-const WD_TOOLS = [["select", "Select", "V", "↖"], ["pan", "Pan", "H", "✋"], ["node", "Node", "N", "●"], ["pipe", "Pipe", "P", "╱"], ["riser", "Riser", "R", "⇡"], ["fixture", "Fixture", "F", "▣"], ["block", "Block", "B", "⧉"], ["text", "Text", "T", "𝐓"]];
+const WD_TOOLS = [["select", "Select", "V", "↖"], ["pan", "Pan", "H", "✋"], ["node", "Node", "N", "●"], ["pipe", "Pipe", "P", "╱"], ["riser", "Riser", "R", "⇡"], ["fixture", "Fixture", "F", "▣"], ["symbol", "Symbol", "Y", "◈"], ["block", "Block", "B", "⧉"], ["text", "Text", "T", "𝐓"]];
 const WD_HINT = {
   select:"Click a pipe, node or riser, then move it with the ✥ pad or the arrow keys (Shift = 5 steps, Alt+↑/↓ = depth) · drag on empty space to select a group · Shift-click adds a node · Ctrl+C copies · drag a node to move it (a selected group moves together; Ctrl+drag its top node copies it) · Del deletes · Space or middle-drag pans · wheel zooms",
   pan:"Drag anywhere to move the canvas view only · no node, pipe or coordinate is changed · hold Space from any tool for temporary pan",
@@ -15872,7 +15953,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const [tool, setToolS] = useState(initTool || (net.length ? "select" : "pipe"));
   const [ortho, setOrtho] = useState(true), [snapOn, setSnapOn] = useState(true), [names, setNames] = useState(true), [critOn, setCritOn] = useState(true), [grid, setGrid] = useState(0.5), [planeY, setPlaneY] = useState(0);
   const [hov, setHov] = useState(ist.hov || null), [cur, setCur] = useState(ist.cur || null), [pend, setPend] = useState(ist.pend || null), [typed, setTyped] = useState(ist.typed || ""), [msg, setMsg] = useState(ist.msg || null), [drag, setDrag] = useState(ist.drag || null), [hovEl, setHovEl] = useState(null);
-  const [multi, setMultiS] = useState(ist.multi || WD_NONE), [fixName, setFixName] = useState(ist.fixName || ""), [fixQty, setFixQty] = useState(ist.fixQty || 1), [recent, setRecent] = useState([]), [blockId, setBlockId] = useState(ist.blockId || null), [levelInc, setLevelInc] = useState(true);
+  const [multi, setMultiS] = useState(ist.multi || WD_NONE), [fixName, setFixName] = useState(ist.fixName || ""), [fixQty, setFixQty] = useState(ist.fixQty || 1), [symK, setSymK] = useState(ist.symK || "mh"), [recent, setRecent] = useState([]), [blockId, setBlockId] = useState(ist.blockId || null), [levelInc, setLevelInc] = useState(true);
   const [clipTick, setClipTick] = useState(0), [band, setBand] = useState(ist.band || null), [gh, setGh] = useState(ist.gh || null), [mvOpen, setMvOpen] = useState(false), [mv, setMv] = useState({dx:"", dy:"", dz:""});
   const [nStep, setNStep] = useState(() => { try { const v = Number(localStorage.getItem("mep_wd_step")); return v > 0 ? v : 0.5; } catch (e) { return 0.5; } }), [nudgeTxt, setNudgeTxt] = useState(""), nudgeAcc = useRef({key:"", dx:0, dy:0, dz:0}), nudgeRef = useRef(null), holdRef = useRef(null);
   const [activeTw, setActiveTw] = useState(ist.tower || ""), [newNet, setNewNet] = useState(!!ist.newNet), [stackOn, setStackOn] = useState(!!ist.stack), [svcTag, setSvcTag] = useState(""), [pickN, setPickN] = useState(0), stackRef = useRef({key:"", n:0, t:0});
@@ -15882,7 +15963,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const dp = React.useDeferredValue(pump);
   const V = view || wdFit(pump, dim);
   const nmAll = wsNodeMap(pump), multiNodes = multi.nodes.filter(id => nmAll[id]), multiX = {nodes:multiNodes, baseLoad:multi.baseLoad}, block = blockList.find(b => b.id === blockId) || null;
-  R.current = {ulAct, ulPts, pump, tool, ortho, snapOn, grid, planeY, V, pend, typed, locked, sel, edit, setSel, cur, placed, multi:multiX, fixName, fixQty, levelInc, block, blocks:blockList, setBlocks, lvls, nStep, tower:activeTw, newNet, stack:stackOn, svc:svcTag, pick:pickN};
+  R.current = {ulAct, ulPts, pump, tool, ortho, snapOn, grid, planeY, V, pend, typed, locked, sel, edit, setSel, cur, placed, multi:multiX, fixName, fixQty, symK, levelInc, block, blocks:blockList, setBlocks, lvls, nStep, tower:activeTw, newNet, stack:stackOn, svc:svcTag, pick:pickN};
   const setTool = t => { setToolS(t); setUlPts([]); setPend(null); setTyped(""); setHov(null); setGh(null); setBand(null); };
   const flash = (text, kind) => { const t = Date.now(), c = R.current.cur; setMsg({text, kind:kind || "err", x:c ? c.px : 24, y:c ? c.py : 24, t}); setTimeout(() => setMsg(m => (m && m.t === t ? null : m)), kind === "ok" ? 3200 : 4600); };
   const ulSet = (id, o, key) => { const st = R.current; if (st.locked) return; st.edit({wsUnder:wsUnderOf(st.pump).map(u => u.id === id ? {...u, ...o} : u)}, key); };
@@ -15918,7 +15999,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const cancel = () => { setUlPts([]); setPend(null); setTyped(""); dragRef.current = null; setDrag(null); setBand(null); setGh(null); };
   const apply = o => { const st = R.current; if (o.flash) flash(o.flash); if (o.patch) st.edit(o.patch); if (o.sel !== undefined) st.setSel(o.sel); if (o.multi) setMultiS(o.multi); else if (o.sel) setMultiS(WD_NONE); if (o.pend !== undefined) setPend(o.pend); if (o.typed !== undefined) setTyped(o.typed); };
   const wdState = st => ({pump:st.pump, tool:st.tool, ortho:st.ortho, snapOn:st.snapOn, grid:st.grid, planeY:st.planeY, tol:10/st.V.s, pend:st.pend, typed:st.typed, storey:Number(st.pump.storeyH) > 0 ? Number(st.pump.storeyH) : 3,
-    fixName:st.fixName, fixQty:st.fixQty, clip:WS_CLIP, block:st.block, levelInc:st.levelInc, levels:st.lvls, tower:st.tower, newNet:st.newNet, stack:st.stack, svc:st.svc, pick:st.pick});
+    fixName:st.fixName, fixQty:st.fixQty, symK:st.symK, clip:WS_CLIP, block:st.block, levelInc:st.levelInc, levels:st.lvls, tower:st.tower, newNet:st.newNet, stack:st.stack, svc:st.svc, pick:st.pick});
   const uvOf = (px, py, v) => { const Vv = v || R.current.V; return {u:(px - Vv.ox)/Vv.s, v:(Vv.oy - py)/Vv.s}; };
   const noteHit = (px, py) => { const st = R.current; let h = null; wsNotesOf(st.pump).forEach(q => { if (!wsFin(q.x) || !wsFin(q.z)) return; const [x, y] = wdP({x:Number(q.x), y:Number(q.y) || 0, z:Number(q.z)}, st.V), wdt = wsTxtW(q.text, 11.5, true)*1.05; if (px >= x - 3 && px <= x + wdt + 3 && py >= y - 13 && py <= y + 4) h = {kind:"note", id:q.id}; }); return h; };
   const hit = (px, py, click) => {
@@ -16004,7 +16085,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       if (st.pend && (e.key === "y" || e.key === "Y") && st.typed === "" && !st.pend.riser) { e.preventDefault(); setTyped("y"); return; }
       if (e.key === "Backspace" && st.typed) { e.preventDefault(); setTyped(x => x.slice(0, -1)); return; }
       if (e.key === "Delete" || e.key === "Backspace") { e.preventDefault(); doDelete(); return; }
-      const k = e.key.toLowerCase(), tl = {v:"select", n:"node", p:"pipe", r:"riser", f:"fixture", b:"block", t:"text", h:"pan"}[k]; if (tl && !st.locked) { e.preventDefault(); setTool(tl); }
+      const k = e.key.toLowerCase(), tl = {v:"select", n:"node", p:"pipe", r:"riser", f:"fixture", y:"symbol", b:"block", t:"text", h:"pan"}[k]; if (tl && !st.locked) { e.preventDefault(); setTool(tl); }
     };
     const up = e => { if (e.key === " ") spaceRef.current = false; };
     window.addEventListener("keydown", down); window.addEventListener("keyup", up);
@@ -16057,6 +16138,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       return;
     }
     if (st.tool === "fixture") { const o = wsEdFixtureClick({...wdState(st), dec:e.shiftKey}, c); apply(o); if (o.patch && st.fixName && !e.shiftKey) setRecent(rc => [st.fixName, ...rc.filter(x => x !== st.fixName)].slice(0, 6)); return; }
+    if (st.tool === "symbol") { apply(wsEdSymbolClick({...wdState(st), dec:e.shiftKey}, c)); return; }
     if (st.tool === "block") { apply(wsEdBlockClick(wdState(st), c)); return; }
     if (st.tool === "text") { const nh = noteHit(px, py);
       if (nh) { const q = wsNotesOf(st.pump).find(n => n.id === nh.id), t = window.prompt("Edit the note (leave it empty to delete it):", q.text); if (t == null) return; const r = wsNoteEdit(st.pump, nh.id, t); if (r.error) flash(r.error); else { st.edit(r.patch); if (r.removed) flash("Note deleted — Ctrl+Z undoes", "ok"); } return; }
@@ -16077,9 +16159,9 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       setDrag({id:d.note ? null : d.id, note:d.note, pt:d.pt, set:d.set, orig:d.orig, copy:d.copy}); return; }
     if (!st.placed || st.locked) { setHov(null); setGh(null); return; }
     const tol = 10/st.V.s, o = {tol, grid:st.grid, y:st.planeY};
-    if (st.tool === "fixture" || st.tool === "block") { setHov(null); setHovEl(null);
+    if (st.tool === "fixture" || st.tool === "block" || st.tool === "symbol") { setHov(null); setHovEl(null);
       if (st.tool === "block" && !st.block) { setGh(null); return; }
-      const bl = st.tool === "block" ? st.block : null, plan = wsEdFixturePlan(st.pump, c, {...o, allowSupply:!!bl && bl.clip.pipes.length > 0}); setGh({plan, clip:bl && bl.clip.pipes.length ? bl.clip : null}); return; }
+      const bl = st.tool === "block" ? st.block : null, plan = wsEdFixturePlan(st.pump, c, {...o, allowSupply:(!!bl && bl.clip.pipes.length > 0) || st.tool === "symbol"}); setGh({plan, clip:bl && bl.clip.pipes.length ? bl.clip : null}); return; }
     if (st.tool === "paste") { setHov(null); setHovEl(null); const t = wsEdPasteTarget(st.pump, c, o); setGh({clip:WS_CLIP, base:t ? t.pt : wsEdUnproj(c.u, c.v, st.planeY), bad:!t}); return; }
     setGh(null);
     if (st.tool === "pipe" && st.pend) setHov(wsEdTarget(st.pump, st.pend.pt, c, {ortho:st.ortho, grid:st.grid, tol, snap:st.snapOn, levels:st.lvls, tower:st.tower, noNode:st.stack}));
@@ -16146,12 +16228,15 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   });
   const nodeEls = nodesAll.map(n => {
     const P = pos(n.id); if (!P) return null;
+    const SY = water && water.drainMode ? wsSymOf(n) : null;
     const [x, y] = PP(P), isSup = supSetD.has(n.id), on = !!sel && sel.kind === "node" && sel.id === n.id, mk = marks.node[n.id], bad = !!mk && mk.sev === "error", fq = fixAt[n.id], inM = inMulti.has(n.id);
     return <g key={n.id}>
       {critOn && cr.nodes.has(n.id) && <g><circle cx={x} cy={y} r={15} fill="#fde68a" fillOpacity=".85" stroke="#d99a14" strokeWidth="2" />{lay.crit && cr.node === n.id && <text x={lay.crit.x} y={lay.crit.y} textAnchor={lay.crit.a} className="wd-crit">critical terminal</text>}</g>}
       {(on || inM) && <circle cx={x} cy={y} r={13} fill="#007aff" fillOpacity=".18" stroke="#007aff" strokeWidth="1.6" />}
-      {isSup ? <rect x={x - 6} y={y - 6} width={12} height={12} rx={2} fill={bad ? WS_COL.bad : (netInfo.root[n.id] || WS_COL.root)} stroke="#fff" strokeWidth="1.5" />
+      {SY ? <g dangerouslySetInnerHTML={{__html:wsSymSvg(SY.k, x, y, bad ? WS_COL.bad : isSup ? (netInfo.root[n.id] || WS_COL.root) : "#33415c")}} />
+        : isSup ? <rect x={x - 6} y={y - 6} width={12} height={12} rx={2} fill={bad ? WS_COL.bad : (netInfo.root[n.id] || WS_COL.root)} stroke="#fff" strokeWidth="1.5" />
         : <circle cx={x} cy={y} r={fq ? 6 : 4.6} fill={fq ? WS_COL.fix : "#fff"} stroke={bad ? WS_COL.bad : fq ? "#fff" : "#33415c"} strokeWidth={bad ? 2.6 : 1.8} />}
+      {SY && <text x={x} y={y + 21} textAnchor="middle" style={{fontSize:"9px", fontWeight:800, fill:"#33415c", stroke:"none"}}>{SY.c}</text>}
       {netInfo.name[n.id] && <text x={x + 11} y={y - 11} className="wd-n" style={{fontWeight:800}} fill={netInfo.root[n.id]}>{netInfo.name[n.id]}</text>}
       {stacks[n.id] && stacks[n.id].first && <g><title>{`${stacks[n.id].n} nodes on this point: ${stacks[n.id].ids.join(", ")} — click again (Select) or press Tab (drawing) to choose`}</title><circle cx={x + 9} cy={y - 9} r={7} fill="#e07a1f" stroke="#fff" strokeWidth="1.2" /><text x={x + 9} y={y - 5.8} textAnchor="middle" fontSize="9" fontWeight="800" fill="#fff" style={{fontSize:"9px", stroke:"none"}}>{stacks[n.id].n}</text></g>}
       {names && lay.name[n.id] && <text x={lay.name[n.id].x} y={lay.name[n.id].y} textAnchor={lay.name[n.id].a} className="wd-n">{lay.name[n.id].t}</text>}
@@ -16184,7 +16269,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
         : k === "pipe" ? <g key="sm"><rect x={hx - 5} y={hy - 5} width={10} height={10} transform={`rotate(45 ${hx} ${hy})`} fill="none" stroke="#e07a1f" strokeWidth="2" /><text x={hx + 9} y={hy + 14} className="wd-t" fill="#b85f10">tee</text></g>
         : <g key="sm" stroke="#8a97a8" strokeWidth="1.4"><line x1={hx - 5} y1={hy} x2={hx + 5} y2={hy} /><line x1={hx} y1={hy - 5} x2={hx} y2={hy + 5} /></g>); }
     // fixture / block: what a click would do, drawn before it is done
-    if ((tool === "fixture" || tool === "block") && gh && gh.plan) { const pl = gh.plan, what = tool === "fixture" ? (fixName ? `+${fixQty} ${fixCode(fixName)}` : "choose a fixture") : (block ? block.name : "choose a block");
+    if ((tool === "fixture" || tool === "block" || tool === "symbol") && gh && gh.plan) { const pl = gh.plan, what = tool === "fixture" ? (fixName ? `+${fixQty} ${fixCode(fixName)}` : "choose a fixture") : tool === "symbol" ? (WS_SYMS.find(q => q.k === symK) || {l:"symbol"}).l : (block ? block.name : "choose a block");
       if (pl.error) { if (cur) tip = {x:cur.px, y:cur.py, text:pl.error, err:true}; }
       else if (pl.kind === "node") { const [x, y] = PP(pl.pt); ghost.push(<rect key="fg" x={x - 9} y={y - 9} width={18} height={18} fill="none" stroke="#1f9d55" strokeWidth="2.4" />); tip = {x, y, text:`${what} → ${pl.id}`}; if (gh.clip) ghost.push(clipGhost(gh.clip, pl.pt, false, "cg")); }
       else if (pl.kind === "pipe") { const [x, y] = PP(pl.pt); ghost.push(<g key="fg"><rect x={x - 6} y={y - 6} width={12} height={12} transform={`rotate(45 ${x} ${y})`} fill="none" stroke="#1f9d55" strokeWidth="2.4" /></g>); tip = {x, y, text:`${what} → tee on ${pl.pipe}`}; if (gh.clip) ghost.push(clipGhost(gh.clip, pl.pt, false, "cg")); }
@@ -16205,6 +16290,9 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       <select value="" onChange={e => { const r = wsEdRiserTo(pump, pend.ref, lvls, e.target.value, activeTw); if (r.error) { flash(r.error); return; } edit(r.patch); setSel({kind:"sec", id:r.id, src:"draw"}); setPend(null); setTyped(""); }}>
         <option value="">a floor of {t.name}…</option>{t.levels.slice().reverse().map(l => <option key={l.name} value={l.name}>{l.name} · FFL {wsLvSigned(l.ffl)} · pipes {wsLvSigned(l.ffl + t.pipeH)}</option>)}</select>
       <span className="wd-ctx-n">or type the rise in m and press Enter</span></div>; }
+    if (tool === "symbol") return <div className="wd-ctx"><b>Symbol</b>
+      {WS_SYMS.map(q => <button type="button" key={q.k} className={"nc-c" + (q.k === symK ? " on" : "")} title={q.l} onClick={() => setSymK(q.k)}>{q.c}</button>)}
+      <span className="wd-ctx-n">{(WS_SYMS.find(q => q.k === symK) || {}).l}: click a node, a pipe (adds a junction) or empty space beside a pipe · Shift-click a node to remove its symbol</span></div>;
     if (tool === "fixture") return <div className="wd-ctx"><b>Fixture</b>
       <select value={fixName} onChange={e => setFixName(e.target.value)} title="The fixture the next clicks will place — from the demand table of this calculation (Reference Data)">
         <option value="">{lib.length ? "Choose a fixture…" : "No fixtures in Reference Data"}</option>{grp.map(g => <optgroup key={g.k} label={g.k}>{g.items.map(f => <option key={f.name} value={f.name}>{f.name}</option>)}</optgroup>)}</select>
@@ -16236,7 +16324,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   return (
     <div className="wd">
       <div className="wd-bar">
-        {WD_TOOLS.filter(t => !(t[0] === "fixture" && (wsIsStormNet(pump) || wsIsFuelNet(pump))) && !(plan && (t[0] === "riser" || t[0] === "text"))).map(tbtn)}
+        {WD_TOOLS.filter(t => !(t[0] === "fixture" && (wsIsStormNet(pump) || wsIsFuelNet(pump))) && !(t[0] === "symbol" && !(water && water.drainMode)) && !(plan && (t[0] === "riser" || t[0] === "text"))).map(tbtn)}
         <button type="button" className={"nc-t" + (tool === "paste" ? " on" : "")} disabled={locked || !placed || !WS_CLIP} onClick={startPaste} title={WS_CLIP ? `Paste ${wsEdClipText(WS_CLIP)} (Ctrl+V)` : "Nothing copied yet — select a group and press Ctrl+C"} data-tick={clipTick}><span style={{fontSize:14}}>⎘</span>Paste<kbd>Ctrl V</kbd></button>
         <span className="nc-sep" />
         <button type="button" className={"nc-c" + (ortho ? " on" : "")} onClick={() => setOrtho(!ortho)} title="Ortho: pipes run exactly along x or z (F8)">Ortho <kbd>F8</kbd></button>
@@ -19767,6 +19855,9 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     const np = wsDupPump(proj, src, _id++);
     setPumps(ps=>{ const k = ps.findIndex(p=>p.id===id); const a = ps.slice(); a.splice(k+1, 0, np); return a; }); setEditId(np.id); };
   const movePump = (id, d) => { if(stageLocked) return; setPumps(ps=>{ const k = ps.findIndex(p=>p.id===id), j = k + d; if(k<0 || j<0 || j>=ps.length) return ps; const a = ps.slice(); [a[k], a[j]] = [a[j], a[k]]; return a; }); };
+  // v1.118.60: schedule reorder — drop a row before or after another, or save a sorted view as the order of the list
+  const placePump = (id, toId, after) => { if (stageLocked || id === toId) return; setPumps(ps => { const m = ps.find(p => p.id === id), a = ps.filter(p => p.id !== id), k = a.findIndex(p => p.id === toId); if (!m || k < 0) return ps; a.splice(after ? k + 1 : k, 0, m); return a; }); };
+  const setPumpOrder = ids => { if (stageLocked || !Array.isArray(ids)) return; setPumps(ps => { const mp = new Map(ps.map(p => [p.id, p])), seen = new Set(), out = []; ids.forEach(id => { if (mp.has(id) && !seen.has(id)) { seen.add(id); out.push(mp.get(id)); } }); ps.forEach(p => { if (!seen.has(p.id)) out.push(p); }); return out; }); };
   const updPump = useCallback(u=>{ if(stageLocked) return; setPumps(ps=>ps.map(p=>p.id===u.id?u:p)); },[stageLocked]);
   const editing = pumps.find(p=>p.id===editId);
   const [piwL, setPiwL, piwLd] = useColW("mep_piw_l", 250, 180, 520), [piwR, setPiwR, piwRd] = useColW("mep_piw_r", 360, 260, 760), [csL, setCsL, csLd] = useColW("mep_cs_l", 200, 140, 460);
@@ -20113,7 +20204,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         {tab==="fuel" && <FuelTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={fuelFocus} />}
         {tab==="tools" && <ToolsTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={toolFocus} />}
         {tab==="schedule" && (
-          <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus}
+          <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus} locked={stageLocked} onMovePump={movePump} onPlacePump={placePump} onSetPumpOrder={setPumpOrder}
             caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
             foamItems={foamItems(meta)} onEditFoam={id=>{ setFoamFocus({id:String(id).replace(/^foam-/,""), t:Date.now()}); setTab("foam"); }}
             stormItems={stormItems(meta)} onEditStorm={id=>{ setStormFocus({id:String(id).replace(/^storm-/,""), t:Date.now()}); setTab("storm"); }}
