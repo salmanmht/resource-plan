@@ -3236,6 +3236,8 @@ async function initApp(opts){
         p.weeklyHrs[row.engineer_id][row.week_index]=Number(row.hours)||0;
       });
     }
+    // A member with no hours has no project_hours rows, so give them an empty array to render and edit
+    S.projects.forEach(p=>{ if(Array.isArray(p.members))p.members.forEach(k=>{ if(!p.weeklyHrs[k])p.weeklyHrs[k]=[]; }); });
     // Backfill team field on any engineer missing it (default MEP for existing 55)
     S.engineers.forEach(e=>{ if(!e.team) e.team='MEP'; });
     const rr=Array.isArray(sets)?sets.find(r=>r.key==='ratesDXB'):null;
@@ -3702,6 +3704,16 @@ function stageWeeks(start,end){
   while(d<=se){wks.push(new Date(d));d=new Date(d);d.setDate(d.getDate()+7);}
   return wks;
 }
+// Last date the programme needs to show: the contractual end, the forecast end, or the end of
+// the latest stage, whichever is latest. Weeks past the contractual end are still drawn (marked
+// as past end) so stages that run late are never cut off.
+function projSpanEnd(p){
+  const iso=(v)=>{ const m=/^(\d{4}-\d{2}-\d{2})/.exec(String(v||'')); return m?m[1]:''; };
+  let best=iso(p.end);
+  [p.forecastEnd].concat((p.stages||[]).map(st=>st&&st.to)).forEach(v=>{ const x=iso(v); if(x&&(!best||x>best))best=x; });
+  return best||p.end;
+}
+function projWeeks(p){ return stageWeeks(p.start,projSpanEnd(p)); }
 function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/864e5+j.getDay()+1)/7);}
 
@@ -4105,7 +4117,8 @@ function slotEng(id){
 function projEngineers(p){
   const wh=(p&&p.weeklyHrs)||{};
   const out=S.engineers.slice();
-  Object.keys(wh).forEach(k=>{ if(isSlotKey(k)){ const c=slotEng(k); if(c)out.push(c); } });
+  const _ks=new Set(Object.keys(wh)); ((p&&p.members)||[]).forEach(k=>_ks.add(k));
+  _ks.forEach(k=>{ if(isSlotKey(k)){ const c=slotEng(k); if(c)out.push(c); } });
   return out;
 }
 // Merged hours array for a PERSON on a project — base row + every duplicate slot.
@@ -4121,6 +4134,19 @@ function whArrFor(p,engId){
   return out||[];
 }
 function whHasFor(p,engId){ return whArrFor(p,engId).some(v=>v>0); }
+// MEMBERSHIP. Being on a project is no longer inferred from having hours. p.members lists
+// the booking keys (base id or '<id>#n' slot key) explicitly added to the project, so a
+// freshly added person shows an empty row. Anyone with hours above zero still counts, which
+// keeps every project saved before this change working with no migration.
+function projHasHrs(p,k){ const a=p&&p.weeklyHrs&&p.weeklyHrs[k]; return !!(a&&a.some(v=>v>0)); }
+function onProj(p,k){ return projHasHrs(p,k)||!!(p&&Array.isArray(p.members)&&p.members.indexOf(k)>=0); }
+function projMemberKeys(p){
+  const out=new Set(Object.keys((p&&p.weeklyHrs)||{}).filter(k=>projHasHrs(p,k)));
+  ((p&&p.members)||[]).forEach(k=>out.add(k));
+  return [...out];
+}
+function addProjMember(p,k){ if(!Array.isArray(p.members))p.members=[]; if(p.members.indexOf(k)<0)p.members.push(k); }
+function dropProjMember(p,k){ if(Array.isArray(p.members)){ const i=p.members.indexOf(k); if(i>=0)p.members.splice(i,1); } }
 function slotTag(p,k){ return (p&&p.slotTags&&p.slotTags[k])||''; }
 function setSlotTag(projId,key,val){
   const p=S.projects.find(x=>x.id===projId)||(S._allProjects||[]).find(x=>x.id===projId);
@@ -8981,7 +9007,7 @@ function renderProj(){
   // Build programme strip — Option E: thin colour bar + named legend with week durations + unplanned hrs
   const buildStrip=(p)=>{
     const stages=(p.stages||[]).filter(s=>s.from&&s.to);
-    const weeks=stageWeeks(p.start,p.end);
+    const weeks=projWeeks(p);
     const stageMap=getStageWeekMap(p);
     const wh=p.weeklyHrs||{};
 
@@ -11526,7 +11552,7 @@ function exportTrackerXLSX(){
 function renderProjDetail(p){
   if(!p.stages)p.stages=[];
   ensureStageIds(p); // stable stage ids for per-booking stage assignment
-  const weeks=stageWeeks(p.start,p.end);
+  const weeks=projWeeks(p);
   const stageMap=getStageWeekMap(p);
   const wkHdrs=weeks.map((w,wi)=>{
     const sIdx=stageMap.get(wi)||[];
@@ -11923,11 +11949,11 @@ function renderProjDetail(p){
           <strong style="font-size:12px;color:#1e3a5f;flex-shrink:0;">Weekly Hours by Team</strong>
           ${(()=>{
             const _hc=hasParallelProg(p)?teamHeadcount(p):null;
-            const assignedMEP=_hc?_hc.mep:projEngineers(p).filter(e=>e.team!=='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+memberHeads(p,e.id),0);
-            const assignedBIM=_hc?_hc.bim:projEngineers(p).filter(e=>e.team==='BIM'&&p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
+            const assignedMEP=_hc?_hc.mep:projEngineers(p).filter(e=>e.team!=='BIM'&&onProj(p,e.id)).reduce((sum,e)=>sum+memberHeads(p,e.id),0);
+            const assignedBIM=_hc?_hc.bim:projEngineers(p).filter(e=>e.team==='BIM'&&onProj(p,e.id)).reduce((sum,e)=>sum+getJseMult(p,e.id),0);
             const assigned=assignedMEP+assignedBIM;
             const totalH=projTotalHrs(p);
-            const discs=[...new Set(projEngineers(p).filter(e=>p.weeklyHrs&&p.weeklyHrs[e.id]&&p.weeklyHrs[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))];
+            const discs=[...new Set(projEngineers(p).filter(e=>onProj(p,e.id)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))];
             const memberLabel=assignedMEP>0&&assignedBIM>0?`${assignedMEP} engineers · ${assignedBIM} BIM`:assignedBIM>0?`${assignedBIM} BIM members`:`${assignedMEP} engineers`;
             return assigned>0
               ?`<div class="weekly-badges" id="wb-badges-${p.id}" style="display:flex;gap:4px;flex-wrap:wrap;align-items:center;">
@@ -11956,7 +11982,7 @@ function renderProjDetail(p){
                 <option value="">— select to add —</option>
                 ${(function(){
                   const wh=p.weeklyHrs||{};
-                  const assignedIds=new Set(Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)));
+                  const assignedIds=new Set(projMemberKeys(p));
                   const discOrder={}; MEP_DISCS.forEach((c,i)=>{discOrder[c]=i;});
                   // PROPOSAL MODE: only show virtual engineers (grades), grouped by discipline
                   if(window._propViewing){
@@ -12021,7 +12047,7 @@ function renderProjDetail(p){
               </span>`;
             })():''}
             <div style="display:flex;gap:14px;font-size:11px;color:#075985;background:#e0f2fe;padding:4px 12px;border-radius:20px;white-space:nowrap;">
-              <span>&#128119; <strong id="tb-assigned-${p.id}">${hasParallelProg(p)?(()=>{const _h=teamHeadcount(p);return _h.mep+_h.bim;})():Object.keys(p.weeklyHrs||{}).filter(eid=>(p.weeklyHrs[eid]||[]).some(v=>v>0)).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
+              <span>&#128119; <strong id="tb-assigned-${p.id}">${hasParallelProg(p)?(()=>{const _h=teamHeadcount(p);return _h.mep+_h.bim;})():projMemberKeys(p).reduce((sum,eid)=>sum+getJseMult(p,eid),0)}</strong> assigned</span>
               <span>&#9200; <strong id="tb-hrs-${p.id}">${fN(Math.round(projTotalHrs(p)))}</strong> hrs total</span>
             </div>
           </div>
@@ -12415,29 +12441,21 @@ async function addEngineerToProject(projId,engId){
   }
   if(!p.weeklyHrs)p.weeklyHrs={};
   if(isSlotKey(engId)&&!canDupBook(eng,p)){toast('Multiple bookings are available for BIM, JSE crews, Associate-grade and above, and any grade on projects with parallel programmes.');return;}
-  if(p.weeklyHrs[engId]&&p.weeklyHrs[engId].some(v=>v>0)){toast('Already on this project — use the ⊕ add again entry for a second booking.');return;}
-  const weeks=stageWeeks(p.start,p.end);
-  // Initialise with a placeholder 1 in the first week so the row shows up
-  // (since "assigned" is defined as having at least one non-zero week)
+  if(onProj(p,engId)){toast('Already on this project — use the ⊕ add again entry for a second booking.');return;}
+  const weeks=projWeeks(p);
+  // Membership lives in p.members, so the new row starts completely empty
   p.weeklyHrs[engId]=new Array(weeks.length).fill(0);
-  p.weeklyHrs[engId][0]=1;
+  addProjMember(p,engId);
   if(isSlotKey(engId)){ // seed a default scope tag; persisted via pushProj
     if(!p.slotTags)p.slotTags={};
     if(!p.slotTags[engId])p.slotTags[engId]='Scope '+slotNo(engId);
-    if(!projId.toString().startsWith('prp'))pushProj(p);
   }
   renderProjDetail(p);
   toast(isSlotKey(engId)?`Added ${engDisplayName(eng)} — extra booking; set hours and rename its scope tag`:`Added ${engDisplayName(eng).split(' ').slice(0,2).join(' ')} — set hours per week`);
-  // Persist membership immediately. Hours live in the project_hours table, and
-  // pushProj() strips weeklyHrs before saving the project row — so relying on it
-  // here writes the placeholder to nothing and the row vanishes on reload. Write
-  // the placeholder straight to project_hours, the same path hour edits use.
-  if(!projId.toString().startsWith('prp')){
-    try{ await pushHourRow(projId,engId,0,1); }
-    catch(e){ console.error('addEngineerToProject: placeholder save failed',e); setSyncStatus(false,'Sync failed'); }
-  } else {
-    pushProj(p); // proposals store weeklyHrs inline
-  }
+  // Persist membership straight away. It is saved with the project (or proposal) itself,
+  // so nothing needs to be written to project_hours until real hours are typed in.
+  try{ await pushProj(p); }
+  catch(e){ console.error('addEngineerToProject: save failed',e); setSyncStatus(false,'Sync failed'); }
 }
 
 // Set a cross-discipline person's booked discipline for THIS project only.
@@ -12483,8 +12501,9 @@ async function removeEngineerFromProject(projId,engId){
   if(p.weeklyHrs&&p.weeklyHrs[engId]){
     delete p.weeklyHrs[engId];
   }
-  // clear this booking's per-project metadata so nothing lingers
   let _metaDirty=false;
+  if(Array.isArray(p.members)&&p.members.indexOf(engId)>=0){ dropProjMember(p,engId); _metaDirty=true; }
+  // clear this booking's per-project metadata so nothing lingers
   ['slotTags','bookDisc','rateOverrides','jseMultiplier','bookProg','bookStage'].forEach(fld=>{
     if(p[fld]&&p[fld][engId]!=null){ delete p[fld][engId]; _metaDirty=true; }
   });
@@ -12525,7 +12544,7 @@ function openReplacePicker(evt,projId,leaverKey){
   // Candidates: same team AND same discipline as the person being replaced, not the leaver,
   // not already booked on this project. restricted to the ALLOWED team only: a PH&E
   // lead may only swap in another PH&E engineer (HVAC lead only HVAC, etc.), and BIM stays BIM.
-  const bookedBases=new Set(Object.keys(p.weeklyHrs||{}).map(k=>slotBase(k)));
+  const bookedBases=new Set(Object.keys(p.weeklyHrs||{}).concat(p.members||[]).map(k=>slotBase(k)));
   let cands=S.engineers.filter(e=>{
     if((e.team==='BIM')!==isBIM)return false;
     if(e.id===slotBase(leaverKey))return false;
@@ -12567,6 +12586,7 @@ async function doReplaceEngineer(projId,leaverKey,newBaseId){
   const MAPS=['weeklyHrs','bookProg','bookStage','slotTags','bookDisc','jseMultiplier'];
   const keys=new Set();
   MAPS.forEach(m=>{ if(p[m])Object.keys(p[m]).forEach(k=>{ if(slotBase(k)===lBase)keys.add(k); }); });
+  (p.members||[]).forEach(k=>{ if(slotBase(k)===lBase)keys.add(k); });
   if(!keys.size){toast('Nothing to move \u2014 that person has no bookings here.');return;}
   const lName=leaver.name.split(' ').slice(0,2).join(' '), rName=repl.name.split(' ').slice(0,2).join(' ');
   if(!confirm(`Replace ${lName} with ${rName} on this project?\n\nAll of ${lName}'s hours, workstream and stage bookings move to ${rName}. Cost recalculates at ${rName}'s rate. ${lName} stays on all other projects.`))return;
@@ -12581,6 +12601,7 @@ async function doReplaceEngineer(projId,leaverKey,newBaseId){
   remap.forEach(([oldK,newK])=>{
     MAPS.forEach(m=>{ if(p[m]&&p[m][oldK]!=null){ p[m][newK]=p[m][oldK]; delete p[m][oldK]; } });
     if(p.rateOverrides&&p.rateOverrides[oldK]!=null)delete p.rateOverrides[oldK];
+    if(Array.isArray(p.members)){ const _i=p.members.indexOf(oldK); if(_i>=0)p.members[_i]=newK; }
     // queue Supabase hour rewrites for this key
     hourDeletes.add(oldK);
     const arr=(p.weeklyHrs&&p.weeklyHrs[newK])||[];
@@ -12647,15 +12668,19 @@ function stageColor(si, st){
 // Returns Map<weekIndex, Array<stageIndex>> — which stages cover each week
 function getStageWeekMap(p){
   const map=new Map();
-  const weeks=stageWeeks(p.start,p.end);
+  const weeks=projWeeks(p);
+  // Compare whole calendar days (UTC day numbers) instead of timestamps. The old test mixed
+  // a date-only ISO string (UTC midnight) with week dates built by local setDate(), so a stage
+  // ending Sunday and the next starting Monday could be seen as sharing a week. Weeks run Mon..Sun.
+  const dayNo=(v)=>{ if(v==null||v==='')return NaN; const m=/^(\d{4})-(\d{2})-(\d{2})/.exec(String(v)); if(m)return Date.UTC(+m[1],+m[2]-1,+m[3])/864e5; const t=new Date(v).getTime(); return isNaN(t)?NaN:Math.floor(t/864e5); };
+  const wkMonNo=weeks.map(w=>Math.round(w.getTime()/864e5)); // Math.round absorbs any DST hour
   (p.stages||[]).forEach((st,si)=>{
     if(!st.from||!st.to)return;
-    const from=new Date(st.from);
-    const to=new Date(st.to);
+    const from=dayNo(st.from), to=dayNo(st.to);
     if(isNaN(from)||isNaN(to))return;
     weeks.forEach((wkMon,wi)=>{
-      const wkSun=new Date(wkMon);wkSun.setDate(wkSun.getDate()+6);
-      if(wkMon<=to && wkSun>=from){
+      const m=wkMonNo[wi], sun=m+6;
+      if(m<=to && sun>=from){
         if(!map.has(wi))map.set(wi,[]);
         map.get(wi).push(si);
       }
@@ -13068,7 +13093,7 @@ function getJseMult(p, engId){
 // headcount as DISTINCT PEOPLE. With parallel programmes one person has several bookings (one per workstream/stage); dedupe by base id so they count once.
 function teamHeadcount(p){
   const wh=p.weeklyHrs||{};
-  const bases=[...new Set(Object.keys(wh).filter(k=>(wh[k]||[]).some(v=>v>0)).map(k=>slotBase(k)))];
+  const bases=[...new Set(projMemberKeys(p).map(k=>slotBase(k)))];
   let mep=0,bim=0;
   bases.forEach(b=>{ const e=S.engineers.find(x=>x.id===b); if(!e)return; if(e.team==='BIM')bim+=getJseMult(p,b); else mep+=memberHeads(p,b); });
   return {mep,bim};
@@ -13282,7 +13307,7 @@ function toggleBIMSubRows(projId, disc){
 function renderProjCard(p, mode){
   const officialWeeks=stageWeeks(p.start,p.end);
   // reveal any hours booked past the end date instead of hiding them
-  let _maxIdx=officialWeeks.length-1;
+  let _maxIdx=Math.max(officialWeeks.length-1,projWeeks(p).length-1);
   Object.values(p.weeklyHrs||{}).forEach(arr=>{ for(let i=arr.length-1;i>=0;i--){ if(arr[i]>0){ if(i>_maxIdx)_maxIdx=i; break; } } });
   let weeks=officialWeeks;
   if(_maxIdx>=officialWeeks.length){
@@ -13374,8 +13399,8 @@ function renderProjCard(p, mode){
   const wkHdrs=weeks.map((w,wi)=>{
     const beyond=wi>=_officialLen; // past the project end date
     const sIdx=stageMap.get(wi)||[];
-    const headerBg=beyond?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f'));
-    return`<th title="${beyond?'Beyond the project end date — hours kept here; clear them or extend the end date':''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
+    const headerBg=(beyond&&!sIdx.length)?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f'));
+    return`<th title="${beyond?(sIdx.length?'After the contractual end date — stage runs late':'Beyond the project end date — hours kept here; clear them or extend the end date'):''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
   }).join('');
 
   // ── Month header row HTML
@@ -13395,7 +13420,7 @@ function renderProjCard(p, mode){
     const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
     const mepEngs=projEngineers(p) // slot clones give each booking its own row
       .filter(e=>e.team!=='BIM'&&effDisc(e,p)===disc)
-      .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
+      .filter(e=>onProj(p,e.id))
       .sort((a,b)=>{
         const ga=GRADE_ORDER[a.grade]??99;
         const gb=GRADE_ORDER[b.grade]??99;
@@ -13405,7 +13430,7 @@ function renderProjCard(p, mode){
       });
     const bimEngs=projEngineers(p)
       .filter(e=>(((p.bookDisc&&p.bookDisc[e.id])||e.subDisc)===disc)&&e.team==='BIM')
-      .filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0))
+      .filter(e=>onProj(p,e.id))
       .sort((a,b)=>a.name.localeCompare(b.name));
     const discEngs=[...mepEngs,...bimEngs];
     if(!discEngs.length) return;
@@ -13665,7 +13690,7 @@ function renderProjCard(p, mode){
   });
 
   // Empty state
-  const totalAssigned=Object.keys(wh).filter(eid=>wh[eid]&&wh[eid].some(v=>v>0)).length;
+  const totalAssigned=projMemberKeys(p).length;
   if(totalAssigned===0){
     const colspan=FROZEN_WIDTHS.length + (showRate?1:0) + weeks.length;
     rows=`<tr><td colspan="${colspan}" style="text-align:center;padding:24px;color:var(--tx3);font-size:12px;font-style:italic;background:#fff;">No team members assigned yet — use the dropdown above to add one.</td></tr>`;
@@ -14198,7 +14223,7 @@ function handleWeekCellKey(e,projId,engId,wi){
 function updateProjCardTotals(p){
   const wh=p.weeklyHrs||{};
   const ff=p.feeFactor||1.0;
-  const weeks=stageWeeks(p.start,p.end);
+  const weeks=projWeeks(p);
 
   // Update each engineer's total cells
   projEngineers(p).forEach(eng=>{
@@ -14256,7 +14281,7 @@ function updateProjCardTotals(p){
   // away and back. Recompute the same figures the full render uses and patch
   // the specific spans directly so every edit updates everything instantly.
   const totalH=projTotalHrs(p);
-  const assignedIdsWithHrs=projEngineers(p).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)); // include duplicate slot bookings
+  const assignedIdsWithHrs=projEngineers(p).filter(e=>onProj(p,e.id)); // include duplicate slot bookings
   const _hc=hasParallelProg(p)?teamHeadcount(p):null; // distinct-people headcount
 
   // Cost & Fee Breakdown widget
@@ -14280,7 +14305,7 @@ function updateProjCardTotals(p){
     const wbMembers=document.getElementById(`wb-members-${p.id}`);
     if(wbMembers) wbMembers.textContent=memberLabel;
     const discs=hasParallelProg(p)
-      ?[...new Set(projEngineers(p).filter(e=>wh[e.id]&&wh[e.id].some(v=>v>0)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))]
+      ?[...new Set(projEngineers(p).filter(e=>onProj(p,e.id)).map(e=>e.team==='BIM'?'BIM':effDisc(e,p)).filter(Boolean))]
       :[...new Set(assignedIdsWithHrs.map(e=>e.team==='BIM'?'BIM':e.disc).filter(Boolean))];
     const wbDiscs=document.getElementById(`wb-discs-${p.id}`);
     if(wbDiscs) wbDiscs.textContent=discs.join(' · ');
