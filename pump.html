@@ -71,7 +71,25 @@
   .schedule-card-head{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:15px 16px;border-bottom:1px solid #e8e8ed;flex-wrap:wrap;}.schedule-card-head h2{font-size:12px;font-weight:750;letter-spacing:.06em;text-transform:uppercase;color:#1d1d1f;}.schedule-card-head p{font-size:10px;color:#86868b;margin-top:3px;}
   .schedule-toolbar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #e8e8ed;flex-wrap:wrap;background:#fafafb;}.schedule-toolbar input,.schedule-toolbar select{width:auto;min-width:130px;padding:7px 10px;border:1px solid #d2d2d7;border-radius:8px;font-size:11px;background:#fff;color:#1d1d1f;outline:none;}.schedule-toolbar input{flex:1 1 220px;}.schedule-toolbar input:focus,.schedule-toolbar select:focus{border-color:#007aff;box-shadow:0 0 0 3px rgba(0,122,255,.12);}.toolbar-spacer{flex:1;}.density-switch{display:inline-flex;border:1px solid #d2d2d7;border-radius:8px;overflow:hidden;background:#fff;}.density-switch button{border:0;background:#fff;color:#86868b;padding:7px 10px;font-size:10px;font-weight:650;cursor:pointer;}.density-switch button.on{background:#e8f0fe;color:#007aff;}
   .status-chip{display:inline-flex;align-items:center;gap:4px;border-radius:999px;padding:3px 8px;font-size:9px;font-weight:750;white-space:nowrap;line-height:1.3;}.status-chip.pass{background:#e8faf0;color:#208a45;}.status-chip.review{background:#fff4e0;color:#a76200;}.status-chip.blocked{background:#fff0ee;color:#d8332b;}.status-chip.draft{background:#f1f1f3;color:#6e6e73;}.method-chip{display:inline-flex;padding:2px 6px;border:1px solid #d2d2d7;border-radius:6px;color:#6e6e73;background:#fff;font-size:9px;font-weight:700;white-space:nowrap;}
-  .schedule-table-wrap{overflow:auto;max-height:calc(100vh - 340px);min-height:260px;}.schedule-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px;font-size:11px;}.schedule-table th{position:sticky;z-index:3;background:#1e3a5f;color:#fff;text-align:left;font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:9px 10px;border-bottom:1px solid #17304f;white-space:nowrap;}.schedule-table thead tr.group th{display:none;}.schedule-table thead tr.labels th{top:0;}.schedule-table td{padding:10px;border-bottom:1px solid #ececf0;vertical-align:middle;color:#424245;background:#fff;}.schedule-table.compact td{padding:6px 10px;}.schedule-table tbody tr{cursor:pointer;transition:background .12s;}.schedule-table tbody tr:hover td{background:#f5f5f7;}.schedule-table tbody tr.selected td{background:#e8f0fe;}.schedule-table tbody tr.blocked td{background:#fffafa;}.schedule-table .sticky-left{position:sticky;z-index:2;background:inherit;}.schedule-table th.sticky-left{z-index:5;background:#1e3a5f;}.schedule-table th.row-no,.schedule-table td.row-no{left:0;width:48px;min-width:48px;text-align:center;color:#86868b;font-variant-numeric:tabular-nums;}.schedule-table th.system,.schedule-table td.system{left:48px;min-width:240px;max-width:300px;}.schedule-table th.tag,.schedule-table td.tag{left:288px;min-width:92px;}.schedule-table th.sticky-right,.schedule-table td.sticky-right{position:sticky;right:0;z-index:2;background:inherit;box-shadow:-2px 0 4px rgba(0,0,0,.04);}.schedule-table th.sticky-right{z-index:5;background:#1e3a5f;}.system-main{font-weight:700;color:#1d1d1f;line-height:1.25;}.system-sub{font-size:9px;color:#86868b;margin-top:2px;}.tag-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:#424245;}.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}.num.strong{font-weight:800;color:#1d1d1f;font-size:12px;}.pipe-main{font-size:10px;color:#424245;}.pipe-sub{font-size:9px;color:#86868b;margin-top:2px;}.schedule-action{border:1px solid #d2d2d7;background:#fff;color:#007aff;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;}.schedule-action:hover{border-color:#007aff;background:#e8f0fe;}.empty-schedule{padding:34px 20px;text-align:center;color:#86868b;font-size:12px;}.schedule-mobile{display:none;gap:8px;padding:10px;}.schedule-mobile-card{border:1px solid #d2d2d7;border-radius:12px;padding:12px;background:#fff;cursor:pointer;}.schedule-mobile-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}.schedule-mobile-name{font-weight:750;color:#1d1d1f;font-size:12px;line-height:1.35;}.schedule-mobile-tag{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#86868b;margin-top:2px;}.schedule-mobile-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #ededf0;}.schedule-mobile-metrics span{font-size:9px;color:#86868b;display:block;}.schedule-mobile-metrics b{display:block;font-size:12px;color:#1d1d1f;margin-top:2px;font-variant-numeric:tabular-nums;}
+  .sc-bar{display:flex;justify-content:flex-end;gap:6px;margin:0 0 3px}
+  .sch-sub{display:flex;align-items:center;gap:8px}.sch-sub .sc-bar{margin:0 0 0 auto}.sch-sub.sc-hd{cursor:pointer}
+  .sch-sub .sc-chev{font-size:10px;color:#86868b;width:12px;display:inline-block}
+  .sc-bar button{border:1px solid #d2d2d7;background:#fff;color:#424245;font:700 10px var(--app-sans);padding:3px 9px;border-radius:7px;cursor:pointer;line-height:13px}
+  .sc-bar button:hover{background:#f0f0f5;color:#007aff}.sc-bar .sc-n{color:#86868b;font-weight:600;margin-left:3px}
+  .schedule-table-wrap[data-off="1"]{display:none}
+  .sc-pop{position:fixed;z-index:100001;background:#fff;border:1px solid #d2d2d7;border-radius:12px;box-shadow:0 10px 30px rgba(0,0,0,.18);padding:10px 12px;width:250px;max-height:70vh;overflow:auto;font:12px var(--app-sans)}
+  .sc-pop h4{margin:0 0 6px;font-size:11px;font-weight:800;color:#1d1d1f;text-transform:uppercase;letter-spacing:.06em}
+  .sc-pop label{display:flex;align-items:center;gap:8px;padding:3px 2px;color:#1d1d1f;cursor:pointer}.sc-pop label.lock{color:#86868b;cursor:default}
+  .sc-pop .sc-row{display:flex;gap:6px;margin-top:8px;padding-top:8px;border-top:1px solid #ececf0}
+  .sc-pop .sc-row button{flex:1;border:1px solid #d2d2d7;background:#fff;border-radius:7px;padding:4px 0;font:700 11px var(--app-sans);cursor:pointer}.sc-pop .sc-row button:hover{background:#f0f0f5}
+  @media print{.sc-bar,.sc-pop{display:none!important}}
+  .zb-strip{display:flex;justify-content:flex-end;align-items:center;height:16px;margin:0 0 2px;line-height:1}
+  .zb-in{display:inline-flex;align-items:center;gap:1px;opacity:.5;transition:opacity .12s}.zb-strip:hover .zb-in,.zb-in:focus-within{opacity:1}
+  .zb-in button{border:1px solid #d2d2d7;background:#fff;color:#424245;font:700 9px var(--app-sans);padding:1px 5px;border-radius:5px;cursor:pointer;line-height:12px}
+  .zb-in button:hover:not(:disabled){background:#f0f0f5;color:#007aff}.zb-in button:disabled{opacity:.35;cursor:default}
+  .zb-in .zb-v{border-color:transparent;background:transparent;min-width:30px;color:#86868b;font-weight:600}
+  @media print{.zb-strip{display:none!important}[data-zb]{zoom:1!important}}
+  .schedule-table-wrap{overflow:auto;max-height:calc(100vh / var(--bz,1) - 340px);min-height:260px;}.schedule-table{width:100%;border-collapse:separate;border-spacing:0;min-width:1180px;font-size:11px;}.schedule-table th{position:sticky;z-index:3;background:#1e3a5f;color:#fff;text-align:left;font-size:9px;letter-spacing:.06em;text-transform:uppercase;font-weight:700;padding:9px 10px;border-bottom:1px solid #17304f;white-space:nowrap;}.schedule-table thead tr.group th{display:none;}.schedule-table thead tr.labels th{top:0;}.schedule-table td{padding:10px;border-bottom:1px solid #ececf0;vertical-align:middle;color:#424245;background:#fff;}.schedule-table.compact td{padding:6px 10px;}.schedule-table tbody tr{cursor:pointer;transition:background .12s;}.schedule-table tbody tr:hover td{background:#f5f5f7;}.schedule-table tbody tr.selected td{background:#e8f0fe;}.schedule-table tbody tr.blocked td{background:#fffafa;}.schedule-table .sticky-left{position:sticky;z-index:2;background:inherit;}.schedule-table td.sticky-left{background:#fff;}.schedule-table th.sticky-left{z-index:5;background:#1e3a5f;}.schedule-table th.row-no,.schedule-table td.row-no{left:0;width:48px;min-width:48px;text-align:center;color:#86868b;font-variant-numeric:tabular-nums;}.schedule-table th.system,.schedule-table td.system{left:48px;width:260px;min-width:260px;max-width:260px;}.schedule-table th.tag,.schedule-table td.tag{left:308px;min-width:92px;}.schedule-table th.sticky-right,.schedule-table td.sticky-right{position:sticky;right:0;z-index:2;background:inherit;box-shadow:-2px 0 4px rgba(0,0,0,.04);}.schedule-table th.sticky-right{z-index:5;background:#1e3a5f;}.system-main{font-weight:700;color:#1d1d1f;line-height:1.25;}.system-sub{font-size:9px;color:#86868b;margin-top:2px;}.tag-code{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-weight:700;color:#424245;}.num{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap;}.num.strong{font-weight:800;color:#1d1d1f;font-size:12px;}.pipe-main{font-size:10px;color:#424245;}.pipe-sub{font-size:9px;color:#86868b;margin-top:2px;}.schedule-action{border:1px solid #d2d2d7;background:#fff;color:#007aff;border-radius:7px;padding:5px 8px;font-size:10px;font-weight:700;cursor:pointer;}.schedule-action:hover{border-color:#007aff;background:#e8f0fe;}.empty-schedule{padding:34px 20px;text-align:center;color:#86868b;font-size:12px;}.schedule-mobile{display:none;gap:8px;padding:10px;}.schedule-mobile-card{border:1px solid #d2d2d7;border-radius:12px;padding:12px;background:#fff;cursor:pointer;}.schedule-mobile-top{display:flex;justify-content:space-between;gap:8px;align-items:flex-start;}.schedule-mobile-name{font-weight:750;color:#1d1d1f;font-size:12px;line-height:1.35;}.schedule-mobile-tag{font:700 10px ui-monospace,SFMono-Regular,Menlo,monospace;color:#86868b;margin-top:2px;}.schedule-mobile-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-top:10px;padding-top:10px;border-top:1px solid #ededf0;}.schedule-mobile-metrics span{font-size:9px;color:#86868b;display:block;}.schedule-mobile-metrics b{display:block;font-size:12px;color:#1d1d1f;margin-top:2px;font-variant-numeric:tabular-nums;}
   .drawer-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.22);z-index:500;}.inspection-drawer{position:fixed;z-index:501;top:0;right:0;width:min(480px,100vw);height:100dvh;background:#fff;box-shadow:-12px 0 40px rgba(0,0,0,.16);display:flex;flex-direction:column;animation:drawer-in .18s ease-out;}.inspection-drawer header{padding:18px 20px;border-bottom:1px solid #d2d2d7;display:flex;justify-content:space-between;gap:12px;align-items:flex-start;}.inspection-drawer h3{font-size:16px;letter-spacing:-.02em;color:#1d1d1f;line-height:1.3;}.inspection-drawer .close{border:0;background:#f5f5f7;color:#424245;border-radius:8px;width:30px;height:30px;font-size:18px;cursor:pointer;}.inspection-drawer main{padding:18px 20px;overflow:auto;flex:1;}.drawer-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0;}.drawer-metric{background:#f5f5f7;border:1px solid #e2e2e7;border-radius:10px;padding:10px;}.drawer-metric span{font-size:9px;color:#86868b;text-transform:uppercase;letter-spacing:.05em;font-weight:700;display:block;}.drawer-metric b{font-size:16px;color:#1d1d1f;margin-top:4px;display:block;font-variant-numeric:tabular-nums;}.drawer-section{border-top:1px solid #e7e7eb;padding-top:14px;margin-top:14px;}.drawer-section h4{font-size:10px;color:#86868b;text-transform:uppercase;letter-spacing:.06em;margin-bottom:9px;}.drawer-line{display:flex;justify-content:space-between;gap:12px;padding:6px 0;font-size:11px;border-bottom:1px solid #f0f0f2;}.drawer-line span{color:#86868b;}.drawer-line b{color:#1d1d1f;text-align:right;}.drawer-warning{margin-top:8px;padding:9px 10px;border-radius:8px;font-size:11px;line-height:1.45;}.drawer-warning.review{background:#fff4e0;color:#a76200;}.drawer-warning.blocked{background:#fff0ee;color:#d8332b;}.drawer-footer{border-top:1px solid #d2d2d7;padding:12px 20px;display:flex;gap:8px;justify-content:flex-end;}.drawer-footer button{border:1px solid #d2d2d7;background:#fff;color:#424245;border-radius:9px;padding:8px 11px;font-size:11px;font-weight:650;cursor:pointer;}.drawer-footer button.primary{background:#007aff;border-color:#007aff;color:#fff;}
   @keyframes drawer-in{from{transform:translateX(24px);opacity:.7}to{transform:translateX(0);opacity:1}}
   @media screen and (max-width:900px){.schedule-health{grid-template-columns:repeat(3,minmax(130px,1fr));}.schedule-table-wrap{display:none;}.schedule-mobile{display:grid;}.schedule-card-head{padding:14px;}.schedule-toolbar{padding:10px;}.schedule-toolbar input{flex-basis:100%;}.toolbar-spacer{display:none;}.inspection-drawer{width:100%;}.schedule-context{padding:2px 0;}.schedule-title{font-size:18px;}}
@@ -220,7 +238,7 @@
   /* Split-view calculation sheets. screen-hide is the load-bearing rule: the
      unselected sheets stay in the DOM so printing still emits the full pack. */
   .calcwrap{display:grid;grid-template-columns:200px minmax(0,1fr);gap:16px;align-items:start}
-  .calcpick{display:flex;flex-direction:column;gap:6px;position:sticky;top:64px;max-height:calc(100vh - 84px);overflow-y:auto;padding:2px 2px 6px}
+  .calcpick{display:flex;flex-direction:column;gap:6px;position:sticky;top:64px;max-height:calc(100vh / var(--bz,1) - 84px);overflow-y:auto;padding:2px 2px 6px}
   .calcpick-item{display:flex;align-items:flex-start;gap:8px;padding:8px 10px;background:#fff;border:1px solid #d2d2d7;border-radius:9px;cursor:pointer;flex:0 0 auto;text-align:left;width:100%}
   .calcpick-filter{display:flex;gap:6px;position:sticky;top:0;z-index:2;background:#f5f5f7;padding-bottom:4px}
   .calcpick-filter select{flex:1;min-width:0;height:30px;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;font-weight:600;padding:0 8px;background:#fff}
@@ -307,7 +325,7 @@
   .ca-1{display:flex;flex-direction:column;gap:14px}
   .ca-3{display:grid;grid-template-columns:minmax(240px,.72fr) minmax(0,1fr) minmax(0,1.12fr);gap:12px;align-items:start}
   .ca-3>.ca-split{display:contents}
-  .ca-3>section,.ca-3>.ca-split>section{position:sticky!important;top:8px;max-height:calc(100vh - 120px);overflow:auto;min-width:0}
+  .ca-3>section,.ca-3>.ca-split>section{position:sticky!important;top:8px;max-height:calc(100vh / var(--bz,1) - 120px);overflow:auto;min-width:0}
   .ca-list{padding:12px 8px 8px}.ca-list h4{padding:0 6px}
   .ca-li-wrap{display:flex;flex-direction:column;gap:2px}
   .ca-li{display:grid;grid-template-columns:22px minmax(0,1fr) auto auto;align-items:center;gap:6px;padding:6px 6px;border-radius:9px;cursor:pointer;border-left:3px solid transparent}
@@ -1658,7 +1676,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.62 · Build 2026.11.19.79";
+const BUILD_LABEL = "v1.118.70 · Build 2026.11.19.87";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -3758,11 +3776,15 @@ function calculateFls(p) {
   const gpmI = flsFlow(B, n), Q = g => g == null ? null : g*FLS_GPM/60, V = (g, m) => g == null || m == null ? null : g*FLS_GPM*m/1000;
   const yard = useH || B.hyd, systems = [B.systems, useH ? H.systems : ""].filter(Boolean).join("; ");
   const pumpRated = /first pump/i.test(at || ""), pHyd = Number(p.pump_bar) > 0 ? Number(p.pump_bar) : null;   // the code gives the pump rating only for the super highrise first pump
+  // v1.118.69: driver power. Pressure and both efficiencies are typed by the engineer, nothing is assumed.
+  const effP = Number(p.pump_eff) > 0 && Number(p.pump_eff) <= 100 ? Number(p.pump_eff) / 100 : null, effM = Number(p.motor_eff) > 0 && Number(p.motor_eff) <= 100 ? Number(p.motor_eff) / 100 : null, pUse = pumpRated ? bar : pHyd;
+  let kw = null;
+  if (gpm != null && pUse > 0 && effP) { const hyd = Q(gpm) * pUse / 10, shaft = hyd / effP; kw = {pBar:pUse, hyd, shaft, effP, effM, motor:selectMotor(shaft), elec:effM ? shaft / effM : null, elecStd:effM ? selectMotor(shaft) : null}; }
   const resTxt = bar == null ? "" : pumpRated ? `${bar} bar pump rating (code)` : `${bar} bar residual at the most remote ${at}`;
   const flowTxt = gpm != null ? `${gpm.toLocaleString("en-GB")} gpm (${Q(gpm).toFixed(1)} l/s)` : B.basis === "sprinkler_demand" ? "per the sprinkler demand" : B.basis === "deluge_2_zones" ? "2 adjacent deluge zones" : B.basis === "largest_hazard_plus_1000" ? "largest single hazard + 1,000 gpm" : B.basis === "domestic" ? "domestic / residential sprinkler" : B.basis === "other_chapter" ? "per Chapter 21" : "no fire pump";
   const ref = r => `Table ${r.table}${r.cat !== "*" ? " " + r.cat : ""}.${r.case}${r.page ? `, p. ${r.page}` : ""}`;
   const c = {o, band:T.band || null, table:hit.t, base:B, hyd:H, useH, also:hit.also, n, countBy:B.countBy || "standpipes", gpm, gpmI, Q:Q(gpm), QI:Q(gpmI), bar, at, tank, tankI:B.tank, foam, V:V(gpm, tank), VI:V(gpmI, B.tank),
-    yard, systems, flowTxt, edition:B.ed, pumpRated, pHyd, resTxt, up:B.up2 != null ? {g:n > 2 ? B.upm : B.up2, tank:B.upTank} : null, v};
+    yard, systems, flowTxt, edition:B.ed, pumpRated, pHyd, kw, resTxt, up:B.up2 != null ? {g:n > 2 ? B.upm : B.up2, tank:B.upTank} : null, v};
   const steps = [
     {s:"Code selection", label:"Occupancy", value:o.label},
     ...(c.band ? [{label:`Height band  [${v.height_m} m, clause ${c.band.clause}]`, value:c.band.label}] : []),
@@ -3773,6 +3795,13 @@ function calculateFls(p) {
     {s:"Fire pump", label:`Flow${B.basis === "standpipes" && !useH ? `  [${n} ${c.countBy}]` : ""}`, value:flowTxt, hl:true},
     ...(bar != null ? [{label:pumpRated ? "First pump pressure  [stated by the code]" : `Residual pressure required  [at the most remote ${at}]`, value:`${bar} bar`, hl:true}] : []),
     ...(!pumpRated && gpm != null ? [{label:"Pump pressure  [static + friction + residual, by hydraulic calculation]", value:pHyd ? `${pHyd} bar (entered)` : "by hydraulic calculation", ...(pHyd ? {hl:true} : {})}] : []),
+    ...(gpm != null ? (kw ? [
+      {s:"Driver power", label:`Hydraulic power  [${Q(gpm).toFixed(1)} l/s × ${pUse} bar ÷ 10]`, value:`${kw.hyd.toFixed(1)} kW`},
+      {label:`Pump shaft power  [÷ pump efficiency ${(effP*100).toFixed(0)} %]`, value:`${kw.shaft.toFixed(1)} kW`, hl:true},
+      {label:"Electric option: standard motor rating", value:kw.motor ? `${kw.motor} kW` : "above the standard list", hl:true},
+      ...(kw.elec != null ? [{label:`Electric option: motor input  [shaft ÷ motor efficiency ${(effM*100).toFixed(0)} %]`, value:`${kw.elec.toFixed(1)} kW electrical`, hl:true}] : [{label:"Electric option: motor input", value:"enter the motor efficiency"}]),
+      {label:"Diesel option: engine shaft power at least", value:`${kw.shaft.toFixed(1)} kW  (supplier applies site derating)`},
+    ] : [{s:"Driver power", label:"Electrical kW and diesel engine kW", value:pUse > 0 ? "enter the pump efficiency" : "enter the pump pressure and efficiencies"}]) : []),
     ...(useH && gpmI != null && gpmI !== gpm ? [{label:"Internal systems alone would need", value:`${gpmI.toLocaleString("en-GB")} gpm, ${B.tank} min`}] : []),
     ...(c.up ? [{label:"Upper pump sets every 90 m", value:`${c.up.g.toLocaleString("en-GB")} gpm at 6.9 bar, tanks ${c.up.tank} min`}] : []),
     {s:"Fire water tank", label:"Duration", value:tank != null ? `${tank} min` : "—", hl:true},
@@ -10308,6 +10337,13 @@ function clFlsRows(B, p, res) {
   if (c.bar != null) B.inp("flP", c.pumpRated ? "First pump pressure  [stated by the code]" : `Residual pressure required at the most remote ${c.at}  [code]`, c.bar, {unit:"bar", dp:1, bold:c.pumpRated});
   if (!c.pumpRated && c.gpm != null) { if (c.pHyd) B.inp("flPh", "Fire pump pressure  [from the hydraulic calculation]", c.pHyd, {unit:"bar", dp:2, bold:true});
     else B.text("Fire pump pressure: by hydraulic calculation (static height + friction losses + the residual pressure above).", {bold:true}); }
+  if (c.kw) { const pid = c.pumpRated ? "flP" : "flPh";
+    B.calc("flHy", "Hydraulic power  [Q × P ÷ 10]", c.kw.hyd, "{flQ}*{" + pid + "}/10", {unit:"kW", dp:2});
+    B.inp("flEp", "Fire pump efficiency  [from the pump curve]", c.kw.effP * 100, {unit:"%", dp:0});
+    B.calc("flSh", "Pump shaft power  [hydraulic power ÷ pump efficiency]", c.kw.shaft, "{flHy}/({flEp}/100)", {unit:"kW", dp:2, key:true, bold:true});
+    if (c.kw.motor) B.text(`Electric option: standard motor rating ${c.kw.motor} kW.`, {bold:true});
+    if (c.kw.elec != null) { B.inp("flEm", "Motor efficiency", c.kw.effM * 100, {unit:"%", dp:0}); B.calc("flEk", "Electrical input power  [shaft power ÷ motor efficiency]", c.kw.elec, "{flSh}/({flEm}/100)", {unit:"kW", dp:2, key:true, bold:true}); }
+    B.text(`Diesel option: engine shaft power at least ${c.kw.shaft.toFixed(1)} kW before the supplier's site derating.`, {italic:true}); }
   if (c.useH && c.gpmI != null && c.gpmI !== c.gpm) B.text(`The internal systems alone would need ${c.gpmI} gpm with a ${c.tankI} minute tank (${ref(B0)}).`, {italic:true});
   if (c.up) B.text(`Upper pump sets every 90 m: ${c.up.g} gpm at a pressure to satisfy 6.9 bar at the most remote landing valve, each with a ${c.up.tank} minute tank.`);
   B.section("5.  Fire Water Tank");
@@ -11610,16 +11646,27 @@ async function exportWorkbook(proj, pumps, stageName, issueMeta={}, suffix="") {
 }
 
 // ─── LIVE CALC PANEL — recalculates from current inputs as they change ────────
+const LC_ZOOMS = [0.9, 1, 1.15, 1.3, 1.5, 1.7];
+function lcZoomGet() { try { const v = Number(localStorage.getItem("mep_lc_zoom")); return LC_ZOOMS.includes(v) ? v : 1; } catch (e) { return 1; } }
 function LiveCalcPanel({pump}) {
   const res = useMemo(()=>safeCalculate(pump),[pump]);
+  // A- / A+ here makes only the working text bigger or smaller; the rest of the page stays as it is. Saved on this browser.
+  const [lz, setLz] = useState(lcZoomGet);
+  useEffect(() => { const f = () => setLz(lcZoomGet()); window.addEventListener("mep-lc-zoom", f); return () => window.removeEventListener("mep-lc-zoom", f); }, []);
+  const li = LC_ZOOMS.indexOf(lz), lcStep = d => { const v = LC_ZOOMS[Math.min(LC_ZOOMS.length - 1, Math.max(0, li + d))]; try { localStorage.setItem("mep_lc_zoom", String(v)); } catch (e) {} setLz(v); try { window.dispatchEvent(new Event("mep-lc-zoom")); } catch (e) {} };
+  const zst = lz === 1 ? undefined : {zoom:lz};
   if (!res) return null;
   if (res.error) return <div style={{position:"sticky",top:70,background:"#fff7f7",borderRadius:12,border:"1px solid #fecaca",padding:16,color:"#991b1b"}}><b>Calculation blocked</b><ul style={{margin:"8px 0 0",paddingLeft:18}}>{res.errors.map((e,i)=><li key={i}>{e}</li>)}</ul></div>;
   let curSec = null;
   return (
     <div className="live-calc" style={{position:"sticky",top:70,background:"white",borderRadius:12,border:"1px solid #d2d2d7",overflow:"hidden",boxShadow:"0 1px 4px rgba(0,0,0,0.06)"}}>
       {/* headline numbers */}
-      <div className="live-calc-summary" style={{background:"#1d1d1f",padding:"12px 14px"}}>
-        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+      <div className="live-calc-summary" style={{background:"#1d1d1f",padding:"12px 14px",position:"relative"}}>
+        <div className="lc-txsz no-print" role="group" aria-label="Text size of the live calculation" style={{position:"absolute",top:4,right:8,display:"flex",alignItems:"center",gap:2,zIndex:2}}>
+          <button type="button" onClick={()=>lcStep(-1)} disabled={li<=0} title="Smaller text" aria-label="Smaller text" style={{border:"1px solid #475569",background:"transparent",color:"#d2d2d7",borderRadius:5,fontSize:9,fontWeight:700,padding:"0 5px",lineHeight:"15px",cursor:li<=0?"default":"pointer",opacity:li<=0?.35:1}}>A−</button>
+          <button type="button" onClick={()=>lcStep(1)} disabled={li>=LC_ZOOMS.length-1} title="Larger text" aria-label="Larger text" style={{border:"1px solid #475569",background:"transparent",color:"#f5f5f7",borderRadius:5,fontSize:12,fontWeight:700,padding:"0 5px",lineHeight:"15px",cursor:li>=LC_ZOOMS.length-1?"default":"pointer",opacity:li>=LC_ZOOMS.length-1?.35:1}}>A+</button>
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,paddingTop:10,...(zst||{})}}>
           {(res.pbc ? [["Inflow Qin",`${res.pbc.Qin.toFixed(2)} L/s`],
             ["Outlet Qout",`${res.pbc.Qout.toFixed(2)} L/s`],
             ["Storage",`${res.pbc.Vstore.toFixed(2)} m³`],
@@ -11655,7 +11702,7 @@ function LiveCalcPanel({pump}) {
             </div>
           ))}
         </div>
-        <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5}}>
+        <div style={{marginTop:10,paddingTop:8,borderTop:"1px solid #334155",fontSize:10,color:"#d2d2d7",lineHeight:1.5,...(zst||{})}}>
           {res.pbc ? <>Rising main {res.pbc.rmName} (ID {res.pbc.rmDn} mm) at {res.pbc.vRm.toFixed(2)} m/s · outlet DN{res.pbc.outD} at {res.pbc.slope} %, {Math.round(res.pbc.fill*100)} % full<br/>Outlet velocity {res.pbc.vAt!=null?res.pbc.vAt.toFixed(2)+" m/s":"—"} · <span style={{color:res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"#4ade80":"#f87171",fontWeight:700}}>{res.pbc.okOut&&res.pbc.okRm&&res.pbc.okCap?"all checks pass ✓":"review warnings ✗"}</span></> : res.grease ? <>Total area {res.grease.tot.A.toFixed(0)} m² · {res.grease.tot.P.toFixed(1)} persons · {res.grease.mealsDay.toFixed(0)} meals/day<br/>NS per separator {res.grease.perGI.toFixed(2)} → {res.grease.nsLabel}</> : res.lpg ? <>{res.lpg.gas.l} · {res.lpg.nSec} sections{res.lpg.chords.length?` · ${res.lpg.chords.length} ring`:""} · S = {res.lpg.S.toFixed(3)} · supply {res.lpg.P0} mbar<br/>Lowest end node {res.lpg.critNode||"—"} · <span style={{color:res.lpg.status==="valid"?"#4ade80":"#f87171",fontWeight:700}}>{res.lpg.status==="valid"?"all checks pass ✓":"review warnings ✗"}</span></> : res.water && res.water.drainMode ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} appliances · ΣDU {res.water.totLU.toFixed(1)}<br/>Largest drain {res.water.mainSec&&res.water.mainSec.cls==="main"?"DN"+res.water.mainSec.pipe.od:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : res.water ? <>{res.water.nSec} sections · {res.water.totN.toFixed(0)} {res.water.gasMode ? "connections · " + res.water.gas.type.l + " · S " + res.water.gas.S.toFixed(3) : "fixtures · " + wsSysName(res.water.system).toLowerCase()}<br/>Critical node {res.water.crit?res.water.crit.node:"—"} · <span style={{color:res.water.ok?"#4ade80":"#f87171",fontWeight:700}}>{res.water.ok?"all checks pass ✓":"review warnings ✗"}</span></> : <>
           {res.set.installed} pumps installed · {res.setText || `${res.set.duty} duty, ${res.set.standby} standby`}
           {res.installedKw > 0 && <><br/><b style={{color:"#f5f5f7"}}>Installed {+res.installedKw.toFixed(2)} kW</b> · {res.set.installed} × {res.pwrSel} kW · running {+res.connectedKw.toFixed(2)} kW{res.set.standby > 0 ? ` + standby ${+(res.pwrSel*res.set.standby).toFixed(2)} kW` : ""}</>}
@@ -11668,6 +11715,7 @@ function LiveCalcPanel({pump}) {
       </div>
       {/* full working */}
       <div style={{maxHeight:"calc(100vh - 300px)",overflowY:"auto"}}>
+        <div style={zst}>
         {res.steps.map((s,i)=>{
           const newSec = s.s && s.s!==curSec;
           if (s.s) curSec = s.s;
@@ -11690,6 +11738,7 @@ function LiveCalcPanel({pump}) {
             </div>
           );
         })}
+        </div>
       </div>
     </div>
   );
@@ -12172,9 +12221,9 @@ function ScheduleReviewTable({items, density, selectedId, onSelect, sort, setSor
       ? <><td><div className="pipe-main">{r.error?'—':r.water.classes.filter(c=>c.n>0).map(c=>c.cd.mat.label.split(' (')[0]).filter((v,i,a)=>a.indexOf(v)===i).join(' / ')}</div><div className="pipe-sub">{r.error?'Selection blocked':r.water.drainMode ? `${r.water.nSec} sections · largest drain DN${r.water.mainSec?r.water.mainSec.pipe.od:'—'}` : `${r.water.nSec} sections · main ${r.water.mainSec?r.water.mainSec.pipe.od:'—'} mm OD`}</div></td><td className="ctr"><span className="method-chip">{wsIsDrain(p)?'EN 12056':wsIsGas(p)?'IGE/UP/2':p.headLossMethod==='HW'?'H–W':'D–W'}</span></td></>
       : <><td><div className="pipe-main">{pipe.label||'—'}</div><div className="pipe-sub">{r.error?'Selection blocked':`${r.pipe.od} mm OD${r.pipe.wall!==undefined?` × ${r.pipe.wall} wall`:""}`}</div></td><td className="ctr"><span className="method-chip">{p.headLossMethod==='DW'?'D–W':'H–W'}</span></td></>}
     <td className="num strong">{r.error?'—':r.flowLsPerPump.toFixed(2)}</td><td className="num">{r.error?'—':r.flowTotal.toFixed(2)}</td><td className="num strong">{r.error?'—':r.totalH}</td><td className="num strong">{r.error?'—':r.pwrSel}</td>
-    <td className="ctr">{r.error?'—':r.config}</td><td className="ctr">{r.error||p.type==='water'||p.type==='lpg'?'—':r.set.installed}</td><td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status}/><button className="schedule-action" onClick={e=>{e.stopPropagation();onSelect(p.id)}}>View</button></div></td>
+    <td className="ctr">{r.error?'—':r.config}</td><td className="ctr">{r.error||p.type==='water'||p.type==='lpg'?'—':r.set.installed}</td><td className="num">{r.error||p.type==='water'||p.type==='lpg'||!(r.installedKw>0)?'—':+(r.flowLsPerPump*r.set.installed).toFixed(2)}</td><td className="num">{r.error||!(r.installedKw>0)?'—':+r.installedKw.toFixed(2)}</td><td className="num">{r.error||!(r.installedKw>0)?'—':+r.connectedKw.toFixed(2)}</td><td className="num">{r.error||!(Number(p.staticHead)>0)||p.type==='water'?'—':p.staticHead}</td><td className="num">{r.error||!(r.vel>0)||p.type==='water'?'—':r.vel.toFixed(2)}</td><td className="ctr">{r.error||!r.fluid||p.type==='water'?'—':(r.fluid.short||r.fluid.name||'—')}</td><td>{p.location||'—'}</td><td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status}/><button className="schedule-action" onClick={e=>{e.stopPropagation();onSelect(p.id)}}>View</button></div></td>
   </tr>; };
-  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:'24%'}}/><col style={{width:130}}/><col style={{width:'15%'}}/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:120}}/></colgroup><thead><tr className="labels">{(()=>{ const sh=(k,cls,label)=><th className={cls+(setSort?' sortable':'')} onClick={setSort?()=>setSort(k):undefined} title={setSort?'Click to sort':undefined}>{label}{sort&&sort.key===k&&k!=='order'?<i>{sort.dir==='desc'?'▼':'▲'}</i>:null}</th>; return <>{sh('order','row-no sticky-left','No.')}{sh('name','system sticky-left','System')}{sh('tag','tag sticky-left','Tag')}<th>Pipe</th><th className="ctr">Method</th>{sh('flow','num',<>Flow each<br/>(L/s)</>)}{sh('flowTot','num',<>System flow<br/>(L/s)</>)}{sh('head','num',<>Head<br/>(m)</>)}{sh('kw','num',<>Motor<br/>(kW)</>)}<th className="ctr">Arrangement</th><th className="ctr">Total</th>{sh('state','sticky-right ctr','State')}</>; })()}</tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||typeLbl(p)}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
+  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density==='compact'?'compact':''}`}><colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:130}}/><col/><col style={{width:70}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:64}}/><col style={{width:70}}/><col style={{width:96}}/><col style={{width:60}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:84}}/><col style={{width:90}}/><col style={{width:130}}/><col style={{width:120}}/></colgroup><thead><tr className="labels">{(()=>{ const sh=(k,cls,label)=><th className={cls+(setSort?' sortable':'')} onClick={setSort?()=>setSort(k):undefined} title={setSort?'Click to sort':undefined}>{label}{sort&&sort.key===k&&k!=='order'?<i>{sort.dir==='desc'?'▼':'▲'}</i>:null}</th>; return <>{sh('order','row-no sticky-left','No.')}{sh('name','system sticky-left','System')}{sh('tag','tag sticky-left','Tag')}<th>Pipe</th><th className="ctr">Method</th>{sh('flow','num',<>Flow each<br/>(L/s)</>)}{sh('flowTot','num',<>System flow<br/>(L/s)</>)}{sh('head','num',<>Head<br/>(m)</>)}{sh('kw','num',<>Motor<br/>(kW)</>)}<th className="ctr">Arrangement</th><th className="ctr">Total</th><th className="num" title="Flow each × number installed, standby included">Installed flow<br/>(L/s)</th><th className="num" data-opt="1" title="Motor kW × number installed, standby included">Installed<br/>(kW)</th><th className="num" data-opt="1" title="Duty and assist motors only">Running<br/>(kW)</th><th className="num" data-opt="1">Static head<br/>(m)</th><th className="num" data-opt="1">Velocity<br/>(m/s)</th><th className="ctr" data-opt="1">Fluid</th><th data-opt="1">Location</th>{sh('state','sticky-right ctr','State')}</>; })()}</tr></thead><tbody>{items.map(row)}</tbody></table></div><div className="schedule-mobile">{items.map(item=>{const {p,result:r,status,index}=item;return <div key={p.id||index} className="schedule-mobile-card" onClick={()=>onSelect(p.id)}><div className="schedule-mobile-top"><div><div className="schedule-mobile-name">{p.name}</div><div className="schedule-mobile-tag">{p.tag||typeLbl(p)}</div></div><StatusChip status={status}/></div><div className="schedule-mobile-metrics"><div><span>Q / pump</span><b>{r.error?'—':`${r.flowLsPerPump.toFixed(2)} L/s`}</b></div>{(p.type==='grease'||p.type==='water') ? <><div><span>{p.type==='water'?'Peak flow':'Waste flow'}</span><b>{r.error?'—':`${r.flowTotal.toFixed(2)} L/s`}</b></div><div><span>{p.type==='water'?'Sections':'Size'}</span><b>{r.error?'—':r.config}</b></div></> : <><div><span>Head</span><b>{r.error?'—':`${r.totalH} m`}</b></div><div><span>Motor</span><b>{r.error?'—':`${r.pwrSel} kW`}</b></div></>}</div></div>})}</div></>;
 }
 function PumpInspectionDrawer({item,onClose,onEdit,onOpenCalc}) {
   if (!item) return null; const {p,result:r,status,index}=item; const mat=matOf(p.pipeType)||{};
@@ -12208,11 +12257,11 @@ function FireScheduleTable({items, density, onOpen}) {
       <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
     </tr>; };
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
-    <colgroup><col style={{width:48}}/><col style={{width:"20%"}}/><col style={{width:110}}/><col style={{width:"11%"}}/><col style={{width:84}}/><col style={{width:"15%"}}/><col style={{width:96}}/><col style={{width:84}}/><col style={{width:90}}/><col style={{width:90}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:110}}/><col/><col style={{width:84}}/><col style={{width:"15%"}}/><col style={{width:96}}/><col style={{width:84}}/><col style={{width:90}}/><col style={{width:90}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Room</th><th className="sticky-left">Tag</th><th>Agent</th><th className="ctr">Hazard</th><th>Spaces protected</th><th className="num">Volume (m³)</th><th className="num">Design (%)</th><th className="num">Achieved (%)</th><th className="num">Agent (kg)</th><th className="ctr">Cylinders</th><th className="num">Fill each (kg)</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(row)}</tbody></table></div><SchMobile items={items} onOpen={onOpen} metrics={({p, result:r}) => { const c = r && r.ca; return [["Agent", c ? `${c.Wsup.toFixed(1)} kg ${c.ag.short}` : "—"], ["Cylinders", c ? `${c.n} × ${c.cyl.vol} L` : "—"], ["Design", c ? `${c.C.toFixed(2)} %` : "—"]]; }} /></>;
 }
-function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMovePump,onPlacePump,onSetPumpOrder,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam,stormItems:swIn=[],onEditStorm,fuelItems:fpIn=[],onEditFuel,toolItems:tlIn=[],onEditTool}) {
+function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMovePump,onPlacePump,onSetPumpOrder,onEditPump,onOpenCalculationSheet,caItems=[],onEditRoom,foamItems:fmIn=[],onEditFoam,flsItems:flIn=[],onEditFls,stormItems:swIn=[],onEditStorm,fuelItems:fpIn=[],onEditFuel,toolItems:tlIn=[],onEditTool}) {
   const [disc,setDiscS]=useState(()=>{ try { return localStorage.getItem("mep_sch_disc")==="fire"?"fire":"plumbing"; } catch(e){ return "plumbing"; } });
   const setDisc=v=>{ setDiscS(v); try { localStorage.setItem("mep_sch_disc",v); } catch(e){} };
   const [agentFilter,setAgentFilter]=useState('all');
@@ -12228,12 +12277,14 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
   const visible=useMemo(()=>items.filter(item=>{const q=query.trim().toLowerCase();return (!q||[item.p.name,item.p.tag,typeLbl(item.p),(matOf(item.p.pipeType)||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(typeFilter==='all'||item.p.type===typeFilter)&&(methodFilter==='all'||item.p.headLossMethod===methodFilter);}),[items,query,statusFilter,typeFilter,methodFilter]);
   const selected=items.find(x=>x.p.id===selectedId)||null, savedClass=saveStatus==='error'?'error':saveStatus==='saving'?'saving':'';
   const counts=items.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
-  const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0);
-  const kpi=(key,cls,label,val)=><button type="button" key={key} className={"sch-kpi "+cls+(statusFilter===key?" on":"")} onClick={()=>key&&setStatusFilter(statusFilter===key&&key!=="all"?"all":key)} disabled={!key} title={key?`Show ${label.toLowerCase()} only`:""}><b>{val}</b><span>{label}</span></button>;
+  const installed=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.installedKw||0),0), running=items.filter(x=>!x.result.error).reduce((s,x)=>s+(x.result.connectedKw||0),0);
+  const kpi=(key,cls,label,val)=><button type="button" key={key||label} className={"sch-kpi "+cls+(statusFilter===key?" on":"")} onClick={()=>key&&setStatusFilter(statusFilter===key&&key!=="all"?"all":key)} disabled={!key} title={key?`Show ${label.toLowerCase()} only`:""}><b>{val}</b><span>{label}</span></button>;
   const nf=[statusFilter,typeFilter,methodFilter].filter(v=>v!=="all").length+(query.trim()?1:0);
   const caRows=useMemo(()=>caItems.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[caItems]);
   const fmRows=useMemo(()=>fmIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fmIn]);
-  const fItems=[...caRows,...fmRows];
+  const flRows=useMemo(()=>flIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[flIn]);
+  const fItems=[...caRows,...fmRows,...flRows];
+  const flKw=flRows.reduce((s,x)=>s+(x.result&&x.result.fls&&x.result.fls.kw&&x.result.fls.kw.elec?x.result.fls.kw.elec:0),0), flMot=flRows.reduce((s,x)=>s+(x.result&&x.result.fls&&x.result.fls.kw&&x.result.fls.kw.motor?x.result.fls.kw.motor:0),0);
   const swRows=useMemo(()=>swIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[swIn]);
   const fpRows=useMemo(()=>fpIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[fpIn]);
   const tlRows=useMemo(()=>tlIn.map((p,index)=>{const result=safeCalculate(p);return {p,index,result,status:scheduleReviewStatus(p,result)};}),[tlIn]);
@@ -12241,12 +12292,13 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
   const swVis=schSort(swRows.filter(pMatch),sortKey,sortDir), fpVis=schSort(fpRows.filter(pMatch),sortKey,sortDir), tlVis=schSort(tlRows.filter(pMatch),sortKey,sortDir), plExtra=swRows.length+fpRows.length+tlRows.length;
   const visS=schSort(visible,sortKey,sortDir), sorted=sortKey!=='order', canEdit=!locked&&!!onSetPumpOrder;
   const saveSortAsOrder=()=>{ if(!canEdit||!sorted||nf>0) return; if(!window.confirm('Save this sort as the order of the pump list?\n\nThe list in the sidebar and the issue sheets follow this order too.')) return; onSetPumpOrder(visS.map(x=>x.p.id)); setSortKey('order'); setSortDir('asc'); };
-  const printSchedule=()=>{ const st=document.createElement('style'); st.textContent='@page{size:A4 landscape;margin:9mm}'; document.head.appendChild(st); const old=document.title; document.title=['Equipment_Schedule',proj&&proj.name,stageName].filter(Boolean).join('_').replace(/[\\/:*?"<>|]+/g,' ');
-    const back=()=>{ document.title=old; st.remove(); window.removeEventListener('afterprint',back); }; window.addEventListener('afterprint',back); window.print(); };
+  const printSchedule=()=>{ const fileTitle=['Equipment_Schedule',proj&&proj.name,stageName].filter(Boolean).join('_').replace(/[\\/:*?"<>|]+/g,' ');
+    const kpis=fire?[["Systems",fItems.length],["Pass",fCounts.pass],["Review",fCounts.review],["Blocked",fCounts.blocked],["Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`],...(flKw>0?[["Fire pump",`${flKw.toFixed(1)} kW`]]:[])]:[["Items",items.length+plExtra],["Pass",plCounts.pass],["Review",plCounts.review],["Blocked",plCounts.blocked],["Installed",`${installed.toFixed(1)} kW`],["Running",`${running.toFixed(1)} kW`]];
+    schPrintDoc({fileTitle, kpis, disc:fire?"Fire Protection":"Plumbing", project:(proj&&proj.name)||"", stage:stageName||"", rev:(proj&&proj.revision)||"—", date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}), footer:[(proj&&proj.name),stageName,"Equipment Schedule"].filter(Boolean).join(" · ")}); };
   const plCounts=[...swRows,...fpRows,...tlRows].reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{...counts});
-  const fMatch=item=>{const q=query.trim().toLowerCase(); const ag=item.p.type==="foam"?"foam":((item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent);
-    return (!q||[item.p.name,item.p.tag,item.p.location,item.p.type==="foam"?"foam "+(FOAM_KINDS[item.p.kind]||""):(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter||(agentFilter==="ca"&&item.p.type==="ca"));};
-  const caVis=caRows.filter(fMatch), fmVis=fmRows.filter(fMatch), fVisible=[...caVis,...fmVis];
+  const fMatch=item=>{const q=query.trim().toLowerCase(); const ag=item.p.type==="fls"?"fls":item.p.type==="foam"?"foam":((item.result&&item.result.ca&&item.result.ca.agent)||item.p.agent);
+    return (!q||[item.p.name,item.p.tag,item.p.location,item.p.type==="fls"?"fire pump":item.p.type==="foam"?"foam "+(FOAM_KINDS[item.p.kind]||""):(CA_AGENTS[ag]||{}).label].join(' ').toLowerCase().includes(q))&&(statusFilter==='all'||item.status.key===statusFilter)&&(agentFilter==='all'||ag===agentFilter||(agentFilter==="ca"&&item.p.type==="ca"));};
+  const caVis=caRows.filter(fMatch), fmVis=fmRows.filter(fMatch), flVis=flRows.filter(fMatch), fVisible=[...caVis,...fmVis,...flVis];
   const fConc=fmRows.reduce((s,x)=>s+(x.result&&x.result.foam?x.result.foam.Vtot:0),0);
   const fCounts=fItems.reduce((a,x)=>{ a[x.status.key]=(a[x.status.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
   const fKg=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.Wsup:0),0), fCyl=fItems.reduce((s,x)=>s+(x.result&&x.result.ca?x.result.ca.n:0),0);
@@ -12260,7 +12312,7 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
         {kpi("pass","pass","Pass",fire?fCounts.pass:plCounts.pass)}
         {kpi("review","review","Review",fire?fCounts.review:plCounts.review)}
         {kpi("blocked","blocked","Blocked",fire?fCounts.blocked:plCounts.blocked)}
-        {fire ? kpi(null,"kw","Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`) : kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}
+        {fire ? <>{(caRows.length>0||fmRows.length>0)&&kpi(null,"kw","Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`)}{flKw>0&&kpi(null,"kw","Fire pump",`${flKw.toFixed(1)} kW`)}</> : <>{kpi(null,"kw","Installed",`${installed.toFixed(1)} kW`)}{kpi(null,"kw","Running",`${running.toFixed(1)} kW`)}</>}
       </div>
     </div>
     <section className="schedule-card">
@@ -12270,7 +12322,7 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
           <button type="button" role="tab" aria-selected={fire} className={fire?"on fire":"fire"} onClick={()=>switchDisc("fire")}>Fire Protection<em>{fItems.length}</em></button>
         </div>
         <input className="sch-search" aria-label="Search schedule" value={query} onChange={e=>setQuery(e.target.value)} placeholder={fire?"Search room, hazard, tag, location or system…":"Search system, tag, pipe or type…"} />
-        {fire ? <select aria-label="Filter by system" value={agentFilter} onChange={e=>setAgentFilter(e.target.value)}><option value="all">All fire systems</option><option value="ca">Clean agent — all</option>{Object.values(CA_AGENTS).map(a=><option key={a.key} value={a.key}>Clean agent — {a.short}</option>)}<option value="foam">Foam</option></select> : <>
+        {fire ? <select aria-label="Filter by system" value={agentFilter} onChange={e=>setAgentFilter(e.target.value)}><option value="all">All fire systems</option><option value="ca">Clean agent — all</option>{Object.values(CA_AGENTS).map(a=><option key={a.key} value={a.key}>Clean agent — {a.short}</option>)}<option value="foam">Foam</option><option value="fls">Fire pump</option></select> : <>
         <select aria-label="Filter by equipment type" value={typeFilter} onChange={e=>setTypeFilter(e.target.value)}><option value="all">All types</option><TypeOptions/></select>
         <select aria-label="Filter by head loss method" value={methodFilter} onChange={e=>setMethodFilter(e.target.value)}><option value="all">All methods</option><option value="HW">Hazen–Williams</option><option value="DW">Darcy–Weisbach</option></select></>}
         {(fire ? (query.trim()||statusFilter!=='all'||agentFilter!=='all') : nf>0) && <button type="button" className="sch-clear" onClick={()=>{setQuery('');setStatusFilter('all');setTypeFilter('all');setMethodFilter('all');setAgentFilter('all');}}>✕ Clear filters</button>}
@@ -12285,8 +12337,9 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
       </div>
       {fire ? <div className="sch-fire">
-          {(caRows.length>0||!fmRows.length) && <><div className="sch-sub">Clean agent systems <em>{caVis.length}</em></div><FireScheduleTable items={caVis} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/></>}
+          {(caRows.length>0||(!fmRows.length&&!flRows.length)) && <><div className="sch-sub">Clean agent systems <em>{caVis.length}</em></div><FireScheduleTable items={caVis} density={density} onOpen={id=>onEditRoom&&onEditRoom(id)}/></>}
           {fmRows.length>0 && <><div className="sch-sub">Foam systems <em>{fmVis.length}</em></div><FoamScheduleTable items={fmVis} density={density} onOpen={id=>onEditFoam&&onEditFoam(id)}/></>}
+          {flRows.length>0 && <><div className="sch-sub">Fire pump <em>{flVis.length}</em></div><FlsScheduleTable items={flVis} density={density} onOpen={id=>onEditFls&&onEditFls(id)}/></>}
         </div> : plExtra>0 ? <div className="sch-fire">
           {(items.length>0||!plExtra) && <><div className="sch-sub">Pumps, tanks and pipe sizing <em>{visible.length}</em></div><ScheduleReviewTable items={visS} density={density} selectedId={selectedId} onSelect={setSelectedId} sort={{key:sortKey,dir:sortDir}} setSort={setSortBy} reorder={reorder&&canEdit&&!sorted} onPlace={onPlacePump} onMove={(id,d)=>{ const k=visS.findIndex(x=>x.p.id===id), t=visS[k+d]; if(t&&onPlacePump) onPlacePump(id,t.p.id,d>0); }}/></>}
           {swRows.length>0 && <><div className="sch-sub">Stormwater <em>{swVis.length}</em></div><StormScheduleTable items={swVis} density={density} onOpen={id=>onEditStorm&&onEditStorm(id)}/></>}
@@ -13216,6 +13269,8 @@ function FlsTab({meta, setMeta, locked, focus}) {
             <div className="ca-g3" style={{marginTop:8}}>{order.filter(k => need.params.includes(k)).map(k => <N key={k} label={FLS_PARAMS[k][0]} unit={FLS_PARAMS[k][1]} value={h[k]} onChange={x => setH(h.id, {[k]:x})}
               req={!(k === "sum_gf_m2" || k === "basement_m2")} hint={FLS_PARAMS[k][2]} />)}
               <N label="Pump pressure from hydraulic calc." unit="bar" value={h.pump_bar} onChange={x => setH(h.id, {pump_bar:x})} req={false} hint="Optional: static + friction + residual, from your hydraulic calculation" />
+              <N label="Fire pump efficiency" unit="%" value={h.pump_eff} onChange={x => setH(h.id, {pump_eff:x})} req={false} hint="From the pump curve, at the duty point. Needed for the kW" />
+              <N label="Motor efficiency" unit="%" value={h.motor_eff} onChange={x => setH(h.id, {motor_eff:x})} req={false} hint="Needed for the electrical (input) kW" />
               {need.standpipes && <N label={`Number of ${need.countBy}`} value={h.standpipes} onChange={x => setH(h.id, {standpipes:x})} hint="2 → 750 gpm, more than 2 → 1,000 gpm" />}
             </div>
             <div className="ca-g3" style={{marginTop:8}}>
@@ -13232,6 +13287,7 @@ function FlsTab({meta, setMeta, locked, focus}) {
             <div className="ca-kpis">
               <div className="hl"><span>Fire pump</span><b>{c.gpm != null ? `${f0(c.gpm)} gpm` : "—"}</b><i>{c.gpm != null ? `${c.Q.toFixed(1)} l/s · ${c.pumpRated ? `${c.bar} bar (code)` : c.pHyd ? `${c.pHyd} bar (hydraulic)` : `${c.bar} bar residual at the ${c.at}`}` : c.flowTxt}</i></div>
               <div><span>Fire water tank</span><b>{c.V != null ? `${c.V.toFixed(0)} m³` : c.tank != null ? `${c.tank} min` : "—"}</b><i>{c.tank != null ? `${c.tank} minutes` : "no tank"}</i></div>
+              {c.kw && <div className="hl"><span>Electric motor</span><b>{c.kw.motor ? `${c.kw.motor} kW` : "—"}</b><i>{c.kw.elec != null ? `${c.kw.elec.toFixed(1)} kW electrical input` : "enter motor efficiency"} · diesel ≥ {c.kw.shaft.toFixed(1)} kW</i></div>}
               <div><span>Yard hydrants</span><b>{c.yard ? "Required" : "No"}</b><i>{c.useH ? "combined pump and tank" : c.hyd ? "infrastructure hydrants nearby" : "not by this case"}</i></div>
             </div>
             <div className="tl-sel">{rs.selStr}</div>
@@ -13390,11 +13446,34 @@ function FoamTanksTab() {
   );
 }
 // v1.86: Fire Protection schedule — foam hazards
+function FlsScheduleTable({items, density, onOpen}) {
+  if (!items.length) return <div className="empty-schedule">No fire pumps match — add them in the Fire Pump (UAE FLS) tab.</div>;
+  const f1 = v => v == null ? "—" : (+v).toFixed(1);
+  return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:100}}/><col/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:110}}/><col style={{width:110}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:150}}/></colgroup>
+    <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Building</th><th className="sticky-left">Tag</th><th>Basis</th><th className="num">Flow (gpm)</th><th className="num">Flow (L/s)</th><th className="num">Pressure (bar)</th><th className="num">Shaft power (kW)</th><th className="num">Electric motor (kW)</th><th className="num">Electrical input (kW)</th><th className="num">Tank (m³)</th><th className="sticky-right ctr">State</th></tr></thead>
+    <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.fls, k = c && c.kw;
+      return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
+        <td className="row-no sticky-left">{index + 1}</td>
+        <td className="system sticky-left" title={p.name}><div className="system-main">{p.name}</div><div className="system-sub">{p.location || "—"}</div></td>
+        <td className="tag sticky-left"><span className="tag-code">{p.tag || "—"}</span></td>
+        <td>Fire pump and tank (UAE FLS)</td>
+        <td className="num">{c && c.gpm != null ? c.gpm.toLocaleString("en-GB") : "—"}</td>
+        <td className="num strong">{c && c.gpm != null ? c.Q.toFixed(1) : "—"}</td>
+        <td className="num">{k ? k.pBar : c && c.bar != null ? c.bar : "—"}</td>
+        <td className="num">{k ? f1(k.shaft) : "—"}</td>
+        <td className="num strong">{k ? (k.motor ? k.motor : "—") : "—"}</td>
+        <td className="num strong">{k ? f1(k.elec) : "—"}</td>
+        <td className="num">{c && c.V != null ? c.V.toFixed(1) : "—"}</td>
+        <td className="sticky-right ctr"><div className="state-cell"><StatusChip status={status} /><button className="schedule-action" onClick={e => { e.stopPropagation(); onOpen(p.id); }}>View</button></div></td>
+      </tr>; })}</tbody></table></div><SchMobile items={items} onOpen={onOpen} metrics={({p, result:r}) => { const c = r && r.fls, k = c && c.kw; return [["Flow", c && c.gpm != null ? `${c.gpm.toLocaleString("en-GB")} gpm` : "—"], ["Motor", k && k.motor ? `${k.motor} kW` : "—"], ["Electrical", k && k.elec != null ? `${k.elec.toFixed(1)} kW` : "—"]]; }}/></>;
+}
+
 function FoamScheduleTable({items, density, onOpen}) {
   if (!items.length) return <div className="empty-schedule">No foam hazards match — add them in the Foam tab.</div>;
   const f0 = v => Math.round(v).toLocaleString("en-GB");
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
-    <colgroup><col style={{width:48}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"15%"}}/><col style={{width:"13%"}}/><col style={{width:90}}/><col style={{width:100}}/><col style={{width:70}}/><col style={{width:110}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:100}}/><col/><col style={{width:"13%"}}/><col style={{width:90}}/><col style={{width:100}}/><col style={{width:70}}/><col style={{width:110}}/><col style={{width:110}}/><col style={{width:90}}/><col style={{width:150}}/></colgroup>
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Hazard</th><th className="sticky-left">Tag</th><th>Type</th><th>Concentrate</th><th className="num">Area (m²)</th><th className="num">Solution (L/min)</th><th className="num">Time (min)</th><th className="num">Conc. + reserve (L)</th><th className="ctr">Bladder tank</th><th className="num">Water (L/s)</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.foam;
       return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
@@ -14542,7 +14621,7 @@ function StormScheduleTable({items, density, onOpen}) {
   if (!items.length) return <div className="empty-schedule">No stormwater items match.</div>;
   const f2 = v => v.toFixed(2);
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
-    <colgroup><col style={{width:48}}/><col style={{width:"20%"}}/><col style={{width:100}}/><col style={{width:"14%"}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:"16%"}}/><col style={{width:"14%"}}/><col style={{width:150}}/></colgroup>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:100}}/><col/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:"16%"}}/><col style={{width:"14%"}}/><col style={{width:150}}/></colgroup>
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Item</th><th className="sticky-left">Tag</th><th>Type</th><th className="num">Area (m²)</th><th className="num">Flow (l/s)</th><th>Outlets / drain</th><th>Rainwater pipes / fall</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.storm;
       return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
@@ -14560,7 +14639,7 @@ function FuelScheduleTable({items, density, onOpen}) {
   if (!items.length) return <div className="empty-schedule">No fuel lines match.</div>;
   const f2 = v => v.toFixed(2);
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
-    <colgroup><col style={{width:48}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"12%"}}/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:150}}/></colgroup>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:100}}/><col/><col style={{width:"18%"}}/><col style={{width:100}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:150}}/></colgroup>
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Line</th><th className="sticky-left">Tag</th><th>Type</th><th>From → To</th><th className="num">Flow (l/s)</th><th>Size</th><th>Result</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.fuel;
       return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
@@ -14757,7 +14836,7 @@ function ToolParamsTab() {
 function ToolScheduleTable({items, density, onOpen}) {
   if (!items.length) return <div className="empty-schedule">No engineering calculations match.</div>;
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
-    <colgroup><col style={{width:48}}/><col style={{width:"18%"}}/><col style={{width:90}}/><col style={{width:"20%"}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:150}}/></colgroup>
+    <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:90}}/><col/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:"12%"}}/><col style={{width:150}}/></colgroup>
     <thead><tr><th className="sticky-left">No.</th><th className="sticky-left">Item</th><th className="sticky-left">Tag</th><th>Calculation</th><th>Result 1</th><th>Result 2</th><th>Result 3</th><th className="sticky-right ctr">State</th></tr></thead>
     <tbody>{items.map(({p, result:r, status, index}) => { const c = r && r.tool, s = c ? c.sum : [];
       return <tr key={p.id} className={status.key} onClick={() => onOpen(p.id)} style={{cursor:"pointer"}}>
@@ -16505,13 +16584,17 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   );
 }
 // ─── PIPE SIZING WORKSPACE — full width, data entry on one half, the drawing on the other ───
-function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pipeId, setPipeId, updPump, addWater, addPumpWith, openPump, proj, setProj, stageName, stageLocked, saveStatus, saveNow, onBack}) {
+const wsSvcOf = x => x.wsService === "gas" ? "gas" : x.wsService === "drain" ? "drain" : x.wsService === "fuel" ? "fuel" : x.wsService === "storm" ? "storm" : "water";
+function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pipeId, setPipeId, updPump, addWater, addPumpWith, openPump, proj, setProj, stageName, stageLocked, saveStatus, saveNow, onBack, svcReq, onSvc}) {
   const waters = pumps.filter(x => x.type === "water");
   // v1.118.51: one tab per kind of network. Each tab lists only its own calculations
-  const svcOf = x => x.wsService === "gas" ? "gas" : x.wsService === "drain" ? "drain" : x.wsService === "fuel" ? "fuel" : "water";
-  const SVCS = [["water", "Water supply", "water", "Add a water supply pipe sizing calculation"], ["drain", "Drainage", "drain", "Add a drainage pipe sizing calculation (BS EN 12056-2)"], ["gas", "Gas / LPG", "gas", "Add a gas (LPG / SNG / PNG) pipe sizing calculation"], ["fuel", "Fuel oil", "fuelnet", "Add a fuel oil network: supply pipework from the tank or pump to the engines and day tanks"]];
+  const svcOf = wsSvcOf;
+  const SVCS = [["water", "Water supply", "water", "Add a water supply pipe sizing calculation"], ["drain", "Drainage", "drain", "Add a drainage pipe sizing calculation (BS EN 12056-2)"], ["storm", "Stormwater", "stormnet", "Add a stormwater (rainwater) pipe sizing network"], ["gas", "Gas / LPG", "gas", "Add a gas (LPG / SNG / PNG) pipe sizing calculation"], ["fuel", "Fuel oil", "fuelnet", "Add a fuel oil network: supply pipework from the tank or pump to the engines and day tanks"]];
   const [svc, setSvc] = useState(() => { const c0 = waters.find(x => x.id === pipeId); return c0 ? svcOf(c0) : waters[0] ? svcOf(waters[0]) : "water"; });
   useEffect(() => { const c0 = waters.find(x => x.id === pipeId); if (c0 && svcOf(c0) !== svc) setSvc(svcOf(c0)); }, [pipeId]);
+  // the sidebar list (Pipe Sizing > Water supply / Drainage / ...) asks for a kind of network, and we report the kind on show
+  useEffect(() => { if (!svcReq) return; setSvc(svcReq.k); const f = waters.find(x => svcOf(x) === svcReq.k); if (f) setPipeId(f.id); }, [svcReq]);
+  useEffect(() => { onSvc && onSvc(svc); }, [svc]);
   const inSvc = waters.filter(x => svcOf(x) === svc), svcRow = SVCS.find(r => r[0] === svc) || SVCS[0];
   const cur = inSvc.find(x => x.id === pipeId) || inSvc[0] || null;
   const [ratio, setRatio] = useState(() => { try { const v = Number(localStorage.getItem("mep_pz_split")); return v >= 0.3 && v <= 0.7 ? v : 0.5; } catch(e) { return 0.5; } });
@@ -16566,7 +16649,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
     <div className="pz">
       <div className="pz-top">
         <div className="pz-title"><b>Pipe Sizing</b><span>{proj.name || "Untitled project"}{stageName ? " · " + stageName : ""}</span></div>
-        <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
+        <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.filter(r => r[0] !== "storm" || waters.some(x => svcOf(x) === "storm")).map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
         {inSvc.length > 1 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the calculation">
           {inSvc.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
         <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater(svcRow[2])} title={svcRow[3]}>＋ Add {svcRow[1].toLowerCase()}</button>
@@ -19167,7 +19250,7 @@ function TeamAccess({session, me, team, roles, reload, onBack}) {
           <div><label style={lbl}>Admin</label><input type="checkbox" checked={add.admin} onChange={e => setAdd(a => ({...a, admin:e.target.checked}))}/></div>
           <button className="lib-new" disabled={!!busy} onClick={addMember}>Add</button>
         </div>}
-        <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh - 340px)'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
+        <div className="schedule-table-wrap" style={{maxHeight:'calc(100vh / var(--bz,1) - 340px)'}}><table className="schedule-table" style={{minWidth:1060, tableLayout:'auto'}}>
           <thead><tr className="labels">{['Name', 'Initials', 'Designation', 'Email', 'Sign-off level', 'Admin', 'Active', ''].map(h => <th key={h} className={h === 'Admin' || h === 'Active' ? 'ctr' : ''}>{h}</th>)}</tr></thead>
           <tbody>{shown.map(t => { const e = edit[t.id], self = lc(t.email) === myEmail, lv = levelOf(t.email), sug = taSuggest(t.desig);
             const odd = t.desig && sug !== lv && lv !== 'none';
@@ -19409,6 +19492,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const [pickClosed, setPickClosed] = useState(() => { try { return JSON.parse(localStorage.getItem("mep_pick_closed") || "{}"); } catch (e) { return {}; } });
   const togglePickGroup = k => setPickClosed(o => { const n = {...o, [k]:!o[k]}; try { localStorage.setItem("mep_pick_closed", JSON.stringify(n)); } catch (e) {} return n; });
   const [pipeId, setPipeId] = useState(() => { calcReset(); return null; });
+  const [pipeSvc, setPipeSvc] = useState("water"), [pipeSvcReq, setPipeSvcReq] = useState(null);
   const [calcMode, setCalcModeS] = useState(CALC.mode), [calcAt, setCalcAt] = useState(null);
   const sheetStyle = "classic";   // the Meinhardt classic sheet is the only layout
   const [showFx, setShowFxS] = useState(SheetPrefs.fx);
@@ -20014,14 +20098,16 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
             <div className="sbx-label">Workspace</div>
             <nav className="sbx-nav">
               {(()=>{ const nW=pumps.filter(x=>x.type==="water").length, cnt={pumps:pumps.length, storm:((meta.storm||{}).roofs||[]).length, fuel:(((meta.fuel||{}).simple||{}).gens||[]).length, tools:((meta.tools||{}).items||[]).length, flsp:((meta.fls||{}).items||[]).length, agent:((meta.cleanAgent||{}).rooms||[]).length, foam:((meta.foam||{}).hazards||[]).length, pipe:nW};
+                [["water"],["drain"],["storm"],["gas"],["fuel"]].forEach(([k])=>{ cnt["pipe:"+k]=pumps.filter(x=>x.type==="water"&&wsSvcOf(x)===k).length; });
+                const pz=(k,ic,l)=>["pipe:"+k,ic,l,tab==="pipe"&&pipeSvc===k,()=>{setPipeSvcReq({k,t:Date.now()});setTab("pipe");setSidebarOpen(false);}];
                 const go=k=>{setTab(k);setSidebarOpen(false);};
-                const item=(k,ic,l,sub)=><button key={k} className={(tab===k?"active":"")+(sub?" sbx-sub":"")} onClick={()=>go(k)}><span className="ic">{ic}</span><span className="tx">{l}</span>{cnt[k]!=null&&<span className="pill">{cnt[k]}</span>}</button>;
-                const group=(g,ic,l,kids)=>{ const on=kids.some(x=>x[0]===tab), open=navOpen[g]!=null?navOpen[g]||on:on, tot=kids.reduce((a,x)=>a+(cnt[x[0]]||0),0);
+                const item=(k,ic,l,sub,act,fn)=><button key={k} className={((act!=null?act:tab===k)?"active":"")+(sub?" sbx-sub":"")} onClick={()=>fn?fn():go(k)}><span className="ic">{ic}</span><span className="tx">{l}</span>{cnt[k]!=null&&<span className="pill">{cnt[k]}</span>}</button>;
+                const group=(g,ic,l,kids)=>{ const on=kids.some(x=>x[3]!=null?x[3]:x[0]===tab), open=navOpen[g]!=null?navOpen[g]||on:on, tot=kids.reduce((a,x)=>a+(cnt[x[0]]||0),0);
                   return <React.Fragment key={g}><button className={"sbx-grp"+(on?" has":"")} onClick={()=>setNavOpen(o=>{ const n={...o,[g]:!open}; try{localStorage.setItem("ec.navOpen",JSON.stringify(n));}catch(e){} return n; })} aria-expanded={open}><span className="ic">{ic}</span><span className="tx">{l}</span>{!open&&<span className="pill">{tot}</span>}<span className="car">{open?"▾":"▸"}</span></button>
-                    {open&&kids.map(x=>item(x[0],x[1],x[2],true))}</React.Fragment>; };
+                    {open&&kids.map(x=>item(x[0],x[1],x[2],true,x[3],x[4]))}</React.Fragment>; };
                 return <>{item("setup","⚙","Setup")}
                   {group("inputs","⊕","Calculation Inputs",[["pumps","◎","Pumps and equipment"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"]])}
-                  {item("pipe","▦","Pipe Sizing")}
+                  {group("pipe","▦","Pipe Sizing",[pz("water","◌","Water supply"),pz("drain","⌄","Drainage"),...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),pz("gas","◇","Gas / LPG"),pz("fuel","⛁","Fuel oil")])}
                   {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲","Fire Pump (UAE FLS)"]]),["agent","❄","Clean Agent"],["foam","◍","Foam"]])}
                   {item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
               <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recently deleted ({meta.trash.length})</button>}</div>
@@ -20192,7 +20278,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         {/* ── SCHEDULE REVIEW WORKSPACE ── */}
         {/* ── PIPE SIZING — sidebar hidden, half data entry / half schematic ── */}
         {tab==="pipe" && (
-          <PipeSizingWorkspace calcMode={calcMode} setCalcMode={setCalcMode} calcAll={calcAll} calcAt={calcAt} pumps={pumps} pipeId={pipeId} setPipeId={setPipeId} updPump={updPump} addWater={k=>addPump(["gas","drain","stormnet","fuelnet"].includes(k)?k:"water")} addPumpWith={addPumpWith} openPump={openPump}
+          <PipeSizingWorkspace svcReq={pipeSvcReq} onSvc={setPipeSvc} calcMode={calcMode} setCalcMode={setCalcMode} calcAll={calcAll} calcAt={calcAt} pumps={pumps} pipeId={pipeId} setPipeId={setPipeId} updPump={updPump} addWater={k=>addPump(["gas","drain","stormnet","fuelnet"].includes(k)?k:"water")} addPumpWith={addPumpWith} openPump={openPump}
             proj={proj} setProj={setProj} stageName={issueStageName} stageLocked={stageLocked} saveStatus={saveStatus} saveNow={saveNow}
             onBack={()=>setTab("pumps")} />
         )}
@@ -20207,6 +20293,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus} locked={stageLocked} onMovePump={movePump} onPlacePump={placePump} onSetPumpOrder={setPumpOrder}
             caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
             foamItems={foamItems(meta)} onEditFoam={id=>{ setFoamFocus({id:String(id).replace(/^foam-/,""), t:Date.now()}); setTab("foam"); }}
+            flsItems={flsItems(meta)} onEditFls={()=>setTab("flsp")}
             stormItems={stormItems(meta)} onEditStorm={id=>{ setStormFocus({id:String(id).replace(/^storm-/,""), t:Date.now()}); setTab("storm"); }}
             fuelItems={fuelItems(meta)} onEditFuel={id=>{ setFuelFocus({id:String(id).replace(/^fuelp-/,""), t:Date.now()}); setTab("fuel"); }}
             toolItems={toolItems(meta)} onEditTool={id=>{ setToolFocus({id:String(id).replace(/^tool-/,""), t:Date.now()}); setTab("tools"); }}
@@ -21077,7 +21164,177 @@ function RootApp() {
   return <ProjectsHome session={session} me={me} isAdmin={isAdmin} roles={roles} pendingCount={pendingCount} onOpen={setOpenProject} onOpenRefData={()=>setScreen("refdata")} onOpenTeam={()=>setScreen("team")} />;
 }
 
+// ── Text size per box. Every main box on a page (list, form, schedule, setup card ...) gets its own small A− / A+ strip.
+// The size is kept per page and box on this browser. The left menu is left alone. Done on the real page, so boxes need no code of their own.
+const ZB_SEL = ".setup-card,.piw-list,.piw-form,.schedule-card,.ca-card,.pz-left,.pz-drawer,.cs-wrap.calc-page";
+const ZB_STEPS = [0.9, 1, 1.15, 1.3, 1.5, 1.7];
+function zbStore() { try { return JSON.parse(localStorage.getItem("mep_zb") || "{}") || {}; } catch (e) { return {}; } }
+function zbSave(m) { try { localStorage.setItem("mep_zb", JSON.stringify(m)); } catch (e) {} }
+function zbApply(el, z) {
+  if (z === 1) { el.style.zoom = ""; el.style.removeProperty("--bz"); } else { el.style.zoom = String(z); el.style.setProperty("--bz", String(z)); }
+  const st = el.querySelector(":scope > .zb-strip"); if (!st) return;
+  st.style.zoom = z === 1 ? "" : String(1 / z);
+  const i = ZB_STEPS.indexOf(z), b = st.querySelectorAll("button");
+  b[0].disabled = i <= 0; b[2].disabled = i >= ZB_STEPS.length - 1; b[1].textContent = Math.round(z * 100) + "%";
+}
+function zbEnhance(root) {
+  root = root || document;
+  const act = document.querySelector(".sbx-nav button.active .tx, .sbx-nav button.sbx-grp.has .tx"), page = act ? act.textContent.trim() : "page", map = zbStore(), cnt = {};
+  root.querySelectorAll(ZB_SEL).forEach(el => {
+    if (el.closest(".pump-sidebar,.sbx,#mep-report") || (el.parentElement && el.parentElement.closest(ZB_SEL))) return;
+    const cls = ZB_SEL.split(",").find(c => el.matches(c)) || "box", n = cnt[cls] = (cnt[cls] || 0) + 1, id = page + "|" + cls + "|" + n;
+    if (getComputedStyle(el).position === "static") el.style.position = "relative";
+    let st = el.querySelector(":scope > .zb-strip");
+    if (!st) { st = document.createElement("div"); st.className = "zb-strip no-print"; st.innerHTML = '<span class="zb-in"><button type="button" data-d="-1" title="Smaller text in this box" aria-label="Smaller text">A−</button><button type="button" data-d="0" class="zb-v" title="Back to 100%">100%</button><button type="button" data-d="1" title="Larger text in this box" aria-label="Larger text">A+</button></span>'; el.insertBefore(st, el.firstChild); }
+    el.setAttribute("data-zb", id);
+    const z = ZB_STEPS.includes(map[id]) ? map[id] : 1;
+    if (el.style.zoom !== (z === 1 ? "" : String(z))) zbApply(el, z); else zbApply(el, z);
+  });
+}
+// ── Columns menu for every schedule table. It reads the real header row, so any table added later gets it too.
+// Pinned columns (No., System, Tag, State) always stay. A header marked data-opt="1" starts hidden and can be ticked on.
+// Hidden columns stay hidden on paper too, so the printed schedule matches the screen. Kept per page and table on this browser.
+function scStore() { try { return JSON.parse(localStorage.getItem("mep_sc") || "{}") || {}; } catch (e) { return {}; } }
+function scSave(m) { try { localStorage.setItem("mep_sc", JSON.stringify(m)); } catch (e) {} }
+function scHash(t) { let h = 5381; for (let i = 0; i < t.length; i++) h = ((h << 5) + h + t.charCodeAt(i)) | 0; return "t" + (h >>> 0).toString(36); }
+const SC_REG = {};
+function scCols(tb) {
+  const tr = tb.querySelector(":scope > thead > tr"); if (!tr) return null;
+  const ths = [...tr.children]; if (!ths.length || ths.some(t => t.colSpan > 1)) return null;
+  const seen = {};
+  return ths.map((th, i) => { const c = th.cloneNode(true); c.querySelectorAll("i").forEach(x => x.remove()); c.querySelectorAll("br").forEach(x => x.replaceWith(" "));
+    let key = c.textContent.replace(/\s+/g, " ").trim() || ("col " + (i + 1)); if (seen[key]) key += " #" + (i + 1); seen[key] = 1;
+    return {i, key, pin:i === 0 || th.classList.contains("sticky-left") || th.classList.contains("sticky-right"), opt:th.hasAttribute("data-opt")}; });
+}
+function scVis(m, id, c) { const v = (m[id] || {})[c.key]; return c.pin ? true : v === undefined ? !c.opt : !!v; }
+function scEnhance(root) {
+  root = root || document;
+  const act = document.querySelector(".sbx-nav button.active .tx, .sbx-nav button.sbx-grp.has .tx"), page = act ? act.textContent.trim() : "page", m = scStore(); let rules = "", n = 0;
+  root.querySelectorAll("table.schedule-table").forEach(tb => {
+    const wrap = tb.parentElement; if (!wrap || !wrap.classList.contains("schedule-table-wrap") || tb.closest(".ai-back,[role=dialog],#mep-report")) return;
+    const cols = scCols(tb); if (!cols) return; n++;
+    let hd = wrap.previousElementSibling; if (hd && hd.classList.contains("sc-bar")) hd = hd.previousElementSibling;
+    if (!(hd && hd.classList && hd.classList.contains("sch-sub"))) hd = null;
+    const tn = hd && [...hd.childNodes].find(x => x.nodeType === 3 && x.textContent.trim()), hdTxt = tn ? tn.textContent.trim() : "", id = page + "|" + (hdTxt || "table " + n), h = scHash(id), cfg = m[id] || {};
+    tb.setAttribute("data-sc", h); SC_REG[h] = {id, cols};
+    let bar = hd ? hd.querySelector(":scope > .sc-bar") : (wrap.previousElementSibling && wrap.previousElementSibling.classList.contains("sc-bar") ? wrap.previousElementSibling : null);
+    if (!bar) { bar = document.createElement("div"); bar.className = "sc-bar no-print"; bar.innerHTML = '<button type="button" data-sc-a="cols"></button><button type="button" data-sc-a="off"></button>'; if (hd) hd.appendChild(bar); else wrap.parentNode.insertBefore(bar, wrap); }
+    if (hd && !hd.querySelector(":scope > .sc-chev")) { const c = document.createElement("span"); c.className = "sc-chev no-print"; hd.insertBefore(c, hd.firstChild); hd.classList.add("sc-hd"); hd.title = "Click to collapse or expand this table"; }
+    bar.setAttribute("data-sc", h);
+    if (hd) { hd.setAttribute("data-sc", h); hd.setAttribute("data-off", cfg.__off ? "1" : ""); const c = hd.querySelector(":scope > .sc-chev"); if (c) c.textContent = cfg.__off ? "▸" : "▾"; }
+    wrap.setAttribute("data-off", cfg.__off ? "1" : "");
+    const shown = cols.filter(c => scVis(m, id, c)).length;
+    bar.firstChild.innerHTML = '⊞ Columns<span class="sc-n">' + shown + "/" + cols.length + "</span>";
+    bar.lastChild.textContent = cfg.__off ? "▸ Expand" : "▾ Collapse";
+    const hid = cols.filter(c => !scVis(m, id, c)).map(c => c.i + 1);
+    if (hid.length) {
+      const sel = k => "table[data-sc=\"" + h + "\"] > thead > tr > :nth-child(" + k + "),table[data-sc=\"" + h + "\"] > tbody > tr > :nth-child(" + k + "),table[data-sc=\"" + h + "\"] > colgroup > :nth-child(" + k + ")";
+      rules += hid.map(sel).join(",") + "{display:none!important}";
+      // spread the width that the hidden columns freed over the other columns, so the table still fills its box evenly
+      const cg = [...tb.querySelectorAll(":scope > colgroup > col")], cw = wrap.clientWidth, tot = Math.max(cw, 1180);
+      if (cg.length === cols.length && cw > 0) {
+        const wd = cg.map((c, k) => { const v = c.style.width; return /%$/.test(v) ? parseFloat(v) * cw / 100 : parseFloat(v) || 150; }), vis = cols.filter(c => !hid.includes(c.i + 1)), sum = vis.reduce((t, c) => t + wd[c.i], 0), flex = vis.filter(c => !c.pin), fs = flex.reduce((t, c) => t + wd[c.i], 0);
+        if (sum < tot - 2 && fs > 0) flex.forEach(c => { rules += "table[data-sc=\"" + h + "\"] > colgroup > :nth-child(" + (c.i + 1) + "){width:" + Math.round(wd[c.i] + (tot - sum) * wd[c.i] / fs) + "px!important}"; });
+      }
+    }
+  });
+  let st = document.getElementById("sc-style"); if (!st) { st = document.createElement("style"); st.id = "sc-style"; document.head.appendChild(st); }
+  if (st.textContent !== rules) st.textContent = rules;
+}
+function scPop(h, anchor) {
+  scPopClose(); const r = SC_REG[h]; if (!r) return; const m = scStore(), d = document.createElement("div"); d.className = "sc-pop no-print"; d.id = "sc-pop"; d.setAttribute("data-sc", h);
+  d.innerHTML = "<h4>Columns in this table</h4>" + r.cols.map(c => '<label class="' + (c.pin ? "lock" : "") + '"><input type="checkbox" data-k="' + c.key.replace(/"/g, "&quot;") + '"' + (scVis(m, r.id, c) ? " checked" : "") + (c.pin ? " disabled" : "") + "/>" + c.key.replace(/</g, "&lt;") + (c.pin ? " (always shown)" : "") + "</label>").join("") + '<div class="sc-row"><button type="button" data-a="all">Show all</button><button type="button" data-a="def">Default</button></div>';
+  document.body.appendChild(d); const b = anchor.getBoundingClientRect(); d.style.top = Math.min(b.bottom + 4, window.innerHeight - d.offsetHeight - 8) + "px"; d.style.left = Math.max(8, Math.min(b.right - 250, window.innerWidth - 258)) + "px";
+}
+function scToggle(h) { const r = SC_REG[h]; if (!r) return; const m = scStore(), c = m[r.id] = m[r.id] || {}; if (c.__off) delete c.__off; else c.__off = 1; scSave(m); scEnhance(); }
+function scPopClose() { const d = document.getElementById("sc-pop"); if (d) d.remove(); }
+function scInit() {
+  document.addEventListener("click", e => {
+    const t = e.target; if (!t || !t.closest) return;
+    const bt = t.closest(".sc-bar button");
+    if (bt) { e.preventDefault(); e.stopPropagation(); const h = bt.parentElement.getAttribute("data-sc"), r = SC_REG[h]; if (!r) return;
+      if (bt.getAttribute("data-sc-a") === "cols") { const open = document.getElementById("sc-pop"); if (open && open.getAttribute("data-sc") === h) scPopClose(); else scPop(h, bt); }
+      else scToggle(h);
+      return; }
+    const hdr = t.closest(".sch-sub.sc-hd");
+    if (hdr && !t.closest(".sc-bar")) { scToggle(hdr.getAttribute("data-sc")); return; }
+    const pb = t.closest("#sc-pop .sc-row button");
+    if (pb) { const d = document.getElementById("sc-pop"), h = d.getAttribute("data-sc"), r = SC_REG[h], m = scStore(), c = m[r.id] = m[r.id] || {}, keep = c.__off;
+      if (pb.getAttribute("data-a") === "all") { r.cols.forEach(x => { if (!x.pin) c[x.key] = true; }); } else { Object.keys(c).forEach(k => { if (k !== "__off") delete c[k]; }); }
+      if (keep) c.__off = keep; scSave(m); scEnhance(); const bar = document.querySelector('.sc-bar[data-sc="' + h + '"] button'); if (bar) scPop(h, bar); return; }
+    if (!t.closest("#sc-pop")) scPopClose();
+  }, true);
+  document.addEventListener("change", e => {
+    const i = e.target; if (!i || !i.closest || !i.closest("#sc-pop") || !i.hasAttribute("data-k")) return;
+    const d = document.getElementById("sc-pop"), r = SC_REG[d.getAttribute("data-sc")], m = scStore(), c = m[r.id] = m[r.id] || {}; c[i.getAttribute("data-k")] = i.checked; scSave(m); scEnhance();
+  }, true);
+  document.addEventListener("keydown", e => { if (e.key === "Escape") scPopClose(); });
+}
+// ── Print the schedule. A clean document is built from the tables on screen (same rows, same columns that are switched on, collapsed tables left out)
+// and printed from its own hidden frame, so none of the app's other print rules can get in the way. A4 landscape, every table fitted to the page width.
+function schPrintDoc(meta) {
+  const root = document.querySelector(".schedule-review"); if (!root) { window.print(); return; }
+  const m = scStore(), parts = [];
+  root.querySelectorAll(".sch-sub, table.schedule-table").forEach(el => {
+    if (el.closest(".ai-back,[role=dialog]")) return;
+    if (el.classList.contains("sch-sub")) { if (el.getAttribute("data-off") === "1") return; const c = el.cloneNode(true); c.querySelectorAll(".sc-bar,.sc-chev").forEach(x => x.remove()); parts.push('<h3>' + c.innerHTML + '</h3>'); return; }
+    const wrap = el.parentElement; if (wrap && wrap.getAttribute("data-off") === "1") { return; }
+    const t = el.cloneNode(true), cols = scCols(el), r = SC_REG[el.getAttribute("data-sc")]; if (!cols) return;
+    const vis = cols.filter(c => !r || scVis(m, r.id, c)), keep = new Set(vis.map(c => c.i));
+    const cg = [...el.querySelectorAll(":scope > colgroup > col")], cw = Math.max(wrap ? wrap.clientWidth : 1000, 1000);
+    const wd = cols.map(c => { const v = cg[c.i] && cg[c.i].style.width; return /%$/.test(v || "") ? parseFloat(v) * cw / 100 : parseFloat(v) || 140; }), tot = vis.reduce((a, c) => a + wd[c.i], 0) || 1;
+    t.removeAttribute("data-sc"); t.removeAttribute("style"); t.className = "schedule-table pp";
+    const colg = t.querySelector("colgroup"); if (colg) colg.remove();
+    t.querySelectorAll("tr").forEach(tr => { const cells = [...tr.children]; if (cells.length === cols.length) cells.forEach((cell, i) => { if (!keep.has(i)) cell.remove(); }); else if (cells.length === 1) cells[0].colSpan = vis.length; });
+    t.querySelectorAll("button,.schedule-action,.ord-btns button,.sc-bar").forEach(b => b.remove());
+    t.querySelectorAll("th i").forEach(b => b.remove());
+    t.querySelectorAll("[class*=sticky]").forEach(c => c.className = c.className.replace(/sticky-(left|right)/g, "").trim());
+    parts.push('<div class="pp-wrap">' + t.outerHTML + '</div>');
+  });
+  const css = [...document.querySelectorAll("style")].filter(x => x.id !== "sc-style").map(x => x.textContent).join("\n");
+  const kp = (meta.kpis || []).map(k => '<div class="pp-k"><b>' + k[1] + '</b><span>' + k[0] + '</span></div>').join("");
+  const esc = v => String(v == null ? "" : v).replace(/&/g, "&amp;").replace(/</g, "&lt;");
+  const doc = '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(meta.fileTitle) + '</title><style>' + css + `
+@page{size:A4 landscape;margin:9mm 8mm 11mm 8mm;@bottom-left{content:"${(meta.footer || "").replace(/"/g, "'")}";font:7pt Arial,sans-serif;color:#6e6e73}@bottom-right{content:"Page " counter(page) " of " counter(pages);font:7pt Arial,sans-serif;color:#6e6e73}}
+html,body{background:#fff!important;margin:0;padding:0;font-family:Arial,Helvetica,sans-serif;color:#1d1d1f;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+.pp-top{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1e3a5f;padding-bottom:5px;margin-bottom:7px}
+.pp-top h1{font-size:15pt;margin:0;color:#1e3a5f;letter-spacing:-.01em}.pp-top div{font-size:8pt;color:#424245;text-align:right;line-height:1.4}
+.pp-ks{display:flex;gap:6px;margin:0 0 8px}.pp-k{border:1px solid #d2d2d7;border-radius:6px;padding:4px 10px;display:flex;flex-direction:column;min-width:70px}
+.pp-k b{font-size:12pt;color:#1e3a5f}.pp-k span{font-size:6.5pt;text-transform:uppercase;letter-spacing:.06em;color:#6e6e73}
+h3{font-size:9pt;text-transform:uppercase;letter-spacing:.04em;margin:10px 0 3px;break-after:avoid;page-break-after:avoid}h3 em{font-style:normal;background:#f1f1f3;border-radius:7px;padding:0 6px;font-size:8pt;color:#424245}
+.pp-wrap{overflow:visible!important;max-height:none!important}
+table.schedule-table.pp{table-layout:auto!important;width:100%!important;min-width:0!important;max-height:none!important;border-collapse:collapse!important;font-size:7pt!important}
+.pp th,.pp td{position:static!important;padding:2.5px 5px!important;font-size:7pt!important;line-height:1.25!important;white-space:normal!important;overflow-wrap:break-word;box-shadow:none!important;background:#fff!important;border-bottom:.5px solid #c8c8cc!important}
+.pp th{background:#1e3a5f!important;color:#fff!important;font-size:6pt!important;letter-spacing:0!important;overflow-wrap:normal!important;word-break:normal!important;hyphens:none!important;vertical-align:bottom;border:0!important}
+.pp td.num,.pp td.ctr,.pp th.num,.pp th.ctr,.pp td.row-no,.pp th.row-no,.pp td.tag,.pp th.tag{white-space:nowrap!important}.pp td.system,.pp th.system{min-width:34mm}
+.pp thead{display:table-header-group}.pp tr{break-inside:avoid;page-break-inside:avoid}
+.pp .system-main,.pp .pipe-main{overflow:visible!important;white-space:normal!important;text-overflow:clip!important}
+.pp .method-chip{padding:0 3px!important;font-size:6pt!important}
+</style></head><body><div class="pp-top"><h1>Equipment Schedule · ${esc(meta.disc)}</h1><div><b>${esc(meta.project)}</b><br/>${esc(meta.stage)} · Rev ${esc(meta.rev)} · ${esc(meta.date)}</div></div><div class="pp-ks">${kp}</div>${parts.join("")}</body></html>`;
+  const fr = document.createElement("iframe"); fr.setAttribute("aria-hidden", "true"); fr.style.cssText = "position:fixed;right:0;bottom:0;width:0;height:0;border:0;visibility:hidden";
+  document.body.appendChild(fr); const d = fr.contentWindow.document; d.open(); d.write(doc); d.close();
+  const old = document.title; document.title = meta.fileTitle;
+  const go = () => { try { fr.contentWindow.focus(); fr.contentWindow.print(); } catch (e) { window.print(); } setTimeout(() => { document.title = old; fr.remove(); }, 1500); };
+  if (fr.contentWindow.document.readyState === "complete") setTimeout(go, 150); else fr.onload = () => setTimeout(go, 150);
+}
+let zbT = null;
+function zbInit() {
+  const rootEl = document.getElementById("root"); if (!rootEl || window.__zbOn || typeof MutationObserver === "undefined" || !document.addEventListener) return; window.__zbOn = true; scInit();
+  document.addEventListener("click", e => {
+    const b = e.target && e.target.closest && e.target.closest(".zb-strip button"); if (!b) return;
+    e.preventDefault(); e.stopPropagation();
+    const box = b.closest("[data-zb]"), id = box.getAttribute("data-zb"), map = zbStore(), cur = ZB_STEPS.includes(map[id]) ? map[id] : 1, d = Number(b.getAttribute("data-d"));
+    const nz = d === 0 ? 1 : ZB_STEPS[Math.min(ZB_STEPS.length - 1, Math.max(0, ZB_STEPS.indexOf(cur) + d))];
+    if (nz === 1) delete map[id]; else map[id] = nz; zbSave(map); zbApply(box, nz);
+  }, true);
+  const run = () => { zbT = null; try { zbEnhance(rootEl); } catch (e) {} try { scEnhance(rootEl); } catch (e) {} };
+  new MutationObserver(() => { if (zbT == null) zbT = setTimeout(run, 120); }).observe(rootEl, {childList:true, subtree:true});
+  window.addEventListener("resize", () => { if (zbT == null) zbT = setTimeout(run, 200); });
+  run();
+}
 ReactDOM.createRoot(document.getElementById("root")).render(<RootApp />);
+zbInit();
+
 </script>
 <script>
 /* Compile-once loader. The shared core (mep-core.js) is loaded separately by
