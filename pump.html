@@ -452,7 +452,7 @@
   .issue-table.trace td.value{white-space:normal!important}
   .pf{display:flex;flex-direction:column;gap:10px}
   .pf-row{display:grid;gap:10px;align-items:end}
-  .pf-id{grid-template-columns:2fr 1fr}
+  .pf-id{grid-template-columns:2fr 1fr 1.6fr}
   .pf-grid{grid-template-columns:repeat(4,minmax(0,1fr))}
   .pf-set{display:flex;flex-wrap:wrap;align-items:flex-end;gap:10px;justify-content:start}.pf-set>.pf-f{min-width:90px}
   .pf-sec{border:1px solid #e5e5ea;border-radius:10px;padding:10px 12px;background:#fcfcfd}
@@ -1676,7 +1676,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.70 · Build 2026.11.19.87";
+const BUILD_LABEL = "v1.118.72 · Build 2026.11.20.89";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -12063,6 +12063,7 @@ function PumpForm({pump, onChange}) {
       <div className="pf-row pf-id">
         <T label="Pump name" value={pump.name} onChange={v=>u("name",v)} />
         <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. PH-B3-BP-1" />
+        <T label="Location" value={pump.location} onChange={v=>u("location",v)} placeholder="e.g. Basement 3 pump room" />
       </div>
 
       {/* 1 · Pump set */}
@@ -12691,6 +12692,7 @@ function SumpForm({pump, onChange}) {
       <div className="pf-row pf-id">
         <T label="Pump name" value={pump.name} onChange={v=>u("name",v)} />
         <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. PH-B3-PSSP-1" />
+        <T label="Location" value={pump.location} onChange={v=>u("location",v)} placeholder="e.g. Basement 3 pump room" />
       </div>
       <T label="Drawing caption" value={pump.pitCaption||""} onChange={v=>u("pitCaption",v)} placeholder="e.g. BASEMENT 3 - SUMP PIT (blank = pump name)" />
 
@@ -14866,6 +14868,7 @@ function PbcForm({pump, onChange}) {
       <div className="pf-row pf-id">
         <T label="Name" value={pump.name} onChange={v=>u("name",v)} />
         <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. PBC-01" />
+        <T label="Location" value={pump.location} onChange={v=>u("location",v)} placeholder="e.g. Basement 3 pump room" />
       </div>
       <section className="pf-sec">
         <h5><i>1</i>Inflow from the rising main <em>use the pump duty; pipe capacity at a velocity is a ceiling, not a flow</em></h5>
@@ -14945,6 +14948,7 @@ function GreaseForm({pump, onChange}) {
       <div className="pf-row pf-id">
         <T label="Name" value={pump.name} onChange={v=>u("name",v)} />
         <T label="Tag" value={pump.tag} onChange={v=>u("tag",v)} placeholder="e.g. GI-01" />
+        <T label="Location" value={pump.location} onChange={v=>u("location",v)} placeholder="e.g. Basement 3 pump room" />
       </div>
       <section className="pf-sec">
         <h5><i>1</i>Basis of design <em>BS EN 1825-2</em></h5>
@@ -15546,6 +15550,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
           <div className="pf-row pf-grid">
             <T label="Name" value={pump.name} onChange={v => u("name", v)} />
             <T label="Tag" value={pump.tag} onChange={v => u("tag", v)} placeholder={stormM ? "e.g. SW-01" : fuelM ? "e.g. FO-01" : drainM ? "e.g. DR-01" : gasM ? "e.g. GAS-01" : "e.g. WS-01"} />
+            <div style={{gridColumn:"span 2"}}><T label="Location" value={pump.location} onChange={v => u("location", v)} placeholder="e.g. Level 12 riser room" /></div>
             {stormM ? <StormNetBasis pump={pump} u={u} uu={uu} /> : drainM ? <DrainBasis pump={pump} u={u} uu={uu} /> : gasM ? <GasBasis pump={pump} u={u} uu={uu} /> : fuelM ? <FuelNetBasis pump={pump} u={u} uu={uu} /> : <>
             <div style={{gridColumn:"span 2"}}><S label="Standard / demand table (Reference Data)" value={dem} onChange={v => u("wsDemand", v)} options={codeOpts} /></div>
             <div className="pf-f" title="Any water system: pick one or type your own (e.g. Ambient water, Grey water, TSE). Blank = cold / hot as set on the right.">
@@ -16649,7 +16654,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
     <div className="pz">
       <div className="pz-top">
         <div className="pz-title"><b>Pipe Sizing</b><span>{proj.name || "Untitled project"}{stageName ? " · " + stageName : ""}</span></div>
-        <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.filter(r => r[0] !== "storm" || waters.some(x => svcOf(x) === "storm")).map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
+        <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.filter(r => (r[0] !== "storm" && r[0] !== "fuel") || waters.some(x => svcOf(x) === r[0])).map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
         {inSvc.length > 1 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the calculation">
           {inSvc.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
         <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater(svcRow[2])} title={svcRow[3]}>＋ Add {svcRow[1].toLowerCase()}</button>
@@ -20107,7 +20112,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                     {open&&kids.map(x=>item(x[0],x[1],x[2],true,x[3],x[4]))}</React.Fragment>; };
                 return <>{item("setup","⚙","Setup")}
                   {group("inputs","⊕","Calculation Inputs",[["pumps","◎","Pumps and equipment"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"]])}
-                  {group("pipe","▦","Pipe Sizing",[pz("water","◌","Water supply"),pz("drain","⌄","Drainage"),...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),pz("gas","◇","Gas / LPG"),pz("fuel","⛁","Fuel oil")])}
+                  {group("pipe","▦","Pipe Sizing",[pz("water","◌","Water supply"),pz("drain","⌄","Drainage"),...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),pz("gas","◇","Gas / LPG"),...(cnt["pipe:fuel"]>0?[pz("fuel","⛁","Fuel oil (network)")]:[])])}
                   {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲","Fire Pump (UAE FLS)"]]),["agent","❄","Clean Agent"],["foam","◍","Foam"]])}
                   {item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
               <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recently deleted ({meta.trash.length})</button>}</div>
