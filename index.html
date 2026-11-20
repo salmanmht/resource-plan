@@ -297,6 +297,15 @@ body.sb-rail .sb-toggle svg{transform:rotate(180deg);}
 input.cell-unsaved{border-color:#dc2626!important;box-shadow:0 0 0 1.5px #dc262699!important;background:#fef2f2!important;}
 .proj-tbl td.week-cell input{width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid transparent;border-radius:4px;background:transparent;}
 .proj-tbl td.week-cell input:focus{border-color:var(--acc);background:#fff;outline:none;}
+/* softer hour cells: no boxy borders, rounded chips, tidy numbers */
+.proj-tbl td.week-cell{padding:3px 1px!important;border-right:1px solid rgba(15,23,42,.045)!important;}
+.proj-tbl td.week-cell input[type=number]{border:0!important;border-radius:8px!important;width:32px!important;height:24px;padding:0 2px!important;font-size:11.5px!important;font-variant-numeric:tabular-nums;letter-spacing:-.01em;box-shadow:none!important;-moz-appearance:textfield;appearance:textfield;transition:box-shadow .12s ease,transform .12s ease;}
+.proj-tbl td.week-cell input[type=number]::-webkit-inner-spin-button,.proj-tbl td.week-cell input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;margin:0;}
+.proj-tbl td.week-cell input[type=number][value]:not([value=""]){font-weight:600!important;box-shadow:inset 0 -1.5px 0 rgba(22,101,52,.28)!important;}
+.proj-tbl td.week-cell input[type=number]:not([readonly]):hover{box-shadow:inset 0 0 0 1px #94a3b8!important;}
+.proj-tbl td.week-cell input[type=number]:focus{box-shadow:0 0 0 2px var(--acc)!important;background:#fff!important;color:#0f172a!important;z-index:2;position:relative;}
+.proj-tbl td.week-cell input[type=number]::placeholder{color:#cbd5e1;}
+
 .proj-tbl .wk-total{background:#e0f2fe;font-weight:700;text-align:center;}
 
 /* BADGES */
@@ -1721,9 +1730,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
           <option value="">— None —</option>
         </select>
       </div>
-      <div class="ff"><label>Start Date</label><input type="date" id="pw-start" value="2026-04-06"></div>
-      <div class="ff"><label>Contractual End Date</label><input type="date" id="pw-end" value="2026-12-31"></div>
-      <div class="ff"><label>Forecast End Date <span style="font-size:10px;color:var(--tx3);font-weight:400;">(if different)</span></label><input type="date" id="pw-fend"></div>
+      <div class="ff" style="display:none;"><label>Start Date</label><input type="date" id="pw-start" value="2026-04-06"></div>
+      <div class="ff"><label>Contractual End Date <span style="font-size:10px;color:var(--tx3);font-weight:400;">(optional)</span></label><input type="date" id="pw-end" value=""><div style="font-size:10px;color:var(--tx3);margin-top:3px;line-height:1.4;">Project start and planned end come from the programme. Leave this blank unless the contract fixes an end date, then you get a warning if the programme runs past it.</div></div>
+      <div class="ff" style="display:none;"><label>Forecast End Date</label><input type="date" id="pw-fend"></div>
       <div class="ff"><label>Status</label><select id="pw-st"><option>Active</option><option>On Hold</option><option>Completed</option></select></div>
       <div class="ff"><label>Project Type</label><select id="pw-ptype"><option value="">— Select —</option><option value="BLDG">BLDG — Building</option><option value="DC">DC — Data Center</option><option value="INF">INF — Infrastructure</option><option value="Other">Other</option></select></div>
       <div class="ff"><label>Location</label><input id="pw-loc"></div>
@@ -9048,11 +9057,12 @@ function renderProj(){
     });
 
     // Timeline label
-    const d1=new Date(p.start);
-    const d2=new Date(p.end);
+    const _pb=progBounds(p);
+    const d1=new Date(_pb.start||p.start);
+    const d2=new Date(_pb.end||p.end);
     const totalWks=Math.round((d2-d1)/(7*24*3600*1000));
     const fmt=(d)=>d.toLocaleString('en-US',{day:'2-digit',month:'short',year:'numeric'});
-    const timelineLabel=fmt(d1)+' → '+fmt(d2)+' · '+totalWks+'w';
+    const timelineLabel=_pb.start?(fmt(d1)+' → '+fmt(d2)+' · '+totalWks+'w'):'Programme not set';
 
     // parallel projects: mirror the detail view's workstream bands (one row per workstream with its own stage chips) instead of one flat timeline.
     if(progNamed(p)){
@@ -9196,7 +9206,7 @@ function renderProj(){
       const _nextBd=_hasBnr?'rgba(16,36,62,.12)':'#DCE8FA';
       const ns=nextStageOf(p);
       const nextHtml=ns?`<div style="display:flex;align-items:center;gap:8px;background:${_nextBg};border:1px solid ${_nextBd};border-radius:9px;padding:8px 10px;margin-bottom:11px;"><div style="width:22px;height:22px;border-radius:6px;background:#DCE8FA;color:#1e4e8c;flex:0 0 auto;display:flex;align-items:center;justify-content:center;"><svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 3v18l7-5 7 5V3z"/></svg></div><div style="min-width:0;flex:1;"><div style="font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;color:#7d93b0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">Next milestone${ns.progName?`<span style="color:${ns.progColor};"> · ${esc(ns.progName)}</span>`:''}</div><div style="font-size:12.5px;font-weight:600;color:#1e3a5f;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${esc(ns.name)}</div></div><div style="font-size:10.5px;color:var(--tx3);flex:0 0 auto;">${ns.wk} · ${ns.in}</div></div>`:`<div style="font-size:11px;color:var(--tx3);font-style:italic;margin-bottom:11px;padding:8px 10px;background:#F5F5F7;border-radius:9px;">No upcoming milestone</div>`;
-      let tll='';try{const d1=new Date(p.start),d2=new Date(p.end);const w=Math.round((d2-d1)/(7*24*3600*1000));tll=_fmtD(d1)+' → '+_fmtD(d2)+' · '+w+'w';}catch(_){}
+      let tll='';try{const _b=progBounds(p);if(!_b.start){tll='Programme not set';}else{const d1=new Date(_b.start),d2=new Date(_b.end);const w=Math.round((d2-d1)/(7*24*3600*1000));tll=_fmtD(d1)+' → '+_fmtD(d2)+' · '+w+'w';}}catch(_){}
       return `<div class="proj-card" style="background:#fff;border:1px solid var(--bdr);border-radius:12px;padding:15px;overflow:hidden;position:relative;isolation:isolate;cursor:pointer;box-shadow:0 1px 3px rgba(15,23,42,.05);" onclick="openProjDetail('${p.id}')">
         ${_hasBnr?`<div aria-hidden="true" style="position:absolute;inset:0;z-index:0;pointer-events:none;overflow:hidden;border-radius:12px;"><div style="position:absolute;inset:-40px;background-image:url(&quot;${esc(projBanner(p))}&quot;);background-size:cover;background-position:center;filter:blur(34px) saturate(1.7);opacity:.52;"></div><div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(255,255,255,.60) 0%,rgba(255,255,255,.86) 38%,rgba(255,255,255,.94) 100%);"></div></div>`:''}
         <div style="position:relative;z-index:1;">
@@ -11580,7 +11590,9 @@ function renderProjDetail(p){
   if(!p.stages)p.stages=[];
   ensureStageIds(p); // stable stage ids for per-booking stage assignment
   const weeks=projWeeks(p);
+  progMigrate(p);
   const stageMap=getStageWeekMap(p);
+  const _pg=progAnalyze(p,stageMap);
   const _ld=projLeadEmptyWeeks(p); // leading empty weeks are not drawn in the programme either
   const wkHdrs=weeks.map((w,wi)=>{
     if(wi<_ld)return '';
@@ -11588,7 +11600,8 @@ function renderProjDetail(p){
     const isProg=sIdx.length>0;
     // For header use the first stage's border colour as a strong band, or default
     const headerBg=isProg?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:'#1e3a5f';
-    return`<th style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:${stageTextOn(headerBg)}">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
+    const _hm=_pg.bad.has(wi)?'box-shadow:inset 0 -4px 0 #dc2626;':(_pg.par.has(wi)?'box-shadow:inset 0 -4px 0 #7c3aed;':(_pg.gaps.includes(wi)?'box-shadow:inset 0 -4px 0 #f59e0b;':''));
+    return`<th title="${_pg.bad.has(wi)?'Unplanned overlap':(_pg.par.has(wi)?'Planned parallel overlap':(_pg.gaps.includes(wi)?'Gap: no stage this week':''))}" style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:${stageTextOn(headerBg)};${_hm}">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
   }).join('');
 
   // Build stage rows HTML
@@ -11607,7 +11620,9 @@ function renderProjDetail(p){
       const inStage=(stageMap.get(wi)||[]).includes(si);
       const cls='swk-'+p.id+'-'+si;
       // tint ONLY the weeks this stage spans; out-of-range weeks are solid white so the row's band can't bleed past the stage's from→to.
-      return`<td class="${cls}" style="padding:0;min-width:48px;height:22px;border-right:1px solid #f0f0f2;background:${inStage?sc.bg:'#fff'};"></td>`;
+      const _isBad=inStage&&_pg.bad.has(wi)&&_pg.bad.get(wi).includes(si), _isPar=inStage&&!_isBad&&_pg.par.has(wi)&&_pg.par.get(wi).includes(si);
+      const _bg=_isBad?'repeating-linear-gradient(45deg,#fecaca,#fecaca 4px,#f87171 4px,#f87171 8px)':(_isPar?'repeating-linear-gradient(45deg,#ede9fe,#ede9fe 4px,#a78bfa 4px,#a78bfa 8px)':(inStage?sc.bg:'#fff'));
+      return`<td class="${cls}" data-wi="${wi}"${inStage?' data-in="1"':''}${(inStage&&!progLocked)?' data-pg="'+p.id+'|'+si+'" title="Drag to move this stage, drag its right edge to change the weeks"':''} style="${inStage&&!progLocked?'cursor:grab;':''}padding:0;min-width:48px;height:22px;border-right:1px solid #f0f0f2;background:${_bg};"></td>`;
     }).join('');
     const nameEsc=(st.name||'').replace(/"/g,'&quot;');
     let stageWkCount=0;
@@ -11653,10 +11668,21 @@ function renderProjDetail(p){
               onblur="setProjStageNameCustom('${p.id}',${si},this.value)">
             <span class="stname-grip" title="Drag to resize" onmousedown="_startStageResize(event,'${p.id}',${si})" style="position:absolute;right:0;top:0;height:100%;width:9px;cursor:col-resize;display:flex;align-items:center;justify-content:center;color:var(--tx3);user-select:none;">&#8942;</span>
           </div>
-          <input type="date" value="${st.from||''}" title="Stage start" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'from',this.value)">
-          <span style="font-size:10px;color:var(--tx3);flex-shrink:0;">to</span>
-          <input type="date" value="${st.to||''}" title="Stage end" style="font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;width:106px;flex-shrink:0;color:var(--tx2);" onchange="setProjStageDate('${p.id}',${si},'to',this.value)">
-          <input type="number" min="1" max="200" step="1" value="${stageWkCount>0?stageWkCount:''}" placeholder="wks" title="Duration in weeks — typing a number sets the To date from the From date; editing the dates recalculates this count" style="width:46px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid ${sc.bdr}66;border-radius:4px;color:${sc.bdr};font-weight:700;background:${sc.bg};flex-shrink:0;" onchange="setProjStageWeeks('${p.id}',${si},this.value)">
+          ${(()=>{
+            const _chain=si>0&&!st.par&&(st.mode||'chain')==='chain';
+            const _mode=si===0?'first':(st.par?'par':(_chain?'chain':'fixed'));
+            const _inp='font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx2);flex-shrink:0;';
+            const modeSel=si===0?'<span title="The first stage has the only typed start date. Everything else follows from it." style="font-size:10px;font-weight:700;color:#475569;flex-shrink:0;width:112px;">Start date</span>'
+              :'<select title="How this stage is placed" onchange="setPgMode(\''+p.id+'\','+si+',this.value)" style="'+_inp+'width:112px;font-weight:700;'+(st.par?'color:#6d28d9;border-color:#c4b5fd;background:#f5f3ff;':'')+'">'
+               +'<option value="chain"'+(_mode==='chain'?' selected':'')+'>\u26d3 after prev.</option><option value="par"'+(_mode==='par'?' selected':'')+'>\u2225 parallel</option><option value="fixed"'+(_mode==='fixed'?' selected':'')+'>\ud83d\udccc fixed</option></select>';
+            const fromEl=_chain
+              ?'<span title="Starts the Monday after the previous stage ends" style="font-size:10px;color:var(--tx2);width:78px;flex-shrink:0;">'+(st.from?_fmtSD(st.from):'\u2014')+'</span>'
+              :'<input type="date" value="'+(st.from||'')+'" title="Stage start (snaps to a Monday)" style="'+_inp+'width:106px;" onchange="setPgFrom(\''+p.id+'\','+si+',this.value)">';
+            const wk='<input type="number" min="1" max="200" step="1" value="'+(st.weeks>0?st.weeks:'')+'" placeholder="wks" title="Duration in whole weeks. The end date is worked out for you (always a Sunday)." style="width:46px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid '+sc.bdr+'66;border-radius:4px;color:'+sc.bdr+';font-weight:700;background:'+sc.bg+';flex-shrink:0;" onchange="setPgWeeks(\''+p.id+'\','+si+',this.value)">';
+            const toEl='<span style="font-size:10px;color:var(--tx3);flex-shrink:0;white-space:nowrap;">wks \u2192 '+(st.to?_fmtSD(st.to):'\u2014')+'</span>';
+            const parTag=st.par?'<span style="font-size:9px;font-weight:700;color:#6d28d9;background:#ede9fe;border:1px solid #c4b5fd;border-radius:8px;padding:1px 6px;white-space:nowrap;flex-shrink:0;">'+_pgParLabel(p,si)+'</span>':'';
+            return modeSel+fromEl+wk+toEl+parTag;
+          })()}
           <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage" style="flex-shrink:0;">&#10005;</button>
           ${hasParallelProg(p)?`<select title="Workstream this stage belongs to" onchange="setStageProg('${p.id}',${si},this.value)" style="font-size:10px;padding:2px 4px;border:1px solid ${progColorOf(p,stageProg(p,st))}66;border-radius:4px;color:${progColorOf(p,stageProg(p,st))};font-weight:700;background:#fff;flex-shrink:0;max-width:130px;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${stageProg(p,st)===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select>`:''}
         </div>
@@ -11722,7 +11748,7 @@ function renderProjDetail(p){
               ${p.mepLeadEmail?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#0369a1;background:#e0f2fe;border:1px solid #bae6fd;border-radius:5px;padding:2px 8px;font-weight:600;">${getMepLeadName(p.mepLeadEmail)}</span>`:''}
               ${p.pm?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>${esc(p.pm)}</span>`:''}
               ${p.location?`<span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>${esc(p.location)}</span>`:''}
-              <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${p.start} → ${p.end}</span>
+              <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;"><svg aria-hidden="true" focusable="false" width="10" height="10" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="opacity:.6"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>${(()=>{const _b=progBounds(p);if(!_b.start)return 'Programme not set';const _e=(p.end&&!p.endAuto&&p.end<_b.end)?' <span title="Programme runs past the contractual end" style="color:#b45309;">(contract end '+p.end+')</span>':(p.end&&!p.endAuto&&p.end!==_b.end?' <span style="color:var(--tx3);font-weight:400;">(contract end '+p.end+')</span>':'');return _b.start+' → '+_b.end+_e;})()}</span>
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${(p.feeFactor||1.0).toFixed(2)}× FF</span>
               ${(function(){const ds=(p.disciplines||[]).slice();if(!p.bimExcluded)ds.push('BIM');if(!ds.length)return'';const col={HVAC:'background:#dbeafe;color:#1d4ed8','PH&E':'background:#dcfce7;color:#166534',ELE:'background:#fef9c3;color:#854d0e',ELV:'background:#fce7f3;color:#9d174d',BIM:'background:#ede9fe;color:#6d28d9'};return ds.map(d=>`<span title="Discipline in scope for this project" style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:5px;${col[d]||'background:#f1f5f9;color:#374151'};">${esc((typeof DISC_LABEL!=='undefined'&&DISC_LABEL[d])||d)}</span>`).join('');})()}
               <span style="display:inline-flex;align-items:center;gap:4px;font-size:10px;color:#475569;background:#f1f5f9;border:1px solid #e2e8f0;border-radius:5px;padding:2px 8px;font-weight:600;">${p.status}</span>
@@ -11796,6 +11822,17 @@ function renderProjDetail(p){
           ${(canEditProg&&!progLocked&&pi>0)?`<button onclick="removeProjProgramme('${p.id}','${pr.id}')" title="Remove workstream (its stages and bookings revert to ${esc(projProgrammes(p)[0].name)})" style="background:none;border:none;color:var(--tx3);font-size:12px;cursor:pointer;padding:0 2px;line-height:1;">&#10005;</button>`:''}
         </span>`).join('')}
       </div>`:''}
+${(()=>{
+        const msgs=[]; const wl=(wi)=>'W'+wkNum(weeks[wi]);
+        const rng=(arr)=>{ const out=[]; let a=null,b=null; arr.forEach(w=>{ if(a===null){a=b=w;} else if(w===b+1){b=w;} else {out.push([a,b]);a=b=w;} }); if(a!==null)out.push([a,b]); return out.map(([x,y])=>x===y?wl(x):wl(x)+'\u2013'+wl(y)).join(', '); };
+        if(_pg.bad.size){ const g={}; _pg.bad.forEach((l,wi)=>{ const k=[...new Set(l)].map(i=>p.stages[i].name||'Stage').join(' + '); (g[k]=g[k]||[]).push(wi); }); Object.entries(g).forEach(([k,w])=>msgs.push('<span style="color:#b91c1c;font-weight:700;">Unplanned overlap</span> '+esc(k)+' ('+rng(w)+') \u2014 flag the later stage as parallel, or move it'));}
+        if(_pg.gaps.length)msgs.push('<span style="color:#b45309;font-weight:700;">Gap</span> with no stage ('+rng(_pg.gaps)+')');
+        const bd=progBounds(p); if(bd.end&&p.end&&!p.endAuto&&bd.end>p.end)msgs.push('<span style="color:#b45309;font-weight:700;">Programme ends '+_fmtSD(bd.end)+'</span>, after the contractual end '+_fmtSD(p.end));
+        const _odd=p.stages.some(st=>st.from&&st.to&&(new Date(st.from+'T00:00:00Z').getUTCDay()!==1||new Date(st.to+'T00:00:00Z').getUTCDay()!==0));
+        if(_odd&&!progLocked&&(_pg.bad.size||_pg.gaps.length))msgs.push('<button class="btn btn-g btn-xs" onclick="pgSnapWeeks(\''+p.id+'\')" title="Round stage dates to whole Monday to Sunday weeks and chain stages that are within a week of each other. Booked hours stay on their calendar weeks.">Snap to whole weeks</button>');
+        const legend='<span style="font-size:10px;color:var(--tx3);margin-left:auto;display:inline-flex;gap:10px;align-items:center;"><span><i style="display:inline-block;width:10px;height:10px;background:repeating-linear-gradient(45deg,#ede9fe,#ede9fe 3px,#a78bfa 3px,#a78bfa 6px);vertical-align:-1px;"></i> parallel (planned)</span><span><i style="display:inline-block;width:10px;height:10px;background:repeating-linear-gradient(45deg,#fecaca,#fecaca 3px,#f87171 3px,#f87171 6px);vertical-align:-1px;"></i> overlap, not flagged</span></span>';
+        return '<div id="pg-bar-'+p.id+'" style="padding:6px 12px;border-bottom:1px solid var(--bdr);background:'+(msgs.length?'#fffbeb':'#f8fafc')+';font-size:11px;display:flex;gap:14px;flex-wrap:wrap;align-items:center;">'+(msgs.length?msgs.map(m=>'<span>'+m+'</span>').join(''):'<span style="color:#15803d;font-weight:700;">\u2713 Programme is clean</span>')+legend+'</div>';
+      })()}
       <div style="overflow-x:auto;">
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
@@ -12001,7 +12038,8 @@ function renderProjDetail(p){
           <div style="display:flex;align-items:center;gap:8px;">
             ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">Export Stage Summary</button>
               <button onclick="openProjImport('${p.id}')" title="Import stages + weekly hours from Excel — preview changes before applying" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #1e3a5f;background:#eef2f7;color:#1e3a5f;cursor:pointer;">⬆ Import</button>
-              <button onclick="openShiftHours('${p.id}')" title="Move booked hours earlier or later by a number of weeks" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #b45309;background:#fffbeb;color:#92400e;cursor:pointer;">⇆ Shift hours</button>`:''})()}
+              <button onclick="openShiftHours('${p.id}')" title="Move booked hours earlier or later by a number of weeks" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #b45309;background:#fffbeb;color:#92400e;cursor:pointer;">⇆ Shift hours</button>
+              ${(()=>{const _lc=leaveHourCells(p);return _lc.cells.length?`<button onclick="clearLeaveHours('${p.id}')" title="Hours are booked on weeks the person is on full annual leave. Click to clear them." style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #dc2626;background:#fef2f2;color:#b91c1c;cursor:pointer;">\ud83c\udfd6 Clear hours on leave weeks (${Math.round(_lc.hours*10)/10} h)</button>`:'';})()}`:''})()}
             ${projLeadEmptyWeeks(p,true)>0?`<button onclick="toggleAllWeeks('${p.id}')" title="${window._showAllWeeks[p.id]?'Hide the empty weeks before the programme starts':'Weeks before the programme starts are hidden because they hold no hours. Click to show them.'}" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid var(--bdr);background:#fff;color:var(--tx2);cursor:pointer;">${window._showAllWeeks[p.id]?'Hide empty weeks':'Show all weeks ('+projLeadEmptyWeeks(p,true)+' hidden)'}</button>`:''}
             <button onclick="openWeeklyFs('${p.id}')" title="Toggle fullscreen" class="weekly-fs-hide"
               style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #6366f1;background:#eef2ff;color:#4338ca;cursor:pointer;">
@@ -12093,22 +12131,224 @@ function renderProjDetail(p){
   `;
 }
 
+
+// ═══ Programme engine: weeks per stage, "after previous" chaining, parallel flag ═══
+function _pgMon(iso){ // Monday on/after a date (ISO in, ISO out)
+  if(!iso)return ''; const d=new Date(iso+'T00:00:00Z'); if(isNaN(d))return iso;
+  const w=d.getUTCDay(); const add=(w===1)?0:((8-w)%7||7); return _isoAddDays(iso,add);
+}
+function _pgMonBack(iso){ // Monday on/before a date
+  const d=new Date(iso+'T00:00:00Z'); const w=(d.getUTCDay()+6)%7; return _isoAddDays(iso,-w);
+}
+function _pgKey(p,st){ return hasParallelProg(p)?stageProg(p,st):'_'; }
+function progMigrate(p){
+  const st=p.stages||[];
+  st.forEach((s,i)=>{
+    if(s.weeks==null||s.weeks===''){ s.weeks=(s.from&&s.to)?Math.max(1,Math.round((_isoDiffDays(s.from,s.to)+1)/7)):4; }
+    if(!s.mode){
+      let m='fixed';
+      if(i>0){ const k=_pgKey(p,s); let prev=null; for(let j=i-1;j>=0;j--){ if(!st[j].par&&_pgKey(p,st[j])===k){prev=st[j];break;} }
+        if(prev&&prev.to&&s.from&&_isoDiffDays(prev.to,s.from)===1)m='chain'; }
+      s.mode=m;
+    }
+  });
+}
+function progRecalc(p){
+  const prevEnd={};
+  (p.stages||[]).forEach((st,i)=>{
+    const k=_pgKey(p,st);
+    const chain=(st.mode||'chain')==='chain'&&!st.par;
+    if(chain&&prevEnd[k]) st.from=_pgMon(_isoAddDays(prevEnd[k],1));
+    else if(chain&&!prevEnd[k]&&!st.from){ /* nothing to chain to yet */ }
+    if(st.from&&st.weeks>0) st.to=_isoAddDays(st.from,st.weeks*7-1);
+    if(!st.par&&st.to) prevEnd[k]=st.to;
+  });
+}
+function progBounds(p){ let a='',b=''; (p.stages||[]).forEach(st=>{ if(st.from&&(!a||st.from<a))a=st.from; if(st.to&&(!b||st.to>b))b=st.to; }); return {start:a,end:b}; }
+// Classify every week: planned parallel overlap, unplanned overlap, and gaps.
+function progAnalyze(p,stageMap){
+  const out={bad:new Map(),par:new Map(),gaps:[]};
+  let lo=Infinity,hi=-Infinity;
+  stageMap.forEach((arr,wi)=>{ if(arr.length){ if(wi<lo)lo=wi; if(wi>hi)hi=wi; } });
+  const byGroup=(arr)=>{ const g={}; arr.forEach(si=>{ const k=_pgKey(p,p.stages[si]); (g[k]=g[k]||[]).push(si); }); return g; };
+  stageMap.forEach((arr,wi)=>{
+    if(arr.length<2)return;
+    const g=byGroup(arr);
+    Object.values(g).forEach(list=>{
+      if(list.length<2)return;
+      const nonPar=list.filter(si=>!p.stages[si].par);
+      const target=nonPar.length>=2?out.bad:out.par;
+      target.set(wi,(target.get(wi)||[]).concat(list));
+    });
+  });
+  if(isFinite(lo)) for(let wi=lo;wi<=hi;wi++){ if(!(stageMap.get(wi)||[]).length)out.gaps.push(wi); }
+  return out;
+}
+function _pgParLabel(p,si){
+  const st=p.stages[si]; if(!st.par||!st.from)return '';
+  let host=null;
+  for(let j=0;j<p.stages.length;j++){ if(j===si)continue; const o=p.stages[j]; if(o.par||!o.from||!o.to)continue; if(_pgKey(p,o)!==_pgKey(p,st))continue; if(o.from<=st.from&&o.to>=st.from){host=o;break;} }
+  if(!host)return '\u2225 parallel';
+  return '\u2225 wk '+(Math.floor(_isoDiffDays(host.from,st.from)/7)+1)+' of '+(host.name||'stage');
+}
+function pgHasHours(p){ return Object.values(p.weeklyHrs||{}).some(a=>(a||[]).some(v=>Number(v)>0)); }
+function pgRebase(p,k){ // prepend k empty weeks so index 0 is k weeks earlier; every booking keeps its calendar week
+  const anchor=_pgMon(p.start);
+  Object.keys(p.weeklyHrs||{}).forEach(key=>{ p.weeklyHrs[key]=new Array(k).fill(0).concat(p.weeklyHrs[key]||[]); });
+  (p.noteRows||[]).concat(p.stages||[]).forEach(o=>{
+    const wv=o.weekVals; if(!wv)return;
+    if(Array.isArray(wv)){ if(wv.length)o.weekVals=new Array(k).fill('').concat(wv); }
+    else{ const n={}; Object.keys(wv).forEach(i=>{n[+i+k]=wv[i];}); o.weekVals=n; }
+  });
+  p.start=_isoAddDays(anchor,-7*k);
+}
+async function pgPersistHours(p,oldHrs){
+  if(String(p.id).startsWith('prp'))return;
+  try{ if(typeof flushHourSaves==='function')await flushHourSaves(); }catch(e){}
+  const keys=new Set(Object.keys(oldHrs).concat(Object.keys(p.weeklyHrs||{})));
+  const rows=[];
+  for(const key of keys){
+    const o=oldHrs[key]||[], n=(p.weeklyHrs&&p.weeklyHrs[key])||[];
+    const L=Math.max(o.length,n.length), zero=[];
+    for(let i=0;i<L;i++){ const a=Number(o[i])||0,b=Number(n[i])||0; if(a===b)continue; if(b>0)rows.push({project_id:p.id,engineer_id:key,week_index:i,hours:b}); else zero.push(i); }
+    p.__pgZero=(p.__pgZero||[]); if(zero.length)p.__pgZero.push({key,zero});
+  }
+  for(let i=0;i<rows.length;i+=200) await sbFetch('project_hours','POST',rows.slice(i,i+200),'resolution=merge-duplicates,return=minimal');
+  for(const z of (p.__pgZero||[])) await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(p.id)+'&engineer_id=eq.'+encodeURIComponent(z.key)+'&week_index=in.('+z.zero.join(',')+')','DELETE');
+  delete p.__pgZero;
+}
+async function pgApply(projId,edit,opts){
+  const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId); if(!p)return;
+  opts=opts||{};
+  progMigrate(p);
+  const snap=p.stages.map(s=>({id:s.id,name:s.name,from:s.from,to:s.to}));
+  const oldHrs=JSON.parse(JSON.stringify(p.weeklyHrs||{}));
+  edit(p); progMigrate(p); progRecalc(p);
+  const b=progBounds(p);
+  // 1. anchor: hours are stored by week index from p.start. Only a stage starting BEFORE the anchor forces a rebase.
+  let rebased=false;
+  const anchor0=_pgMon(p.start);
+  if(b.start&&b.start<anchor0){ pgRebase(p,Math.round(_isoDiffDays(b.start,anchor0)/7)); rebased=true; }
+  else if(b.start&&!pgHasHours(p)&&!(p.noteRows||[]).concat(p.stages).some(o=>o.weekVals&&(Array.isArray(o.weekVals)?o.weekVals.some(Boolean):Object.keys(o.weekVals).length))){ p.start=b.start; }
+  const anchor=_pgMon(p.start);
+  const idx=(iso)=>Math.round(_isoDiffDays(anchor,_pgMonBack(iso))/7);
+  // 2. stages that moved and have hours inside their old weeks
+  const moved=[]; const claimed=new Set();
+  p.stages.forEach(s=>{
+    const o=snap.find(x=>x.id===s.id); if(!o||!o.from||!o.to||!s.from)return;
+    const d=_isoDiffDays(o.from,s.from); if(!d||d%7!==0)return;
+    const a=idx(o.from), z=idx(o.to), cells=[]; let h=0;
+    for(let w=a;w<=z;w++){ if(claimed.has(w))continue; claimed.add(w); cells.push(w);
+      Object.values(p.weeklyHrs||{}).forEach(arr=>{ h+=Number((arr||[])[w])||0; }); }
+    if(h>0)moved.push({name:s.name||'Stage',dw:d/7,cells,h});
+  });
+  let moveHours=false;
+  if(moved.length&&!opts.noPrompt){
+    const lines=moved.map(m=>'  \u2022 '+m.name+': '+(m.dw>0?'+':'')+m.dw+' wk'+(Math.abs(m.dw)===1?'':'s')+' \u2014 '+Math.round(m.h*10)/10+' h booked in it').join('\n');
+    moveHours=confirm('These stages moved and already have hours booked in them:\n\n'+lines+'\n\nOK = move the booked hours with the stages\nCancel = leave the hours on their current calendar weeks');
+  }
+  if(moveHours){
+    Object.keys(p.weeklyHrs||{}).forEach(key=>{
+      const arr=(p.weeklyHrs[key]||[]).map(v=>Number(v)||0); const adds=[];
+      moved.forEach(m=>m.cells.forEach(w=>{ const v=arr[w]||0; if(v>0){ adds.push([w+m.dw,v]); arr[w]=0; } }));
+      adds.forEach(([t,v])=>{ while(arr.length<=t)arr.push(0); arr[t]=(arr[t]||0)+v; });
+      p.weeklyHrs[key]=arr;
+    });
+  }
+  if(p.endAuto&&b.end)p.end=b.end;
+  clearTimeout(p._t);
+  try{ await pushProj(p); if(rebased||moveHours)await pgPersistHours(p,oldHrs); }catch(e){ console.error('pgApply save',e); }
+  renderProjDetail(p);
+  if(rebased)toast('Programme now starts earlier \u2014 booked hours stayed on their calendar weeks.');
+  else if(moveHours)toast('Hours moved with their stages.');
+}
+function pgSnapWeeks(projId){
+  pgApply(projId,p=>{
+    const prevEnd={};
+    p.stages.forEach((st,i)=>{
+      const k=_pgKey(p,st);
+      if(!st.from)return;
+      if(prevEnd[k]===undefined||st.par){
+        if(!st.par||i===0){ const d=new Date(st.from+'T00:00:00Z'); const w=(d.getUTCDay()+6)%7; st.from=_isoAddDays(st.from,w<=3?-w:7-w); }
+      } else if(Math.abs(_isoDiffDays(prevEnd[k],st.from)-1)<=6){ st.mode='chain'; st.par=false; }
+      if(st.weeks>0&&st.from)st.to=_isoAddDays(st.from,st.weeks*7-1);
+      if(!st.par&&st.to)prevEnd[k]=st.to;
+    });
+  },{noPrompt:true});
+}
+window.pgSnapWeeks=pgSnapWeeks;
+function setPgMode(projId,si,v){
+  pgApply(projId,p=>{ const st=p.stages[si];
+    if(v==='chain'){st.par=false;st.mode='chain';}
+    else if(v==='par'){st.par=true;st.mode='fixed';}
+    else{st.par=false;st.mode='fixed';}
+  });
+}
+function setPgFrom(projId,si,val){
+  if(!val)return;
+  pgApply(projId,p=>{ const st=p.stages[si]; st.from=_pgMon(val); if(si>0&&(st.mode||'chain')==='chain'&&!st.par)st.mode='fixed'; });
+}
+function setPgWeeks(projId,si,val){
+  const n=Math.round(parseFloat(val)||0);
+  if(!(n>0)){const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId);if(p)renderProjDetail(p);return;}
+  pgApply(projId,p=>{ p.stages[si].weeks=n; });
+}
+window.setPgMode=setPgMode;window.setPgFrom=setPgFrom;window.setPgWeeks=setPgWeeks;window.pgApply=pgApply;
+
+
+// ── Drag bars on the programme grid: move (whole weeks) or pull the right edge to change the weeks ──
+(function(){
+  let g=null, tip=null;
+  function tipEl(){ if(!tip){ tip=document.createElement('div'); tip.style.cssText='position:fixed;z-index:100000;background:#0f172a;color:#fff;font:700 11px Inter,sans-serif;padding:3px 8px;border-radius:6px;pointer-events:none;'; document.body.appendChild(tip);} return tip; }
+  document.addEventListener('mousedown',function(e){
+    if(e.button!==0)return;
+    const td=e.target.closest&&e.target.closest('td[data-pg]'); if(!td)return;
+    const [pid,siS]=td.dataset.pg.split('|'); const si=+siS;
+    const tr=td.parentElement; const cells=[...tr.querySelectorAll('td[data-wi]')];
+    const inn=cells.filter(c=>c.dataset.in==='1'); if(!inn.length)return;
+    const wi0=+inn[0].dataset.wi, wi1=+inn[inn.length-1].dataset.wi;
+    const r=td.getBoundingClientRect();
+    const edge=(+td.dataset.wi===wi1)&&(e.clientX>r.right-9);
+    const color=getComputedStyle(inn.find(c=>c.style.background.indexOf('gradient')<0)||inn[0]).backgroundColor;
+    g={pid,si,x0:e.clientX,cw:r.width||48,mode:edge?'resize':'move',cells,wi0,wi1,dw:0,color,bg:cells.map(c=>c.style.background)};
+    e.preventDefault(); document.body.style.userSelect='none';
+  },true);
+  document.addEventListener('mousemove',function(e){
+    if(!g)return;
+    const dw=Math.round((e.clientX-g.x0)/g.cw);
+    if(g.mode==='resize'&&g.wi1+dw<g.wi0)g.dw=g.wi0-g.wi1; else g.dw=dw;
+    const a=g.mode==='move'?g.wi0+g.dw:g.wi0, b=g.wi1+g.dw;
+    g.cells.forEach(c=>{ const w=+c.dataset.wi; c.style.background=(w>=a&&w<=b)?g.color:'#fff'; c.style.outline=(w>=a&&w<=b)?'1px solid rgba(15,23,42,.25)':'none'; });
+    const t=tipEl(); t.style.display='block'; t.style.left=(e.clientX+12)+'px'; t.style.top=(e.clientY+14)+'px';
+    t.textContent=g.dw===0?'drag ↔':((g.mode==='move'?'move ':'length ')+(g.dw>0?'+':'')+g.dw+' wk'+(Math.abs(g.dw)===1?'':'s'));
+  },true);
+  document.addEventListener('mouseup',function(){
+    if(!g)return; const d=g; g=null; document.body.style.userSelect=''; if(tip)tip.style.display='none';
+    if(!d.dw){ d.cells.forEach((c,i)=>{c.style.background=d.bg[i];c.style.outline='none';}); return; }
+    if(d.mode==='move'){
+      pgApply(d.pid,p=>{ const st=p.stages[d.si]; st.from=_isoAddDays(st.from,7*d.dw); if(d.si>0&&(st.mode||'chain')==='chain'&&!st.par)st.mode='fixed'; });
+    } else {
+      pgApply(d.pid,p=>{ const st=p.stages[d.si]; st.weeks=Math.max(1,(st.weeks||1)+d.dw); });
+    }
+  },true);
+})();
+
 function addProjStage(projId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
   if(!p.stages)p.stages=[];
-  p.stages.push({id:'st'+Math.random().toString(36).slice(2,8),name:DEFAULT_STAGES[0],from:'',to:'',weekVals:[]});
-  pushProj(p);renderProjDetail(p);
+  pgApply(projId,q=>{ q.stages.push({id:'st'+Math.random().toString(36).slice(2,8),name:DEFAULT_STAGES[0],from:'',to:'',weeks:4,mode:'chain',weekVals:[]}); });
 }
 function removeProjStage(projId,si){
-  const p=S.projects.find(x=>x.id===projId);if(!p)return;
-  const _rmId=p.stages[si]&&p.stages[si].id;
-  p.stages.splice(si,1);
-  if(_rmId&&p.bookStage)Object.keys(p.bookStage).forEach(k=>{ // array-aware cleanup
-    const raw=p.bookStage[k];
-    if(Array.isArray(raw)){ const next=raw.filter(x=>x!==_rmId); if(next.length)p.bookStage[k]=next; else delete p.bookStage[k]; }
-    else if(raw===_rmId) delete p.bookStage[k];
+  const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId);if(!p)return;
+  pgApply(projId,q=>{
+    const _rmId=q.stages[si]&&q.stages[si].id;
+    q.stages.splice(si,1);
+    if(_rmId&&q.bookStage)Object.keys(q.bookStage).forEach(k=>{ // array-aware cleanup
+      const raw=q.bookStage[k];
+      if(Array.isArray(raw)){ const next=raw.filter(x=>x!==_rmId); if(next.length)q.bookStage[k]=next; else delete q.bookStage[k]; }
+      else if(raw===_rmId) delete q.bookStage[k];
+    });
   });
-  pushProj(p);renderProjDetail(p);
 }
 function handleStageSelect(projId,si,sel){
   const p=S.projects.find(x=>x.id===projId);if(!p||!p.stages[si])return;
@@ -12247,9 +12487,7 @@ function moveProjStage(projId,si,dir){
   const ni=si+dir;
   if(ni<0||ni>=p.stages.length)return;
   pinStageColors(p);
-  const[st]=p.stages.splice(si,1);
-  p.stages.splice(ni,0,st);
-  pushProj(p);renderProjDetail(p);
+  pgApply(projId,q=>{ const[st]=q.stages.splice(si,1); q.stages.splice(ni,0,st); });
 }
 function stgDragStart(ev,projId,si){
   window._stgDrag={projId,si};
@@ -13071,6 +13309,34 @@ function jseMonthPeakHeads(e,miAbs,statusFilter){
 }
 // full-week leave lock: true when the engineer's annual leave in the
 // calendar week of (project, week-index) meets/exceeds their weekly capacity.
+function leaveHourCells(p){ // booked hours that sit on a full-week-leave week
+  const out=[]; let h=0; const isProp=String(p.id).startsWith('prp');
+  Object.keys(p.weeklyHrs||{}).forEach(k=>{
+    const e=slotEng(k); const d=e?(e.team==='BIM'?'BIM':e.disc):'';
+    (p.weeklyHrs[k]||[]).forEach((v,i)=>{ v=Number(v)||0; if(v>0&&isOnFullLeave(k,p,i)){ out.push({key:k,wi:i,v,ok:isProp||canEditDisc(d)}); h+=v; } });
+  });
+  return {cells:out,hours:h};
+}
+async function clearLeaveHours(projId){
+  const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId); if(!p)return;
+  const isProp=String(projId).startsWith('prp');
+  const r=leaveHourCells(p); const cells=r.cells.filter(c=>c.ok);
+  if(!cells.length){ toast(r.cells.length?'\u26d4 Those hours belong to a discipline you can\u2019t edit.':'No hours sit on leave weeks.'); return; }
+  const people=[...new Set(cells.map(c=>{const e=slotEng(c.key);return (e&&engDisplayName(e))||c.key;}))];
+  const hrs=cells.reduce((t,c)=>t+c.v,0);
+  if(!confirm('Clear '+Math.round(hrs*10)/10+' h booked on full-week leave weeks ('+cells.length+' cell'+(cells.length===1?'':'s')+')?\n\n'+people.slice(0,12).join(', ')+(people.length>12?' \u2026':'')+'\n\nYou can undo this from the header.'))return;
+  const batch=[]; const byKey={};
+  cells.forEach(c=>{ batch.push({projId,engId:c.key,wkIdx:c.wi,oldVal:c.v,newVal:0}); p.weeklyHrs[c.key][c.wi]=0; (byKey[c.key]=byKey[c.key]||[]).push(c.wi); });
+  if(!isProp&&!window._projHourHistoryLock){ window._projHourUndo.push({batch}); if(window._projHourUndo.length>PROJ_HOUR_HISTORY_MAX)window._projHourUndo.shift(); window._projHourRedo.length=0; _projHourHistBtns(); }
+  renderProjDetail(p);
+  try{
+    if(isProp){ await pushProj(p); }
+    else{ for(const k of Object.keys(byKey)) await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&engineer_id=eq.'+encodeURIComponent(k)+'&week_index=in.('+byKey[k].join(',')+')','DELETE'); setSyncStatus(true,'Saved \u00b7 '+new Date().toLocaleTimeString()); }
+    try{ logActivity('cleared leave-week hours',Math.round(hrs)+' h on '+(p.no?p.no+' \u00b7 ':'')+(p.name||'')); }catch(e){}
+    toast('\ud83c\udfd6 Cleared '+Math.round(hrs*10)/10+' h from leave weeks.');
+  }catch(e){ console.error(e); batch.forEach(c=>queueHourSave(projId,c.engId,c.wkIdx,0)); toast('\u26a0 Cleared here; saving is retrying in the background.'); }
+}
+window.clearLeaveHours=clearLeaveHours; window.leaveHourCells=leaveHourCells;
 function isOnFullLeave(engKey,proj,wi){
   try{
     const base=slotBase(engKey); // leave is per person; resolve to base id so slot/extra-booking rows lock consistently with the base row
@@ -13430,11 +13696,13 @@ function renderProjCard(p, mode){
   });
 
   // ── Week column headers (with stage colour bg)
+  const _pgw=progAnalyze(p,stageMap);
   const wkHdrs=weeks.map((w,wi)=>{
     const beyond=wi>=_officialLen; // past the project end date
     const sIdx=stageMap.get(wi)||[];
-    const headerBg=(beyond&&!sIdx.length)?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f'));
-    return`<th title="${beyond?(sIdx.length?'After the contractual end date — stage runs late':'Beyond the project end date — hours kept here; clear them or extend the end date'):''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
+    const _ovl=_pgw.bad.has(wi)?'#b91c1c':(_pgw.par.has(wi)?'#6d28d9':'');
+    const headerBg=_ovl||((beyond&&!sIdx.length)?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f')));
+    return`<th title="${_pgw.bad.has(wi)?'Unplanned stage overlap \u2014 flag one as parallel or move it. ':(_pgw.par.has(wi)?'Planned parallel overlap. ':'')}${beyond?(sIdx.length?'After the contractual end date — stage runs late':'Beyond the project end date — hours kept here; clear them or extend the end date'):''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
   }).join('');
 
   // ── Month header row HTML
@@ -13657,7 +13925,7 @@ function renderProjCard(p, mode){
             const _tip2=_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 clear only':'\ud83c\udfd6 Full-week leave \u2014 locked'):(_stgOut?(_stgName?`Outside ${_stgName}`:'Pick a stage to unlock this booking\u2019s weeks'):(_amb?('\u26a0 Overlapping workstreams this week \u2014 hours are reported under '+((p.stages[_stgOwner.get(wi)]||{}).name||'')):((_stgOwner&&_stgOwner.get(wi)!=null)?((p.stages[_stgOwner.get(wi)]||{}).name||''):(stageNames?`Stage: ${stageNames}`:''))));
             return`<td class="week-cell" style="${_cbg}${_amb?'box-shadow:inset 0 0 0 1px #f59e0b;':_stgRule}" title="${_tip2}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':''}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${_ro2?'readonly':''} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${_inBd};border-radius:4px;background:${_inBg};color:${_inCol};font-weight:${v?'700':'400'};${(_stgOut&&!v)?'opacity:.5;':''}${!_canEditThis?'cursor:not-allowed;':''}"></td>`;
           }
-          return`<td class="week-cell" style="${_cellBgFinal}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):(_stgTip||ttip)}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':(_stgOut?'\ud83d\udd12':'')}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(_lvRO||_stgRO)?'readonly':(_canEditThis?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':(_stgOut?(v?'#fee2e2':'#eef1f5'):(v?'#dcfce7':'transparent'))};${(_lvLock||(_stgOut&&!v))?'opacity:.55;':(_canEditThis?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
+          return`<td class="week-cell" style="${_cellBgFinal}" title="${_lvLock?(v?'\ud83c\udfd6 Leave week \u2014 you can clear these hours but not add':'\ud83c\udfd6 Full-week annual leave \u2014 booking locked'):(_stgTip||ttip)}"><input type="number" min="0" max="70" placeholder="${_lvLock?'\ud83c\udfd6':(_stgOut?'\ud83d\udd12':'')}" value="${v}" data-pid="${p.id}" data-eng="${eng.id}" data-wi="${wi}" oninput="setWeekHrsProj('${p.id}','${eng.id}',${wi},this)" onblur="flushHourSaves()" onkeydown="handleWeekCellKey(event,'${p.id}','${eng.id}',${wi})" ${(_lvRO||_stgRO)?'readonly':(_canEditThis?'':'readonly title="You can only edit your own discipline"')} style="width:34px;text-align:center;font-size:11px;padding:2px 3px;border:1px solid ${bdr};border-radius:4px;background:${_lvLock?'#eef2f7':(_stgOut?(v?'#fee2e2':'#eef1f5'):(v?'#dcfce7':'transparent'))};${((_lvLock&&!v)||(_stgOut&&!v))?'opacity:.55;':(_lvLock&&v)?'color:#b91c1c;font-weight:800;box-shadow:inset 0 0 0 1.5px #ef4444!important;':(_canEditThis?'':'opacity:.6;cursor:not-allowed;')}"></td>`;}).join('')}
       </tr>`;
     };
 
@@ -15140,16 +15408,22 @@ function normaliseEng(e){
 // ═══════════════════════════════════════
 // PROJECT MODAL
 // ═══════════════════════════════════════
-function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='2026-04-06';document.getElementById('pw-end').value='2026-12-31';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';renderDiscCheckboxes('pw-disc-checks','pw');populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}var _bR=document.getElementById('pw-banner-row');if(_bR)_bR.style.display='none';document.getElementById('proj-ov').classList.add('open');}
+function openProjModal(){pId=null;document.getElementById('proj-title').textContent='New Project';['pw-no','pw-name','pw-client','pw-pm','pw-loc'].forEach(id=>document.getElementById(id).value='');document.getElementById('pw-start').value='';document.getElementById('pw-end').value='';document.getElementById('pw-fend').value='';document.getElementById('pw-st').value='Active';document.getElementById('pw-ptype').value='';renderDiscCheckboxes('pw-disc-checks','pw');populateMepLeadDropdown('pw-meplead','');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='none';db.dataset.id='';}var _bR=document.getElementById('pw-banner-row');if(_bR)_bR.style.display='none';document.getElementById('proj-ov').classList.add('open');}
 function editProj(id){if(!adminUnlocked){toast('Admin access required');return;}const p=S.projects.find(x=>x.id===id);if(!p)return;pId=id;document.getElementById('proj-title').textContent='Edit: '+p.name;document.getElementById('pw-no').value=p.no||'';document.getElementById('pw-name').value=p.name;document.getElementById('pw-client').value=p.client||'';document.getElementById('pw-pm').value=p.pm||'';
-  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'2026-04-06';document.getElementById('pw-end').value=p.end||'2026-12-31';document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';renderDiscCheckboxes('pw-disc-checks','pw');setCheckedDiscs('pw',p.disciplines||[]);setBimAllowed('pw',p.bimExcluded!==true);populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}try{_fillProjModalBanner(p);}catch(e){}document.getElementById('proj-ov').classList.add('open');}
+  document.getElementById('pw-fee').value=p.feeFactor||1.0;document.getElementById('pw-loc').value=p.location||'';document.getElementById('pw-start').value=p.start||'';document.getElementById('pw-end').value=p.endAuto?'':(p.end||'');document.getElementById('pw-fend').value=p.forecastEnd||'';document.getElementById('pw-st').value=p.status;document.getElementById('pw-ptype').value=p.projType||'';renderDiscCheckboxes('pw-disc-checks','pw');setCheckedDiscs('pw',p.disciplines||[]);setBimAllowed('pw',p.bimExcluded!==true);populateMepLeadDropdown('pw-meplead',p.mepLeadEmail||'');const db=document.getElementById('proj-modal-del-btn');if(db){db.style.display='';db.dataset.id=id;}try{_fillProjModalBanner(p);}catch(e){}document.getElementById('proj-ov').classList.add('open');}
 function closeProjModal(){document.getElementById('proj-ov').classList.remove('open');}
 async function saveProj(){
   const name=document.getElementById('pw-name').value.trim();if(!name){toast('Name required');return;}
   const existing=pId?S.projects.find(x=>x.id===pId):null;
   const feeFactor=parseFloat(document.getElementById('pw-fee').value)||1.0;
-  const newStart=document.getElementById('pw-start').value;
-  const newEnd=document.getElementById('pw-end').value;
+  // Dates come from the programme. start = the hidden week anchor (kept so bookings never move);
+  // end = the optional contractual end, or the end of the programme when left blank.
+  const _todayMon=_pgMonBack(new Date().toISOString().slice(0,10));
+  const newStart=existing?existing.start:(_todayMon);
+  const _endIn=document.getElementById('pw-end').value;
+  const _endAuto=!_endIn;
+  const _bnd=existing?progBounds(existing):{end:''};
+  const newEnd=_endIn||_bnd.end||(existing&&existing.end)||_isoAddDays(newStart,12*7-1);
   // DATE-BASED re-alignment that never silently deletes bookings.
   // Hours are keyed to their calendar week, then re-placed. If the end date is
   // pulled IN, we extend the stored span to the last week that still carries
@@ -15206,8 +15480,8 @@ async function saveProj(){
     client:document.getElementById('pw-client').value.trim(),
     pm:document.getElementById('pw-pm').value.trim(),
     location:document.getElementById('pw-loc').value.trim(),
-    start:newStart, end:newEnd,
-    forecastEnd:document.getElementById('pw-fend').value||'',
+    start:newStart, end:newEnd, endAuto:_endAuto,
+    forecastEnd:(existing&&existing.forecastEnd)||'',
     projType:document.getElementById('pw-ptype').value||'',
     disciplines:disciplines, bimExcluded:bimExcluded, mepLeadEmail:mepLeadEmail,
     status:document.getElementById('pw-st').value,
