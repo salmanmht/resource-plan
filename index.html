@@ -3715,7 +3715,10 @@ function projSpanEnd(p){
 }
 function projWeeks(p){ return stageWeeks(p.start,projSpanEnd(p)); }
 function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
-function wkNum(d){const j=new Date(d.getFullYear(),0,1);return Math.ceil(((d-j)/864e5+j.getDay()+1)/7);}
+// Week number of the Monday-start week that contains d. The grid's week columns run Monday to Sunday,
+// so a stage ending on a Sunday must report the same week as the Monday before it (it used to roll
+// into the next week, which made back-to-back stages look like they overlapped).
+function wkNum(d){const m=new Date(d.getTime());m.setDate(m.getDate()-((m.getDay()+6)%7));const j=new Date(m.getFullYear(),0,1);return Math.ceil(((m-j)/864e5+j.getDay()+1)/7);}
 
 // ═══════════════════════════════════════
 // COMPUTATION
@@ -13416,22 +13419,26 @@ function renderProjCard(p, mode){
   // ── Body rows
   let rows='';
   discs.concat(discs.indexOf('MEP')<0?['MEP']:[]).forEach(disc=>{ // MEP group for heads kept as MEP
-    // Grade seniority order — derived live from GRADES so custom/renamed tiers sort correctly
-    const GRADE_ORDER={}; GRADES.forEach((g,i)=>{GRADE_ORDER[g]=i;});
+    // Order inside each discipline: highest hourly cost first, then seniority, then DXB before EGY, then name.
+    // GRADES alone is not enough (it lacks Senior Associate / Director tiers and ranks Intern wrongly), so seniority is explicit.
+    const SENIORITY=['Technical Director','Director','Associate Director','Technical Manager','Senior Associate','Associate Engineer','Principal Engineer','Lead Engineer','Senior Engineer','Engineer','Junior / Grad Engineer','Intern'];
+    const _rank=(arr,g)=>{ const i=arr.indexOf(g); return i<0?arr.length:i; };
+    const _cmp=(order)=>(a,b)=>{
+      const ra=getRate(a), rb=getRate(b);
+      if(ra!==rb)return rb-ra;
+      const ga=_rank(order,a.grade), gb=_rank(order,b.grade);
+      if(ga!==gb)return ga-gb;
+      if((a.off||'DXB')!==(b.off||'DXB'))return (a.off||'DXB')==='DXB'?-1:1;
+      return a.name.localeCompare(b.name);
+    };
     const mepEngs=projEngineers(p) // slot clones give each booking its own row
       .filter(e=>e.team!=='BIM'&&effDisc(e,p)===disc)
       .filter(e=>onProj(p,e.id))
-      .sort((a,b)=>{
-        const ga=GRADE_ORDER[a.grade]??99;
-        const gb=GRADE_ORDER[b.grade]??99;
-        if(ga!==gb)return ga-gb;
-        if((a.off||'DXB')!==(b.off||'DXB'))return (a.off||'DXB')==='DXB'?-1:1;
-        return a.name.localeCompare(b.name);
-      });
+      .sort(_cmp(SENIORITY));
     const bimEngs=projEngineers(p)
       .filter(e=>(((p.bookDisc&&p.bookDisc[e.id])||e.subDisc)===disc)&&e.team==='BIM')
       .filter(e=>onProj(p,e.id))
-      .sort((a,b)=>a.name.localeCompare(b.name));
+      .sort(_cmp(BIM_GRADES));
     const discEngs=[...mepEngs,...bimEngs];
     if(!discEngs.length) return;
     // Excel-style merge: map each row to its consecutive same-person run (base + slots) so the name cell can rowspan the whole group. Run-based (not global) keeps rowspan rows strictly adjacent.
