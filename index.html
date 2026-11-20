@@ -3714,6 +3714,30 @@ function projSpanEnd(p){
   return best||p.end;
 }
 function projWeeks(p){ return stageWeeks(p.start,projSpanEnd(p)); }
+// Leading weeks with nothing in them: everything before the first stage week and before the first
+// booked hour. The weekly grid collapses these columns (display only, data untouched). A lone 1 hour in
+// week 1 is the old add-member placeholder, so it doesn't count as the start of the programme.
+window._showAllWeeks=window._showAllWeeks||{};
+function projLeadEmptyWeeks(p,ignoreToggle){
+  if(!ignoreToggle&&window._showAllWeeks[p.id])return 0;
+  let first=Infinity;
+  try{ getStageWeekMap(p).forEach((v,wi)=>{ if(v&&v.length&&wi<first)first=wi; }); }catch(e){}
+  (p.noteRows||[]).forEach(nr=>{ const wv=nr&&nr.weekVals; if(!wv)return; Object.keys(wv).forEach(k=>{ const i=+k; if(wv[k]&&i<first)first=i; }); });
+  Object.values(p.weeklyHrs||{}).forEach(a=>{
+    if(!a)return;
+    for(let i=0;i<a.length;i++){
+      if(!(a[i]>0))continue;
+      const lonePlaceholder=(i===0&&a[0]===1&&!(a[1]>0)&&!(a[2]>0)&&!(a[3]>0));
+      if(lonePlaceholder)continue;
+      if(i<first)first=i; break;
+    }
+  });
+  return isFinite(first)&&first>0?first:0;
+}
+function toggleAllWeeks(id){
+  window._showAllWeeks[id]=!window._showAllWeeks[id];
+  const p=S.projects.find(x=>x.id===id)||((S.proposals||[]).find(x=>x.id===id)); if(p)renderProjDetail(p);
+}
 function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
 // Week number of the Monday-start week that contains d. The grid's week columns run Monday to Sunday,
 // so a stage ending on a Sunday must report the same week as the Monday before it (it used to roll
@@ -11557,7 +11581,9 @@ function renderProjDetail(p){
   ensureStageIds(p); // stable stage ids for per-booking stage assignment
   const weeks=projWeeks(p);
   const stageMap=getStageWeekMap(p);
+  const _ld=projLeadEmptyWeeks(p); // leading empty weeks are not drawn in the programme either
   const wkHdrs=weeks.map((w,wi)=>{
+    if(wi<_ld)return '';
     const sIdx=stageMap.get(wi)||[];
     const isProg=sIdx.length>0;
     // For header use the first stage's border colour as a strong band, or default
@@ -11577,6 +11603,7 @@ function renderProjDetail(p){
     const isCustom=!DEFAULT_STAGES.includes(st.name);
     const stageOptions=DEFAULT_STAGES.map(s=>`<option${s===st.name?' selected':''}>${s}</option>`).join('');
     const weekCells=weeks.map((_,wi)=>{
+      if(wi<_ld)return '';
       const inStage=(stageMap.get(wi)||[]).includes(si);
       const cls='swk-'+p.id+'-'+si;
       // tint ONLY the weeks this stage spans; out-of-range weeks are solid white so the row's band can't bleed past the stage's from→to.
@@ -11642,6 +11669,7 @@ function renderProjDetail(p){
   if(!p.noteRows)p.noteRows=[];
   const noteRowsHtml=p.noteRows.map((nr,ni)=>{
     const weekCells=weeks.map((_,wi)=>{
+      if(wi<_ld)return '';
       const v=(nr.weekVals&&nr.weekVals[wi])||'';
       const sIdx=stageMap.get(wi)||[];
       const cellBg=sIdx.length?stageColor(sIdx[0],p.stages[sIdx[0]]).bg+'66':'';
@@ -11972,7 +12000,9 @@ function renderProjDetail(p){
         <div style="background:#f8fafc;border-bottom:1px solid var(--bdr);padding:6px 12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;" onclick="event.stopPropagation()">
           <div style="display:flex;align-items:center;gap:8px;">
             ${(()=>{const currentEmail=SB_SESSION&&SB_SESSION.user?SB_SESSION.user.email:'';const isMepLead=isMepLeadFor(p.id);return(adminUnlocked||isMepLead)?`<button onclick="exportStageSummary('${p.id}')" title="Export Stage Summary to Excel with live formulas" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #059669;background:#ecfdf5;color:#065f46;cursor:pointer;">Export Stage Summary</button>
-              <button onclick="openProjImport('${p.id}')" title="Import stages + weekly hours from Excel — preview changes before applying" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #1e3a5f;background:#eef2f7;color:#1e3a5f;cursor:pointer;">⬆ Import</button>`:''})()}
+              <button onclick="openProjImport('${p.id}')" title="Import stages + weekly hours from Excel — preview changes before applying" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #1e3a5f;background:#eef2f7;color:#1e3a5f;cursor:pointer;">⬆ Import</button>
+              <button onclick="openShiftHours('${p.id}')" title="Move booked hours earlier or later by a number of weeks" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #b45309;background:#fffbeb;color:#92400e;cursor:pointer;">⇆ Shift hours</button>`:''})()}
+            ${projLeadEmptyWeeks(p,true)>0?`<button onclick="toggleAllWeeks('${p.id}')" title="${window._showAllWeeks[p.id]?'Hide the empty weeks before the programme starts':'Weeks before the programme starts are hidden because they hold no hours. Click to show them.'}" style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid var(--bdr);background:#fff;color:var(--tx2);cursor:pointer;">${window._showAllWeeks[p.id]?'Hide empty weeks':'Show all weeks ('+projLeadEmptyWeeks(p,true)+' hidden)'}</button>`:''}
             <button onclick="openWeeklyFs('${p.id}')" title="Toggle fullscreen" class="weekly-fs-hide"
               style="display:flex;align-items:center;gap:5px;padding:5px 12px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid #6366f1;background:#eef2ff;color:#4338ca;cursor:pointer;">
               ⛶ Fullscreen
@@ -13319,6 +13349,7 @@ function renderProjCard(p, mode){
     while(weeks.length<=_maxIdx){ _d=new Date(_d); _d.setDate(_d.getDate()+7); weeks.push(new Date(_d)); }
   }
   const _officialLen=officialWeeks.length;
+  const _leadHide=projLeadEmptyWeeks(p); // leading empty weeks collapsed in the grid
   const discs=MEP_DISCS.slice();
   const wh=p.weeklyHrs||{};
   const ff=p.feeFactor||1.0;
@@ -13764,7 +13795,7 @@ function renderProjCard(p, mode){
     const colgroup=`<colgroup>
       ${FROZEN_WIDTHS.map((w,i)=>w>0?`<col style="width:${w}px;min-width:${w}px;max-width:${w}px;">`:'<col style="display:none;width:0;min-width:0;max-width:0;padding:0;border:0;">').join('')}
       ${showRate?'<col style="width:80px;">':''}
-      ${weeks.map(()=>`<col style="width:38px;min-width:38px;">`).join('')}
+      ${weeks.map((_,wi)=>wi<_leadHide?`<col style="visibility:collapse;width:0;min-width:0;">`:`<col style="width:38px;min-width:38px;">`).join('')}
     </colgroup>`;
     return`<table class="proj-tbl" style="border-collapse:separate;border-spacing:0;table-layout:fixed;">
       ${colgroup}
@@ -13802,9 +13833,166 @@ function _projHourApply(x,toVal){
   if(typeof flushHourSaves==='function')flushHourSaves();
   return true;
 }
-function projHoursUndo(){const x=window._projHourUndo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApply(x,x.oldVal)){window._projHourRedo.push(x);toast('↩ Hours undone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
-function projHoursRedo(){const x=window._projHourRedo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApply(x,x.newVal)){window._projHourUndo.push(x);toast('↪ Hours redone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
+// A batch entry (from Shift hours) holds many cell changes and undoes in one click.
+function _projHourApplyAny(x,useOld){
+  if(x&&x.batch){
+    let ok=true;
+    x.batch.forEach(c=>{ if(!_projHourApply(c,useOld?c.oldVal:c.newVal))ok=false; });
+    const pid=x.batch.length?x.batch[0].projId:null;
+    const p=pid&&S.projects.find(q=>q.id===pid);
+    if(p&&typeof renderProjDetail==='function')renderProjDetail(p);
+    return ok;
+  }
+  return _projHourApply(x,useOld?x.oldVal:x.newVal);
+}
+function projHoursUndo(){const x=window._projHourUndo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApplyAny(x,true)){window._projHourRedo.push(x);toast('↩ Hours undone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
+function projHoursRedo(){const x=window._projHourRedo.pop();if(!x){_projHourHistBtns();return;}window._projHourHistoryLock=true;try{if(_projHourApplyAny(x,false)){window._projHourUndo.push(x);toast('↪ Hours redone');}}finally{window._projHourHistoryLock=false;_projHourHistBtns();}}
 window.projHoursUndo=projHoursUndo;window.projHoursRedo=projHoursRedo;
+
+// ═══════════════════════════════════════
+// SHIFT HOURS — move booked hours by N weeks from a chosen week
+// ═══════════════════════════════════════
+function _shiftFind(id){ return S.projects.find(x=>x.id===id)||((S.proposals||[]).find(x=>x.id===id)); }
+function _shiftWkDate(p,i){ const d=new Date(p.start); const day=d.getDay(); if(day!==1)d.setDate(d.getDate()+((8-day)%7||7)); d.setDate(d.getDate()+i*7); return d; }
+function _shiftWkText(p,i){ const d=_shiftWkDate(p,i); return 'W'+wkNum(d)+' · '+d.toLocaleDateString('en-GB',{day:'2-digit',month:'short',year:'2-digit'}); }
+// Pure planner: what would change. keys = booking keys, from = first week index to move, n = weeks (+ later, - earlier)
+function planShiftHours(p,keys,from,n){
+  const plan={moves:[],hours:0,people:0,conflicts:[],beforeStart:[],pastEnd:0,cells:0};
+  const endIdx=stageWeeks(p.start,p.end).length-1;
+  keys.forEach(k=>{
+    const a=(p.weeklyHrs&&p.weeklyHrs[k])||[];
+    const old=a.map(v=>Number(v)||0);
+    const out=old.slice();
+    let moved=0, bad=false;
+    for(let i=from;i<old.length;i++){ out[i]=0; }
+    for(let i=from;i<old.length;i++){
+      const v=old[i]; if(!(v>0))continue;
+      const t=i+n;
+      if(t<0){ plan.beforeStart.push(k); bad=true; break; }
+      if(t<from && out[t]>0){ plan.conflicts.push(k); bad=true; break; }
+      out[t]=(out[t]||0)+v; moved+=v;
+      if(t>endIdx)plan.pastEnd+=v;
+    }
+    if(bad||moved===0)return;
+    for(let i=0;i<out.length;i++)if(out[i]==null)out[i]=0;
+    plan.moves.push({key:k,old,out});
+    plan.hours+=moved; plan.people++;
+  });
+  plan.cells=plan.moves.reduce((c,m)=>{ const L=Math.max(m.old.length,m.out.length); for(let i=0;i<L;i++)if((m.old[i]||0)!==(m.out[i]||0))c++; return c; },0);
+  return plan;
+}
+function openShiftHours(projId){
+  const p=_shiftFind(projId); if(!p)return;
+  const keys=Object.keys(p.weeklyHrs||{}).filter(k=>projHasHrs(p,k));
+  if(!keys.length){ toast('No booked hours to shift on this project'); return; }
+  let first=Infinity,maxLen=0;
+  keys.forEach(k=>{ const a=p.weeklyHrs[k]; maxLen=Math.max(maxLen,a.length); for(let i=0;i<a.length;i++){ if(a[i]>0){ if(i<first)first=i; break; } } });
+  maxLen=Math.max(maxLen,projWeeks(p).length);
+  // default "From week" = where the programme really starts (ignores the old week-1 placeholder hour)
+  const _lead=projLeadEmptyWeeks(p,true); if(_lead>0)first=_lead;
+  const opts=[]; for(let i=0;i<maxLen;i++)opts.push(`<option value="${i}" ${i===first?'selected':''}>${_shiftWkText(p,i)}</option>`);
+  // people grouped by discipline, most expensive first (same order as the grid)
+  const rows=keys.map(k=>({k,e:slotEng(k)})).filter(x=>x.e);
+  const groups={};
+  rows.forEach(x=>{ const d=x.e.team==='BIM'?'BIM':(effDisc(x.e,p)||'Other'); (groups[d]=groups[d]||[]).push(x); });
+  const people=Object.keys(groups).map(d=>`
+    <div style="margin-top:8px;"><div style="display:flex;align-items:center;gap:8px;font-size:11px;font-weight:800;color:#334155;">${d}
+      <a href="#" onclick="event.preventDefault();_shiftToggleGroup('${d.replace(/'/g,"\\'")}',true)" style="font-weight:600;font-size:10px;color:#2563eb;">all</a>
+      <a href="#" onclick="event.preventDefault();_shiftToggleGroup('${d.replace(/'/g,"\\'")}',false)" style="font-weight:600;font-size:10px;color:#2563eb;">none</a></div>
+      ${groups[d].sort((a,b)=>getRate(b.e)-getRate(a.e)||a.e.name.localeCompare(b.e.name)).map(x=>`<label style="display:flex;align-items:center;justify-content:flex-start;gap:8px;font-size:11px;font-weight:500;padding:3px 0;text-align:left;"><input type="checkbox" class="shift-chk" data-grp="${d}" value="${x.k}" checked onchange="_shiftPreview()" style="width:14px;min-width:14px;height:14px;margin:0;padding:0;flex:none;"><span>${(typeof engDisplayName==='function'?engDisplayName(x.e):x.e.name)}</span> <span style="color:#94a3b8;">${(p.weeklyHrs[x.k]||[]).reduce((a,v)=>a+(Number(v)||0),0)}h</span></label>`).join('')}</div>`).join('');
+  const old=document.getElementById('shift-hrs-modal'); if(old)old.remove();
+  const m=document.createElement('div');
+  m.id='shift-hrs-modal'; m.dataset.pid=projId;
+  m.style.cssText='position:fixed;inset:0;background:rgba(15,23,42,.55);z-index:100000;display:flex;align-items:center;justify-content:center;';
+  m.innerHTML=`<div style="background:#fff;border-radius:12px;width:min(520px,94vw);max-height:90vh;overflow:auto;padding:18px 20px;box-shadow:0 20px 60px rgba(0,0,0,.35);">
+    <div style="display:flex;justify-content:space-between;align-items:center;"><div style="font-size:15px;font-weight:800;">Shift hours</div><button onclick="closeShiftHours()" style="border:0;background:none;font-size:18px;cursor:pointer;color:#64748b;">✕</button></div>
+    <div style="font-size:11px;color:#64748b;margin:4px 0 12px;">Moves booked hours along the weeks. Weeks before the chosen week are left alone.</div>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+      <label style="font-size:11px;font-weight:700;">Move by (weeks)<br><input id="shift-n" type="number" step="1" value="0" oninput="_shiftPreview()" style="width:110px;font-size:13px;padding:6px 8px;border:1px solid var(--bdr);border-radius:6px;margin-top:3px;"><div style="font-weight:500;color:#94a3b8;font-size:10px;margin-top:2px;">+ later, − earlier</div></label>
+      <label style="font-size:11px;font-weight:700;flex:1;min-width:200px;">From week<br><select id="shift-from" onchange="_shiftPreview()" style="width:100%;font-size:12px;padding:7px 8px;border:1px solid var(--bdr);border-radius:6px;margin-top:3px;">${opts.join('')}</select></label>
+    </div>
+    <div style="font-size:11px;font-weight:700;margin-top:12px;">Who</div>${people}
+    <div id="shift-preview" style="margin-top:14px;padding:10px 12px;border-radius:8px;background:#f1f5f9;font-size:12px;color:#334155;"></div>
+    <div style="display:flex;justify-content:flex-end;gap:8px;margin-top:14px;">
+      <button onclick="closeShiftHours()" style="padding:7px 14px;border-radius:6px;border:1px solid var(--bdr);background:#fff;cursor:pointer;font-weight:600;">Cancel</button>
+      <button id="shift-apply" onclick="applyShiftHours()" disabled style="padding:7px 14px;border-radius:6px;border:0;background:#b45309;color:#fff;cursor:pointer;font-weight:700;opacity:.5;">Shift hours</button>
+    </div></div>`;
+  document.body.appendChild(m);
+  _shiftPreview();
+}
+function closeShiftHours(){ const m=document.getElementById('shift-hrs-modal'); if(m)m.remove(); }
+function _shiftToggleGroup(g,on){ document.querySelectorAll('#shift-hrs-modal .shift-chk').forEach(c=>{ if(c.dataset.grp===g)c.checked=on; }); _shiftPreview(); }
+function _shiftState(){
+  const m=document.getElementById('shift-hrs-modal'); if(!m)return null;
+  const p=_shiftFind(m.dataset.pid); if(!p)return null;
+  const keys=[...m.querySelectorAll('.shift-chk')].filter(c=>c.checked).map(c=>c.value);
+  const n=parseInt(document.getElementById('shift-n').value,10)||0;
+  const from=parseInt(document.getElementById('shift-from').value,10)||0;
+  return {p,keys,n,from,plan:planShiftHours(p,keys,from,n)};
+}
+function _shiftPreview(){
+  const st=_shiftState(); if(!st)return;
+  const {p,n,from,plan}=st; const box=document.getElementById('shift-preview'), btn=document.getElementById('shift-apply');
+  let html='',ok=true;
+  if(!n){ html='Enter how many weeks to move the hours.'; ok=false; }
+  else if(!plan.people&&!plan.conflicts.length&&!plan.beforeStart.length){ html='Nobody selected has hours from that week onward.'; ok=false; }
+  else {
+    html=`<b>${Math.round(plan.hours*10)/10} h</b> for <b>${plan.people}</b> ${plan.people===1?'person':'people'} move ${Math.abs(n)} week${Math.abs(n)===1?'':'s'} ${n>0?'later':'earlier'}, starting from ${_shiftWkText(p,from)}.`;
+    if(plan.pastEnd>0)html+=`<div style="color:#b45309;margin-top:6px;">${Math.round(plan.pastEnd*10)/10} h will land after the contractual end date. They stay visible, marked past end.</div>`;
+  }
+  const names=ks=>ks.map(k=>{const e=slotEng(k);return e?e.name.split(' ').slice(0,2).join(' '):k;}).join(', ');
+  if(plan.conflicts.length){ html+=`<div style="color:#b91c1c;margin-top:6px;">Blocked: moving earlier would land on hours already booked before the chosen week for ${names(plan.conflicts)}. Choose a later From week or a smaller shift.</div>`; ok=false; }
+  if(plan.beforeStart.length){ html+=`<div style="color:#b91c1c;margin-top:6px;">Blocked: this would push hours before the project start for ${names(plan.beforeStart)}.</div>`; ok=false; }
+  box.innerHTML=html; btn.disabled=!ok; btn.style.opacity=ok?'1':'.5';
+}
+async function applyShiftHours(){
+  const st=_shiftState(); if(!st)return;
+  const {p,plan,n,from}=st; const projId=p.id; const isProp=projId.toString().startsWith('prp');
+  if(!plan.moves.length||plan.conflicts.length||plan.beforeStart.length)return;
+  // discipline permission, same rule as editing a cell
+  let moves=plan.moves, skipped=[];
+  if(!isProp&&typeof canEditDisc==='function'){
+    moves=plan.moves.filter(m=>{ const e=slotEng(m.key); const d=e?(e.team==='BIM'?'BIM':e.disc):''; const ok=canEditDisc(d); if(!ok)skipped.push(m.key); return ok; });
+  }
+  if(!moves.length){ toast('⛔ You can only shift hours for your own discipline.'); return; }
+  const batch=[];
+  moves.forEach(m=>{
+    const L=Math.max(m.old.length,m.out.length);
+    for(let i=0;i<L;i++){ const o=m.old[i]||0, v=m.out[i]||0; if(o!==v)batch.push({projId,engId:m.key,wkIdx:i,oldVal:o,newVal:v}); }
+    p.weeklyHrs[m.key]=m.out;
+  });
+  closeShiftHours();
+  if(!isProp&&!window._projHourHistoryLock){
+    window._projHourUndo.push({batch});
+    if(window._projHourUndo.length>PROJ_HOUR_HISTORY_MAX)window._projHourUndo.shift();
+    window._projHourRedo.length=0; _projHourHistBtns();
+  }
+  renderProjDetail(p);
+  // Save: one upsert + one delete per person (not one request per cell). Falls back to the retrying cell queue.
+  try{
+    if(isProp){
+      queueHourSave(projId,batch[0].engId,batch[0].wkIdx,batch[0].newVal);
+    } else {
+      for(const m of moves){
+        const rows=[]; const zero=[];
+        const L=Math.max(m.old.length,m.out.length);
+        for(let i=0;i<L;i++){ const o=m.old[i]||0, v=m.out[i]||0; if(o===v)continue; if(v>0)rows.push({project_id:projId,engineer_id:m.key,week_index:i,hours:v}); else zero.push(i); }
+        if(rows.length)await sbFetch('project_hours','POST',rows,'resolution=merge-duplicates,return=minimal');
+        if(zero.length)await sbFetch('project_hours?project_id=eq.'+encodeURIComponent(projId)+'&engineer_id=eq.'+encodeURIComponent(m.key)+'&week_index=in.('+zero.join(',')+')','DELETE');
+      }
+      setSyncStatus(true,'Saved · '+new Date().toLocaleTimeString());
+    }
+    try{ logActivity('shifted hours',Math.round(plan.hours)+' h by '+(n>0?'+':'')+n+' wk on '+(p.no?p.no+' · ':'')+(p.name||'')); }catch(e){}
+    toast('⇆ Shifted '+Math.round(plan.hours*10)/10+' h by '+(n>0?'+':'')+n+' week'+(Math.abs(n)===1?'':'s')+(skipped.length?' — skipped '+skipped.length+' outside your discipline':'')+'. Undo is in the header.');
+  }catch(e){
+    console.error('applyShiftHours sync failed, queuing cells',e);
+    batch.forEach(c=>queueHourSave(projId,c.engId,c.wkIdx,c.newVal));
+    toast('⚠ Shift applied here; saving is retrying in the background. Keep the tab open.');
+  }
+}
+window.openShiftHours=openShiftHours; window.closeShiftHours=closeShiftHours; window.applyShiftHours=applyShiftHours;
+window.toggleAllWeeks=toggleAllWeeks; window._shiftPreview=_shiftPreview; window._shiftToggleGroup=_shiftToggleGroup;
+
 function setWeekHrsProj(projId,engId,wkIdx,inputEl){
   // Discipline access check
   if(!projId.toString().startsWith('prp')){
