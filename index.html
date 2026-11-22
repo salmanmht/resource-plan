@@ -1013,7 +1013,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.5 · 15 Nov 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.7 · 22 Nov 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1118,7 +1118,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.5 · 15 Nov 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.7 · 22 Nov 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -11610,6 +11610,7 @@ function renderProjDetail(p){
   const isMepLead=isMepLeadFor(p.id);
   const canEditProg=adminUnlocked||isMepLead;
   const progLocked=!canEditProg||progLockState(p);
+  const _colW=progLocked?450:(520+Math.max(160,...p.stages.map((_,i)=>_stageNameW(p.id,i)))); // one clean line per stage: fixed controls + the widest stage name
   const _fmtSD=(d)=>{ if(!d)return '?'; const dt=new Date(d); if(isNaN(dt))return d; return String(dt.getDate()).padStart(2,'0')+' '+dt.toLocaleString('en-US',{month:'short'})+' '+String(dt.getFullYear()).slice(-2); }; // "01 Jul 26"
   const stageRowsHtml=p.stages.map((st,si)=>{
     const sc=stageColor(si,st);
@@ -11633,7 +11634,7 @@ function renderProjDetail(p){
     if(progLocked){
       const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
       return`<tr>
-        <td style="padding:3px 10px;min-width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
+        <td style="padding:3px 10px;min-width:${_colW}px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
           <div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap;">
             <span style="display:inline-block;width:12px;height:12px;border-radius:3px;background:${sc.bdr};flex-shrink:0;"></span>
             <span style="font-size:11px;font-weight:700;color:#1e293b;">${st.name||'—'}</span>
@@ -11647,8 +11648,8 @@ function renderProjDetail(p){
     }
     const isCollapsed=(window._stageCollapsed&&window._stageCollapsed[p.id+'_'+si])||false;
     return`<tr ondragover="stgDragOver(event)" ondrop="stgDrop(event,'${p.id}',${si})">
-      <td style="padding:2px 6px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
-        <div style="display:flex;align-items:center;gap:5px;flex-wrap:nowrap;">
+      <td style="padding:2px 6px;min-width:${_colW}px;width:${_colW}px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fff;">
+        <div style="display:flex;align-items:center;gap:4px;flex-wrap:nowrap;">
           <span draggable="true" ondragstart="stgDragStart(event,'${p.id}',${si})" ondragend="stgDragEnd(event)" title="Drag to reorder stages" style="cursor:grab;color:var(--tx3);font-size:13px;line-height:1;flex-shrink:0;user-select:none;padding:2px 1px;">⠿</span>
           <span style="display:flex;flex-direction:column;gap:1px;flex-shrink:0;">
             <button onclick="moveProjStage('${p.id}',${si},-1)" title="Move stage up" ${si===0?'disabled':''} style="border:1px solid var(--bdr);background:#fff;border-radius:3px;font-size:7px;line-height:1;padding:1px 3px;cursor:pointer;color:var(--tx2);${si===0?'opacity:.3;cursor:default;':''}">▲</button>
@@ -11672,19 +11673,19 @@ function renderProjDetail(p){
             const _chain=si>0&&!st.par&&(st.mode||'chain')==='chain';
             const _mode=si===0?'first':(st.par?'par':(_chain?'chain':'fixed'));
             const _inp='font-size:10px;padding:2px 4px;border:1px solid var(--bdr);border-radius:4px;color:var(--tx2);flex-shrink:0;';
-            const modeSel=si===0?'<span title="The first stage has the only typed start date. Everything else follows from it." style="font-size:10px;font-weight:700;color:#475569;flex-shrink:0;width:112px;">Start date</span>'
-              :'<select title="How this stage is placed" onchange="setPgMode(\''+p.id+'\','+si+',this.value)" style="'+_inp+'width:112px;font-weight:700;'+(st.par?'color:#6d28d9;border-color:#c4b5fd;background:#f5f3ff;':'')+'">'
+            const modeSel=si===0?'<span title="The first stage has the only typed start date. Everything else follows from it." style="font-size:10px;font-weight:700;color:#475569;flex-shrink:0;width:96px;">Start date</span>'
+              :'<select title="How this stage is placed" onchange="setPgMode(\''+p.id+'\','+si+',this.value)" style="'+_inp+'width:96px;font-weight:700;'+(st.par?'color:#6d28d9;border-color:#c4b5fd;background:#f5f3ff;':'')+'">'
                +'<option value="chain"'+(_mode==='chain'?' selected':'')+'>\u26d3 after prev.</option><option value="par"'+(_mode==='par'?' selected':'')+'>\u2225 parallel</option><option value="fixed"'+(_mode==='fixed'?' selected':'')+'>\ud83d\udccc fixed</option></select>';
             const fromEl=_chain
-              ?'<span title="Starts the Monday after the previous stage ends" style="font-size:10px;color:var(--tx2);width:78px;flex-shrink:0;">'+(st.from?_fmtSD(st.from):'\u2014')+'</span>'
-              :'<input type="date" value="'+(st.from||'')+'" title="Stage start (snaps to a Monday)" style="'+_inp+'width:106px;" onchange="setPgFrom(\''+p.id+'\','+si+',this.value)">';
-            const wk='<input type="number" min="1" max="200" step="1" value="'+(st.weeks>0?st.weeks:'')+'" placeholder="wks" title="Duration in whole weeks. The end date is worked out for you (always a Sunday)." style="width:46px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid '+sc.bdr+'66;border-radius:4px;color:'+sc.bdr+';font-weight:700;background:'+sc.bg+';flex-shrink:0;" onchange="setPgWeeks(\''+p.id+'\','+si+',this.value)">';
+              ?'<span title="Starts the Monday after the previous stage ends" style="font-size:10px;color:var(--tx2);width:98px;flex-shrink:0;">'+(st.from?_fmtSD(st.from):'\u2014')+'</span>'
+              :'<input type="date" value="'+(st.from||'')+'" title="Stage start (snaps to a Monday)" style="'+_inp+'width:98px;" onchange="setPgFrom(\''+p.id+'\','+si+',this.value)">';
+            const wk='<input type="number" min="1" max="200" step="1" value="'+(st.weeks>0?st.weeks:'')+'" placeholder="wks" title="Duration in whole weeks. The end date is worked out for you (always a Sunday)." style="width:42px;font-size:10px;text-align:center;padding:2px 3px;border:1px solid '+sc.bdr+'66;border-radius:4px;color:'+sc.bdr+';font-weight:700;background:'+sc.bg+';flex-shrink:0;" onchange="setPgWeeks(\''+p.id+'\','+si+',this.value)">';
             const toEl='<span style="font-size:10px;color:var(--tx3);flex-shrink:0;white-space:nowrap;">wks \u2192 '+(st.to?_fmtSD(st.to):'\u2014')+'</span>';
             const parTag=st.par?'<span style="font-size:9px;font-weight:700;color:#6d28d9;background:#ede9fe;border:1px solid #c4b5fd;border-radius:8px;padding:1px 6px;white-space:nowrap;flex-shrink:0;">'+_pgParLabel(p,si)+'</span>':'';
             return modeSel+fromEl+wk+toEl+parTag;
           })()}
           <button class="btn btn-d btn-xs" onclick="removeProjStage('${p.id}',${si})" title="Remove stage" style="flex-shrink:0;">&#10005;</button>
-          ${hasParallelProg(p)?`<select title="Workstream this stage belongs to" onchange="setStageProg('${p.id}',${si},this.value)" style="font-size:10px;padding:2px 4px;border:1px solid ${progColorOf(p,stageProg(p,st))}66;border-radius:4px;color:${progColorOf(p,stageProg(p,st))};font-weight:700;background:#fff;flex-shrink:0;max-width:130px;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${stageProg(p,st)===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select>`:''}
+          ${hasParallelProg(p)?`<select title="Workstream this stage belongs to" onchange="setStageProg('${p.id}',${si},this.value)" style="font-size:10px;padding:2px 4px;border:1px solid ${progColorOf(p,stageProg(p,st))}66;border-radius:4px;color:${progColorOf(p,stageProg(p,st))};font-weight:700;background:#fff;flex-shrink:0;width:78px;">${projProgrammes(p).map(pr=>`<option value="${pr.id}"${stageProg(p,st)===pr.id?' selected':''}>${esc(pr.name)}</option>`).join('')}</select>`:''}
         </div>
       </td>
       ${weekCells}
@@ -11709,14 +11710,14 @@ function renderProjDetail(p){
     }).join('');
     if(progLocked){
       return`<tr style="background:#fdfaff;">
-        <td style="padding:6px 10px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+        <td style="padding:6px 10px;min-width:${_colW}px;width:${_colW}px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
           <span style="font-size:11px;font-weight:600;color:#4c1d95;">${esc(nr.label||'—')}</span>
         </td>
         ${weekCells}
       </tr>`;
     }
     return`<tr style="background:#fdfaff;">
-      <td style="padding:4px 6px;min-width:450px;width:450px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
+      <td style="padding:4px 6px;min-width:${_colW}px;width:${_colW}px;vertical-align:middle;position:sticky;left:0;z-index:1;background:#fdfaff;">
         <div style="display:flex;align-items:center;gap:4px;">
           <input type="text" value="${esc(nr.label||'')}" placeholder="Row label…" style="flex:1;font-size:11px;padding:3px 6px;border:1px solid var(--bdr);border-radius:5px;"
             onchange="setProjNoteLabel('${p.id}',${ni},this.value)">
@@ -11805,7 +11806,9 @@ function renderProjDetail(p){
               ${locked?'🔒 Locked':'🔓 Lock'}
             </button>
             ${locked?'':
-              `<button class="btn btn-g btn-sm" onclick="addProjProgramme('${p.id}')" title="Add a parallel programme / workstream (e.g. Outdoor cooling) — bookings and stages can then be filed to it">+ Programme</button>
+              `<button class="btn btn-g btn-sm" id="pg-undo-${p.id}" onclick="pgUndoRun('${p.id}',-1)" ${_pgUS(p.id).undo.length?'':'disabled'} style="${_pgUS(p.id).undo.length?'':'opacity:.4;'}" title="${_pgUS(p.id).undo.length?'Undo: '+esc(_pgUS(p.id).undo[_pgUS(p.id).undo.length-1].label):'Nothing to undo'}">&#8630; Undo</button>
+               <button class="btn btn-g btn-sm" id="pg-redo-${p.id}" onclick="pgUndoRun('${p.id}',1)" ${_pgUS(p.id).redo.length?'':'disabled'} style="${_pgUS(p.id).redo.length?'':'opacity:.4;'}" title="${_pgUS(p.id).redo.length?'Redo: '+esc(_pgUS(p.id).redo[_pgUS(p.id).redo.length-1].label):'Nothing to redo'}">Redo &#8631;</button>
+               <button class="btn btn-g btn-sm" onclick="addProjProgramme('${p.id}')" title="Add a parallel programme / workstream (e.g. Outdoor cooling) — bookings and stages can then be filed to it">+ Programme</button>
                <button class="btn btn-g btn-sm" onclick="addProjStage('${p.id}')">+ Add Stage</button>
                <button onclick="toggleStageCascade('${p.id}')" title="${stageCascadeOn(p.id)?'ON — changing a stage date also shifts every stage below it (durations and gaps kept). Click to turn off.':'OFF — changing a stage date changes only that stage. Click to also shift the stages below it.'}" style="display:flex;align-items:center;gap:4px;padding:5px 11px;font-size:11px;font-weight:700;border-radius:6px;border:1px solid ${stageCascadeOn(p.id)?'#2563eb':'#cbd5e1'};background:${stageCascadeOn(p.id)?'#eff6ff':'#f8fafc'};color:${stageCascadeOn(p.id)?'#1d4ed8':'#64748b'};cursor:pointer;">&#8649; Shift following: ${stageCascadeOn(p.id)?'ON':'OFF'}</button>
                <button class="btn btn-g btn-sm" onclick="addProjNoteRow('${p.id}')">+ Add Row</button>`
@@ -11837,7 +11840,7 @@ ${(()=>{
         <table style="border-collapse:collapse;min-width:100%;font-size:11px;">
           <thead>
             <tr>
-              <th style="min-width:450px;width:450px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
+              <th style="min-width:${_colW}px;width:${_colW}px;text-align:left;padding:6px 10px;background:#1e3a5f;color:#fff;font-size:10px;font-weight:700;position:sticky;left:0;z-index:2;">Stage / Row</th>
               ${wkHdrs}
             </tr>
           </thead>
@@ -12220,6 +12223,7 @@ async function pgPersistHours(p,oldHrs){
 async function pgApply(projId,edit,opts){
   const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId); if(!p)return;
   opts=opts||{};
+  const _ue=pgUndoPush(projId,opts.label||'programme change'); // snapshot BEFORE anything changes
   progMigrate(p);
   const snap=p.stages.map(s=>({id:s.id,name:s.name,from:s.from,to:s.to}));
   const oldHrs=JSON.parse(JSON.stringify(p.weeklyHrs||{}));
@@ -12256,6 +12260,8 @@ async function pgApply(projId,edit,opts){
     });
   }
   if(p.endAuto&&b.end)p.end=b.end;
+  if(_ue&&(rebased||moveHours))_ue.hrs=JSON.stringify(oldHrs); // this edit moved booked hours, so Undo must put them back too
+  if(_ue&&!_ue.hrs&&_pgStateJSON(p)===_ue.j){ const _u=_pgUS(projId), _i=_u.undo.indexOf(_ue); if(_i>=0)_u.undo.splice(_i,1); _pgUndoSync(projId); } // nothing changed: no undo step
   clearTimeout(p._t);
   try{ await pushProj(p); if(rebased||moveHours)await pgPersistHours(p,oldHrs); }catch(e){ console.error('pgApply save',e); }
   renderProjDetail(p);
@@ -12309,7 +12315,7 @@ window.setPgMode=setPgMode;window.setPgFrom=setPgFrom;window.setPgWeeks=setPgWee
     const wi0=+inn[0].dataset.wi, wi1=+inn[inn.length-1].dataset.wi;
     const r=td.getBoundingClientRect();
     const edge=(+td.dataset.wi===wi1)&&(e.clientX>r.right-9);
-    const color=getComputedStyle(inn.find(c=>c.style.background.indexOf('gradient')<0)||inn[0]).backgroundColor;
+    let color=getComputedStyle(inn.find(c=>c.style.background.indexOf('gradient')<0)||inn[0]).backgroundColor; if(!color||/rgba\(0,\s*0,\s*0,\s*0\)|transparent/.test(color))color='rgba(100,116,139,.55)'; // overlap stripes have no flat colour: use a neutral drag colour
     g={pid,si,x0:e.clientX,cw:r.width||48,mode:edge?'resize':'move',cells,wi0,wi1,dw:0,color,bg:cells.map(c=>c.style.background)};
     e.preventDefault(); document.body.style.userSelect='none';
   },true);
@@ -12332,6 +12338,50 @@ window.setPgMode=setPgMode;window.setPgFrom=setPgFrom;window.setPgWeeks=setPgWee
     }
   },true);
 })();
+
+// ── Programme undo / redo ── (kept in memory per project for this browser session; every programme edit snapshots first)
+window._pgUndoSt=window._pgUndoSt||{};
+function _pgUS(pid){ return window._pgUndoSt[pid]||(window._pgUndoSt[pid]={undo:[],redo:[]}); }
+function _pgFindProj(pid){ return S.projects.find(x=>x.id===pid)||(S.proposals||[]).find(x=>x.id===pid); }
+function _pgStateJSON(p){ return JSON.stringify({stages:p.stages||[],start:p.start,end:p.end,endAuto:p.endAuto,noteRows:p.noteRows||[],programmes:p.programmes,bookStage:p.bookStage||{},bookProg:p.bookProg||{}}); }
+function _pgUndoSync(pid){
+  const u=_pgUS(pid), a=document.getElementById('pg-undo-'+pid), b=document.getElementById('pg-redo-'+pid);
+  if(a){ a.disabled=!u.undo.length; a.style.opacity=u.undo.length?'1':'.4'; a.title=u.undo.length?'Undo: '+u.undo[u.undo.length-1].label:'Nothing to undo'; }
+  if(b){ b.disabled=!u.redo.length; b.style.opacity=u.redo.length?'1':'.4'; b.title=u.redo.length?'Redo: '+u.redo[u.redo.length-1].label:'Nothing to redo'; }
+}
+function pgUndoPush(pid,label){
+  const p=_pgFindProj(pid); if(!p)return null;
+  const u=_pgUS(pid); const e={j:_pgStateJSON(p),hrs:null,label:label||'programme edit'};
+  u.undo.push(e); if(u.undo.length>40)u.undo.shift(); u.redo.length=0; _pgUndoSync(pid); return e;
+}
+async function pgUndoRun(pid,dir){
+  const p=_pgFindProj(pid); if(!p)return; const u=_pgUS(pid);
+  const src=dir<0?u.undo:u.redo, dst=dir<0?u.redo:u.undo;
+  const curJ=_pgStateJSON(p);
+  let e=src.pop(); while(e&&e.j===curJ&&!e.hrs)e=src.pop(); // skip entries that would change nothing
+  if(!e){ toast('Nothing to '+(dir<0?'undo':'redo')+'.'); _pgUndoSync(pid); return; }
+  const oldHrs=JSON.parse(JSON.stringify(p.weeklyHrs||{}));
+  dst.push({j:curJ,hrs:e.hrs?JSON.stringify(p.weeklyHrs||{}):null,label:e.label});
+  const o=JSON.parse(e.j);
+  p.stages=o.stages; p.start=o.start; p.end=o.end;
+  if(o.endAuto===undefined)delete p.endAuto; else p.endAuto=o.endAuto;
+  p.noteRows=o.noteRows;
+  if(o.programmes===undefined)delete p.programmes; else p.programmes=o.programmes;
+  p.bookStage=o.bookStage; p.bookProg=o.bookProg;
+  if(e.hrs)p.weeklyHrs=JSON.parse(e.hrs); // only when that edit had moved booked hours
+  clearTimeout(p._t);
+  try{ await pushProj(p); if(e.hrs)await pgPersistHours(p,oldHrs); }catch(err){ console.error('pgUndo save',err); }
+  renderProjDetail(p); _pgUndoSync(pid);
+  toast((dir<0?'\u21a9 Undone: ':'\u21aa Redone: ')+e.label);
+}
+window.pgUndoRun=pgUndoRun; window.pgUndoPush=pgUndoPush;
+// the programme edits that don't go through pgApply take their snapshot through this wrapper
+window.addEventListener('load',function(){
+  [['addProjProgramme',0,'add workstream'],['renameProjProgramme',0,'rename workstream'],['setProjProgrammeColor',0,'workstream colour'],['removeProjProgramme',0,'remove workstream'],
+   ['setStageProg',0,'change stage workstream'],['setProjStageColor',0,'stage colour'],['setProjStageNameCustom',0,'rename stage'],['handleStageSelect',0,'rename stage'],['stgDrop',1,'reorder stage']
+  ].forEach(function(a){ const f=window[a[0]]; if(typeof f!=='function')return;
+    window[a[0]]=function(){ try{ pgUndoPush(arguments[a[1]],a[2]); }catch(e){} return f.apply(this,arguments); }; });
+});
 
 function addProjStage(projId){
   const p=S.projects.find(x=>x.id===projId);if(!p)return;
@@ -12375,7 +12425,7 @@ function _startStageResize(ev,pid,si){
   function up(e){document.removeEventListener('mousemove',mv);document.removeEventListener('mouseup',up);document.body.style.cursor='';_saveStageNameW(pid,si,wrap.offsetWidth);}
   document.addEventListener('mousemove',mv);document.addEventListener('mouseup',up);
 }
-function _stageNameW(pid,si){try{var v=parseInt(localStorage.getItem(_stageNameKey(pid,si)));return (v&&v>=70&&v<=420)?v:150;}catch(e){return 150;}}
+function _stageNameW(pid,si){try{var v=parseInt(localStorage.getItem(_stageNameKey(pid,si)));return (v&&v>=70&&v<=420)?v:160;}catch(e){return 150;}}
 function _saveStageNameW(pid,si,w){try{if(w>=70&&w<=420)localStorage.setItem(_stageNameKey(pid,si),w);}catch(e){}}
 function setProjStageNameCustom(projId,si,val){
   const p=S.projects.find(x=>x.id===projId)||(S.proposals||[]).find(x=>x.id===projId);if(!p||!p.stages[si])return;
