@@ -1013,7 +1013,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.7 · 22 Nov 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.8 · 22 Nov 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1118,7 +1118,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.7 · 22 Nov 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.8 · 22 Nov 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -3748,6 +3748,7 @@ function toggleAllWeeks(id){
   const p=S.projects.find(x=>x.id===id)||((S.proposals||[]).find(x=>x.id===id)); if(p)renderProjDetail(p);
 }
 function wkLabel(d){return String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');}
+function wkDM(d){return String(d.getDate()).padStart(2,'0')+' '+['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()];} // week header: 09 Nov (same day-month style as the rest of the app)
 // Week number of the Monday-start week that contains d. The grid's week columns run Monday to Sunday,
 // so a stage ending on a Sunday must report the same week as the Monday before it (it used to roll
 // into the next week, which made back-to-back stages look like they overlapped).
@@ -7840,7 +7841,7 @@ function renderMEP(){
   const mepOnly=all.filter(e=>e.team!=='BIM');
   const bimOnly=all.filter(e=>e.team==='BIM');
   if(GRAIN==='week'&&grainData.weeks){
-    const wkLabels=grainData.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
+    const wkLabels=grainData.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${wkDM(wk)}</span>`);
     const wkCols=grainData.weeks.map((_,i)=>i);
     heatTable('t-mep-heat',sortByAvgUtil(mepOnly,grainData.util,wkCols),grainData.util,grainData.hrs,0,N,null,grainData.billUtil,wkLabels,grainData.weeks,activeDiscScope());
     heatTable('t-bim-heat',sortByAvgUtil(bimOnly,grainData.util,wkCols),grainData.util,grainData.hrs,0,N,null,grainData.billUtil,wkLabels,grainData.weeks);
@@ -8509,7 +8510,7 @@ function renderOffice(off,pcId){
     mkChart(`off-d-${cid}`,'doughnut',dcKeys,[{data:dcKeys.map(k=>dc[k]),backgroundColor:dcKeys.map(dcColOf),borderWidth:2,borderColor:'#fff'}],{plugins:{legend:{position:'right',labels:{font:{size:10},boxWidth:10}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_msf());
-      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
+      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${wkDM(wk)}</span>`);
       heatTable(`off-t-${cid}`,subMEP,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,activeDiscScope());
       heatTable(`off-t-bim-${cid}`,subBIM,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
     } else {
@@ -8592,7 +8593,7 @@ function renderDisc(disc,pcId){
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_dsf());
-      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
+      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${wkDM(wk)}</span>`);
       heatTable(`di-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,[disc]);
       heatTable(`di-egy-${cid}`,egy,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks,[disc]);
     } else {
@@ -8673,7 +8674,7 @@ function renderBIM(pcId){
     ],{y:{ticks:{callback:v=>v+'%'},min:0},plugins:{legend:{labels:{usePointStyle:true}}}});
     if(GRAIN==='week'){
       const wg=computeRangeWeekly(_dsf());
-      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${(wk.getMonth()+1)}/${wk.getDate()}</span>`);
+      const wkLabels=wg.weeks.map(wk=>`W${getISOWeek(wk)}<br><span style="font-size:8px;font-weight:400;">${wkDM(wk)}</span>`);
       heatTable(`bim-dxb-${cid}`,dxb,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
       heatTable(`bim-ind-${cid}`,ind,wg.util,wg.hrs,0,wg.NMON,null,wg.billUtil,wkLabels,wg.weeks);
     } else {
@@ -11601,7 +11602,7 @@ function renderProjDetail(p){
     // For header use the first stage's border colour as a strong band, or default
     const headerBg=isProg?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:'#1e3a5f';
     const _hm=_pg.bad.has(wi)?'box-shadow:inset 0 -4px 0 #dc2626;':(_pg.par.has(wi)?'box-shadow:inset 0 -4px 0 #7c3aed;':(_pg.gaps.includes(wi)?'box-shadow:inset 0 -4px 0 #f59e0b;':''));
-    return`<th title="${_pg.bad.has(wi)?'Unplanned overlap':(_pg.par.has(wi)?'Planned parallel overlap':(_pg.gaps.includes(wi)?'Gap: no stage this week':''))}" style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:${stageTextOn(headerBg)};${_hm}">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span></th>`;
+    return`<th title="${_pg.bad.has(wi)?'Unplanned overlap':(_pg.par.has(wi)?'Planned parallel overlap':(_pg.gaps.includes(wi)?'Gap: no stage this week':''))}" style="min-width:48px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:${headerBg};color:${stageTextOn(headerBg)};${_hm}">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkDM(w)}</span></th>`;
   }).join('');
 
   // Build stage rows HTML
@@ -13541,7 +13542,7 @@ function renderJseDemandPanel(projectFilter){
     </div>`).join('');
 
   // Weekly detail table
-  const wkHdrCells=visWeeks.map(w=>`<th style="font-size:9px;text-align:center;padding:3px 2px;min-width:36px;background:#0f172a;color:#fff;">W${wkNum(w)}<br><span style="opacity:.6;font-weight:400;">${wkLabel(w)}</span></th>`).join('');
+  const wkHdrCells=visWeeks.map(w=>`<th style="font-size:9px;text-align:center;padding:3px 2px;min-width:36px;background:#0f172a;color:#fff;">W${wkNum(w)}<br><span style="opacity:.6;font-weight:400;">${wkDM(w)}</span></th>`).join('');
 
   const tableRows=discs.filter(d=>discTotal[d]>0).map(d=>{
     const cells=visWeeks.map(w=>{
@@ -13753,7 +13754,7 @@ function renderProjCard(p, mode){
     const sIdx=stageMap.get(wi)||[];
     const _ovl=_pgw.bad.has(wi)?'#b91c1c':(_pgw.par.has(wi)?'#6d28d9':'');
     const headerBg=_ovl||((beyond&&!sIdx.length)?'#7c2d12':(_plain?'#1e3a5f':(sIdx.length===1?stageColor(sIdx[0],p.stages[sIdx[0]]).bdr:sIdx.length>1?'#475569':'#1e3a5f')));
-    return`<th title="${_pgw.bad.has(wi)?'Unplanned stage overlap \u2014 flag one as parallel or move it. ':(_pgw.par.has(wi)?'Planned parallel overlap. ':'')}${beyond?(sIdx.length?'After the contractual end date — stage runs late':'Beyond the project end date — hours kept here; clear them or extend the end date'):''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkLabel(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
+    return`<th title="${_pgw.bad.has(wi)?'Unplanned stage overlap \u2014 flag one as parallel or move it. ':(_pgw.par.has(wi)?'Planned parallel overlap. ':'')}${beyond?(sIdx.length?'After the contractual end date — stage runs late':'Beyond the project end date — hours kept here; clear them or extend the end date'):''}" style="position:sticky;top:24px;z-index:3;min-width:38px;width:38px;text-align:center;font-size:9px;background:${headerBg};color:${stageTextOn(headerBg)};padding:4px 2px;">W${wkNum(w)}<br><span style="opacity:.85;font-weight:400">${wkDM(w)}</span>${beyond?'<br><span style="font-size:7px;opacity:.95;">⚠ past end</span>':''}</th>`;
   }).join('');
 
   // ── Month header row HTML
@@ -16170,7 +16171,7 @@ function renderLeaveGrid(containerId, engList, hrsObj, setFn, title, accentColor
       <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
       <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
       <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
-      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkDM(w)}</span></th>`).join('')}
     </tr></thead>
     <tbody>`;
 
@@ -16409,7 +16410,7 @@ function renderLeaveGridCombined(containerId, mepList, bimList, hrsObj, setFn, y
       <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
       <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
       <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
-      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkDM(w)}</span></th>`).join('')}
     </tr></thead>
     <tbody>`;
 
@@ -16613,7 +16614,7 @@ function renderLeaveGridBIM(containerId, engList, hrsObj, setFn, accentColor, ye
       <th class="left" style="${lvSticky(2,'var(--lv-head)','color:#fff')}">Off</th>
       <th style="${lvSticky(3,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Total booked (${_uLbl})">Total</th>
       <th style="${lvSticky(4,'var(--lv-head-d)','color:#fff;text-align:center')}" title="Already taken \u2014 weeks fully passed (${_uLbl})">Taken</th>
-      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkLabel(w)}</span></th>`).join('')}
+      ${weeks.map(w=>`<th style="min-width:46px;text-align:center;font-size:9px;font-weight:700;padding:4px 2px;background:var(--lv-head);color:#fff">W${wkNum(w)}<br><span style="opacity:.7;font-weight:400">${wkDM(w)}</span></th>`).join('')}
     </tr></thead>
     <tbody>`;
 
