@@ -1013,7 +1013,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
       <a href="/pump.html" rel="noopener" style="color:#8e8e93;text-decoration:none;"
          onmouseover="this.style.color='#007aff'" onmouseout="this.style.color='#8e8e93'">Pump Calculator &rsaquo;</a>
     </div>
-    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.8 · 22 Nov 2026</div>
+    <div id="login-ver-inline" style="text-align:center;margin-top:14px;font-size:10px;color:#b0b0b5;letter-spacing:.02em;">v10.8.9 · 22 Nov 2026</div>
   </div>
 
   <!-- ── VIEW D: Sign Up ── -->
@@ -1118,7 +1118,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield;}
   <div style="padding:0 14px 6px;">
     <span id="sb-tenant-tag" style="display:none;"></span>
   </div>
-  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.8 · 22 Nov 2026</div>
+  <div id="sb-ver-line" style="padding:4px 14px 10px;font-size:9px;color:#b0b0b5;letter-spacing:.02em;">v10.8.9 · 22 Nov 2026</div>
 </div>
 
 <div class="main" role="main">
@@ -12376,6 +12376,23 @@ async function pgUndoRun(pid,dir){
   toast((dir<0?'\u21a9 Undone: ':'\u21aa Redone: ')+e.label);
 }
 window.pgUndoRun=pgUndoRun; window.pgUndoPush=pgUndoPush;
+// The workstream / stage pickers are popovers living outside the grid, so a re-render never refreshed their ticks:
+// tick "All" and the rows below kept their old state. After every pick, rebuild any open picker from the saved data.
+function _pgRefreshPickers(projId,key){
+  [['prog-pop',openProgPicker],['stage-pop',openStagePicker]].forEach(function(a){
+    const pop=document.getElementById(a[0]); if(!pop)return;
+    const left=parseFloat(pop.style.left)||0, top=parseFloat(pop.style.top)||0, sy=pop.scrollTop;
+    pop.remove();
+    a[1]({stopPropagation:function(){}, clientX:left, clientY:top-8}, projId, key);
+    const np=document.getElementById(a[0]); if(np){ np.style.left=left+'px'; np.style.top=top+'px'; np.scrollTop=sy; }
+  });
+}
+window.addEventListener('load',function(){
+  ['toggleBookProg','setBookProgsAll','toggleBookStage','setBookStagesAll'].forEach(function(n){
+    const f=window[n]; if(typeof f!=='function')return;
+    window[n]=function(){ const r=f.apply(this,arguments); try{ _pgRefreshPickers(arguments[0],arguments[1]); }catch(e){ console.error(e); } return r; };
+  });
+});
 // the programme edits that don't go through pgApply take their snapshot through this wrapper
 window.addEventListener('load',function(){
   [['addProjProgramme',0,'add workstream'],['renameProjProgramme',0,'rename workstream'],['setProjProgrammeColor',0,'workstream colour'],['removeProjProgramme',0,'remove workstream'],
