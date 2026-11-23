@@ -1676,7 +1676,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.72 · Build 2026.11.20.89";
+const BUILD_LABEL = "v1.118.76 · Build 2026.11.23.05";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -5958,6 +5958,7 @@ TOOL({key:"poolheat", group:"pool", title:"Swimming Pool Heating and Cooling Loa
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 const wsIsGas = p => !!p && p.wsService === "gas";
 const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
+const WS_GAS_CV = 93.1;   // MJ/m³ (LPG, workbook SYSTEM PARAMS): m³/h = kW × 3.6 ÷ 93.1
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : (w && w.fuelMode && w.fuelFl) ? v*w.fuelFl.rho/1000/WS_BAR : v/WS_BAR;
 const typeLbl = p => !p ? "" : p.type === "fls" ? flsTitle(p) : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : p.type === "storm" ? stormTitle(p) : p.type === "fuelp" ? fuelTitle(p) : p.type === "tool" ? toolTitle(p) : (p.type === "water" && wsIsStormNet(p)) ? "Stormwater Pipe Sizing" : (p.type === "water" && wsIsFuelNet(p)) ? "Fuel Oil Pipe Sizing" : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
@@ -7383,7 +7384,7 @@ function wsSchematicLarge(w, p, opt = {}) {
   const body = [], lab = [], dots = [];
   const f1 = (v, d = 1) => Number(v).toFixed(d);
   // level ticks (metres above the ground)
-  const ticks = [], tickInfo = []; { const zStep = 17.5; for (let z = Math.ceil(v0/zStep)*zStep; z <= v1 + 1e-6; z += zStep) { const y = Y(z); tickInfo.push({y, t:`${z.toFixed(1)} m`}); ticks.push(`<line x1="${LEFT - 60}" y1="${y.toFixed(1)}" x2="${W - 60}" y2="${y.toFixed(1)}" stroke="#eef1f6" stroke-width="1"/>` + T(LEFT - 66, y + 3, `${z.toFixed(1)} m`, {a:"end", s:9, f:"#8a94a6", w:2})); } }
+  const ticks = [], tickInfo = []; if (!opt.plan) { const zStep = 17.5; for (let z = Math.ceil(v0/zStep)*zStep; z <= v1 + 1e-6; z += zStep) { const y = Y(z); tickInfo.push({y, t:`${z.toFixed(1)} m`}); ticks.push(`<line x1="${LEFT - 60}" y1="${y.toFixed(1)}" x2="${W - 60}" y2="${y.toFixed(1)}" stroke="#eef1f6" stroke-width="1"/>` + T(LEFT - 66, y + 3, `${z.toFixed(1)} m`, {a:"end", s:9, f:"#8a94a6", w:2})); } }
   out.forEach(x => {
     const a = P[x.from], b = P[x.to]; if (!a || !b) return;
     const x0 = X(a.u), y0 = Y(a.v), x1 = X(b.u), y1 = Y(b.v), bad = !x.ok || x.noSize, col = bad ? "#d8332b" : wsPipeCol(w, x, p), sw = x.cls === "main" ? 5 : x.cls === "riser" ? 3.4 : 2.4;
@@ -7691,7 +7692,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const FK = wsFixKey(w, p), keyH = FK.rows.length ? FK.rows.length*16 + 52 : 0;
   const cbyW = opt.colorBy && WS_BANDS[opt.colorBy] ? (G ? 20 : 420) + wsCbyLegW(opt.colorBy, !!(w && w.gasMode)) + 20 : 0, W = Math.max(700, cbyW, Math.round(LEFT + maxC*CW + (G ? 330 : 260))), Ltop0 = TOP + (maxR - minR)*CH + 76, Ltop = Ltop0 + (keyH ? keyH + 4 : 0), H = Math.round(Ltop + 96);
   const LV = opt.levels && wsLvHas(opt.levels) ? opt.levels : null, lvG = G && LV ? wsLvGuides(LV) : null;
-  const zs = G && !lvG ? [...new Set(nodes.map(n => Math.round(Number(wsEdPt(nm0[n]).z)*100)/100))].sort((a, b) => a - b).slice(0, 60) : [];
+  const zs = G && !lvG && !opt.plan ? [...new Set(nodes.map(n => Math.round(Number(wsEdPt(nm0[n]).z)*100)/100))].sort((a, b) => a - b).slice(0, 60) : [];
   const gls = lvG ? lvG.map(g => ({y:Y(g.z), xa:g.x0 == null ? 0 : Math.max(0, X(g.x0) - 30), xb:g.x1 == null ? W : Math.min(W, X(g.x1) + 30), t:g.label, lv:true})).filter(g => g.xb > g.xa && g.y > TOP - 40 && g.y < Ltop0) : [];
   const guideSvg = zs.map(z => `<line x1="0" y1="${Y(z).toFixed(1)}" x2="${W}" y2="${Y(z).toFixed(1)}" stroke="#c3ccd8" stroke-dasharray="2 5"/><text x="6" y="${(Y(z) - 3).toFixed(1)}" font-size="9.5" style="font-size:9.5px!important" fill="#8a97a8">z ${z >= 0 ? "+" : "−"}${Math.abs(z).toFixed(2)}</text>`).join("")
     + gls.map(g => `<line x1="${g.xa.toFixed(1)}" y1="${g.y.toFixed(1)}" x2="${g.xb.toFixed(1)}" y2="${g.y.toFixed(1)}" stroke="#9fb3cc" stroke-dasharray="6 4"/><text x="${(g.xa + 6).toFixed(1)}" y="${(g.y - 3).toFixed(1)}" font-size="9.5" style="font-size:9.5px!important" fill="#5b7088">${sxEsc(g.t)}</text>`).join("");
@@ -8163,10 +8164,23 @@ function wsEdMoveNode(p, id, pt) {
   if (!wsEdPlaced(p)) return {error:"This network was typed in the table — press “Place the network on the canvas” first."};
   const nodes = (Array.isArray(p.wsNodes) ? p.wsNodes : []).map(n => n.id === id ? {...n, ...wsEdRound3(pt)} : n);
   if (!nodes.some(n => n.id === id)) return {error:`Node ${id} was not found.`};
-  const p2 = {...p, wsNodes:nodes}; p2.wsNet = wsEdNormalise(p2).wsNet;
+  // A node with no feeding pipe (a loose end of a group, or an isolated node) that is put on or next to another pipe joins it: that pipe is
+  // split at the node, so the group is fed from it. Nodes already fed, supplies and pipes downstream of the node are never joined (no loops).
+  let net0 = Array.isArray(p.wsNet) ? p.wsNet : [], joined = null;
+  const mv = nodes.find(n => n.id === id);
+  if (mv && wsHasXYZ(mv) && !mv.supply && !net0.some(s => s.to === id) && !(wsMarked(p).length === 0 && wsImplicitSupplies(p).length < 2 && wsImplicitSupplies(p).includes(id))) {
+    const nm = {}; nodes.forEach(n => { nm[n.id] = n; }); const down = new Set(wsDownstream(p, id)), P = wsEdPt(mv); let best = null;
+    net0.forEach(s => { if (s.from === id || s.to === id || down.has(s.from) || down.has(s.to)) return; const a = nm[s.from], b = nm[s.to]; if (!wsHasXYZ(a) || !wsHasXYZ(b)) return;
+      const r = wsEdSegNear(wsEdPt(a), wsEdPt(b), P); if (r.d <= 0.3 && r.t > 0.0001 && r.t < 0.9999 && (!best || r.d < best.r.d)) best = {s, r}; });
+    if (best) { const {s, r} = best, q = wsEdRound3(r.pt), sid = wsNextSec({...p, wsNet:net0}), k0 = net0.findIndex(x => x.id === s.id);
+      const first = {...s, to:id}, second = {...s, id:sid, from:id, eq:[], loss:""}; delete first.lenAuto; delete second.lenAuto;
+      net0 = net0.slice(); net0.splice(k0, 1, first, second); joined = s.id;
+      nodes.forEach((n, k) => { if (n.id === id) nodes[k] = {...n, x:q.x, y:q.y, z:q.z}; }); }
+  }
+  const p2 = {...p, wsNodes:nodes, wsNet:net0}; p2.wsNet = wsEdNormalise(p2).wsNet;
   const bad = wsEdNewErrors(p, p2); if (bad.length) return {error:bad[0].text};
   const g = wsEdNewGeom(p, p2); if (g.length) return {error:g[0]};
-  return {patch:{wsNodes:nodes, wsNet:p2.wsNet}};
+  return {patch:{wsNodes:nodes, wsNet:p2.wsNet}, joined};
 }
 // Delete a pipe or a node together with everything that hangs off it (its fixtures too); undo restores it. The supply node cannot be deleted.
 function wsEdDelete(p, kind, id, o) {
@@ -15066,7 +15080,9 @@ function GasBasis({pump, u, uu}) {
     <Seg label="Pressure basis > 75 mbar" value={pump.gasPBasis === "gauge" ? "gauge" : "abs"} onChange={v => u("gasPBasis", v)} options={[{value:"abs", label:"Absolute", title:"IGE/UP/2"}, {value:"gauge", label:"Gauge", title:"Legacy spreadsheet — slightly conservative"}]} />
     <Seg label="Pipe sizing" value={pump.gasSizing === "manual" ? "manual" : "auto"} onChange={v => u("gasSizing", v)} options={[{value:"auto", label:"Auto"}, {value:"manual", label:"Manual"}]} />
     <Seg label="Ring in one size" value={pump.gasRingOne === false ? "no" : "yes"} onChange={v => u("gasRingOne", v === "yes")} options={[{value:"yes", label:"Yes"}, {value:"no", label:"No"}]} />
-    <div style={{gridColumn:"1/-1"}} className="cfe">
+    <Seg label="Loads" value={pump.gasLoads === "direct" ? "direct" : "types"} onChange={v => u("gasLoads", v)} options={[{value:"types", label:"Fixtures / load types", title:"Place fixtures on nodes and size from the load types and diversity"}, {value:"direct", label:"Direct loads", title:"Type the flow on each node; no fixtures, load types or diversity"}]} />
+    <Seg label="Drawing view" value={wsGasView(pump)} onChange={v => u("gasView", v)} options={[{value:"plan", label:"Plan", title:"A flat site seen from above, like the site drawing"}, {value:"elev", label:"Elevation", title:"Side view with heights, for risers and level changes"}, {value:"both", label:"Both"}]} />
+    {pump.gasLoads !== "direct" && <div style={{gridColumn:"1/-1"}} className="cfe">
       <div className="lpg-ty gi-head"><span>Load type (placed with the Fixture tool / load schedule)</span><span>Peak (m³/h)</span><span>Basis</span><span>Diversity</span><span>Factor</span><span/></div>
       {types.map((t, i) => <div className="lpg-ty" key={i}>
         <input value={t.l} onChange={e => setType(i, {l:e.target.value})} />
@@ -15080,7 +15096,7 @@ function GasBasis({pump, u, uu}) {
       <div className="lpg-bands"><b>Diversity bands</b> (connections served → factor):
         {bands.map((b, i) => <span key={i}>{i === bands.length - 1 ? "above" : "≤"} {i === bands.length - 1 ? "" : <input type="number" value={b.upTo} onChange={e => setBand(i, {upTo:e.target.value})} />} → <input type="number" step="0.05" value={b.f} onChange={e => setBand(i, {f:e.target.value})} /></span>)}
       </div>
-    </div>
+    </div>}
   </>;
 }
 // an item made with the v1.66 / v1.67 LPG test builds: one click turns it into a normal gas pipe sizing item
@@ -15807,6 +15823,7 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           {!wsIsGas(pump) && !wsIsStormNet(pump) && !wsIsFuelNet(pump) && <label className="nc-f dl" title="Loading units typed straight onto this node — for a zone or riser whose fixtures are not listed"><span>Direct load</span><CommitInput type="number" cls="r" value={wsFin(selNode.luAdd) ? selNode.luAdd : ""} onCommit={v => setN(selNode.id, {luAdd:v})} placeholder="0" /><i>{unit}</i></label>}
           {wsIsDrain(pump) && !wsIsStormNet(pump) && <label className="nc-f dl" title="The symbol drawn at this node: a label on the drawing, with no effect on sizing"><span>Symbol</span><select value={selNode.sym || ""} onChange={e => { const v = e.target.value, has = nodesArr.some(n => n.id === selNode.id); edit({wsNodes: has ? nodesArr.map(n => { if (n.id !== selNode.id) return n; if (!v) { const {sym, ...rest} = n; return rest; } return {...n, sym:v}; }) : [...nodesArr, {id:selNode.id, x:"", y:"", z:"", ...(v ? {sym:v} : {})}]}); }}><option value="">none</option>{WS_SYMS.map(q => <option key={q.k} value={q.k}>{q.l}</option>)}</select></label>}
           {!wsIsStormNet(pump) && <label className="nc-f dl" title={wsIsFuelNet(pump) ? "Fuel drawn at this node in L/s — engine supply flow or day tank fill rate (100 L/h = 0.028 L/s)" : wsIsGas(pump) ? "A gas flow at this node in m³/h, already diversified — for a load not in the load types" : "A continuous flow, e.g. make-up water, in L/s"}><span>{wsIsFuelNet(pump) ? "Fuel flow" : "Flow"}</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>{QU}</i></label>}
+          {wsIsGas(pump) && <label className="nc-f dl" title={"Connected load in kW, converted at " + WS_GAS_CV + " MJ/m³ (m³/h = kW × 3.6 ÷ " + WS_GAS_CV + "). Same field as the flow: type either one."}><span>Load</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) && Number(selNode.qAdd) > 0 ? +(Number(selNode.qAdd) * WS_GAS_CV / 3.6).toFixed(2) : ""} onCommit={v => setN(selNode.id, {qAdd:(v === "" || v == null) ? "" : +(Number(v) * 3.6 / WS_GAS_CV).toFixed(4)})} placeholder="0" /><i>kW</i></label>}
           {!wsIsDrain(pump) && <label className="nc-f dl" title="Pressure required at this node. It applies to every load here, fixtures included, and can raise the requirement above what the fixtures need, never lower it (blank = what the fixtures or Setup give)"><span>Req. p</span><CommitInput type="number" cls="r" value={wsFin(selNode.reqP) ? selNode.reqP : ""} onCommit={v => setN(selNode.id, {reqP:v})} placeholder="default" /><i>{wsIsGas(pump) ? "mbar" : "m"}</i></label>}
           <span style={{flex:1}} />{wsEdPlaced(pump) && net.length > 0 && !wsSupplyIds(pump).includes(selNode.id) && <button type="button" className="nc-c" title="Make this node the supply: the pipes between the old supply and it are flipped" onClick={() => { const r = wsEdSetSupply(pump, selNode.id); if (r.error) flash(r.error); else edit(r.patch); }}>Make supply</button>}{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this node's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
         {selNode && fed && !wsIsStormNet(pump) && !wsIsFuelNet(pump) && <div className="nc-r3"><span className="nc-l">Demand</span><span className="nc-bu">{hasLoad(selNode.id) ? <><b>{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}</b> at this node</> : "No load at this node"}{fed.LU > (luAt[selNode.id] || 0) + 1e-9 ? <> · <b>{+fed.LU.toFixed(1)} {unit}</b> carried by {fed.id} (this node plus everything downstream)</> : null}{(() => { const rs = wsIsDrain(pump) ? null : wsEdReqSource(pump, w, selNode.id); return rs ? <> · needs <b>{rs.req.toFixed(1)} m</b> — {rs.text}</> : null; })()}</span></div>}
@@ -15906,7 +15923,7 @@ function wdFit(p, dim) {
   const pts = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(wsHasXYZ).map(n => wsEdProj(wsEdPt(n)));
   if (!pts.length) return {s:30, ox:70, oy:dim.h - 70};
   const us = pts.map(q => q.u), vs = pts.map(q => q.v), u0 = Math.min(...us), u1 = Math.max(...us), v0 = Math.min(...vs), v1 = Math.max(...vs), m = 70;
-  const s = Math.max(3, Math.min(90, Math.min((dim.w - 2*m)/Math.max(u1 - u0, 4), (dim.h - 2*m)/Math.max(v1 - v0, 4))));
+  const s = Math.max(0.1, Math.min(90, Math.min((dim.w - 2*m)/Math.max(u1 - u0, 4), (dim.h - 2*m)/Math.max(v1 - v0, 4))));
   return {s, ox:m + ((dim.w - 2*m) - (u1 - u0)*s)/2 - u0*s, oy:dim.h - m - ((dim.h - 2*m) - (v1 - v0)*s)/2 + v0*s};
 }
 // what the toolbar actions work on: a window / Shift selection, else the selected node, else the selected pipe and everything beyond it
@@ -15961,7 +15978,15 @@ function wsPlanLevels(L) {
     o.push({key:t.id + "|" + i, tower:t, idx:i, name:(wsLvMulti(L) ? t.name + " · " : "") + l.name, ffl:l.ffl, pipeZ:l.ffl + t.pipeH})));
   return o;
 }
+const WS_GAS_PLAN = {key:"site", all:true, tower:{id:"", levels:[]}, idx:0, name:"Site plan", ffl:0, pipeZ:0};   // gas networks are one flat site: the plan shows every node
+// a gas network whose nodes are all at one height is a flat site: it is read from above (Plan, and the schematic drawn like the plan)
+const wsGasFlat = p => { if (!wsIsGas(p)) return false; const z = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(wsHasXYZ).map(n => Number(n.z)); return !z.length || Math.max(...z) - Math.min(...z) < 0.005; };
+const wsGasView = p => { const v = p && p.gasView; return v === "plan" || v === "elev" || v === "both" ? v : wsGasFlat(p) ? "plan" : "both"; };   // Setup → Drawing view; unset = Plan for a flat site, both views otherwise
+const wsGasPlanMode = p => wsIsGas(p) && (wsGasView(p) === "plan" || (wsGasView(p) === "both" && wsGasFlat(p)));
+const wsSchW = (w, p) => wsGasPlanMode(p) && w ? {...w, pumpIn:wsSchPump(w.pumpIn || p)} : w;
+const wsSchPump = p => wsGasPlanMode(p) ? {...p, wsNodes:(Array.isArray(p.wsNodes) ? p.wsNodes : []).map(n => wsHasXYZ(n) ? {...n, x:Number(n.x), y:0, z:Number(n.y) || 0} : n), wsNotes:[]} : p;
 function wsPlanOn(L, lv, n) {
+  if (lv && lv.all) return !!n && wsHasXYZ(n);
   if (!lv || !n || !wsHasXYZ(n)) return false; const i = wsLvOf(L, {...wsEdPt(n), tower:n.tower});
   return !!(i && i.level && i.tower.id === lv.tower.id && i.idx === lv.idx);
 }
@@ -16010,7 +16035,7 @@ function wsPlanMoveFloor(p, L, lv, ids, key) {
   return {patch:{wsNodes, wsFix, wsNet}, msg:{ok:!cut.length, text:`Moved ${set.size} node${set.size > 1 ? "s" : ""} to ${tgt.name} (${dz >= 0 ? "+" : "−"}${Math.abs(dz).toFixed(2)} m).` + (cut.length ? ` ${cut.join(", ")} now run${cut.length > 1 ? "" : "s"} between floors — check ${cut.length > 1 ? "them" : "it"} in Riser view.` : " Ctrl+Z undoes.")}};
 }
 function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
-  const lvs = wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
+  const gasSite = wsIsGas(pump), lvs = gasSite ? [WS_GAS_PLAN] : wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
   const [zOff, setZOff] = useState({}), [msg, setMsg] = useState(null);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(null), 7000); return () => clearTimeout(t); }, [msg]);
   const vp = useMemo(() => lv ? wsPlanVirt(pump, lvls, lv) : null, [pump, lvls, lv && lv.key]);
@@ -16021,10 +16046,10 @@ function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
   const onFloor = (ids, key) => { const r = wsPlanMoveFloor(pump, lvls, lv, ids, key); setMsg(r.msg); if (r.patch) { edit(r.patch); setPlan(key); } };
   return <div style={{display:"flex", flexDirection:"column", flex:"1 1 auto", minHeight:0}}>
     <div className="wd-bar" style={{background:"#f4f8ff"}}>
-      <label className="nc-l" title="The floor shown from above">Floor<select value={lv.key} onChange={e => setPlan(e.target.value)}>{lvs.map(l => <option key={l.key} value={l.key}>{l.name} · FFL {wsLvSigned(l.ffl)}</option>)}</select></label>
-      <label className="nc-l" title="Height above this floor's FFL of a node placed on empty canvas. A pipe drawn from an existing node keeps that node's height.">New nodes at FFL +<input type="number" step="0.1" value={zOff[lv.key] ?? ""} placeholder={(lv.pipeZ - lv.ffl).toFixed(2)} onChange={e => setZOff(o => ({...o, [lv.key]:e.target.value}))} style={{width:54}} /> m</label>
+      {gasSite ? <b style={{fontSize:12}} title="Seen from above: x across, y up the page. Height (z) is kept on every node and is not changed here.">Site plan</b> : <label className="nc-l" title="The floor shown from above">Floor<select value={lv.key} onChange={e => setPlan(e.target.value)}>{lvs.map(l => <option key={l.key} value={l.key}>{l.name} · FFL {wsLvSigned(l.ffl)}</option>)}</select></label>}
+      {!gasSite && <label className="nc-l" title="Height above this floor's FFL of a node placed on empty canvas. A pipe drawn from an existing node keeps that node's height.">New nodes at FFL +<input type="number" step="0.1" value={zOff[lv.key] ?? ""} placeholder={(lv.pipeZ - lv.ffl).toFixed(2)} onChange={e => setZOff(o => ({...o, [lv.key]:e.target.value}))} style={{width:54}} /> m</label>}
       {msg && <span style={{fontSize:11.5, fontWeight:700, color:msg.ok ? "#1b6b3a" : "#b91c1c"}}>{msg.text}</span>}
-      <span style={{fontSize:11.5, color:"#6e6e73"}}>{nOn ? `${nOn} node${nOn > 1 ? "s" : ""} on this floor` : "Nothing on this floor yet"} · risers are drawn in Riser view; connect branches to the riser node on this floor</span>
+      <span style={{fontSize:11.5, color:"#6e6e73"}}>{gasSite ? `${nOn} node${nOn === 1 ? "" : "s"} · plan view: x across, y up the page · heights are kept` : (nOn ? `${nOn} node${nOn > 1 ? "s" : ""} on this floor` : "Nothing on this floor yet") + " · risers are drawn in Riser view; connect branches to the riser node on this floor"}</span>
     </div>
     <WsDraw key={"plan" + lv.key} {...rest} pump={vp} calcPump={pump} edit={vEdit} lvls={{towers:[]}} plan={lv.key} floors={lvs} onFloor={onFloor} />
   </div>;
@@ -16176,7 +16201,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
     return () => { window.removeEventListener("keydown", down); window.removeEventListener("keyup", up); };
   }, []);
   useEffect(() => { const el = box.current; if (!el) return;
-    const f = e => { e.preventDefault(); touched.current = true; const st = R.current, r = el.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, k = Math.exp(-e.deltaY*0.0015), s2 = Math.max(0.5, Math.min(5000, st.V.s*k)), u = (px - st.V.ox)/st.V.s, v = (st.V.oy - py)/st.V.s; setView({s:s2, ox:px - u*s2, oy:py + v*s2}); };
+    const f = e => { e.preventDefault(); touched.current = true; const st = R.current, r = el.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, k = Math.exp(-e.deltaY*0.0015), s2 = Math.max(0.1, Math.min(5000, st.V.s*k)), u = (px - st.V.ox)/st.V.s, v = (st.V.oy - py)/st.V.s; setView({s:s2, ox:px - u*s2, oy:py + v*s2}); };
     el.addEventListener("wheel", f, {passive:false}); return () => el.removeEventListener("wheel", f); }, []);
   useLayoutEffect(() => { const el = box.current; if (!el) return;
     let top0 = null;
@@ -16408,7 +16433,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   return (
     <div className="wd">
       <div className="wd-bar">
-        {WD_TOOLS.filter(t => !(t[0] === "fixture" && (wsIsStormNet(pump) || wsIsFuelNet(pump))) && !(t[0] === "symbol" && !(water && water.drainMode)) && !(plan && (t[0] === "riser" || t[0] === "text"))).map(tbtn)}
+        {WD_TOOLS.filter(t => !(t[0] === "fixture" && (wsIsStormNet(pump) || wsIsFuelNet(pump) || (wsIsGas(pump) && pump.gasLoads === "direct"))) && !(t[0] === "symbol" && !(water && water.drainMode)) && !(plan && (t[0] === "riser" || t[0] === "text"))).map(tbtn)}
         <button type="button" className={"nc-t" + (tool === "paste" ? " on" : "")} disabled={locked || !placed || !WS_CLIP} onClick={startPaste} title={WS_CLIP ? `Paste ${wsEdClipText(WS_CLIP)} (Ctrl+V)` : "Nothing copied yet — select a group and press Ctrl+C"} data-tick={clipTick}><span style={{fontSize:14}}>⎘</span>Paste<kbd>Ctrl V</kbd></button>
         <span className="nc-sep" />
         <button type="button" className={"nc-c" + (ortho ? " on" : "")} onClick={() => setOrtho(!ortho)} title="Ortho: pipes run exactly along x or z (F8)">Ortho <kbd>F8</kbd></button>
@@ -16453,7 +16478,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
             return <image key={"ul" + u.id} href={c.url} x={X(u.u)} y={Y(u.v + h)} width={Math.max(1, u.w*V.s)} height={Math.max(1, h*V.s)} opacity={Number(u.op) > 0 ? Number(u.op) : 0.45} preserveAspectRatio="none" style={{pointerEvents:"none"}} />; })}
           {gl}
           {lvG && lvG.map((g, k) => { const xa = g.x0 == null ? 0 : Math.max(0, X(g.x0)), xb = g.x1 == null ? dim.w : Math.min(dim.w, X(g.x1)), y = Y(g.z); if (xb <= xa || y < -20 || y > dim.h + 20) return null; return <g key={"lv" + k}><line x1={xa} y1={y} x2={xb} y2={y} stroke="#9fb3cc" strokeDasharray="6 4" /><text x={xa + 6} y={y - 3} className="wd-z" style={{fill:"#5b7088"}}>{g.label}</text></g>; })}
-          {levels.map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
+          {(plan === "site" ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
           {pipeEls}{(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "stack") : []).map(v => { const a = pos(v.node); if (!a) return null; const b = {...a, z:a.z + v.len}, [x1, y1] = PP(a), [x2, y2] = PP(b), rv = water.drain.vents.find(q => q.id === "VR-" + v.id.slice(3)), left = !!rv && rv.off > 0;
             return <g key={v.id}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#7c3aed" strokeWidth="3" strokeDasharray="5 4" strokeLinecap="round" /><circle cx={x2} cy={y2} r="3.5" fill="#fff" stroke="#7c3aed" strokeWidth="1.6" /><text x={left ? x2 - 7 : x2 + 7} y={y2 + 3} textAnchor={left ? "end" : "start"} className="wd-t" fill="#7c3aed">{`VENT DN${v.dn}`}</text></g>; })}
           {(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "riser") : []).map(v => { const a0 = pos(v.base), a1 = pos(v.top); if (!a0 || !a1) return null; const P0 = {x:a0.x + v.off, y:a0.y, z:a0.z}, P1 = {x:a1.x + v.off, y:a1.y, z:v.z1}, T = {x:a1.x, y:a1.y, z:v.z1}, [x0, y0] = PP(P0), [x1, y1] = PP(P1), [tx, ty] = PP(T), VC = "#a855f7";
@@ -16499,7 +16524,8 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
 function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, locked, onDetail, blocks, setBlocks, lvls, stale, onCalc, projName}) {
   const [big, setBig] = useState(false);
   const [vw0, setVwS] = useState(() => { try { const v = localStorage.getItem("mep_ws_view"); return v === "sch" || v === "plan" ? v : "draw"; } catch(e) { return "draw"; } });
-  const planOK = pump && pump.type === "water" && !pump.wsService && !wsIsGas(pump), vw = vw0 === "plan" && !planOK ? "draw" : vw0;
+  const planOK = !!pump && pump.type === "water" && (!pump.wsService || wsIsGas(pump)), gasV = wsIsGas(pump) ? wsGasView(pump) : "", gasFlat = wsGasPlanMode(pump), elevHide = gasV === "plan", planHide = gasV === "elev";
+  const vw = vw0 === "plan" && (!planOK || planHide) ? "draw" : vw0 === "draw" && elevHide ? "plan" : vw0;
   const [plan, setPlan] = useState("");
   const setVw = v => { setVwS(v); setBig(false); try { localStorage.setItem("mep_ws_view", v); } catch(e) {} };
   const [note, setNote] = useState(null);
@@ -16512,11 +16538,11 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   const setLbl = v => { setLblS(v); try { localStorage.setItem("mep_ws_lbl", v); } catch(e) {} };
   const [rlbl, setRlblS] = useState(() => { try { const v = localStorage.getItem("mep_wd_rlbl"); return WD_RLBL.some(q => q[0] === v) ? v : "flow"; } catch(e) { return "flow"; } });
   const setRlbl = v => { setRlblS(v); try { localStorage.setItem("mep_wd_rlbl", v); } catch(e) {} };
-  const sch = useMemo(() => (w && vw === "sch") ? wsSchematic(w, pump, {sel, levels:lvls, colorBy:cby, labels:lbl}) : null, [w, pump, vw, sel && sel.kind, sel && sel.id, lvls, cby, lbl]);
+  const sch = useMemo(() => (w && vw === "sch") ? wsSchematic(wsSchW(w, pump), pump, {sel, levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat}) : null, [w, pump, vw, sel && sel.kind, sel && sel.id, lvls, cby, lbl]);
   // v1.78.0 — Export PDF of the schematic
   const [pdfOpen, setPdfOpen] = useState(false), [pdfOpt, setPdfOptS] = useState(() => { try { const q = JSON.parse(localStorage.getItem("mep_ws_pdf") || "{}"); return {paper:WS_PDF_PAPER[q.paper] ? q.paper : "A3", size:WS_PDF_SIZE[q.size] ? q.size : "normal", key:q.key !== false}; } catch(e) { return {paper:"A3", size:"normal", key:true}; } });
   const setPdfOpt = o => { setPdfOptS(o); try { localStorage.setItem("mep_ws_pdf", JSON.stringify(o)); } catch(e) {} };
-  const pdfSch = useMemo(() => (pdfOpen && w && !(res && res.error)) ? wsSchematic(w, pump, {levels:lvls, colorBy:cby, labels:lbl}) : null, [pdfOpen, w, pump, lvls, cby, lbl]);
+  const pdfSch = useMemo(() => (pdfOpen && w && !(res && res.error)) ? wsSchematic(wsSchW(w, pump), pump, {levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat}) : null, [pdfOpen, w, pump, lvls, cby, lbl]);
   const pdfPlan = useMemo(() => pdfSch ? wsPdfPlan(pdfSch, pdfOpt) : null, [pdfSch, pdfOpt.paper, pdfOpt.size, pdfOpt.key]);
   const makePdf = () => { if (!pdfSch || !pdfPlan) return; const dm = w && w.drainMode, big0 = !!pdfSch.parts;
     const flow = dm && w.finalNets && w.finalNets.length ? `Design flow at the final connection ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLUFinal).toFixed(1)}` : dm ? `Design flow ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLU).toFixed(1)}` : "";
@@ -16533,7 +16559,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   return (
     <div className="ws-pane">
       <div className="ws-pane-head">
-        <div className="ws-seg2" role="tablist" aria-label="Drawing view"><button type="button" className={vw === "draw" ? "on" : ""} onClick={() => setVw("draw")} title="Draw the network — the canvas is the main input">{planOK ? "Riser" : "Draw"}</button>{planOK && <button type="button" className={vw === "plan" ? "on" : ""} onClick={() => setVw("plan")} title="One floor seen from above — draw the branches to the fixtures over the floor plan PDF">Plan</button>}<button type="button" className={vw === "sch" ? "on" : ""} onClick={() => setVw("sch")} title="The calculated network schematic">Schematic</button></div>
+        <div className="ws-seg2" role="tablist" aria-label="Drawing view">{!elevHide && <button type="button" className={vw === "draw" ? "on" : ""} onClick={() => setVw("draw")} title="Draw the network — the canvas is the main input">{wsIsGas(pump) ? "Elevation" : planOK ? "Riser" : "Draw"}</button>}{planOK && !planHide && <button type="button" className={vw === "plan" ? "on" : ""} onClick={() => setVw("plan")} title={wsIsGas(pump) ? "The network seen from above, like the site drawing — heights are kept" : "One floor seen from above — draw the branches to the fixtures over the floor plan PDF"}>Plan</button>}<button type="button" className={vw === "sch" ? "on" : ""} onClick={() => setVw("sch")} title="The calculated network schematic">Schematic</button></div>
         {vw !== "sch" && w && <label className="nc-l" title="What each pipe label shows on the drawing once calculated">Labels<select value={rlbl} onChange={e => setRlbl(e.target.value)}>{WD_RLBL.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>}
         <label className="nc-l" title="Colour the pipes by class, or by their result">Colour<select value={cby} onChange={e => setCby(e.target.value)}>{(w && w.drainMode ? WS_CBY_DRAIN : WS_CBY).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
         {w && w.drainMode && w.out && w.out.length > WS_LARGE && <label className="nc-l" title="What is written on each pipe of the overview: the full calculation (ΣDU, K, flow, DN), flow and DN only, or nothing">Labels<select value={lbl} onChange={e => setLbl(e.target.value)}><option value="full">Full calculation</option><option value="flow">Flow · DN</option><option value="off">Off</option></select></label>}
