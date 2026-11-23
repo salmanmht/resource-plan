@@ -968,7 +968,7 @@
   .ws-pane-sch{display:flex;flex-direction:column;overflow:hidden}
   .ws-pane-body .live-calc{position:static!important;box-shadow:none!important;border:0!important}.ws-pane-body .live-calc>div:last-child{max-height:none!important}
   .ws-viewer{position:relative;overflow:hidden;border:1px solid #ececf0;border-radius:10px;background:#fff;cursor:default;touch-action:none;user-select:none}.ws-viewer.hand,.ws-viewer.pan-ready{cursor:grab}.ws-viewer.grab{cursor:grabbing}.ws-viewer-tools button:first-child{font-size:14px}.ws-viewer-tools button:first-child:focus,.ws-viewer-tools button.on{border-color:#007aff;color:#007aff;background:#e8f0fe}
-  .ws-viewer-svg{position:absolute;inset:0}.ws-viewer-svg svg{width:100%;height:100%;display:block}
+  .ws-viewer-svg svg.nolbl .hl{display:none}.ws-viewer-svg svg.thinfix *{vector-effect:non-scaling-stroke}.ws-viewer-svg svg.thinfix .sp-main{stroke-width:2.4px}.ws-viewer-svg svg.thinfix .sp-riser{stroke-width:1.8px}.ws-viewer-svg svg.thinfix .sp-branch{stroke-width:1.4px}.ws-viewer-svg svg.thinfix .sg{stroke-width:7px}.ws-viewer-svg{position:absolute;inset:0}.ws-viewer-svg svg{width:100%;height:100%;display:block}
   .ws-viewer-tools{position:absolute;right:10px;top:10px;display:flex;gap:4px;z-index:2}
   .ws-viewer-tools button{min-width:30px;height:28px;padding:0 9px;border:1px solid #d2d2d7;background:rgba(255,255,255,.95);border-radius:8px;font-size:12px;font-weight:700;color:#424245;cursor:pointer;box-shadow:0 1px 3px rgba(0,0,0,.08)}.ws-viewer-tools button:hover{border-color:#007aff;color:#007aff}
   .ws-viewer-hint{position:absolute;left:10px;bottom:8px;font-size:10px;color:#86868b;background:rgba(255,255,255,.85);padding:2px 7px;border-radius:6px;pointer-events:none}
@@ -1676,7 +1676,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.118.76 · Build 2026.11.23.05";
+const BUILD_LABEL = "v1.118.84 · Build 2026.11.23.13";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -2395,7 +2395,7 @@ function calcIsStale(p) { if (!calcKeyed(p) || CALC.mode === "auto") return fals
 function calcNow(p) { if (calcKeyed(p)) CALC.snap[p.id] = p; }
 function calcReset() { CALC.snap = {}; CALC.res = {}; }
 // what undo / redo in Pipe Sizing covers: the network and every Setup value that changes the result
-const WS_SNAP_KEYS = ["drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc", "wsSvcCol"];
+const WS_SNAP_KEYS = ["gasQUnit", "drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc", "wsSvcCol"];
 function wsSnapOf(c) { const o = {}; WS_SNAP_KEYS.forEach(k => { o[k] = c[k]; }); o.wsNet = c.wsNet || []; o.wsNodes = c.wsNodes || []; o.wsFix = c.wsFix || []; o.wsNotes = c.wsNotes || []; return o; }
 function safeCalculate(p) {
   const src = calcSnapOf(p), keyed = calcKeyed(p) && CALC.mode === "manual";
@@ -5957,8 +5957,13 @@ TOOL({key:"poolheat", group:"pool", title:"Swimming Pool Heating and Cooling Loa
 // the unit helpers wsQU / wsPU give m³/h and mbar instead of L/s and m.
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 const wsIsGas = p => !!p && p.wsService === "gas";
-const wsQU = w => (w && w.gasMode) ? "m³/h" : "L/s";
-const WS_GAS_CV = 93.1;   // MJ/m³ (LPG, workbook SYSTEM PARAMS): m³/h = kW × 3.6 ÷ 93.1
+const WS_GAS_CV_ = 93.1;
+const WS_GAS_CV = WS_GAS_CV_;   // MJ/m³ (LPG, workbook SYSTEM PARAMS): m³/h = kW × 3.6 ÷ 93.1
+const WS_GAS_KG = 45.98;   // MJ/kg (LPG): kg/h = m³/h × 93.1 ÷ 45.98
+const WS_QUNITS = {m3h:["m³/h", 1], kgh:["kg/h", WS_GAS_CV_ / WS_GAS_KG], kw:["kW", WS_GAS_CV_ / 3.6], ls:["L/s", 1 / 3.6]};
+const wsQK = w => (w && w.gasMode && w.pumpIn && WS_QUNITS[w.pumpIn.gasQUnit]) || WS_QUNITS.m3h;
+const wsQU = w => (w && w.gasMode) ? wsQK(w)[0] : "L/s";
+const wsQV = (w, v) => (w && w.gasMode) ? Number(v) * wsQK(w)[1] : v;
 const wsPU = w => (w && w.gasMode) ? "mbar" : "m";
 const wsBarOf = (w, v) => (w && w.gasMode) ? v/1000 : (w && w.fuelMode && w.fuelFl) ? v*w.fuelFl.rho/1000/WS_BAR : v/WS_BAR;
 const typeLbl = p => !p ? "" : p.type === "fls" ? flsTitle(p) : p.type === "ca" ? caTitle(p) : p.type === "foam" ? foamTitle(p) : p.type === "storm" ? stormTitle(p) : p.type === "fuelp" ? fuelTitle(p) : p.type === "tool" ? toolTitle(p) : (p.type === "water" && wsIsStormNet(p)) ? "Stormwater Pipe Sizing" : (p.type === "water" && wsIsFuelNet(p)) ? "Fuel Oil Pipe Sizing" : (p.type === "water" && wsIsDrain(p)) ? "Drainage Pipe Sizing" : (p.type === "water" && wsIsGas(p)) ? "Gas Pipe Sizing" : TYPE_LBL[p.type];
@@ -6062,7 +6067,7 @@ function calculateGas(p) {
   // ── demand
   const conv = Number(p.gasConv), P0 = Number(p.gasSupply), Pmin = Number(p.gasMinP), margin = num(p.gasMargin, 0)/100, fitPc = num(p.fittingsPct, 0);
   const absBasis = p.gasPBasis !== "gauge", auto = p.gasSizing !== "manual", MP = P0 > 75, off = absBasis ? 1.01325 : 0;
-  if (P0 > 2000) return calcError([`Supply pressure ${P0} mbar is above 2 bar — outside the IGE/UP/2 low / medium pressure range the Pole equations are valid for (flow can approach critical / choked conditions). Use a compressible-flow method for this section.`]);
+  if (P0 > 5000) return calcError([`Supply pressure ${P0} mbar is above 5 bar. The calculator covers up to 5 bar; above that use a dedicated high-pressure method (IGE/TD/1).`]);
   const unitQ = t => Number(t.q)/(t.unit === "ng" ? conv : 1);
   const nodeCnt = {}, nodeDir = {}, nodeN = {};
   fix.forEach(f => { const n = Number(f.qty) || 0; if (!(n > 0)) return; const c = nodeCnt[f.node] = nodeCnt[f.node] || {}; c[f.fixture] = (c[f.fixture] || 0) + n; nodeN[f.node] = (nodeN[f.node] || 0) + n; });
@@ -6186,6 +6191,7 @@ function calculateGas(p) {
   const path = []; if (crit) { let k = crit.sec; const sk = new Set(); while (k >= 0 && !sk.has(k)) { sk.add(k); path.unshift(k); k = out[k].parent; } }
   const nodeS = {...E.PS}, nodeZ = {}, hgl = {}; allN.forEach(n => { nodeZ[n] = zOf(n); hgl[n] = E.P[n]; });
   const issues = [], I = (sev, code, text, kind, id) => issues.push({sev, code, text, kind:kind || null, id:id == null ? null : id});
+  if (P0 > 2000) I("warn", "highP", `Supply pressure ${P0} mbar is above 2 bar. The Pole equation used here (IGE/UP/2) is only validated up to 2 bar, so these sizes are indicative. Check them against a compressible-flow method (IGE/TD/1 or Colebrook-White) before issue. LPG vapour at this pressure may also condense in cold ground; confirm the dew point of the mix.`);
   if (!E.conv) I("warn", "ring", `The ring flows did not fully converge (${E.it} iterations) — check for a pipe with an extreme size or length.`);
   out.forEach(x => { if (!Number.isFinite(x.Pto) || !Number.isFinite(x.Pfrom)) I("fail", "lost", `${x.id}: pressure is fully lost — the pipe is far too small for ${x.Q.toFixed(1)} m³/h.`, "sec", x.id);
     else { if (!x.lossOk) I("fail", "stage", `${x.id}: ${x.cls === "main" ? "main / ring" : "riser / branch"} loss ${x.stageLoss.toFixed(1)} mbar (${x.stagePct.toFixed(1)} %) is above the allowable ${x.allow.toFixed(1)} mbar.`, "sec", x.id);
@@ -7576,7 +7582,7 @@ function wsSchematic(w, p, opt = {}) {
 const WD_RLBL = [["ref", "Ref + length"], ["size", "Size"], ["flow", "Size + flow"], ["full", "Full result"]];
 function wdResTxt(w, mode) {
   if (!w || !w.out || !mode || mode === "ref") return null; const o = {}, f = (v, d) => Number.isFinite(Number(v)) ? Number(v).toFixed(d) : "—";
-  w.out.forEach(x => { if (!x || !x.pipe) return; const dn = (w.drainMode ? "DN" : "Ø") + x.pipe.od, q = x.Qd > 0 ? `${f(x.Qd, 2)} ${wsQU(w)}` : "no flow";
+  w.out.forEach(x => { if (!x || !x.pipe) return; const dn = (w.drainMode ? "DN" : "Ø") + x.pipe.od, q = x.Qd > 0 ? `${f(wsQV(w, x.Qd), 2)} ${wsQU(w)}` : "no flow";
     const short = `${x.id} · ${dn}`, fl = `${short} · ${q}${x.Qd > 0 ? " · " + f(x.v, 2) + " m/s" : ""}`;
     o[x.id] = mode === "size" ? short : mode === "flow" ? fl : `${fl}${!w.drainMode && x.Qd > 0 ? " · " + f(x.grad, 0) + " Pa/m" : ""}${!w.drainMode && Number.isFinite(x.Pto) ? " · P " + f(x.Pto, 1) + " " + wsPU(w) : ""}`;
     if (mode === "full") o[x.id + "~"] = fl; else if (mode === "flow") o[x.id + "~"] = short; });
@@ -7705,7 +7711,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   Object.entries(w.directAt || {}).forEach(([n, d]) => { const a = fixAt[n] = fixAt[n] || {lu:0, g:{}}; a.lu += d.lu; a.direct = d; });
   const press = {}; rootsL.forEach(r => { press[r.root] = r.P0; }); out.forEach(x => { press[x.to] = x.Pto; });
   const clsCol = k => C[k] || C.ink;
-  const T = (x, y, s, o = {}) => `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}" style="font-size:${o.s || 11}px!important;${o.halo === false ? "" : "paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round"}"${o.b ? ' font-weight="700"' : ""} fill="${o.f || C.ink}">${sxEsc(s)}</text>`;
+  const T = (x, y, s, o = {}) => `<text x="${x.toFixed(1)}" y="${y.toFixed(1)}"${o.a ? ` text-anchor="${o.a}"` : ""} font-size="${o.s || 11}"${o.halo === false ? "" : ' class="hl"'} style="font-size:${o.s || 11}px!important;${o.halo === false ? "" : "paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round"}"${o.b ? ' font-weight="700"' : ""} fill="${o.f || C.ink}">${sxEsc(s)}</text>`;
   const groups = [], nodeSvg = [], tagSvg = [], jobs = [], cardJobs = [];
   out.forEach(x => {
     const [px, py] = PXY[x.from], [cx, cy] = PXY[x.to];
@@ -7716,13 +7722,13 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const bad = !x.ok || x.noSize, [s0, s1] = real;
     const len = Math.hypot(s1[0]-s0[0], s1[1]-s0[1]) || 1, ux = (s1[0]-s0[0])/len, uy = (s1[1]-s0[1])/len, mx = (s0[0]+s1[0])/2, my = (s0[1]+s1[1])/2;
     const fdx = w.drainMode ? -1 : 1, dux = ux*fdx, duy = uy*fdx, arr = x.ori === "up" ? (w.drainMode ? "↓" : "↑") : x.ori === "down" ? (w.drainMode ? "↑" : "↓") : ((cx < px) !== !!w.drainMode ? "←" : "→"), rb = opt.colorBy && opt.colorBy !== "class" ? wsResBand(w, x, opt.colorBy, p.maxFixP) : null, col = rb ? rb.c : (bad ? C.bad : wsPipeCol(w, x, p));
-    const l1 = w.drainMode ? `${x.id} · ${x.cd.l} · DN${x.pipe.od} (ID ${x.pipe.id})` : `${x.id} · ${wsClsLabel(x.cls)} · ${x.pipe.od} mm (ID ${x.pipe.id})`, l2 = w.drainMode ? `Σ ${lu1(x.LU)} DU · ${x.Qd.toFixed(2)} L/s · ${x.cls === "main" ? (x.dr.fill*100).toFixed(0) + " % full" : (x.dr.util*100).toFixed(0) + " % of " + x.dr.cap.toFixed(1)}` : `Σ ${lu1(x.LU)} ${unit} · ${x.Qd.toFixed(2)} ${wsQU(w)}${w.gasMode ? " · " + x.Pto.toFixed(1) + " mbar" : ""}`, l3 = w.drainMode ? `${x.dr.grad > 0 ? drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${lu1(x.L)} m ${arr}${bad ? "  ⚠ REVIEW" : ""}` : `${x.v.toFixed(2)} m/s · ${lu1(x.L)} m ${arr} · ${Math.abs(x.dz) < 0.005 ? "level" : (x.dz > 0 ? "rise +" : "drop −") + Math.abs(x.dz).toFixed(1) + " m"}${bad ? "  ⚠ REVIEW" : ""}`;
-    let s = `<g data-sec="${sxEsc(x.id)}"><title>${sxEsc(`${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\n${w.drainMode ? "DN" + x.pipe.od + " (ID " + x.pipe.id + " mm)" : x.pipe.od + " mm OD / " + x.pipe.id + " mm ID"}\nCumulative ${lu1(x.LU)} ${unit} · ${x.N} fixtures · ${x.Qd.toFixed(3)} ${wsQU(w)}${w.drainMode ? `\n${x.dr.grad > 0 ? "Gradient " + drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${(x.dr.util*100).toFixed(0)} % of capacity (${x.dr.cap.toFixed(2)} L/s)\nLength ${lu1(x.L)} m` : `\nVelocity ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\nLength ${lu1(x.L)} m · pressure at ${x.to}: ${x.Pto.toFixed(1)} ${wsPU(w)}`}${bad ? "\nREVIEW: exceeds the limit or no size available" : ""}`)}</title>`;
+    const l1 = w.drainMode ? `${x.id} · ${x.cd.l} · DN${x.pipe.od} (ID ${x.pipe.id})` : `${x.id} · ${wsClsLabel(x.cls)} · ${x.pipe.od} mm (ID ${x.pipe.id})`, l2 = w.drainMode ? `Σ ${lu1(x.LU)} DU · ${x.Qd.toFixed(2)} L/s · ${x.cls === "main" ? (x.dr.fill*100).toFixed(0) + " % full" : (x.dr.util*100).toFixed(0) + " % of " + x.dr.cap.toFixed(1)}` : `Σ ${lu1(x.LU)} ${unit} · ${wsQV(w, x.Qd).toFixed(2)} ${wsQU(w)}${w.gasMode ? " · " + x.Pto.toFixed(1) + " mbar" : ""}`, l3 = w.drainMode ? `${x.dr.grad > 0 ? drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${lu1(x.L)} m ${arr}${bad ? "  ⚠ REVIEW" : ""}` : `${x.v.toFixed(2)} m/s · ${lu1(x.L)} m ${arr} · ${Math.abs(x.dz) < 0.005 ? "level" : (x.dz > 0 ? "rise +" : "drop −") + Math.abs(x.dz).toFixed(1) + " m"}${bad ? "  ⚠ REVIEW" : ""}`;
+    let s = `<g data-sec="${sxEsc(x.id)}"><title>${sxEsc(`${x.id} (${wsClsLabel(x.cls)}, ${wsOriLabel(x.ori)}) ${x.from} → ${x.to}\n${w.drainMode ? "DN" + x.pipe.od + " (ID " + x.pipe.id + " mm)" : x.pipe.od + " mm OD / " + x.pipe.id + " mm ID"}\nCumulative ${lu1(x.LU)} ${unit} · ${x.N} fixtures · ${wsQV(w, x.Qd).toFixed(3)} ${wsQU(w)}${w.drainMode ? `\n${x.dr.grad > 0 ? "Gradient " + drGradTxt(x.dr.grad) + " % · " : ""}${x.cls === "main" ? "v " + x.v.toFixed(2) + " m/s · " : ""}${(x.dr.util*100).toFixed(0)} % of capacity (${x.dr.cap.toFixed(2)} L/s)\nLength ${lu1(x.L)} m` : `\nVelocity ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m\nLength ${lu1(x.L)} m · pressure at ${x.to}: ${x.Pto.toFixed(1)} ${wsPU(w)}`}${bad ? "\nREVIEW: exceeds the limit or no size available" : ""}`)}</title>`;
     geo.sec[x.id] = {x0:Math.min(...pts.map(q => q[0])), x1:Math.max(...pts.map(q => q[0])), y0:Math.min(...pts.map(q => q[1])), y1:Math.max(...pts.map(q => q[1]))};
-    if (sel && sel.kind === "sec" && sel.id === x.id) s += `<path d="${dAll}" fill="none" stroke="${SELC}" stroke-opacity=".30" stroke-width="${sw + 24}" stroke-linecap="round" stroke-linejoin="round"/>`;
-    if (onPath.has(x.id)) s += `<path d="${dAll}" fill="none" stroke="${C.crit}" stroke-width="${sw + 12}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (sel && sel.kind === "sec" && sel.id === x.id) s += `<path class="sg" d="${dAll}" fill="none" stroke="${SELC}" stroke-opacity=".30" stroke-width="${sw + 24}" stroke-linecap="round" stroke-linejoin="round"/>`;
+    if (onPath.has(x.id)) s += `<path class="sg" d="${dAll}" fill="none" stroke="${C.crit}" stroke-width="${sw + 12}" stroke-linecap="round" stroke-linejoin="round"/>`;
     if (linkPts) s += `<path d="M${linkPts.map(q => q.join(",")).join(" L")}" fill="none" stroke="#9aa7b8" stroke-width="1.6" stroke-dasharray="4 4"/>`;
-    s += `<path d="${d}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linejoin="round"${skewSet.has(x.id) ? ' stroke-dasharray="7 4"' : ""}/>`;
+    s += `<path class="sp sp-${x.cls}" d="${d}" fill="none" stroke="${col}" stroke-width="${sw}" stroke-linejoin="round"${skewSet.has(x.id) && !(p && wsIsGas(p)) ? ' stroke-dasharray="7 4"' : ""}/>`;
     s += `<path d="${dAll}" fill="none" stroke="#000" stroke-opacity="0" stroke-width="18" pointer-events="stroke" style="cursor:pointer"/>`;
     // equipment badges along the pipe (valves, PRVs, meters, pumps)
     (x.eqItems || []).slice(0, 3).forEach((it, i) => { const t = 0.12 + 0.14*i, bx = s0[0] + (s1[0] - s0[0])*t, by = s0[1] + (s1[1] - s0[1])*t, ab = WS_EQ[it.type].ab, bw = ab.length*6.4 + 9;
@@ -7781,7 +7787,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
       if (sv) lines.push({t:`▲ stack vent DN${sv.dn} · +${sv.len.toFixed(1)} m`, f:"#7c3aed", b:1}); if (rv) lines.push({t:`▲ vent riser DN${rv.dn} · to the roof`, f:"#a855f7", b:1}); if (cc && !rv) lines.push({t:`⇄ vent cross-connection DN${cc.ccDn}`, f:"#a855f7"}); }
     let tip = `${n}: pressure P ${press[n].toFixed(1)} ${wsPU(w)}${req != null ? ` (required ${req.toFixed(1)} ${wsPU(w)})` : ""}${!isRoot && feeder[n] ? `\nheight above the supply z ${feeder[n].elev.toFixed(1)} m` : ""}`;
     if (fx) {
-      const items = Object.entries(fx.g).map(([k, v]) => `${lu1(v)}× ${k}`); if (fx.direct) items.push(`Direct ${lu1(fx.direct.lu)} ${unit}${fx.direct.q ? ` + ${fx.direct.q} ${wsQU(w)}` : ""}`);
+      const items = Object.entries(fx.g).map(([k, v]) => `${lu1(v)}× ${k}`); if (fx.direct) items.push(`Direct ${lu1(fx.direct.lu)} ${unit}${fx.direct.q ? ` + ${+wsQV(w, fx.direct.q).toFixed(2)} ${wsQU(w)}` : ""}`);
       lines.push({t:`${lu1(fx.lu)} ${unit} at this node`, f:C.fix, b:1});
       const wrap = []; let cl = ""; items.forEach(it => { const nx = cl ? cl + ", " + it : it; if (cl && nx.length > 32) { wrap.push(cl + ","); cl = it; } else cl = nx; }); if (cl) wrap.push(cl);
       wrap.forEach(t => lines.push({t, f:C.sub})); tip += `\n${lu1(fx.lu)} ${unit}: ${items.join(", ")}`;
@@ -7807,7 +7813,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const hit2 = (a, b, m) => a.x0 < b.x1 + m && b.x0 < a.x1 + m && a.y0 < b.y1 + m && b.y0 < a.y1 + m;
   const ovl = (a, b) => Math.max(0, Math.min(a.x1, b.x1) - Math.max(a.x0, b.x0))*Math.max(0, Math.min(a.y1, b.y1) - Math.max(a.y0, b.y0));
   const ttl = [[14, 28, "NETWORK SCHEMATIC", 14, 1], [14, 47, `${p.name || "Water supply"}${p.tag ? " · " + p.tag : ""}`, 11.5, 1],
-    [14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} ${wsQU(w)} · ${out.filter(x => !x.ok || x.noSize).length ? out.filter(x => !x.ok || x.noSize).length + " to review" : "all checks pass"}`, 10.5, 0]];
+    [14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${wsQV(w, w.Qsrc).toFixed(2)} ${wsQU(w)} · ${out.filter(x => !x.ok || x.noSize).length ? out.filter(x => !x.ok || x.noSize).length + " to review" : "all checks pass"}`, 10.5, 0]];
   addOb("title", null, 0, 0, W, 8, 0);
   ttl.forEach(([tx, ty, t, sz, b]) => addOb("title", null, tx, ty - sz*0.76, tx + wsTxtW(t, sz, b)*SAFE, ty + sz*0.22, -3));
   addOb("key", null, 0, Ltop0 + (keyH ? 4 : 0), W, Ltop0 + (keyH ? 4 : 0) + 4000, 0);
@@ -7917,7 +7923,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}" font-family="Arial,Helvetica,sans-serif" fill="#000">`
     + `<rect width="${W}" height="${H}" fill="#fff"/><rect x="0" y="0" width="${Math.round(W/3)}" height="6" fill="${C.main}"/><rect x="${Math.round(W/3)}" y="0" width="${Math.round(W/3)}" height="6" fill="${w.drainMode ? WS_SVC_COL.soil : C.riser}"/><rect x="${Math.round(2*W/3)}" y="0" width="${W - Math.round(2*W/3)}" height="6" fill="${w.drainMode ? WS_SVC_COL.waste : C.branch}"/>`
     + T(14, 28, "NETWORK SCHEMATIC", {b:1, s:14, halo:false, f:C.main}) + T(14, 47, `${p.name || "Water supply"}${p.tag ? " · " + p.tag : ""}`, {s:11.5, b:1, halo:false})
-    + T(14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${w.Qsrc.toFixed(2)} ${wsQU(w)} · ${nBad ? nBad + " to review" : "all checks pass"}`, {s:10.5, halo:false, f:nBad ? C.bad : C.sub})
+    + T(14, 64, `${out.length} sections · ${w.totN.toFixed(0)} fixtures${w.directLU > 0 ? " + " + lu1(w.directLU) + " " + unit + " direct" : ""} · ${lu1(w.totLU)} ${unit} · peak ${wsQV(w, w.Qsrc).toFixed(2)} ${wsQU(w)} · ${nBad ? nBad + " to review" : "all checks pass"}`, {s:10.5, halo:false, f:nBad ? C.bad : C.sub})
     + guideSvg + groupsOut.join("") + nodeSvg.join("") + cardSvgs.join("") + noteRC.map(o => `<g data-note="${sxEsc(o.q.id)}">` + T(X(o.c), Y(o.r), o.q.text, {s:11, b:1, f:"#3d2c8d"}) + "</g>").join("") + lateSvg.join("") + keySvg + leg + cbyLeg + `</svg>`;
   return {svg, w:W, h:H, geo};
 }
@@ -8900,7 +8906,7 @@ function wsHoverLines(w, p, kind, id) {
   if (kind === "sec") { const x = w.out.find(q => q.id === id); if (!x) return null;
     const K = x.eqItems.filter(i => i.mode === "k" && i.has).reduce((a, i) => a + i.qn*Number(i.val), 0);
     return [`${x.id} · ${x.cd.l} · ${x.pipe.od} mm OD / ${x.pipe.id} mm ID`, `Length ${f(x.L, 2)} m · start EL ${z(x.from)} m · end EL ${z(x.to)} m`,
-      x.Qd > 0 ? `Flow ${f(x.Qd, 3)} ${wsQU(w)} · ${f(x.v, 2)} m/s · ${f(x.grad, 0)} Pa/m` : "No flow",
+      x.Qd > 0 ? `Flow ${f(wsQV(w, x.Qd), 3)} ${wsQU(w)} · ${f(x.v, 2)} m/s · ${f(x.grad, 0)} Pa/m` : "No flow",
       `Friction ${f(x.hf, 2)} ${wsPU(w)} + fittings ${f(x.fitm, 2)} ${wsPU(w)}${K > 0 ? ` · valves ΣK ${+K.toFixed(3)}` : ""}${x.eqItems.length ? ` · equipment ${f(x.eqLoss, 2)} ${wsPU(w)}` : ""}`,
       `Pressure ${f(x.Pfrom, 1)} → ${f(x.Pto, 1)} ${wsPU(w)}${w.gasMode ? (Number.isFinite(x.stagePct) ? ` · stage ${f(x.stagePct, 1)} %` : "") + (x.rev ? " · gas runs To → From" : "") : ` · HGL ${f(w.hgl[x.from], 1)} → ${f(w.hgl[x.to], 1)} m`}`]; }
   const n = id; if (w.hgl[n] == null) return null; const req = w.nodeReq[n], pr = wsRootP(w, n) != null ? wsRootP(w, n) : (w.out.find(q => q.to === n) || {}).Pto;
@@ -12307,6 +12313,8 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
   const swVis=schSort(swRows.filter(pMatch),sortKey,sortDir), fpVis=schSort(fpRows.filter(pMatch),sortKey,sortDir), tlVis=schSort(tlRows.filter(pMatch),sortKey,sortDir), plExtra=swRows.length+fpRows.length+tlRows.length;
   const visS=schSort(visible,sortKey,sortDir), sorted=sortKey!=='order', canEdit=!locked&&!!onSetPumpOrder;
   const saveSortAsOrder=()=>{ if(!canEdit||!sorted||nf>0) return; if(!window.confirm('Save this sort as the order of the pump list?\n\nThe list in the sidebar and the issue sheets follow this order too.')) return; onSetPumpOrder(visS.map(x=>x.p.id)); setSortKey('order'); setSortDir('asc'); };
+  const exportScheduleXlsx=()=>{ const fileTitle=['Equipment_Schedule',proj&&proj.name,stageName].filter(Boolean).join('_').replace(/[\\/:*?"<>|]+/g,' ').replace(/\s+/g,'_');
+    schExcelDoc({fileTitle, title:"Equipment Schedule · "+(fire?"Fire Protection":"Plumbing"), project:(proj&&proj.name)||"", stage:stageName||"", rev:(proj&&proj.revision)||"—", date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"})}); };
   const printSchedule=()=>{ const fileTitle=['Equipment_Schedule',proj&&proj.name,stageName].filter(Boolean).join('_').replace(/[\\/:*?"<>|]+/g,' ');
     const kpis=fire?[["Systems",fItems.length],["Pass",fCounts.pass],["Review",fCounts.review],["Blocked",fCounts.blocked],["Agent / foam",`${fKg.toFixed(0)} kg · ${Math.round(fConc).toLocaleString("en-GB")} L`],...(flKw>0?[["Fire pump",`${flKw.toFixed(1)} kW`]]:[])]:[["Items",items.length+plExtra],["Pass",plCounts.pass],["Review",plCounts.review],["Blocked",plCounts.blocked],["Installed",`${installed.toFixed(1)} kW`],["Running",`${running.toFixed(1)} kW`]];
     schPrintDoc({fileTitle, kpis, disc:fire?"Fire Protection":"Plumbing", project:(proj&&proj.name)||"", stage:stageName||"", rev:(proj&&proj.revision)||"—", date:new Date().toLocaleDateString("en-GB",{day:"2-digit",month:"short",year:"numeric"}), footer:[(proj&&proj.name),stageName,"Equipment Schedule"].filter(Boolean).join(" · ")}); };
@@ -12348,6 +12356,7 @@ function ScheduleReviewWorkspace({pumps,proj,stageName,saveStatus,locked,onMoveP
           {sorted && <button type="button" disabled={!canEdit||nf>0} onClick={saveSortAsOrder} title={locked?'This stage is locked':nf>0?'Clear the filters first':'Make this sort the saved order of the pump list'}>Save as order</button>}
           <button type="button" className={"sch-tool"+(reorder?" on":"")} disabled={!canEdit||sorted} onClick={()=>setReorder(v=>!v)} title={locked?'This stage is locked':sorted?'Set the sort to Saved order to move rows by hand':'Drag rows or use the arrows to change the order'}>{reorder?'✓ Done moving':'⇅ Move rows'}</button></span>}
         <button type="button" className="sch-tool" onClick={printSchedule} title="Print the schedule on A4 landscape, in the order shown">⎙ Print</button>
+        <button type="button" className="sch-tool" onClick={exportScheduleXlsx} title="Download the schedule as an Excel file: one sheet per section, the columns and rows as shown">▦ Excel</button>
         <div className="density-switch" aria-label="Row height"><button type="button" className={density==='comfortable'?'on':''} onClick={()=>setDensity('comfortable')} title="Two lines per row">Comfortable</button><button type="button" className={density==='compact'?'on':''} onClick={()=>setDensity('compact')} title="One line per row — most rows on screen">Compact</button></div>
         <button type="button" className="sch-max" onClick={()=>setFull(v=>!v)} title={full?"Exit full screen (Esc)":"Full screen — show as many rows as possible"}>{full?"✕ Exit full screen":"⤢ Full screen"}</button>
       </div>
@@ -15077,6 +15086,7 @@ function GasBasis({pump, u, uu}) {
     <N label="Allowable loss — main / ring" unit={unit} value={pump.gasLossMain} onChange={v => u("gasLossMain", v)} min={0.01} hint="% of the supply pressure" />
     <N label="Allowable loss — riser / branch" unit={unit} value={pump.gasLossBranch} onChange={v => u("gasLossBranch", v)} min={0.01} hint="% of the pressure where it leaves the main" />
     <N label="Design margin on ΔP" unit="%" value={pump.gasMargin} onChange={v => u("gasMargin", v)} req={false} hint="Added to every friction loss" />
+    <Seg label="Show flow in" value={WS_QUNITS[pump.gasQUnit] ? pump.gasQUnit : "m3h"} onChange={v => u("gasQUnit", v)} options={[{value:"m3h", label:"m³/h"}, {value:"kgh", label:"kg/h", title:"LPG, 45.98 MJ/kg"}, {value:"kw", label:"kW", title:"93.1 MJ/m³"}, {value:"ls", label:"L/s"}]} />
     <Seg label="Pressure basis > 75 mbar" value={pump.gasPBasis === "gauge" ? "gauge" : "abs"} onChange={v => u("gasPBasis", v)} options={[{value:"abs", label:"Absolute", title:"IGE/UP/2"}, {value:"gauge", label:"Gauge", title:"Legacy spreadsheet — slightly conservative"}]} />
     <Seg label="Pipe sizing" value={pump.gasSizing === "manual" ? "manual" : "auto"} onChange={v => u("gasSizing", v)} options={[{value:"auto", label:"Auto"}, {value:"manual", label:"Manual"}]} />
     <Seg label="Ring in one size" value={pump.gasRingOne === false ? "no" : "yes"} onChange={v => u("gasRingOne", v === "yes")} options={[{value:"yes", label:"Yes"}, {value:"no", label:"No"}]} />
@@ -15323,7 +15333,7 @@ function WsPipeDetail({pump, w, sel, pick}) {
     <tr><td>Residual pressure</td><td className="n"><b>{pr == null ? "—" : f(pr, 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{pr == null ? "" : wsBarOf(w, pr).toFixed(w.gasMode ? 3 : 2) + " bar"}</td></tr>
     <tr><td>Static pressure (no flow)</td><td className="n"><b>{w.nodeS[n] == null ? "—" : f(w.nodeS[n], 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{w.nodeS[n] == null ? "" : wsBarOf(w, w.nodeS[n]).toFixed(w.gasMode ? 3 : 2) + " bar" + (pr != null && w.nodeS[n] > pr + 0.05 ? ` · ${f(w.nodeS[n] - pr, 1)} ${wsPU(w)} above the peak-flow pressure` : "")}</td></tr>
     <tr><td>Required pressure</td><td className="n"><b>{req == null ? "—" : f(req, 1) + " " + wsPU(w)}</b></td><td className="ws-dim">{req == null ? "no load at this node" : pr != null ? (pr - req >= -1e-9 ? `margin +${f(pr - req, 1)} ${wsPU(w)}` : `SHORT by ${f(req - pr, 1)} ${wsPU(w)}`) : ""}</td></tr>
-    <tr><td>Load at this node</td><td className="n"><b>{f(lu, 1)} {w.dem.unit}</b></td><td className="ws-dim">{fx.length ? fx.map(q => `${q.qty}× ${q.fixture}`).join(", ") : ""}{qc ? ` + ${qc} ${wsQU(w)} direct` : ""}</td></tr>
+    <tr><td>Load at this node</td><td className="n"><b>{f(lu, 1)} {w.dem.unit}</b></td><td className="ws-dim">{fx.length ? fx.map(q => `${q.qty}× ${q.fixture}`).join(", ") : ""}{qc ? ` + ${+wsQV(w, qc).toFixed(2)} ${wsQU(w)} direct` : ""}</td></tr>
     {!w.gasMode && <tr><td>Hydraulic grade line</td><td className="n"><b>{w.hgl[n] == null ? "—" : f(w.hgl[n], 1) + " m"}</b></td><td className="ws-dim">pressure + elevation{w.nodeZ[n] != null ? ` (EL ${f(w.nodeZ[n], 2)} m)` : ""}</td></tr>}
     <tr><td>Elevation above the source</td><td className="n"><b>{fed ? (fed.elev >= 0 ? "+" : "") + f(fed.elev, 1) + " m" : "0 m"}</b></td><td className="ws-dim"></td></tr>
   </tbody></table></div>;
@@ -15693,7 +15703,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
               {drainM && (s.cls === "vent" || (x && x.dr.vert) ? <span className="r" title="A vertical pipe has no gradient" style={{color:"#9aa7b8"}}>—</span> : <input type="number" inputMode="decimal" className="r" value={s0.grad ?? ""} placeholder={x && x.dr.grad > 0 ? drGradTxt(x.dr.grad) : "auto"} onClick={e => e.stopPropagation()} onChange={e => setNet(i, {grad:e.target.value})} title="Design gradient of this pipe in %. Blank = automatic, from its nominal size (Setup → Design gradient). Type a value to override it." />)}
               {drainM && (s.cls === "vent" ? <span /> : <select value={s0.svcTag || ""} onClick={e => e.stopPropagation()} onChange={e => setNet(i, {svcTag:e.target.value})} title="Soil = blackwater (WCs, urinals); Waste = greywater (everything else). System IV keeps them on separate stacks. Auto = from the appliances." style={s0.svcTag ? {color:"#fff", background:s0.svcTag === "soil" ? "#8a5a2b" : "#2f6f9f", fontWeight:700} : {}}><option value="">Auto</option><option value="soil">Soil</option><option value="waste">Waste</option></select>)}}
               <button type="button" className={"ws-load" + (ld.text ? "" : " empty") + (open ? " on" : "")} title={ld.text ? "Connected at " + s.to + ": " + ld.text + " — click to edit" : "Nothing connected at " + s.to + " — click to add fixtures"} onClick={e => { e.stopPropagation(); setLoadOpen(open ? null : s.id); }}>{ld.text || "＋ add"}</button>
-              <span className={"ws-res1 " + (x ? (okx ? "ok" : "bad") : "")} title={x ? `${x.pipe.od} mm OD / ${x.pipe.id} mm ID · Σ ${x.LU.toFixed(1)} ${w.dem.unit} · ${x.Qd.toFixed(3)} ${wsQU(w)} · ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m${w.gasMode ? ` · ${x.Pto.toFixed(1)} mbar` : ""}\n${x.why.t}` : ""}>{x ? drainM ? <><b>DN{x.pipe.od}</b> · {x.Qd.toFixed(2)} L/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : null}</> : <><b>{x.pipe.od}</b> mm · {x.v.toFixed(2)} m/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : x.bump > 0 ? <i className="ws-flag up" title="Upsized for pressure"> ↑</i> : null}{x.eqItems && x.eqItems.length ? <i className="ws-eqc" title={x.eqItems.map(q => q.tag || WS_EQ[q.type].ab).join(", ")}> ⚙{x.eqItems.length}</i> : null}</> : "—"}</span>
+              <span className={"ws-res1 " + (x ? (okx ? "ok" : "bad") : "")} title={x ? `${x.pipe.od} mm OD / ${x.pipe.id} mm ID · Σ ${x.LU.toFixed(1)} ${w.dem.unit} · ${wsQV(w, x.Qd).toFixed(3)} ${wsQU(w)} · ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m${w.gasMode ? ` · ${x.Pto.toFixed(1)} mbar` : ""}\n${x.why.t}` : ""}>{x ? drainM ? <><b>DN{x.pipe.od}</b> · {x.Qd.toFixed(2)} L/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : null}</> : <><b>{x.pipe.od}</b> mm · {x.v.toFixed(2)} m/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : x.bump > 0 ? <i className="ws-flag up" title="Upsized for pressure"> ↑</i> : null}{x.eqItems && x.eqItems.length ? <i className="ws-eqc" title={x.eqItems.map(q => q.tag || WS_EQ[q.type].ab).join(", ")}> ⚙{x.eqItems.length}</i> : null}</> : "—"}</span>
               <button type="button" className="cfe-x" onClick={e => { e.stopPropagation(); delNet(i); }} title="Remove pipe">✕</button>
             </div>
             {open && <div className="ws-ldp" onClick={e => e.stopPropagation()}>
@@ -15724,7 +15734,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
           {!w.pumpMode && !w.gasMode && !w.fuelMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
           <div className="gi-res">
             <div title="Loading units at the source = fixtures + direct loads"><span>{w.gasMode ? "Connections" : "Loading units"}</span><b>{w.totLU.toFixed(0)} {w.dem.unit}</b><small className="gi-sub">{w.fixLU.toFixed(0)} from {w.totN.toFixed(0)} fixtures{w.directLU > 0 ? ` + ${w.directLU.toFixed(0)} direct` : ""}</small></div>
-            <div><span>{w.gasMode ? "Diversified flow" : "Peak flow at source"}</span><b>{w.Qsrc.toFixed(2)} {wsQU(w)}</b></div>
+            <div><span>{w.gasMode ? "Diversified flow" : "Peak flow at source"}</span><b>{wsQV(w, w.Qsrc).toFixed(2)} {wsQU(w)}</b></div>
             <div><span>Main pipe</span><b>{w.mainSec ? `${w.mainSec.pipe.od} mm` : "—"}</b></div>
             {w.pumpMode ? <div className="sel" title="The pressure the pump must deliver at the supply node"><span>Pressure at source</span><b>{w.srcPressure.toFixed(1)} m</b><small className="gi-sub">{(w.srcPressure/WS_BAR).toFixed(2)} bar</small></div>
               : <div className={w.minMargin >= -1e-9 ? "sel" : "badbox"}><span>{w.gasMode ? `Lowest pressure${w.crit ? " · " + w.crit.node : ""}` : "Min residual margin"}</span><b>{w.gasMode && w.crit ? w.crit.res.toFixed(1) : w.minMargin.toFixed(1)} {wsPU(w)}</b></div>}
@@ -15748,7 +15758,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
           <div className="ws-scroll ws-res-wrap"><table className="ws-res">
             <thead><tr><th>Section</th><th>Class</th><th>Orient.</th><th>Route</th><th className="n">Fixt.</th><th className="n">{w.dem.unit}</th><th className="n">Q {wsQU(w)}</th><th className="n">OD</th><th className="n">ID</th><th className="n">v m/s</th><th className="n">v limit</th><th className="n">Pa/m</th><th className="n">Pa/m limit</th><th className="n">{w.gasMode ? "P mbar" : "Residual m"}</th><th className="n" title={w.gasMode ? "Loss from the supply (mains) or from the take-off on the main (risers / branches), % of that pressure" : "Hydraulic grade line at the To node: pressure + elevation"}>{w.gasMode ? "Stage %" : "HGL m"}</th><th className="n" title="Pressure at the To node with no flow: friction and losses zero, elevation and PRV kept">Static {wsPU(w)}</th><th>Status</th><th>Size selected because</th></tr></thead>
             <tbody>{schedRows.map(x => <tr key={x.id} className={(critIds.has(x.id) ? "crit" : "") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
-              <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} />{x.cd.l}</td><td>{x.ori === "h" ? "Horiz." : x.ori === "up" ? "Vert. ↑" : "Vert. ↓"}</td><td>{x.from} {x.rev ? "←" : "→"} {x.to}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(0)}</td><td className="n">{x.Qd.toFixed(3)}</td>
+              <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} />{x.cd.l}</td><td>{x.ori === "h" ? "Horiz." : x.ori === "up" ? "Vert. ↑" : "Vert. ↓"}</td><td>{x.from} {x.rev ? "←" : "→"} {x.to}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(0)}</td><td className="n">{wsQV(w, x.Qd).toFixed(3)}</td>
               <td className="n"><b>{x.pipe.od}</b>{x.bump > 0 && <em title="Upsized for residual pressure"> ↑</em>}</td><td className="n">{x.pipe.id}</td>
               <td className="n">{x.v.toFixed(2)}</td><td className="n">{w.useV ? x.cd.maxV : "—"}</td><td className="n">{x.grad.toFixed(0)}</td><td className="n">{w.useP ? x.cd.maxP : "—"}</td><td className="n">{x.Pto.toFixed(1)}</td><td className="n">{w.gasMode ? (Number.isFinite(x.stagePct) ? x.stagePct.toFixed(1) : "—") : w.hgl[x.to].toFixed(1)}</td><td className="n" title={`Static (no flow) pressure at ${x.to}`}>{x.PtoS.toFixed(1)}</td>
               <td><span className={"status-chip " + (x.ok && !x.noSize ? "pass" : "review")}>{x.ok && !x.noSize ? "OK" : x.noSize ? "No size" : "Review"}</span></td>
@@ -15770,7 +15780,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
             <tbody>{w.out.map(x => { const kids = w.out.filter(y => y.from === x.to), pq = x.ownQ + kids.reduce((a, y) => a + y.Qd, 0);
               return <tr key={x.id} className={selIs("sec", x.id) ? "sel" : ""} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
                 <td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} /><b>{x.id}</b></td><td>{x.to}</td><td className="n">{x.own ? +x.own.toFixed(1) : "—"}</td>
-                <td>{kids.length ? kids.map(k => `${k.id}: ${+k.LU.toFixed(1)}`).join(" + ") : "— end of line"}</td><td className="n"><b>{+x.LU.toFixed(1)}</b></td><td className="n">{x.Qd.toFixed(3)}</td>
+                <td>{kids.length ? kids.map(k => `${k.id}: ${+k.LU.toFixed(1)}`).join(" + ") : "— end of line"}</td><td className="n"><b>{+x.LU.toFixed(1)}</b></td><td className="n">{wsQV(w, x.Qd).toFixed(3)}</td>
                 <td className="n" title="Flows of the parts added together — larger than Q because not every fixture runs at once" style={{color:"#86868b"}}>{pq > x.Qd*1.02 ? pq.toFixed(3) : "—"}</td></tr>; })}</tbody>
           </table></div>
           <div className="cfe-help">Loading units add exactly: each pipe carries its own node's units plus those of every branch it feeds. <b>Flow does not add</b> — it is read from the demand table at the combined units, so it is always less than the parts added together (the "Parts alone" column).</div>
@@ -15824,6 +15834,7 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           {wsIsDrain(pump) && !wsIsStormNet(pump) && <label className="nc-f dl" title="The symbol drawn at this node: a label on the drawing, with no effect on sizing"><span>Symbol</span><select value={selNode.sym || ""} onChange={e => { const v = e.target.value, has = nodesArr.some(n => n.id === selNode.id); edit({wsNodes: has ? nodesArr.map(n => { if (n.id !== selNode.id) return n; if (!v) { const {sym, ...rest} = n; return rest; } return {...n, sym:v}; }) : [...nodesArr, {id:selNode.id, x:"", y:"", z:"", ...(v ? {sym:v} : {})}]}); }}><option value="">none</option>{WS_SYMS.map(q => <option key={q.k} value={q.k}>{q.l}</option>)}</select></label>}
           {!wsIsStormNet(pump) && <label className="nc-f dl" title={wsIsFuelNet(pump) ? "Fuel drawn at this node in L/s — engine supply flow or day tank fill rate (100 L/h = 0.028 L/s)" : wsIsGas(pump) ? "A gas flow at this node in m³/h, already diversified — for a load not in the load types" : "A continuous flow, e.g. make-up water, in L/s"}><span>{wsIsFuelNet(pump) ? "Fuel flow" : "Flow"}</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>{QU}</i></label>}
           {wsIsGas(pump) && <label className="nc-f dl" title={"Connected load in kW, converted at " + WS_GAS_CV + " MJ/m³ (m³/h = kW × 3.6 ÷ " + WS_GAS_CV + "). Same field as the flow: type either one."}><span>Load</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) && Number(selNode.qAdd) > 0 ? +(Number(selNode.qAdd) * WS_GAS_CV / 3.6).toFixed(2) : ""} onCommit={v => setN(selNode.id, {qAdd:(v === "" || v == null) ? "" : +(Number(v) * 3.6 / WS_GAS_CV).toFixed(4)})} placeholder="0" /><i>kW</i></label>}
+          {wsIsGas(pump) && <label className="nc-f dl" title={"Connected load in kg/h of LPG, converted at " + WS_GAS_KG + " MJ/kg (m³/h = kg/h × " + WS_GAS_KG + " ÷ " + WS_GAS_CV + "). Same field as the flow and the kW: type any one."}><span>Load</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) && Number(selNode.qAdd) > 0 ? +(Number(selNode.qAdd) * WS_GAS_CV / WS_GAS_KG).toFixed(2) : ""} onCommit={v => setN(selNode.id, {qAdd:(v === "" || v == null) ? "" : +(Number(v) * WS_GAS_KG / WS_GAS_CV).toFixed(4)})} placeholder="0" /><i>kg/h</i></label>}
           {!wsIsDrain(pump) && <label className="nc-f dl" title="Pressure required at this node. It applies to every load here, fixtures included, and can raise the requirement above what the fixtures need, never lower it (blank = what the fixtures or Setup give)"><span>Req. p</span><CommitInput type="number" cls="r" value={wsFin(selNode.reqP) ? selNode.reqP : ""} onCommit={v => setN(selNode.id, {reqP:v})} placeholder="default" /><i>{wsIsGas(pump) ? "mbar" : "m"}</i></label>}
           <span style={{flex:1}} />{wsEdPlaced(pump) && net.length > 0 && !wsSupplyIds(pump).includes(selNode.id) && <button type="button" className="nc-c" title="Make this node the supply: the pipes between the old supply and it are flipped" onClick={() => { const r = wsEdSetSupply(pump, selNode.id); if (r.error) flash(r.error); else edit(r.patch); }}>Make supply</button>}{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this node's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
         {selNode && fed && !wsIsStormNet(pump) && !wsIsFuelNet(pump) && <div className="nc-r3"><span className="nc-l">Demand</span><span className="nc-bu">{hasLoad(selNode.id) ? <><b>{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}</b> at this node</> : "No load at this node"}{fed.LU > (luAt[selNode.id] || 0) + 1e-9 ? <> · <b>{+fed.LU.toFixed(1)} {unit}</b> carried by {fed.id} (this node plus everything downstream)</> : null}{(() => { const rs = wsIsDrain(pump) ? null : wsEdReqSource(pump, w, selNode.id); return rs ? <> · needs <b>{rs.req.toFixed(1)} m</b> — {rs.text}</> : null; })()}</span></div>}
@@ -15859,7 +15870,9 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
 function SchViewer({sch, style, onPick, focus}) {
   const box = useRef(null), vb = useRef({x:0, y:0, w:sch.w, h:sch.h, key:""}), down = useRef(null), [hand, setHand] = useState(false), handRef = useRef(false), spaceRef = useRef(false);
   const svgEl = () => box.current && box.current.querySelector("svg");
-  const apply = () => { const s = svgEl(); if (s) s.setAttribute("viewBox", `${vb.current.x.toFixed(2)} ${vb.current.y.toFixed(2)} ${vb.current.w.toFixed(2)} ${vb.current.h.toFixed(2)}`); };
+  const apply = () => { const s = svgEl(); if (!s) return; s.setAttribute("viewBox", `${vb.current.x.toFixed(2)} ${vb.current.y.toFixed(2)} ${vb.current.w.toFixed(2)} ${vb.current.h.toFixed(2)}`);
+    // zoomed far out (a large site) the pipes shrink to hairlines: below ~0.5 px per drawing unit the line widths are held at screen pixels instead
+    const r = s.getBoundingClientRect(), k = r.width > 0 && r.height > 0 ? Math.min(r.width/vb.current.w, r.height/vb.current.h) : 1; s.classList.toggle("thinfix", k < 0.5); s.classList.toggle("nolbl", k < 0.9); };
   const whole = () => { Object.assign(vb.current, {x:0, y:0, w:sch.w, h:sch.h}); apply(); };
   const userPt = (s, cx, cy) => { const m = s.getScreenCTM(); if (!m) return {x:vb.current.x + vb.current.w/2, y:vb.current.y + vb.current.h/2}; const q = new DOMPoint(cx, cy).matrixTransform(m.inverse()); return {x:q.x, y:q.y}; };
   const zoomAt = (cx, cy, f) => { const s = svgEl(); if (!s) return; const v = vb.current, pt = userPt(s, cx, cy), nw = Math.min(sch.w*1.6, Math.max(sch.w/400, v.w/f)), k = nw/v.w; v.x = pt.x - (pt.x - v.x)*k; v.y = pt.y - (pt.y - v.y)*k; v.w = nw; v.h = v.h*k; apply(); };
@@ -16060,7 +16073,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const net = Array.isArray(pump.wsNet) ? pump.wsNet : [], nodesAll = Array.isArray(pump.wsNodes) ? pump.wsNodes : [], placed = wsEdPlaced(pump), blockList = Array.isArray(blocks) ? blocks : [];
   const [dim, setDim] = useState({w:640, h:420}), [view, setView] = useState(null);
   const [tool, setToolS] = useState(initTool || (net.length ? "select" : "pipe"));
-  const [ortho, setOrtho] = useState(true), [snapOn, setSnapOn] = useState(true), [names, setNames] = useState(true), [critOn, setCritOn] = useState(true), [grid, setGrid] = useState(0.5), [planeY, setPlaneY] = useState(0);
+  const [ortho, setOrtho] = useState(true), [snapOn, setSnapOn] = useState(true), [names, setNames] = useState(true), [keyOnly, setKeyOnly] = useState(() => (Array.isArray(pump.wsNodes) ? pump.wsNodes.length : 0) > 80), [critOn, setCritOn] = useState(true), [grid, setGrid] = useState(0.5), [planeY, setPlaneY] = useState(0);
   const [hov, setHov] = useState(ist.hov || null), [cur, setCur] = useState(ist.cur || null), [pend, setPend] = useState(ist.pend || null), [typed, setTyped] = useState(ist.typed || ""), [msg, setMsg] = useState(ist.msg || null), [drag, setDrag] = useState(ist.drag || null), [hovEl, setHovEl] = useState(null);
   const [multi, setMultiS] = useState(ist.multi || WD_NONE), [fixName, setFixName] = useState(ist.fixName || ""), [fixQty, setFixQty] = useState(ist.fixQty || 1), [symK, setSymK] = useState(ist.symK || "mh"), [recent, setRecent] = useState([]), [blockId, setBlockId] = useState(ist.blockId || null), [levelInc, setLevelInc] = useState(true);
   const [clipTick, setClipTick] = useState(0), [band, setBand] = useState(ist.band || null), [gh, setGh] = useState(ist.gh || null), [mvOpen, setMvOpen] = useState(false), [mv, setMv] = useState({dx:"", dy:"", dz:""});
@@ -16330,15 +16343,18 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       {netInfo.sec[s.id] && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={netInfo.sec[s.id]} strokeOpacity=".22" strokeWidth={w + 8} strokeLinecap="round" />}
       {critOn && cr.ids.has(s.id) && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={WS_COL.crit} strokeWidth={w + 11} strokeLinecap="round" />}
       {(on || inM) && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#007aff" strokeOpacity=".28" strokeWidth={w + 11} strokeLinecap="round" />}
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={col} strokeWidth={w} strokeLinecap="round" strokeDasharray={isSkew ? "7 4" : undefined} />
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={col} strokeWidth={w} strokeLinecap="round" strokeDasharray={isSkew && !wsIsGas(pump) ? "7 4" : undefined} />
       {L > 26 && <path d={`M${mx + dux*6},${my + duy*6} L${mx - dux*5 - duy*4.5},${my - duy*5 + dux*4.5} L${mx - dux*5 + duy*4.5},${my - duy*5 - dux*4.5}z`} fill={col} stroke="#fff" strokeWidth="1" />}
       {lay.sec[s.id] && <text x={lay.sec[s.id].x} y={lay.sec[s.id].y} textAnchor={lay.sec[s.id].a} className="wd-t" fill={bad ? WS_COL.bad : "#33415c"}>{lay.sec[s.id].t}</text>}
     </g>;
   });
+  const degC = {}; net.forEach(s => { degC[s.from] = (degC[s.from] || 0) + 1; degC[s.to] = (degC[s.to] || 0) + 1; });
   const nodeEls = nodesAll.map(n => {
     const P = pos(n.id); if (!P) return null;
     const SY = water && water.drainMode ? wsSymOf(n) : null;
     const [x, y] = PP(P), isSup = supSetD.has(n.id), on = !!sel && sel.kind === "node" && sel.id === n.id, mk = marks.node[n.id], bad = !!mk && mk.sev === "error", fq = fixAt[n.id], inM = inMulti.has(n.id);
+    // "Key nodes" view: a node that only joins two pipes (a bend or a split point) and has no load, mark or fixtures is not drawn, so the plan stays readable
+    if (keyOnly && !isSup && !on && !inM && !fq && !SY && !mk && !stacks[n.id] && degC[n.id] === 2 && !(Number(n.qAdd) > 0) && !(n.reqP !== undefined && n.reqP !== "" && n.reqP !== null) && !(critOn && cr.node === n.id)) return <g key={n.id} />;
     return <g key={n.id}>
       {critOn && cr.nodes.has(n.id) && <g><circle cx={x} cy={y} r={15} fill="#fde68a" fillOpacity=".85" stroke="#d99a14" strokeWidth="2" />{lay.crit && cr.node === n.id && <text x={lay.crit.x} y={lay.crit.y} textAnchor={lay.crit.a} className="wd-crit">critical terminal</text>}</g>}
       {(on || inM) && <circle cx={x} cy={y} r={13} fill="#007aff" fillOpacity=".18" stroke="#007aff" strokeWidth="1.6" />}
@@ -16390,7 +16406,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const hovL = hovEl && water && tool === "select" && !drag && !band ? wsHoverLines(water, pump, hovEl.kind, hovEl.id) : null;
   const hoverMk = hovEl ? ((hovEl.kind === "sec" ? marks.sec : marks.node)[hovEl.id]) : null;
   const ss = wdSelSet(pump, multiX, sel), counts = ss.ids.length ? wsEdSelCounts(pump, ss.ids) : null;
-  const status = hoverMk ? `${hovEl.kind === "sec" ? "Pipe" : "Node"} ${hovEl.id}: ${hoverMk.t[0]}` : (skew.size && tool === "select" && !multiNodes.length ? `${skew.size} pipe${skew.size === 1 ? " is" : "s are"} not along one axis (dashed) — a node was moved off the line.` : WD_HINT[tool]);
+  const status = hoverMk ? `${hovEl.kind === "sec" ? "Pipe" : "Node"} ${hovEl.id}: ${hoverMk.t[0]}` : (skew.size && !wsIsGas(pump) && tool === "select" && !multiNodes.length ? `${skew.size} pipe${skew.size === 1 ? " is" : "s are"} not along one axis (dashed) — a node was moved off the line.` : WD_HINT[tool]);
   const tbtn = ([k, l, key, ic]) => <button type="button" key={k} className={"nc-t" + (tool === k ? " on" : "")} disabled={locked || !placed} onClick={() => setTool(k)} title={`${l} (${key})`}><span style={{fontSize:14}}>{ic}</span>{l}<kbd>{key}</kbd></button>;
   const grp = wsFixGroups(lib);
   const ctxBar = (() => {
@@ -16442,6 +16458,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
         {!plan && <label className="nc-l" title="Depth (y) of a node placed on empty canvas. Depth shifts a node sideways on the drawing; height (z) is always exact. A pipe being drawn takes the depth of its start; type y5 to run 5 m into the page.">Depth y<input type="number" value={planeY} step="0.5" onChange={e => setPlaneY(Number(e.target.value) || 0)} /></label>}
         {wsLvTowers(lvls).length > 0 && <label className="nc-l" title="Every pipe, riser, node and pasted group you draw is put in this tower. Auto = by position (the plan band of a tower, or the common basement below its top)">Draw in<select value={activeTw} onChange={e => setActiveTw(e.target.value)}><option value="">Auto (by position)</option>{wsTowerChoices(lvls).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
         <button type="button" className={"nc-c" + (names ? " on" : "")} onClick={() => setNames(!names)} title="Show or hide node names">Names</button>
+        <button type="button" className={"nc-c" + (keyOnly ? " on" : "")} onClick={() => setKeyOnly(!keyOnly)} title="Show only junctions, ends, loads, the supply and anything selected or flagged. Bends and plain two-pipe nodes are hidden.">Key nodes</button>
         <button type="button" className={"nc-c" + (newNet ? " on" : "")} disabled={locked} onClick={() => { setNewNet(v => !v); setPend(null); }} title={wsIsDrain(pump) ? "Start a second, independent outfall: draw a run (or place a node) that is not connected to the existing network, and its start becomes a new outfall. Each outfall network is sized and checked on its own." : "Start another, independent network with its own supply: draw a pipe (or place a node) that is not connected to the existing network, and its start becomes a new supply. Every network is sized and checked on its own."}>{wsIsDrain(pump) ? "＋ Outfall" : "＋ Network"}</button>
         <button type="button" className={"nc-c" + (stackOn ? " on" : "")} disabled={locked} onClick={() => { setStackOn(v => !v); setPend(null); }} title="Put a node exactly on top of another node (a riser joint and a branch joint, or a crossing). With Stack on, a click does not snap to an existing node. Click a stacked point again with Select — or press Tab while drawing — to choose between the nodes.">Stack</button>
         {wsIsDrain(pump) && !wsIsStormNet(pump) && <span className="wd-svc" title="The service of the pipes you draw next. Soil = blackwater (WCs and urinals); Waste = greywater (basins, sinks, showers, baths). System IV keeps soil and waste on separate stacks. Any = the stack takes its service from the appliances connected to it.">{[["", "Any"], ["soil", "Soil"], ["waste", "Waste"]].map(([k, l]) => <button key={k} type="button" className={"nc-c" + (svcTag === k ? " on" : "")} style={svcTag === k && k ? {background:k === "soil" ? "#8a5a2b" : "#2f6f9f", color:"#fff", borderColor:"transparent"} : {}} disabled={locked} onClick={() => setSvcTag(k)} title={k === "soil" ? "Soil stack — WCs and urinals only (blackwater)" : k === "waste" ? "Waste stack — everything except WCs and urinals (greywater)" : "No service set — appliances decide"}>{l === "Any" ? "Svc: Any" : l}</button>)}</span>}
@@ -19638,7 +19655,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         setPumps(ps);
         setMeta(normalizeStageMeta(full && full.meta));
         setEditId(ps[0]?.id ?? null);
-        setTab(ps.length ? "schedule" : "setup");
+        const savedTab = (() => { try { return localStorage.getItem('mep_tab_'+projectId); } catch(e) { return null; } })();
+        setTab(!ps.length ? "setup" : (["schedule","pumps","print"].includes(savedTab) ? savedTab : "schedule"));
       }
       setStagesReady(true);
     })();
@@ -19901,6 +19919,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   }, [proj, pumps, meta, currentStageId, stageLocked, stagesReady]);
 
   useEffect(()=>{ if(currentStageId){ try{ localStorage.setItem('mep_stage_'+projectId, currentStageId); }catch(e){} } },[currentStageId,projectId]);
+  useEffect(()=>{ if(stagesReady && projectId && ["schedule","pumps","print"].includes(tab)){ try{ localStorage.setItem('mep_tab_'+projectId, tab); }catch(err){} } },[tab,projectId,stagesReady]);
   const switchStage = async (id) => {
     if (id === currentStageId) return;
     await flushPumpsSave();
@@ -21303,6 +21322,40 @@ function scInit() {
 }
 // ── Print the schedule. A clean document is built from the tables on screen (same rows, same columns that are switched on, collapsed tables left out)
 // and printed from its own hidden frame, so none of the app's other print rules can get in the way. A4 landscape, every table fitted to the page width.
+async function schExcelDoc(meta) {
+  const root = document.querySelector(".schedule-review"); if (!root) { alert("Open the schedule first."); return; }
+  if (typeof ExcelJS === "undefined") { alert("Excel library did not load — check your internet connection and reload."); return; }
+  const m = scStore(), wb = new ExcelJS.Workbook(), used = new Set(); let head = "Schedule", n = 0;
+  const txt = el => { const c = el.cloneNode(true); c.querySelectorAll("button,.schedule-action,.ord-btns,.sc-bar,i,script,style").forEach(x => x.remove()); return (c.innerText !== undefined && c.innerText !== "" ? c.innerText : c.textContent || "").replace(/\s+/g, " ").trim(); };
+  const sheetName = h => { let b = String(h || "Schedule").replace(/[\\/?*\[\]:]/g, " ").replace(/\s+\d+$/, "").trim().slice(0, 28) || "Schedule", nm = b, k = 2; while (used.has(nm.toLowerCase())) nm = b.slice(0, 26) + " " + k++; used.add(nm.toLowerCase()); return nm; };
+  root.querySelectorAll(".sch-sub, table.schedule-table").forEach(el => {
+    if (el.closest(".ai-back,[role=dialog]")) return;
+    if (el.classList.contains("sch-sub")) { if (el.getAttribute("data-off") === "1") return; const c = el.cloneNode(true); c.querySelectorAll(".sc-bar,.sc-chev,em").forEach(x => x.remove()); head = (c.textContent || "").replace(/\s+/g, " ").trim() || head; return; }
+    const wrap = el.parentElement; if (wrap && wrap.getAttribute("data-off") === "1") return;
+    const cols = scCols(el), r = SC_REG[el.getAttribute("data-sc")]; if (!cols) return;
+    const vis = cols.filter(c => !r || scVis(m, r.id, c)), keep = new Set(vis.map(c => c.i));
+    const rows = [...el.querySelectorAll("tr")].map(tr => { const cells = [...tr.children]; if (cells.length !== cols.length) return null; return { th: cells.every(c => c.tagName === "TH"), v: cells.filter((c, i) => keep.has(i)).map(txt) }; }).filter(Boolean);
+    if (!rows.length) return;
+    const ws = wb.addWorksheet(sheetName(head)), ncol = vis.length; n++;
+    ws.addRow([meta.title || "Equipment Schedule"]).font = { name: "Arial", bold: true, size: 14, color: { argb: "FF1E3A5F" } };
+    ws.addRow([[meta.project, meta.stage, "Rev " + meta.rev, meta.date].filter(Boolean).join("  ·  ")]).font = { name: "Arial", size: 9, color: { argb: "FF555555" } };
+    ws.addRow([head]).font = { name: "Arial", bold: true, size: 11 };
+    ws.addRow([]);
+    let hdrRow = 0;
+    rows.forEach(rw => {
+      const vals = rw.v.map(x => { const t = x.replace(/,/g, ""); return /^-?\d+(\.\d+)?$/.test(t) ? Number(t) : x; }), row = ws.addRow(vals);
+      row.font = { name: "Arial", size: 9 }; row.alignment = { vertical: "top", wrapText: true };
+      if (rw.th) { hdrRow = row.number; row.font = { name: "Arial", size: 9, bold: true, color: { argb: "FFFFFFFF" } }; row.eachCell(c => { c.fill = { type: "pattern", pattern: "solid", fgColor: { argb: "FF1E3A5F" } }; c.alignment = { vertical: "middle", wrapText: true }; }); }
+      else row.eachCell(c => { c.border = { bottom: { style: "hair", color: { argb: "FFBBBBBB" } } }; });
+    });
+    for (let i = 1; i <= ncol; i++) { let w = 8; ws.getColumn(i).eachCell({ includeEmpty: false }, (c, rn) => { if (rn > 4) w = Math.max(w, Math.min(46, String(c.value == null ? "" : c.value).length + 2)); }); ws.getColumn(i).width = w; }
+    if (hdrRow) { ws.views = [{ state: "frozen", ySplit: hdrRow }]; ws.autoFilter = { from: { row: hdrRow, column: 1 }, to: { row: hdrRow, column: ncol } }; }
+    ws.pageSetup = { orientation: "landscape", fitToPage: true, fitToWidth: 1, fitToHeight: 0 };
+  });
+  if (!n) { alert("There is nothing to export in the schedule as filtered."); return; }
+  const buf = await wb.xlsx.writeBuffer(), blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+  const url = URL.createObjectURL(blob), a = document.createElement("a"); a.href = url; a.download = (meta.fileTitle || "Equipment_Schedule") + ".xlsx"; document.body.appendChild(a); a.click(); document.body.removeChild(a); setTimeout(() => URL.revokeObjectURL(url), 2000);
+}
 function schPrintDoc(meta) {
   const root = document.querySelector(".schedule-review"); if (!root) { window.print(); return; }
   const m = scStore(), parts = [];
