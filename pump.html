@@ -1677,7 +1677,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.8 · Build 2026.11.24.18";
+const BUILD_LABEL = "v1.119.9 · Build 2026.11.24.19";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -7085,7 +7085,7 @@ function calculateWaterCore(p) {
       else if (bmp > 0) why = {k:"pressure", t:`Upsized ${bmp} size${bmp > 1 ? "s" : ""} from ${cands[x.auto].od} mm to raise the pressure at the remote terminal`};
       else {
         const own = [useV ? `${v.toFixed(2)} m/s ≤ ${x.cd.maxV}` : "", useP ? `${g.toFixed(0)} Pa/m ≤ ${x.cd.maxP}` : ""].filter(Boolean).join(", ");
-        if (x.auto === 0) why = {k:"min", t:`${pipe.od} mm passes (${own}) — ${x.cd.minOD ? "the smallest size allowed (minimum " + x.cd.minOD + " mm)" : "the smallest size in the schedule"}.`, s:x.cd.minOD ? `Smallest size allowed (minimum ${x.cd.minOD} mm)` : "Smallest size in the schedule"};
+        if (x.auto === 0) why = {k:"min", t:`${pipe.od} mm passes (${own}) — ${x.cd.minOD ? "the smallest size allowed (minimum " + wsMinTxt(x.cd) + ")" : "the smallest size in the schedule"}.`, s:x.cd.minOD ? `Smallest size allowed (minimum ${wsMinTxt(x.cd)})` : "Smallest size in the schedule"};
         else { const vp = prevC ? Qd_v(x.Qd, prevC) : 0, gp = prevC ? gradOf(x.Qd, prevC, x.cd) : 0, vF = useV && v2(vp) > x.cd.maxV, pF = useP && gp > x.cd.maxP;
           const why1 = [vF ? `${vp.toFixed(2)} m/s exceeds the ${x.cd.maxV} m/s limit` : "", pF ? `${gp.toFixed(0)} Pa/m exceeds the ${x.cd.maxP} Pa/m limit` : ""].filter(Boolean).join(" and "),
             fine = vF && !pF && useP ? ` (friction ${gp.toFixed(0)} Pa/m is fine)` : pF && !vF && useV ? ` (velocity ${vp.toFixed(2)} m/s is fine)` : "";
@@ -9883,6 +9883,8 @@ DEFS.fuelnet = {...DEFS.water, type:"water", wsService:"fuel", name:"Fuel Oil Pi
 // Steel-type tables carry a nominal size (DN) that differs from the outside diameter: show DN there. Plastic tables where DN = OD keep the mm label.
 const wsNbOf = pipe => pipe && Number(pipe.nb) > 0 && Math.abs(Number(pipe.nb) - Number(pipe.od)) > 0.5 ? Number(pipe.nb) : null;
 const wsSizeTxt = pipe => !pipe ? "—" : wsNbOf(pipe) ? "DN" + wsNbOf(pipe) : pipe.od + " mm";
+const wsSzId = pipe => (wsNbOf(pipe) ? "DN" + wsNbOf(pipe) : pipe.od) + " / " + pipe.id;
+const wsMinTxt = (cd) => wsSizeTxt((cd.mat && cd.mat.table || []).find(r => Number(r.od) === Number(cd.minOD)) || {od:cd.minOD});
 const wsSz = (w, pipe) => !pipe ? "—" : (w && w.drainMode) ? "DN" + pipe.od : wsSizeTxt(pipe);
 function DrainBasis({pump, u, uu}) {
   const D = drainOf(pump), codes = Object.keys(DRAIN), kPre = D ? D.k : [], par = D ? D.params : {kb:1, nu:1.31e-6, fill:0.5}, lib = wsLibOf(pump);
@@ -10530,7 +10532,7 @@ function clGasRows(B, p, res) {
   B.inp("gasCv", `Natural Gas → ${G.type.l} Peak Flow Conversion (divide by)`, G.conv, {dp:2});
   B.inp("gasFt", "Fittings Allowance on Friction Loss", w.fitPc, {unit:"%", dp:0});
   if (G.margin > 0) B.inp("gasMg", "Design Margin on Friction Loss", G.margin*100, {unit:"%", dp:1});
-  WS_CLASSES.forEach(c => { const cd = w.cdef[c.k]; B.inp("gasC" + c.k, `${c.l === "Branch" ? "Branches" : c.l + "s"} — ${cd.mat.label}${cd.minOD ? `, minimum ${cd.minOD} mm OD` : ""}, max. velocity`, cd.maxV, {unit:"m/s", dp:1}); });
+  WS_CLASSES.forEach(c => { const cd = w.cdef[c.k]; B.inp("gasC" + c.k, `${c.l === "Branch" ? "Branches" : c.l + "s"} — ${cd.mat.label}${cd.minOD ? `, minimum ${wsMinTxt(cd)}` : ""}, max. velocity`, cd.maxV, {unit:"m/s", dp:1}); });
   B.text("Q = 0.0127 [ (P1² − P2²) · d⁵ / (S · L · f) ]^0.5  for P > 75 mbar (P in bar " + (G.absBasis ? "absolute" : "gauge") + ")", {cls:"fx"});
   B.text("Q = 0.000571 [ ΔP · d⁵ / (S · L · f) ]^0.5  for P ≤ 75 mbar   ·   f = 0.0044 (1 + 43.5 / d)   ·   height effect = 0.123 (S − 1) · H mbar", {cls:"fx"});
   B.gap();
@@ -10544,9 +10546,9 @@ function clGasRows(B, p, res) {
   B.gap();
   B.section("2. Pipe Sizing and Pressure");
   B.tbl("gasN", {
-    head:[[{v:"Section (Class)", span:[1,1]}, {v:"From → To", span:[2,2]}, {v:"Q (m³/h)", span:[3,3]}, {v:"L / Rise (m)", span:[4,4]}, {v:"OD / ID (mm)", span:[5,5]}, {v:"Vel. (m/s)", span:[6,6]}, {v:"Loss (mbar)", span:[7,7]}, {v:"P at To (mbar)", span:[8,8]}, {v:"Stage loss %", span:[9,9]}]],
+    head:[[{v:"Section (Class)", span:[1,1]}, {v:"From → To", span:[2,2]}, {v:"Q (m³/h)", span:[3,3]}, {v:"L / Rise (m)", span:[4,4]}, {v:"Size / ID (mm)", span:[5,5]}, {v:"Vel. (m/s)", span:[6,6]}, {v:"Loss (mbar)", span:[7,7]}, {v:"P at To (mbar)", span:[8,8]}, {v:"Stage loss %", span:[9,9]}]],
     rows:w.out.map(x => [{v:`${x.id} (${x.cd.l})`, span:[1,1], al:"l"}, {v:`${x.from} ${x.rev ? "←" : "→"} ${x.to}`, span:[2,2], al:"l"}, {v:f(x.Q, 2), span:[3,3], dp:2},
-      {v:`${x.L.toFixed(1)}${Math.abs(x.dz) > 0.005 ? " / " + (x.dz > 0 ? "+" : "") + x.dz.toFixed(1) : ""}`, span:[4,4]}, {v:`${x.pipe.od} / ${x.pipe.id}`, span:[5,5]}, {v:f(x.v, 1), span:[6,6], dp:1},
+      {v:`${x.L.toFixed(1)}${Math.abs(x.dz) > 0.005 ? " / " + (x.dz > 0 ? "+" : "") + x.dz.toFixed(1) : ""}`, span:[4,4]}, {v:wsSzId(x.pipe), span:[5,5]}, {v:f(x.v, 1), span:[6,6], dp:1},
       {v:f(Math.abs(x.Pfrom - x.Pto), 2), span:[7,7], dp:2}, {v:f(x.Pto, 1), span:[8,8], dp:1}, {v:Number.isFinite(x.stagePct) ? `${x.stagePct.toFixed(1)}${x.ok ? "" : " ✗"}` : "✗", span:[9,9]}]),
   });
   B.gap();
@@ -11628,10 +11630,10 @@ function clWaterCompact(B, p, res, po) {
   if (twOn) { const nm0 = wsNodeMap(p); w.out.forEach(x => { twNm[x.id] = (wsTowerOfPipe(B.levels, {tower:x.s && x.s.tower, from:x.from, to:x.to}, nm0) || {name:"—"}).name; }); }
   const insT = (a, v) => twOn ? [a[0], v, ...a.slice(1)] : a;
   B.ptbl({
-    head:insT(["Pipe","Class","From → To","Length (m)",`Σ LU`,"Flow (L/s)","Size OD / ID (mm)","Vel. (m/s)","Friction (Pa/m)","Loss (m)","Rise (m)","Pressure (m)","Status"], "Tower"),
+    head:insT(["Pipe","Class","From → To","Length (m)",`Σ LU`,"Flow (L/s)","Size / ID (mm)","Vel. (m/s)","Friction (Pa/m)","Loss (m)","Rise (m)","Pressure (m)","Status"], "Tower"),
     widths:twOn ? [5,8,5,9,5,5,6,9.5,5,6.5,5,5,6,20] : [5.5,6,10.5,5.5,5.5,6.5,10.5,5.5,7,5.5,5.5,6.5,20],
     align:insT(["l","l","l","r","r","r","c","r","r","r","r","r","l"], "l"),
-    rows: pipes.map(x => { const s = status(x); return {bad:s.bad, cells:insT([x.id, x.cd.l, `${x.from} → ${x.to}`, f(x.L, x.geo ? 2 : 1), f(x.LU, 1), f(x.Qd, 3), `${x.pipe.od} / ${x.pipe.id}`, f(x.v, 2), f(x.grad, 0), f(x.hf + x.fitm + x.extra + x.eqLoss, 2), sg(x.dz, 1), f(x.Pto, 1), s.t], twNm[x.id])}; }),
+    rows: pipes.map(x => { const s = status(x); return {bad:s.bad, cells:insT([x.id, x.cd.l, `${x.from} → ${x.to}`, f(x.L, x.geo ? 2 : 1), f(x.LU, 1), f(x.Qd, 3), wsSzId(x.pipe), f(x.v, 2), f(x.grad, 0), f(x.hf + x.fitm + x.extra + x.eqLoss, 2), sg(x.dz, 1), f(x.Pto, 1), s.t], twNm[x.id])}; }),
   });
   if (twOn) {
     B.gap(); B.text("Summary by tower", {bold:true});
