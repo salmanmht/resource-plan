@@ -650,7 +650,7 @@
   .piw-calc .live-calc>div:last-child{max-height:none!important;flex:1 1 auto;min-height:0;overflow-y:auto}
   @media screen and (max-width:1250px){.piw{grid-template-columns:220px minmax(0,1fr) 320px}}
   @media screen and (max-width:1050px){.piw{grid-template-columns:220px minmax(0,1fr)}.piw-calc{grid-column:1/-1;position:static;max-height:none}.piw-calc .live-calc>div:last-child{max-height:460px!important}}
-  @media screen and (max-width:700px){.piw{grid-template-columns:1fr}.piw-list{position:static;max-height:300px}.piw-form{padding:14px}.piw-form-head{flex-wrap:wrap}.piw-del{opacity:1}}
+  @media screen and (max-width:700px){.piw{grid-template-columns:1fr}.piw-list{position:static;max-height:64dvh}.piw-form{padding:14px}.piw-form-head{flex-wrap:wrap}.piw-del{opacity:1}}
   /* ── Custom pump editors ── */
   .cfe{display:flex;flex-direction:column;gap:6px}
   .cfe-grid{display:grid;grid-template-columns:90px minmax(0,1.6fr) 110px 90px 28px;gap:6px;align-items:center}
@@ -1587,9 +1587,9 @@
   .pl-banner img{display:block!important;width:100%!important;height:auto!important;max-height:240px!important;object-fit:contain!important;object-position:center!important}
   .pl-card-top{padding:12px 14px 8px!important}.pl-stages{padding:0 14px 8px!important}.pl-card-foot{margin:0 14px!important;padding:10px 0 14px!important}.pl-open{min-height:44px!important;padding:0 24px!important}
   /* project sidebar */
-  .pump-sidebar.sbx{width:min(88vw,360px)!important;max-width:360px!important}.sbx-mobile-close{display:inline-flex!important}
+  .pump-sidebar.sbx{width:min(74vw,276px)!important;max-width:276px!important}.sbx-mobile-close{display:inline-flex!important}
   .pump-sidebar.sbx .sbx-head{padding:9px 12px!important}.pump-sidebar.sbx .sbx-body{padding:6px 9px 8px!important}.pump-sidebar.sbx .sbx-label{padding:6px 4px 3px!important}
-  .pump-sidebar.sbx .sbx-nav button,.pump-sidebar.sbx .sbx-nav a{min-height:43px!important;padding:7px 9px!important;font-size:13px!important}.sb-signoff{max-height:300px;overflow:auto}.sbx-foot{padding:8px 10px!important}
+  .pump-sidebar.sbx .sbx-nav button,.pump-sidebar.sbx .sbx-nav a{min-height:38px!important;padding:5px 8px!important;font-size:12.5px!important}.pump-sidebar.sbx .sbx-head b,.pump-sidebar.sbx .sbx-head .t{font-size:14px!important}.sb-signoff{max-height:300px;overflow:auto}.sbx-foot{padding:8px 10px!important}
   /* engineering schedule keeps cards and compact filters */
   .sch-head{padding:12px!important;gap:8px!important}.sch-title b{font-size:22px!important}.sch-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.sch-kpi{min-width:0!important;padding:10px!important}.sch-filter{padding:10px!important}.sch-bar{gap:8px!important}.sch-bar>*{min-width:0!important}.sch-card{padding:12px!important;border-radius:14px!important}
   /* clean agent — room-master then one selected room; no sticky desktop columns */
@@ -1598,7 +1598,7 @@
   .ca-list{padding:10px 7px!important}.ca-li{min-height:58px!important;grid-template-columns:22px minmax(0,1fr) auto!important;padding:7px 6px!important}.ca-li-a{display:none!important}.ca-li b{font-size:13px!important}.ca-li div>span{font-size:11px!important}.ca-inputs,.ca-design{padding:12px!important}.ca-g2,.ca-g3,.ca-grid{grid-template-columns:1fr!important}.ca-kpis{grid-template-columns:repeat(2,minmax(0,1fr))!important}.ca-design svg{max-width:100%!important;height:auto!important}
   /* full-table mode remains scrollable */ .ca-1 .ca-scroll{overflow-x:auto!important}.ca-1 .ca-tbl{min-width:1080px!important}
   /* pipe sizing canvas-first */
-  .pz{min-height:calc(100dvh - 54px)!important}.pz-top{padding:6px!important;overflow-x:auto!important;flex-wrap:nowrap!important}.pz-top>*{flex:0 0 auto}.pz-split.pz-design .pz-right{padding:4px!important}.wd{margin:2px!important;border-radius:8px!important}.wd-bar,.wd-ctx{overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;scrollbar-width:none}.wd-bar::-webkit-scrollbar,.wd-ctx::-webkit-scrollbar{display:none}.wd-stage{min-height:62dvh!important}.nc-insp{max-height:44dvh!important}.pz-drawer{width:94%!important}
+  .pz{min-height:calc(100dvh - 54px)!important}.pz-top{padding:6px 8px!important;overflow:visible!important;flex-wrap:wrap!important;gap:6px 8px!important}.pz-top>*{flex:0 0 auto}.pz-title{flex:1 1 40%!important;min-width:0}.pz-svc{flex:1 1 100%!important;max-width:100%;overflow-x:auto;scrollbar-width:none;order:3}.pz-svc::-webkit-scrollbar{display:none}.pz-top .pz-sp{display:none}.pz-top .ws-seg2{max-width:100%;overflow-x:auto;scrollbar-width:none}.pz-top .pz-kpi{flex:1 1 auto}.pz-top .pz-btn,.pz-top .ws-seg2 button{min-height:34px;font-size:12.5px;padding-top:0;padding-bottom:0}.pz-svc{flex-wrap:nowrap!important}.pz-svc button{white-space:nowrap;min-height:32px;font-size:12.5px}.pz-title span{display:none}.pz-top .pz-kpi{padding:3px 8px!important}.pz-top .pz-kpi span{font-size:9px!important}.pz-top .pz-kpi b{font-size:13px!important}.pz-split.pz-design .pz-right{padding:4px!important}.wd{margin:2px!important;border-radius:8px!important}.wd-bar,.wd-ctx{overflow-x:auto!important;overflow-y:hidden!important;flex-wrap:nowrap!important;scrollbar-width:none}.wd-bar::-webkit-scrollbar,.wd-ctx::-webkit-scrollbar{display:none}.wd-stage{min-height:62dvh!important}.nc-insp{max-height:44dvh!important}.pz-drawer{width:94%!important}
   /* engineering forms */
   .pf-grid,.hwd-top,.ca-grid{grid-template-columns:1fr!important}.ca-scroll{overflow-x:auto!important;-webkit-overflow-scrolling:touch}.hwd-t{min-width:1100px!important}
   /* reference data — readable wide editor, header and fields no longer clipped */
@@ -1677,7 +1677,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.12 · Build 2026.11.24.23";
+const BUILD_LABEL = "v1.119.15 · Build 2026.11.24.26";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -5973,6 +5973,7 @@ TOOL({key:"poolheat", group:"pool", title:"Swimming Pool Heating and Cooling Loa
 // the unit helpers wsQU / wsPU give m³/h and mbar instead of L/s and m.
 // ══════════════════════════════════════════════════════════════════════════════════════════════════════
 const wsIsGas = p => !!p && p.wsService === "gas";
+const wsSitePlan = p => !!p && (p.wsService === "gas" || (p.type === "water" && p.wsService === "fuel"));   // gas and fuel-oil networks share the site Plan view
 const WS_GAS_CV_ = 93.1;
 const WS_GAS_CV = WS_GAS_CV_;   // MJ/m³ (LPG, workbook SYSTEM PARAMS): m³/h = kW × 3.6 ÷ 93.1
 const WS_GAS_KG = 45.98;   // MJ/kg (LPG): kg/h = m³/h × 93.1 ÷ 45.98
@@ -13000,13 +13001,14 @@ function PrintPreview({children, active, measureKey}) {
   const boxRef = React.useRef(null);
   const pageRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
-  const [h, setH] = React.useState(0);
+  const [h, setH] = React.useState(0), [panX, setPanX] = React.useState(false);
   React.useLayoutEffect(() => {
     const box = boxRef.current, page = pageRef.current;
     if (!box || !page) return;
     const fit = () => {
       const w = box.clientWidth || A4;
-      const sc = Math.min(1, w / A4);
+      const sc = Math.min(1, Math.max(w / A4, w < 700 ? 0.9 : 0)), pan = sc > w / A4 + 0.001;
+      setPanX(pan);
       setScale(sc);
       setH(page.scrollHeight * sc);
     };
@@ -13019,7 +13021,7 @@ function PrintPreview({children, active, measureKey}) {
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", fit); clearTimeout(t); };
   }, [active, measureKey]);
   return (
-    <div className="ppreview" ref={boxRef} style={{height: h || undefined}}>
+    <div className="ppreview" ref={boxRef} style={{height: h || undefined, ...(panX ? {overflowX:"auto", overflowY:"hidden", WebkitOverflowScrolling:"touch"} : null)}}>
       <div className="ppreview-page" ref={pageRef} style={{width: A4, transform: "scale("+scale+")"}}>
         {children}
       </div>
@@ -16559,9 +16561,9 @@ function wsPlanLevels(L) {
 }
 const WS_GAS_PLAN = {key:"site", all:true, tower:{id:"", levels:[]}, idx:0, name:"Site plan", ffl:0, pipeZ:0};   // gas networks are one flat site: the plan shows every node
 // a gas network whose nodes are all at one height is a flat site: it is read from above (Plan, and the schematic drawn like the plan)
-const wsGasFlat = p => { if (!wsIsGas(p)) return false; const z = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(wsHasXYZ).map(n => Number(n.z)); return !z.length || Math.max(...z) - Math.min(...z) < 0.005; };
+const wsGasFlat = p => { if (!wsSitePlan(p)) return false; const z = (Array.isArray(p.wsNodes) ? p.wsNodes : []).filter(wsHasXYZ).map(n => Number(n.z)); return !z.length || Math.max(...z) - Math.min(...z) < 0.005; };
 const wsGasView = p => { const v = p && p.gasView; return v === "plan" || v === "elev" || v === "both" ? v : wsGasFlat(p) ? "plan" : "both"; };   // Setup → Drawing view; unset = Plan for a flat site, both views otherwise
-const wsGasPlanMode = p => wsIsGas(p) && (wsGasView(p) === "plan" || (wsGasView(p) === "both" && wsGasFlat(p)));
+const wsGasPlanMode = p => wsSitePlan(p) && (wsGasView(p) === "plan" || (wsGasView(p) === "both" && wsGasFlat(p)));
 const wsSchW = (w, p) => wsGasPlanMode(p) && w ? {...w, pumpIn:wsSchPump(w.pumpIn || p)} : w;
 const wsSchPump = p => wsGasPlanMode(p) ? {...p, wsNodes:(Array.isArray(p.wsNodes) ? p.wsNodes : []).map(n => wsHasXYZ(n) ? {...n, x:Number(n.x), y:0, z:Number(n.y) || 0} : n), wsNotes:[]} : p;
 function wsPlanOn(L, lv, n) {
@@ -16614,7 +16616,7 @@ function wsPlanMoveFloor(p, L, lv, ids, key) {
   return {patch:{wsNodes, wsFix, wsNet}, msg:{ok:!cut.length, text:`Moved ${set.size} node${set.size > 1 ? "s" : ""} to ${tgt.name} (${dz >= 0 ? "+" : "−"}${Math.abs(dz).toFixed(2)} m).` + (cut.length ? ` ${cut.join(", ")} now run${cut.length > 1 ? "" : "s"} between floors — check ${cut.length > 1 ? "them" : "it"} in Riser view.` : " Ctrl+Z undoes.")}};
 }
 function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
-  const gasSite = wsIsGas(pump), lvs = gasSite ? [WS_GAS_PLAN] : wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
+  const gasSite = wsSitePlan(pump), lvs = gasSite ? [WS_GAS_PLAN] : wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
   const [zOff, setZOff] = useState({}), [msg, setMsg] = useState(null);
   useEffect(() => { if (!msg) return; const t = setTimeout(() => setMsg(null), 7000); return () => clearTimeout(t); }, [msg]);
   const vp = useMemo(() => lv ? wsPlanVirt(pump, lvls, lv) : null, [pump, lvls, lv && lv.key]);
@@ -16782,6 +16784,20 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   useEffect(() => { const el = box.current; if (!el) return;
     const f = e => { e.preventDefault(); touched.current = true; const st = R.current, r = el.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, k = Math.exp(-e.deltaY*0.0015), s2 = Math.max(0.1, Math.min(5000, st.V.s*k)), u = (px - st.V.ox)/st.V.s, v = (st.V.oy - py)/st.V.s; setView({s:s2, ox:px - u*s2, oy:py + v*s2}); };
     el.addEventListener("wheel", f, {passive:false}); return () => el.removeEventListener("wheel", f); }, []);
+  // v1.119.15: two fingers pinch to zoom and drag to pan the drawing on a phone. The second finger cancels whatever the first started, and the pair is kept away from the draw / select handlers until both lift.
+  useEffect(() => { const el = box.current; if (!el) return;
+    const tp = new Map(); let pz = null;
+    const mid = () => { const a = [...tp.values()], r = el.getBoundingClientRect(); return {x:(a[0].x + a[1].x)/2 - r.left, y:(a[0].y + a[1].y)/2 - r.top, d:Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1}; };
+    const dn = e => { if (e.pointerType !== "touch") return; tp.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if (tp.size === 2) { dragRef.current = null; panRef.current = null; setDrag(null); setGh(null); const m = mid(); pz = {m0:m, V0:{...R.current.V}}; e.stopPropagation(); }
+      else if (pz) e.stopPropagation(); };
+    const mv = e => { if (e.pointerType !== "touch" || !tp.has(e.pointerId)) return; tp.set(e.pointerId, {x:e.clientX, y:e.clientY});
+      if (!pz || tp.size < 2) return; e.stopPropagation(); e.preventDefault(); touched.current = true;
+      const m = mid(), V0 = pz.V0, s2 = Math.max(0.1, Math.min(5000, V0.s*m.d/pz.m0.d)), u = (pz.m0.x - V0.ox)/V0.s, v = (V0.oy - pz.m0.y)/V0.s;
+      setView({s:s2, ox:m.x - u*s2, oy:m.y + v*s2}); };
+    const up = e => { if (e.pointerType !== "touch") return; const had = tp.delete(e.pointerId); if (pz && had) e.stopPropagation(); if (tp.size < 2 && pz && tp.size === 0) pz = null; else if (tp.size === 1 && pz) pz = {...pz, dead:true}; };
+    el.addEventListener("pointerdown", dn, true); el.addEventListener("pointermove", mv, true); el.addEventListener("pointerup", up, true); el.addEventListener("pointercancel", up, true);
+    return () => { el.removeEventListener("pointerdown", dn, true); el.removeEventListener("pointermove", mv, true); el.removeEventListener("pointerup", up, true); el.removeEventListener("pointercancel", up, true); }; }, []);
   useLayoutEffect(() => { const el = box.current; if (!el) return;
     let top0 = null;
     const f = () => { const r = el.getBoundingClientRect(), hostEl = el.closest(".ws-pane-body") || el.closest(".wd"), rTop = r.top - (hostEl ? hostEl.getBoundingClientRect().top : 0);
@@ -17107,7 +17123,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
 function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, locked, onDetail, blocks, setBlocks, lvls, stale, onCalc, projName}) {
   const [big, setBig] = useState(false);
   const [vw0, setVwS] = useState(() => { try { const v = localStorage.getItem("mep_ws_view"); return v === "sch" || v === "plan" ? v : "draw"; } catch(e) { return "draw"; } });
-  const planOK = !!pump && pump.type === "water" && (!pump.wsService || wsIsGas(pump)), gasV = wsIsGas(pump) ? wsGasView(pump) : "", gasFlat = wsGasPlanMode(pump), elevHide = gasV === "plan", planHide = gasV === "elev";
+  const planOK = !!pump && pump.type === "water" && (!pump.wsService || wsSitePlan(pump)), gasV = wsSitePlan(pump) ? wsGasView(pump) : "", gasFlat = wsGasPlanMode(pump), elevHide = gasV === "plan", planHide = gasV === "elev";
   const vw1 = vw0 === "plan" && (!planOK || planHide) ? "draw" : vw0 === "draw" && elevHide ? "plan" : vw0, vw = vw1 === "sch" && wsIsStress(pump) ? (elevHide ? "plan" : "draw") : vw1;
   const [plan, setPlan] = useState("");
   const setVw = v => { setVwS(v); setBig(false); try { localStorage.setItem("mep_ws_view", v); } catch(e) {} };
@@ -17142,7 +17158,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   return (
     <div className="ws-pane">
       <div className="ws-pane-head">
-        <div className="ws-seg2" role="tablist" aria-label="Drawing view">{!elevHide && <button type="button" className={vw === "draw" ? "on" : ""} onClick={() => setVw("draw")} title="Draw the network — the canvas is the main input">{wsIsGas(pump) ? "Elevation" : planOK ? "Riser" : "Draw"}</button>}{planOK && !planHide && <button type="button" className={vw === "plan" ? "on" : ""} onClick={() => setVw("plan")} title={wsIsGas(pump) ? "The network seen from above, like the site drawing — heights are kept" : "One floor seen from above — draw the branches to the fixtures over the floor plan PDF"}>Plan</button>}{!wsIsStress(pump) && <button type="button" className={vw === "sch" ? "on" : ""} onClick={() => setVw("sch")} title="The calculated network schematic">Schematic</button>}</div>
+        <div className="ws-seg2" role="tablist" aria-label="Drawing view">{!elevHide && <button type="button" className={vw === "draw" ? "on" : ""} onClick={() => setVw("draw")} title="Draw the network — the canvas is the main input">{wsSitePlan(pump) ? "Elevation" : planOK ? "Riser" : "Draw"}</button>}{planOK && !planHide && <button type="button" className={vw === "plan" ? "on" : ""} onClick={() => setVw("plan")} title={wsSitePlan(pump) ? "The network seen from above, like the site drawing — heights are kept" : "One floor seen from above — draw the branches to the fixtures over the floor plan PDF"}>Plan</button>}{!wsIsStress(pump) && <button type="button" className={vw === "sch" ? "on" : ""} onClick={() => setVw("sch")} title="The calculated network schematic">Schematic</button>}</div>
         {vw !== "sch" && w && <label className="nc-l" title="What each pipe label shows on the drawing once calculated">Labels<select value={rlbl} onChange={e => setRlbl(e.target.value)}>{WD_RLBL.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>}
         <label className="nc-l" title="Colour the pipes by class, or by their result">Colour<select value={cby} onChange={e => setCby(e.target.value)}>{(w && w.drainMode ? WS_CBY_DRAIN : WS_CBY).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
         {w && w.drainMode && w.out && w.out.length > WS_LARGE && <label className="nc-l" title="What is written on each pipe of the overview: the full calculation (ΣDU, K, flow, DN), flow and DN only, or nothing">Labels<select value={lbl} onChange={e => setLbl(e.target.value)}><option value="full">Full calculation</option><option value="flow">Flow · DN</option><option value="off">Off</option></select></label>}
