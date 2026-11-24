@@ -1677,7 +1677,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.9 · Build 2026.11.24.19";
+const BUILD_LABEL = "v1.119.12 · Build 2026.11.24.23";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -9061,7 +9061,7 @@ function stressSolve(M) {
     const set = new Set(); fw.forEach(v => set.add(+v.toFixed(6))); bw.forEach(v => set.add(+(len - v).toFixed(6)));
     let arr = [...set].filter(v => v >= 0 && v <= len).sort((a, b) => a - b);
     const out = [arr[0]]; for (let i = 1; i < arr.length; i++) { if (arr[i] - out[out.length - 1] < 0.2 && i < arr.length - 1) continue; out.push(arr[i]); }
-    if (out[out.length - 1] !== len) out.push(len);
+    if (len - out[out.length - 1] < 1e-4) out[out.length - 1] = len; else out.push(len);   // v1.119.11: the last station is rounded to 6 decimals, so it can sit a hair short of the pipe end and leave a sliver element (L ~ 1e-7) that wrecks the stiffness matrix
     // no element longer than h0
     const fin = [out[0]]; for (let i = 1; i < out.length; i++) { const gap = out[i] - out[i - 1], n = Math.max(1, Math.ceil(gap/h0 - 1e-9)); for (let k = 1; k <= n; k++) fin.push(out[i - 1] + gap*k/n); }
     return fin.map(v => v/len);
@@ -9212,29 +9212,31 @@ function stressSolve(M) {
   const sifOf = n => {
     const es = nodeEls[n].map(([i]) => EL[i]); if (!es.length) return {i:1, kind:"straight"};
     const D = es[0].pipe.D, t = es[0].pipe.t, r = (D - t)/2;
-    if (es.length >= 3) { const h = 3.1*t/r; return {i:Math.max(0.9/Math.pow(h, 2/3), 1), kind:"tee"}; }
+    if (es.length >= 3) { const h = (M.teeK || 3.1)*t/r; return {i:Math.max(0.9/Math.pow(h, 2/3), 1), kind:"tee"}; }
     if (es.length === 2) {
       const din = es[0].b === n ? es[0].xl : es[0].xl.map(v => -v), dout = es[1].a === n ? es[1].xl : es[1].xl.map(v => -v);
       const dev = Math.acos(Math.max(-1, Math.min(1, stDot(din, dout))));
-      if (dev > 0.0873) { const Rb = 1.5*D, h = t*Rb/(r*r); return {i:Math.max(0.9/Math.pow(h, 2/3), 1), kind:"elbow"}; }
+      if (dev > 0.0873) { const Rb = (M.bendR || 1.5)*D, h = t*Rb/(r*r); return {i:Math.max(0.9/Math.pow(h, 2/3), 1), kind:"elbow"}; }
     }
     return {i:1, kind:"straight"};
   };
   const sif = N.map((_, n) => sifOf(n));
+  // v1.119.11: the SIF, section modulus and area belong to each pipe meeting at a node (a tee joins pipes of different size), so every element end uses its own section
+  const sifE = (n, e) => { const k = sif[n].kind; if (k === "straight") return 1; const D = e.pipe.D, t = e.pipe.t, r = (D - t)/2, h = k === "tee" ? (M.teeK || 3.1)*t/r : t*((M.bendR || 1.5)*D)/(r*r); return Math.max(0.9/Math.pow(h, 2/3), 1); };
   const nodeRes = N.map((nd, n) => {
     const out = {id:nd.id, prim:nd.prim, x:nd.p[0], y:nd.p[1], z:nd.p[2], sif:sif[n].i, kind:sif[n].kind};
-    const endM = (c, k) => { let best = {Mb:0, Mt:0, F:0}; nodeEls[n].forEach(([i, side]) => { const f = c.efl[i], b = side*6; const My = f[b + 4], Mz = f[b + 5], Mt = f[b + 3], F = f[b]; const Mb = Math.hypot(My, Mz); if (Mb >= best.Mb) best = {Mb, Mt:Math.abs(Mt), F:Math.abs(F), Fs:F}; }); return best; };
+    const endM = (c, k) => { let best = {Mb:0, Mt:0, F:0, ei:nodeEls[n][0] ? nodeEls[n][0][0] : 0}; nodeEls[n].forEach(([i, side]) => { const f = c.efl[i], b = side*6; const My = f[b + 4], Mz = f[b + 5], Mt = f[b + 3], F = f[b]; const Mb = Math.hypot(My, Mz); if (Mb >= best.Mb) best = {Mb, Mt:Math.abs(Mt), F:Math.abs(F), Fs:F, ei:i}; }); return best; };
     const s = endM(sus), o = endM(op), h = hot ? endM(hot) : null;
     const el = nodeEls[n][0] ? EL[nodeEls[n][0][0]] : EL[0], Z = el.Z, A = el.A, D = el.pipe.D, t = el.pipe.t;
-    out.Pst = P*D/(4*t);   // longitudinal pressure stress, PD/4t
-    out.SL = out.Pst + Math.max(0.75*sif[n].i, 1)*s.Mb/Z;
+    const pS = EL[s.ei] || el; out.Pst = P*pS.pipe.D/(4*pS.pipe.t);   // longitudinal pressure stress, PD/4t
+    out.SL = out.Pst + Math.max(0.75*sifE(n, pS), 1)*s.Mb/pS.Z;
     // expansion range: algebraic difference of the operating / hot case and the sustained case (moments and force vectors per element end)
     const rng = (c) => { let best = 0, bF = 0; nodeEls[n].forEach(([i, side]) => { const f1 = c.efl[i], f0 = sus.efl[i], b = side*6; const dMy = f1[b + 4] - f0[b + 4], dMz = f1[b + 5] - f0[b + 5], dMt = f1[b + 3] - f0[b + 3], dF = f1[b] - f0[b];
-      const Sb = sif[n].i*Math.hypot(dMy, dMz)/Z, St = Math.abs(dMt)/(2*Z), Sa = M.mat.axialInExp ? Math.abs(dF)/A : 0; const SE = Math.sqrt((Sb + Sa)**2 + 4*St*St); if (SE > best) { best = SE; bF = Math.abs(dF); } }); return {SE:best, dF:bF}; };
+      const eZ = EL[i].Z, eA = EL[i].A, Sb = sifE(n, EL[i])*Math.hypot(dMy, dMz)/eZ, St = Math.abs(dMt)/(2*eZ), Sa = M.mat.axialInExp ? Math.abs(dF)/eA : 0; const SE = Math.sqrt((Sb + Sa)**2 + 4*St*St); if (SE > best) { best = SE; bF = Math.abs(dF); } }); return {SE:best, dF:bF}; };
     const e1 = rng(op), e2 = hot ? rng(hot) : {SE:0, dF:0};
     // range between hot (idle) and operating (cold) — the full thermal swing the pipe sees in service
     let e3 = {SE:0, dF:0}; if (h) { nodeEls[n].forEach(([i, side]) => { const f1 = hot.efl[i], f0 = op.efl[i], b = side*6; const dMy = f1[b + 4] - f0[b + 4], dMz = f1[b + 5] - f0[b + 5], dMt = f1[b + 3] - f0[b + 3], dF = f1[b] - f0[b];
-      const Sb = sif[n].i*Math.hypot(dMy, dMz)/Z, St = Math.abs(dMt)/(2*Z), Sa = M.mat.axialInExp ? Math.abs(dF)/A : 0; const SE = Math.sqrt((Sb + Sa)**2 + 4*St*St); if (SE > e3.SE) e3 = {SE, dF:Math.abs(dF)}; }); }
+      const eZ = EL[i].Z, eA = EL[i].A, Sb = sifE(n, EL[i])*Math.hypot(dMy, dMz)/eZ, St = Math.abs(dMt)/(2*eZ), Sa = M.mat.axialInExp ? Math.abs(dF)/eA : 0; const SE = Math.sqrt((Sb + Sa)**2 + 4*St*St); if (SE > e3.SE) e3 = {SE, dF:Math.abs(dF)}; }); }
     out.SE = Math.max(e1.SE, e2.SE, e3.SE); out.dF = Math.max(e1.dF, e2.dF, e3.dF);
     const SA = fac*(1.25*Sc + 0.25*Sh), SAx = Math.min(fac*(1.25*(Sc + Sh) - out.SL), 1e30);   // allowable range, with the liberal allowance when SL < Sh
     out.SA = out.SL < Sh ? Math.max(SA, SAx) : SA;
@@ -9272,7 +9274,7 @@ const ST_CODES = {"B31.9":"ASME B31.9 Building Services Piping", "B31.3":"ASME B
 const ST_REST = {free:"Free", anchor:"Anchor (fixed)", guide:"Guide (lateral + vertical)"};
 DEFS.stress = {...DEFS.gas, name:"Pipe Stress Analysis", tag:"STR-01", stressMode:true, wsDemand:"__GAS",
   stMat:"", stOD:"", stCode:"B31.9", stAxial:true, stF:1, stFluid:"", stIns:"", stSoil:"", stSup:"",
-  stP:16, stTinst:35, stTop:6, stTmax:40, stBuried:"buried", stCover:1, stMaxElem:3, stRest:[]};
+  stP:16, stTinst:35, stTop:6, stTmax:40, stBuried:"buried", stCover:1, stMaxElem:3, stBendR:1.5, stTeeK:3.1, stRest:[]};
 // every material, size, fluid, soil, support and insulation value comes from Reference Data; only project inputs have defaults above
 const stMatList = () => Object.keys(STRESS_REF.mats).filter(k => PIPE_MATERIALS[k]).map(k => ({value:k, label:PIPE_MATERIALS[k].label || STRESS_REF.mats[k].label}));
 const stSizes = p => { const m = p && p.stMat ? PIPE_MATERIALS[p.stMat] : null; return m && m.table ? m.table.slice().sort((a, b) => a.od - b.od) : []; };
@@ -9319,7 +9321,7 @@ function calculateStress(p) {
   const restr = {}; (Array.isArray(p.stRest) ? p.stRest : []).forEach(r => { if (r && r.node && ids.has(r.node) && (r.type === "anchor" || r.type === "guide")) restr[r.node] = r.type; });
   const model = {nodes:nodesUsed, pipes, mat:{E:E*1e9, nu:matP.nu, alpha:alpha*1e-6, rho:matP.rho, Sh:Sh*1e6, Sc:Sc*1e6, f:Number(g("stF")) || 1, axialInExp:g("stAxial") !== false},
     fluid:{rho:rhoF}, ins:{kgm:0}, P:P*1e5, T:{inst:Ti, op:To, max:Tm},
-    soil:{gamma:gam*1000, H:cover, K0, mu, dyAx:dyAx/1000, Nqh}, above:{mu:abMu, spacing}, restr, maxElem:maxEl};
+    soil:{gamma:gam*1000, H:cover, K0, mu, dyAx:dyAx/1000, Nqh}, above:{mu:abMu, spacing}, restr, maxElem:maxEl, bendR:fin("stBendR", "Bend radius (x pipe OD)", true), teeK:fin("stTeeK", "Tee flexibility factor", true)};
   const key = JSON.stringify(model), at = stMemo.keys.indexOf(key); let S;
   if (at >= 0) S = stMemo.vals[at];
   else { try { S = stressSolve(model); } catch (e) { console.error(e); S = {ok:false, errors:[e && e.message ? e.message : "The stress solver failed."]}; }
@@ -9455,6 +9457,8 @@ function StressForm({pump, res, edit, tabReq, sel, setSel}) {
           {soilR && <div className="cfe-help" style={{gridColumn:"1 / -1"}}>{`γ ${soilR.gamma} kN/m³ · K0 ${soilR.K0} · friction ${soilR.mu} · yield ${soilR.dyAx} mm · Nqh ${soilR.Nqh}`}{soilR.src ? " · " + soilR.src : ""}</div>}
           <S label="Support type, above ground (Reference Data)" value={g("stSup")} onChange={v => u("stSup", v)} options={pick(SR.supports.map(x => ({value:x.code, label:x.name})))} />
           {supR && <div className="cfe-help" style={{gridColumn:"1 / -1"}}>{`Friction ${supR.mu} · spacing ${supR.spacing} m`}{supR.src ? " · " + supR.src : ""}</div>}
+          <N label="Bend radius" unit="× OD" value={g("stBendR")} onChange={v => u("stBendR", v)} min={1} hint="Radius of every elbow as a multiple of the pipe outside diameter. 1.5 is a short-radius elbow. Long-radius bends are 3 to 5 or more" />
+          <N label="Tee flexibility factor" unit="k" value={g("stTeeK")} onChange={v => u("stTeeK", v)} min={0.5} hint="Tee flexibility h = k·t/r. 3.1 is the welded tee used so far. A reinforced or forged tee gives a higher k and a lower stress multiplier. Confirm against the code edition" />
           <N label="Maximum element length" unit="m" value={g("stMaxElem")} onChange={v => u("stMaxElem", v)} min={0.5} hint="Mesh size along the pipe. 2 to 3 m is fine for a ring" />
         </div></section>
     </>}
@@ -20212,7 +20216,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
       if (first) {
         const { data: full } = await sb.from("project_stages").select("pumps,meta").eq("id", first.id).single();
         const ps = (full && full.pumps) || [];
-        if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
+        if (ps.length) _id = Math.max(_id, ...ps.map(p=>Number(p.id)||0)) + 1;
         setCurrentStageId(first.id);
         stageBaseline(ps, full && full.meta);
         setPumps(ps);
@@ -20378,7 +20382,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   const reloadStage = async () => {
     const { data } = await sb.from("project_stages").select("pumps,meta").eq("id", currentStageId).single();
     const ps = (data && data.pumps) || [];
-    if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
+    if (ps.length) _id = Math.max(_id, ...ps.map(p=>Number(p.id)||0)) + 1;
     if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
     stageBaseline(ps, data && data.meta); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta)); setEditId(ps[0]?.id ?? null); setSaveStatus("saved");
   };
@@ -20401,7 +20405,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
       const { data, error } = await sb.from("project_stages").select("pumps,meta").eq("id", currentStageId).single();
       if (error) throw error;
       const ps = (data && data.pumps) || [];
-      if (ps.length) _id = Math.max(_id, ...ps.map(p => p.id)) + 1;
+      if (ps.length) _id = Math.max(_id, ...ps.map(p => Number(p.id)||0)) + 1;
       if (pumpsDebounceRef.current) { clearTimeout(pumpsDebounceRef.current); pumpsDebounceRef.current = null; }
       const before = pumps.length;
       stageBaseline(ps, data && data.meta); setPumps(ps); setMeta(normalizeStageMeta(data && data.meta));
@@ -20488,7 +20492,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     await flushPumpsSave();
     const { data } = await sb.from("project_stages").select("pumps,meta").eq("id", id).single();
     const ps = (data && data.pumps) || [];
-    if (ps.length) _id = Math.max(_id, ...ps.map(p=>p.id)) + 1;
+    if (ps.length) _id = Math.max(_id, ...ps.map(p=>Number(p.id)||0)) + 1;
     setCurrentStageId(id);
     stageBaseline(ps, data && data.meta);
     setPumps(ps);
