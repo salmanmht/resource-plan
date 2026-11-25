@@ -1577,9 +1577,7 @@
   /* projects home */
   .pl-head-in{padding:9px 12px!important;gap:8px!important;flex-wrap:nowrap!important}
   .pl-brand{min-width:0;margin-right:auto!important}.pl-brand b{font-size:16px!important}.pl-brand .build-pill{font-size:10px!important;max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .pl-user{display:none!important}.pl-nav{order:0!important;width:auto!important;max-width:44px;overflow:hidden!important;background:transparent!important;padding:0!important}
-  .pl-nav button,.pl-nav a{display:none!important}.pl-nav button:last-child,.pl-nav a:last-child{display:inline-flex!important;width:42px;height:42px;padding:0!important;justify-content:center;font-size:0!important;border:1px solid #d2d2d7!important;background:#fff!important}
-  .pl-nav button:last-child:after,.pl-nav a:last-child:after{content:'☰';font-size:20px;color:#1d1d1f}
+  .pl-head-home .pl-user,.pl-head-home .pl-nav{display:none!important}.pl-head:not(.pl-head-home) .pl-nav{order:3;width:100%;overflow-x:auto}   /* v1.119.16: folded into the ☰ menu (.pl-drop) */
   .pl-main{padding:12px!important}.pl-top{gap:8px!important;margin-bottom:12px!important}.pl-top h1{font-size:22px!important}
   .pl-grid{grid-template-columns:1fr!important;gap:12px!important}
   .pl-card{padding:0!important;gap:0!important;border-radius:16px!important;overflow:hidden!important}
@@ -1640,6 +1638,81 @@
 .tl-pick-group .tl-mod:hover{border-color:#0071e3;box-shadow:0 2px 8px rgba(0,113,227,.15)}
 .tl-pick-group .tl-mod b{font-size:11.5px!important;line-height:1.2}.tl-pick-group .tl-mod span{font-size:9.5px!important;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}
 @media screen and (max-width:600px){.tl-pick-body{grid-template-columns:1fr!important}}
+
+/* ════ v1.119.16 — PHONE LAYOUT (≤760 px). Last in the sheet so it wins; desktop is untouched. ════ */
+.pl-menu-btn,.pl-drop,.calcpick-m,.ppreview-zoom{display:none}
+@media screen and (max-width:760px){
+  /* projects page: ☰ opens a real menu */
+  .pl-head{position:relative}
+  .pl-menu-btn{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;flex:0 0 44px;margin-left:auto;border:1px solid #d2d2d7;border-radius:12px;background:#fff;font-size:20px;color:#1d1d1f;cursor:pointer}
+  .pl-drop{display:flex;flex-direction:column;gap:2px;position:absolute;right:10px;top:calc(100% - 4px);z-index:60;width:min(290px,calc(100vw - 20px));background:#fff;border:1px solid #e1e1e6;border-radius:14px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:8px}
+  .pl-drop>button,.pl-drop>a{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px;border:0;border-radius:10px;background:transparent;font-size:14px;font-weight:650;color:#1d1d1f;text-decoration:none;text-align:left;cursor:pointer}
+  .pl-drop>button:active,.pl-drop>a:active{background:#f0f0f3}
+  .pl-drop-user{padding:6px 10px 10px;border-bottom:1px solid #f0f0f2;margin-bottom:4px}
+  .pl-drop .pl-drop-out{color:#c62828}
+  .pl-card-foot{width:auto!important;box-sizing:border-box}
+  .pl-card-foot .pl-open{flex:1 1 auto!important;max-width:60%}
+
+  /* any field told to span columns fills the row instead of opening a phantom column (this is what squeezed
+     "Occupa…", the "Qi" name box and the stacked gas tiles) */
+  [style*="grid-column: span"],[style*="grid-column: 1 / -1"]{grid-column:1/-1!important}
+  .pf-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .pf-id{grid-template-columns:repeat(2,minmax(0,1fr))!important}.pf-id>:first-child{grid-column:1/-1}
+  .pf-f label,.pf-f>span:first-child{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;font-size:10.5px!important;line-height:1.25}
+  .pf-row{align-items:end}
+  .setup-grid,.setup-grid3{grid-template-columns:minmax(0,1fr)!important}
+  .setup-card div,.setup-card label{min-width:0;max-width:100%}.setup-card input[type=file]{max-width:100%;font-size:13px}
+  .client-brand-card [style*="grid-template-columns"]{grid-template-columns:repeat(2,minmax(0,1fr))!important}.client-brand-card [style*="grid-template-columns"]>:first-child{grid-column:1/-1;word-break:break-all}
+  .setup-grid3>*{min-width:0}.setup-grid3 input[type=date]{min-width:0;max-width:150px}
+
+  /* lists use the full width */
+  .ca-3{align-items:stretch!important}.ca-3>section,.ca-3>.ca-split>section,.ca-list,.ca-li-wrap,.ca-li{width:100%!important;box-sizing:border-box}
+  .ca-3>.ca-list .ca-li-wrap{max-height:min(56dvh,540px);overflow-y:auto;overscroll-behavior:contain}
+  .app-content select,.app-content input:not([type=checkbox]):not([type=radio]){max-width:100%}
+  .nc-l{max-width:100%;min-width:0;flex-wrap:wrap}.nc-l select{min-width:0;flex:1 1 140px}
+  table.ca-xs,.ca-1 table.ca-xs{min-width:0!important;width:100%}
+  .ca-li{height:auto!important;max-height:none!important;align-items:center;flex:0 0 auto!important}.piw-items>*,.piw-item{flex:0 0 auto!important}.ca-li>div{min-width:0;overflow:visible!important}
+  .ca-li b,.ca-li div>b{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;display:block}
+  .ca-li div>span{white-space:normal!important}
+  /* calculations list on Pumps and equipment: tall enough to see the stage, still leaves the form on screen */
+  .piw-list,.piw-left .piw-list{max-height:none!important}
+  .piw-items{max-height:min(58dvh,560px)!important}
+  .piw-item{min-height:48px}
+
+  /* header action rows wrap instead of running off the screen */
+  .ca-head>div:last-child,.ca-acts,.calc-export-actions,.sw-acts{flex-wrap:wrap!important;overflow:visible!important}
+  .sw-tabs,.tl-grps{flex-wrap:wrap!important;overflow:visible!important;row-gap:6px}
+  .calc-export-bar{flex-direction:column}.calc-export-actions>*{flex:1 1 calc(50% - 8px)}
+
+  /* Pipe Sizing: panels cover the whole screen; Split and Verify engine are desktop tools */
+  .pz-drawer{width:100%!important;border-right:0!important;box-shadow:none!important}
+  .pz-top .pz-split-btn,.pz-top .pz-verify{display:none!important}
+  .pz-top .pz-save{display:none}
+  .pz-drawer .ws-form,.pz-drawer fieldset{min-width:0;max-width:100%}
+  .ws-cls{grid-template-columns:64px repeat(3,minmax(0,1fr))!important;gap:6px!important}
+  .ws-cls .pf-in{min-width:0}.ws-cls .pf-in input{min-width:0;width:100%}.ws-cls .pf-in span{padding:0 4px 0 0!important;font-size:10px}
+  .ws-cls-h{font-size:10.5px!important;white-space:normal}
+  .cfe-grid:not(.heads){grid-template-columns:64px minmax(0,1fr) 64px 28px!important}
+  .cfe-grid>*{min-width:0}
+
+  /* Submission: one dropdown picks the sheet; the long picker list is a desktop thing */
+  .cs-sticky{position:static!important}.cs-sticky .cs-issue .sbx-export{flex-wrap:wrap!important;overflow:visible!important}.cs-sticky .cs-issue .sbx-export button{flex:1 1 calc(50% - 6px)!important;min-height:40px;white-space:normal!important}
+  .cs-units{flex-wrap:wrap!important;max-width:100%;min-width:0}.cs-units label{max-width:100%;min-width:0}.cs-units select{min-width:0!important;max-width:calc(100vw - 120px)!important}
+  .calcwrap,.calcwrap.rz{display:block!important}.calcwrap>*{min-width:0;max-width:100%}
+  .calcwrap .calcpick{flex-direction:column!important;overflow:visible!important;max-height:none!important;position:static!important;gap:6px}
+  .calcwrap .calcpick .calcpick-grp{display:none!important}
+  .calcwrap .calcpick-filter{position:static;width:100%}.calcwrap .calcpick-filter select{height:42px;font-size:15px!important}
+  .calcpick-m{display:flex;gap:6px;align-items:center}
+  .calcpick-m select{flex:1;min-width:0;height:44px;border:1px solid #c8dafa;border-radius:10px;background:#f5f9ff;color:#0b4f8a;font-weight:700;padding:0 10px}
+  .calcpick-m button{flex:0 0 44px;height:44px;border:1px solid #d2d2d7;border-radius:10px;background:#fff;font-size:22px;color:#1d1d1f}
+  .calcpick-m button:disabled{opacity:.35}
+  .calcwrap .pz-div,.calcwrap .col-drag{display:none!important}
+  .ppreview-zoom{display:inline-flex;position:sticky;left:calc(100% - 132px);top:6px;z-index:5;margin:0 0 -34px auto;height:30px;padding:0 10px;align-items:center;border:1px solid #c8dafa;border-radius:999px;background:#fff;color:#0b4f8a;font-size:12px;font-weight:800;box-shadow:0 2px 8px rgba(0,0,0,.12)}
+
+  /* readable minimum for captions and status chips */
+  .status-chip,.piw-chip,.pz-kpi span,.live-calc-section,.piw-calc-title,.sbx-label,.mobile-stage,.stage-status,.calcpick-body span,.ws-cs-h{font-size:10.5px!important}
+  .pump-mobile-save{font-size:11px!important}
+}
 </style>
 </head>
 <body>
@@ -1677,7 +1750,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.15 · Build 2026.11.24.26";
+const BUILD_LABEL = "v1.119.16 · Build 2026.11.24.27";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -13001,14 +13074,14 @@ function PrintPreview({children, active, measureKey}) {
   const boxRef = React.useRef(null);
   const pageRef = React.useRef(null);
   const [scale, setScale] = React.useState(1);
-  const [h, setH] = React.useState(0), [panX, setPanX] = React.useState(false);
+  const [h, setH] = React.useState(0), [panX, setPanX] = React.useState(false), [full, setFull] = React.useState(false), [narrow, setNarrow] = React.useState(false);
   React.useLayoutEffect(() => {
     const box = boxRef.current, page = pageRef.current;
     if (!box || !page) return;
     const fit = () => {
       const w = box.clientWidth || A4;
-      const sc = Math.min(1, Math.max(w / A4, w < 700 ? 0.9 : 0)), pan = sc > w / A4 + 0.001;
-      setPanX(pan);
+      const sc = full ? 1 : Math.min(1, w / A4);
+      setPanX(full && w < A4); setNarrow(w < 700);
       setScale(sc);
       setH(page.scrollHeight * sc);
     };
@@ -13019,9 +13092,10 @@ function PrintPreview({children, active, measureKey}) {
     // Content height changes after fonts/images settle, so re-measure shortly after.
     const t = setTimeout(fit, 350);
     return () => { if (ro) ro.disconnect(); window.removeEventListener("resize", fit); clearTimeout(t); };
-  }, [active, measureKey]);
+  }, [active, measureKey, full]);
   return (
     <div className="ppreview" ref={boxRef} style={{height: h || undefined, ...(panX ? {overflowX:"auto", overflowY:"hidden", WebkitOverflowScrolling:"touch"} : null)}}>
+      {narrow && active && <button type="button" className="ppreview-zoom no-print" onClick={() => setFull(v => !v)}>{full ? "⤡ Fit to screen" : "⤢ Actual size"}</button>}
       <div className="ppreview-page" ref={pageRef} style={{width: A4, transform: "scale("+scale+")"}}>
         {children}
       </div>
@@ -16784,7 +16858,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   useEffect(() => { const el = box.current; if (!el) return;
     const f = e => { e.preventDefault(); touched.current = true; const st = R.current, r = el.getBoundingClientRect(), px = e.clientX - r.left, py = e.clientY - r.top, k = Math.exp(-e.deltaY*0.0015), s2 = Math.max(0.1, Math.min(5000, st.V.s*k)), u = (px - st.V.ox)/st.V.s, v = (st.V.oy - py)/st.V.s; setView({s:s2, ox:px - u*s2, oy:py + v*s2}); };
     el.addEventListener("wheel", f, {passive:false}); return () => el.removeEventListener("wheel", f); }, []);
-  // v1.119.15: two fingers pinch to zoom and drag to pan the drawing on a phone. The second finger cancels whatever the first started, and the pair is kept away from the draw / select handlers until both lift.
+  // v1.119.16: two fingers pinch to zoom and drag to pan the drawing on a phone. The second finger cancels whatever the first started, and the pair is kept away from the draw / select handlers until both lift.
   useEffect(() => { const el = box.current; if (!el) return;
     const tp = new Map(); let pz = null;
     const mid = () => { const a = [...tp.values()], r = el.getBoundingClientRect(); return {x:(a[0].x + a[1].x)/2 - r.left, y:(a[0].y + a[1].y)/2 - r.top, d:Math.hypot(a[0].x - a[1].x, a[0].y - a[1].y) || 1}; };
@@ -17287,7 +17361,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
         {cur && <div className="ws-seg2" role="group" aria-label="Panels">
           {[["", "Design", "Full-width drawing (Esc closes a panel)"], ["setup", "Setup", "Design basis, source, pressures, pipe classes"], ["pipes", "Pipes", "The pipe table — lengths, sizes, fittings"], ["results", "Results", "Design review, warnings, pump duty"]].map(([k, l, t]) =>
             <button type="button" key={k || "d"} className={design && (pzPanel || "") === k ? "on" : ""} title={t} onClick={() => { if (!k) { setPzPanel(null); if (!design) setPzLay("design"); return; } if (design && pzPanel === k) { setPzPanel(null); return; } goTab(k); }}>{l}</button>)}
-          <button type="button" className={!design ? "on" : ""} title="Side-by-side: inputs on the left, drawing on the right" onClick={() => setPzLay(design ? "split" : "design")}>Split</button>
+          <button type="button" className={"pz-split-btn" + (!design ? " on" : "")} title="Side-by-side: inputs on the left, drawing on the right" onClick={() => setPzLay(design ? "split" : "design")}>Split</button>
         </div>}
         <div className="pz-calc"><div className="ws-seg2" role="group" aria-label="Calculation mode"><button type="button" className={calcMode === "auto" ? "on" : ""} onClick={() => setCalcMode("auto")} title="Every edit recalculates at once">Auto</button><button type="button" className={calcMode === "manual" ? "on" : ""} onClick={() => setCalcMode("manual")} title="Results change only when Calculate is pressed">Manual</button></div>
           <button type="button" className={"pz-btn pri" + (stale ? " pz-pulse" : "")} onClick={calcAll} title="Calculate everything now (Ctrl+Enter)">▶ Calculate</button></div>
@@ -17297,7 +17371,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
           <button type="button" className={"pz-kpi pz-st " + (w.status === "valid" ? "ok" : w.status === "warn" ? "warn" : "bad")} onClick={() => goTab("results")} title="Open the design review"><span>Design status</span><b>{WS_STATUS[w.status].l}{w.nFail ? ` · ${w.nFail}` : w.nWarn ? ` · ${w.nWarn}` : ""}</b></button></>}
         {res && res.error && !res.stressMode && <button type="button" className="pz-kpi pz-st bad" onClick={() => goTab("results")} title="Open the design review"><span>Design status</span><b>Blocked · {res.errors.length}</b></button>}{res && res.stressMode && (res.stress ? (() => { const S = res.stress, wr = Math.max(S.summary.maxSL, S.summary.maxSE); return <>{chip(S.summary.maxSL <= 1 ? "ok" : "bad", "Sustained", (S.summary.maxSL*100).toFixed(0) + " % of Sh")}{chip(S.summary.maxSE <= 1 ? "ok" : "bad", "Expansion", (S.summary.maxSE*100).toFixed(0) + " % of SA")}{chip("", "Max movement", (S.summary.maxDisp_op*1e3).toFixed(0) + " mm")}<button type="button" className={"pz-kpi pz-st " + (wr <= 1 ? "ok" : "bad")} onClick={() => goTab("results")} title="Open the stress results"><span>Stress status</span><b>{wr <= 1 ? "Pass" : "Fail"}</b></button></>; })() : <button type="button" className="pz-kpi pz-st bad" onClick={() => goTab("results")} title="Open the issues"><span>Stress status</span><b>Blocked · {res.errors.length}</b></button>)}
         <span className={"pz-save " + saveStatus}>{saveTxt}</span>
-        <button type="button" className="pz-btn" onClick={() => setShowTest(true)} title="Run hand-built verification cases against an independent solver">✔ Verify engine</button>
+        <button type="button" className="pz-btn pz-verify" onClick={() => setShowTest(true)} title="Run hand-built verification cases against an independent solver">✔ Verify engine</button>
         <button type="button" className="pz-btn pri" onClick={saveNow}>⤓ Save</button>
         <button type="button" className="pz-btn" onClick={onBack} title="Back to Calculation Inputs">✕ Close</button>
       </div>
@@ -20988,13 +21062,22 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               {(() => { const groups = calcPickGroups(sheetItems), shown = pickFilter === "all" ? groups : groups.filter(g => g.k === pickFilter);
                 return <>
                   <div className="calcpick-filter">
-                    <select value={groups.some(g => g.k === pickFilter) ? pickFilter : "all"} onChange={e => setPickFilter(e.target.value)} title="Show one kind of calculation">
+                    <select value={groups.some(g => g.k === pickFilter) ? pickFilter : "all"} onChange={e => { const k = e.target.value, g = groups.find(x => x.k === k); setPickFilter(k); if (g && g.items.length && !g.items.some(x => x.p.id === printPick)) setPrintPick(g.items[0].p.id); }} title="Show one kind of calculation">
                       <option value="all">All {discLbl ? discLbl.toLowerCase() + " " : ""}calculations ({sheetItems.length})</option>
                       {groups.map(g => <option key={g.k} value={g.k}>{g.l} ({g.items.length})</option>)}
                     </select>
                     {pickFilter === "all" && groups.length > 1 && <button type="button" title={groups.every(g => pickClosed[g.k]) ? "Expand all groups" : "Collapse all groups"}
                       onClick={() => { const all = groups.every(g => pickClosed[g.k]), n = {}; groups.forEach(g => { n[g.k] = !all; }); setPickClosed(n); try { localStorage.setItem("mep_pick_closed", JSON.stringify(n)); } catch (e) {} }}>{groups.every(g => pickClosed[g.k]) ? "⊞" : "⊟"}</button>}
                   </div>
+                  {(() => { const flat = shown.flatMap(g => g.items), at = flat.findIndex(x => x.p.id === printPick);   // v1.119.16: phones pick the sheet from a dropdown
+                    return <div className="calcpick-m">
+                      <button type="button" disabled={at <= 0} onClick={() => at > 0 && setPrintPick(flat[at - 1].p.id)} aria-label="Previous sheet">‹</button>
+                      <select value={at >= 0 ? printPick : ""} onChange={e => { const x = flat.find(y => String(y.p.id) === e.target.value); if (x) setPrintPick(x.p.id); }} aria-label="Calculation sheet">
+                        {at < 0 && <option value="">Choose a sheet…</option>}
+                        {shown.map(g => <optgroup key={g.k} label={g.l}>{g.items.map(({p, i}) => <option key={p.id} value={p.id}>{i + 1}. {p.name || typeLbl(p) || "Calculation"}{p.tag ? " · " + p.tag : ""}</option>)}</optgroup>)}
+                      </select>
+                      <button type="button" disabled={at < 0 || at >= flat.length - 1} onClick={() => at < flat.length - 1 && setPrintPick(flat[at + 1].p.id)} aria-label="Next sheet">›</button>
+                    </div>; })()}
                   {shown.map(g => { const closed = pickFilter === "all" && !!pickClosed[g.k], hasSel = g.items.some(x => x.p.id === printPick);
                     return <div key={g.k} className="calcpick-grp">
                       <button type="button" className={"calcpick-gh" + (hasSel ? " sel" : "")} onClick={() => pickFilter === "all" && togglePickGroup(g.k)}>
@@ -21477,6 +21560,7 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
   const myEmailPH=(session.user.email||'').toLowerCase();
   const canMepPH=isAdmin||roles.some(r=>r.active!==false&&(r.email||'').toLowerCase()===myEmailPH&&r.role==='associate');
   const [wfInfo, setWfInfo] = useState({}); // project_id -> {awaiting:[names], closed:n, awaitingMine:n}
+  const [plMenu, setPlMenu] = useState(false);   // v1.119.16: phone menu (the header links fold into it)
   const userId = session.user.id;
   const [list, setList]   = useState(null); // null = loading
   const [stageCounts, setStageCounts] = useState({}); // project_id -> [stage_name,...]
@@ -21625,7 +21709,7 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
   const locked=row=>!!(wfInfo[row.id]&&(wfInfo[row.id].closed||wfInfo[row.id].awaiting.length));
   return (
     <div className="global-page pl-page">
-      <header className="pl-head">
+      <header className="pl-head pl-head-home">
         <div className="pl-head-in">
           <div className="pl-brand"><div className="pl-logo">▥</div><div><b>Equipment Calculator</b><span className="build-pill" title="Running build">{BUILD_LABEL}</span></div></div>
           <nav className="pl-nav">
@@ -21634,7 +21718,15 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
             {isAdmin && <button type="button" onClick={onOpenRefData}>▤ Reference Data</button>}
           </nav>
           <div className="pl-user"><UserBadge session={session} me={me} roles={roles} /><button type="button" className="pl-out" onClick={()=>sb.auth.signOut()} title="Sign out" aria-label="Sign out">⏻</button></div>
+          <button type="button" className="pl-menu-btn" onClick={()=>setPlMenu(v=>!v)} aria-expanded={plMenu} aria-label="Menu">{plMenu ? "✕" : "☰"}</button>
         </div>
+        {plMenu && <div className="pl-drop">
+          <div className="pl-drop-user"><UserBadge session={session} me={me} roles={roles} /></div>
+          {isAdmin && <button type="button" onClick={()=>{setPlMenu(false);onOpenTeam();}}>👥 Team &amp; Access{pendingCount>0 && <i className="pl-badge">{pendingCount}</i>}</button>}
+          <a href="spec.html">§ Specifications</a>
+          {isAdmin && <button type="button" onClick={()=>{setPlMenu(false);onOpenRefData();}}>▤ Reference Data</button>}
+          <button type="button" className="pl-drop-out" onClick={()=>sb.auth.signOut()}>⏻ Sign out</button>
+        </div>}
       </header>
       <main className="pl-main">
         <div className="pl-top">
