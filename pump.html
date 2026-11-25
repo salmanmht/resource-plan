@@ -870,6 +870,27 @@
   .wd-n{font:700 10.5px ui-sans-serif,system-ui,sans-serif;fill:#1d1d1f;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
   .wd-f{font:800 10.5px ui-sans-serif,system-ui,sans-serif;fill:#1b6b3a;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
   .wd-z{font:600 9.5px ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;fill:#8a97a8}
+  /* Column picker — choose which columns a schedule shows. Columns are hidden by position in CSS rather than by changing the
+     table markup, so the printed sheet follows the same rules without a second code path. */
+  .cp-wrap{position:relative;display:inline-block}
+  .cp-btn{display:inline-flex;align-items:center;gap:6px;border:1px solid #d2d2d7;background:#fff;border-radius:8px;padding:4px 10px;font:600 11.5px ui-sans-serif,system-ui,sans-serif;color:#1d1d1f;cursor:pointer;text-transform:none;letter-spacing:0}
+  .cp-btn:hover{background:#f5f5f7}
+  .cp-btn b{font-weight:700;color:#0071e3}
+  .cp-pop{position:absolute;z-index:60;top:calc(100% + 6px);left:0;width:330px;max-height:440px;overflow:auto;background:#fff;border:1px solid #d9d9de;border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.16);padding:10px;text-transform:none;letter-spacing:0}
+  .cp-search{width:100%;box-sizing:border-box;border:1px solid #d2d2d7;border-radius:8px;padding:7px 10px;font:400 12.5px ui-sans-serif,system-ui,sans-serif;margin-bottom:4px}
+  .cp-search:focus{outline:none;border-color:#0071e3}
+  .cp-grp{display:flex;align-items:center;gap:8px;padding:7px 6px;background:#f5f5f7;border-radius:8px;margin-top:6px;cursor:pointer;user-select:none}
+  .cp-grp b{flex:1;font:700 12.5px ui-sans-serif,system-ui,sans-serif;color:#1d1d1f}
+  .cp-cnt{font:600 11px ui-sans-serif,system-ui,sans-serif;color:#0071e3;background:#eaf3ff;border-radius:20px;padding:2px 9px;white-space:nowrap}
+  .cp-row{display:flex;align-items:center;gap:9px;padding:5px 6px 5px 15px;cursor:pointer;border-radius:7px;font:400 12.5px ui-sans-serif,system-ui,sans-serif;color:#86868b}
+  .cp-row:hover{background:#f5f5f7}
+  .cp-row.on{color:#1d1d1f}
+  .cp-row em{font-style:normal;color:#a1a1a6}
+  .cp-none{padding:10px 6px;color:#86868b;font:400 12px ui-sans-serif,system-ui,sans-serif}
+  .cp-foot{display:flex;gap:8px;margin-top:10px;padding-top:9px;border-top:1px solid #ececf0}
+  .cp-foot button{flex:1;border:1px solid #d2d2d7;background:#fff;border-radius:7px;padding:5px;font:600 11.5px ui-sans-serif,system-ui,sans-serif;cursor:pointer}
+  .cp-foot button:hover{background:#f5f5f7}
+  @media print{.cp-wrap{display:none!important}}
   .wd-v{font:700 8.5px ui-sans-serif,system-ui,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:2.4px;stroke-linejoin:round}
   .wd-nr{font:800 10.5px ui-sans-serif,system-ui,sans-serif;paint-order:stroke;stroke:#fff;stroke-width:3px;stroke-linejoin:round}
   .wd-sy{font:800 9px ui-sans-serif,system-ui,sans-serif;fill:#33415c}
@@ -1763,7 +1784,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.17 · Build 2026.11.25.01";
+const BUILD_LABEL = "v1.119.18 · Build 2026.11.25.03";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -6749,7 +6770,7 @@ function wsValidateBase(p) {
     [["luAdd", "direct loading units"], ["qAdd", "direct flow"], ["reqP", "required pressure"]].forEach(([k, l]) => { if (n[k] !== "" && n[k] != null && !(Number.isFinite(Number(n[k])) && Number(n[k]) >= 0)) add("error", "loads", `Node ${n.id}: ${l} must be zero or greater.`, "node", n.id); });
     const hasDirect = (wsFin(n.luAdd) && Number(n.luAdd) > 0) || (wsFin(n.qAdd) && Number(n.qAdd) > 0);
     if (hasDirect && !nodeSet.has(n.id)) add("error", "loads", `Direct load on node ${n.id}, which is not in the network.`, "node", n.id);
-    else if (!nodeSet.has(n.id) && net.length) add("warn", "geometry", `Node ${n.id} is not connected to any pipe.`, "node", n.id); });
+    else if (!nodeSet.has(n.id) && net.length && !(wsSymOf(n) && !n.supply)) add("warn", "geometry", `Node ${n.id} is not connected to any pipe.`, "node", n.id); });   // a node that only carries a symbol (a tank or pump drawn on the plant room) is a drawing element, not a loose end
   // ── equipment
   net.forEach(s => (Array.isArray(s.eq) ? s.eq : []).forEach(it => { const lab = `${s.id}, ${it.tag || (WS_EQ[it.type] || {}).l || "equipment"}`;
     if (!WS_EQ[it.type]) add("error", "equipment", `${lab}: unknown equipment type.`, "sec", s.id);
@@ -7461,10 +7482,12 @@ const WS_SYMS = [
   {k:"gi", l:"Grease interceptor", c:"GI", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-10 3.5q2.5-3 5 0t5 0t5 0" fill="none"/><circle cx="-6" cy="-3" r="1.9" fill="@" stroke="none"/><circle cx="0" cy="-4.5" r="1.9" fill="@" stroke="none"/><circle cx="6" cy="-3" r="1.9" fill="@" stroke="none"/>'},
   {k:"st", l:"Sand trap",       c:"ST", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-10.5 3.5h21" fill="none"/><circle cx="-6" cy="7" r="1.6" fill="@" stroke="none"/><circle cx="0" cy="7" r="1.6" fill="@" stroke="none"/><circle cx="6" cy="7" r="1.6" fill="@" stroke="none"/>'},
   {k:"tk", l:"Tank",            c:"TK", g:'<path d="M-12 -7v14a12 4 0 0 0 24 0v-14" fill="#fff"/><ellipse cy="-7" rx="12" ry="4"/><path d="M-12 0a12 4 0 0 0 24 0" fill="none"/>'},
+  {k:"pu", l:"Pump / booster set", c:"PU", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><circle r="7"/><path d="M-3 -4.5L5 0L-3 4.5Z" fill="@" stroke="none"/>'},
   {k:"pd", l:"Planter drain",   c:"PD", g:'<circle r="8"/><path d="M0 5V-1M0 1L-4 -3M0 1L4 -3" fill="none"/>'},
   {k:"cd", l:"Car park drain",  c:"CD", g:'<circle r="8"/><path d="M-5 -3H5M-6 0H6M-5 3H5" fill="none"/>'},
   {k:"td", l:"Trench drain",    c:"TD", g:'<rect x="-12" y="-4.5" width="24" height="9" rx="1"/><path d="M-6 -4.5V4.5M0 -4.5V4.5M6 -4.5V4.5" fill="none"/>'},
 ];
+const WS_SYMS_W = ["pu", "tk", "bc"];   // the ones that make sense on a water supply drawing: pump or booster set, tank, break tank
 const wsSymOf = n => { const k = n && n.sym; return k ? WS_SYMS.find(q => q.k === k) || null : null; };
 const wsSymSvg = (k, x, y, col, sc) => { const q = WS_SYMS.find(t => t.k === k); if (!q) return ""; const c = /^#[0-9a-f]{3,8}$/i.test(String(col || "")) ? col : "#33415c";
   return `<g transform="translate(${(+x).toFixed(1)} ${(+y).toFixed(1)}) scale(${sc || 1})" fill="#fff" stroke="${c}" stroke-width="1.7" stroke-linejoin="round" stroke-linecap="round">${q.g.replace(/@/g, c)}</g>`; };
@@ -7711,7 +7734,25 @@ function wsPdfPrint(html, title) {
   document.title = title;
   setTimeout(() => { try { win.addEventListener("afterprint", done, {once:true}); win.focus(); win.print(); } catch (e) { done(); } }, 900);
 }
+// v1.119.18: fold a floor layout into one node. A node carrying fold:"text" keeps its feeding pipe on the schematic; everything below it is drawn as
+// one card (all its fixtures and load) that refers the reader to the Plan view. The calculation is untouched, only the drawing is reduced.
+function wsFoldView(w, p) {
+  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], F = nodes.filter(n => n && n.fold);
+  if (!F.length || !w || !Array.isArray(w.out) || w.drainMode) return null;
+  const kids = {}; w.out.forEach((x, k) => { (kids[x.from] = kids[x.from] || []).push(k); });
+  const dropP = new Set(), toFold = {};
+  F.forEach(fn => { const st = [fn.id]; while (st.length) { const a = st.pop(); (kids[a] || []).forEach(k => { if (dropP.has(k)) return; dropP.add(k); toFold[w.out[k].to] = fn.id; st.push(w.out[k].to); }); } });
+  if (!dropP.size) return null;
+  const map = {}; let j = 0; w.out.forEach((x, k) => { if (!dropP.has(k)) map[k] = j++; });
+  const out = w.out.filter((x, k) => !dropP.has(k)).map(x => ({...x, idx:map[x.idx], parent:x.parent < 0 ? -1 : (map[x.parent] != null ? map[x.parent] : -1)}));
+  const path = (w.path || []).filter(k => !dropP.has(k)).map(k => map[k]);
+  const pp = w.pumpIn || p, fix = (Array.isArray(pp.wsFix) ? pp.wsFix : []).map(f => toFold[f.node] ? {...f, node:toFold[f.node]} : f);
+  const da = {}; Object.entries(w.directAt || {}).forEach(([n, d]) => { const t = toFold[n] || n; if (da[t]) da[t] = {...da[t], lu:da[t].lu + d.lu, q:(da[t].q || 0) + (d.q || 0)}; else da[t] = d; });
+  const crit = w.crit && toFold[w.crit.node] ? {...w.crit, node:toFold[w.crit.node]} : w.crit;
+  return {...w, out, path, crit, directAt:da, pumpIn:{...pp, wsFix:fix}};
+}
 function wsSchematic(w, p, opt = {}) {
+  if (opt.fold) { const fv = wsFoldView(w, w.pumpIn || p); if (fv) w = fv; }
   const pp = w.pumpIn || p;
   if (w.drainMode && w.out.length > WS_LARGE && opt.layout !== "tree" && wsGeoOK(w, pp)) return wsSchematicLarge(w, pp, opt);
   if (w.roots && w.roots.length > 1 && (opt.layout === "tree" || !wsGeoOK(w, pp))) { const W0 = 760, H0 = 84; return {svg:`<svg xmlns="http://www.w3.org/2000/svg" width="${W0}" height="${H0}" viewBox="0 0 ${W0} ${H0}" font-family="Arial,Helvetica,sans-serif"><rect width="${W0}" height="${H0}" fill="#fff"/><text x="14" y="34" font-size="13" font-weight="700" fill="#0b4f8a">NETWORK SCHEMATIC</text><text x="14" y="58" font-size="11" fill="#4a4a4f">Several networks can be drawn only from node positions — press “Place the network on the canvas” (Draw view) first.</text></svg>`, w:W0, h:H0, geo:{sec:{}, node:{}, cards:{}, labels:{}, clashes:[], late:0, s:null, mode:"none"}}; }
@@ -7930,13 +7971,14 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
     const req = w.nodeReq[n], neg = press[n] < -1e-9, low = (fx && req != null && press[n] < req - 1e-9) || neg, accent = low ? C.bad : fx ? C.fix : (feeder[n] ? wsPipeCol(w, feeder[n], p) : C.root);
     geo.node[n] = {x:nx, y:ny};
     const ring = sel && sel.kind === "node" && sel.id === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="${SELC}" fill-opacity=".18" stroke="${SELC}" stroke-width="2"/>` : "";
-    const SYm = w.drainMode ? wsSymOf(nm0[n]) : null;
+    const SYm = wsSymOf(nm0[n]);
     const critC = G && w.crit && w.crit.node === n ? `<circle cx="${nx}" cy="${ny}" r="15" fill="#fde68a" fill-opacity=".85" stroke="#d99a14" stroke-width="2"/>` : "", rr = G ? 6 : 9, dr = G ? (fx ? 6 : 4.6) : 7, dst = G ? (fx ? "#fff" : (low ? C.bad : "#33415c")) : (fx ? "#fff" : accent);
     nodeSvg.push(`<g data-node="${sxEsc(n)}" style="cursor:pointer">${critC}${ring}<circle cx="${nx}" cy="${ny}" r="14" fill="#000" fill-opacity="0"/>` + (SYm ? wsSymSvg(SYm.k, nx, ny, low ? C.bad : isRoot ? C.root : "#33415c")
       : isRoot ? `<rect x="${nx-rr}" y="${ny-rr}" width="${2*rr}" height="${2*rr}" rx="3" fill="${C.root}" stroke="#fff" stroke-width="1.5"/>`
       : `<circle cx="${nx}" cy="${ny}" r="${dr}" fill="${fx ? (low ? C.bad : C.fix) : "#fff"}" stroke="${dst}" stroke-width="${G ? 1.8 : (fx ? 1.6 : 2.2)}"/>`) + "</g>");
     const lines = [{t:w.drainMode ? (isRoot ? `${n} (outfall)` : n) : isRoot ? `${n} (supply) · P ${press[n].toFixed(1)} ${wsPU(w)}` : `${n} · P ${press[n].toFixed(1)} ${wsPU(w)}${neg ? "  ⚠ NEGATIVE" : low ? "  ⚠ LOW" : ""}`, b:1, f:low ? C.bad : C.ink}];
     if (SYm) lines.push({t:SYm.l, f:C.sub, b:1});
+    if (nm0[n] && nm0[n].fold) lines.push({t:"▸ " + String(nm0[n].fold), f:C.root, b:1});
     if (LV && wsHasXYZ(nm0[n])) lines.push({t:`${wsLvNodeLabel(LV, nm0[n])} · EL ${wsLvSigned(Number(nm0[n].z))} m`, f:C.sub});
     else if (!isRoot && feeder[n] && Number.isFinite(feeder[n].elev)) lines.push({t:`z ${feeder[n].elev >= 0 ? "+" : "−"}${Math.abs(feeder[n].elev).toFixed(1)} m`, f:C.sub});
     if (w.drainMode) { const sv = (w.drain.vents || []).find(q => q.kind === "stack" && q.node === n), rv = (w.drain.vents || []).find(q => q.kind === "riser" && q.node === n), cc = (w.drain.vents || []).find(q => q.kind === "riser" && (q.ccNodes || []).includes(n));
@@ -7973,7 +8015,7 @@ function wsSchematicBuild(w, p, opt = {}, G = null) {
   addOb("title", null, 0, 0, W, 8, 0);
   ttl.forEach(([tx, ty, t, sz, b]) => addOb("title", null, tx, ty - sz*0.76, tx + wsTxtW(t, sz, b)*SAFE, ty + sz*0.22, -3));
   addOb("key", null, 0, Ltop0 + (keyH ? 4 : 0), W, Ltop0 + (keyH ? 4 : 0) + 4000, 0);
-  nodes.forEach(n => { const [nx, ny] = PXY[n], sy = w.drainMode ? wsSymOf(nm0[n]) : null, rx = sy ? 14.5 : 8.2, ry = sy ? 12.5 : 8.2;   // a chamber box needs more room kept clear than a plain dot
+  nodes.forEach(n => { const [nx, ny] = PXY[n], sy = wsSymOf(nm0[n]), rx = sy ? 14.5 : 8.2, ry = sy ? 12.5 : 8.2;   // a chamber box needs more room kept clear than a plain dot
     addOb("dot", n, nx - rx, ny - ry, nx + rx, ny + ry, -1.5); });
   noteRC.forEach(o => { const x = X(o.c), y = Y(o.r); addOb("note", o.q.id, x - 1, y - 11, x + wsTxtW(o.q.text, 11, true)*1.05 + 1, y + 3, 1); });
   zs.forEach(z => addOb("zlab", null, 4, Y(z) - 12, 60, Y(z) + 3, 0));
@@ -10123,8 +10165,120 @@ function DrainPipeDetail({pump, w, sel}) {
       {d.notes.map((t, i) => row(i ? "" : "Note", "ⓘ", t))}
     </tbody></table></div>;
 }
+// ── Column picker for the pipe-by-pipe schedules ────────────────────────────────────────────────────────────────────────
+// Each schedule declares its columns by position, counting from 1, in the order the table writes them. Hiding a column is a
+// CSS rule on that position, so the table markup is never touched and the printed sheet drops the same columns as the screen.
+// `d:false` marks a column that starts hidden. Keys are stored, so adding a column later does not disturb a saved choice.
+const WS_COLSETS = {
+  water: [
+    {i:1,  k:"sec",   g:"Route",      l:"Section"},
+    {i:2,  k:"cls",   g:"Route",      l:"Pipe class"},
+    {i:3,  k:"ori",   g:"Route",      l:"Orientation"},
+    {i:4,  k:"route", g:"Route",      l:"Route (from → to)"},
+    {i:5,  k:"fix",   g:"Demand",     l:"Fixtures"},
+    {i:6,  k:"lu",    g:"Demand",     l:"Loading units (LU)"},
+    {i:7,  k:"q",     g:"Demand",     l:"Design flow (Q)"},
+    {i:8,  k:"dn",    g:"Pipe",       l:"Pipe diameter (ø)"},
+    {i:9,  k:"id",    g:"Pipe",       l:"Internal diameter (ID)"},
+    {i:10, k:"v",     g:"Hydraulics", l:"Velocity"},
+    {i:11, k:"vlim",  g:"Hydraulics", l:"Velocity limit"},
+    {i:12, k:"pdr",   g:"Hydraulics", l:"Pressure drop rate (Pa/m)"},
+    {i:13, k:"pdlim", g:"Hydraulics", l:"Pressure drop limit"},
+    {i:14, k:"pres",  g:"Pressure",   l:"Residual pressure / P"},
+    {i:15, k:"hgl",   g:"Pressure",   l:"Hydraulic grade / stage %"},
+    {i:16, k:"stat",  g:"Pressure",   l:"Static pressure"},
+    {i:17, k:"ok",    g:"Result",     l:"Status"},
+    {i:18, k:"why",   g:"Result",     l:"Size selected because"}],
+  drain: [
+    {i:1,  k:"sec",   g:"Route",      l:"Section"},
+    {i:2,  k:"cls",   g:"Route",      l:"Pipe class"},
+    {i:3,  k:"route", g:"Route",      l:"Route (flow →)"},
+    {i:4,  k:"appl",  g:"Demand",     l:"Appliances"},
+    {i:5,  k:"du",    g:"Demand",     l:"Discharge units (ΣDU)"},
+    {i:6,  k:"q",     g:"Demand",     l:"Design flow (Q)"},
+    {i:7,  k:"dn",    g:"Pipe",       l:"Pipe diameter (ø)"},
+    {i:8,  k:"id",    g:"Pipe",       l:"Internal diameter (ID)"},
+    {i:9,  k:"grad",  g:"Hydraulics", l:"Gradient"},
+    {i:10, k:"cap",   g:"Hydraulics", l:"Capacity"},
+    {i:11, k:"fill",  g:"Hydraulics", l:"Used / filling"},
+    {i:12, k:"v",     g:"Hydraulics", l:"Velocity"},
+    {i:13, k:"stack", g:"Hydraulics", l:"Stack / venting"},
+    {i:14, k:"ok",    g:"Result",     l:"Status"},
+    {i:15, k:"why",   g:"Result",     l:"Size selected because"}],
+  storm: [
+    {i:1,  k:"sec",   g:"Route",      l:"Section"},
+    {i:2,  k:"cls",   g:"Route",      l:"Pipe class"},
+    {i:3,  k:"route", g:"Route",      l:"Route (flow →)"},
+    {i:4,  k:"area",  g:"Demand",     l:"Roof area"},
+    {i:5,  k:"q",     g:"Demand",     l:"Design flow (Q)"},
+    {i:6,  k:"dn",    g:"Pipe",       l:"Pipe diameter (ø)"},
+    {i:7,  k:"id",    g:"Pipe",       l:"Internal diameter (ID)"},
+    {i:8,  k:"grad",  g:"Hydraulics", l:"Fall"},
+    {i:9,  k:"cap",   g:"Hydraulics", l:"Capacity"},
+    {i:10, k:"fill",  g:"Hydraulics", l:"Used / filling"},
+    {i:11, k:"v",     g:"Hydraulics", l:"Velocity"},
+    {i:12, k:"ok",    g:"Result",     l:"Status"},
+    {i:13, k:"why",   g:"Result",     l:"Size selected because"}],
+};
+const wsColStore = m => "pump.cols." + m;
+function useWsCols(mod) {
+  const set = WS_COLSETS[mod] || [];
+  const [hid, setHid] = useState(() => {                       // a saved choice is a list of column keys that are off
+    try { const v = JSON.parse(localStorage.getItem(wsColStore(mod)) || "[]");
+      return new Set(Array.isArray(v) ? v.filter(k => set.some(c => c.k === k)) : []); } catch (e) { return new Set(); }
+  });
+  const put = s => { const n = new Set(s); setHid(n); try { localStorage.setItem(wsColStore(mod), JSON.stringify([...n])); } catch (e) {} };
+  return [set, hid, put];
+}
+// The style element that does the hiding. Scoped to one table by id so two schedules on a page keep their own choices.
+function WsColStyle({tid, set, hid}) {
+  const off = set.filter(c => hid.has(c.k));
+  if (!off.length) return null;
+  return <style>{off.map(c => `#${tid} tr>th:nth-child(${c.i}),#${tid} tr>td:nth-child(${c.i}){display:none}`).join("")}</style>;
+}
+function WsColPicker({set, hid, onChange}) {
+  const [open, setOpen] = useState(false), [q, setQ] = useState(""), [shut, setShut] = useState({});
+  const box = useRef(null);
+  useEffect(() => { if (!open) return;
+    const away = e => { if (box.current && !box.current.contains(e.target)) setOpen(false); };
+    const esc = e => { if (e.key === "Escape") setOpen(false); };
+    document.addEventListener("mousedown", away); document.addEventListener("keydown", esc);
+    return () => { document.removeEventListener("mousedown", away); document.removeEventListener("keydown", esc); }; }, [open]);
+  const needle = q.trim().toLowerCase();
+  const hit = c => !needle || c.l.toLowerCase().includes(needle) || c.g.toLowerCase().includes(needle);
+  const groups = []; set.forEach(c => { let g = groups.find(x => x.g === c.g); if (!g) groups.push(g = {g:c.g, cols:[]}); g.cols.push(c); });
+  const on = c => !hid.has(c.k);
+  const flip = (cols, show) => { const s = new Set(hid); cols.forEach(c => show ? s.delete(c.k) : s.add(c.k)); onChange(s); };
+  const shown = set.length - hid.size;
+  const found = groups.map(g => ({...g, cols:g.cols.filter(hit)})).filter(g => g.cols.length);
+  return <span className="cp-wrap" ref={box}>
+    <button type="button" className="cp-btn" onClick={() => setOpen(v => !v)} title="Choose which columns this schedule shows, on screen and in print">
+      ☰ Columns <b>{shown} of {set.length}</b></button>
+    {open && <div className="cp-pop">
+      <input className="cp-search" placeholder="Search columns" value={q} onChange={e => setQ(e.target.value)} autoFocus />
+      {!found.length && <div className="cp-none">Nothing matches “{q}”.</div>}
+      {found.map(g => { const nOn = g.cols.filter(on).length, all = nOn === g.cols.length, none = nOn === 0;
+        return <div key={g.g}>
+          <div className="cp-grp" onClick={() => setShut(s => ({...s, [g.g]:!s[g.g]}))}>
+            <input type="checkbox" checked={all} ref={el => { if (el) el.indeterminate = !all && !none; }}
+              onClick={e => e.stopPropagation()} onChange={e => flip(g.cols, e.target.checked)} />
+            <b>{g.g}</b><span className="cp-cnt">{nOn} of {g.cols.length}</span>
+            <em style={{color:"#86868b"}}>{shut[g.g] ? "▾" : "▴"}</em>
+          </div>
+          {!shut[g.g] && g.cols.map(c => <label key={c.k} className={"cp-row" + (on(c) ? " on" : "")}>
+            <input type="checkbox" checked={on(c)} onChange={e => flip([c], e.target.checked)} />{c.l}</label>)}
+        </div>; })}
+      <div className="cp-foot">
+        <button type="button" onClick={() => onChange(new Set())}>Show all</button>
+        <button type="button" onClick={() => onChange(new Set(set.slice(1).map(c => c.k)))}>Only the first</button>
+      </div>
+    </div>}
+  </span>;
+}
+
 function StormNetResults({pump, res, w, pick, selIs, uu, sel}) {
   const dr = w.drain, R = w.storm, [onlyBad, setOnlyBad] = useState(false), rows = onlyBad ? w.out.filter(x => !x.ok) : w.out, rwp = w.out.filter(x => x.cls === "riser");
+  const [colSet, colHid, setColHid] = useWsCols("storm");
   return <>
     <WsDesignReview pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} />
     {sel && sel.kind === "sec" && <><div className="ws-res-title">Selected pipe — full calculation</div><DrainPipeDetail pump={pump} w={w} sel={sel} /></>}
@@ -10134,8 +10288,9 @@ function StormNetResults({pump, res, w, pick, selIs, uu, sel}) {
       <div><span>Rainwater pipes</span><b>{rwp.length}</b><small className="gi-sub">{[...new Set(rwp.map(x => "DN" + x.pipe.od))].join(" · ") || "—"} · Table 8 at f {R.fill}</small></div>
       {dr.maxFill == null ? <div><span>Highest drain filling</span><b>—</b></div> : <div className={dr.maxFill <= dr.fillMax + 1e-9 ? "sel" : "badbox"}><span>Highest drain filling</span><b>{drPct(dr.maxFill)}</b><small className="gi-sub">limit {drPct(dr.fillMax)}</small></div>}
     </div>
-    <div className="ws-res-title" style={{display:"flex", alignItems:"center", gap:10}}>Pipe-by-pipe schedule <label className="wd-chk" style={{textTransform:"none"}}><input type="checkbox" checked={onlyBad} onChange={e => setOnlyBad(e.target.checked)} />failed only</label></div>
-    <div className="ws-scroll ws-res-wrap"><table className="ws-res">
+    <div className="ws-res-title" style={{display:"flex", alignItems:"center", gap:10}}>Pipe-by-pipe schedule <label className="wd-chk" style={{textTransform:"none"}}><input type="checkbox" checked={onlyBad} onChange={e => setOnlyBad(e.target.checked)} />failed only</label><WsColPicker set={colSet} hid={colHid} onChange={setColHid} /></div>
+      <WsColStyle tid="ws-sched-storm" set={colSet} hid={colHid} />
+    <div className="ws-scroll ws-res-wrap"><table className="ws-res" id="ws-sched-storm">
       <thead><tr><th>Section</th><th>Class</th><th>Route (flow →)</th><th className="n">Roof m²</th><th className="n">Q design L/s</th><th className="n">DN</th><th className="n">ID</th><th className="n">Fall %</th><th className="n">Capacity L/s</th><th className="n">Used / filled</th><th className="n">v m/s</th><th>Status</th><th>Basis</th></tr></thead>
       <tbody>{rows.map(x => { const A = x.sub.reduce((a, n) => a + ((R.nodeArea || {})[n] || 0), 0), fullPipe = x.cls !== "riser";
         return <tr key={x.id} className={(x.ok ? "" : "crit") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
@@ -10150,6 +10305,7 @@ function DrainResults({pump, res, w, pick, selIs, uu, sel}) {
   if (w.stormMode) return <StormNetResults pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} sel={sel} />;
   const dr = w.drain, f1 = v => Number.isFinite(v) ? v.toFixed(1) : "—";
   const crit = new Set(w.out.filter(x => !x.ok).map(x => x.id)), [sortD, setSortD] = useState(false);
+  const [dColSet, dColHid, setDColHid] = useWsCols("drain");
   const rows = sortD ? w.out.filter(x => !x.ok) : w.out;
   return <>
     <WsDesignReview pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} />
@@ -10160,8 +10316,9 @@ function DrainResults({pump, res, w, pick, selIs, uu, sel}) {
       <div><span>Stacks</span><b>{dr.stacks.length}</b><small className="gi-sub">{dr.stacks.map(s => "DN" + s.dn + (s.ventDn ? " + vent DN" + s.ventDn : "")).join(" · ") || "—"} · {dr.stackTbl}</small></div>
       {dr.maxFill == null ? <div><span>Highest drain filling</span><b>—</b><small className="gi-sub">pipes are sized from flow bands</small></div> : <div className={dr.maxFill <= dr.fillMax + 1e-9 ? "sel" : "badbox"}><span>Highest drain filling</span><b>{drPct(dr.maxFill)}</b><small className="gi-sub">limit {drPct(dr.fillMax)}</small></div>}
     </div>
-    <div className="ws-res-title" style={{display:"flex", alignItems:"center", gap:10}}>Pipe-by-pipe schedule <label className="wd-chk" style={{textTransform:"none"}}><input type="checkbox" checked={sortD} onChange={e => setSortD(e.target.checked)} />failed only</label></div>
-    <div className="ws-scroll ws-res-wrap"><table className="ws-res">
+    <div className="ws-res-title" style={{display:"flex", alignItems:"center", gap:10}}>Pipe-by-pipe schedule <label className="wd-chk" style={{textTransform:"none"}}><input type="checkbox" checked={sortD} onChange={e => setSortD(e.target.checked)} />failed only</label><WsColPicker set={dColSet} hid={dColHid} onChange={setDColHid} /></div>
+      <WsColStyle tid="ws-sched-drain" set={dColSet} hid={dColHid} />
+    <div className="ws-scroll ws-res-wrap"><table className="ws-res" id="ws-sched-drain">
       <thead><tr><th>Section</th><th>Class</th><th>Route (flow →)</th><th className="n">Appl.</th><th className="n">ΣDU</th><th className="n">Q design L/s</th><th className="n">DN</th><th className="n">ID</th><th className="n">Grade %</th><th className="n">Capacity L/s</th><th className="n">Used / filled</th><th className="n">v m/s</th><th>Stack</th><th>Status</th><th>Basis</th></tr></thead>
       <tbody>{rows.map(x => <tr key={x.id} className={(crit.has(x.id) ? "crit" : "") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
         <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:wsPipeCol(w, x)}} />{x.cd.l}</td><td>{x.to} → {x.from}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(1)}</td><td className="n">{x.Qd.toFixed(2)}</td>
@@ -16266,6 +16423,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
   const ordOf = id => { const k = w ? w.order.findIndex(o => o.id === id) : -1; return k < 0 ? 1e6 : k; };
   const pipeOrder = wsSortPipes(net.map((s0, i) => { const s = wsNorm(s0), x = outBy[s.id]; return {i, id:s.id, cls:s.cls, od:x ? x.pipe.od : NaN, v:x ? x.v : NaN, pto:x ? x.Pto : NaN, lu:x ? x.LU : NaN, failed:!!(x && (!x.ok || x.noSize)), ord:w ? ordOf(s.id) : i}; }), sortK, sortD).map(t => t.i);
   const schedRows = w ? wsSortPipes(w.out.map((x, k) => ({x, i:k, id:x.id, cls:x.cls, od:x.pipe.od, v:x.v, pto:x.Pto, lu:x.LU, failed:!x.ok || x.noSize, ord:ordOf(x.id)})), sortK, sortD).map(t => t.x) : [];
+  const [wColSet, wColHid, setWColHid] = useWsCols("water");
   const sortCtl = <><label className="nc-l">Sort<select value={sortK} onChange={e => { setSortK(e.target.value); setSortD(WS_SORT_DESC[e.target.value] ? "desc" : "asc"); }}>{WS_SORTS.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
     <button type="button" className="nc-c" onClick={() => setSortD(sortD === "asc" ? "desc" : "asc")} title={sortD === "asc" ? "Ascending — click to reverse" : "Descending — click to reverse"}>{sortD === "asc" ? "↑" : "↓"}</button></>;
   const pipeCsv = () => wsDownloadCsv((pump.tag || "water") + "_pipes.csv", ["Section","Class","Orientation","From","To","Length_m","Extra_loss_m","Size_override_OD"], net.map(s0 => { const s = wsNorm(s0); return [s.id, wsClsLabel(s.cls), wsOriLabel(s.ori), s.from, s.to, s.len, s.loss, s.od]; }));
@@ -16470,8 +16628,9 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                 <tbody>{ft.map((r, i) => { const mx = Math.max(r.pMax, r.sMax); return <tr key={i} onClick={() => pick("node", r.minNode)} style={{cursor:"pointer"}}>{multi && <td>{r.tower}</td>}<td><b>{r.level}</b></td><td className="n">{Number.isFinite(r.ffl) ? wsLvSigned(r.ffl) : "—"}</td><td className="n">{r.nodes.length}</td><td className="n">{f1(r.pMin)}</td><td>{r.minNode}</td><td className="n">{f1(r.pMax)}</td><td className="n">{f1(r.sMax)}</td><td className="n">{Number.isFinite(mx) ? wsBarOf(w, mx).toFixed(w.gasMode ? 3 : 2) : "—"}</td>
                   <td>{r.short ? <span className="status-chip blocked">Low pressure</span> : r.over ? <span className="status-chip review">Above max — PRV / zone</span> : <span className="status-chip pass">OK</span>}</td></tr>; })}</tbody></table></div>
               <div className="cfe-help">Every node with a load is put on the floor of its tower whose FFL is at or below it. P at peak flow; Static max = with no flow (friction gone), which governs the PRV zoning. Click a row to select its lowest-pressure node.</div></>; })()}
-          <div className="ws-res-title" style={{display:"flex",alignItems:"center",gap:10}}>Pipe-by-pipe schedule <span style={{textTransform:"none",display:"inline-flex",gap:6,alignItems:"center"}}>{sortCtl}</span></div>
-          <div className="ws-scroll ws-res-wrap"><table className="ws-res">
+          <div className="ws-res-title" style={{display:"flex",alignItems:"center",gap:10}}>Pipe-by-pipe schedule <span style={{textTransform:"none",display:"inline-flex",gap:6,alignItems:"center"}}>{sortCtl}</span><WsColPicker set={wColSet} hid={wColHid} onChange={setWColHid} /></div>
+      <WsColStyle tid="ws-sched-water" set={wColSet} hid={wColHid} />
+          <div className="ws-scroll ws-res-wrap"><table className="ws-res" id="ws-sched-water">
             <thead><tr><th>Section</th><th>Class</th><th>Orient.</th><th>Route</th><th className="n">Fixt.</th><th className="n">{w.dem.unit}</th><th className="n">Q {wsQU(w)}</th><th className="n" title="Nominal size (DN). Outside diameter is in the tooltip of each cell">Size</th><th className="n">ID</th><th className="n">v m/s</th><th className="n">v limit</th><th className="n">Pa/m</th><th className="n">Pa/m limit</th><th className="n">{w.gasMode ? "P mbar" : "Residual m"}</th><th className="n" title={w.gasMode ? "Loss from the supply (mains) or from the take-off on the main (risers / branches), % of that pressure" : "Hydraulic grade line at the To node: pressure + elevation"}>{w.gasMode ? "Stage %" : "HGL m"}</th><th className="n" title="Pressure at the To node with no flow: friction and losses zero, elevation and PRV kept">Static {wsPU(w)}</th><th>Status</th><th>Size selected because</th></tr></thead>
             <tbody>{schedRows.map(x => <tr key={x.id} className={(critIds.has(x.id) ? "crit" : "") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
               <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:WS_COL[x.cls]}} />{x.cd.l}</td><td>{x.ori === "h" ? "Horiz." : x.ori === "up" ? "Vert. ↑" : "Vert. ↓"}</td><td>{x.from} {x.rev ? "←" : "→"} {x.to}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(0)}</td><td className="n">{wsQV(w, x.Qd).toFixed(3)}</td>
@@ -16547,7 +16706,7 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           <span className="nc-sep" />
           {wsIsStormNet(pump) && <label className="nc-f dl" title="Plan roof area that drains to this node (the top of a rainwater pipe or an outlet), plus half of any wall area draining onto the roof"><span>Roof area</span><CommitInput type="number" cls="r" value={wsFin(selNode.roofA) ? selNode.roofA : ""} onCommit={v => setN(selNode.id, {roofA:v})} placeholder="0" /><i>m²</i></label>}
           {!wsIsGas(pump) && !wsIsStormNet(pump) && !wsIsFuelNet(pump) && <label className="nc-f dl" title="Loading units typed straight onto this node — for a zone or riser whose fixtures are not listed"><span>Direct load</span><CommitInput type="number" cls="r" value={wsFin(selNode.luAdd) ? selNode.luAdd : ""} onCommit={v => setN(selNode.id, {luAdd:v})} placeholder="0" /><i>{unit}</i></label>}
-          {wsIsDrain(pump) && !wsIsStormNet(pump) && <label className="nc-f dl" title="The symbol drawn at this node: a label on the drawing, with no effect on sizing"><span>Symbol</span><select value={selNode.sym || ""} onChange={e => { const v = e.target.value, has = nodesArr.some(n => n.id === selNode.id); edit({wsNodes: has ? nodesArr.map(n => { if (n.id !== selNode.id) return n; if (!v) { const {sym, ...rest} = n; return rest; } return {...n, sym:v}; }) : [...nodesArr, {id:selNode.id, x:"", y:"", z:"", ...(v ? {sym:v} : {})}]}); }}><option value="">none</option>{WS_SYMS.map(q => <option key={q.k} value={q.k}>{q.l}</option>)}</select></label>}
+          {!wsIsStormNet(pump) && !wsIsGas(pump) && !wsIsFuelNet(pump) && <label className="nc-f dl" title="The symbol drawn at this node: a label on the drawing, with no effect on sizing"><span>Symbol</span><select value={selNode.sym || ""} onChange={e => { const v = e.target.value, has = nodesArr.some(n => n.id === selNode.id); edit({wsNodes: has ? nodesArr.map(n => { if (n.id !== selNode.id) return n; if (!v) { const {sym, ...rest} = n; return rest; } return {...n, sym:v}; }) : [...nodesArr, {id:selNode.id, x:"", y:"", z:"", ...(v ? {sym:v} : {})}]}); }}><option value="">none</option>{WS_SYMS.filter(q => wsIsDrain(pump) || WS_SYMS_W.includes(q.k)).map(q => <option key={q.k} value={q.k}>{q.l}</option>)}</select></label>}
           {!wsIsStormNet(pump) && <label className="nc-f dl" title={wsIsFuelNet(pump) ? "Fuel drawn at this node in L/s — engine supply flow or day tank fill rate (100 L/h = 0.028 L/s)" : wsIsGas(pump) ? "A gas flow at this node in m³/h, already diversified — for a load not in the load types" : "A continuous flow, e.g. make-up water, in L/s"}><span>{wsIsFuelNet(pump) ? "Fuel flow" : "Flow"}</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) ? selNode.qAdd : ""} onCommit={v => setN(selNode.id, {qAdd:v})} placeholder="0" /><i>{QU}</i></label>}
           {wsIsGas(pump) && <label className="nc-f dl" title={"Connected load in kW, converted at " + WS_GAS_CV + " MJ/m³ (m³/h = kW × 3.6 ÷ " + WS_GAS_CV + "). Same field as the flow: type either one."}><span>Load</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) && Number(selNode.qAdd) > 0 ? +(Number(selNode.qAdd) * WS_GAS_CV / 3.6).toFixed(2) : ""} onCommit={v => setN(selNode.id, {qAdd:(v === "" || v == null) ? "" : +(Number(v) * 3.6 / WS_GAS_CV).toFixed(4)})} placeholder="0" /><i>kW</i></label>}
           {wsIsGas(pump) && <label className="nc-f dl" title={"Connected load in kg/h of LPG, converted at " + WS_GAS_KG + " MJ/kg (m³/h = kg/h × " + WS_GAS_KG + " ÷ " + WS_GAS_CV + "). Same field as the flow and the kW: type any one."}><span>Load</span><CommitInput type="number" cls="r" value={wsFin(selNode.qAdd) && Number(selNode.qAdd) > 0 ? +(Number(selNode.qAdd) * WS_GAS_CV / WS_GAS_KG).toFixed(2) : ""} onCommit={v => setN(selNode.id, {qAdd:(v === "" || v == null) ? "" : +(Number(v) * WS_GAS_KG / WS_GAS_CV).toFixed(4)})} placeholder="0" /><i>kg/h</i></label>}
@@ -16791,7 +16950,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const net = Array.isArray(pump.wsNet) ? pump.wsNet : [], nodesAll = Array.isArray(pump.wsNodes) ? pump.wsNodes : [], placed = wsEdPlaced(pump), blockList = Array.isArray(blocks) ? blocks : [];
   const [dim, setDim] = useState({w:640, h:420}), [view, setView] = useState(null);
   const [tool, setToolS] = useState(initTool || (net.length ? "select" : "pipe"));
-  const [ortho, setOrtho] = useState(true), [snapOn, setSnapOn] = useState(true), [names, setNames] = useState(true), [keyOnly, setKeyOnly] = useState(() => (Array.isArray(pump.wsNodes) ? pump.wsNodes.length : 0) > 80), [critOn, setCritOn] = useState(true), [grid, setGrid] = useState(0.5), [planeY, setPlaneY] = useState(0);
+  const [ortho, setOrtho] = useState(true), [snapOn, setSnapOn] = useState(true), [names, setNames] = useState(true), [showLv, setShowLvS] = useState(() => { try { return localStorage.getItem("mep_ws_lvl") === "1"; } catch(e) { return false; } }), [keyOnly, setKeyOnly] = useState(() => (Array.isArray(pump.wsNodes) ? pump.wsNodes.length : 0) > 80), [critOn, setCritOn] = useState(true), [grid, setGrid] = useState(0.5), [planeY, setPlaneY] = useState(0);
   const [hov, setHov] = useState(ist.hov || null), [cur, setCur] = useState(ist.cur || null), [pend, setPend] = useState(ist.pend || null), [typed, setTyped] = useState(ist.typed || ""), [msg, setMsg] = useState(ist.msg || null), [drag, setDrag] = useState(ist.drag || null), [hovEl, setHovEl] = useState(null);
   const [multi, setMultiS] = useState(ist.multi || WD_NONE), [fixName, setFixName] = useState(ist.fixName || ""), [fixQty, setFixQty] = useState(ist.fixQty || 1), [symK, setSymK] = useState(ist.symK || "mh"), [recent, setRecent] = useState([]), [blockId, setBlockId] = useState(ist.blockId || null), [levelInc, setLevelInc] = useState(true);
   const [clipTick, setClipTick] = useState(0), [band, setBand] = useState(ist.band || null), [gh, setGh] = useState(ist.gh || null), [mvOpen, setMvOpen] = useState(false), [mv, setMv] = useState({dx:"", dy:"", dz:""});
@@ -17091,7 +17250,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
   const degC = {}; net.forEach(s => { degC[s.from] = (degC[s.from] || 0) + 1; degC[s.to] = (degC[s.to] || 0) + 1; });
   const nodeEls = nodesAll.map(n => {
     const P = pos(n.id); if (!P) return null;
-    const SY = water && water.drainMode ? wsSymOf(n) : null;
+    const SY = wsSymOf(n);
     const [x, y] = PP(P), isSup = supSetD.has(n.id), on = !!sel && sel.kind === "node" && sel.id === n.id, mk = marks.node[n.id], bad = !!mk && mk.sev === "error", fq = fixAt[n.id], inM = inMulti.has(n.id);
     // "Key nodes" view: a node that only joins two pipes (a bend or a split point) and has no load, mark or fixtures is not drawn, so the plan stays readable
     if (keyOnly && !isSup && !on && !inM && !fq && !SY && !mk && !stacks[n.id] && degC[n.id] === 2 && !(Number(n.qAdd) > 0) && !(n.reqP !== undefined && n.reqP !== "" && n.reqP !== null) && !(critOn && cr.node === n.id)) return <g key={n.id} />;
@@ -17198,6 +17357,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
         {!plan && <label className="nc-l" title="Depth (y) of a node placed on empty canvas. Depth shifts a node sideways on the drawing; height (z) is always exact. A pipe being drawn takes the depth of its start; type y5 to run 5 m into the page.">Depth y<input type="number" value={planeY} step="0.5" onChange={e => setPlaneY(Number(e.target.value) || 0)} /></label>}
         {wsLvTowers(lvls).length > 0 && <label className="nc-l" title="Every pipe, riser, node and pasted group you draw is put in this tower. Auto = by position (the plan band of a tower, or the common basement below its top)">Draw in<select value={activeTw} onChange={e => setActiveTw(e.target.value)}><option value="">Auto (by position)</option>{wsTowerChoices(lvls).map(t => <option key={t.id} value={t.id}>{t.name}</option>)}</select></label>}
         <button type="button" className={"nc-c" + (names ? " on" : "")} onClick={() => setNames(!names)} title="Show or hide node names">Names</button>
+        {lvG && <button type="button" className={"nc-c" + (showLv ? " on" : "")} onClick={() => { const v = !showLv; setShowLvS(v); try { localStorage.setItem("mep_ws_lvl", v ? "1" : "0"); } catch(e) {} }} title="Show or hide the dashed floor lines and their level labels">Levels</button>}
         <button type="button" className={"nc-c" + (keyOnly ? " on" : "")} onClick={() => setKeyOnly(!keyOnly)} title="Show only junctions, ends, loads, the supply and anything selected or flagged. Bends and plain two-pipe nodes are hidden.">Key nodes</button>
         <button type="button" className={"nc-c" + (newNet ? " on" : "")} disabled={locked} onClick={() => { setNewNet(v => !v); setPend(null); }} title={wsIsDrain(pump) ? "Start a second, independent outfall: draw a run (or place a node) that is not connected to the existing network, and its start becomes a new outfall. Each outfall network is sized and checked on its own." : "Start another, independent network with its own supply: draw a pipe (or place a node) that is not connected to the existing network, and its start becomes a new supply. Every network is sized and checked on its own."}>{wsIsDrain(pump) ? "＋ Outfall" : "＋ Network"}</button>
         <button type="button" className={"nc-c" + (stackOn ? " on" : "")} disabled={locked} onClick={() => { setStackOn(v => !v); setPend(null); }} title="Put a node exactly on top of another node (a riser joint and a branch joint, or a crossing). With Stack on, a click does not snap to an existing node. Click a stacked point again with Select — or press Tab while drawing — to choose between the nodes.">Stack</button>
@@ -17234,7 +17394,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
           {under.map(u => { const c = UL_CACHE[u.id]; if (!u.on || !c || c.st !== "ok") return null; const h = u.w*u.ar;
             return <image key={"ul" + u.id} href={c.url} x={X(u.u)} y={Y(u.v + h)} width={Math.max(1, u.w*V.s)} height={Math.max(1, h*V.s)} opacity={Number(u.op) > 0 ? Number(u.op) : 0.45} preserveAspectRatio="none" style={{pointerEvents:"none"}} />; })}
           {gl}
-          {lvG && lvG.map((g, k) => { const xa = g.x0 == null ? 0 : Math.max(0, X(g.x0)), xb = g.x1 == null ? dim.w : Math.min(dim.w, X(g.x1)), y = Y(g.z); if (xb <= xa || y < -20 || y > dim.h + 20) return null; return <g key={"lv" + k}><line x1={xa} y1={y} x2={xb} y2={y} stroke="#9fb3cc" strokeDasharray="6 4" /><text x={xa + 6} y={y - 3} className="wd-z" style={{fill:"#5b7088"}}>{g.label}</text></g>; })}
+          {lvG && showLv && lvG.map((g, k) => { const xa = g.x0 == null ? 0 : Math.max(0, X(g.x0)), xb = g.x1 == null ? dim.w : Math.min(dim.w, X(g.x1)), y = Y(g.z); if (xb <= xa || y < -20 || y > dim.h + 20) return null; return <g key={"lv" + k}><line x1={xa} y1={y} x2={xb} y2={y} stroke="#9fb3cc" strokeDasharray="6 4" /><text x={xa + 6} y={y - 3} className="wd-z" style={{fill:"#5b7088"}}>{g.label}</text></g>; })}
           {(plan === "site" ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
           {pipeEls}{(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "stack") : []).map(v => { const a = pos(v.node); if (!a) return null; const b = {...a, z:a.z + v.len}, [x1, y1] = PP(a), [x2, y2] = PP(b), rv = water.drain.vents.find(q => q.id === "VR-" + v.id.slice(3)), left = !!rv && rv.off > 0;
             return <g key={v.id}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#7c3aed" strokeWidth={3*wK} strokeDasharray="5 4" strokeLinecap="round" /><circle cx={x2} cy={y2} r="3.5" fill="#fff" stroke="#7c3aed" strokeWidth="1.6" /><text x={left ? x2 - 7 : x2 + 7} y={y2 + 3} textAnchor={left ? "end" : "start"} className="wd-v" fill="#7c3aed">{`VENT DN${v.dn}`}</text></g>; })}
@@ -17295,11 +17455,14 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   const setLbl = v => { setLblS(v); try { localStorage.setItem("mep_ws_lbl", v); } catch(e) {} };
   const [rlbl, setRlblS] = useState(() => { try { const v = localStorage.getItem("mep_wd_rlbl"); return WD_RLBL.some(q => q[0] === v) ? v : "flow"; } catch(e) { return "flow"; } });
   const setRlbl = v => { setRlblS(v); try { localStorage.setItem("mep_wd_rlbl", v); } catch(e) {} };
-  const sch = useMemo(() => (w && vw === "sch") ? wsSchematic(wsSchW(w, pump), pump, {sel, levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat}) : null, [w, pump, vw, sel && sel.kind, sel && sel.id, lvls, cby, lbl]);
+  const [fold, setFoldS] = useState(() => { try { return localStorage.getItem("mep_ws_fold") !== "0"; } catch(e) { return true; } });
+  const setFold = v => { setFoldS(v); try { localStorage.setItem("mep_ws_fold", v ? "1" : "0"); } catch(e) {} };
+  const hasFold = !!(pump && Array.isArray(pump.wsNodes) && pump.wsNodes.some(n => n && n.fold));
+  const sch = useMemo(() => (w && vw === "sch") ? wsSchematic(wsSchW(w, pump), pump, {sel, levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat, fold}) : null, [w, pump, vw, sel && sel.kind, sel && sel.id, lvls, cby, lbl, fold]);
   // v1.78.0 — Export PDF of the schematic
   const [pdfOpen, setPdfOpen] = useState(false), [pdfOpt, setPdfOptS] = useState(() => { try { const q = JSON.parse(localStorage.getItem("mep_ws_pdf") || "{}"); return {paper:WS_PDF_PAPER[q.paper] ? q.paper : "A3", size:WS_PDF_SIZE[q.size] ? q.size : "normal", key:q.key !== false}; } catch(e) { return {paper:"A3", size:"normal", key:true}; } });
   const setPdfOpt = o => { setPdfOptS(o); try { localStorage.setItem("mep_ws_pdf", JSON.stringify(o)); } catch(e) {} };
-  const pdfSch = useMemo(() => (pdfOpen && w && !(res && res.error)) ? wsSchematic(wsSchW(w, pump), pump, {levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat}) : null, [pdfOpen, w, pump, lvls, cby, lbl]);
+  const pdfSch = useMemo(() => (pdfOpen && w && !(res && res.error)) ? wsSchematic(wsSchW(w, pump), pump, {levels:lvls, colorBy:cby, labels:lbl, plan:gasFlat, fold}) : null, [pdfOpen, w, pump, lvls, cby, lbl, fold]);
   const pdfPlan = useMemo(() => pdfSch ? wsPdfPlan(pdfSch, pdfOpt) : null, [pdfSch, pdfOpt.paper, pdfOpt.size, pdfOpt.key]);
   const makePdf = () => { if (!pdfSch || !pdfPlan) return; const dm = w && w.drainMode, big0 = !!pdfSch.parts;
     const flow = dm && w.finalNets && w.finalNets.length ? `Design flow at the final connection ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLUFinal).toFixed(1)}` : dm ? `Design flow ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLU).toFixed(1)}` : "";
@@ -17307,6 +17470,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
       legend:big0 && dm ? [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], ["#0b4f8a", "Final connection / drain"], ["#d8332b", "Review"]] : null,
       title:[projName, pump.tag || pump.name, "schematic"].filter(Boolean).join(" - ").replace(/[\\/:*?"<>|]+/g, " ").trim()};
     wsPdfPrint(wsPdfHtml(pdfSch, pdfPlan, pdfOpt, meta), meta.title); setPdfOpen(false); };
+  const foldBtn = hasFold && vw === "sch" ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
   const pdfBtn = w && !(res && res.error) ? <button type="button" className="nc-c" onClick={() => setPdfOpen(true)} title="Export the schematic to PDF — a large network is cut into readable sheets with a key plan">Export PDF</button> : null;
   const val = useMemo(() => (res && res.error) ? wsValidate(pump) : null, [res, pump]);
   useEffect(() => { if (!big) return; const k = e => { if (e.key === "Escape") setBig(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [big]);
@@ -17320,6 +17484,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
         {vw !== "sch" && w && <label className="nc-l" title="What each pipe label shows on the drawing once calculated">Labels<select value={rlbl} onChange={e => setRlbl(e.target.value)}>{WD_RLBL.map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>}
         <label className="nc-l" title="Colour the pipes by class, or by their result">Colour<select value={cby} onChange={e => setCby(e.target.value)}>{(w && w.drainMode ? WS_CBY_DRAIN : WS_CBY).map(([k, l]) => <option key={k} value={k}>{l}</option>)}</select></label>
         {w && w.drainMode && w.out && w.out.length > WS_LARGE && <label className="nc-l" title="What is written on each pipe of the overview: the full calculation (ΣDU, K, flow, DN), flow and DN only, or nothing">Labels<select value={lbl} onChange={e => setLbl(e.target.value)}><option value="full">Full calculation</option><option value="flow">Flow · DN</option><option value="off">Off</option></select></label>}
+        {foldBtn}
         {vw === "sch" && pdfBtn}
         <span style={{flex:1}} />
         <button type="button" className="piw-fig-zoom" disabled={!canUndo} onClick={undo} title="Undo (Ctrl+Z)">↶</button>
@@ -17438,7 +17603,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
       <div className="pz-top">
         <div className="pz-title"><b>Pipe Sizing</b><span>{proj.name || "Untitled project"}{stageName ? " · " + stageName : ""}</span></div>
         <div className="pz-svc" role="tablist" aria-label="Kind of pipe sizing">{SVCS.filter(r => (r[0] !== "storm" && r[0] !== "fuel") || waters.some(x => svcOf(x) === r[0])).map(([k, l]) => { const n = waters.filter(x => svcOf(x) === k).length; return <button type="button" role="tab" aria-selected={svc === k} key={k} className={svc === k ? "on" : ""} onClick={() => { setSvc(k); const f = waters.find(x => svcOf(x) === k); if (f) setPipeId(f.id); }}>{l}{n > 0 && <em>{n}</em>}</button>; })}</div>
-        {inSvc.length > 1 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => setPipeId(Number(e.target.value))} title="Choose the calculation">
+        {inSvc.length > 1 && <select className="pz-pick" value={cur ? cur.id : ""} onChange={e => { const v = e.target.value, f = inSvc.find(x => String(x.id) === v); setPipeId(f ? f.id : v); }} title="Choose the calculation">
           {inSvc.map(x => <option key={x.id} value={x.id}>{x.name || typeLbl(x)}{x.tag ? " · " + x.tag : ""}</option>)}</select>}
         <button type="button" className="pz-btn" disabled={stageLocked} onClick={() => addWater(svcRow[2])} title={svcRow[3]}>＋ Add {svcRow[1].toLowerCase()}</button>
         <span className="pz-sp" />
