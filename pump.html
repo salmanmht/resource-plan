@@ -1784,7 +1784,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.18 · Build 2026.11.25.03";
+const BUILD_LABEL = "v1.119.19 · Build 2026.11.26.02";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -16924,6 +16924,41 @@ function wsPlanMoveFloor(p, L, lv, ids, key) {
   const cut = net.filter(s => set.has(s.from) !== set.has(s.to)).map(s => s.id);
   return {patch:{wsNodes, wsFix, wsNet}, msg:{ok:!cut.length, text:`Moved ${set.size} node${set.size > 1 ? "s" : ""} to ${tgt.name} (${dz >= 0 ? "+" : "−"}${Math.abs(dz).toFixed(2)} m).` + (cut.length ? ` ${cut.join(", ")} now run${cut.length > 1 ? "" : "s"} between floors — check ${cut.length > 1 ? "them" : "it"} in Riser view.` : " Ctrl+Z undoes.")}};
 }
+// v1.119.19: Riser view folding. A node carrying fold:"text" is drawn as ONE node: everything downstream of it (pipes run from the supply outward) is hidden and its
+// fixtures are summed onto the fold node as read-only markers (_v). Edits made on the folded drawing are merged back into the whole network, hidden parts untouched.
+function wsFoldSets(p) {
+  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], net = Array.isArray(p.wsNet) ? p.wsNet : [], F = nodes.filter(n => n && n.fold);
+  if (!F.length) return null;
+  const kids = {}; net.forEach(s => { (kids[s.from] = kids[s.from] || []).push(s); });
+  const hn = new Set(), hp = new Set(), owner = {};
+  F.forEach(fn => { const st = [fn.id]; while (st.length) { const a = st.pop(); (kids[a] || []).forEach(s => { if (hp.has(s.id) || s.to === fn.id) return; hp.add(s.id); if (!hn.has(s.to)) { hn.add(s.to); owner[s.to] = fn.id; st.push(s.to); } }); } });
+  F.forEach(fn => hn.delete(fn.id));
+  return hp.size ? {hn, hp, owner, F} : null;
+}
+function wsFoldVirt(p) {
+  const S = wsFoldSets(p); if (!S) return null;
+  const nodes = p.wsNodes, net = Array.isArray(p.wsNet) ? p.wsNet : [], fix = Array.isArray(p.wsFix) ? p.wsFix : [];
+  const sum = {}; fix.forEach(f => { const o = S.owner[f.node]; if (!o) return; const k = o + "|" + f.fixture; sum[k] = sum[k] || {level:f.level, room:String(S.F.find(q => q.id === o).fold), fixture:f.fixture, node:o, qty:0, _v:1}; sum[k].qty += Number(f.qty) || 0; });
+  return {...p, wsNodes:nodes.filter(n => !S.hn.has(n.id)), wsNet:net.filter(s => !S.hp.has(s.id)),
+    wsFix:[...fix.filter(f => !S.hn.has(f.node)), ...Object.values(sum)], _takenN:wsAllNodeIds(p), _takenS:net.map(s => s.id), _fold:1};
+}
+function wsFoldReal(p, patch) {
+  if (!patch) return patch; const S = wsFoldSets(p); const out = {...patch}; delete out._takenN; delete out._takenS; delete out._fold;
+  if (!S) return out;
+  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], net = Array.isArray(p.wsNet) ? p.wsNet : [], fix = Array.isArray(p.wsFix) ? p.wsFix : [];
+  if (Array.isArray(patch.wsNodes)) { const by = {}, old = new Set(nodes.map(n => n.id)); patch.wsNodes.forEach(n => { by[n.id] = n; });
+    out.wsNodes = [...nodes.filter(n => S.hn.has(n.id) || by[n.id]).map(n => S.hn.has(n.id) ? n : by[n.id]), ...patch.wsNodes.filter(n => !old.has(n.id))]; }
+  if (Array.isArray(patch.wsNet)) { const by = {}, old = new Set(net.map(s => s.id)); patch.wsNet.forEach(s => { by[s.id] = s; });
+    out.wsNet = [...net.filter(s => S.hp.has(s.id) || by[s.id]).map(s => S.hp.has(s.id) ? s : by[s.id]), ...patch.wsNet.filter(s => !old.has(s.id))]; }
+  if (Array.isArray(patch.wsFix)) out.wsFix = [...fix.filter(f => S.hn.has(f.node)), ...patch.wsFix.filter(f => !f._v)];
+  if (out.wsNet || out.wsNodes) { const full = {...p, ...out}; if (Array.isArray(full.wsNet) && full.wsNet.length) out.wsNet = wsEdNormalise(full).wsNet; }
+  return out;
+}
+function WsFoldDraw({pump, edit, fold, ...rest}) {
+  const vp = useMemo(() => fold ? wsFoldVirt(pump) : null, [pump, fold]);
+  if (!vp) return <WsDraw pump={pump} edit={edit} {...rest} />;
+  return <WsDraw key="folded" pump={vp} calcPump={pump} edit={(patch, key) => edit(wsFoldReal(pump, patch), key)} {...rest} />;
+}
 function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
   const gasSite = wsSitePlan(pump), lvs = gasSite ? [WS_GAS_PLAN] : wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
   const [zOff, setZOff] = useState({}), [msg, setMsg] = useState(null);
@@ -17395,7 +17430,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
             return <image key={"ul" + u.id} href={c.url} x={X(u.u)} y={Y(u.v + h)} width={Math.max(1, u.w*V.s)} height={Math.max(1, h*V.s)} opacity={Number(u.op) > 0 ? Number(u.op) : 0.45} preserveAspectRatio="none" style={{pointerEvents:"none"}} />; })}
           {gl}
           {lvG && showLv && lvG.map((g, k) => { const xa = g.x0 == null ? 0 : Math.max(0, X(g.x0)), xb = g.x1 == null ? dim.w : Math.min(dim.w, X(g.x1)), y = Y(g.z); if (xb <= xa || y < -20 || y > dim.h + 20) return null; return <g key={"lv" + k}><line x1={xa} y1={y} x2={xb} y2={y} stroke="#9fb3cc" strokeDasharray="6 4" /><text x={xa + 6} y={y - 3} className="wd-z" style={{fill:"#5b7088"}}>{g.label}</text></g>; })}
-          {(plan === "site" ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
+          {(plan ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
           {pipeEls}{(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "stack") : []).map(v => { const a = pos(v.node); if (!a) return null; const b = {...a, z:a.z + v.len}, [x1, y1] = PP(a), [x2, y2] = PP(b), rv = water.drain.vents.find(q => q.id === "VR-" + v.id.slice(3)), left = !!rv && rv.off > 0;
             return <g key={v.id}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#7c3aed" strokeWidth={3*wK} strokeDasharray="5 4" strokeLinecap="round" /><circle cx={x2} cy={y2} r="3.5" fill="#fff" stroke="#7c3aed" strokeWidth="1.6" /><text x={left ? x2 - 7 : x2 + 7} y={y2 + 3} textAnchor={left ? "end" : "start"} className="wd-v" fill="#7c3aed">{`VENT DN${v.dn}`}</text></g>; })}
           {(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "riser") : []).map(v => { const a0 = pos(v.base), a1 = pos(v.top); if (!a0 || !a1) return null; const P0 = {x:a0.x + v.off, y:a0.y, z:a0.z}, P1 = {x:a1.x + v.off, y:a1.y, z:v.z1}, T = {x:a1.x, y:a1.y, z:v.z1}, [x0, y0] = PP(P0), [x1, y1] = PP(P1), [tx, ty] = PP(T), VC = "#a855f7";
@@ -17470,7 +17505,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
       legend:big0 && dm ? [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], ["#0b4f8a", "Final connection / drain"], ["#d8332b", "Review"]] : null,
       title:[projName, pump.tag || pump.name, "schematic"].filter(Boolean).join(" - ").replace(/[\\/:*?"<>|]+/g, " ").trim()};
     wsPdfPrint(wsPdfHtml(pdfSch, pdfPlan, pdfOpt, meta), meta.title); setPdfOpen(false); };
-  const foldBtn = hasFold && vw === "sch" ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
+  const foldBtn = hasFold && (vw === "sch" || vw === "draw") ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
   const pdfBtn = w && !(res && res.error) ? <button type="button" className="nc-c" onClick={() => setPdfOpen(true)} title="Export the schematic to PDF — a large network is cut into readable sheets with a key plan">Export PDF</button> : null;
   const val = useMemo(() => (res && res.error) ? wsValidate(pump) : null, [res, pump]);
   useEffect(() => { if (!big) return; const k = e => { if (e.key === "Escape") setBig(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [big]);
@@ -17496,7 +17531,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
         {wsIsStress(pump) ? <StressInspector pump={pump} sel={sel} setSel={setSel} edit={edit} locked={locked} flash={flash} res={res} /> : <NetInspector pump={pump} w={w} sel={sel} setSel={setSel} edit={edit} locked={locked} onDetail={onDetail} flash={flash} lvls={lvls} />}
         {note && <div className="ws-addmsg" style={{margin:"6px 8px 0"}} onClick={() => setNote(null)}>{note.text}</div>}
         {vw === "plan" ? <WsPlanDraw pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} plan={plan} setPlan={setPlan} />
-          : vw === "draw" ? <WsDraw pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} /> : res && res.error
+          : vw === "draw" ? <WsFoldDraw fold={fold} pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} /> : res && res.error
           ? <div className="sump-fig-empty" style={{margin:8}}><b>The schematic needs a valid network — fix these:</b>
               <ul className="wr-list" style={{marginTop:8}}>{val.items.filter(i => i.sev === "error").map((it, i) => <WsIssueRow key={"v" + i} it={it} pick={pickErr} selIs={selIsE} />)}{res.errors.filter(e => !val.items.some(i => i.sev === "error" && i.text === e)).map((e, i) => <li className="wr-it" key={"e" + i}><b style={{color:"#b91c1c", background:"#fff0ee"}}>Error</b><span>{e}</span></li>)}</ul>
               <div style={{marginTop:8, fontWeight:600}}>Click an error to select its pipe or node, then correct it in the strip above (position, length, direction).</div></div>
