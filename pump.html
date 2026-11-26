@@ -1511,6 +1511,33 @@
   .rg-row.blocked{border-color:#f2a7a2;background:#fff8f7}.rg-row.open{border-color:#f0d3a6;background:#fffaf2}
   .rg-main{display:flex;flex-direction:column;gap:2px;min-width:0}.rg-main b{font-size:12.5px}.rg-main span{font-size:11.5px;color:#424245;line-height:1.4}.rg-main em{font-style:normal;font-size:10.5px;color:#1d7a3a}
 
+  /* v1.120.0 Revizto connector */
+  .rvz .rvz-g2{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,420px),1fr));gap:12px;margin-bottom:12px}
+  .rvz .rvz-row{display:flex;flex-wrap:wrap;gap:8px;align-items:flex-end;margin:6px 0}
+  .rvz .rvz-row label,.rvz .rvz-wide{display:flex;flex-direction:column;gap:3px;font-size:10.5px;font-weight:700;color:#6e6e73;min-width:0}
+  .rvz .rvz-row label.grow{flex:1 1 220px}.rvz .grow{flex:1 1 auto}.rvz .rvz-wide{margin:8px 0 4px}
+  .rvz select,.rvz input:not([type=checkbox]):not([type=file]){border:1px solid #d2d2d7;border-radius:7px;padding:5px 7px;font-size:12px;background:#fff;color:#1d1d1f;min-width:0;max-width:100%}
+  .rvz .rvz-file{position:relative;overflow:hidden;cursor:pointer}.rvz .rvz-file input{position:absolute;inset:0;opacity:0;cursor:pointer}
+  .rvz .rvz-hint{font-size:11px;color:#6e6e73;margin-top:4px}.rvz .rvz-warn{color:#b25000}.rvz .rvz-warnb{border-color:#ff9500!important;background:#fff8ee!important}
+  .rvz .rvz-busy{background:#f2f7fd;border:1px solid #d6e6f8;color:#0e4891;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:650;margin-bottom:8px}
+  .rvz .rvz-msg{background:#eefaf1;border:1px solid #bfe8cb;color:#16803a;border-radius:9px;padding:7px 10px;font-size:12px;font-weight:650;margin:6px 0}
+  .rvz .rvz-msg.bad{background:#fff3f2;border-color:#ffd1cd;color:#c4271b}
+  .rvz .rvz-models{display:flex;flex-wrap:wrap;gap:4px 14px;max-height:150px;overflow:auto;border:1px solid #e3e3e8;border-radius:8px;padding:6px 8px;margin:6px 0}
+  .rvz .rvz-models label,.rvz .rvz-chk{display:flex;gap:5px;align-items:center;font-size:12px;font-weight:600;color:#1d1d1f}
+  .rvz .rvz-tbl td.n{text-align:right;font-variant-numeric:tabular-nums}.rvz .rvz-tbl th{white-space:nowrap}
+  .rvz .rvz-tot td{font-weight:800;border-top:2px solid #1d1d1f;background:#f5f5f7}
+  .rvz .rvz-legend{display:flex;flex-wrap:wrap;gap:4px 14px;font-size:10.5px;color:#6e6e73;margin-top:6px}
+  .rvz .rvz-libs{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:6px 14px;margin:8px 0}
+  .rvz .rvz-libs label{display:flex;flex-direction:column;gap:2px;font-size:11px;font-weight:700}.rvz .rvz-libs em{font-style:normal;color:#86868b}
+  .rvz .rvz-h5{font-size:12.5px;margin:10px 0 6px}.rvz .rvz-h5 em{font-style:normal;font-weight:500;color:#86868b;margin-left:6px}
+  .rvz .rvz-rules{display:flex;flex-direction:column;gap:4px}.rvz .rvz-rule{display:grid;grid-template-columns:24px minmax(0,1fr) 190px 36px 28px 28px;gap:6px;align-items:center}
+  .rvz .rvz-n,.rvz .rvz-hit{font-size:10.5px;color:#86868b;text-align:center}
+  .rvz .rvz-sub{display:block;font-size:10.5px;color:#86868b;font-weight:500}.rvz .rvz-ok{color:#16803a;font-weight:700}
+  .rvz .rvz-sev{font-style:normal}.rvz .rvz-sev.bad{color:#ff3b30}.rvz .rvz-sev.warn{color:#ff9500}.rvz .rvz-sev.info{color:#0071e3}
+  .rvz .rvz-list{max-height:520px}.rvz .rvz-test{font-size:11px;margin-top:8px}.rvz .rvz-test div{margin:3px 0}.rvz .rvz-test .ok b{color:#16803a}.rvz .rvz-test .bad b{color:#c4271b}
+  .rvz .rvz-test code{font-size:10px;word-break:break-all;color:#6e6e73}
+  .rvz .rvz-prev{border:2px solid #0071e3;border-radius:10px;padding:8px 12px;margin-top:10px;background:#f5f9ff}.rvz .rvz-prev ol{margin:4px 0 6px 18px;padding:0;font-size:12px;max-height:260px;overflow:auto}
+  @media screen and (max-width:600px){.rvz .rvz-rule{grid-template-columns:20px minmax(0,1fr) 120px 28px 24px 24px}}
   /* v1.91 engineering tools */
   .tl-pick{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:4px 16px}
   .tl-mod{display:flex;flex-direction:column;align-items:flex-start;gap:1px;width:100%;text-align:left;border:1px solid #e3e3e8;background:#fff;border-radius:9px;padding:7px 10px;margin-bottom:6px;cursor:pointer}
@@ -1784,7 +1811,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.119.19 · Build 2026.11.26.02";
+const BUILD_LABEL = "v1.120.0 · Build 2026.11.26.01";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -16924,41 +16951,6 @@ function wsPlanMoveFloor(p, L, lv, ids, key) {
   const cut = net.filter(s => set.has(s.from) !== set.has(s.to)).map(s => s.id);
   return {patch:{wsNodes, wsFix, wsNet}, msg:{ok:!cut.length, text:`Moved ${set.size} node${set.size > 1 ? "s" : ""} to ${tgt.name} (${dz >= 0 ? "+" : "−"}${Math.abs(dz).toFixed(2)} m).` + (cut.length ? ` ${cut.join(", ")} now run${cut.length > 1 ? "" : "s"} between floors — check ${cut.length > 1 ? "them" : "it"} in Riser view.` : " Ctrl+Z undoes.")}};
 }
-// v1.119.19: Riser view folding. A node carrying fold:"text" is drawn as ONE node: everything downstream of it (pipes run from the supply outward) is hidden and its
-// fixtures are summed onto the fold node as read-only markers (_v). Edits made on the folded drawing are merged back into the whole network, hidden parts untouched.
-function wsFoldSets(p) {
-  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], net = Array.isArray(p.wsNet) ? p.wsNet : [], F = nodes.filter(n => n && n.fold);
-  if (!F.length) return null;
-  const kids = {}; net.forEach(s => { (kids[s.from] = kids[s.from] || []).push(s); });
-  const hn = new Set(), hp = new Set(), owner = {};
-  F.forEach(fn => { const st = [fn.id]; while (st.length) { const a = st.pop(); (kids[a] || []).forEach(s => { if (hp.has(s.id) || s.to === fn.id) return; hp.add(s.id); if (!hn.has(s.to)) { hn.add(s.to); owner[s.to] = fn.id; st.push(s.to); } }); } });
-  F.forEach(fn => hn.delete(fn.id));
-  return hp.size ? {hn, hp, owner, F} : null;
-}
-function wsFoldVirt(p) {
-  const S = wsFoldSets(p); if (!S) return null;
-  const nodes = p.wsNodes, net = Array.isArray(p.wsNet) ? p.wsNet : [], fix = Array.isArray(p.wsFix) ? p.wsFix : [];
-  const sum = {}; fix.forEach(f => { const o = S.owner[f.node]; if (!o) return; const k = o + "|" + f.fixture; sum[k] = sum[k] || {level:f.level, room:String(S.F.find(q => q.id === o).fold), fixture:f.fixture, node:o, qty:0, _v:1}; sum[k].qty += Number(f.qty) || 0; });
-  return {...p, wsNodes:nodes.filter(n => !S.hn.has(n.id)), wsNet:net.filter(s => !S.hp.has(s.id)),
-    wsFix:[...fix.filter(f => !S.hn.has(f.node)), ...Object.values(sum)], _takenN:wsAllNodeIds(p), _takenS:net.map(s => s.id), _fold:1};
-}
-function wsFoldReal(p, patch) {
-  if (!patch) return patch; const S = wsFoldSets(p); const out = {...patch}; delete out._takenN; delete out._takenS; delete out._fold;
-  if (!S) return out;
-  const nodes = Array.isArray(p.wsNodes) ? p.wsNodes : [], net = Array.isArray(p.wsNet) ? p.wsNet : [], fix = Array.isArray(p.wsFix) ? p.wsFix : [];
-  if (Array.isArray(patch.wsNodes)) { const by = {}, old = new Set(nodes.map(n => n.id)); patch.wsNodes.forEach(n => { by[n.id] = n; });
-    out.wsNodes = [...nodes.filter(n => S.hn.has(n.id) || by[n.id]).map(n => S.hn.has(n.id) ? n : by[n.id]), ...patch.wsNodes.filter(n => !old.has(n.id))]; }
-  if (Array.isArray(patch.wsNet)) { const by = {}, old = new Set(net.map(s => s.id)); patch.wsNet.forEach(s => { by[s.id] = s; });
-    out.wsNet = [...net.filter(s => S.hp.has(s.id) || by[s.id]).map(s => S.hp.has(s.id) ? s : by[s.id]), ...patch.wsNet.filter(s => !old.has(s.id))]; }
-  if (Array.isArray(patch.wsFix)) out.wsFix = [...fix.filter(f => S.hn.has(f.node)), ...patch.wsFix.filter(f => !f._v)];
-  if (out.wsNet || out.wsNodes) { const full = {...p, ...out}; if (Array.isArray(full.wsNet) && full.wsNet.length) out.wsNet = wsEdNormalise(full).wsNet; }
-  return out;
-}
-function WsFoldDraw({pump, edit, fold, ...rest}) {
-  const vp = useMemo(() => fold ? wsFoldVirt(pump) : null, [pump, fold]);
-  if (!vp) return <WsDraw pump={pump} edit={edit} {...rest} />;
-  return <WsDraw key="folded" pump={vp} calcPump={pump} edit={(patch, key) => edit(wsFoldReal(pump, patch), key)} {...rest} />;
-}
 function WsPlanDraw({pump, edit, lvls, plan, setPlan, ...rest}) {
   const gasSite = wsSitePlan(pump), lvs = gasSite ? [WS_GAS_PLAN] : wsPlanLevels(lvls), lv = lvs.find(l => l.key === plan) || lvs[0] || null;
   const [zOff, setZOff] = useState({}), [msg, setMsg] = useState(null);
@@ -17430,7 +17422,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
             return <image key={"ul" + u.id} href={c.url} x={X(u.u)} y={Y(u.v + h)} width={Math.max(1, u.w*V.s)} height={Math.max(1, h*V.s)} opacity={Number(u.op) > 0 ? Number(u.op) : 0.45} preserveAspectRatio="none" style={{pointerEvents:"none"}} />; })}
           {gl}
           {lvG && showLv && lvG.map((g, k) => { const xa = g.x0 == null ? 0 : Math.max(0, X(g.x0)), xb = g.x1 == null ? dim.w : Math.min(dim.w, X(g.x1)), y = Y(g.z); if (xb <= xa || y < -20 || y > dim.h + 20) return null; return <g key={"lv" + k}><line x1={xa} y1={y} x2={xb} y2={y} stroke="#9fb3cc" strokeDasharray="6 4" /><text x={xa + 6} y={y - 3} className="wd-z" style={{fill:"#5b7088"}}>{g.label}</text></g>; })}
-          {(plan ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
+          {(plan === "site" ? [] : levels).map(z => <g key={"z" + z}><line x1={0} y1={Y(z)} x2={dim.w} y2={Y(z)} stroke="#c3ccd8" strokeDasharray="2 5" /><text x={6} y={Y(z) - 3} className="wd-z">z {z >= 0 ? "+" : "−"}{Math.abs(z).toFixed(2)}</text></g>)}
           {pipeEls}{(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "stack") : []).map(v => { const a = pos(v.node); if (!a) return null; const b = {...a, z:a.z + v.len}, [x1, y1] = PP(a), [x2, y2] = PP(b), rv = water.drain.vents.find(q => q.id === "VR-" + v.id.slice(3)), left = !!rv && rv.off > 0;
             return <g key={v.id}><line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#7c3aed" strokeWidth={3*wK} strokeDasharray="5 4" strokeLinecap="round" /><circle cx={x2} cy={y2} r="3.5" fill="#fff" stroke="#7c3aed" strokeWidth="1.6" /><text x={left ? x2 - 7 : x2 + 7} y={y2 + 3} textAnchor={left ? "end" : "start"} className="wd-v" fill="#7c3aed">{`VENT DN${v.dn}`}</text></g>; })}
           {(water && water.drainMode ? water.drain.vents.filter(v => v.kind === "riser") : []).map(v => { const a0 = pos(v.base), a1 = pos(v.top); if (!a0 || !a1) return null; const P0 = {x:a0.x + v.off, y:a0.y, z:a0.z}, P1 = {x:a1.x + v.off, y:a1.y, z:v.z1}, T = {x:a1.x, y:a1.y, z:v.z1}, [x0, y0] = PP(P0), [x1, y1] = PP(P1), [tx, ty] = PP(T), VC = "#a855f7";
@@ -17505,7 +17497,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
       legend:big0 && dm ? [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], ["#0b4f8a", "Final connection / drain"], ["#d8332b", "Review"]] : null,
       title:[projName, pump.tag || pump.name, "schematic"].filter(Boolean).join(" - ").replace(/[\\/:*?"<>|]+/g, " ").trim()};
     wsPdfPrint(wsPdfHtml(pdfSch, pdfPlan, pdfOpt, meta), meta.title); setPdfOpen(false); };
-  const foldBtn = hasFold && (vw === "sch" || vw === "draw") ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
+  const foldBtn = hasFold && vw === "sch" ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
   const pdfBtn = w && !(res && res.error) ? <button type="button" className="nc-c" onClick={() => setPdfOpen(true)} title="Export the schematic to PDF — a large network is cut into readable sheets with a key plan">Export PDF</button> : null;
   const val = useMemo(() => (res && res.error) ? wsValidate(pump) : null, [res, pump]);
   useEffect(() => { if (!big) return; const k = e => { if (e.key === "Escape") setBig(false); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [big]);
@@ -17531,7 +17523,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
         {wsIsStress(pump) ? <StressInspector pump={pump} sel={sel} setSel={setSel} edit={edit} locked={locked} flash={flash} res={res} /> : <NetInspector pump={pump} w={w} sel={sel} setSel={setSel} edit={edit} locked={locked} onDetail={onDetail} flash={flash} lvls={lvls} />}
         {note && <div className="ws-addmsg" style={{margin:"6px 8px 0"}} onClick={() => setNote(null)}>{note.text}</div>}
         {vw === "plan" ? <WsPlanDraw pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} plan={plan} setPlan={setPlan} />
-          : vw === "draw" ? <WsFoldDraw fold={fold} pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} /> : res && res.error
+          : vw === "draw" ? <WsDraw pump={pump} edit={edit} sel={sel} setSel={setSel} locked={locked} water={w} blocks={blocks} setBlocks={setBlocks} lvls={lvls} colorBy={cby} stale={stale} onCalc={onCalc} rlbl={rlbl} /> : res && res.error
           ? <div className="sump-fig-empty" style={{margin:8}}><b>The schematic needs a valid network — fix these:</b>
               <ul className="wr-list" style={{marginTop:8}}>{val.items.filter(i => i.sev === "error").map((it, i) => <WsIssueRow key={"v" + i} it={it} pick={pickErr} selIs={selIsE} />)}{res.errors.filter(e => !val.items.some(i => i.sev === "error" && i.text === e)).map((e, i) => <li className="wr-it" key={"e" + i}><b style={{color:"#b91c1c", background:"#fff0ee"}}>Error</b><span>{e}</span></li>)}</ul>
               <div style={{marginTop:8, fontWeight:600}}>Click an error to select its pipe or node, then correct it in the strip above (position, length, direction).</div></div>
@@ -20462,6 +20454,378 @@ function ReportPrint({cfg, pumps, proj, stageName, meta, people, onDone}) {
   </div>, document.body);
 }
 
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// REVIZTO CONNECTOR (v1.120.0) — reads plumbing fixtures straight from the Revizto model (no PDF / DXF / DWG),
+// maps them to pump.html fixture types, builds the fixture schedule and loading units, runs QA checks and,
+// only after the user approves each one, creates Revizto issues at the fixture location.
+// The browser never holds Revizto credentials: everything goes through the Supabase Edge Function "revizto".
+// Saved in the stage meta as meta.revizto = {cfg, rules, lib, scan, issues}.
+// ══════════════════════════════════════════════════════════════════════════════════════════════════════
+// <RVZ-CORE-BEGIN>
+// Fixture types. cw = cold-water points (office convention: WC branch = WC cistern + shattaf = 2 points),
+// hw = hot water, dr = drainage connection, water = counts in the water-supply schedule.
+const RVZ_TYPES = [
+  {k:"wc",      l:"WC (cistern + shattaf)", ab:"WC",  cw:2, hw:false, dr:true,  water:true,  lib:/water closet|^wc\b|w\.c/i},
+  {k:"wcfv",    l:"WC (flush valve)",       ab:"WC-FV", cw:1, hw:false, dr:true, water:true,  lib:/flush ?valve/i},
+  {k:"shattaf", l:"Shattaf (separate)",     ab:"SH",  cw:1, hw:false, dr:false, water:true,  lib:/shattaf|bidet|spray/i},
+  {k:"ur",      l:"Urinal",                 ab:"UR",  cw:1, hw:false, dr:true,  water:true,  lib:/urinal/i},
+  {k:"whb",     l:"Wash-hand basin",        ab:"WHB", cw:1, hw:true,  dr:true,  water:true,  lib:/basin|lavatory/i},
+  {k:"sh",      l:"Shower",                 ab:"SHW", cw:1, hw:true,  dr:true,  water:true,  lib:/shower/i},
+  {k:"bath",    l:"Bath",                   ab:"BT",  cw:1, hw:true,  dr:true,  water:true,  lib:/bath/i},
+  {k:"ks",      l:"Kitchen sink",           ab:"KS",  cw:1, hw:true,  dr:true,  water:true,  lib:/kitchen sink/i},
+  {k:"ps",      l:"Pantry sink",            ab:"PS",  cw:1, hw:true,  dr:true,  water:true,  lib:/pantry|kitchen sink/i},
+  {k:"js",      l:"Janitor / cleaner sink", ab:"JS",  cw:1, hw:true,  dr:true,  water:true,  lib:/janitor|cleaner|mop|service sink|bucket/i},
+  {k:"abl",     l:"Ablution tap",           ab:"ABL", cw:1, hw:false, dr:true,  water:true,  lib:/ablution/i},
+  {k:"hb",      l:"Hose bib / bib tap",     ab:"HB",  cw:1, hw:false, dr:false, water:true,  lib:/hose|bib|tap/i},
+  {k:"dw",      l:"Dishwasher",             ab:"DW",  cw:1, hw:false, dr:true,  water:true,  lib:/dish ?washer/i},
+  {k:"wm",      l:"Washing machine",        ab:"WM",  cw:1, hw:false, dr:true,  water:true,  lib:/washing machine|laundry/i},
+  {k:"df",      l:"Drinking fountain / cooler", ab:"DF", cw:1, hw:false, dr:true, water:true, lib:/drinking|fountain|cooler/i},
+  {k:"fd",      l:"Floor drain (drainage only)", ab:"FD", cw:0, hw:false, dr:true, water:false, lib:/floor drain|gully/i},
+  {k:"ignore",  l:"Not a fixture — ignore", ab:"—",   cw:0, hw:false, dr:false, water:false},
+];
+const RVZ_T = Object.fromEntries(RVZ_TYPES.map(t => [t.k, t]));
+// Rules are tested in order against "category | family | type | name". First match wins. Users can edit / add.
+const RVZ_DEFAULT_RULES = [
+  {id:"r-ign",  re:"accessor|grab ?bar|mirror|dispenser|hand ?dryer|toilet roll|paper|soap|partition|cubicle|vanity top|worktop", t:"ignore"},
+  {id:"r-fv",   re:"flush ?valve|flushometer", t:"wcfv"},
+  {id:"r-shat", re:"shattaf|health ?faucet|bidet ?spray|hand ?spray", t:"shattaf"},
+  {id:"r-ur",   re:"urinal", t:"ur"},
+  {id:"r-wc",   re:"water ?closet|\\bw\\.?c\\b|toilet|closet|\\bpan\\b|commode", t:"wc"},
+  {id:"r-js",   re:"janitor|cleaner'?s? sink|mop|service sink|bucket sink|slop", t:"js"},
+  {id:"r-abl",  re:"ablution|wudu", t:"abl"},
+  {id:"r-whb",  re:"wash ?hand|hand ?wash|\\bwhb\\b|basin|lavatory|\\blav\\b", t:"whb"},
+  {id:"r-sh",   re:"shower", t:"sh"},
+  {id:"r-bath", re:"\\bbath(tub)?\\b", t:"bath"},
+  {id:"r-ps",   re:"pantry", t:"ps"},
+  {id:"r-dw",   re:"dish ?washer|glass ?washer", t:"dw"},
+  {id:"r-wm",   re:"washing machine|washer", t:"wm"},
+  {id:"r-ks",   re:"kitchen sink|\\bsink\\b", t:"ks"},
+  {id:"r-hb",   re:"hose ?bib|bib ?tap|hose ?tap|wash ?down|garden tap|sill ?cock", t:"hb"},
+  {id:"r-df",   re:"drinking|fountain|water cooler|bottle fill", t:"df"},
+  {id:"r-fd",   re:"floor ?drain|floor ?gull|trench drain|\\bfd\\b", t:"fd"},
+];
+// Which Revizto objects are candidates at all (category / name). Sent to the Edge Function so only candidates travel.
+const RVZ_DEFAULT_FILTER = "plumbing fixture|sanitary|plumbing equipment|water closet|toilet|urinal|basin|lavatory|sink|shower|shattaf|hose bib|bib tap|floor drain|ablution";
+
+// ── Property reading: Revizto returns properties in several shapes; flatten them all to {lowercase name: value}.
+function rvzFlat(o, out = {}, depth = 0, pre = "") {
+  if (o == null || depth > 5) return out;
+  if (Array.isArray(o)) {
+    for (const p of o) {
+      if (p && typeof p === "object" && ("name" in p || "key" in p || "displayName" in p) && ("value" in p || "displayValue" in p || "val" in p)) {
+        const k = String(p.displayName || p.name || p.key).trim().toLowerCase(), v = p.displayValue != null ? p.displayValue : p.value != null ? p.value : p.val;
+        if (k && (v == null || typeof v !== "object")) { if (!(k in out)) out[k] = v; if (p.group || p.category) out[String(p.group || p.category).toLowerCase() + ":" + k] = v; }
+      } else rvzFlat(p, out, depth + 1, pre);
+    }
+    return out;
+  }
+  if (typeof o === "object") {
+    for (const [k0, v] of Object.entries(o)) {
+      const k = k0.trim().toLowerCase();
+      if (v == null || typeof v !== "object") { if (!(k in out)) out[k] = v; if (pre) out[pre + ":" + k] = v; }
+      else rvzFlat(v, out, depth + 1, k);
+    }
+  }
+  return out;
+}
+const rvzPick = (f, keys) => { for (const k of keys) { const v = f[k]; if (v != null && String(v).trim() !== "" && String(v).trim() !== "<None>") return String(v).trim(); } return ""; };
+const rvzNum = v => { const n = Number(String(v == null ? "" : v).replace(/[^0-9eE+\-.]/g, "")); return Number.isFinite(n) && String(v).trim() !== "" ? n : null; };
+function rvzXYZ(o, f) {
+  const P = o.position || o.location || o.center || o.centroid || o.point || (o.geometry && (o.geometry.center || o.geometry.position)) || null;
+  if (P && typeof P === "object") { const a = Array.isArray(P) ? P : [P.x, P.y, P.z]; if (a.slice(0, 3).every(x => rvzNum(x) != null)) return a.slice(0, 3).map(Number); }
+  const bb = o.bbox || o.boundingBox || o.bounds || (o.geometry && o.geometry.bbox);
+  if (bb && typeof bb === "object") { const mn = bb.min || bb.minimum, mx = bb.max || bb.maximum;
+    if (mn && mx) { const A = Array.isArray(mn) ? mn : [mn.x, mn.y, mn.z], B = Array.isArray(mx) ? mx : [mx.x, mx.y, mx.z]; if ([...A, ...B].every(x => rvzNum(x) != null)) return [0, 1, 2].map(i => (Number(A[i]) + Number(B[i]))/2); } }
+  const x = rvzNum(f.x ?? f["position x"] ?? f["location x"]), y = rvzNum(f.y ?? f["position y"] ?? f["location y"]), z = rvzNum(f.z ?? f["position z"] ?? f["location z"]);
+  return x != null && y != null ? [x, y, z == null ? 0 : z] : null;
+}
+// One Revizto object → one compact record. Keeps only what the schedule, QA and issue location need.
+function rvzNormalize(o, model) {
+  const f = rvzFlat(o);
+  const id = rvzPick(f, ["uuid", "guid", "objectid", "object_id", "id", "elementid", "element id", "uniqueid", "ifcguid", "globalid"]);
+  const famType = rvzPick(f, ["family and type", "familyandtype"]);
+  const fam = rvzPick(f, ["family", "family name", "familyname", "identity data:family"]) || (famType.includes(":") ? famType.split(":")[0].trim() : "");
+  const typ = rvzPick(f, ["type", "type name", "typename", "family type", "identity data:type name"]) || (famType.includes(":") ? famType.split(":").slice(1).join(":").trim() : "");
+  const xyz = rvzXYZ(o, f);
+  return {
+    id, model:model || rvzPick(f, ["model", "modelname", "model name", "source file", "file name"]),
+    cat:rvzPick(f, ["category", "categoryname", "category name", "ifcclass", "ifc class", "element:category"]),
+    fam, typ, name:rvzPick(f, ["name", "displayname", "display name", "element name", "title"]),
+    lvl:rvzPick(f, ["level", "reference level", "base level", "schedule level", "building storey", "ifcbuildingstorey", "storey", "constraints:level"]),
+    room:rvzPick(f, ["room: name", "room name", "room", "space: name", "space name", "space", "to room: name", "from room: name"]),
+    roomNo:rvzPick(f, ["room: number", "room number", "space: number", "space number"]),
+    sys:rvzPick(f, ["system type", "system classification", "system name", "systemname", "mechanical:system type", "piping system"]),
+    mark:rvzPick(f, ["mark", "tag", "type mark", "asset code", "asset tag"]),
+    mfr:rvzPick(f, ["manufacturer"]), mdl:rvzPick(f, ["model number", "type model", "model no", "product code"]),
+    x:xyz ? +xyz[0] : null, y:xyz ? +xyz[1] : null, z:xyz ? +xyz[2] : null,
+  };
+}
+function rvzRuleTester(rules) {
+  return (rules || []).map(r => { let re = null; try { re = new RegExp(r.re, "i"); } catch (e) { re = null; } return {...r, rx:re}; }).filter(r => r.rx && RVZ_T[r.t]);
+}
+const rvzText = f => [f.cat, f.fam, f.typ, f.name].filter(Boolean).join(" | ");
+// Records → classified fixtures. Unmatched candidates are kept with t:"" so they appear in "Needs mapping".
+function rvzClassify(records, rules) {
+  const R = rvzRuleTester(rules);
+  return records.map(f => { const s = rvzText(f), hit = R.find(r => r.rx.test(s)); return {...f, t:hit ? hit.t : "", rule:hit ? hit.id : ""}; });
+}
+// Level × type pivot. Levels sorted by mean Z when available (lowest first), otherwise naturally by name.
+function rvzSchedule(fx) {
+  const live = fx.filter(f => f.t && f.t !== "ignore"), types = RVZ_TYPES.filter(t => t.k !== "ignore" && live.some(f => f.t === t.k)).map(t => t.k);
+  // If the model carries separate shattaf objects, a WC is 1 point and the shattaf adds its own; otherwise WC = cistern + shattaf = 2.
+  const sepSh = live.some(f => f.t === "shattaf"), pts = t => t === "wc" && sepSh ? 1 : RVZ_T[t].cw;
+  const by = {};
+  for (const f of live) { const L = f.lvl || "(no level)"; const b = by[L] = by[L] || {lvl:L, n:{}, zs:[], cw:0, hw:0}; b.n[f.t] = (b.n[f.t] || 0) + 1; if (f.z != null) b.zs.push(f.z); b.cw += pts(f.t); b.hw += RVZ_T[f.t].hw ? 1 : 0; }
+  const rows = Object.values(by).map(b => ({...b, z:b.zs.length ? b.zs.reduce((a, c) => a + c, 0)/b.zs.length : null, tot:Object.values(b.n).reduce((a, c) => a + c, 0)}));
+  rows.sort((a, b) => (a.lvl === "(no level)") - (b.lvl === "(no level)") || ((a.z != null && b.z != null) ? a.z - b.z : String(a.lvl).localeCompare(String(b.lvl), undefined, {numeric:true})));
+  const total = {lvl:"TOTAL", n:{}, cw:0, hw:0, tot:0, sepSh};
+  rows.forEach(r => { types.forEach(t => total.n[t] = (total.n[t] || 0) + (r.n[t] || 0)); total.cw += r.cw; total.hw += r.hw; total.tot += r.tot; });
+  return {types, rows, total, sepSh};
+}
+// Loading units: each fixture type is linked to one fixture of the chosen demand table (FU_FIXTURES[code]).
+function rvzLibFor(code) { return (typeof FU_FIXTURES !== "undefined" && FU_FIXTURES[code]) || []; }
+function rvzAutoLib(code) {   // first library fixture whose name matches the type's pattern
+  const L = rvzLibFor(code), o = {};
+  for (const t of RVZ_TYPES) if (t.lib) { const h = L.find(x => t.lib.test(x.base || x.name)); if (h) o[t.k] = h.name; }
+  return o;
+}
+function rvzLoading(sched, code, libMap) {
+  const L = rvzLibFor(code), get = k => L.find(x => x.name === (libMap || {})[k]) || null, num = v => Number.isFinite(Number(v)) && v !== "" ? Number(v) : 0;
+  const per = sched.types.map(k => { const fx = get(k); return {k, fx, lu:fx ? num(fx.lu) : 0, luHot:fx ? num(fx.luHot) : 0, luTot:fx ? num(fx.luTot) || (num(fx.lu) + num(fx.luHot)) : 0}; });
+  const rowLU = r => per.reduce((a, p) => ({cold:a.cold + (r.n[p.k] || 0)*p.lu, hot:a.hot + (r.n[p.k] || 0)*p.luHot, tot:a.tot + (r.n[p.k] || 0)*p.luTot}), {cold:0, hot:0, tot:0});
+  return {per, rows:sched.rows.map(r => ({lvl:r.lvl, ...rowLU(r)})), total:rowLU(sched.total), missing:per.filter(p => !p.fx && RVZ_T[p.k].water).map(p => p.k)};
+}
+// QA. Each finding has a stable key (so the same finding is never raised twice) and the fixture's XYZ for the issue.
+function rvzQA(fx, opt = {}) {
+  const out = [], add = (sev, code, f, msg, act) => out.push({key:code + ":" + (f.id || [f.fam, f.typ, f.x, f.y, f.z].join("/")), sev, code, f, msg, act});
+  const live = fx.filter(f => f.t !== "ignore");
+  for (const f of live) {
+    if (!f.t) add("warn", "UNMAPPED", f, `Candidate plumbing object not mapped to a fixture type: ${rvzText(f) || "(no name)"}`, "Add a mapping rule in pump.html, or correct the family / type name in the model.");
+    if (!f.lvl) add("warn", "NO-LEVEL", f, "Fixture has no level / reference level.", "Assign the host level in the authoring model.");
+    if (opt.room !== false && !f.room) add("info", "NO-ROOM", f, "Fixture is not inside a room / space (no room name).", "Check the room bounding / phase, or place the fixture inside the room.");
+    if (opt.sys && f.t && RVZ_T[f.t].water && !f.sys) add("info", "NO-SYS", f, "Fixture has no piping system type (not connected to a CW system).", "Connect the fixture to the CCWS system in the model.");
+    if (f.x == null) add("info", "NO-XYZ", f, "No position returned for this object — the issue cannot be placed on it.", "Check that the object has geometry in the published model.");
+  }
+  // Duplicates: same type, within 50 mm (model units assumed metres if values are small, otherwise mm).
+  const pos = live.filter(f => f.t && f.x != null), tol = v => Math.abs(v) > 2000 ? 50 : 0.05, seen = new Set();
+  for (let i = 0; i < pos.length; i++) for (let j = i + 1; j < pos.length; j++) { const a = pos[i], b = pos[j];
+    if (a.t !== b.t || seen.has(b.id)) continue; const t = tol(a.x);
+    if (Math.abs(a.x - b.x) <= t && Math.abs(a.y - b.y) <= t && Math.abs((a.z || 0) - (b.z || 0)) <= t) { seen.add(b.id); add("bad", "DUPLICATE", b, `Duplicate ${RVZ_T[b.t].l} at the same position as ${a.id || "another object"}.`, "Delete the duplicate instance in the model (it would double the fixture count)."); } }
+  // Separate shattaf objects: if the model has them, every WC should have one within 1.0 m (office convention).
+  if (opt.shattaf !== false) { const sh = live.filter(f => f.t === "shattaf" && f.x != null);
+    if (sh.length) for (const w of live.filter(f => f.t === "wc" && f.x != null)) { const r = Math.abs(w.x) > 2000 ? 1000 : 1;
+      if (!sh.some(s => Math.hypot(s.x - w.x, s.y - w.y) <= r && (s.lvl || "") === (w.lvl || ""))) add("warn", "WC-NO-SHATTAF", w, "WC without a shattaf / health faucet within 1 m.", "Add the shattaf, or confirm this WC has no shattaf point."); } }
+  const rank = {bad:0, warn:1, info:2};
+  return out.sort((a, b) => rank[a.sev] - rank[b.sev] || String(a.f.lvl).localeCompare(String(b.f.lvl), undefined, {numeric:true}));
+}
+// Issue body sent to Revizto. Field names follow the v5 issue model; the Edge Function forwards it unchanged.
+function rvzIssueBody(fd, ctx = {}) {
+  const f = fd.f, t = f.t ? RVZ_T[f.t].l : "Unmapped object";
+  const lines = [`Raised from pump.html${ctx.pumpProject ? " — " + ctx.pumpProject : ""} (Revizto connector).`, "", `Finding: ${fd.msg}`, `Action: ${fd.act}`, "",
+    `Fixture: ${t}`, `Family / type: ${[f.fam, f.typ].filter(Boolean).join(" : ") || "—"}`, `Level: ${f.lvl || "—"}   Room: ${f.room || "—"}${f.roomNo ? " (" + f.roomNo + ")" : ""}`,
+    `Model: ${f.model || "—"}   Object ID: ${f.id || "—"}`, f.x != null ? `Position: ${[f.x, f.y, f.z].map(v => Number(v).toFixed(3)).join(", ")}` : "Position: not available", "", `Finding key: ${fd.key}`];
+  return {title:`PH-QA ${fd.code}: ${t}${f.lvl ? " · " + f.lvl : ""}${f.room ? " · " + f.room : ""}`.slice(0, 250), description:lines.join("\n"),
+    priority:fd.sev === "bad" ? "high" : fd.sev === "warn" ? "medium" : "low", ...(ctx.tag ? {tags:[ctx.tag]} : {}),
+    ...(f.x != null ? {position:{x:f.x, y:f.y, z:f.z || 0}} : {}), ...(f.id ? {objects:[f.id]} : {})};
+}
+// Accepts what the API returns, or a saved JSON of it: an array of objects, {data:[…]}, {items:[…]}, or {models:[{name, objects:[…]}]}.
+function rvzParseJson(j) {
+  const L = d => Array.isArray(d) ? d : Array.isArray(d && d.data) ? d.data : Array.isArray(d && d.data && d.data.data) ? d.data.data : Array.isArray(d && d.items) ? d.items : Array.isArray(d && d.objects) ? d.objects : null;
+  if (j && Array.isArray(j.models)) return j.models.flatMap(m => (L(m.objects) || L(m) || []).map(o => rvzNormalize(o, m.name || m.title || "")));
+  return (L(j) || []).map(o => rvzNormalize(o, ""));
+}
+async function rvzCall(action, body = {}) {
+  if (typeof sb === "undefined" || !sb.functions) throw new Error("Supabase is not available.");
+  const {data, error} = await sb.functions.invoke("revizto", {body:{action, ...body}});
+  if (error) { let m = error.message || String(error); try { const j = await error.context.json(); if (j && j.error) m = j.error; } catch (e) {} throw new Error(m.indexOf("Failed to send") >= 0 || m.indexOf("not found") >= 0 ? "The Revizto Edge Function is not deployed (supabase functions deploy revizto --no-verify-jwt)." : m); }
+  if (data && data.error) throw new Error(data.error);
+  return data;
+}
+// <RVZ-CORE-END>
+
+// ─── REVIZTO TAB (v1.120.0) ──────────────────────────────────────────────────────────────────────────
+const RVZ_REGIONS = ["frankfurt", "virginia", "london", "singapore", "sydney", "canada", "tokyo", "india"];
+function rvzFuFlow(code, units) {   // demand-table interpolation; above the last row is extended and flagged
+  const c = typeof FU_CODES !== "undefined" ? FU_CODES[code] : null; if (!c || !c.table || c.table.length < 2 || !(units > 0)) return {q:0, flag:""};
+  const t = c.table, n = t.length;
+  if (units <= t[0][0]) return {q:t[0][1]*units/Math.max(t[0][0], 1e-9), flag:units < t[0][0] ? "below table" : ""};
+  for (let i = 1; i < n; i++) if (units <= t[i][0]) { const [x0, y0] = t[i - 1], [x1, y1] = t[i]; return {q:y0 + (units - x0)*(y1 - y0)/(x1 - x0), flag:""}; }
+  const [x0, y0] = t[n - 2], [x1, y1] = t[n - 1]; return {q:y1 + (units - x1)*(y1 - y0)/(x1 - x0), flag:"extrapolated"};
+}
+const rvzEsc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const rvzSlim = r => Object.fromEntries(Object.entries(r).filter(([, v]) => v !== "" && v != null));
+
+function ReviztoTab({meta, setMeta, locked, projName}) {
+  const rv = (meta && meta.revizto) || {}, cfg = rv.cfg || {}, rules = rv.rules || RVZ_DEFAULT_RULES, scan = rv.scan || null, issues = rv.issues || {};
+  const upd = fn => { if (locked) return; setMeta(m => ({...m, revizto:fn({...(m.revizto || {})})})); };
+  const setCfg = p => upd(x => ({...x, cfg:{...(x.cfg || {}), ...p}}));
+  const setRules = fn => upd(x => ({...x, rules:fn(x.rules || RVZ_DEFAULT_RULES)}));
+  const [st, setSt] = useState(null), [busy, setBusy] = useState(""), [msg, setMsg] = useState(null), [code, setCode] = useState("");
+  const [lics, setLics] = useState([]), [projs, setProjs] = useState([]), [models, setModels] = useState([]), [test, setTest] = useState(null);
+  const [pane, setPane] = useState("schedule"), [lvlF, setLvlF] = useState(""), [sel, setSel] = useState({}), [preview, setPreview] = useState(null);
+  const say = (t, bad) => setMsg({t, bad:!!bad});
+  const run = async (label, fn) => { setBusy(label); setMsg(null); try { await fn(); } catch (e) { say(e.message || String(e), true); } finally { setBusy(""); } };
+  const region = cfg.region || (st && st.region) || "frankfurt";
+
+  useEffect(() => { rvzCall("status").then(setSt).catch(e => setSt({connected:false, err:e.message}));
+    try { const u = new URL(window.location.href); if (u.searchParams.get("revizto") === "connected") { say("Revizto connected."); u.searchParams.delete("revizto"); window.history.replaceState(null, "", u.toString()); } } catch (e) {} }, []);
+
+  const connectOAuth = () => run("Opening Revizto sign-in…", async () => { const r = await rvzCall("authUrl", {region, returnTo:window.location.href.split("#")[0]}); window.location.assign(r.url); });
+  const connectCode = () => run("Connecting…", async () => { await rvzCall("accessCode", {region, code}); setCode(""); setSt(await rvzCall("status")); say("Revizto connected with the access code."); });
+  const disconnect = () => run("Disconnecting…", async () => { await rvzCall("disconnect"); setSt(await rvzCall("status")); setLics([]); setProjs([]); setModels([]); });
+  const loadLics = () => run("Loading licences…", async () => { const r = await rvzCall("licenses"); if (!r.ok) throw new Error(`Licences request failed (HTTP ${r.status}). Use Test endpoints.`); setLics(r.items); if (r.items.length === 1) { const id = r.items[0].uuid || r.items[0].id; setCfg({license:id}); await loadProjs(id); } });
+  const loadProjs = async lic => { const r = await rvzCall("projects", {license:lic || cfg.license}); if (!r.ok) throw new Error(`Projects request failed (HTTP ${r.status}).`); setProjs(r.items); };
+  const loadModels = (p) => run("Loading models…", async () => { const r = await rvzCall("models", {project:p || cfg.project}); if (!r.ok) throw new Error(`Models request failed (HTTP ${r.status}). Use Test endpoints.`); setModels(r.items); });
+  const doTest = () => run("Testing endpoints…", async () => setTest(await rvzCall("test", {project:cfg.project || "", model:(cfg.models || [])[0] || ""})));
+  const fetchAll = () => run("Reading the model…", async () => {
+    const ids = (cfg.models || []); if (!cfg.project || !ids.length) throw new Error("Pick a project and at least one model.");
+    const recs = []; let scanned = 0;
+    for (const mid of ids) { const mname = (models.find(m => (m.uuid || m.id) === mid) || {}).name || (cfg.modelNames || {})[mid] || mid; let page = 0, done = false, guard = 0;
+      while (!done && guard++ < 200) { setBusy(`Reading ${mname} … ${scanned.toLocaleString()} objects scanned, ${recs.length} candidates`);
+        const r = await rvzCall("objects", {project:cfg.project, model:mid, page, limit:500, maxPages:8, filter:cfg.filter || RVZ_DEFAULT_FILTER});
+        if (!r.ok) throw new Error(r.error || `Objects request failed (HTTP ${r.status}).`);
+        scanned += r.scanned; recs.push(...r.items.map(o => rvzSlim(rvzNormalize(o, mname)))); page = r.nextPage; done = r.done; } }
+    upd(x => ({...x, scan:{at:new Date().toISOString(), src:"Revizto API", project:cfg.projectName || cfg.project, scanned, recs}}));
+    say(`Read ${scanned.toLocaleString()} objects, ${recs.length} plumbing candidates.`);
+  });
+  const loadJson = file => run("Reading file…", async () => { const j = JSON.parse(await file.text()); const recs = rvzParseJson(j).map(rvzSlim);
+    if (!recs.length) throw new Error("No objects found in that JSON."); const re = new RegExp(cfg.filter || RVZ_DEFAULT_FILTER, "i");
+    const cand = recs.filter(r => re.test(rvzText(r)));
+    upd(x => ({...x, scan:{at:new Date().toISOString(), src:"JSON: " + file.name, project:cfg.projectName || "", scanned:recs.length, recs:cand}})); say(`${recs.length} objects in the file, ${cand.length} plumbing candidates.`); });
+
+  const fx = useMemo(() => scan ? rvzClassify(scan.recs.map(r => ({cat:"", fam:"", typ:"", name:"", lvl:"", room:"", sys:"", x:null, y:null, z:null, ...r})), rules) : [], [scan, rules]);
+  const sched = useMemo(() => rvzSchedule(fx), [fx]);
+  const qaOpt = rv.qa || {room:true, sys:false, shattaf:true};
+  const qa = useMemo(() => rvzQA(fx, qaOpt), [fx, rv.qa]);
+  const unm = useMemo(() => { const g = {}; fx.filter(f => !f.t).forEach(f => { const k = [f.cat, f.fam, f.typ].join(" | "); (g[k] = g[k] || {k, f, n:0}).n++; }); return Object.values(g).sort((a, b) => b.n - a.n); }, [fx]);
+  const fuCodes = typeof FU_CODES !== "undefined" ? Object.keys(FU_CODES).filter(k => !k.startsWith("__")) : [];
+  const fuCode = rv.fuCode && fuCodes.includes(rv.fuCode) ? rv.fuCode : fuCodes[0] || "";
+  const libMap = {...rvzAutoLib(fuCode), ...((rv.lib || {})[fuCode] || {})}, basis = rv.luBasis || "tot";
+  const load = useMemo(() => fuCode ? rvzLoading(sched, fuCode, libMap) : null, [sched, fuCode, JSON.stringify(libMap)]);
+  const levels = sched.rows.map(r => r.lvl);
+
+  const mapGroup = (g, t) => setRules(R => [{id:"u-" + Math.random().toString(36).slice(2, 8), re:"^" + rvzEsc(rvzText({cat:g.f.cat, fam:g.f.fam, typ:g.f.typ, name:g.f.name})) + "$", t}, ...R]);
+  const csvSched = () => wsDownloadCsv(`revizto_fixture_schedule_${(projName || "project").replace(/\W+/g, "_")}.csv`, ["Level", ...sched.types.map(k => RVZ_T[k].l), "Total fixtures", "CCWS points", "Hot water points"],
+    [...sched.rows, sched.total].map(r => [r.lvl, ...sched.types.map(k => r.n[k] || 0), r.tot, r.cw, r.hw]));
+  const csvList = () => wsDownloadCsv(`revizto_fixtures_${(projName || "project").replace(/\W+/g, "_")}.csv`, ["Revizto object", "Model", "Level", "Room", "Room no.", "Category", "Family", "Type", "Mapped as", "System", "Mark", "Manufacturer", "Model no.", "X", "Y", "Z"],
+    fx.map(f => [f.id, f.model, f.lvl, f.room, f.roomNo, f.cat, f.fam, f.typ, f.t ? RVZ_T[f.t].l : "NOT MAPPED", f.sys, f.mark, f.mfr, f.mdl, f.x, f.y, f.z]));
+  const csvQa = () => wsDownloadCsv("revizto_qa_findings.csv", ["Severity", "Check", "Level", "Room", "Fixture", "Family : type", "Object", "Finding", "Action", "Revizto issue"],
+    qa.map(q => [q.sev, q.code, q.f.lvl, q.f.room, q.f.t ? RVZ_T[q.f.t].l : "", [q.f.fam, q.f.typ].join(" : "), q.f.id, q.msg, q.act, (issues[q.key] || {}).id || ""]));
+
+  const selKeys = qa.filter(q => sel[q.key] && !issues[q.key]).map(q => q.key);
+  const createIssues = () => run("Creating Revizto issues…", async () => {
+    let ok = 0; const errs = [];
+    for (const q of qa.filter(x => preview.includes(x.key))) {
+      setBusy(`Creating issue ${ok + errs.length + 1} of ${preview.length}…`);
+      try { const r = await rvzCall("createIssue", {project:cfg.project, findingKey:q.key, pumpProject:projName || "", issue:rvzIssueBody(q, {pumpProject:projName, tag:"pump.html"})});
+        if (!r.ok) throw new Error(`HTTP ${r.status}`); ok++; upd(x => ({...x, issues:{...(x.issues || {}), [q.key]:{id:r.id || "created", at:new Date().toISOString()}}})); }
+      catch (e) { errs.push(q.code + ": " + e.message); if (errs.length >= 3 && ok === 0) break; } }
+    setPreview(null); setSel({}); say(`${ok} issue${ok === 1 ? "" : "s"} created in Revizto.${errs.length ? " Failed: " + errs.slice(0, 3).join("; ") + " — check the issue endpoint with Test endpoints." : ""}`, errs.length > 0);
+  });
+
+  const B = ({on, onClick, children, pri, dis, title}) => <button type="button" className={"ca-btn" + (pri ? " pri" : "") + (on ? " on" : "")} onClick={onClick} disabled={!!busy || dis} title={title}>{children}</button>;
+  const connected = st && st.connected;
+  return (
+    <div className="ca-tab rvz">
+      <div className="ca-head"><div><h2>Revizto — Plumbing Fixtures</h2><span>Reads fixtures straight from the federated Revizto model (no PDF / DXF / DWG) · schedule, loading units, QA and Revizto issues{scan ? ` · last read ${new Date(scan.at).toLocaleString()} (${scan.src})` : ""}</span></div></div>
+      {locked && <div className="ca-note">This stage is signed off — the Revizto data is read only.</div>}
+      {busy && <div className="rvz-busy" aria-live="polite">⏳ {busy}</div>}
+      {msg && <div className={"rvz-msg" + (msg.bad ? " bad" : "")} aria-live="polite">{msg.bad ? "⚠ " : "✓ "}{msg.t}</div>}
+
+      <div className="rvz-g2">
+        <section className="ca-card"><h4>1 · Connection <em>{st == null ? "checking…" : connected ? `connected · ${st.region} · ${st.method === "oauth" ? "OAuth app" : "access code"}` : "not connected"}</em></h4>
+          {st && st.err && <div className="rvz-msg bad">⚠ {st.err}</div>}
+          <div className="rvz-row"><label>Region<select value={region} onChange={e => setCfg({region:e.target.value})} disabled={connected}>{RVZ_REGIONS.map(r => <option key={r}>{r}</option>)}</select></label>
+            {!connected && st && st.oauthAvailable && <B pri onClick={connectOAuth}>Connect with Revizto</B>}
+            {connected && <><B onClick={doTest} title="Calls each configured Revizto endpoint once and shows the HTTP status">Test endpoints</B><B onClick={disconnect}>Disconnect</B></>}</div>
+          {!connected && <div className="rvz-row"><label className="grow">Access code <input value={code} onChange={e => setCode(e.target.value)} placeholder="Revizto Workspace → profile → generate access code" /></label><B pri={!(st && st.oauthAvailable)} onClick={connectCode} dis={!code.trim()}>Connect with code</B></div>}
+          <div className="rvz-hint">Your own Revizto rights apply. Object properties need <b>Extended API access</b> switched on for the project (Revizto Workspace → Project info).</div>
+          {test && <details className="rvz-test" open><summary>Endpoint test</summary>{Object.entries(test.results || {}).map(([k, v]) => <div key={k} className={v.status >= 200 && v.status < 300 ? "ok" : "bad"}><b>{k}</b> HTTP {v.status} <code>{v.url}</code>{v.note ? <em> — {v.note}</em> : null}{v.count != null ? ` · ${v.count} items` : ""}</div>)}</details>}
+        </section>
+
+        <section className="ca-card"><h4>2 · Source <em>project and models to read</em></h4>
+          {connected ? <>
+            <div className="rvz-row"><B onClick={loadLics}>Load projects</B>
+              {lics.length > 1 && <label>Licence<select value={cfg.license || ""} onChange={e => { setCfg({license:e.target.value}); run("Loading projects…", () => loadProjs(e.target.value)); }}><option value="">—</option>{lics.map(l => <option key={l.uuid || l.id} value={l.uuid || l.id}>{l.name || l.title || l.uuid}</option>)}</select></label>}
+              {projs.length > 0 && <label className="grow">Project<select value={cfg.project || ""} onChange={e => { const p = projs.find(x => (x.uuid || x.id) === e.target.value) || {}; setCfg({project:e.target.value, projectName:p.title || p.name || "", models:[]}); loadModels(e.target.value); }}><option value="">—</option>{projs.map(p => <option key={p.uuid || p.id} value={p.uuid || p.id}>{p.title || p.name || p.uuid}</option>)}</select></label>}
+              {!projs.length && cfg.projectName && <span className="rvz-hint">Project: <b>{cfg.projectName}</b></span>}</div>
+            {models.length > 0 && <div className="rvz-models">{models.map(m => { const id = m.uuid || m.id, on = (cfg.models || []).includes(id); return <label key={id}><input type="checkbox" checked={on} onChange={() => setCfg({models:on ? cfg.models.filter(x => x !== id) : [...(cfg.models || []), id], modelNames:{...(cfg.modelNames || {}), [id]:m.name || m.title || id}})} />{m.name || m.title || id}</label>; })}</div>}
+            {cfg.project && !models.length && <B onClick={() => loadModels()}>Load models</B>}
+          </> : <div className="rvz-hint">Connect first, or read a saved Revizto JSON below.</div>}
+          <label className="rvz-wide">Candidate filter (regular expression on category / family / type / name)<input value={cfg.filter || ""} placeholder={RVZ_DEFAULT_FILTER} onChange={e => setCfg({filter:e.target.value})} disabled={locked} /></label>
+          <div className="rvz-row"><B pri onClick={fetchAll} dis={!connected || !cfg.project || !(cfg.models || []).length || locked}>Read fixtures from Revizto</B>
+            <label className="ca-btn rvz-file">Read Revizto JSON<input type="file" accept=".json,application/json" disabled={!!busy || locked} onChange={e => { const f = e.target.files[0]; e.target.value = ""; if (f) loadJson(f); }} /></label></div>
+          {scan && <div className="rvz-hint">{scan.scanned.toLocaleString()} objects scanned · {scan.recs.length} candidates · {fx.filter(f => f.t && f.t !== "ignore").length} fixtures mapped · <b className={unm.length ? "rvz-warn" : ""}>{fx.filter(f => !f.t).length} need mapping</b></div>}
+        </section>
+      </div>
+
+      {scan && <section className="ca-card">
+        <div className="tl-grps">{[["schedule", "Fixture schedule"], ["lu", "Loading units"], ["map", `Mapping${unm.length ? " (" + unm.length + ")" : ""}`], ["qa", `QA findings (${qa.length})`], ["list", `All objects (${fx.length})`]].map(([k, l]) => <button type="button" key={k} className={pane === k ? "on" : ""} onClick={() => setPane(k)}>{l}</button>)}</div>
+
+        {pane === "schedule" && <>
+          <div className="rvz-row"><span className="rvz-hint">{sched.sepSh ? "The model has separate shattaf objects: WC = 1 CCWS point, each shattaf adds 1." : "WC = WC cistern + shattaf = 2 CCWS points (office convention)."}</span><span className="grow" /><B onClick={csvSched}>⤓ Schedule CSV</B></div>
+          <div className="ca-scroll"><table className="ca-tbl rvz-tbl"><thead><tr><th>Level</th>{sched.types.map(k => <th key={k} title={RVZ_T[k].l}>{RVZ_T[k].ab}</th>)}<th>Fixtures</th><th title="Cold water points">CCWS pts</th><th title="Hot water points">HW pts</th></tr></thead>
+            <tbody>{sched.rows.map(r => <tr key={r.lvl}><td><b>{r.lvl}</b></td>{sched.types.map(k => <td key={k} className="n">{r.n[k] || ""}</td>)}<td className="n"><b>{r.tot}</b></td><td className="n">{r.cw}</td><td className="n">{r.hw}</td></tr>)}
+              <tr className="rvz-tot"><td>TOTAL</td>{sched.types.map(k => <td key={k} className="n">{sched.total.n[k] || 0}</td>)}<td className="n">{sched.total.tot}</td><td className="n">{sched.total.cw}</td><td className="n">{sched.total.hw}</td></tr></tbody></table></div>
+          <div className="rvz-legend">{sched.types.map(k => <span key={k}><b>{RVZ_T[k].ab}</b> {RVZ_T[k].l}</span>)}</div>
+        </>}
+
+        {pane === "lu" && (!fuCode ? <div className="ca-note">No demand table loaded from Reference Data (ref_fixture_unit_codes).</div> : <>
+          <div className="rvz-row"><label>Demand table<select value={fuCode} onChange={e => upd(x => ({...x, fuCode:e.target.value}))}>{fuCodes.map(c => <option key={c} value={c}>{FU_CODES[c].label || c}</option>)}</select></label>
+            <label>Units used<select value={basis} onChange={e => upd(x => ({...x, luBasis:e.target.value}))}><option value="tot">Total (cold + hot)</option><option value="cold">Cold only</option><option value="hot">Hot only</option></select></label></div>
+          <div className="rvz-libs">{load.per.filter(p => RVZ_T[p.k].water).map(p => <label key={p.k}><span>{RVZ_T[p.k].l} <em>× {sched.total.n[p.k] || 0}</em></span>
+            <select value={libMap[p.k] || ""} onChange={e => upd(x => ({...x, lib:{...(x.lib || {}), [fuCode]:{...((x.lib || {})[fuCode] || {}), [p.k]:e.target.value}}}))} className={!p.fx ? "rvz-warnb" : ""}>
+              <option value="">— not counted —</option>{rvzLibFor(fuCode).map(f => <option key={f.name} value={f.name}>{f.name} · {f.lu || 0}/{f.luHot || 0} {FU_CODES[fuCode].unit || "LU"}</option>)}</select></label>)}</div>
+          {load.missing.length > 0 && <div className="rvz-msg bad">⚠ No library fixture linked for: {load.missing.map(k => RVZ_T[k].l).join(", ")} — they add nothing to the loading until linked.</div>}
+          <div className="ca-scroll"><table className="ca-tbl rvz-tbl"><thead><tr><th>Level</th><th>{FU_CODES[fuCode].unit || "LU"}</th><th>Probable flow (l/s)</th><th>Cumulative from top ({FU_CODES[fuCode].unit || "LU"})</th><th>Cumulative flow (l/s)</th></tr></thead>
+            <tbody>{(() => { const key = basis === "cold" ? "cold" : basis === "hot" ? "hot" : "tot"; let cum = 0;
+              const rows = load.rows.slice().reverse().map(r => { cum += r[key]; const a = rvzFuFlow(fuCode, r[key]), b = rvzFuFlow(fuCode, cum); return {r, u:r[key], a, cum, b}; }).reverse();
+              return [...rows.map(x => <tr key={x.r.lvl}><td><b>{x.r.lvl}</b></td><td className="n">{tF(x.u, 1)}</td><td className="n">{tF(x.a.q, 2)}{x.a.flag ? <em className="rvz-warn"> {x.a.flag}</em> : null}</td><td className="n">{tF(x.cum, 1)}</td><td className="n">{tF(x.b.q, 2)}{x.b.flag ? <em className="rvz-warn"> {x.b.flag}</em> : null}</td></tr>),
+                <tr key="t" className="rvz-tot"><td>TOTAL</td><td className="n">{tF(load.total[key], 1)}</td><td className="n">{tF(rvzFuFlow(fuCode, load.total[key]).q, 2)}</td><td /><td /></tr>]; })()}</tbody></table></div>
+          <div className="rvz-hint">Cumulative columns assume one riser serving the levels top-down, in the level order shown. Use the total in the booster pump (Fixture-unit mode) or the water-supply network.</div>
+        </>)}
+
+        {pane === "map" && <>
+          {unm.length > 0 && <><h5 className="rvz-h5">Needs mapping <em>pick a type — an exact rule is added at the top</em></h5>
+            <div className="ca-scroll"><table className="ca-tbl rvz-tbl"><thead><tr><th>Category</th><th>Family</th><th>Type</th><th>Qty</th><th>Map as</th></tr></thead>
+              <tbody>{unm.map(g => <tr key={g.k}><td>{g.f.cat}</td><td><b>{g.f.fam || g.f.name}</b></td><td>{g.f.typ}</td><td className="n">{g.n}</td>
+                <td><select value="" disabled={locked} onChange={e => e.target.value && mapGroup(g, e.target.value)}><option value="">— choose —</option>{RVZ_TYPES.map(t => <option key={t.k} value={t.k}>{t.l}</option>)}</select></td></tr>)}</tbody></table></div></>}
+          <h5 className="rvz-h5">Rules <em>tested top to bottom on “category | family | type | name”; first match wins</em></h5>
+          <div className="rvz-rules">{rules.map((r, i) => <div key={r.id} className="rvz-rule">
+            <span className="rvz-n">{i + 1}</span><input value={r.re} disabled={locked} onChange={e => setRules(R => R.map(x => x.id === r.id ? {...x, re:e.target.value} : x))} className={(() => { try { new RegExp(r.re); return ""; } catch (e) { return "rvz-warnb"; } })()} />
+            <select value={r.t} disabled={locked} onChange={e => setRules(R => R.map(x => x.id === r.id ? {...x, t:e.target.value} : x))}>{RVZ_TYPES.map(t => <option key={t.k} value={t.k}>{t.l}</option>)}</select>
+            <span className="rvz-hit">{fx.filter(f => f.rule === r.id).length}</span>
+            <button type="button" className="ca-x" disabled={locked || i === 0} onClick={() => setRules(R => { const a = R.slice(); [a[i - 1], a[i]] = [a[i], a[i - 1]]; return a; })} title="Up">↑</button>
+            <button type="button" className="ca-x" disabled={locked} onClick={() => setRules(R => R.filter(x => x.id !== r.id))} title="Delete">✕</button></div>)}</div>
+          <div className="rvz-row"><B onClick={() => setRules(R => [...R, {id:"u-" + Math.random().toString(36).slice(2, 8), re:"", t:"whb"}])} dis={locked}>+ Rule</B><B onClick={() => window.confirm("Replace all rules with the defaults?") && setRules(() => RVZ_DEFAULT_RULES)} dis={locked}>Reset to defaults</B></div>
+        </>}
+
+        {pane === "qa" && <>
+          <div className="rvz-row">{[["room", "Room / space check"], ["sys", "Piping system check"], ["shattaf", "WC ↔ shattaf check"]].map(([k, l]) => <label key={k} className="rvz-chk"><input type="checkbox" checked={qaOpt[k] !== false && !!(qaOpt[k] || k !== "sys")} disabled={locked} onChange={e => upd(x => ({...x, qa:{...qaOpt, [k]:e.target.checked}}))} />{l}</label>)}
+            <span className="grow" /><B onClick={csvQa}>⤓ Findings CSV</B>
+            <B pri dis={!selKeys.length || !connected || !cfg.project || locked} onClick={() => setPreview(selKeys)} title={!connected ? "Connect to Revizto first" : ""}>Preview issues ({selKeys.length})</B></div>
+          {!qa.length ? <div className="ca-empty">✓ No findings.</div> :
+          <div className="ca-scroll"><table className="ca-tbl rvz-tbl"><thead><tr><th><input type="checkbox" checked={selKeys.length > 0 && selKeys.length === qa.filter(q => !issues[q.key]).length} onChange={e => setSel(e.target.checked ? Object.fromEntries(qa.filter(q => !issues[q.key]).map(q => [q.key, true])) : {})} aria-label="Select all" /></th><th /><th>Check</th><th>Level</th><th>Room</th><th>Fixture</th><th>Finding</th><th>Revizto</th></tr></thead>
+            <tbody>{qa.map(q => <tr key={q.key} className={q.sev === "bad" ? "err" : q.sev === "warn" ? "warn" : ""}>
+              <td><input type="checkbox" disabled={!!issues[q.key]} checked={!!sel[q.key]} onChange={e => setSel(s => ({...s, [q.key]:e.target.checked}))} aria-label="Select finding" /></td>
+              <td><i className={"rvz-sev " + q.sev}>{q.sev === "bad" ? "●" : q.sev === "warn" ? "▲" : "ℹ"}</i></td><td><b>{q.code}</b></td><td>{q.f.lvl || "—"}</td><td>{q.f.room || "—"}</td>
+              <td>{q.f.t ? RVZ_T[q.f.t].ab : "?"} <span className="rvz-sub">{[q.f.fam, q.f.typ].filter(Boolean).join(" : ")}</span></td><td>{q.msg}<span className="rvz-sub">{q.act}</span></td>
+              <td>{issues[q.key] ? <span className="rvz-ok">✓ {String(issues[q.key].id).slice(0, 8)}</span> : ""}</td></tr>)}</tbody></table></div>}
+          {preview && <div className="rvz-prev" role="dialog" aria-label="Issue preview"><h5 className="rvz-h5">Create {preview.length} issue{preview.length === 1 ? "" : "s"} in <b>{cfg.projectName || cfg.project}</b>?</h5>
+            <ol>{qa.filter(q => preview.includes(q.key)).slice(0, 40).map(q => { const b = rvzIssueBody(q, {pumpProject:projName}); return <li key={q.key}><b>{b.title}</b> <span className="rvz-sub">{b.priority} · {b.position ? "placed at the fixture" : "no position"}</span></li>; })}{preview.length > 40 && <li>… and {preview.length - 40} more</li>}</ol>
+            <div className="rvz-row"><B pri onClick={createIssues}>Create in Revizto</B><B onClick={() => setPreview(null)}>Cancel</B></div></div>}
+        </>}
+
+        {pane === "list" && <>
+          <div className="rvz-row"><label>Level<select value={lvlF} onChange={e => setLvlF(e.target.value)}><option value="">All</option>{levels.map(l => <option key={l}>{l}</option>)}</select></label><span className="grow" /><B onClick={csvList}>⤓ Objects CSV</B></div>
+          <div className="ca-scroll rvz-list"><table className="ca-tbl rvz-tbl"><thead><tr><th>Level</th><th>Room</th><th>Mapped</th><th>Family</th><th>Type</th><th>System</th><th>Model</th><th>Object</th></tr></thead>
+            <tbody>{fx.filter(f => !lvlF || (f.lvl || "(no level)") === lvlF).slice(0, 2000).map((f, i) => <tr key={(f.id || "") + i} className={!f.t ? "warn" : ""}><td>{f.lvl || "—"}</td><td>{f.room || "—"}</td><td><b>{f.t ? RVZ_T[f.t].ab : "?"}</b></td><td>{f.fam || f.name}</td><td>{f.typ}</td><td>{f.sys}</td><td>{f.model}</td><td className="rvz-sub">{f.id}</td></tr>)}</tbody></table></div>
+        </>}
+      </section>}
+    </div>
+  );
+}
+
 function App({session, projectId, projectRow, onBackToProjects, team, roles=[], isAdmin=false}) {
   const userId = session.user.id;
   const [proj, setProj] = useState(projectRow.project); // shared across stages: name + client only
@@ -21101,7 +21465,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                   {group("inputs","⊕","Calculation Inputs",[["pumps","◎","Pumps and equipment"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"]])}
                   {group("pipe","▦","Pipe Sizing",[pz("water","◌","Water supply"),pz("drain","⌄","Drainage"),...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),pz("gas","◇","Gas / LPG"),pz("stress","⌁","Stress analysis"),...(cnt["pipe:fuel"]>0?[pz("fuel","⛁","Fuel oil (network)")]:[])])}
                   {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲","Fire Pump (UAE FLS)"]]),["agent","❄","Clean Agent"],["foam","◍","Foam"]])}
-                  {item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
+                  {item("revizto","⬡","Revizto (BIM)")}{item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
               <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recently deleted ({meta.trash.length})</button>}</div>
             </nav>
             {(meta.trash||[]).length>0 && trashOpen && <details open className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
@@ -21135,7 +21499,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         <div className={`sidebar-backdrop no-print ${sidebarOpen?"open":""}`} onClick={()=>setSidebarOpen(false)}/>
         <main className="pump-main">
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
-          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="flsp"||tab==="storm"||tab==="fuel"||tab==="tools" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
+          <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="flsp"||tab==="storm"||tab==="fuel"||tab==="tools"||tab==="revizto" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
         {tab==="setup" && (
           <div className="setup-card">
@@ -21293,6 +21657,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         {tab==="storm" && <StormTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={stormFocus} projName={proj && proj.name} />}
         {tab==="fuel" && <FuelTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={fuelFocus} />}
         {tab==="tools" && <ToolsTab meta={meta} setMeta={setMeta} locked={stageLocked} focus={toolFocus} />}
+        {tab==="revizto" && <ReviztoTab meta={meta} setMeta={setMeta} locked={stageLocked} projName={proj.name} />}
         {tab==="schedule" && (
           <ScheduleReviewWorkspace pumps={pumps} proj={projForDisplay} stageName={issueStageName} saveStatus={saveStatus} locked={stageLocked} onMovePump={movePump} onPlacePump={placePump} onSetPumpOrder={setPumpOrder}
             caItems={caRoomItems(meta)} onEditRoom={id=>{ setCaFocus({id:String(id).replace(/^ca-/,""), t:Date.now()}); setTab("agent"); }}
