@@ -1138,6 +1138,7 @@
   .nc-eq input{width:54px;height:23px;border:1px solid #d9d9de;border-radius:6px;padding:0 5px!important;font-size:11px!important;background:#fff}.nc-eq input.q{width:36px}.nc-eq select{height:23px;border:1px solid #d9d9de;border-radius:6px;font-size:10.5px;background:#fff;padding:0 3px}
   .nc-eq.miss{border-color:#f3c4c0;background:#fff6f5}.nc-eq .x{border:0;background:transparent;color:#b0b0b8;cursor:pointer;font-size:11px;padding:0 4px}.nc-eq .x:hover{color:#d8332b}
   .nc-eq.fx{border-color:#cfe8d9;background:#f1f8f4}.nc-eq.fx b{color:#1b6b3a}
+  .nc-eq.eqc{border-color:#d9d9de;background:#fff}.nc-eq.eqc b{color:#1d1d1f}.nc-eq.eqc em{color:#1d1d1f;font-weight:600}
   .nc-f.dl{background:#fff;border:1px solid #cfe8d9;border-radius:8px;padding:1px 6px}.nc-f.dl i{font-style:normal;font-size:10px;color:#86868b;text-transform:none}
   .nc-lvl{position:absolute;left:10px;top:10px;background:rgba(255,255,255,.96);border:1px solid #d9d9de;border-radius:10px;padding:6px 10px;font-size:11px;color:#424245;box-shadow:0 2px 8px rgba(0,0,0,.1);display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 20px)}
   .nc-lvl button{border:1px solid #007aff;background:#fff;color:#007aff;border-radius:7px;font-size:10.5px;font-weight:700;padding:2px 8px;cursor:pointer}.nc-lvl button:hover{background:#007aff;color:#fff}
@@ -1432,7 +1433,7 @@
   .ws-tp.tw{grid-template-columns:48px 108px 74px 94px minmax(48px,1fr) minmax(48px,1fr) 80px 92px minmax(100px,1.1fr) minmax(120px,1.1fr) 22px}.ws-tbl>.ws-tp.tw{min-width:960px}
   .ws-twsel{font-size:11px!important}
   .lv-own{border:1px solid #c8dafa;background:#f5f9ff;border-radius:10px;padding:8px 11px;margin:0 0 10px;display:flex;flex-direction:column;gap:6px}.lv-own-t{font-size:11px;color:#265c9f;line-height:1.45}.lv-own-t b{color:#0e4891}.lv-own-a{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.lv-own-a select{height:30px;border:1px solid #d2d2d7;border-radius:8px;padding:0 8px;font-size:11.5px;background:#fff;max-width:260px}
-  .net-list{display:flex;flex-direction:column;gap:8px}.net-card{border:1px solid #e1e1e6;border-left:5px solid #0e4891;border-radius:10px;background:#fff;padding:9px 12px;display:flex;flex-direction:column;gap:8px}
+  .net-list{display:flex;flex-direction:column;gap:8px}.net-src{max-width:320px}.net-src .pf-f{margin:0}.net-card{border:1px solid #e1e1e6;border-left:5px solid #0e4891;border-radius:10px;background:#fff;padding:9px 12px;display:flex;flex-direction:column;gap:8px}
   .net-h{display:flex;align-items:center;gap:8px;flex-wrap:wrap}.net-h>span{font-size:11px;color:#6e6e73}.net-dot{display:inline-block;width:10px;height:10px;border-radius:50%;flex:0 0 10px}
   input.net-name{height:30px;width:190px;border:1px solid #d2d2d7;border-radius:8px;padding:0 9px;font-size:12.5px;font-weight:800}
   table.nsum{width:100%;border-collapse:collapse;font-size:10px}table.nsum th{background:#0e4891;color:#fff;font-weight:700;padding:3px 4px;border:1px solid #8e8e93;text-align:center}table.nsum td{padding:3px 4px;border:1px dotted #8e8e93;text-align:center}
@@ -1811,7 +1812,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.120.1 · Build 2026.11.26.02";
+const BUILD_LABEL = "v1.123.0 · Build 2026.11.27.03";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -2585,7 +2586,7 @@ function calcIsStale(p) { if (!calcKeyed(p) || CALC.mode === "auto") return fals
 function calcNow(p) { if (calcKeyed(p)) CALC.snap[p.id] = p; }
 function calcReset() { CALC.snap = {}; CALC.res = {}; }
 // what undo / redo in Pipe Sizing covers: the network and every Setup value that changes the result
-const WS_SNAP_KEYS = ["gasQUnit", "drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc", "wsSvcCol"];
+const WS_SNAP_KEYS = ["gasQUnit", "drK", "drUse", "drStackEntry", "drVentMode", "drStackVent", "drVentRise", "drFill", "drKb", "drNu", "drWcMinDN", "drOneSize", "drSvc", "drMinV", "drGradDN", "drSizeBasis", "drBands", "drLargestApp", "drNoReduce", "drMatH", "drMatV", "gasType", "gasPropane", "gasMix", "gasSngPct", "gasS", "gasConv", "gasSupply", "gasMinP", "gasLossUnit", "gasLossMain", "gasLossBranch", "gasMargin", "gasPBasis", "gasSizing", "gasRingOne", "gasTypes", "gasBands", "wsNet", "wsNodes", "wsFix", "supplyPressure", "staticSupplyPressure", "minResidual", "maxFixP", "system", "wsDemand", "waterTemp", "wsCls", "autoUpsize", "storeyH", "wsAbove", "wsPump", "wsSource", "headLossMethod", "sizingCriterion", "fittingsPct", "wsNotes", "wsLevels", "wsNetCfg", "wsRingOne", "wsUnder", "wsSvc", "wsSvcCol"];
 function wsSnapOf(c) { const o = {}; WS_SNAP_KEYS.forEach(k => { o[k] = c[k]; }); o.wsNet = c.wsNet || []; o.wsNodes = c.wsNodes || []; o.wsFix = c.wsFix || []; o.wsNotes = c.wsNotes || []; return o; }
 function safeCalculate(p) {
   const src = calcSnapOf(p), keyed = calcKeyed(p) && CALC.mode === "manual";
@@ -6601,6 +6602,11 @@ function wsNetPump(p, n) {
     name:(p.name || typeLbl(p) || "Water supply") + " — " + n.name, tag:(p.tag || "WS") + "-" + (n.k < 26 ? String.fromCharCode(65 + n.k) : n.k + 1), _net:{id:n.id, name:n.name, k:n.k}};
   ["supplyPressure", "staticSupplyPressure"].forEach(k => { if (cfg[k] !== undefined && cfg[k] !== "" && cfg[k] !== null) o[k] = cfg[k]; });
   if (cfg.wsPump && typeof cfg.wsPump === "object") o.wsPump = {...(p.wsPump || {}), ...cfg.wsPump};
+  // v1.121: a network fed by gravity from a tank — no pump. The tank's low water level above the outlet node is the pressure at the
+  // supply node at peak flow; the top water level (tank full) is the no-flow pressure. Node levels give the rest.
+  if (cfg.gravity) { const has = v => v !== undefined && v !== null && v !== "" && wsFin(v), top = has(cfg.tankTop) && Number(cfg.tankTop) > 0;
+    o.wsSource = "fixed"; o.supplyPressure = has(cfg.tankLow) ? cfg.tankLow : ""; o.staticSupplyPressure = top ? cfg.tankTop : "";
+    o._gravity = {low:has(cfg.tankLow) ? Number(cfg.tankLow) : null, top:top ? Number(cfg.tankTop) : null}; }
   delete o.wsNetCfg; return o;
 }
 const wsRootP = (w, n) => { const r = (w && w.roots || []).find(q => q.root === n); return r ? r.P0 : (w && n === w.root ? w.P0 : null); };
@@ -7371,7 +7377,7 @@ function calculateWaterCore(p) {
   if (system === "total") { const used = new Set(fix.map(f => f.fixture)), miss = lib.filter(f => used.has(f.name) && !wsHas(f.luTot)).map(f => f.name); if (miss.length) I("warn", "no-combined", `No combined value for ${some(miss)} — the cold value is used.`); }
   const val = valAll; val.items.filter(i => i.sev !== "info" && !(i.group === "equipment" && i.sev === "warn")).forEach(i => { if (!issues.some(q => q.text === i.text)) I(i.sev === "error" ? "fail" : "warn", i.group, i.text, i.kind, i.id); });
   // v1.37: the static (no-flow) check rests on a fallback value — say so (information only, never changes the status)
-  if (p.wsSource === "fixed" && !p._viaPump && !(wsFin(p.staticSupplyPressure) && Number(p.staticSupplyPressure) > 0)) I("info", "static-fallback", `No static supply pressure is entered, so the no-flow pressure at the source is taken as the supply pressure (${sP0.toFixed(1)} m), which is the dynamic design pressure. A tank at full level or mains at night is normally higher — enter it on Setup (Static supply pressure) so the maximum fixture pressure and the pipe pressure class are checked at no flow.`);
+  if (p.wsSource === "fixed" && !p._viaPump && !p._gravity && !(wsFin(p.staticSupplyPressure) && Number(p.staticSupplyPressure) > 0)) I("info", "static-fallback", `No static supply pressure is entered, so the no-flow pressure at the source is taken as the supply pressure (${sP0.toFixed(1)} m), which is the dynamic design pressure. A tank at full level or mains at night is normally higher — enter it on Setup (Static supply pressure) so the maximum fixture pressure and the pipe pressure class are checked at no flow.`);
   { const pm = []; out.forEach(x => x.eqItems.forEach(it => { if (it.mode === "pump" && it.has) pm.push({id:x.id, tag:it.tag || WS_EQ[it.type].ab}); }));
     if (pm.length) I("info", "pump-item-static", `${pm.map(q => q.tag + " on " + q.id).join(", ")} ${pm.length > 1 ? "add" : "adds"} head only while water flows — at no flow ${pm.length > 1 ? "they add" : "it adds"} nothing, so the static pressure beyond ${pm.length > 1 ? "them" : "it"} does not include the head ${pm.length > 1 ? "they give" : "it gives"}. If the pump has a real shut-off head, the no-flow pressure downstream is higher than shown and the maximum fixture pressure and pipe rating checks may be understated.`, "sec", pm[0].id); }
   (Array.isArray(p.wsNodes) ? p.wsNodes : []).forEach(n => { if (n && n.id != null && Number(n.reqP) > 0 && nodeReq[n.id] != null && nodeReq[n.id] > Number(n.reqP) + 1e-9) I("info", "reqp-lower", `Node ${n.id}: the required pressure typed on it (${Number(n.reqP)} m) is below what its load needs (${nodeReq[n.id].toFixed(1)} m), so ${nodeReq[n.id].toFixed(1)} m is used. A node requirement can raise the figure from the fixtures, not lower it.`, "node", n.id); });
@@ -7421,7 +7427,42 @@ function calculateWaterCore(p) {
 // friction at that pressure, and the pump flow and head follow from it. Fixed mode keeps the old behaviour: a given supply
 // pressure (mains, tank) is checked against the network and a shortfall is reported as a failure.
 const wsPumpCache = new WeakMap();
+// v1.121: gravity from a tank (a network set to Gravity on Setup). The network is checked at the tank's LOW water level above the outlet —
+// a shortfall is a failure, as with a known supply pressure — and the no-flow check uses the TOP water level. The result adds a summary:
+// the highest and the lowest fixture, the PRVs on the network, and the floors whose static pressure is above the limit (the maximum
+// fixture pressure on Setup, else WS_GRAV_PMAX).
+const WS_GRAV_PMAX = 5*10.19716;          // m: the usual 5 bar ceiling at a draw-off, used when no maximum fixture pressure is set
+function wsGravityCalc(p) {
+  const g = p._gravity || {};
+  if (!(g.low > 0)) return calcError(["Gravity supply: enter the tank's low water level above the outlet (greater than zero) on the network card."]);
+  const res = calculateWaterCore(p); if (res.error) return res;
+  const w = res.water, L = p.wsLevels, nm = wsNodeMap(p), f1 = v => Number(v).toFixed(1), f2 = v => Number(v).toFixed(2);
+  const maxF = wsFin(p.maxFixP) && Number(p.maxFixP) > 0 ? Number(p.maxFixP) : null, lim = maxF != null ? maxF : WS_GRAV_PMAX;
+  // the floor of a node: its own tower first; below that tower's first floor, the shared basement / podium floors
+  const lvl = id => { const n = nm[id]; if (!n || !L || !wsLvHas(L) || !wsHasXYZ(n)) return ""; const pt = wsEdPt(n), a = wsLvOf(L, {...pt, tower:n.tower}); if (a && a.level) return a.level.name;
+    const b = wsLvOf(L, pt); return b && b.level ? b.level.name : a ? "below " + a.first.name : ""; };
+  const fx = w.rc.map(r => ({node:r.node, z:Number(w.nodeZ[r.node]), dyn:r.res, st:w.nodeS[r.node], req:r.req, margin:r.margin, lvl:lvl(r.node)})).filter(r => Number.isFinite(r.z));
+  const hi = fx.reduce((a, r) => (!a || r.z > a.z + 1e-9 || (Math.abs(r.z - a.z) <= 1e-9 && r.margin < a.margin) ? r : a), null);
+  const lo = fx.reduce((a, r) => (!a || r.z < a.z - 1e-9 || (Math.abs(r.z - a.z) <= 1e-9 && r.st > a.st) ? r : a), null);
+  const byF = new Map(); fx.filter(r => r.st > lim + 1e-9).forEach(r => { const k = r.lvl || r.node, q = byF.get(k) || {lvl:k, st:-Infinity, z:r.z, nodes:[]}; q.nodes.push(r.node); if (r.st > q.st) q.st = r.st; q.z = Math.min(q.z, r.z); byF.set(k, q); });
+  const need = [...byF.values()].sort((a, b) => b.z - a.z);
+  const prvs = w.out.filter(x => x.prvSet != null).map(x => { const it = x.eqItems.find(q => q.mode === "prv" && q.has) || {}; return {id:x.id, tag:it.tag || "PRV", set:x.prvSet, on:!!x.prvOn, to:x.to, lvl:lvl(x.to)}; });
+  w.gravityMode = true;
+  w.gravity = {low:g.low, top:g.top, zOut:w.zSrc, root:w.root, hi, lo, lim, limDef:maxF == null, need, prvs};
+  const add = (sev, code, text, kind, id) => { w.issues.push({sev, code, text, kind:kind || null, id:id == null ? null : id}); if (sev === "warn") w.nWarn++; else if (sev === "fail") w.nFail++; else w.nInfo++; };
+  const at = r => `${r.node}${r.lvl ? " (" + r.lvl + ")" : ""}`;
+  add("info", "gravity", `Gravity from the tank at ${w.root}, no pump: ${f2(g.low)} m low water level above the outlet at peak flow${g.top != null ? `, ${f2(g.top)} m top water level with no flow` : ""}.` +
+    (hi ? ` Highest fixture ${at(hi)}: ${f1(hi.dyn)} m at peak flow, ${f1(hi.req)} m required.` : "") + (lo && lo !== hi ? ` Lowest fixture ${at(lo)}: ${f1(lo.st)} m (${(lo.st/WS_BAR).toFixed(1)} bar) with no flow.` : ""), "node", w.root);
+  if (g.top == null) add("info", "gravity-top", `No top water level is entered, so the no-flow pressure is taken at the low water level (${f2(g.low)} m). A full tank gives more pressure on every floor — enter the top water level on the network card.`);
+  if (maxF == null) need.slice(0, 6).forEach(q => add("warn", "gravity-prv", `${q.lvl}: ${f1(q.st)} m (${(q.st/WS_BAR).toFixed(1)} bar) with no flow at ${q.nodes.slice(0, 3).join(", ")}${q.nodes.length > 3 ? " …" : ""} — above ${f1(WS_GRAV_PMAX)} m (5 bar). No maximum fixture pressure is set on Setup, so 5 bar is used. Add a PRV on the branch that feeds this floor.`, "node", q.nodes[0]));
+  if (w.nWarn && w.status === "valid") { w.status = "warn"; w.ok = false; res.velOk = false; }
+  const st = res.steps.find(x => x.label === "Incoming supply pressure"); if (st) { st.label = "Tank low water level above the outlet (gravity, no pump)"; st.value = `${f2(g.low)} m`; }
+  if (st) res.steps.splice(res.steps.indexOf(st) + 1, 0, {label:"Tank top water level above the outlet (no flow)", value:g.top != null ? `${f2(g.top)} m` : "not entered — the low level is used"});
+  w.selStr = "Gravity · " + w.selStr; res.selStr = w.selStr;
+  return res;
+}
 function calculateWaterSingle(p) {
+  if (p._gravity) return wsGravityCalc(p);
   if (p.wsSource === "fixed") return calculateWaterCore(p);
   const key = REF_STATUS.at || "";
   const hit = wsPumpCache.get(p); if (hit && hit.key === key) return hit.res;
@@ -7429,7 +7470,9 @@ function calculateWaterSingle(p) {
   let res;
   if (req.error) res = calcError(req.errors && req.errors.length ? req.errors : [req.error]);
   else {
-    const Pr = Math.max(req.req, 0.1), H = wsPumpHead(req, p.wsPump || {}, p.waterTemp);
+    // v1.121: with no pump the supply node gets the suction pressure less the other losses (which cover the requirement), so the
+    // pressures in the network are worked out at that, not at the bare minimum the fixtures need
+    const H = wsPumpHead(req, p.wsPump || {}, p.waterTemp), Pr = H.noPump ? Math.max(H.suc - H.other, req.req, 0.1) : Math.max(req.req, 0.1);
     res = H.errs.length ? calcError(H.errs) : calculateWaterCore({...base, _viaPump:true, supplyPressure:Pr, autoUpsize:false, staticSupplyPressure:H.staticSrc > 0 ? H.staticSrc : ""});
     if (!res.error) {
       const w = res.water; w.pumpIn = p; w.pumpMode = true; w.pumpReq = req; w.srcPressure = Pr;
@@ -7438,7 +7481,7 @@ function calculateWaterSingle(p) {
         if (!H.noPump && !H.shutTyped) add("static-fallback-pump", `No shut-off head above 100 % is entered, so the no-flow pressure at the source is taken as the duty head (${H.sucS.toFixed(1)} m static suction + ${H.head} m head − ${H.lift.toFixed(1)} m lift = ${H.staticSrc.toFixed(1)} m). A real pump has a higher shut-off head — enter it from the pump curve (Setup → Shut-off head) so the maximum fixture pressure and the pipe pressure class are checked on the right figure.`);
         if (!H.sucSTyped && H.suc > 0) add("static-suction-fallback", `No static suction level is entered, so the duty suction (${H.suc.toFixed(1)} m) is used for the no-flow pressure. A tank at full level or mains at night is normally higher — enter it on Setup (Static suction level). `); }
       res.totalH = H.noPump ? 0 : H.head; res.pumpHead = H;
-      const st = res.steps.find(s => s.label === "Incoming supply pressure"); if (st) st.label = "Pressure required at the source (pump discharge)";
+      const st = res.steps.find(s => s.label === "Incoming supply pressure"); if (st) st.label = H.noPump ? "Pressure at the source (suction pressure, no pump needed)" : "Pressure required at the source (pump discharge)";
       { const hi = w.out.reduce((a, x) => (x.Pto > a.Pto ? x : a), {Pto:-Infinity, to:""});
         if (hi.to) { w.issues.push({sev:"info", code:"max-pressure", text:`Highest pressure in the network is ${hi.Pto.toFixed(1)} m (${(hi.Pto/WS_BAR).toFixed(1)} bar) at ${hi.to}, at the same supply pressure — check the pressure rating of pipes and fittings and whether pressure zoning or PRVs are needed on the lower floors.`, kind:"node", id:hi.to}); w.nInfo++; } }
     }
@@ -7480,18 +7523,19 @@ function wsMergeNetworks(p, R) {
   const roots = networks.map(n => ({root:n.id, P0:n.w.P0, sP0:n.w.sP0, name:n.name, color:n.color, k:n.k}));
   const nmP = wsNodeMap(p), FINN = networks.filter(n => nmP[n.id] && nmP[n.id].final), FINQ = FINN.length ? FINN.reduce((a, n) => a + (Number(n.w.Qsrc) || 0), 0) : sum("Qsrc");
   const critical = ww.crit ? {...ww.critical, network:networks[wi].name} : null;
-  const water = {...w0, pumpIn:p, out, rc, path, order, issues, warn, networks, roots, root:w0.root, P0:w0.P0, sP0:w0.sP0,
+  const pi = W.findIndex(w => w.pumpMode), wp = pi >= 0 ? W[pi] : w0, rp = pi >= 0 ? R[pi].res : R[0].res;     // v1.121: a gravity network can come first
+  const water = {...w0, pumpMode:pi >= 0, gravityMode:false, gravity:null, pumpIn:p, out, rc, path, order, issues, warn, networks, roots, root:w0.root, P0:w0.P0, sP0:w0.sP0,
     crit:ww.crit ? {...ww.crit, sec:ww.crit.sec + offs[wi]} : null, critical, status, ok:W.every(w => w.ok), minMargin:ww.minMargin, needSrc:ww.needSrc, critRise:ww.critRise,
     Qsrc:FINQ, QsrcAll:sum("Qsrc"), finalNets:FINN.map(n => n.name), totLUFinal:FINN.length ? FINN.reduce((a, n) => a + (Number(n.w.totLU) || 0), 0) : null, totLU:sum("totLU"), totQc:sum("totQc"), totN:sum("totN"), directLU:sum("directLU"), fixLU:sum("fixLU"), nSec:out.length, nFail:sum("nFail"), nWarn:sum("nWarn"), nInfo:sum("nInfo"),
     mainSec, upsized:out.filter(x => x.bump > 0), upsizeReverted:W.some(w => w.upsizeReverted), classes:mergeGroups("classes"), groups:mergeGroups("groups"),
     nodeZ:mkMap("nodeZ"), hgl:mkMap("hgl"), nodeS:mkMap("nodeS"), nodeReq:mkMap("nodeReq"), nodeLU:mkMap("nodeLU"), nodeQc:mkMap("nodeQc"), directAt:mkMap("directAt"), libBy:mkMap("libBy"),
-    validation:wsValidate(p), pumpReq:w0.pumpReq, srcPressure:w0.srcPressure, multi:true};
+    validation:wsValidate(p), pumpReq:wp.pumpReq, srcPressure:wp.srcPressure, multi:true};
   const f1 = (v, d = 1) => Number(v).toFixed(d);
   water.selStr = `${networks.length} networks · ${water.totN.toFixed(0)} fixtures · ${f1(water.totLU, 0)} ${w0.dem.unit} — ` + networks.map(n => `${n.name}: ${f1(n.w.Qsrc, 2)} L/s, margin ${f1(n.w.minMargin, 1)} m`).join(" · ") + (water.ok ? "" : " — REVIEW");
   const steps = []; R.forEach((r, i) => { steps.push({s:`${r.name} — supply ${r.id}`, label:"Network", value:`${W[i].nSec} sections · ${f1(W[i].totLU, 0)} ${w0.dem.unit}`}); r.res.steps.forEach(st => steps.push({...st, s:undefined})); });
   const first = R[0].res;
-  return {valid:true, water, networks, multi:true, flowLsPerPump:water.Qsrc, flowTotal:water.Qsrc, designFlow:water.Qsrc, totalH:first.totalH, pwrSel:"—", config:`${networks.length} networks`, setText:`${networks.length} networks, ${out.length} pipe sections`,
-    set:{duty:out.length, standby:0, installed:out.length, sharing:"full"}, connectedKw:0, installedKw:0, velOk:water.ok, pipe:null, dutyPoints:[], pumpHead:first.pumpHead, steps, selStr:water.selStr};
+  return {valid:true, water, networks, multi:true, flowLsPerPump:water.Qsrc, flowTotal:water.Qsrc, designFlow:water.Qsrc, totalH:rp.totalH, pwrSel:"—", config:`${networks.length} networks`, setText:`${networks.length} networks, ${out.length} pipe sections`,
+    set:{duty:out.length, standby:0, installed:out.length, sharing:"full"}, connectedKw:0, installedKw:0, velOk:water.ok, pipe:null, dutyPoints:[], pumpHead:rp.pumpHead, steps, selStr:water.selStr};
 }
 // v1.103.0: water service — any water system (domestic cold / hot, ambient, grey water, TSE, irrigation, or a name typed for the project).
 // The engine is the same; "Loading units from" picks the fixture column (cold / hot / combined) the service draws on.
@@ -7503,6 +7547,7 @@ const WS_SYMS = [
   // inside it. One footprint for all of them so a row of equipment reads as a row, and the detail inside says which is which.
   {k:"mh", l:"Manhole",         c:"MH", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><circle r="6.5"/><circle r="2.2" fill="@" stroke="none"/>'},
   {k:"gt", l:"Gully trap",      c:"GT", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-5.5 -7v3.5a5.5 5.5 0 0 0 11 0v-3.5" fill="none"/><path d="M-9.5 6.5h19" fill="none"/>'},
+  {k:"gtmh", l:"Gully trap + manhole", c:"GT/MH", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-5.5 -8.3v2.4a5.5 5.5 0 0 0 11 0v-2.4" fill="none"/><path d="M-9.5 2h19" fill="none"/><circle cy="6.3" r="3.6"/><circle cy="6.3" r="1.2" fill="@" stroke="none"/>'},   // decorative — for a chamber built as one combined structure. The System IV check (v1.123) looks at Chamber equipment on the node, not this drawing symbol
   {k:"bc", l:"Break chamber",   c:"BC", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-9.5 0.5q2.4-3.4 4.75 0t4.75 0t4.75 0" fill="none"/>'},
   {k:"sp", l:"Sump pit",        c:"SP", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><rect x="-10.5" y="2" width="21" height="6.5" fill="@" stroke="none"/><path d="M-5 -7.5L0 -1L5 -7.5" fill="none"/>'},
   {k:"oi", l:"Oil interceptor", c:"OI", g:'<rect x="-13" y="-11" width="26" height="22" rx="1.5"/><path d="M-4.5 -11V3M4.5 -3V11" fill="none"/>'},
@@ -7541,12 +7586,19 @@ function waterDesignBasis(p) {
 // loading units it carries, its flow and velocity; each node shows its residual pressure and the fixtures
 // connected there. The critical route has a yellow glow; a failed pipe or a low-pressure fixture node is red.
 // v1.75.0: soil and waste pipes keep their own colour from the branch to the stack; the class colour stays for drains and vents
-const WS_SVC_COL = {soil:"#8a5a2b", waste:"#1e90d6", mixed:"#6b7280", kitchen:"#e08a1e"};
+// v1.124: kitchen waste, car park drainage and the combined sewage drain (soil + waste joined) each get their own colour too, and it now carries onto
+// the drain pipe below a junction as well, not just the branch/stack above it.
+const WS_SVC_COL = {soil:"#8a5a2b", waste:"#1e90d6", kitchen:"#e08a1e", parking:"#7c5cbf", sewage:"#7f1d1d", mixed:"#6b7280"};
 const wsSvcOfDr = x => { const d = x && x.dr; if (!d) return ""; if (d.svcTag === "soil" || d.svcTag === "waste") return d.svcTag; return d.svc === "black" ? "soil" : d.svc === "grey" ? "waste" : d.svc === "mixed" ? "mixed" : ""; };
+const wsSvcMixCol = mix => { if (!mix || !mix.length) return null; if (mix.length === 1) return WS_SVC_COL[mix[0]] || null; if (mix.length === 2 && mix.includes("soil") && mix.includes("waste")) return WS_SVC_COL.sewage; return WS_SVC_COL.mixed; };
 const wsPipeCol = (w, x, p) => { const sc = p && w && !w.drainMode && !w.gasMode && !w.fuelMode && x && (x.cls === "main" || x.cls === "riser" || x.cls === "branch") ? wsSvcCol(p) : null; if (sc) return sc;
   const st = w && w.drainMode && x && x.s ? x.s.str : "";      // v1.77.0: a pipe may carry its stream (S soil · W waste · K kitchen waste) — it keeps that colour even where it turns horizontal
   if (st === "S") return WS_SVC_COL.soil; if (st === "W") return WS_SVC_COL.waste; if (st === "K") return WS_SVC_COL.kitchen;
-  return (w && w.drainMode && x && (x.cls === "branch" || x.cls === "riser") && WS_SVC_COL[wsSvcOfDr(x)]) || WS_COL[x && x.cls] || "#555"; };
+  if (w && w.drainMode && x && (x.cls === "main" || x.cls === "riser" || x.cls === "branch")) {
+    const mixCol = x.dr && wsSvcMixCol(x.dr.svcMix); if (mixCol) return mixCol;
+    const legacy = (x.cls === "branch" || x.cls === "riser") && WS_SVC_COL[wsSvcOfDr(x)]; if (legacy) return legacy;
+  }
+  return WS_COL[x && x.cls] || "#555"; };
 const WS_COL = {eq:"#6d3fd6", main:"#0b4f8a", riser:"#0e8f83", branch:"#e07a1f", vent:"#7c3aed", crit:"#fde68a", fix:"#1f9d55", fixBg:"#ecf8f0", bad:"#d8332b", ink:"#1d1d1f", sub:"#4a4a4f", root:"#0b2f57"};
 // ── Water supply schematic: text width, label and card placement (v1.40) ─────────────────────────────────────────────────────────
 // Text width in px for Arial / Helvetica at a font size, from the standard Helvetica advance widths (1/1000 em, ASCII 32–126). A character
@@ -7644,8 +7696,10 @@ function wsSchematicLarge(w, p, opt = {}) {
   const head = `<rect width="${W}" height="${Hh}" fill="#fff"/><rect x="0" y="0" width="${Math.round(W/3)}" height="6" fill="${WS_SVC_COL.soil}"/><rect x="${Math.round(W/3)}" y="0" width="${Math.round(W/3)}" height="6" fill="${WS_SVC_COL.waste}"/><rect x="${Math.round(2*W/3)}" y="0" width="${W - Math.round(2*W/3)}" height="6" fill="${WS_SVC_COL.kitchen}"/>`
     + `<text x="20" y="38" font-size="17" font-weight="700" fill="#0b4f8a">NETWORK SCHEMATIC — OVERVIEW</text>` + T(20, 62, `${p.name || ""}${p.tag ? " · " + p.tag : ""}`, {s:13, w:0}) + T(20, 84, `${out.length} sections · ${rootsL.length} outfall${rootsL.length === 1 ? "" : "s"} · ${fin} · ${bad0 ? bad0 + " to review" : "capacity checks pass · topology not validated"}`, {s:12, f:"#445", w:0})
     + T(20, 106, "Every pipe is drawn in its stream colour and carries its calculation (Labels: Full / Flow / Off in the toolbar). Orange diamond = a diversion between streams; red diamond = a place where the sheet's own figure differs from the sum of its inputs. Hover a pipe or node, click to select.", {s:10.5, f:"#667", w:0});
-  const legend = `<line x1="0" y1="${Hh - 150}" x2="${W}" y2="${Hh - 150}" stroke="#dde3ec"/>` + LG(20, WS_SVC_COL.soil, 3.6, "Soil") + LG(120, WS_SVC_COL.waste, 3.6, "Waste") + LG(240, WS_SVC_COL.kitchen, 3.6, "Kitchen waste") + LG(400, "#0b4f8a", 5, "Final connection (soil + waste)") + LG(650, "#d8332b", 3.6, "Review")
-    + `<circle cx="780" cy="${L1}" r="3.4" fill="#1f9d55"/>` + T(790, L1 + 4, "Appliances", {s:11, w:0}) + `<path d="M890,${L1} L898,${L1 - 8} L906,${L1} L898,${L1 + 8} Z" fill="#f59e0b"/>` + T(914, L1 + 4, "Diversion", {s:11, w:0}) + `<path d="M1000,${L1} L1008,${L1 - 8} L1016,${L1} L1008,${L1 + 8} Z" fill="#dc2626"/>` + T(1024, L1 + 4, "Sheet adjustment", {s:11, w:0});
+  let lgX = 20; const lgItems = [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], [WS_SVC_COL.parking, "Parking"], [WS_SVC_COL.sewage, "Sewage (soil + waste)"], ["#d8332b", "Review"]];
+  const lgSwatches = lgItems.map(([c, tx]) => { const o = LG(lgX, c, 3.6, tx); lgX += 40 + wsTxtW(tx, 11, 0) + 20; return o; }).join("");
+  const legend = `<line x1="0" y1="${Hh - 150}" x2="${W}" y2="${Hh - 150}" stroke="#dde3ec"/>` + lgSwatches
+    + `<circle cx="${lgX}" cy="${L1}" r="3.4" fill="#1f9d55"/>` + T(lgX + 10, L1 + 4, "Appliances", {s:11, w:0}) + `<path d="M${lgX + 110},${L1} L${lgX + 118},${L1 - 8} L${lgX + 126},${L1} L${lgX + 118},${L1 + 8} Z" fill="#f59e0b"/>` + T(lgX + 134, L1 + 4, "Diversion", {s:11, w:0}) + `<path d="M${lgX + 220},${L1} L${lgX + 228},${L1 - 8} L${lgX + 236},${L1} L${lgX + 228},${L1 + 8} Z" fill="#dc2626"/>` + T(lgX + 244, L1 + 4, "Sheet adjustment", {s:11, w:0});
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${Hh}" viewBox="0 0 ${W} ${Hh}" font-family="Arial,Helvetica,sans-serif">${head}${ticks.join("")}${body.join("")}${dots.join("")}<g class="d2">${labKey.join("")}</g><g class="d3">${lab.join("")}</g>${legend}</svg>`;
   return {svg, w:W, h:Hh, geo, parts:{body, dots, lab:[...labKey, ...lab], tickInfo, left:LEFT - 60, right:W - 60, top:TOP - 40, bottom:Hh - 160}};
 }
@@ -9755,6 +9809,31 @@ function stormNetRain(p) {
   return {mmhr:rain.mmhr, rainLabel:rain.label, rainSrc:rain.src || "", risk, C, r:rain.mmhr/3600*risk, fill, kbR, grad, dMin, rwpMin, projRisk:!fin(p.stRisk), projRain:!fin(p.stMmhr)};
 }
 const DRAIN_CLASSES = [{k:"main", l:"Drain"}, {k:"riser", l:"Stack"}, {k:"branch", l:"Branch"}, {k:"vent", l:"Vent"}];
+// v1.122: pipe material, chosen separately for horizontal and vertical drainage pipework (stacks run vertical; drains and branches usually run horizontal).
+// kb is the effective roughness used in the Colebrook-White hydraulics (EN 12056-2 Annex B gives 1.0 mm as a conservative general figure) — these are typical
+// published values for each material and should be checked against the project specification.
+const DRAIN_MATERIALS = [
+  {k:"", l:"Project default", kb:null},
+  {k:"upvc", l:"uPVC", kb:0.25},
+  {k:"hdpe", l:"HDPE", kb:0.25},
+  {k:"ci", l:"Cast iron (SML)", kb:0.6},
+  {k:"di", l:"Ductile iron", kb:0.6},
+  {k:"cp", l:"Vitrified clay / concrete", kb:1.5},
+];
+const drMatOf = k => DRAIN_MATERIALS.find(m => m.k === k) || DRAIN_MATERIALS[0];
+// v1.123: chamber equipment at a node (gully trap, manhole, grease interceptor, …) — a schedule item, like a PRV on a water pipe, not a drawing symbol.
+// Two chambers meeting the same rule don't have to be built at the same node — a gully trap can sit right at the junction and the manhole a short way
+// further down the combined drain, which is how this is usually built — so the check (in calculateDrain) looks down the drain to the outfall for each one.
+const DRAIN_CHAMBERS = [
+  {k:"gt", l:"Gully trap"},
+  {k:"mh", l:"Manhole"},
+  {k:"gtmh", l:"Gully trap + manhole (combined)"},
+  {k:"gi", l:"Grease interceptor"},
+  {k:"bc", l:"Break chamber"},
+  {k:"sp", l:"Sump pit"},
+  {k:"oi", l:"Oil interceptor"},
+  {k:"st", l:"Sand trap"},
+];
 const wsClassesOf = p => wsIsStormNet(p) ? STORM_NET_CLASSES : wsIsDrain(p) ? DRAIN_CLASSES : WS_CLASSES;
 const DRAIN_DEFAULT = {
   en12056_s4: {
@@ -9850,7 +9929,8 @@ function calculateDrain(p) {
     cdef[c.k] = {k:c.k, l:c.l, matKey:"DRAIN", mat:{label:"EN 12056-2 Table 1 (DN / min. ID)", table:cands.map(s => ({od:s.dn, id:s.di, nb:s.dn}))}, cands:cands.map(s => ({od:s.dn, id:s.di, nb:s.dn})), maxV:0, maxP:0, minOD:minDN, spare:0, eps:0, Chw:0, grad:null};
   }
   const nodeMap = wsNodeMap(p), lib = wsLibOf(p), libBy = {}; lib.forEach(f => { libBy[f.name] = f; });
-  const net = (Array.isArray(p.wsNet) ? p.wsNet : []).map(s => wsGeo(wsNorm(s), nodeMap));
+  // v1.124: a vent pipe switched Off is left out of the calculation entirely — as if it were never drawn — not just zeroed
+  const net = (Array.isArray(p.wsNet) ? p.wsNet : []).filter(s => !(s && s.cls === "vent" && s.off)).map(s => wsGeo(wsNorm(s), nodeMap));
   if (!net.length) errors.push("Add at least one pipe section — draw it on the canvas starting at the outfall, or type it in the Pipes table.");
   const ids = new Set();
   net.forEach((s, i) => { const at = `Section ${i + 1}${s.id ? ` (${s.id})` : ""}`;
@@ -9915,6 +9995,9 @@ function calculateDrain(p) {
   const gradAt = (k, d) => gOvr(k) > 0 ? gOvr(k) : storm && !(wsFin((p.drGradDN || {})[d]) && Number((p.drGradDN || {})[d]) > 0) ? stR.grad : drGradAuto(p, d);      // the figure used in the hydraulics at nominal size d
   let dn = [];                                                              // filled below; gradOf reads the final sizes
   const gradOf = k => isVert(k) ? 0 : gradAt(k, dn[k]);
+  // v1.122: pipe material (horizontal / vertical default on Setup, or set by hand on the pipe) — gives the effective roughness kb used below, in place of the project default
+  const matAt = k => { const s = net[k], own = s.mat && drMatOf(s.mat).k ? s.mat : ""; return own || (isVert(k) ? p.drMatV : p.drMatH) || ""; };
+  const kbAt = k => { const m = drMatOf(matAt(k)).kb; return wsFin(m) ? Number(m) : kbMm; };
   // ── appliance branch runs: a run is the chain of Branch pipes between the appliances and the stack / drain it joins
   const isBr = k => !storm && net[k].cls === "branch", runRoot = {};
   net.forEach((s, k) => { if (!isBr(k)) return; let j = k; for (let g = 0; g < 5000; g++) { const pj = parent(j); if (pj >= 0 && isBr(pj)) j = pj; else break; } runRoot[k] = j; });
@@ -9954,10 +10037,18 @@ function calculateDrain(p) {
   const stackComp = {}; { const par = {}, find = x => { while (par[x] !== undefined && par[x] !== x) x = par[x]; return x; };
     net.forEach((s, k) => { if (s.cls !== "riser") return; par[k] = par[k] === undefined ? k : par[k]; const pk = parent(k); if (pk >= 0 && net[pk].cls === "riser") { par[pk] = par[pk] === undefined ? pk : par[pk]; const a = find(k), b = find(pk); if (a !== b) par[a] = b; } });
     net.forEach((s, k) => { if (s.cls === "riser") (stackComp[find(k)] = stackComp[find(k)] || []).push(k); }); }
-  // ── designated service (System IV soil / waste): a pipe is tagged Soil (blackwater — WCs, urinals) or Waste (greywater); the tag propagates along the stack it belongs to (v1.74.4)
-  const sysIV = std.system === "IV", tagOf = k => (net[k].svcTag === "soil" || net[k].svcTag === "waste") ? net[k].svcTag : "";
+  // ── designated service (System IV soil / waste / kitchen waste / car park drainage): a pipe is tagged Soil (blackwater — WCs, urinals), Waste (greywater),
+  // Kitchen waste or Parking (car park area drains) (v1.74.4, kw added v1.122, parking added v1.124)
+  const sysIV = std.system === "IV", SVC_TAGS = ["soil", "waste", "kitchen", "parking"], tagOf = k => SVC_TAGS.includes(net[k].svcTag) ? net[k].svcTag : "";
+  const svcLbl = t => t === "soil" ? "soil" : t === "waste" ? "waste" : t === "kitchen" ? "kitchen waste" : t === "parking" ? "car park drainage" : t;
   const riserComp = {}; Object.entries(stackComp).forEach(([root, ks]) => ks.forEach(k => { riserComp[k] = root; }));
-  const stackTag = {}; Object.entries(stackComp).forEach(([root, ks]) => { const tags = [...new Set(ks.map(tagOf).filter(Boolean))]; stackTag[root] = tags[0] || ""; if (tags.length > 1) ks.forEach(k => fails[k].push("the stack is tagged both soil and waste — one stack is one service; give every pipe of the stack the same Service (or set it to Auto)")); });
+  const stackTag = {}; Object.entries(stackComp).forEach(([root, ks]) => { const tags = [...new Set(ks.map(tagOf).filter(Boolean))]; stackTag[root] = tags[0] || ""; if (tags.length > 1) ks.forEach(k => fails[k].push(`the stack is tagged both ${tags.map(svcLbl).join(" and ")} — one stack is one service; give every pipe of the stack the same Service (or set it to Auto)`)); });
+  // v1.124: the full set of designated services in a pipe's own subtree (everything upstream of it, toward the fixtures) — used to colour the
+  // drawing by service, including the combined ("sewage") colour once soil and waste have joined, not just where a stack is itself tagged.
+  const ownTag = k => tagOf(k) || (net[k].cls === "riser" ? (stackTag[riserComp[k]] || "") : "");
+  const subTag = {}; [...order].reverse().forEach(k => { const n = net[k].to, s = new Set();
+    (kids[n] || []).forEach(c => { const t = ownTag(c); if (t) s.add(t); const cs = subTag[net[c].to]; if (cs) cs.forEach(x => s.add(x)); }); subTag[n] = s; });
+  const svcMixOf = k => { const s = new Set(subTag[net[k].to] || []); const t = ownTag(k); if (t) s.add(t); return [...s].sort(); };
   const effSvc = net.map((s, k) => { const t = tagOf(k); if (t) return t; if (s.cls === "riser") return stackTag[riserComp[k]] || ""; let j = parent(k); for (let g = 0; g < 5000 && j >= 0; g++) { if (net[j].cls === "riser") return stackTag[riserComp[j]] || tagOf(j) || ""; if (tagOf(j)) return tagOf(j); j = parent(j); } return ""; });
   const nodeSvc = {}; allN.forEach(n => { const c = feedOf[n]; nodeSvc[n] = c != null ? effSvc[c] : ""; });
   // stacks: Table 11 (primary ventilated: the stack vent is the stack continued) or Table 12 (secondary ventilated: a dedicated vent riser beside the stack); DN100 where WCs are connected
@@ -9972,9 +10063,10 @@ function calculateDrain(p) {
     dn[k] = snap(row.dn); why[k] = {k:"table", t:`DN${dn[k]}: ${stackTbl} (${entry} entries) gives ${qOf(row)} L/s for DN${row.dn}${stackType === "secondary" ? `, vent riser DN${row.vent}` : ""}${F.WC > 0 && row.dn < 100 ? "" : F.WC > 0 ? "; DN100 minimum where WCs are connected" : ""}`, s:`${stackTbl} · ${entry}`}; });
   // drains: Colebrook-White at the filling degree
   net.forEach((s, k) => { if ((s.cls !== "main" && !(storm && s.cls === "branch")) || flowMode) return; const F = FL[k], c = cdef.main.cands.filter(z => (!(F.WC > 0) || z.od >= wcMin) && (!storm || z.od >= stR.dMin)); let pick = null, g = 0;     // v1.75.0: the gradient follows each trial size; DN100 floor only where WCs discharge (wcMin)
-    for (const z of c) { const gz = gradAt(k, z.od), cap = drCap(z.id, gz, fillMax, kbMm, nu); if (cap.Q + 1e-9 >= F.Qdes && (minV == null || F.Qdes <= 0 || drFillAt(z.id, gz, F.Qdes, kbMm, nu).v >= minV)) { pick = z; g = gz; break; } }
+    const kbk = kbAt(k);
+    for (const z of c) { const gz = gradAt(k, z.od), cap = drCap(z.id, gz, fillMax, kbk, nu); if (cap.Q + 1e-9 >= F.Qdes && (minV == null || F.Qdes <= 0 || drFillAt(z.id, gz, F.Qdes, kbk, nu).v >= minV)) { pick = z; g = gz; break; } }
     if (!pick) { pick = c.length ? c[c.length - 1] : cdef.main.cands[cdef.main.cands.length - 1]; g = gradAt(k, pick.od); if (F.Qdes > 0) fails[k].push(`flow ${F.Qdes.toFixed(2)} L/s exceeds the capacity of DN${pick.od} at ${g} % and ${Math.round(fillMax*100)} % filling${minV != null ? " (or the velocity is below " + minV + " m/s)" : ""} — increase the gradient or split the drain`); }
-    dn[k] = pick.od; why[k] = {k:"capacity", t:`DN${pick.od}: Colebrook-White at the design gradient of ${gOvr(k) > 0 ? "this pipe" : "DN" + pick.od} (${drGradTxt(g)} %) and ${Math.round(fillMax*100)} % filling (kb ${kbMm} mm, ν ${nu}) carries ${drCap(pick.id, g, fillMax, kbMm, nu).Q.toFixed(2)} L/s ≥ ${F.Qdes.toFixed(2)} L/s`, s:`${g} % · ${Math.round(fillMax*100)} % fill`}; });
+    dn[k] = pick.od; why[k] = {k:"capacity", t:`DN${pick.od}: Colebrook-White at the design gradient of ${gOvr(k) > 0 ? "this pipe" : "DN" + pick.od} (${drGradTxt(g)} %) and ${Math.round(fillMax*100)} % filling (kb ${kbk} mm${matAt(k) ? " — " + drMatOf(matAt(k)).l : ""}, ν ${nu}) carries ${drCap(pick.id, g, fillMax, kbk, nu).Q.toFixed(2)} L/s ≥ ${F.Qdes.toFixed(2)} L/s`, s:`${g} % · ${Math.round(fillMax*100)} % fill`}; });
   // v1.76.0 flow bands: the size follows the design flow of each pipe (K of the pipe), exactly as a project calculation sheet does
   const bandCap = net.map(() => 0);
   if (flowMode) net.forEach((s, k) => { if (s.cls === "vent") return; const F = FL[k], b = bandsIn.find(x => F.Qdes <= x.q + 1e-9) || bandsIn[bandsIn.length - 1]; let d = snap(b.dn);
@@ -10006,9 +10098,9 @@ function calculateDrain(p) {
     if (s.cls === "vent") { cap = 0; fill = 0; v = 0; }
     else if (flowMode) { cap = Number.isFinite(bandCap[k]) ? bandCap[k] : 0; fill = cap > 0 ? F.Qdes/cap : 0; v = 0; }
     else if (storm && s.cls === "riser") { cap = swRwpQ(z.di, stR.fill, stR.kbR); fill = cap > 0 ? F.Qdes/cap : 0; v = 0; }
-    else if (s.cls === "main" || (storm && s.cls === "branch")) { cap = drCap(z.di, g, fillMax, kbMm, nu).Q; if (F.Qdes > 0) { const r = drFillAt(z.di, g, F.Qdes, kbMm, nu); fill = r.y; v = r.v; } }
+    else if (s.cls === "main" || (storm && s.cls === "branch")) { cap = drCap(z.di, g, fillMax, kbAt(k), nu).Q; if (F.Qdes > 0) { const r = drFillAt(z.di, g, F.Qdes, kbAt(k), nu); fill = r.y; v = r.v; } }
     else if (s.cls === "riser") { const row = stackRows.find(r => r.dn === dn[k]); cap = row ? qOf(row) : 0; fill = cap > 0 ? F.Qdes/cap : 0; v = 0; }
-    else { const run = runs[runRoot[k]], rows = run && run.vented ? D.branch.vent : D.branch.unvent, row = rows.filter(r => r.dn <= dn[k]).pop(); cap = row ? row.q : 0; fill = cap > 0 ? F.Qdes/cap : 0; if (F.Qdes > 0) { const r = drFillAt(z.di, Math.max(g, 0.01), F.Qdes, kbMm, nu); v = r.v; } }
+    else { const run = runs[runRoot[k]], rows = run && run.vented ? D.branch.vent : D.branch.unvent, row = rows.filter(r => r.dn <= dn[k]).pop(); cap = row ? row.q : 0; fill = cap > 0 ? F.Qdes/cap : 0; if (F.Qdes > 0) { const r = drFillAt(z.di, Math.max(g, 0.01), F.Qdes, kbAt(k), nu); v = r.v; } }
     const util = cap > 0 ? F.Qdes/cap : 0, bad = fails[k].length > 0 || (cap > 0 && F.Qdes > cap*(1 + 1e-9) && ovr[k] != null);
     if (ovr[k] != null && cap > 0 && F.Qdes > cap*(1 + 1e-9)) fails[k].push(`DN${dn[k]} (set by hand) carries ${cap.toFixed(2)} L/s — less than the design flow ${F.Qdes.toFixed(2)} L/s`);
     if (s.cls === "main" && minV != null && F.Qdes > 0 && v < minV - 1e-9) notes[k].push(`velocity ${v.toFixed(2)} m/s is below ${minV} m/s`);
@@ -10016,7 +10108,7 @@ function calculateDrain(p) {
       sub:subN[s.to], LU:F.DU, Qc:F.Qc, N:F.N, Q:F.Qdes, Qd:F.Qdes, spare:0, auto:0, ovr:ovr[k], own:nodeDU[s.to] || 0, ownQ:nodeQc[s.to] || 0, demState:"in", parent:parent(k), idx:k, ci:0,
       pipe:{od:dn[k], id:z.di, nb:dn[k], dn:true}, noSize:false, grad:0, v, hf:0, fitm:0, eqItems:[], eqLoss:0, prvSet:null, loss:0, vOk:true, pOk:true, Re:0, reg:"", why:why[k], ok:fails[k].length === 0, bump:0,
       Pfrom:0, Pto:0, PfromS:0, PtoS:0, elev:zOf(s.to) - zOf(sups[0]), rev:true, chord:false, closing:false,
-      dr:{DU:F.DU, Qww:F.Qww, Qc:F.Qc, Qtot:F.Qtot, Qdes:F.Qdes, K:F.K, WC:F.WC, svc:F.svc, svcTag:effSvc[k], app:F.app, dn:dn[k], di:z.di, grad:gShow, vert:isVert(k), gradOwn:gOvr(k) > 0, fill, util, cap, v, run:s.cls === "branch" ? runRoot[k] : null, vented:s.cls === "branch" ? !!(runs[runRoot[k]] || {}).vented : null,
+      dr:{DU:F.DU, Qww:F.Qww, Qc:F.Qc, Qtot:F.Qtot, Qdes:F.Qdes, K:F.K, WC:F.WC, svc:F.svc, svcTag:effSvc[k], svcMix:sysIV ? svcMixOf(k) : [], app:F.app, dn:dn[k], di:z.di, grad:gShow, vert:isVert(k), gradOwn:gOvr(k) > 0, mat:matAt(k), matOwn:!!(net[k].mat && drMatOf(net[k].mat).k), kb:kbAt(k), fill, util, cap, v, run:s.cls === "branch" ? runRoot[k] : null, vented:s.cls === "branch" ? !!(runs[runRoot[k]] || {}).vented : null,
         ventDn:s.cls === "branch" && venting[runRoot[k]] ? venting[runRoot[k]].vdn : null, fails:fails[k], notes:notes[k], table:storm ? (s.cls === "riser" ? "BS EN 12056-3 Table 8 (Wyly-Eaton)" : "BS EN 12056-3 Annex C (Colebrook-White)") : flowMode ? "Flow bands (project sheet)" : s.cls === "riser" ? stackTbl : s.cls === "main" ? "Annex B / Colebrook-White" : s.cls === "vent" ? "Vent (drawn)" : (runs[runRoot[k]] || {}).table}}; });
   // ── service check (System IV): no mixed branch or stack
   const issues = [], I = (sev, code, text, kind, id) => issues.push({sev, code, text, kind:kind || null, id:id == null ? null : id});
@@ -10028,6 +10120,29 @@ function calculateDrain(p) {
     if (es && es !== req) I(svcEnforce ? "fail" : "warn", "svc-tag", `${f.node}: ${f.qty}× ${L.name} is ${req === "soil" ? "blackwater (a WC or urinal)" : "greywater"} connected to a ${es === "soil" ? "Soil" : "Waste"} stack. System IV keeps ${es === "soil" ? "greywater off the soil stack" : "WCs and urinals off the waste stack"} — move it to a ${req === "soil" ? "Soil" : "Waste"} stack, or set the stack's Service to Auto.`, "node", f.node); });
   { const tagged = out.filter(x => x.dr.svcTag && (x.cls === "riser" || x.cls === "branch")); if (tagged.length) { const soil = [...new Set(out.filter(x => x.cls === "riser" && x.dr.svcTag === "soil").map(x => x.id))].length, waste = [...new Set(out.filter(x => x.cls === "riser" && x.dr.svcTag === "waste").map(x => x.id))].length;
     if (soil || waste) I("info", "svc-sep", `Separate System IV stacks on this drawing: ${soil} soil (blackwater) and ${waste} waste (greywater) stack pipe${soil + waste === 1 ? "" : "s"}. Each stack takes only its own service.`, null, null); } }
+  // ── v1.123/v1.124: where two differently-designated branches meet — on the way from the fixtures down to the outfall — the junction needs the matching
+  // equipment: soil + waste becomes the combined (sewage) drain and needs a gully trap AND a manhole (or a single combined gully-trap-and-manhole unit);
+  // kitchen waste may only join soil or waste once it has passed through a grease interceptor, and car park drainage only once it has passed through an oil
+  // interceptor. "Meet" means a node with two or more branches toward the fixtures that carry different services anywhere within what they feed (an untagged
+  // main between the node and a tagged stack still counts — the tag is looked for down the whole branch, not just on the pipe touching the node). The
+  // equipment is on a node (like a PRV on a water pipe), not a drawing symbol. A gully trap and a manhole serve the combined flow, so they can be the
+  // junction itself or anywhere further down the drain to the outfall — they're commonly two separate chambers (or one combined unit doing both jobs). A
+  // grease or oil interceptor treats its own waste BEFORE it mixes in, so it has to sit the other way: at the junction, or anywhere back up that branch
+  // toward its own fixtures.
+  if (sysIV) {
+    const nodeEq = id => { const n = nodeMap[id]; return Array.isArray(n && n.eq) ? n.eq : []; };
+    const hasEq = (id, type) => nodeEq(id).some(e => Number(e.qty) > 0 && (e.type === type || (type !== "gtmh" && e.type === "gtmh" && (type === "gt" || type === "mh"))));
+    const chainHas = (startNode, type) => { let n = startNode, guard = 0; while (guard++ < 5000) { if (hasEq(n, type)) return true; const k = feedOf[n]; if (k === undefined) return false; n = net[k].from; } return false; };
+    const upBranchHas = (n, c, type) => hasEq(n, type) || (subN[net[c].to] || []).some(id => hasEq(id, type));
+    const CROSS_CH = [{tag:"kitchen", eq:"gi", eqLabel:"grease interceptor"}, {tag:"parking", eq:"oi", eqLabel:"oil interceptor"}];
+    Object.keys(kids).forEach(n => { const cs = kids[n]; if (cs.length < 2) return;
+      const tags = new Set(); cs.forEach(c => { const t = ownTag(c); if (t) tags.add(t); const s = subTag[net[c].to]; if (s) s.forEach(x => tags.add(x)); });
+      if (tags.size < 2) return;
+      if (tags.has("soil") && tags.has("waste")) { const hasGT = chainHas(n, "gt"), hasMH = chainHas(n, "mh");
+        if (!(hasGT && hasMH)) I("fail", "gt-mh-required", `${n}: a soil pipe and a waste pipe join here — beyond this point it is the combined (sewage) drain, which needs a gully trap and a manhole. Add ${!hasGT && !hasMH ? "a gully trap and a manhole (or a single combined gully-trap-and-manhole unit)" : !hasGT ? "a gully trap" : "a manhole"} as equipment on this node, or on a node further down the drain before the outfall.`, "node", n); }
+      CROSS_CH.forEach(({tag, eq, eqLabel}) => { if (!(tags.has(tag) && (tags.has("soil") || tags.has("waste")))) return;
+        const xCs = cs.filter(c => ownTag(c) === tag || (subTag[net[c].to] || new Set()).has(tag));
+        if (!xCs.some(c => upBranchHas(n, c, eq))) I("fail", `${eq}-required`, `${n}: a ${svcLbl(tag)} pipe joins a ${tags.has("soil") ? "soil" : "waste"} pipe here with no ${eqLabel} in between — ${svcLbl(tag)} can only join soil or waste downstream of a ${eqLabel}. Add a ${eqLabel} as equipment at this node, or on the ${svcLbl(tag)} branch before it reaches here.`, "node", n); }); }); }
   // ── stack vents (continue the stack above its highest branch connection, same DN) and branch vents
   const vents = [];
   Object.values(stackComp).forEach(ks => { const top = ks.reduce((a, k) => (zOf(net[k].to) > zOf(net[a].to) ? k : a), ks[0]), tn = net[top].to, dnS = Math.max(...ks.map(k => dn[k])), tz = zOf(tn), base = ks.reduce((a, k) => (zOf(net[k].from) < zOf(net[a].from) ? k : a), ks[0]);
@@ -10074,7 +10189,9 @@ function calculateDrain(p) {
     Qsrc, QsrcAll, finalNets, totLUFinal, totLU:totDU, totQc, totN, mainSec, minMargin:0, upsized:[], upsizeReverted:false, needSrc:0, critRise:0, directLU:Object.values(directAt).reduce((a, d) => a + d.lu, 0), fixLU:totDU - Object.values(directAt).reduce((a, d) => a + d.lu, 0),
     warn:[], issues, status, nFail, nWarn, nInfo, critical:null, refInfo:{code:std.code, label:std.label, ref:std.ref, unit:"DU", min:0, max:0, rows:lib.length, hash:wsHash(JSON.stringify([D.k, D.sizes, D.stack, D.branch, D.limits, D.params])), fixHash:wsHash(JSON.stringify(lib.map(f => [f.name, f.lu, f.svc, f.wc]))), nFixUsed:new Set(fix.filter(f => libBy[f.fixture] && Number(f.qty) > 0).map(f => f.fixture)).size, mats:[{key:"DRAIN", label:"EN 12056-2 Table 1 (DN / minimum internal diameter)", sizes:sizes.length, hash:wsHash(JSON.stringify(D.sizes))}], source:DRAIN_SRC === "supabase" ? "supabase" : "defaults", loadedAt:REF_STATUS.at},
     validation:wsValidate(p), aboveMode:"flag", ok:status === "valid", nSec:out.length, useV:false, useP:false, sc:"velocity", classes, groups, cdef, libBy, lib, nodeReq:{}, nodeLU:{...nodeDU}, nodeQc:{...nodeQc}, directAt, selStr, order:order.slice(), nodeZ, hgl, zSrc:zOf(sups[0]),
-    drain:{std, K, sizing:flowMode ? "flow" : "tables", entry, fillMax, kbMm, nu, ventMode, oneSize, svcEnforce, stackVentOn, ventRise, wcMin, minV, sysIV, nodeSvc, vents:ventOn ? vents : vents.filter(v => v.kind !== "stack"), runs:Object.values(runs).map(R => ({root:net[R.root].id, secs:R.secs.map(k => net[k].id), L:R.L, H:R.H, minGrad:R.minGrad, vented:R.vented, table:R.table, vdn:(venting[R.root] || {}).vdn, reasons:(venting[R.root] || {}).reasons || []})),
+    drain:{std, K, sizing:flowMode ? "flow" : "tables", entry, fillMax, kbMm, nu, ventMode, oneSize, svcEnforce, stackVentOn, ventRise, wcMin, minV, sysIV, nodeSvc,
+      chambers:[...allN].filter(n => Array.isArray((nodeMap[n] || {}).eq) && nodeMap[n].eq.length).flatMap(n => nodeMap[n].eq.filter(e => Number(e.qty) > 0).map(e => ({node:n, type:e.type, label:(DRAIN_CHAMBERS.find(c => c.k === e.type) || {l:e.type}).l, qty:Number(e.qty) || 1}))).sort((a, b) => a.node < b.node ? -1 : a.node > b.node ? 1 : 0),
+      vents:ventOn ? vents : vents.filter(v => v.kind !== "stack"), runs:Object.values(runs).map(R => ({root:net[R.root].id, secs:R.secs.map(k => net[k].id), L:R.L, H:R.H, minGrad:R.minGrad, vented:R.vented, table:R.table, vdn:(venting[R.root] || {}).vdn, reasons:(venting[R.root] || {}).reasons || []})),
       ventType:stackType, stackTbl, stacks:Object.values(stackComp).map(ks => { const d0 = Math.max(...ks.map(k => dn[k])), r0 = secRows.find(r => r.dn === d0); return {ids:ks.map(k => net[k].id), dn:d0, table:stackTbl, ventDn:stackType === "secondary" && r0 ? r0.vent : null}; }), maxFill, source:DRAIN_SRC, limits:lim}};
   const steps = [
     ...(storm ? [{s:"Basis (EN 12056-3)", label:"Design rainfall", value:`${stR.mmhr} mm/h · ${stR.rainLabel}`}, {label:"Risk factor / run-off C", value:`${stR.risk} / ${stR.C}`}, {label:"RWP filling / drain filling", value:`f ${stR.fill} / ${Math.round(fillMax*100)} %`},
@@ -10152,11 +10269,17 @@ function DrainClassTable({pump, uu}) {
   const chip = (c, t) => <span key={t} style={{display:"inline-flex", alignItems:"center", gap:6, marginRight:14, fontSize:12}}><i style={{display:"inline-block", width:22, height:5, borderRadius:3, background:c}} />{t}</span>;
   return <section className="pf-sec">
     <h5><i>2</i>Design gradient <em>from the pipe's direction and nominal size · stacks and vertical pipes have none · sizes: stacks Table 11 / 12, branches Tables 4 / 7, drains by Colebrook-White</em></h5>
-    <div style={{margin:"2px 0 10px"}}>{chip(WS_SVC_COL.soil, "Soil (blackwater) branches and stacks")}{chip(WS_SVC_COL.waste, "Waste (greywater) branches and stacks")}{chip(WS_COL.main, "Drains")}{chip(WS_COL.vent, "Vents")}</div>
+    <div style={{margin:"2px 0 10px"}}>{chip(WS_SVC_COL.soil, "Soil (blackwater) branches and stacks")}{chip(WS_SVC_COL.waste, "Waste (greywater) branches and stacks")}{chip(WS_SVC_COL.kitchen, "Kitchen waste")}{chip(WS_SVC_COL.parking, "Parking (car park drainage)")}{chip(WS_SVC_COL.sewage, "Sewage — soil + waste combined")}{chip(WS_COL.main, "Drains")}{chip(WS_COL.vent, "Vents")}</div>
     <div style={{display:"grid", gridTemplateColumns:"repeat(auto-fill,minmax(128px,1fr))", gap:"6px 10px"}}>
       {sizes.map(z => <N key={z.dn} label={"DN" + z.dn} unit="%" value={wsFin(ov[z.dn]) ? ov[z.dn] : drGradAuto({}, z.dn)} onChange={v => setG(z.dn, v)} min={0.1} max={50} step={0.05} req={false} hint={"Design gradient of a horizontal DN" + z.dn + " pipe (1 in " + Math.round(100/Math.max(Number(wsFin(ov[z.dn]) ? ov[z.dn] : drGradAuto({}, z.dn)), 0.01)) + ")"} />)}
     </div>
     <div className="cfe-help">A horizontal pipe takes the gradient of its own DN; a vertical pipe has none. Any pipe can still be given its own gradient (Pipes table or the strip above the drawing). Branches are checked against the minimum gradient of Table 5 / Table 8 (1 % unventilated, 0.5 % ventilated). Sizes are never reduced in the direction of flow; a stack and its vent are one size. <button type="button" onClick={() => uu({drGradDN:{}})} style={{border:"none", background:"none", color:"#007aff", cursor:"pointer", padding:0, font:"inherit", fontWeight:600}}>Reset to defaults</button></div>
+    <h5 style={{marginTop:16}}><i>3</i>Pipe material <em>sets the effective roughness kb used in the drain and branch hydraulics · a pipe can still be given its own material (Pipes table)</em></h5>
+    <div style={{display:"flex", gap:16, flexWrap:"wrap"}}>
+      <label className="nc-f"><span>Horizontal pipes (drains, branches)</span><select className="nc-sel" value={pump.drMatH || ""} onChange={e => uu({drMatH:e.target.value})}>{DRAIN_MATERIALS.map(m => <option key={m.k} value={m.k}>{m.k ? `${m.l} (kb ${m.kb} mm)` : "Project default (kb below)"}</option>)}</select></label>
+      <label className="nc-f"><span>Vertical pipes (stacks)</span><select className="nc-sel" value={pump.drMatV || ""} onChange={e => uu({drMatV:e.target.value})}>{DRAIN_MATERIALS.map(m => <option key={m.k} value={m.k}>{m.k ? `${m.l} (kb ${m.kb} mm)` : "Project default (kb below)"}</option>)}</select></label>
+    </div>
+    <div className="cfe-help">Stack sizing (Tables 11/12) and branch sizing (Tables 4/7) come from fixed tables and are not affected by material; material changes the drain and branch Colebrook-White capacity only. Published kb values — check them against the project specification. Set a different material on an individual pipe from the Pipes table.</div>
   </section>;
 }
 const drPct = v => (v*100).toFixed(0) + " %";
@@ -10183,6 +10306,7 @@ function DrainPipeDetail({pump, w, sel}) {
       {row("Largest single appliance", `${f(d.app, 2)} L/s`, "the pipe must carry at least this (6.3.4 b)")}
       {row("Design flow", `${f(d.Qdes, 3)} L/s`, d.Qdes > d.Qtot + 1e-9 ? "the largest appliance governs" : "Qtot = Qww + Qc")}
       {row("Size", `DN${x.pipe.od}`, `internal diameter ${x.pipe.id} mm (Table 1) · ${x.why.t}`)}
+      {(x.cls === "main" || x.cls === "branch") && row("Material", d.mat ? drMatOf(d.mat).l : "Project default", `kb ${f(d.kb, 2)} mm${d.matOwn ? " — set on this pipe" : d.mat ? " — Setup default" : " — Setup → Drains: effective roughness kb"}`)}
       {row(x.cls === "main" ? "Capacity at the design filling" : "Capacity", `${f(d.cap, 2)} L/s`, d.table + (x.cls === "main" ? ` · ${d.vert ? "vertical" : "gradient " + drGradTxt(d.grad) + " %" + (d.gradOwn ? " (set on the pipe)" : " (by DN)")}, filling ${drPct(w.drain.fillMax)}` : ""))}
       {row("Utilisation", drPct(d.util), "design flow ÷ capacity")}
       {x.cls === "main" && row("Filling at the design flow", drPct(d.fill), `velocity ${f(x.v, 2)} m/s${d.grad > 0 ? " at " + drGradTxt(d.grad) + " %" : ""}`)}
@@ -10350,7 +10474,7 @@ function DrainResults({pump, res, w, pick, selIs, uu, sel}) {
       <tbody>{rows.map(x => <tr key={x.id} className={(crit.has(x.id) ? "crit" : "") + (selIs("sec", x.id) ? " sel" : "")} onClick={() => pick("sec", x.id)} style={{cursor:"pointer"}}>
         <td><b>{x.id}</b></td><td><i className="ws-cdot" style={{background:wsPipeCol(w, x)}} />{x.cd.l}</td><td>{x.to} → {x.from}</td><td className="n">{x.N.toFixed(0)}</td><td className="n">{x.LU.toFixed(1)}</td><td className="n">{x.Qd.toFixed(2)}</td>
         <td className="n"><b>DN{x.pipe.od}</b></td><td className="n">{x.pipe.id}</td><td className="n">{x.dr.grad > 0 ? drGradTxt(x.dr.grad) : "—"}</td><td className="n">{x.cls === "vent" ? "—" : x.dr.cap.toFixed(2)}</td><td className="n">{x.cls === "vent" ? "air" : x.cls === "main" ? drPct(x.dr.fill) + " full" : drPct(x.dr.util)}</td><td className="n">{x.cls === "main" ? x.v.toFixed(2) : "—"}</td>
-        <td>{x.dr.svcTag === "soil" ? <span className="status-chip" style={{background:"#f0e6da", color:"#8a5a2b"}}>Soil</span> : x.dr.svcTag === "waste" ? <span className="status-chip" style={{background:"#e3eef6", color:"#2f6f9f"}}>Waste</span> : x.dr.svc === "black" ? "Black" : x.dr.svc === "grey" ? "Grey" : x.dr.svc === "mixed" ? <b style={{color:"#b91c1c"}}>Mixed</b> : "—"}</td>
+        <td>{x.dr.svcTag === "soil" ? <span className="status-chip" style={{background:"#f0e6da", color:"#8a5a2b"}}>Soil</span> : x.dr.svcTag === "waste" ? <span className="status-chip" style={{background:"#e3eef6", color:"#2f6f9f"}}>Waste</span> : x.dr.svcTag === "kitchen" ? <span className="status-chip" style={{background:"#fbe8d2", color:"#e08a1e"}}>Kitchen</span> : x.dr.svc === "black" ? "Black" : x.dr.svc === "grey" ? "Grey" : x.dr.svc === "mixed" ? <b style={{color:"#b91c1c"}}>Mixed</b> : "—"}</td>
         <td><span className={"status-chip " + (x.ok ? "pass" : "review")}>{x.ok ? "OK" : "Review"}</span></td><td className="ws-why" title={x.why.t}>{x.why.s || x.why.t}</td></tr>)}</tbody>
     </table></div>
     <div className="cfe-help">Q design = the larger of K√ΣDU + continuous flow and the largest appliance (6.3.4). Stacks and branches show the share of the table capacity used; drains show the depth of flow at the design flow. Click a row for the full calculation.</div>
@@ -10369,7 +10493,8 @@ function wsHoverDrain(w, kind, id) {
     return [`${x.id} · ${x.cd.l} · DN${x.pipe.od} (ID ${x.pipe.id} mm)`, `${x.to} → ${x.from} · length ${x.L.toFixed(2)} m${d.grad > 0 ? ` · ${drGradTxt(d.grad)} %` : ""}`,
       `ΣDU ${d.DU.toFixed(1)} · Qww ${d.Qww.toFixed(2)} L/s → design ${d.Qdes.toFixed(2)} L/s`, x.cls === "main" ? `${drPct(d.fill)} full · v ${x.v.toFixed(2)} m/s · capacity ${d.cap.toFixed(2)} L/s` : `${drPct(d.util)} of ${d.cap.toFixed(2)} L/s (${d.table})`, ...(x.ok ? [] : d.fails)]; }
   const n = id, fed = w.out.find(q => q.to === n), v = (w.drain.vents || []).find(q => q.node === n);
-  return [`Node ${n}${n === w.root ? " (outfall)" : ""}`, `z ${(w.nodeZ[n] ?? 0).toFixed(2)} m`, ...(w.nodeLU[n] ? [`${+w.nodeLU[n].toFixed(1)} DU at this node`] : []), ...(fed ? [`Receives ${fed.id}: ${fed.Qd.toFixed(2)} L/s`] : []), ...(v && v.kind === "stack" ? [`Stack vent DN${v.dn} above this node`] : []), ...((w.drain.vents || []).filter(q => q.kind === "riser" && (q.ccNodes || []).includes(n)).map(q => `Vent cross-connection DN${q.ccDn}${q.node === n ? " · vent riser to the roof" : ""}`))];
+  const ch = (w.drain.chambers || []).filter(c => c.node === n);
+  return [`${ch.length ? ch.map(c => c.label).join(" + ") : "Node"} ${n}${n === w.root ? " (outfall)" : ""}`, `z ${(w.nodeZ[n] ?? 0).toFixed(2)} m`, ...(w.nodeLU[n] ? [`${+w.nodeLU[n].toFixed(1)} DU at this node`] : []), ...(fed ? [`Receives ${fed.id}: ${fed.Qd.toFixed(2)} L/s`] : []), ...(ch.length ? [`Equipment: ${ch.map(c => c.qty > 1 ? `${c.label} ×${c.qty}` : c.label).join(", ")}`] : []), ...(v && v.kind === "stack" ? [`Stack vent DN${v.dn} above this node`] : []), ...((w.drain.vents || []).filter(q => q.kind === "riser" && (q.ccNodes || []).includes(n)).map(q => `Vent cross-connection DN${q.ccDn}${q.node === n ? " · vent riser to the roof" : ""}`))];
 }
 
 
@@ -11664,7 +11789,7 @@ function clWaterRows(B, p, res) {
   B.inp("T", "Water Temperature", w.T, {unit:"°C", dp:0});
   B.calc("nu", "Kinematic Viscosity of Water", w.nu*1e6, "2.414E-5*10^(247.8/({T}+273.15-140))/(1000*(1-({T}+288.9414)/(508929.2*({T}+68.12963))*({T}-3.9863)^2))*1E6", {unit:"mm²/s", dp:4});
   B.inp("fit", "Fittings & Valves Allowance", w.fitPc, {unit:"%", dp:0});
-  B.inp("P0", w.pumpMode ? "Pressure Required at the Source (calculated — the pump discharge pressure)" : "Incoming Supply Pressure", w.P0, {unit:"m", dp:1});
+  B.inp("P0", w.pumpMode ? "Pressure Required at the Source (calculated — the pump discharge pressure)" : w.gravity ? "Tank Low Water Level above the Outlet (gravity supply, no pump)" : "Incoming Supply Pressure", w.P0, {unit:"m", dp:1});
   B.inp("Pmin", "Minimum Residual Pressure", w.Pmin, {unit:"m", dp:1});
   B.gap();
   B.section("2. Pipe Sizing Criteria by Pipe Class");
@@ -11802,8 +11927,8 @@ function clWaterRows(B, p, res) {
     B.inp("sucS", "Static Suction Level (tank full / mains at night; blank on Setup = the duty suction)", res.pumpHead.sucS, {unit:"m", dp:2});
     B.inp("lift", "Static Lift from the Pump to the Supply Node", res.pumpHead.lift, {unit:"m", dp:2});
     B.calc("Ps", "Static Pressure at the Source (static suction + shut-off head − static lift)", w.sP0, "{sucS}+{Hpump}*{shut}/100-{lift}", {unit:"m", dp:2, key:true, bold:true});
-  } else if (wsFin(p.staticSupplyPressure) && Number(p.staticSupplyPressure) > 0) B.inp("Ps", "Static Supply Pressure (no flow)", w.sP0, {unit:"m", dp:1, key:true, bold:true});
-  else B.calc("Ps", "Static Supply Pressure (no flow — taken as the supply pressure)", w.sP0, "{P0}", {unit:"m", dp:1, key:true, bold:true});
+  } else if (wsFin(p.staticSupplyPressure) && Number(p.staticSupplyPressure) > 0) B.inp("Ps", w.gravity ? "Tank Top Water Level above the Outlet (no flow)" : "Static Supply Pressure (no flow)", w.sP0, {unit:"m", dp:1, key:true, bold:true});
+  else B.calc("Ps", w.gravity ? "Static Pressure at the Outlet (no flow — no top water level entered, the low level is used)" : "Static Supply Pressure (no flow — taken as the supply pressure)", w.sP0, "{P0}", {unit:"m", dp:1, key:true, bold:true});
   B.text(`Pipe pressure class: nominal PN (read from the material name, 20 °C) derated for ${w.T} °C with INDICATIVE factors (PE100, PE80, HDPE, PP-R; metals 1.0; other plastics none) — verify with the manufacturer's data sheet.`, {italic:true});
   B.tbl("ps3", {
     head:[[T("Section",[1,1]), T("Static Head Change (m)",[2,2]), T("Static Pressure at From Node (m)",[3,3]), T("Static Pressure at To Node (m)",[4,4]), T("Pressure at To Node, Peak Flow (m)",[5,5]), T("Static − Peak Flow (m)",[6,6]), T("Highest Pressure in the Pipe, Peak or No Flow (m)",[7,9])]],
@@ -11901,8 +12026,8 @@ function clWaterRows(B, p, res) {
     if (H.noPump) B.banner.xl = '"Pump Duty: no pump required — the suction pressure covers the "&TEXT({Pneed},"0.0")&" m needed at the source ("&TEXT({Qs},"0.00")&" L/s peak flow)"';
   } else
   B.banner = {
-    text: `Peak Flow ${fmt(w.Qsrc, 2)} L/s (${fmt(w.totLU, 0)} ${w.dem.unit}) at Source — Minimum Residual Margin ${fmt(w.minMargin, 1)} m — ${w.minMargin >= -1e-9 ? "OK" : "REVIEW"}`,
-    xl: `"Peak Flow "&TEXT({Qs},"0.00")&" L/s ("&TEXT({LUs},"0")&" ${w.dem.unit}) at Source — Minimum Residual Margin "&TEXT({mm},"0.0")&" m — "&{chk}`,
+    text: `${w.gravity ? "Gravity Supply, No Pump — " : ""}Peak Flow ${fmt(w.Qsrc, 2)} L/s (${fmt(w.totLU, 0)} ${w.dem.unit}) at Source — Minimum Residual Margin ${fmt(w.minMargin, 1)} m — ${w.minMargin >= -1e-9 ? "OK" : "REVIEW"}`,
+    xl: `"${w.gravity ? "Gravity Supply, No Pump — " : ""}Peak Flow "&TEXT({Qs},"0.00")&" L/s ("&TEXT({LUs},"0")&" ${w.dem.unit}) at Source — Minimum Residual Margin "&TEXT({mm},"0.0")&" m — "&{chk}`,
   };
 }
 
@@ -11927,7 +12052,7 @@ function clWaterCompact(B, p, res, po) {
   B.text(`Country / Authority: ${[p.country, p.authority].filter(Boolean).join(" — ") || "—"}`);
   B.text(`Demand Data: ${w.dem.label}${p.edition ? " — " + p.edition : ""}${w.dem.ref && w.dem.ref !== w.dem.label ? " — " + w.dem.ref : ""} · table range ${w.refInfo.min}–${w.refInfo.max} ${unit}, linear interpolation${w.aboveMode === "block" ? "" : "; above the table flagged for review"}`);
   B.text(`System: ${wsSysName(w.system)}${p.building ? " · " + p.building : ""} · water ${w.T} °C · ${w.isDW ? "Darcy-Weisbach" : "Hazen-Williams"} friction · ${SIZING_LBL[w.sc]}`);
-  B.inp("c_P0", w.pumpMode ? "Pressure Required at the Source (calculated — pump discharge)" : "Incoming Supply Pressure", w.P0, {unit:"m", dp:1});
+  B.inp("c_P0", w.pumpMode ? "Pressure Required at the Source (calculated — pump discharge)" : w.gravity ? "Tank Low Water Level above the Outlet (gravity supply, no pump)" : "Incoming Supply Pressure", w.P0, {unit:"m", dp:1});
   B.inp("c_Pmin", "Minimum Residual Pressure", w.Pmin, {unit:"m", dp:1});
   B.inp("c_maxF", "Maximum Fixture Pressure", maxF == null ? "not checked" : maxF, {unit:"m", dp:1});
   B.inp("c_fit", "Fittings & Valves Allowance", w.fitPc, {unit:"%", dp:0});
@@ -16065,11 +16190,19 @@ function WsNetworksPanel({pump, w, setCfg}) {
   const all = pump.wsNetCfg || {}, fixed = pump.wsSource === "fixed";
   return <section className="pf-sec">
     <h5><i>{nets.length}</i>Networks <em>independent networks on one drawing — each has its own supply, pipe sizes, critical route and {fixed ? "supply pressure" : "pump"}</em></h5>
-    <div className="net-list">{nets.map(n => { const c = all[n.id] || {}, sp = n.pump;
+    <div className="net-list">{nets.map(n => { const c = all[n.id] || {}, sp = n.pump, grav = !!c.gravity, G = n.w && n.w.gravity;
+      // switching to gravity starts the low water level from the suction typed for the pump (a tank level above the pump), when there is one
+      const toGrav = () => { const pc = {...(pump.wsPump || {}), ...(c.wsPump || {})}, suc = pc.suction !== "" && pc.suction != null && wsFin(pc.suction) ? Number(pc.suction)*(pc.suctionUnit === "bar" ? WS_BAR : 1) : null;
+        setCfg(n.id, {gravity:true, ...(c.tankLow === undefined || c.tankLow === "" ? {tankLow:suc != null && suc > 0 ? +suc.toFixed(2) : ""} : {})}); };
       return <div className="net-card" key={n.id} style={{borderLeftColor:n.color}}>
         <div className="net-h"><i className="net-dot" style={{background:n.color}} /><input className="net-name" value={c.name || ""} placeholder={n.name} onChange={e => setCfg(n.id, {name:e.target.value})} title="Name of this network (shown on the drawing, the results and the print)" />
           <span>supply {n.id} · {n.secIds.length} pipe{n.secIds.length === 1 ? "" : "s"} · {n.w.totN.toFixed(0)} fixtures · {n.w.totLU.toFixed(0)} {n.w.dem.unit}</span></div>
-        {fixed ? <div className="pf-row pf-grid"><N label="Supply pressure" unit="m" value={sp.supplyPressure} onChange={v => setCfg(n.id, {supplyPressure:v})} min={0.1} hint="Minimum dynamic pressure at THIS network's supply node at peak flow. Blank in the box = the calculation's own." />
+        <div className="net-src"><Seg value={grav ? "gravity" : "src"} onChange={v => v === "gravity" ? toGrav() : setCfg(n.id, {gravity:false})} options={[{value:"src", label:fixed ? "Known pressure" : "Pump", title:fixed ? "A known pressure at the supply node (mains, or a pump with a known head)" : "A pump feeds this network — the calculation works out its flow and head"}, {value:"gravity", label:"Gravity tank", title:"Fed by gravity from a tank above, no pump. The water level above the outlet node and the node levels give the pressure"}]} /></div>
+        {grav ? <><div className="pf-row pf-grid"><N label="Low water level" unit="m" value={c.tankLow ?? ""} onChange={v => setCfg(n.id, {tankLow:v})} min={0.01} hint="Lowest working water level in the tank, measured above the outlet node. It is the pressure at the outlet at peak flow, so use the low level, not the full level." />
+            <N label="Top water level" unit="m" value={c.tankTop ?? ""} onChange={v => setCfg(n.id, {tankTop:v})} min={0} req={false} hint="Water level with the tank full, above the outlet node. Used for the no-flow pressure: PRVs, maximum fixture pressure and pipe pressure class. Blank = the low water level." /></div>
+          {G && <div className="wp-src">Outlet {G.root} at EL {G.zOut.toFixed(1)} m{G.hi ? <> · highest fixture {G.hi.node}{G.hi.lvl ? " (" + G.hi.lvl + ")" : ""} <b>{G.hi.dyn.toFixed(1)} m</b> at peak flow, {G.hi.req.toFixed(1)} m needed</> : null}{G.lo && G.lo !== G.hi ? <> · lowest fixture {G.lo.node}{G.lo.lvl ? " (" + G.lo.lvl + ")" : ""} <b>{G.lo.st.toFixed(1)} m</b> with no flow</> : null}
+            {G.need.length ? <> · <b style={{color:"#b91c1c"}}>PRV needed on {G.need.map(q => q.lvl).join(", ")}</b> (above {G.lim.toFixed(1)} m{G.limDef ? ", 5 bar used as no maximum fixture pressure is set" : ""})</> : <> · no floor above {G.lim.toFixed(1)} m with no flow{G.prvs.length ? ` (${G.prvs.length} PRV${G.prvs.length > 1 ? "s" : ""} in place)` : ""}</>}</div>}</>
+        : fixed ? <div className="pf-row pf-grid"><N label="Supply pressure" unit="m" value={sp.supplyPressure} onChange={v => setCfg(n.id, {supplyPressure:v})} min={0.1} hint="Minimum dynamic pressure at THIS network's supply node at peak flow. Blank in the box = the calculation's own." />
             <N label="Static supply pressure" unit="m" value={sp.staticSupplyPressure ?? ""} onChange={v => setCfg(n.id, {staticSupplyPressure:v})} min={0} req={false} hint="Pressure with no flow. Blank = the supply pressure." /></div>
           : <div className="wp-grid"><WsPumpInputs pump={sp} uu={o => setCfg(n.id, {wsPump:o.wsPump})} showShut /></div>}
       </div>; })}</div>
@@ -16084,7 +16217,7 @@ function WsNetworksSummary({w, pick}) {
       <thead><tr><th>Network</th><th>Supply</th><th className="n">Pipes</th><th className="n">Fixtures</th><th className="n">{w.dem.unit}</th><th className="n">Peak flow L/s</th><th className="n">{pm ? "Pump head m" : "Supply pressure m"}</th><th className="n">Min margin m</th><th>Status</th></tr></thead>
       <tbody>{w.networks.map(n => { const x = n.w, H = n.res.pumpHead;
         return <tr key={n.id} onClick={() => x.crit && pick("node", x.crit.node)} style={{cursor:x.crit ? "pointer" : "default"}} title="Click to select this network's critical node"><td><i className="net-dot" style={{background:n.color}} /> <b>{n.name}</b></td><td>{n.id}</td><td className="n">{x.nSec}</td><td className="n">{f(x.totN, 0)}</td><td className="n">{f(x.totLU, 0)}</td><td className="n">{f(x.Qsrc, 2)}</td>
-          <td className="n">{pm ? (H ? (H.noPump ? "no pump" : H.head) : "—") : f(x.P0, 1)}</td><td className="n">{f(x.minMargin, 1)}</td><td>{x.ok ? <span className="status-chip pass">OK</span> : <span className="status-chip blocked">Review</span>}</td></tr>; })}</tbody></table></div>
+          <td className="n">{x.gravity ? "gravity" : pm ? (H ? (H.noPump ? "no pump" : H.head) : "—") : f(x.P0, 1)}</td><td className="n">{f(x.minMargin, 1)}</td><td>{x.ok ? <span className="status-chip pass">OK</span> : <span className="status-chip blocked">Review</span>}</td></tr>; })}</tbody></table></div>
   </div>;
 }
 function WsNetworksSheet({pump, res}) {
@@ -16093,8 +16226,35 @@ function WsNetworksSheet({pump, res}) {
     <tr><td colSpan={9} className="cs-sec" style={{padding:"6px 10px"}}>NETWORKS SUMMARY — {String(pump.name || "Water supply pipe sizing").toUpperCase()}</td></tr>
     <tr><td colSpan={9} style={{padding:"6px 10px", fontSize:10}}>{w.networks.length} independent networks on one drawing. Each is sized, checked and pumped on its own; its sheet follows. Pipe IDs and node names are unique across the drawing.</td></tr>
     <tr><td colSpan={9} style={{padding:"2px 6px 8px"}}><table className="nsum"><thead><tr><th>Network</th><th>Supply</th><th>Pipes</th><th>Fixtures</th><th>{w.dem.unit}</th><th>Peak flow (L/s)</th><th>{pm ? "Pump head (m)" : "Supply pressure (m)"}</th><th>Critical node</th><th>Min margin (m)</th><th>Status</th></tr></thead>
-      <tbody>{w.networks.map(n => { const x = n.w, H = n.res.pumpHead; return <tr key={n.id}><td style={{textAlign:"left"}}><b>{n.name}</b></td><td>{n.id}</td><td>{x.nSec}</td><td>{f(x.totN, 0)}</td><td>{f(x.totLU, 0)}</td><td>{f(x.Qsrc, 2)}</td><td>{pm ? (H ? (H.noPump ? "no pump" : H.head + (H.duty ? " · " + H.duty + "D" + (H.standby ? "+" + H.standby + "S" : "") : "")) : "—") : f(x.P0, 1)}</td><td>{x.crit ? x.crit.node : "—"}</td><td>{f(x.minMargin, 1)}</td><td>{x.ok ? "OK" : "REVIEW"}</td></tr>; })}</tbody></table></td></tr>
+      <tbody>{w.networks.map(n => { const x = n.w, H = n.res.pumpHead; return <tr key={n.id}><td style={{textAlign:"left"}}><b>{n.name}</b></td><td>{n.id}</td><td>{x.nSec}</td><td>{f(x.totN, 0)}</td><td>{f(x.totLU, 0)}</td><td>{f(x.Qsrc, 2)}</td><td>{x.gravity ? "gravity, no pump" : pm ? (H ? (H.noPump ? "no pump" : H.head + (H.duty ? " · " + H.duty + "D" + (H.standby ? "+" + H.standby + "S" : "") : "")) : "—") : f(x.P0, 1)}</td><td>{x.crit ? x.crit.node : "—"}</td><td>{f(x.minMargin, 1)}</td><td>{x.ok ? "OK" : "REVIEW"}</td></tr>; })}</tbody></table></td></tr>
   </tbody></table></section>;
+}
+// v1.121: Results card of a network fed by gravity from a tank
+function WsGravityCard({title, water}) {
+  const G = water && water.gravity; if (!G) return null;
+  const f1 = v => Number(v).toFixed(1), bar = v => (v/WS_BAR).toFixed(1), at = r => r.node + (r.lvl ? " · " + r.lvl : ""), cr = water.crit;
+  const tile = (cls, label, big, small) => <div className={cls}><span>{label}</span><b>{big}</b>{small && <i>{small}</i>}</div>;
+  const idle = G.prvs.filter(q => !q.on);
+  return (
+    <div className="wp-card">
+      <div className="wp-h"><b>{title || "Gravity supply"}</b><span>fed by gravity from the tank, no pump — the water level and the node levels give the pressure</span></div>
+      <div className="wp-src">Tank outlet {G.root} at EL {f1(G.zOut)} m · low water level {Number(G.low).toFixed(2)} m above it (peak flow) · top water level {G.top != null ? Number(G.top).toFixed(2) + " m (no flow)" : "not entered, the low level is used"} — <b>change these on Setup</b></div>
+      <div className="wp-res">
+        {tile("", "Peak flow", `${water.Qsrc.toFixed(2)} L/s`, `${water.totN.toFixed(0)} fixtures · ${water.totLU.toFixed(0)} ${water.dem.unit}`)}
+        {cr && tile(cr.margin >= -1e-9 ? "wp-ok" : "wp-key", "Lowest margin", `${cr.margin >= 0 ? "+" : ""}${f1(cr.margin)} m`, `${cr.node}${G.hi && G.hi.node === cr.node && G.hi.lvl ? " · " + G.hi.lvl : ""} · ${f1(cr.res)} m at peak flow, ${f1(cr.req)} m needed`)}
+        {G.hi && G.hi.node !== (cr && cr.node) && tile("", "Highest fixture", `${f1(G.hi.dyn)} m`, `${at(G.hi)} · at peak flow`)}
+        {G.lo && tile("", "Lowest fixture, no flow", `${f1(G.lo.st)} m`, `${at(G.lo)} · ${bar(G.lo.st)} bar`)}
+        {tile(G.need.length ? "wp-key" : "wp-ok", "PRVs", G.need.length ? `${G.need.length} needed` : G.prvs.length ? `${G.prvs.length} in place` : "None needed", G.need.length ? "on " + G.need.map(q => q.lvl).join(", ") : G.prvs.length ? G.prvs.map(q => `${q.tag} · ${f1(q.set)} m`).join(" · ") : `no fixture above ${f1(G.lim)} m with no flow`)}
+      </div>
+      <ul className="wp-notes">
+        <li>The network is checked at the low water level: a fixture below its required pressure is a failure, as with a known supply pressure. The static check uses the top water level.</li>
+        <li>Static pressure limit {f1(G.lim)} m ({bar(G.lim)} bar){G.limDef ? " — the usual ceiling at a draw-off, used because no maximum fixture pressure is set on Setup" : " — the maximum fixture pressure set on Setup"}. A floor above it needs a PRV on the branch that feeds it; the PRV holds its set pressure at peak flow and with no flow.</li>
+        {G.need.length > 0 && <li className="wp-bad">PRV needed: {G.need.map(q => `${q.lvl} (${f1(q.st)} m, ${bar(q.st)} bar)`).join(" · ")}. Select the floor branch, add a PRV item and type its set pressure.</li>}
+        {G.prvs.length > 0 && <li>PRVs on this network: {G.prvs.map(q => `${q.tag} on ${q.id}${q.lvl ? " (" + q.lvl + ")" : ""} set ${f1(q.set)} m (${bar(q.set)} bar)${q.on ? ", regulating at peak flow" : ", idle at peak flow"}`).join(" · ")}.</li>}
+        {idle.length > 0 && <li className="wp-bad">{idle.map(q => q.tag + " on " + q.id).join(", ")}: less than the set pressure reaches {idle.length > 1 ? "them" : "it"} at peak flow, so {idle.length > 1 ? "they do" : "it does"} nothing then. Lower the set pressure or move the PRV down.</li>}
+        <li>Not included: tank refill flow, fire flow and the outlet entry loss at the tank. The flow is a probable peak.</li>
+      </ul>
+    </div>);
 }
 function WsPumpDuty({pump, uu, canCreate, onCreate, onOpen, water, title}) {
   const cfg = {suction:"", suctionUnit:"m", other:"", duty:1, standby:1, flowSafety:"", ...(pump.wsPump || {})};
@@ -16602,7 +16762,7 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
                 : <input type="number" inputMode="decimal" value={s.len ?? ""} onChange={e => setLenV(i, e.target.value)} onWheel={e => e.currentTarget.blur()} className={!(Number(gs.len) > 0) ? "bad r" : "r"} title={s.ori === "h" ? "Horizontal length" : "Vertical length (rise or drop)"} />}</span>
               <select value={String(s.od ?? "")} onChange={e => setNet(i, {od:e.target.value})} title={"Pipe size (outside diameter). Auto = the calculation chooses the smallest size that meets the velocity and friction limits" + (x && !x.noSize && x.ovr === null ? " — it chose " + wsSizeTxt(x.pipe) : "")}><option value="">{x && !x.noSize && x.ovr === null ? `Auto · ${drainM ? "DN" + x.pipe.od : wsSizeTxt(x.pipe)}` : "Auto"}</option>{tbl.map(c => <option key={c.od} value={String(c.od)}>{drainM ? "DN" + c.od : wsSizeTxt(c)}</option>)}</select>
               {drainM && (s.cls === "vent" || (x && x.dr.vert) ? <span className="r" title="A vertical pipe has no gradient" style={{color:"#9aa7b8"}}>—</span> : <input type="number" inputMode="decimal" className="r" value={s0.grad ?? ""} placeholder={x && x.dr.grad > 0 ? drGradTxt(x.dr.grad) : "auto"} onClick={e => e.stopPropagation()} onChange={e => setNet(i, {grad:e.target.value})} title="Design gradient of this pipe in %. Blank = automatic, from its nominal size (Setup → Design gradient). Type a value to override it." />)}
-              {drainM && (s.cls === "vent" ? <span /> : <select value={s0.svcTag || ""} onClick={e => e.stopPropagation()} onChange={e => setNet(i, {svcTag:e.target.value})} title="Soil = blackwater (WCs, urinals); Waste = greywater (everything else). System IV keeps them on separate stacks. Auto = from the appliances." style={s0.svcTag ? {color:"#fff", background:s0.svcTag === "soil" ? "#8a5a2b" : "#2f6f9f", fontWeight:700} : {}}><option value="">Auto</option><option value="soil">Soil</option><option value="waste">Waste</option></select>)}}
+              {drainM && (s.cls === "vent" ? <span /> : <select value={s0.svcTag || ""} onClick={e => e.stopPropagation()} onChange={e => setNet(i, {svcTag:e.target.value})} title="Soil = blackwater (WCs, urinals); Waste = greywater (everything else); Kitchen waste can only join soil/waste beyond a grease interceptor; Parking (car park drainage) can only join soil/waste beyond an oil interceptor. System IV keeps them apart. Auto = from the appliances." style={s0.svcTag ? {color:"#fff", background:WS_SVC_COL[s0.svcTag] || "#2f6f9f", fontWeight:700} : {}}><option value="">Auto</option><option value="soil">Soil</option><option value="waste">Waste</option><option value="kitchen">Kitchen waste</option><option value="parking">Parking (car park)</option></select>)}}
               <button type="button" className={"ws-load" + (ld.text ? "" : " empty") + (open ? " on" : "")} title={ld.text ? "Connected at " + s.to + ": " + ld.text + " — click to edit" : "Nothing connected at " + s.to + " — click to add fixtures"} onClick={e => { e.stopPropagation(); setLoadOpen(open ? null : s.id); }}>{ld.text || "＋ add"}</button>
               <span className={"ws-res1 " + (x ? (okx ? "ok" : "bad") : "")} title={x ? `${x.pipe.od} mm OD / ${x.pipe.id} mm ID · Σ ${x.LU.toFixed(1)} ${w.dem.unit} · ${wsQV(w, x.Qd).toFixed(3)} ${wsQU(w)} · ${x.v.toFixed(2)} m/s · ${x.grad.toFixed(0)} Pa/m${w.gasMode ? ` · ${x.Pto.toFixed(1)} mbar` : ""}\n${x.why.t}` : ""}>{x ? drainM ? <><b>DN{x.pipe.od}</b> · {x.Qd.toFixed(2)} L/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : null}</> : <><b>{x.pipe.od}</b> mm · {x.v.toFixed(2)} m/s {okx ? "✓" : "⚠"}{x.ovr !== null ? <i className="ws-flag man" title="Manual size"> M</i> : x.bump > 0 ? <i className="ws-flag up" title="Upsized for pressure"> ↑</i> : null}{x.eqItems && x.eqItems.length ? <i className="ws-eqc" title={x.eqItems.map(q => q.tag || WS_EQ[q.type].ab).join(", ")}> ⚙{x.eqItems.length}</i> : null}</> : "—"}</span>
               <button type="button" className="cfe-x" onClick={e => { e.stopPropagation(); delNet(i); }} title="Remove pipe">✕</button>
@@ -16629,10 +16789,10 @@ function WaterForm({pump, onChange, sel, setSel, canCreate, onCreateBooster, onO
         : drainM && w ? <DrainResults pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} sel={sel} />
         : w && <>
           {w.networks && <WsNetworksSummary w={w} pick={pick} />}
-          {w.pumpMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
+          {w.pumpMode && onCreateBooster && (w.networks ? w.networks.map(n => n.w.gravity ? <WsGravityCard key={n.id} title={`Gravity supply — ${n.name}`} water={n.w} /> : <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
           <WsDesignReview pump={pump} res={res} w={w} pick={pick} selIs={selIs} uu={uu} />
           {sel && (sel.kind === "sec" || sel.kind === "node") && <><div className="ws-res-title">Selected {sel.kind === "sec" ? "pipe" : "node"} — full calculation</div><WsPipeDetail pump={pump} w={w} sel={sel} pick={pick} /></>}
-          {!w.pumpMode && !w.gasMode && !w.fuelMode && onCreateBooster && (w.networks ? w.networks.map(n => <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
+          {!w.pumpMode && !w.gasMode && !w.fuelMode && onCreateBooster && (w.networks ? w.networks.map(n => n.w.gravity ? <WsGravityCard key={n.id} title={`Gravity supply — ${n.name}`} water={n.w} /> : <WsPumpDuty key={n.id} title={`Pump duty — ${n.name}`} pump={n.pump} uu={o => netCfgSet(n.id, o)} water={n.w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />) : <WsPumpDuty pump={pump} uu={uu} water={w} canCreate={canCreate !== false} onCreate={onCreateBooster} onOpen={onOpenPump} />)}
           <div className="gi-res">
             <div title="Loading units at the source = fixtures + direct loads"><span>{w.gasMode ? "Connections" : "Loading units"}</span><b>{w.totLU.toFixed(0)} {w.dem.unit}</b><small className="gi-sub">{w.fixLU.toFixed(0)} from {w.totN.toFixed(0)} fixtures{w.directLU > 0 ? ` + ${w.directLU.toFixed(0)} direct` : ""}</small></div>
             <div><span>{w.gasMode ? "Diversified flow" : "Peak flow at source"}</span><b>{wsQV(w, w.Qsrc).toFixed(2)} {wsQU(w)}</b></div>
@@ -16705,7 +16865,7 @@ function EqChip({pump, secId, it, edit}) {
 }
 // ─── WATER SUPPLY — editor for the selected pipe or node (used on the Drawing and the Schematic) ───────────
 function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDetail, lvls}) {
-  const [fxPick, setFxPick] = useState(""), [fxQty, setFxQty] = useState(1);
+  const [fxPick, setFxPick] = useState(""), [fxQty, setFxQty] = useState(1), [chPick, setChPick] = useState(""), [chQty, setChQty] = useState(1);
   const C = WS_COL, nm = wsNodeMap(pump), nodesArr = Array.isArray(pump.wsNodes) ? pump.wsNodes : [], net = Array.isArray(pump.wsNet) ? pump.wsNet : [], fix = Array.isArray(pump.wsFix) ? pump.wsFix : [];
   const flash = flashIn || (() => {});
   const outBy = {}; if (w) w.out.forEach(x => { outBy[x.id] = x; });
@@ -16721,6 +16881,7 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
   const selNode = sel && sel.kind === "node" ? nm[sel.id] || (wsAllNodeIds(pump).includes(sel.id) ? {id:sel.id} : null) : null, selSec = sel && sel.kind === "sec" ? net.find(s => s.id === sel.id) : null;
   const fed = selNode && w ? w.out.find(x => x.to === selNode.id) : null;
   const setN = (id, o) => { const val = Object.fromEntries(Object.entries(o).map(([k, v]) => [k, v === "" ? "" : Number(v)])); const has = nodesArr.some(n => n.id === id); edit({wsNodes: has ? nodesArr.map(n => n.id === id ? {...n, ...val} : n) : [...nodesArr, {id, x:"", y:"", z:"", ...val}]}); };
+  const setN2Eq = (id, fn) => { const has = nodesArr.some(n => n.id === id); edit({wsNodes: has ? nodesArr.map(n => n.id === id ? {...n, eq:fn(Array.isArray(n.eq) ? n.eq : [])} : n) : [...nodesArr, {id, x:"", y:"", z:"", eq:fn([])}]}); };
   const setS = (id, o) => edit({wsNet:net.map(s => s.id === id ? {...wsNorm(s), ...o} : s)});
   const secGeo = selSec ? wsGeo(wsNorm(selSec), nm) : null, o = selSec ? outBy[selSec.id] : null, matK = selSec ? resolveMatKey((((pump.wsCls || {})[selSec.cls] || WS_CLS_DEFAULT[selSec.cls] || {}).pipeType)) : null, sizes = wsIsDrain(pump) ? drSizesOf(pump) : matK && PIPE_MATERIALS[matK] ? PIPE_MATERIALS[matK].table : [];
   const fixHere = selNode ? fix.map((f, i) => ({f, i})).filter(x => x.f.node === selNode.id) : [];
@@ -16745,6 +16906,11 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           <input className="nc-q r" type="number" min="1" value={fxQty} onChange={e => setFxQty(e.target.value)} title="Quantity" />
           <button type="button" className="nc-c" disabled={!fxPick} onClick={() => { edit({wsFix:[...fix, {level:wsLvNodeLabel(lvls, selNode) || "", room:"", fixture:fxPick, node:selNode.id, qty:Number(fxQty) || 1}]}); setFxPick(""); }}>Add</button>
           {hasLoad(selNode.id) && !fed && <span className="nc-ih">{(+(luAt[selNode.id] || 0).toFixed(1))} {unit}{qAt[selNode.id] ? ` + ${qAt[selNode.id]} ${QU}` : ""} at this node</span>}</div>}
+        {selNode && wsIsDrain(pump) && !wsIsStormNet(pump) && <div className="nc-r2"><span className="nc-l">Equipment</span>{(Array.isArray(selNode.eq) ? selNode.eq : []).map((e, i) => <span key={i} className="nc-eq fx eqc"><button type="button" className="x st" onClick={() => setN2Eq(selNode.id, (Number(e.qty) || 0) > 1 ? (arr => arr.map((q, j) => j === i ? {...q, qty:(Number(q.qty) || 0) - 1} : q)) : (arr => arr.filter((_, j) => j !== i)))} title="One less (the last one removes the row)">−</button><b>{e.qty}×</b><button type="button" className="x st" onClick={() => setN2Eq(selNode.id, arr => arr.map((q, j) => j === i ? {...q, qty:(Number(q.qty) || 0) + 1} : q))} title="One more">+</button><em>{(DRAIN_CHAMBERS.find(c => c.k === e.type) || {l:e.type}).l}</em><button type="button" className="x" onClick={() => setN2Eq(selNode.id, arr => arr.filter((_, j) => j !== i))} title="Remove">✕</button></span>)}
+          <select className="nc-fx" value={chPick} onChange={e => setChPick(e.target.value)}><option value="">＋ Add equipment…</option>{DRAIN_CHAMBERS.map(c => <option key={c.k} value={c.k}>{c.l}</option>)}</select>
+          <input className="nc-q r" type="number" min="1" value={chQty} onChange={e => setChQty(e.target.value)} title="Quantity" />
+          <button type="button" className="nc-c" disabled={!chPick} onClick={() => { setN2Eq(selNode.id, arr => [...arr, {type:chPick, qty:Number(chQty) || 1}]); setChPick(""); }}>Add</button>
+          <span className="nc-ih">A schedule item at this node — a gully trap and a manhole can sit on different nodes along the same run; the check looks down the drain to the outfall for each one.</span></div>}
         {selSec && <div className="nc-r1"><b className="nc-it" style={{color:C[selSec.cls]}}>{selSec.id}</b>
           <select className="nc-sel" value={selSec.cls} style={{color:C[selSec.cls], fontWeight:700}} title={selSec.clsAuto === true ? "Set by the drawing rule: a run from the supply is a Main, other vertical runs are Risers, the rest Branches. Choose another class to override it." : selSec.clsAuto === false ? "Set by you" : ""} onChange={e => setS(selSec.id, {cls:e.target.value, od:"", clsAuto:false})}>{wsClassesOf(pump).map(c => <option key={c.k} value={c.k}>{c.l}</option>)}</select>
           {selSec.clsAuto === false && wsEdPlaced(pump) && <button type="button" className="nc-c" title="Give the class back to the drawing rule" onClick={() => edit(wsEdSetAuto(pump, selSec.id).patch)}>↺ Auto</button>}
@@ -16754,9 +16920,11 @@ function NetInspector({pump, w, sel, setSel, edit, locked, flash: flashIn, onDet
           <label className="nc-f"><span>Length m</span><CommitInput type="number" cls="r" value={secGeo.geo ? +secGeo.len.toFixed(2) : (selSec.len ?? "")} title={secGeo.geo ? "The distance between the two nodes — type a length to move the end node (and everything downstream)" : ""} onCommit={v => { if (v === "") return; if (secGeo.geo) { const r = wsSetPipeGeom(pump, selSec.id, {len:v}); if (r) edit(r); } else setS(selSec.id, {len:v}); }} /></label>
           {!wsIsDrain(pump) && <label className="nc-f"><span>Extra loss m</span><CommitInput type="number" cls="r" value={selSec.loss ?? ""} onCommit={v => setS(selSec.id, {loss:v})} placeholder="—" /></label>}
           <label className="nc-f"><span>Size</span><select value={String(selSec.od ?? "")} onChange={e => setS(selSec.id, {od:e.target.value})}><option value="">Auto{o ? ` · ${wsIsDrain(pump) ? "DN" + o.pipe.od : o.pipe.od + " mm"}` : ""}</option>{sizes.map(c => <option key={c.od} value={String(c.od)}>{wsIsDrain(pump) ? "DN" + c.od : c.od + " mm"}</option>)}</select></label>
+          {wsIsDrain(pump) && selSec.cls === "vent" && <label className="nc-f chk" title="Switches this vent pipe off: it is left out of the drawing and the calculation entirely, as if it were not there. Switch it back on to restore it."><span>Off</span><input type="checkbox" checked={!!selSec.off} onChange={e => setS(selSec.id, {off:e.target.checked})} /></label>}
           {wsIsDrain(pump) && !wsIsStormNet(pump) && selSec.cls !== "vent" && <label className="nc-f" title="Frequency factor K of this pipe: Qww = K √ΣDU. Blank = the project K on Setup (use it where the calculation sheet uses another K for this pipe)"><span>K</span><CommitInput type="number" cls="r" value={selSec.k ?? ""} onCommit={v => setS(selSec.id, {k:v})} placeholder={String(pump.drK ?? "")} /></label>}
           {wsIsDrain(pump) && selSec.cls !== "vent" && !(o && o.dr.vert) && <label className="nc-f" title="Blank = automatic, from the nominal size of this horizontal pipe (Setup → Design gradient)"><span>Gradient %</span><CommitInput type="number" cls="r" value={selSec.grad ?? ""} onCommit={v => setS(selSec.id, {grad:v})} placeholder={o && o.dr.grad > 0 ? drGradTxt(o.dr.grad) : "auto"} /></label>}
-          {wsIsDrain(pump) && !wsIsStormNet(pump) && selSec.cls !== "vent" && <label className="nc-f" title="Soil = blackwater (WCs and urinals); Waste = greywater (everything else). System IV keeps soil and waste on separate stacks. Auto takes the service from the appliances connected."><span>Service</span><select className="nc-sel" value={selSec.svcTag || ""} onChange={e => setS(selSec.id, {svcTag:e.target.value})}><option value="">Auto</option><option value="soil">Soil (black)</option><option value="waste">Waste (grey)</option></select></label>}
+          {wsIsDrain(pump) && !wsIsStormNet(pump) && selSec.cls !== "vent" && <label className="nc-f" title="Soil = blackwater (WCs and urinals); Waste = greywater (everything else); Kitchen waste can only join soil/waste beyond a grease interceptor; Parking (car park drainage) can only join soil/waste beyond an oil interceptor. System IV keeps them apart. Auto takes the service from the appliances connected."><span>Service</span><select className="nc-sel" value={selSec.svcTag || ""} onChange={e => setS(selSec.id, {svcTag:e.target.value})}><option value="">Auto</option><option value="soil">Soil (black)</option><option value="waste">Waste (grey)</option><option value="kitchen">Kitchen waste</option><option value="parking">Parking (car park)</option></select></label>}
+          {wsIsDrain(pump) && !wsIsStormNet(pump) && (selSec.cls === "main" || selSec.cls === "branch") && <label className="nc-f" title="Overrides the Setup default for this one pipe (Setup → Design gradient → Pipe material)."><span>Material</span><select className="nc-sel" value={selSec.mat || ""} onChange={e => setS(selSec.id, {mat:e.target.value})}>{DRAIN_MATERIALS.map(m => <option key={m.k} value={m.k}>{m.k ? m.l : `Setup default (${o && o.dr.mat ? drMatOf(o.dr.mat).l : "project kb"})`}</option>)}</select></label>}
           {o && <span className={"nc-res " + (o.ok && !o.noSize ? "ok" : "bad")}>{wsIsDrain(pump) ? (o.cls === "vent" ? <>Vent · air path — no gravity capacity calculated</> : <>{wsIsStormNet(pump) ? "" : `Σ ${+o.LU.toFixed(1)} DU · `}{o.Qd.toFixed(2)} L/s · {o.cls === "main" || (wsIsStormNet(pump) && o.cls === "branch") ? drPct(o.dr.fill) + " full" : drPct(o.dr.util) + " of " + o.dr.cap.toFixed(1)} {o.ok ? "✓" : "⚠"}</>) : <>Σ {+o.LU.toFixed(1)} {unit} · {o.Qd.toFixed(2)} {QU} · {o.v.toFixed(2)} m/s {o.ok && !o.noSize ? "✓" : "⚠"}</>}</span>}
           <span style={{flex:1}} />{onDetail && <button type="button" className="nc-c" onClick={onDetail} title="Open this pipe's full calculation on the Results tab">ⓘ Full calculation</button>}<button type="button" className="nc-c bad" onClick={delSel}>Delete</button></div>}
         {selSec && !wsIsDrain(pump) && <div className="nc-r2"><span className="nc-l">Equipment</span>{(selSec.eq || []).filter(it => WS_EQ[it.type]).map(it => <EqChip key={it.id} pump={pump} secId={selSec.id} it={it} edit={edit} />)}
@@ -17282,12 +17450,13 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
     const a = pos(s.from), b = pos(s.to); if (!a || !b) return null;
     const [x1, y1] = PP(a), [x2, y2] = PP(b), mk = marks.sec[s.id], bad = !!mk && mk.sev === "error", isSkew = skew.has(s.id) || (!!drag && !drag.copy && !!drag.set && (drag.set.includes(s.from) !== drag.set.includes(s.to))), on = !!sel && sel.kind === "sec" && sel.id === s.id, inM = inMulti.has(s.from) && inMulti.has(s.to);
     const rb = cbyOn ? (outById[s.id] ? wsResBand(water, outById[s.id], colorBy, pump.maxFixP) : WS_BAND_NONE) : null, col = rb ? rb.c : bad ? WS_COL.bad : (water && water.drainMode ? wsPipeCol(water, outById[s.id] || {cls:s.cls, dr:{svcTag:s.svcTag}}) : ((wsSvcCol(pump) && (s.cls === "main" || s.cls === "riser" || s.cls === "branch") ? wsSvcCol(pump) : null) || WS_COL[s.cls] || "#555")), w = (s.cls === "main" ? 5 : s.cls === "riser" ? 4 : 2.8)*wK, mx = (x1 + x2)/2, my = (y1 + y2)/2, L = Math.hypot(x2 - x1, y2 - y1) || 1, ux = (x2 - x1)/L, uy = (y2 - y1)/L, vert = Math.abs(uy) > 0.7, fdv = water && water.drainMode ? -1 : 1, dux = ux*fdv, duy = uy*fdv;
-    return <g key={s.id}>
+    return <g key={s.id} opacity={s.off ? .35 : 1}>
       {netInfo.sec[s.id] && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={netInfo.sec[s.id]} strokeOpacity=".22" strokeWidth={w + Math.max(4, 8*wK)} strokeLinecap="round" />}
       {critOn && cr.ids.has(s.id) && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={WS_COL.crit} strokeWidth={w + Math.max(6, 11*wK)} strokeLinecap="round" />}
       {(on || inM) && <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#007aff" strokeOpacity=".28" strokeWidth={w + Math.max(6, 11*wK)} strokeLinecap="round" />}
-      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={col} strokeWidth={w} strokeLinecap="round" strokeDasharray={isSkew && !wsIsGas(pump) ? "7 4" : undefined} />
-      {L > 26 && <path d={`M${mx + dux*6},${my + duy*6} L${mx - dux*5 - duy*4.5},${my - duy*5 + dux*4.5} L${mx - dux*5 + duy*4.5},${my - duy*5 - dux*4.5}z`} fill={col} stroke="#fff" strokeWidth="1" />}
+      <line x1={x1} y1={y1} x2={x2} y2={y2} stroke={s.off ? "#9aa7b8" : col} strokeWidth={w} strokeLinecap="round" strokeDasharray={s.off ? "3 3" : isSkew && !wsIsGas(pump) ? "7 4" : undefined} />
+      {L > 26 && !s.off && <path d={`M${mx + dux*6},${my + duy*6} L${mx - dux*5 - duy*4.5},${my - duy*5 + dux*4.5} L${mx - dux*5 + duy*4.5},${my - duy*5 - dux*4.5}z`} fill={col} stroke="#fff" strokeWidth="1" />}
+      {s.off && <text x={mx} y={my - 6} textAnchor="middle" fontSize="9" fontWeight="800" fill="#9aa7b8">OFF</text>}
       {lay.sec[s.id] && <text x={lay.sec[s.id].x} y={lay.sec[s.id].y} textAnchor={lay.sec[s.id].a} className="wd-t" fill={bad ? WS_COL.bad : "#33415c"}>{lay.sec[s.id].t}</text>}
     </g>;
   });
@@ -17304,7 +17473,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
       {SY ? <g dangerouslySetInnerHTML={{__html:wsSymSvg(SY.k, x, y, bad ? WS_COL.bad : isSup ? (netInfo.root[n.id] || WS_COL.root) : "#33415c", dotK)}} />
         : isSup ? <rect x={x - 6} y={y - 6} width={12} height={12} rx={2} fill={bad ? WS_COL.bad : (netInfo.root[n.id] || WS_COL.root)} stroke="#fff" strokeWidth="1.5" />
         : <circle cx={x} cy={y} r={(fq ? 4.4 : 3.6)*dotK} fill={fq ? WS_COL.fix : "#fff"} stroke={bad ? WS_COL.bad : fq ? "#fff" : "#33415c"} strokeWidth={(bad ? 2.2 : 1.5)*dotK} />}
-      {SY && <text x={x} y={y + 21} textAnchor="middle" className="wd-sy" style={{stroke:"none"}}>{SY.c}</text>}
+      {SY && <g><rect x={x - (wsTxtW(SY.c, 9, 1)/2 + 3)} y={y + 21 - 8} width={wsTxtW(SY.c, 9, 1) + 6} height={11} rx={2.5} fill="#fff" fillOpacity=".92" /><text x={x} y={y + 21} textAnchor="middle" className="wd-sy" style={{stroke:"none"}}>{SY.c}</text></g>}
       {netInfo.name[n.id] && <text x={x + 11} y={y - 11} className="wd-nr" fill={netInfo.root[n.id]}>{netInfo.name[n.id]}</text>}
       {stacks[n.id] && stacks[n.id].first && <g><title>{`${stacks[n.id].n} nodes on this point: ${stacks[n.id].ids.join(", ")} — click again (Select) or press Tab (drawing) to choose`}</title><circle cx={x + 9} cy={y - 9} r={7} fill="#e07a1f" stroke="#fff" strokeWidth="1.2" /><text x={x + 9} y={y - 5.8} textAnchor="middle" fontSize="9" fontWeight="800" fill="#fff" style={{fontSize:"9px", stroke:"none"}}>{stacks[n.id].n}</text></g>}
       {names && lay.name[n.id] && <text x={lay.name[n.id].x} y={lay.name[n.id].y} textAnchor={lay.name[n.id].a} className="wd-n">{lay.name[n.id].t}</text>}
@@ -17405,7 +17574,7 @@ function WsDraw({pump, edit, sel, setSel, locked, water, blocks, setBlocks, init
         <button type="button" className={"nc-c" + (keyOnly ? " on" : "")} onClick={() => setKeyOnly(!keyOnly)} title="Show only junctions, ends, loads, the supply and anything selected or flagged. Bends and plain two-pipe nodes are hidden.">Key nodes</button>
         <button type="button" className={"nc-c" + (newNet ? " on" : "")} disabled={locked} onClick={() => { setNewNet(v => !v); setPend(null); }} title={wsIsDrain(pump) ? "Start a second, independent outfall: draw a run (or place a node) that is not connected to the existing network, and its start becomes a new outfall. Each outfall network is sized and checked on its own." : "Start another, independent network with its own supply: draw a pipe (or place a node) that is not connected to the existing network, and its start becomes a new supply. Every network is sized and checked on its own."}>{wsIsDrain(pump) ? "＋ Outfall" : "＋ Network"}</button>
         <button type="button" className={"nc-c" + (stackOn ? " on" : "")} disabled={locked} onClick={() => { setStackOn(v => !v); setPend(null); }} title="Put a node exactly on top of another node (a riser joint and a branch joint, or a crossing). With Stack on, a click does not snap to an existing node. Click a stacked point again with Select — or press Tab while drawing — to choose between the nodes.">Stack</button>
-        {wsIsDrain(pump) && !wsIsStormNet(pump) && <span className="wd-svc" title="The service of the pipes you draw next. Soil = blackwater (WCs and urinals); Waste = greywater (basins, sinks, showers, baths). System IV keeps soil and waste on separate stacks. Any = the stack takes its service from the appliances connected to it.">{[["", "Any"], ["soil", "Soil"], ["waste", "Waste"]].map(([k, l]) => <button key={k} type="button" className={"nc-c" + (svcTag === k ? " on" : "")} style={svcTag === k && k ? {background:k === "soil" ? "#8a5a2b" : "#2f6f9f", color:"#fff", borderColor:"transparent"} : {}} disabled={locked} onClick={() => setSvcTag(k)} title={k === "soil" ? "Soil stack — WCs and urinals only (blackwater)" : k === "waste" ? "Waste stack — everything except WCs and urinals (greywater)" : "No service set — appliances decide"}>{l === "Any" ? "Svc: Any" : l}</button>)}</span>}
+        {wsIsDrain(pump) && !wsIsStormNet(pump) && <span className="wd-svc" title="The service of the pipes you draw next. Soil = blackwater (WCs and urinals); Waste = greywater (basins, sinks, showers, baths); Kitchen waste can only join soil/waste beyond a grease interceptor; Parking (car park drainage) can only join soil/waste beyond an oil interceptor. Any = the stack takes its service from the appliances connected to it.">{[["", "Any"], ["soil", "Soil"], ["waste", "Waste"], ["kitchen", "Kitchen"], ["parking", "Parking"]].map(([k, l]) => <button key={k} type="button" className={"nc-c" + (svcTag === k ? " on" : "")} style={svcTag === k && k ? {background:WS_SVC_COL[k] || "#2f6f9f", color:"#fff", borderColor:"transparent"} : {}} disabled={locked} onClick={() => setSvcTag(k)} title={k === "soil" ? "Soil stack — WCs and urinals only (blackwater)" : k === "waste" ? "Waste stack — everything except WCs and urinals (greywater)" : k === "kitchen" ? "Kitchen waste — kitchen appliances only, until a grease interceptor" : k === "parking" ? "Parking (car park drainage) — until an oil interceptor" : "No service set — appliances decide"}>{l === "Any" ? "Svc: Any" : l}</button>)}</span>}
         <button type="button" className={"nc-c k-crit" + (critOn ? " on" : "")} disabled={!cr.node} onClick={() => setCritOn(!critOn)} title={cr.node ? `Critical route: the pipes from the supply to the critical terminal ${cr.node} (${cr.order.join(" → ")})` : "No critical route yet — the calculation needs a valid network with a fixture or direct load"}>Critical route</button>
         <button type="button" className="nc-c" onClick={() => { touched.current = false; setView(wdFit(pump, dim)); }} title="Show the whole network">Fit</button>
         <button type="button" className={"nc-c" + (ulPanel ? " on" : "")} onClick={() => setUlPanel(v => !v)} title="PDF underlay: put a riser diagram or floor plan under the drawing, scale it and align it">PDF{under.length ? ` (${under.length})` : ""}</button>
@@ -17515,7 +17684,7 @@ function WaterSidePane({pump, edit, sel, setSel, undo, redo, canUndo, canRedo, l
   const makePdf = () => { if (!pdfSch || !pdfPlan) return; const dm = w && w.drainMode, big0 = !!pdfSch.parts;
     const flow = dm && w.finalNets && w.finalNets.length ? `Design flow at the final connection ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLUFinal).toFixed(1)}` : dm ? `Design flow ${Number(w.Qsrc).toFixed(2)} L/s · ΣDU ${Number(w.totLU).toFixed(1)}` : "";
     const meta = {proj:String(projName || ""), name:String(pump.name || "Pipe sizing"), tag:String(pump.tag || ""), flow, labels:big0 ? (lbl === "off" ? "off" : lbl === "flow" ? "flow and size" : "full calculation") : "as on screen", build:BUILD_LABEL, date:rptDate(),
-      legend:big0 && dm ? [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], ["#0b4f8a", "Final connection / drain"], ["#d8332b", "Review"]] : null,
+      legend:big0 && dm ? [[WS_SVC_COL.soil, "Soil"], [WS_SVC_COL.waste, "Waste"], [WS_SVC_COL.kitchen, "Kitchen waste"], [WS_SVC_COL.parking, "Parking"], [WS_SVC_COL.sewage, "Sewage (soil + waste)"], ["#0b4f8a", "Drain"], ["#d8332b", "Review"]] : null,
       title:[projName, pump.tag || pump.name, "schematic"].filter(Boolean).join(" - ").replace(/[\\/:*?"<>|]+/g, " ").trim()};
     wsPdfPrint(wsPdfHtml(pdfSch, pdfPlan, pdfOpt, meta), meta.title); setPdfOpen(false); };
   const foldBtn = hasFold && vw === "sch" ? <button type="button" className="nc-c" onClick={() => setFold(!fold)} title="Show each floor layout as one pipe and one card that refers to the Plan view, or draw every pipe">{fold ? "Floor layouts: folded" : "Floor layouts: full"}</button> : null;
@@ -19816,6 +19985,112 @@ function wsRunSelfTest() {
         txt(rows, "The Node tool on an existing node: refused; with Stack it places a second node on the point", "refused · accepted", `${an.error ? "refused" : "accepted"} · ${an2.error ? an2.error : "accepted"}`); }
       } finally { lib.length = nLib; }
       out.push({id:"T33", name:"v1.65 — several networks in one calculation, nodes on the same point", why:"A drawing may hold several independent networks, each with its own supply (and pressure or pump). Each is solved by the unchanged single-network solver and the results are put side by side; a drawing with one supply takes exactly the old path. Nodes may share a point on purpose (warning, not error).", rows, ms:0}); }
+    // ── T100 v1.121: a network fed by gravity from a tank (no pump) next to a pumped one ──────────────────────────────────────────────────
+    { const rows = [], byId = id => WS_ST.cases.find(c => c.id === id), lib = FU_FIXTURES.__T, nLib = lib.length;
+      lib.push({name:"WC", base:"WC", occ:"", flush:"", lu:5, luHot:0, luTot:5, flow:"", minP:"", abbr:""});
+      try {
+      const N = (id, x, y, z, o) => ({id, x, y, z, ...(o || {})}), S = (id, cls, from, to, eq) => ({id, cls, ori:"h", from, to, len:0, loss:"", od:"", eq:eq || [], clsAuto:true}), F = (node, qty) => ({level:"", room:"", fixture:"WC", node, qty});
+      const mk = (nodes, net, fix, o) => { const p = {...wsSelfToPump(byId("T02").case, false), wsSource:"pump", supplyPressure:1, minResidual:10, storeyH:3.5, wsPump:{suction:3, suctionUnit:"m", other:2, duty:1, standby:1, flowSafety:""}, wsNodes:nodes, wsNet:net, wsFix:fix || [], ...(o || {})}; p.wsNet = wsEdNormalise(p).wsNet; return p; };
+      // A: pumped from the basement. B: a tank outlet at 60 m feeding a floor at 30 m and one at 3 m.
+      const nA = [N("SRC", 0, 0, 0, {supply:true}), N("A1", 10, 0, 0), N("A2", 10, 0, 3), N("A3", 14, 0, 3)], sA = [S("S01", "main", "SRC", "A1"), S("S02", "riser", "A1", "A2"), S("S03", "branch", "A2", "A3")];
+      const nB = [N("SRB", 50, 0, 60, {supply:true}), N("B1", 60, 0, 60), N("B2", 60, 0, 30), N("B3", 64, 0, 30), N("B4", 60, 0, 3), N("B5", 64, 0, 3)];
+      const sB = prv => [S("S11", "main", "SRB", "B1"), S("S12", "riser", "B1", "B2"), S("S13", "branch", "B2", "B3"), S("S14", "riser", "B2", "B4"), S("S15", "branch", "B4", "B5", prv ? [{id:"E1", type:"prv", tag:"PRV-1", mode:"prv", val:prv, qty:1}] : [])];
+      const fB = [F("B3", 4), F("B5", 4)], G = {gravity:true, tankLow:2, tankTop:3};
+      const two = (cfgB, o, prv) => mk([...nA, ...nB], [...sA, ...sB(prv)], [F("A3", 5), ...fB], {wsNetCfg:{SRB:cfgB}, ...(o || {})});
+      const sig = w => w.out.map(x => [x.id, x.pipe.od, x.Pto.toFixed(9), x.PtoS.toFixed(9), x.Qd.toFixed(9)].join(":")).join("|");
+      const r0 = calculate(two(G)), B = r0.error ? null : r0.networks[1], gB = B && B.w.gravity;
+      txt(rows, "Gravity network: the supply node gets the low water level (2 m) at peak flow and the top water level (3 m) with no flow", "calculated · 2 · 3", r0.error ? "blocked: " + r0.errors[0] : `calculated · ${B.w.P0} · ${B.w.sP0}`);
+      { const alone = calculate(mk(nB.map(n => { const {supply, ...q} = n; return q; }), sB(), fB, {wsSource:"fixed", supplyPressure:2, staticSupplyPressure:3}));
+        txt(rows, "The hydraulics are those of a known supply pressure equal to the low water level: every size, peak and static pressure identical", "identical", !B || alone.error ? "blocked" : sig(B.w) === sig(alone.water) ? "identical" : "different"); }
+      txt(rows, "Static pressure at the lowest fixture B5 (z 3) = top water level + drop = 3 + 57 = 60 m", "60.00", gB ? B.w.nodeS.B5.toFixed(2) : "—");
+      txt(rows, "No pump for the gravity network; the pumped network keeps its own pump, and the calculation stays in pump mode", "none · pump · pump mode", r0.error ? "blocked" : `${B.res.pumpHead ? "pump" : "none"} · ${r0.networks[0].res.pumpHead ? "pump" : "none"} · ${r0.water.pumpMode ? "pump mode" : "fixed"}`);
+      txt(rows, "Summary: highest fixture B3, lowest B5, the floor above 5 bar static is listed for a PRV", "B3 · B5 · 1", gB ? `${gB.hi.node} · ${gB.lo.node} · ${gB.need.length}` : "—");
+      txt(rows, "No maximum fixture pressure on Setup: one review item asks for a PRV (5 bar is used)", "1", r0.error ? "—" : String(B.w.issues.filter(i => i.code === "gravity-prv").length));
+      { const r1 = calculate(two(G, {}, 30)), b1 = r1.error ? null : r1.networks[1];
+        txt(rows, "A PRV set at 30 m on the branch to B5 holds B5 at 30 m with no flow; no PRV item is asked for and the PRV is listed", "30.00 · 0 · PRV-1", b1 ? `${b1.w.nodeS.B5.toFixed(2)} · ${b1.w.issues.filter(i => i.code === "gravity-prv").length} · ${b1.w.gravity.prvs.map(q => q.tag).join(",")}` : "blocked"); }
+      { const r1 = calculate(two(G, {maxFixP:40})), b1 = r1.error ? null : r1.networks[1];
+        txt(rows, "With a maximum fixture pressure of 40 m on Setup, the general static check reports B5 and the 5 bar item is not added twice", "yes · 0 · 40", b1 ? `${b1.w.issues.some(i => /^max-fixture-pressure/.test(i.code) && i.id === "B5") ? "yes" : "no"} · ${b1.w.issues.filter(i => i.code === "gravity-prv").length} · ${b1.w.gravity.lim}` : "blocked"); }
+      { const r1 = calculate(two(G, {minResidual:40})), b1 = r1.error ? null : r1.networks[1];
+        txt(rows, "A tank too low for the top floor fails like a known supply pressure: 40 m needed at B3 (30 m below a 2 m low level) is a pressure failure, never a pump", "fail · B3 · none", b1 ? `${b1.w.status} · ${b1.w.issues.filter(i => i.code === "pressure").map(i => i.id).join(",")} · ${b1.res.pumpHead ? "pump" : "none"}` : "blocked"); }
+      { const r1 = calculate(two({gravity:true, tankLow:""}));
+        txt(rows, "No low water level: the calculation is blocked and says what to enter", "blocked", r1.error && r1.errors.some(e => /low water level/.test(e)) ? "blocked" : "calculated"); }
+      { const r1 = calculate(two({...G, gravity:false}));
+        txt(rows, "Switched back to Pump: the network is pumped again", "pump", r1.error ? "blocked" : r1.networks[1].res.pumpHead ? "pump" : "none"); }
+      { const p1 = mk(nA.map(n => { const {supply, ...q} = n; return q; }), sA, [F("A3", 5)], {wsPump:{suction:500, suctionUnit:"m", other:2, duty:1, standby:1, flowSafety:""}}), r1 = calculate(p1);
+        txt(rows, "Pump mode with suction to spare: no pump, and the network is worked out at the suction less the other losses (498 m), not at the bare minimum", "no pump · 498.0", r1.error ? "blocked" : `${r1.pumpHead.noPump ? "no pump" : "pump"} · ${r1.water.P0.toFixed(1)}`); }
+      } finally { lib.length = nLib; }
+      out.push({id:"T100", name:"v1.121 — gravity supply from a tank, no pump", why:"A network set to Gravity tank is fed by the tank's water level: the low level at peak flow, the top level with no flow, and the node levels do the rest. It must give exactly the hydraulics of a known supply pressure, never size a pump, list the floors above the static limit for a PRV, and fail when the tank is too low for the top floor.", rows, ms:0}); }
+    // ── T101 v1.123: soil / waste / kitchen-waste junctions need the matching chamber (equipment, not a symbol); drainage pipe material sets kb
+    { const rows = [], keepFx = FU_FIXTURES.en12056_s4, keepDrain = DRAIN;
+      const R = (name, du, svc, wc) => ({name, base:name, occ:"", flush:"", abbr:"", lu:du, luHot:"", luTot:"", flow:"", minP:"", svc:svc || "grey", wc:!!wc});
+      FU_FIXTURES.en12056_s4 = [R("Z_WC", 2.0, "black", 1), R("Z_WHB", 0.5, "grey", 0), R("Z_KS", 0.8, "grey", 0)];
+      try {
+        const N = (id, x, y, z, s, eq) => ({id, x, y, z, ...(s ? {supply:true} : {}), ...(eq ? {eq} : {})}), S = (id, cls, f, t, e) => ({id, cls, ori:"h", from:f, to:t, len:0, loss:"", od:"", eq:[], clsAuto:false, ...(e || {})}), F = (nd, fx, q) => ({level:"", room:"", fixture:fx, node:nd, qty:q});
+        const mk = (nodes, net, fix, ex) => ({...DEFS.drain, id:9005, wsNodes:nodes, wsNet:net, wsFix:fix, drSvc:"enforce", drStackEntry:"swept", drVentType:"primary", ...(ex || {})});
+        const run = p => { const r = calculate(p); return r.error ? {error:r.errors.join(" | ")} : r.water; }, hasF = (w, code) => w.issues.some(i => i.code === code && i.sev === "fail");
+        const C = t => [{type:t, qty:1}];
+        // a soil stack and a waste stack joining at a junction node before the outfall — the waste side has an extra untagged hop (Mb) before its own tagged
+        // riser, to prove the check looks down the whole branch, not just at the pipe touching the junction. The gully trap and manhole are equipment, and
+        // can sit on different nodes further down the drain, not necessarily the junction itself (eqJ = at the junction, eqOut = at the outfall node).
+        const junc = (eqJ, eqOut) => { const nodes = [N("OUT", -8, 0, -2, true, eqOut), N("J", -4, 0, -2, false, eqJ), N("Sa", 0, 0, 0), N("Fa", 0, 0, 3), N("Aa", 3, 0, 3), N("Mb", 4, 0, -2), N("Sb", 4, 0, 0), N("Fb", 4, 0, 3), N("Ab", 7, 0, 3)];
+          const net = [S("D0", "main", "OUT", "J"), {...S("STa0", "riser", "J", "Sa", {svcTag:"soil"}), ori:"up"}, {...S("STa1", "riser", "Sa", "Fa"), ori:"up"}, S("BRa", "branch", "Fa", "Aa"),
+            S("Dmb", "main", "J", "Mb"), {...S("STb0", "riser", "Mb", "Sb", {svcTag:"waste"}), ori:"up"}, {...S("STb1", "riser", "Sb", "Fb"), ori:"up"}, S("BRb", "branch", "Fb", "Ab")];
+          return run(mk(nodes, net, [F("Aa", "Z_WC", 1), F("Ab", "Z_WHB", 1)])); };
+        txt(rows, "Soil and waste join with no chamber equipment anywhere on the drain: a failure asking for a gully trap and manhole", "fail", hasF(junc(), "gt-mh-required") ? "fail" : "pass");
+        txt(rows, "A gully trap at the junction alone is still a failure (needs both)", "fail", hasF(junc(C("gt")), "gt-mh-required") ? "fail" : "pass");
+        txt(rows, "…with a gully trap AND a manhole both at the junction, it passes", "pass", hasF(junc([...C("gt"), ...C("mh")]), "gt-mh-required") ? "fail" : "pass");
+        txt(rows, "The gully trap at the junction and the manhole further down at the outfall — two separate chambers — also passes", "pass", hasF(junc(C("gt"), C("mh")), "gt-mh-required") ? "fail" : "pass");
+        // a kitchen waste branch joining a waste stack directly at the same node, vs with a grease interceptor there
+        const kwJoin = (eq) => { const nodes = [N("OUT", -8, 0, -2, true), N("B0", 0, 0, -2, false, eq), N("S0", 0, 0, 0), N("F1", 0, 0, 3), N("A1", 3, 0, 3), N("K1", 4, 0, 3)];
+          const net = [S("D1", "main", "OUT", "B0"), {...S("ST0", "riser", "B0", "S0", {svcTag:"waste"}), ori:"up"}, {...S("ST1", "riser", "S0", "F1"), ori:"up"}, S("BR1", "branch", "F1", "A1"),
+            S("KB", "branch", "B0", "K1", {svcTag:"kitchen"})];
+          return run(mk(nodes, net, [F("A1", "Z_WHB", 1), F("K1", "Z_KS", 1)])); };
+        txt(rows, "Kitchen waste joining a waste stack with no grease interceptor equipment: a failure", "fail", hasF(kwJoin(), "gi-required") ? "fail" : "pass");
+        txt(rows, "…with a Grease interceptor added as equipment at the join, it passes", "pass", hasF(kwJoin(C("gi")), "gi-required") ? "fail" : "pass");
+        txt(rows, "The chamber schedule lists the equipment by node", "B0 · Grease interceptor · 1", (() => { const w = kwJoin(C("gi")); return w.error ? "error" : w.drain.chambers.map(c => `${c.node} · ${c.label} · ${c.qty}`).join(", "); })());
+        // the grease interceptor treats the kitchen flow before it mixes in, so (unlike the gully trap / manhole) it must sit at the junction or further
+        // UP the kitchen branch toward its own fixtures — never downstream, where the kitchen waste has already mixed into the combined drain
+        const kwJoinUp = (eqAt) => { const nodes = [N("OUT", -8, 0, -2, true, eqAt === "out" ? C("gi") : null), N("B0", 0, 0, -2), N("S0", 0, 0, 0), N("F1", 0, 0, 3), N("A1", 3, 0, 3), N("KM", 2, 0, -2, false, eqAt === "branch" ? C("gi") : null), N("K1", 4, 0, 3)];
+          const net = [S("D1", "main", "OUT", "B0"), {...S("ST0", "riser", "B0", "S0", {svcTag:"waste"}), ori:"up"}, {...S("ST1", "riser", "S0", "F1"), ori:"up"}, S("BR1", "branch", "F1", "A1"),
+            S("KB", "branch", "B0", "KM", {svcTag:"kitchen"}), S("KB2", "branch", "KM", "K1", {svcTag:"kitchen"})];
+          return run(mk(nodes, net, [F("A1", "Z_WHB", 1), F("K1", "Z_KS", 1)])); };
+        txt(rows, "A grease interceptor further up the kitchen branch, between its sink and the junction, also satisfies it", "pass", hasF(kwJoinUp("branch"), "gi-required") ? "fail" : "pass");
+        txt(rows, "A grease interceptor put the wrong way round — downstream at the outfall, after the kitchen waste has already mixed in — does not", "fail", hasF(kwJoinUp("out"), "gi-required") ? "fail" : "pass");
+        // material selection changes the effective kb used in the drain hydraulics (and so the capacity / size)
+        const line = (ex) => { const nodes = [N("OUT", -4, 0, -2, true), N("B0", 0, 0, -2), N("S0", 0, 0, 0), N("F1", 0, 0, 3), N("A1", 3, 0, 3)];
+          const net = [S("D1", "main", "OUT", "B0"), {...S("ST0", "riser", "B0", "S0"), ori:"up"}, {...S("ST1", "riser", "S0", "F1"), ori:"up"}, S("BR1", "branch", "F1", "A1")];
+          return run(mk(nodes, net, [F("A1", "Z_WC", 8)], ex)); };
+        const byId = (w, id) => w.out.find(x => x.id === id);
+        const defKb = line({}), ci = line({drMatH:"ci"}), own = line({drMatH:"upvc", wsNet:[S("D1", "main", "OUT", "B0", {mat:"ci"}), {...S("ST0", "riser", "B0", "S0"), ori:"up"}, {...S("ST1", "riser", "S0", "F1"), ori:"up"}, S("BR1", "branch", "F1", "A1")]});
+        txt(rows, "With no material chosen the drain uses the project default kb", "project default", defKb.error ? "error" : (byId(defKb, "D1").dr.mat ? "material set" : "project default"));
+        txt(rows, "Setting Cast iron as the horizontal default changes the drain's kb to the material's figure (0.6 mm)", "0.60", ci.error ? "error" : byId(ci, "D1").dr.kb.toFixed(2));
+        txt(rows, "A material set on the pipe itself overrides the Setup default", "ci · 0.60", own.error ? "error" : `${byId(own, "D1").dr.mat} · ${byId(own, "D1").dr.kb.toFixed(2)}`);
+        // a single combined "gully trap + manhole" unit satisfies the same check as the two separate chambers
+        txt(rows, "A single combined gully-trap-and-manhole unit at the junction also satisfies both at once", "pass", hasF(junc(C("gtmh")), "gt-mh-required") ? "fail" : "pass");
+        // car park drainage (Parking) joins soil/waste only beyond an oil interceptor — the same pattern as kitchen waste + grease interceptor
+        const pkJoin = (eq) => { const nodes = [N("OUT", -8, 0, -2, true), N("B0", 0, 0, -2, false, eq), N("S0", 0, 0, 0), N("F1", 0, 0, 3), N("A1", 3, 0, 3), N("P1", 4, 0, 3)];
+          const net = [S("D1", "main", "OUT", "B0"), {...S("ST0", "riser", "B0", "S0", {svcTag:"waste"}), ori:"up"}, {...S("ST1", "riser", "S0", "F1"), ori:"up"}, S("BR1", "branch", "F1", "A1"),
+            S("PB", "branch", "B0", "P1", {svcTag:"parking"})];
+          return run(mk(nodes, net, [F("A1", "Z_WHB", 1), F("P1", "Z_WHB", 1)])); };
+        txt(rows, "Car park drainage joining a waste stack with no oil interceptor equipment: a failure", "fail", hasF(pkJoin(), "oi-required") ? "fail" : "pass");
+        txt(rows, "…with an Oil interceptor added as equipment at the join, it passes", "pass", hasF(pkJoin(C("oi")), "oi-required") ? "fail" : "pass");
+        // the combined drain below a soil + waste junction (now equipped) is drawn in its own "sewage" colour, not the generic drain colour
+        const colNodes = [N("OUT", -8, 0, -2, true), N("J", -4, 0, -2, false, [...C("gt"), ...C("mh")]), N("Sa", 0, 0, 0), N("Fa", 0, 0, 3), N("Aa", 3, 0, 3), N("Sb", -4, 3, 0), N("Fb", -4, 3, 3), N("Ab", -1, 3, 3)];
+        const colNet = [S("D0", "main", "OUT", "J"), {...S("STa0", "riser", "J", "Sa", {svcTag:"soil"}), ori:"up"}, {...S("STa1", "riser", "Sa", "Fa"), ori:"up"}, S("BRa", "branch", "Fa", "Aa"),
+          {...S("STb0", "riser", "J", "Sb", {svcTag:"waste"}), ori:"up"}, {...S("STb1", "riser", "Sb", "Fb"), ori:"up"}, S("BRb", "branch", "Fb", "Ab")];
+        const colP = mk(colNodes, colNet, [F("Aa", "Z_WC", 1), F("Ab", "Z_WHB", 1)]), colR = calculate(colP), colSvg = colR.error ? null : wsSchematic(colR.water, colP, {});
+        txt(rows, "The combined drain below a soil + waste junction, once equipped, is drawn in its own \"sewage\" colour (not the generic drain colour)", "sewage", colSvg ? (colSvg.svg.includes(WS_SVC_COL.sewage) ? "sewage" : "generic") : (colR.error ? colR.errors[0] : "error"));
+        // a car park (Parking) branch is drawn in its own colour too
+        const pkNodes = [N("OUT2", -8, 0, 0, true), N("Pf", -4, 0, 0)], pkNet = [S("PK", "branch", "OUT2", "Pf", {svcTag:"parking"})];
+        const pkP = mk(pkNodes, pkNet, [F("Pf", "Z_WHB", 1)]), pkR = calculate(pkP), pkSvg = pkR.error ? null : wsSchematic(pkR.water, pkP, {});
+        txt(rows, "A car park drainage (Parking) branch is drawn in its own colour", "parking", pkSvg ? (pkSvg.svg.includes(WS_SVC_COL.parking) ? "parking" : "generic") : (pkR.error ? pkR.errors[0] : "error"));
+        // a vent pipe switched Off is left out of the calculation entirely, as if it were never drawn — not merely zeroed
+        const ventNodes = [N("OUT3", -4, 0, -2, true), N("B1", 0, 0, -2), N("S1", 0, 0, 0), N("F2", 0, 0, 3), N("A2", 3, 0, 3), N("VT", 0, 0, 6)];
+        const ventNet = [S("D2", "main", "OUT3", "B1"), {...S("ST2", "riser", "B1", "S1"), ori:"up"}, {...S("ST3", "riser", "S1", "F2"), ori:"up"}, S("BR2", "branch", "F2", "A2"), S("VV", "vent", "F2", "VT")];
+        const onR = run(mk(ventNodes, ventNet, [F("A2", "Z_WC", 1)])), offR = run(mk(ventNodes, ventNet.map(s => s.id === "VV" ? {...s, off:true} : s), [F("A2", "Z_WC", 1)]));
+        txt(rows, "A vent pipe switched Off is left out of the calculation entirely (one fewer section than switched on)", "4 · 5", `${offR.error ? "error" : offR.out.length} · ${onR.error ? "error" : onR.out.length}`);
+      } finally { FU_FIXTURES.en12056_s4 = keepFx; if (keepFx === undefined) delete FU_FIXTURES.en12056_s4; DRAIN = keepDrain; }
+      out.push({id:"T101", name:"v1.123/1.124 — soil / waste / kitchen-waste / car-park junctions need the matching equipment; drainage colour by service; vent Off", why:"Where a soil pipe and a waste pipe join, the junction becomes the combined (sewage) drain and needs a gully trap and a manhole added as equipment (or a single combined gully-trap-and-manhole unit) — on the junction node or any node further down the drain before the outfall — or the calculation fails; kitchen waste may only join soil or waste through a grease interceptor, and car park drainage only through an oil interceptor, the same way; the chambers are also listed in a schedule; a drainage pipe's material sets the effective roughness kb; every drainage pipe is drawn in the colour of the service(s) it actually carries, including the combined sewage colour below a soil+waste junction; a vent pipe can be switched Off to drop it from the calculation and drawing entirely without deleting it.", rows, ms:0}); }
     // ── T34 v1.65.1: a drawing with two separate groups and NO marked supply (the common case) is read as two networks ─────────────────────────
     { const rows = [], byId = id => WS_ST.cases.find(c => c.id === id), lib = FU_FIXTURES.__T, nLib = lib.length;
       lib.push({name:"WC", base:"WC", occ:"", flush:"", lu:5, luHot:0, luTot:5, flow:"", minP:"", abbr:""});
