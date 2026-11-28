@@ -707,6 +707,18 @@
   .wf-note{font-size:10px;line-height:1.4;padding:7px 8px;border-radius:8px;background:#f1f6ff;color:#265c9f;overflow-wrap:anywhere}
   .wf-note.warn{background:#fff4e0;color:#8a4b00}
   .wf-actions{display:flex;gap:6px}.wf-actions button{flex:1;min-width:0}.wf-actions:empty{display:none}
+  .rep-signoff{margin:0 0 12px}
+  .rep-signoff .wfc-wide{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:12px 14px;box-shadow:0 1px 3px rgba(0,0,0,.04)}
+  .rep-signoff .wfc-t{font-size:11px;color:#1d1d1f;letter-spacing:.06em}
+  .rep-signoff .wfc-d{width:9px;height:9px}
+  .rep-signoff .wfc-body{display:grid;grid-template-columns:minmax(0,1fr) auto;column-gap:14px;row-gap:8px;align-items:center;margin-top:10px}
+  .rep-signoff .wf-steps{flex-direction:row;gap:6px;grid-column:1}
+  .rep-signoff .wf-steps li{flex:1;min-width:0;font-size:11.5px;padding:8px 10px;flex-direction:column;justify-content:flex-start;gap:2px}
+  .rep-signoff .wf-steps li span{text-align:left}
+  .rep-signoff .wf-actions{grid-column:2;grid-row:1}
+  .rep-signoff .wf-actions button{flex:none;padding:9px 16px!important;font-size:12px!important;white-space:nowrap}
+  .rep-signoff .wf-note,.rep-signoff .wf-why,.rep-signoff .wf-hist{grid-column:1/-1;font-size:11px}
+  @media screen and (max-width:900px){.rep-signoff .wfc-body{grid-template-columns:1fr}.rep-signoff .wf-actions{grid-column:1;grid-row:auto}.rep-signoff .wf-steps{flex-direction:column}}
   .wf-actions button:disabled{opacity:.45;cursor:not-allowed!important}
   .wf-why{font-size:9.5px;color:#a76200;line-height:1.35}
   .wf-hist summary{cursor:pointer;font-size:10px;font-weight:700;color:#6e6e73}
@@ -1818,7 +1830,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.128.0 · Build 2026.11.28.06";
+const BUILD_LABEL = "v1.130.0 · Build 2026.11.28.08";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -20332,7 +20344,7 @@ function IssueSheet({proj,stageName,pump,index,meta}) {
 }
 
 
-function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onLead, onReturn, onApprover, onReopen, busy, valid, logoReady}) {
+function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onLead, onReturn, onApprover, onReopen, busy, valid, logoReady, wide=false, stageName=""}) {
   const c=closureOf(meta), status=c.status||'draft', draft=isDraftStatus(status);
   const awaiting=status==='awaiting_approver', closed=status==='closed';
   const myIni=(me&&me.initials||'').toUpperCase(), myEmail=(me&&me.email||'').toLowerCase();
@@ -20348,18 +20360,19 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
   }
   let approverBlock='';
   if (awaiting && isApprover) {
-    if ((c.lead_signed_email||'').toLowerCase()===myEmail) approverBlock='You gave Lead sign-off — another Associate / Approver must approve.';
+    if ((c.lead_signed_email||'').toLowerCase()===myEmail && !isAdmin) approverBlock='You gave Lead sign-off — another Associate / Approver must approve.';
     else if (preparer && preparer===myIni) approverBlock='You prepared this stage — another Associate / Approver must approve.';
   }
+  const selfOverride=awaiting && isApprover && isAdmin && (c.lead_signed_email||'').toLowerCase()===myEmail;   // v1.130: Admin may sign as Lead and Approver, with a recorded reason
   const hist=Array.isArray(c.history)?c.history:[];
   const btn=(bg,fg,bd)=>({padding:'7px 10px',border:bd||'none',borderRadius:8,background:bg,color:fg,fontSize:11,fontWeight:800,cursor:'pointer'});
   // v1.53: one summary line; the detail opens on click, and opens by itself when this user has something to sign
   const canAct=(draft&&isDiscLead&&!leadBlock)||(awaiting&&isApprover&&!approverBlock)||(draft&&(c.returned||c.reopen_reason));
-  const [wfOpen,setWfOpen]=React.useState(!!canAct);
+  const [wfOpen,setWfOpen]=React.useState(wide||!!canAct);
   const dot=(on,now)=><i className={"wfc-d"+(on?" on":now?" now":"")}/>;
-  return <div className={"wf wfc no-print"+(wfOpen?" open":"")}>
+  return <div className={"wf wfc no-print"+(wfOpen?" open":"")+(wide?" wfc-wide":"")}>
     <button type="button" className="wfc-sum" onClick={()=>setWfOpen(v=>!v)} aria-expanded={wfOpen} title="Show or hide the sign-off details">
-      <span className="wfc-t">Sign-off · Rev {meta.revision||'01'}</span>
+      <span className="wfc-t">Sign-off · Rev {meta.revision||'01'}{wide&&stageName?` · ${stageName}`:''}</span>
       <span className="wfc-dots" title="Prepared · Lead · Approver">{dot(!!meta.calcBy)}{dot(awaiting||closed,!awaiting&&!closed)}{dot(closed,awaiting)}</span>
       <span className={`stage-status ${draft?'draft':status}`}>{draft?'Draft':awaiting?'Awaiting':'Closed'}</span>
       <span className="wfc-car">{wfOpen?'▾':'▸'}</span>
@@ -20375,7 +20388,7 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
     <div className="wf-actions">
       {draft && isDiscLead && <button disabled={busy||!!leadBlock} onClick={onLead} style={btn('#1559a6','#fff')}>Lead sign-off</button>}
       {awaiting && isApprover && <>
-        <button disabled={busy||!!approverBlock} onClick={onApprover} style={btn('#16803a','#fff')}>Sign &amp; close</button>
+        <button disabled={busy||!!approverBlock} onClick={()=>onApprover(selfOverride)} style={btn(selfOverride?'#9a3412':'#16803a','#fff')} title={selfOverride?'Admin override — you also gave Lead sign-off; a reason will be recorded':''}>{selfOverride?'Sign & close (Admin)':'Sign & close'}</button>
         <button disabled={busy} onClick={onReturn} style={btn('#fff','#a76200','1px solid #f5c27a')}>Return</button>
       </>}
       {closed && isAdmin && <button disabled={busy} onClick={onReopen} style={btn('#fff','#b91c1c','1px solid #fca5a5')}>Reopen as new revision</button>}
@@ -20384,6 +20397,7 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
     {draft && !isDiscLead && <div className="wf-why">Waiting for a Discipline Lead to sign.</div>}
     {awaiting && !isApprover && <div className="wf-why">Locked — waiting for Approver sign-off.</div>}
     {awaiting && approverBlock && <div className="wf-why">{approverBlock}</div>}
+    {selfOverride && <div className="wf-why">You gave Lead sign-off. As Admin you can also approve — a reason is required and is recorded in History.</div>}
     {hist.length>0 && <details className="wf-hist"><summary>History ({hist.length})</summary>
       <ul>{hist.slice().reverse().map((h,i)=><li key={i}><b>{h.action}</b> — {h.by||h.email} · {fmtWhen(h.at)}{h.note?<em>“{h.note}”</em>:null}</li>)}</ul>
     </details>}
@@ -22096,8 +22110,20 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     if (!comment.trim()) { alert('A comment is required when returning a stage.'); return; }
     await wfCall('mep_wf_return',{p_comment:comment.trim()},'Return failed');
   };
-  const signApprover = async () => {
-    if ((closure.lead_signed_email||'').toLowerCase()===currentEmail) { alert('You gave Lead sign-off on this stage. A different Associate / Approver must approve it.'); return; }
+  const signApprover = async (override) => {
+    const self = (closure.lead_signed_email||'').toLowerCase()===currentEmail;
+    if (self && !isAdmin) { alert('You gave Lead sign-off on this stage. A different Associate / Approver must approve it.'); return; }
+    if (self) {
+      const reason = window.prompt(`Admin override — you gave Lead sign-off on Rev ${meta.revision||'01'} and are now also approving it.\n\nYou will be recorded as both "Checked by" and "Approved by".\n\nReason (required):`, '');
+      if (reason===null) return;
+      if (!reason.trim()) { alert('A reason is required for an Admin override.'); return; }
+      setSaveStatus('saving');
+      let r = await sb.rpc('mep_wf_approve',{p_stage_id:currentStageId, p_note:'Admin override (Lead + Approver): '+reason.trim()});
+      if (r.error && /PGRST202|Could not find the function|function .* does not exist/i.test((r.error.code||'')+' '+(r.error.message||''))) r = await sb.rpc('mep_wf_approve',{p_stage_id:currentStageId});
+      if (r.error) { setSaveStatus('error'); alert('Approver sign-off failed: '+r.error.message+(/lead|same|different/i.test(r.error.message||'')?'\n\nThe database rule also blocks the same person signing twice — run the v1.130 SQL update (mep_wf_approve admin override) in Supabase first.':'')); return; }
+      if (r.data && typeof r.data==='object') setMeta({...EMPTY_META, ...r.data});
+      setSaveStatus('saved'); return;
+    }
     if (!window.confirm(`Approver sign-off and close Rev ${meta.revision||'01'}?\n\nYou will be recorded as "Approved by". The issued sheets are frozen; only an administrator can reopen, and reopening raises the revision.`)) return;
     await wfCall('mep_wf_approve',{},'Approver sign-off failed');
   };
@@ -22368,7 +22394,8 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 hidden with .screen-hide, which is display:none on screen and
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
-            <div className="ca-head no-print" style={{marginBottom:10}}><div><h2>Submission</h2><span>Calculation sheets and export · Rev {meta.revision||"—"}{currentStage?.stage_name ? " · " + currentStage.stage_name : ""}</span></div></div>
+            <div className="ca-head no-print" style={{marginBottom:10}}><div><h2>Calculation Report &amp; Sign-off</h2><span>Calculation sheets and export · Rev {meta.revision||"—"}{currentStage?.stage_name ? " · " + currentStage.stage_name : ""}</span></div></div>
+            <div className="rep-signoff no-print"><StageClosurePanel key={"rep-"+currentStageId} wide stageName={currentStage?.stage_name||""} meta={meta} team={team} me={me} isDiscLead={isDiscLead} isApprover={isApprover} isAdmin={isAdmin} onLead={signLead} onReturn={returnStage} onApprover={signApprover} onReopen={reopenStage} busy={saveStatus==='saving'} valid={stageReadyForIssue} logoReady={!!proj.clientLogoUrl} /></div>
             <details className="wsp-wrap no-print"><summary>Design basis — shown on the PDF report cover (blank = auto text)</summary>
               <div style={{marginTop:10}}>
                 {[0,1,2,3].map(i=><input key={i} disabled={stageLocked} value={(meta.designBasis||[])[i]||''} onChange={e=>setMeta(m=>{const a=[...(m.designBasis||[])];a[i]=e.target.value;return {...m,designBasis:a};})} placeholder={defaultDesignBasis(editing||pumps[0]||{})[i]||''} style={{...inp,marginBottom:6}} />)}
