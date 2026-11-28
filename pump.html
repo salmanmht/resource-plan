@@ -587,11 +587,11 @@
   .sbx-signoff .stage-issue-banner button:disabled{opacity:.45;cursor:not-allowed!important}
   .sbx-signoff .stage-issue-banner>div:nth-child(3){font-size:9.5px!important;line-height:1.4}
   .sbx-nav{display:flex;flex-direction:column;gap:2px}
-  .sbx-nav button{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;border-radius:9px;padding:9px 10px;font-size:12px;font-weight:600;color:#424245;cursor:pointer;text-align:left}
+  .sbx-nav button{display:flex;align-items:center;gap:10px;width:100%;min-width:0;border:0;background:transparent;border-radius:9px;padding:9px 10px;font-size:12px;font-weight:600;color:#424245;cursor:pointer;text-align:left}
   .sbx-nav button:hover{background:#f0f0f3;color:#1d1d1f}
   .sbx-nav button.active{background:#e8f0fe;color:#007aff;font-weight:800}
-  .sbx-nav .ic{width:18px;text-align:center;font-size:13px;flex:0 0 18px}.sbx-nav .tx{flex:1}
-  .sbx-nav .pill{font-size:9px;font-weight:700;color:#6e6e73;background:#fff;border:1px solid #e1e1e6;border-radius:20px;padding:1px 7px}
+  .sbx-nav .ic{width:18px;text-align:center;font-size:13px;flex:0 0 18px}.sbx-nav .tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sbx-nav .pill{font-size:9px;font-weight:700;color:#6e6e73;background:#fff;border:1px solid #e1e1e6;border-radius:20px;padding:1px 7px;flex:0 0 auto;white-space:nowrap}
   .sbx-nav button.active .pill{color:#007aff;border-color:#c8dafa}
   .sbx-export{display:flex;flex-direction:column;gap:6px}
   .sbx-export button{border:0;border-radius:9px;padding:9px 11px;font-size:11px;font-weight:800;color:#fff;text-align:left;cursor:pointer}
@@ -1318,6 +1318,10 @@
   .pump-sidebar.sbx .sbx-link{margin:0;font-size:10.5px;white-space:nowrap}
   .pump-sidebar.sbx .sbx-proj-name{font-size:12.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pump-sidebar.sbx .sbx-proj-meta{font-size:9.5px;margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .sbx-proj-slim{display:flex;align-items:center;gap:8px;padding:7px 10px!important}
+  .sbx-proj-slim .sbx-proj-name{flex:1;min-width:0;margin:0;font-weight:700}
+  .sbx-proj-slim .sbx-proj-rev{flex:0 0 auto;font-size:10px;color:#6e6e73;white-space:nowrap}
+  .sbx-proj-slim .sbx-link{flex:0 0 auto}
   .sbx-chips{flex-direction:row!important;flex-wrap:wrap;gap:4px!important}
   .sbx-chips button{width:auto!important;flex:0 1 auto;padding:4px 8px!important;font-size:11px!important;border-radius:999px!important;border:1px solid #e1e1e6!important;gap:5px!important;max-width:100%}
   .sbx-chips button.on{border-color:#9cc3f5!important}
@@ -1581,9 +1585,11 @@
   .sw-h4 svg{max-height:none!important}
   .ca-btn.pri:hover{color:#fff;background:#0062cc;border-color:#0062cc}
 
-  .sbx-nav .sbx-grp{display:flex;align-items:center;gap:10px;width:100%;border:0;background:transparent;padding:9px 10px;border-radius:9px;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;text-align:left}
+  .sbx-nav .sbx-grp{display:flex;align-items:center;gap:10px;width:100%;min-width:0;border:0;background:transparent;padding:9px 10px;border-radius:9px;font-size:13px;font-weight:600;color:#1d1d1f;cursor:pointer;text-align:left}
+  .sbx-nav .sbx-sublabel{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:#86868b;padding:10px 10px 3px;margin-top:4px;border-top:1px dashed #e1e1e6}
+  .sbx-nav .sbx-badge{display:inline-block;font-size:8.5px;font-weight:800;letter-spacing:.03em;color:#b91c1c;background:#fdecec;border-radius:4px;padding:1px 4px;margin-left:3px;vertical-align:1px}
   .sbx-nav .sbx-grp:hover{background:#f0f0f3}.sbx-nav .sbx-grp.has{color:#007aff}
-  .sbx-nav .sbx-grp .ic{width:18px;text-align:center}.sbx-nav .sbx-grp .tx{flex:1}.sbx-nav .sbx-grp .car{font-size:10px;color:#86868b;margin-left:4px}
+  .sbx-nav .sbx-grp .ic{width:18px;text-align:center;flex:0 0 18px}.sbx-nav .sbx-grp .tx{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.sbx-nav .sbx-grp .car{font-size:10px;color:#86868b;margin-left:4px;flex:0 0 auto}
   .pump-sidebar.sbx .sbx-nav button.sbx-sub{padding-left:26px!important;font-size:11px!important}.sbx-nav button.sbx-sub .ic{font-size:11px;color:#86868b}.sbx-nav button.sbx-sub.active .ic{color:#007aff}
   .pump-sidebar.sbx .sbx-nav .sbx-grp{font-size:11.5px;padding:6px 9px;color:#424245}.pump-sidebar.sbx .sbx-nav .sbx-grp.has{color:#007aff}
   .sbx-minor{display:flex;gap:10px;flex-wrap:wrap;padding:8px 10px 2px;border-top:1px dashed #e5e5ea;margin-top:6px}
@@ -1812,7 +1818,7 @@
 // RELEASE LABEL — update this value for every deployment.
 // Format: vMAJOR.MINOR.PATCH · Build YYYY.MM.DD.NN. This is display metadata;
 // it does not enforce schema or reference-data compatibility.
-const BUILD_LABEL = "v1.123.0 · Build 2026.11.27.03";
+const BUILD_LABEL = "v1.128.0 · Build 2026.11.28.06";
 
 // Approved Meinhardt logo extracted from the supplied issue-sheet template.
 // v1.61: project picture for the project-list card. SEPARATE from the client logo (which goes on the sheets and exports);
@@ -14492,7 +14498,7 @@ function FoamTanksTab() {
 }
 // v1.86: Fire Protection schedule — foam hazards
 function FlsScheduleTable({items, density, onOpen}) {
-  if (!items.length) return <div className="empty-schedule">No fire pumps match — add them in the Fire Pump (UAE FLS) tab.</div>;
+  if (!items.length) return <div className="empty-schedule">No fire pumps match — add them in the Fire Pump &amp; Tank tab.</div>;
   const f1 = v => v == null ? "—" : (+v).toFixed(1);
   return <><div className="schedule-table-wrap"><table className={`schedule-table ${density === "compact" ? "compact" : ""}`}>
     <colgroup><col style={{width:48}}/><col style={{width:260}}/><col style={{width:100}}/><col/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:110}}/><col style={{width:110}}/><col style={{width:100}}/><col style={{width:100}}/><col style={{width:150}}/></colgroup>
@@ -16300,7 +16306,7 @@ function WsPumpDuty({pump, uu, canCreate, onCreate, onOpen, water, title}) {
       <div className="wp-act">
         <button type="button" className="pz-btn pri" disabled={!ok || !canCreate} onClick={create} title={!canCreate ? "This stage is locked" : !ok ? "Fix the inputs above first" : "Creates a Booster pump calculation with this flow and head"}>＋ Create booster pump from this</button>
         {made && <><span className="wp-made">✓ Added “{made.name}”</span><button type="button" className="pz-btn" onClick={() => onOpen(made.id)}>Open it →</button></>}
-        {!made && <span className="wp-hint">Adds a Booster pump to Calculation Inputs with this flow, the pressure and the duty / standby set — it then sizes the motor and discharge pipe.</span>}
+        {!made && <span className="wp-hint">Adds a Booster pump to Pumps & Equipment with this flow, the pressure and the duty / standby set — it then sizes the motor and discharge pipe.</span>}
       </div>
     </div>
   );
@@ -17839,7 +17845,7 @@ function PipeSizingWorkspace({calcMode, setCalcMode, calcAll, calcAt, pumps, pip
         <span className={"pz-save " + saveStatus}>{saveTxt}</span>
         <button type="button" className="pz-btn pz-verify" onClick={() => setShowTest(true)} title="Run hand-built verification cases against an independent solver">✔ Verify engine</button>
         <button type="button" className="pz-btn pri" onClick={saveNow}>⤓ Save</button>
-        <button type="button" className="pz-btn" onClick={onBack} title="Back to Calculation Inputs">✕ Close</button>
+        <button type="button" className="pz-btn" onClick={onBack} title="Back to Pumps & Equipment">✕ Close</button>
       </div>
       {stale && <div className="pz-stale"><b>⚠ Inputs changed since the last calculation.</b> The results, pump duty, schematic and calculation sheets still show the previous calculation. <button type="button" className="pz-btn pri" onClick={calcAll}>▶ Calculate</button> <span>Ctrl+Enter</span></div>}
       {!stale && calcAt && calcMode === "manual" && <div className="pz-fresh">Calculated {new Date(calcAt).toLocaleTimeString()}</div>}
@@ -20386,7 +20392,7 @@ function StageClosurePanel({meta, team, me, isDiscLead, isApprover, isAdmin, onL
 }
 function LockedNotice() { return <div style={{marginBottom:12,padding:'9px 11px',background:'#fff4e0',border:'1px solid #fed7aa',borderRadius:8,fontSize:11,color:'#9a3412'}}>This stage is under formal review or closed. Calculation inputs and stage submission data are read-only. Only an administrator can reopen a closed stage.</div>; }
 
-function ProjectReviewAccess({projectId, team, roles, session, canManage}) {
+function ProjectReviewAccess({projectId, team, roles, session, canManage, onChanged, compact}) {
   const [members,setMembers]=React.useState([]);
   const [email,setEmail]=React.useState('');
   const [accessRole,setAccessRole]=React.useState('reviewer');
@@ -20396,10 +20402,10 @@ function ProjectReviewAccess({projectId, team, roles, session, canManage}) {
   const roleText=(mail)=>roles.filter(r=>r.active!==false&&(r.email||'').toLowerCase()===(mail||'').toLowerCase()).map(r=>roleNames[r.role]||r.role).join(', ')||'No assigned team role';
   const load=React.useCallback(async()=>{const {data,error}=await sb.from('project_members').select('id,email,access_role,added_at').eq('project_id',projectId).order('email');if(error){setStatus('Project review access is unavailable until the MEP secure-stage SQL setup is applied: '+error.message);return;}setMembers(data||[]);},[projectId]);
   React.useEffect(()=>{load();},[load]);
-  const add=async()=>{if(!email){setStatus('Select an active team member.');return;}setBusy(true);const {error}=await sb.from('project_members').upsert({project_id:projectId,email:email.toLowerCase(),access_role:accessRole,added_by:session.user.id},{onConflict:'project_id,email'});setBusy(false);if(error){setStatus('Could not grant project review access: '+error.message);return;}setStatus('Project review access saved.');setEmail('');load();};
-  const remove=async(m)=>{if(!window.confirm('Remove project access for '+m.email+'?'))return;setBusy(true);const {error}=await sb.from('project_members').delete().eq('id',m.id);setBusy(false);if(error){setStatus('Could not remove project review access: '+error.message);return;}setStatus('Project review access removed.');load();};
+  const add=async()=>{if(!email){setStatus('Select an active team member.');return;}setBusy(true);const {error}=await sb.from('project_members').upsert({project_id:projectId,email:email.toLowerCase(),access_role:accessRole,added_by:session.user.id},{onConflict:'project_id,email'});setBusy(false);if(error){setStatus('Could not grant project review access: '+error.message);return;}setStatus('Project review access saved.');setEmail('');load();onChanged&&onChanged();};
+  const remove=async(m)=>{if(!window.confirm('Remove project access for '+m.email+'?'))return;setBusy(true);const {error}=await sb.from('project_members').delete().eq('id',m.id);setBusy(false);if(error){setStatus('Could not remove project review access: '+error.message);return;}setStatus('Project review access removed.');load();onChanged&&onChanged();};
   const candidates=team.filter(t=>t.active!==false&&t.email).sort((a,b)=>(a.name||'').localeCompare(b.name||''));
-  return <div className="client-brand-card"><h4>Project review access</h4><div className="client-brand-note" style={{maxWidth:'none',marginBottom:10}}>Add the Lead and Associate / Approver as project reviewers before sign-off. A reviewer can open the project and sign when their team role permits it; an editor can also update draft-stage content.</div>{canManage&&<div style={{display:'grid',gridTemplateColumns:'minmax(220px,1fr) 120px auto',gap:8,alignItems:'end',marginBottom:10}}><div><label style={lbl}>Team member</label><select value={email} onChange={e=>setEmail(e.target.value)} style={{...inp,cursor:'pointer'}}><option value=''>— Select —</option>{candidates.map(t=><option key={t.id} value={t.email}>{t.name} · {roleText(t.email)}</option>)}</select></div><div><label style={lbl}>Project access</label><select value={accessRole} onChange={e=>setAccessRole(e.target.value)} style={{...inp,cursor:'pointer'}}><option value='reviewer'>Reviewer</option><option value='editor'>Editor</option></select></div><button disabled={busy} onClick={add} style={{padding:'8px 12px',border:'none',background:'#007aff',color:'#fff',borderRadius:8,fontSize:11,fontWeight:800,cursor:'pointer'}}>Grant access</button></div>}<div style={{border:'1px solid #e2e2e7',borderRadius:8,overflow:'hidden'}}>{members.length===0?<div style={{padding:'9px 10px',fontSize:11,color:'#86868b'}}>No additional project reviewers assigned.</div>:members.map(m=><div key={m.id} style={{display:'grid',gridTemplateColumns:'1fr 100px 150px 58px',gap:8,padding:'8px 10px',borderBottom:'1px solid #ededf0',fontSize:11,alignItems:'center'}}><div style={{overflowWrap:'anywhere'}}>{m.email}</div><div style={{fontWeight:800,textTransform:'capitalize'}}>{m.access_role}</div><div style={{color:'#86868b'}}>{roleText(m.email)}</div><div>{canManage&&<button disabled={busy} onClick={()=>remove(m)} style={{border:'none',background:'transparent',color:'#b91c1c',fontSize:10,fontWeight:800,cursor:'pointer'}}>Remove</button>}</div></div>)}</div>{status&&<div style={{marginTop:8,fontSize:10,color:/unavailable|could not/i.test(status)?'#b91c1c':'#16803a'}}>{status}</div>}</div>;
+  return <div className={compact?undefined:"client-brand-card"}>{!compact&&<h4>Project review access</h4>}{!compact&&<div className="client-brand-note" style={{maxWidth:'none',marginBottom:10}}>Add the Lead and Associate / Approver as project reviewers before sign-off. A reviewer can open the project and sign when their team role permits it; an editor can also update draft-stage content.</div>}{canManage&&<div style={{display:'grid',gridTemplateColumns:'minmax(220px,1fr) 120px auto',gap:8,alignItems:'end',marginBottom:10}}><div><label style={lbl}>Team member</label><select value={email} onChange={e=>setEmail(e.target.value)} style={{...inp,cursor:'pointer'}}><option value=''>— Select —</option>{candidates.map(t=><option key={t.id} value={t.email}>{t.name} · {roleText(t.email)}</option>)}</select></div><div><label style={lbl}>Project access</label><select value={accessRole} onChange={e=>setAccessRole(e.target.value)} style={{...inp,cursor:'pointer'}}><option value='reviewer'>Reviewer</option><option value='editor'>Editor</option></select></div><button disabled={busy} onClick={add} style={{padding:'8px 12px',border:'none',background:'#007aff',color:'#fff',borderRadius:8,fontSize:11,fontWeight:800,cursor:'pointer'}}>Grant access</button></div>}<div style={{border:'1px solid #e2e2e7',borderRadius:8,overflow:'hidden'}}>{members.length===0?<div style={{padding:'9px 10px',fontSize:11,color:'#86868b'}}>No additional project reviewers assigned.</div>:members.map(m=><div key={m.id} style={{display:'grid',gridTemplateColumns:'1fr 100px 150px 58px',gap:8,padding:'8px 10px',borderBottom:'1px solid #ededf0',fontSize:11,alignItems:'center'}}><div style={{overflowWrap:'anywhere'}}>{m.email}</div><div style={{fontWeight:800,textTransform:'capitalize'}}>{m.access_role}</div><div style={{color:'#86868b'}}>{roleText(m.email)}</div><div>{canManage&&<button disabled={busy} onClick={()=>remove(m)} style={{border:'none',background:'transparent',color:'#b91c1c',fontSize:10,fontWeight:800,cursor:'pointer'}}>Remove</button>}</div></div>)}</div>{status&&<div style={{marginTop:8,fontSize:10,color:/unavailable|could not/i.test(status)?'#b91c1c':'#16803a'}}>{status}</div>}</div>;
 }
 
 
@@ -21122,6 +21128,412 @@ function ReviztoTab({meta, setMeta, locked, projName}) {
   );
 }
 
+// v1.124: the Summary tab lives inside the workspace sidebar (above Setup) so a quick project
+// snapshot — cover render, calculation counts, stage timeline, team — never requires leaving the
+// stage editor. It reads/writes the same project-level "proj" state Setup already uses (the
+// render picker replaces Setup's single "Project picture" uploader), and loads every stage's
+// pumps/meta plus project_members itself since App only keeps the current stage's data in memory.
+// Small circular progress ring used on the Summary KPI tiles (value + percent fill, flat design
+// borrowed from the Resource Plan app's overview cards).
+function KpiRing({pct, color, size=40, stroke=4, label}) {
+  const r = (size-stroke)/2, c = 2*Math.PI*r, p = Math.max(0, Math.min(100, pct||0)), off = c*(1-p/100);
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{flex:"none"}}>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke="#e5e7eb" strokeWidth={stroke}/>
+      <circle cx={size/2} cy={size/2} r={r} fill="none" stroke={color} strokeWidth={stroke} strokeDasharray={c} strokeDashoffset={off} strokeLinecap="round" transform={`rotate(-90 ${size/2} ${size/2})`}/>
+      <text x="50%" y="51%" textAnchor="middle" dominantBaseline="central" fontSize={size*(String(label!=null?label:Math.round(p)+"%").length>3?0.24:0.28)} fontWeight="800" fill={color}>{label!=null?label:Math.round(p)+"%"}</text>
+    </svg>
+  );
+}
+
+function WorkspaceSummaryTab({livePumps=[], liveMeta=null, stageName="", projectId, proj, setProj, team=[], roles=[], session, canManage, onGoTab, onGoPipe, onBack, onSwitchStage, currentStageId, onRenameStage, children}) {
+  const meta = proj || {};
+  const [stages, setStages] = useState(null); // null = loading
+  const [members, setMembers] = useState([]);
+  const [busy, setBusy] = useState(false);
+  const picRef = React.useRef(null);
+  const [editOpen, setEditOpen] = useState(false);
+  const openDetails = () => setEditOpen(true);
+  const goStages = () => { const el = document.getElementById("wsum-stage-timeline"); if (el) el.scrollIntoView({behavior:"smooth", block:"start"}); };
+  const goTeam = () => { setEditOpen(true); setTimeout(()=>{ const el = document.getElementById("wsum-team"); if (el) el.scrollIntoView({behavior:"smooth", block:"start"}); }, 80); };
+  const [addEmail, setAddEmail] = useState("");
+  const [addRole, setAddRole] = useState("reviewer");
+  const [teamBusy, setTeamBusy] = useState(false);
+  const [teamMsg, setTeamMsg] = useState("");
+
+  const renders = (meta.renders && meta.renders.length) ? meta.renders
+    : (meta.cardImageUrl ? [{url:meta.cardImageUrl, path:meta.cardImagePath||"", label:""}] : []);
+  const selectedIdx = Math.max(0, Math.min(meta.selectedRenderIdx||0, renders.length-1));
+  const selected = renders[selectedIdx];
+
+  const pickPic = () => { if (picRef.current) { picRef.current.value=""; picRef.current.click(); } };
+  const onPic = async e => {
+    const fl = e.target.files && e.target.files[0];
+    if (!fl) return;
+    setBusy(true);
+    try {
+      const r = await mepCardImage(projectId, fl);
+      const label = window.prompt("Label for this render (optional):", "") || "";
+      setProj(x => { const nextRenders = [...((x.renders && x.renders.length) ? x.renders : renders), {url:r.url, path:r.path, label}]; return {...x, renders:nextRenders, selectedRenderIdx:nextRenders.length-1, cardImageUrl:r.url, cardImagePath:r.path}; });
+    } catch (err) { alert("Picture: "+(err.message||err)); } finally { setBusy(false); }
+  };
+  const removeSelected = () => {
+    if (!renders.length) return;
+    const nextRenders = renders.filter((_,i)=>i!==selectedIdx);
+    const nextIdx = Math.max(0, Math.min(selectedIdx, nextRenders.length-1));
+    const next = nextRenders[nextIdx];
+    setProj(x => ({...x, renders:nextRenders, selectedRenderIdx:nextIdx, cardImageUrl:next?next.url:"", cardImagePath:next?next.path:""}));
+  };
+
+  const loadAll = React.useCallback(async () => {
+    const [{ data: stRows }, { data: memRows }] = await Promise.all([
+      sb.from("project_stages").select("id,stage_name,sort_order,pumps,meta").eq("project_id", projectId).order("sort_order"),
+      sb.from("project_members").select("email,access_role").eq("project_id", projectId),
+    ]);
+    setStages(stRows || []);
+    setMembers(memRows || []);
+  }, [projectId]);
+  useEffect(() => { let cancelled = false; (async () => { await loadAll(); })(); return () => { cancelled = true; }; }, [loadAll]);
+
+  const closureOfMeta = m => (m && m.closure) || {status:"draft"};
+  const stageRows = (stages || []).map(s => {
+    const c = closureOfMeta(s.meta), status = c.status || "draft";
+    const extra = (((s.meta||{}).storm||{}).roofs||[]).length + ((((s.meta||{}).fuel||{}).simple||{}).gens||[]).length +
+      (((s.meta||{}).tools||{}).items||[]).length + (((s.meta||{}).fls||{}).items||[]).length +
+      (((s.meta||{}).cleanAgent||{}).rooms||[]).length + (((s.meta||{}).foam||{}).hazards||[]).length;
+    return {id:s.id, name:s.stage_name, status, count:(s.pumps||[]).length + extra};
+  });
+  const totalCalc = stageRows.reduce((n,s) => n + s.count, 0);
+
+  // v1.127: engineering KPIs for the stage being edited — same calculation engine and same totals as the Equipment Schedule
+  const eng = useMemo(() => {
+    let list = [];
+    try { list = [...(livePumps||[]), ...flsItems(liveMeta), ...stormItems(liveMeta), ...fuelItems(liveMeta), ...toolItems(liveMeta)]; } catch (e) { list = [...(livePumps||[])]; }
+    const rows = list.map(p => { let r; try { r = safeCalculate(p); } catch (e) { r = {error:true}; } return {p, r, st:scheduleReviewStatus(p, r)}; });
+    const ok = rows.filter(x => x.r && !x.r.error);
+    const installed = ok.reduce((a,x)=>a+(Number(x.r.installedKw)||0),0);
+    const running = ok.reduce((a,x)=>a+(Number(x.r.connectedKw)||0),0);
+    const motorised = ok.filter(x => (Number(x.r.installedKw)||0) > 0);
+    let big = null; motorised.forEach(x => { const k = Number(x.r.pwrSel)||0; if (!big || k > big.kw) big = {kw:k, tag:x.p.tag||x.p.name||""}; });
+    const c = rows.reduce((a,x)=>{ a[x.st.key]=(a[x.st.key]||0)+1; return a; },{pass:0,review:0,blocked:0});
+    const sets = motorised.reduce((a,x)=>a+((x.r.set&&x.r.set.installed)||0),0);
+    return {n:rows.length, installed, running, standby:installed-running, motorisedN:motorised.length, sets, big, c};
+  }, [livePumps, liveMeta]);
+  const fkW = v => v >= 100 ? Math.round(v).toLocaleString("en-GB") : (+v.toFixed(1)).toLocaleString("en-GB");
+
+  const catTotals = {};
+  (stages || []).forEach(s => {
+    const m = s.meta || {}, pumps = s.pumps || [];
+    const bump = (k, n) => { if (n) catTotals[k] = (catTotals[k]||0) + n; };
+    bump("Pumps & equipment", pumps.filter(p => p.type !== "water").length);
+    bump("Water supply pipe sizing", pumps.filter(p => p.type === "water").length);
+    bump("Fire pump (FLS)", (m.fls||{}).items?.length || 0);
+    bump("Clean agent", (m.cleanAgent||{}).rooms?.length || 0);
+    bump("Foam", (m.foam||{}).hazards?.length || 0);
+    bump("Stormwater", (m.storm||{}).roofs?.length || 0);
+    bump("Fuel / generators", ((m.fuel||{}).simple||{}).gens?.length || 0);
+    bump("Tools", (m.tools||{}).items?.length || 0);
+  });
+  const cats = Object.entries(catTotals).sort((a,b)=>b[1]-a[1]);
+  const CAT_NAV = {
+    "Pumps & equipment": {color:"#2f6fed", go:()=>onGoTab&&onGoTab("pumps")},
+    "Water supply pipe sizing": {color:"#0ea5a3", go:()=>onGoPipe&&onGoPipe("water")},
+    "Fire pump (FLS)": {color:"#dc2626", go:()=>onGoTab&&onGoTab("flsp")},
+    "Clean agent": {color:"#0891b2", go:()=>onGoTab&&onGoTab("agent")},
+    "Foam": {color:"#ca8a04", go:()=>onGoTab&&onGoTab("foam")},
+    "Stormwater": {color:"#2563eb", go:()=>onGoTab&&onGoTab("storm")},
+    "Fuel / generators": {color:"#ea580c", go:()=>onGoTab&&onGoTab("fuel")},
+    "Tools": {color:"#7c3aed", go:()=>onGoTab&&onGoTab("tools")},
+  };
+
+  const teamRows = members.map(mem => {
+    const t = team.find(x => (x.email||"").toLowerCase() === (mem.email||"").toLowerCase());
+    const label = (t && t.name) || mem.email;
+    const initials = (t && t.initials) || String(mem.email||"?").trim().slice(0,2).toUpperCase();
+    return {email:mem.email, label, initials, role:mem.access_role};
+  });
+  const teamCandidates = team.filter(t => t.active!==false && t.email && !teamRows.some(tr => tr.email.toLowerCase()===(t.email||"").toLowerCase())).sort((a,b)=>(a.name||"").localeCompare(b.name||""));
+  const addTeamMember = async () => {
+    if (!addEmail) { setTeamMsg("Select a team member."); return; }
+    setTeamBusy(true);
+    const { error } = await sb.from("project_members").upsert({project_id:projectId, email:addEmail.toLowerCase(), access_role:addRole, added_by:session&&session.user&&session.user.id}, {onConflict:"project_id,email"});
+    setTeamBusy(false);
+    if (error) { setTeamMsg("Could not grant access: "+error.message); return; }
+    setTeamMsg(""); setAddEmail(""); loadAll();
+  };
+  const removeTeamMember = async (t) => {
+    if (!window.confirm("Remove project access for "+t.label+"?")) return;
+    setTeamBusy(true);
+    const { error } = await sb.from("project_members").delete().eq("project_id", projectId).eq("email", t.email);
+    setTeamBusy(false);
+    if (error) { setTeamMsg("Could not remove access: "+error.message); return; }
+    loadAll();
+  };
+
+  const statusLabel = s => s==="closed" ? "Closed" : s==="awaiting_approver" ? "Awaiting" : "Draft";
+  const latest = stageRows.length ? stageRows[stageRows.length-1] : null;
+  const signOff = !latest ? {label:"—", color:"#8a8a8e", caption:"", pct:0}
+    : latest.status==="closed" ? {label:"Closed"+(meta.revision?" · Rev "+meta.revision:""), color:"#16803a", caption:"issued", pct:100}
+    : latest.status==="awaiting_approver" ? {label:"Awaiting"+(meta.revision?" · Rev "+meta.revision:""), color:"#b45309", caption:"awaiting checker", pct:50}
+    : {label:"Draft"+(meta.revision?" · Rev "+meta.revision:""), color:"#b45309", caption:"not yet submitted", pct:12};
+
+  // KPI ring fills: each tile's ring shows a meaningful percentage alongside its headline count —
+  // category coverage, stages issued, sign-off progress, editor share of the team.
+  const CAT_TYPES_TOTAL = 8; // Pumps & equipment, Water supply, FLS, Clean agent, Foam, Stormwater, Fuel, Tools
+  const catPct = Math.round((cats.length / CAT_TYPES_TOTAL) * 100);
+  const stagesClosedPct = stageRows.length ? Math.round((stageRows.filter(s=>s.status==="closed").length / stageRows.length) * 100) : 0;
+
+  return (
+    <div className="wsum-card">
+      <style>{`
+        .wsum-card{padding:20px}
+        .wsum-cover{height:170px;border-radius:10px;background:linear-gradient(135deg,#334155,#0f172a);position:relative;overflow:hidden;color:#fff}
+        .wsum-cover>img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+        .wsum-cover-scrim{position:absolute;left:0;right:0;bottom:0;height:85px;background:linear-gradient(0deg,rgba(0,0,0,.65),rgba(0,0,0,0));z-index:1}
+        .wsum-cover-topleft{position:absolute;top:10px;left:10px;z-index:2;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+        .wsum-cover-logo{overflow:hidden;position:relative;background:#fff;border-radius:10px;padding:6px 14px;height:52px;min-width:72px;justify-content:center;box-sizing:border-box;box-shadow:0 4px 16px rgba(0,0,0,.35);display:flex;align-items:center}
+        .wsum-cover-logo img{position:static!important;inset:auto!important;height:40px!important;width:auto!important;max-width:180px;display:block;object-fit:contain}
+        .wsum-cover-back{position:relative;z-index:3;border:1px solid rgba(255,255,255,.7);background:rgba(0,0,0,.55);color:#fff;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px);white-space:nowrap}
+        .wsum-cover-info{position:absolute;left:14px;right:160px;bottom:12px;z-index:2;text-align:left}
+        .wsum-cover-title{font-size:19px;font-weight:800;display:flex;align-items:center;gap:10px;flex-wrap:wrap;text-shadow:0 1px 4px rgba(0,0,0,.5);margin:0}
+        .wsum-cover-pill{background:#2f6fed;color:#fff;font-size:10.5px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap}
+        .wsum-cover-stagetag{color:#4ade80;font-size:11.5px;font-weight:800;white-space:nowrap}
+        .wsum-cover-meta{margin-top:5px;font-size:12px;font-weight:600;opacity:.92;display:flex;gap:8px;flex-wrap:wrap;text-shadow:0 1px 3px rgba(0,0,0,.5)}
+        .wsum-cover-edit{position:absolute;top:10px;right:10px;z-index:2;border:1px solid rgba(255,255,255,.6);background:rgba(0,0,0,.4);color:#fff;border-radius:999px;padding:6px 14px;font-size:11px;font-weight:700;cursor:pointer;backdrop-filter:blur(4px)}
+        .wsum-cover-actions{position:absolute;bottom:10px;right:10px;display:flex;gap:6px;z-index:2}
+        .wsum-modal-team{margin-top:14px;padding-top:14px;border-top:1px solid #e5e7eb;scroll-margin-top:10px}
+        .wsum-modal-lbl{display:block;font-size:13px;font-weight:800;color:#1d1d1f;margin-bottom:10px}
+        .wsum-modal-team .wsum-team-row span{display:block;font-size:11px;color:#8a8a8e;text-transform:capitalize}
+        .wsum-pic-row{display:flex;gap:12px;align-items:center;padding-bottom:12px;margin-bottom:12px;border-bottom:1px solid #e5e7eb}
+        .wsum-pic-thumb{width:120px;height:62px;border-radius:8px;overflow:hidden;background:#f2f2f5;border:1px solid #e5e7eb;flex:none;display:flex;align-items:center;justify-content:center;font-size:10.5px;color:#8a8a8e}
+        .wsum-pic-thumb img{width:100%;height:100%;object-fit:cover;display:block}
+        .wsum-pic-btn{border:1px solid #d2d2d7;background:#fff;color:#1d1d1f;border-radius:7px;padding:6px 12px;font-size:12px;font-weight:700;cursor:pointer}
+        .wsum-pic-btn:hover{background:#f5f5f7}.wsum-pic-btn.danger{color:#b91c1c;border-color:#f3c4c4}.wsum-pic-btn:disabled{opacity:.5;cursor:default}
+        .wsum-cover-btn{border:none;border-radius:8px;background:rgba(0,0,0,.55);color:#fff;font-size:11px;font-weight:700;padding:6px 10px;cursor:pointer}
+        details.wsum-details{margin:12px 0 0;border:1px solid #d2d2d7;border-radius:10px;background:#fafafb;padding:8px 12px}
+        details.wsum-details>summary{cursor:pointer;font-size:11.5px;font-weight:800;color:#0e4891;list-style:none}
+        details.wsum-details>summary::-webkit-details-marker{display:none}
+        details.wsum-details>summary::before{content:"▸ ";font-size:10px}
+        details.wsum-details[open]>summary::before{content:"▾ "}
+        .wsum-modal-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:flex;align-items:center;justify-content:center;padding:20px}
+        .wsum-modal{background:#fff;border-radius:14px;width:min(640px,100%);max-height:88vh;overflow:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+        .wsum-modal-head{display:flex;align-items:center;justify-content:space-between;padding:16px 18px;border-bottom:1px solid #e5e7eb;position:sticky;top:0;background:#fff;z-index:1}
+        .wsum-modal-head b{font-size:15px;font-weight:800;color:#1d1d1f}
+        .wsum-modal-x{border:0;background:transparent;font-size:20px;line-height:1;color:#6e6e73;cursor:pointer;padding:2px 6px;border-radius:6px}
+        .wsum-modal-x:hover{background:#f2f2f4}
+        .wsum-modal-body{padding:16px 18px}
+        .wsum-modal-foot{padding:12px 18px;border-top:1px solid #e5e7eb;display:flex;justify-content:flex-end;position:sticky;bottom:0;background:#fff}
+        .wsum-modal-done{background:#2f6fed;color:#fff;border:0;border-radius:8px;padding:8px 20px;font-size:12.5px;font-weight:700;cursor:pointer}
+        .wsum-rename-stage-btn{width:100%;padding:7px 8px;font-size:12px;font-weight:600;color:#1d1d1f;background:#fff;border:1px solid #d2d2d7;border-radius:7px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .wsum-rename-stage-btn:hover{background:#f2f2f4}
+        @media screen and (max-width:640px){.wsum-modal-backdrop{padding:0;align-items:flex-end}.wsum-modal{width:100%;border-radius:14px 14px 0 0;max-height:92vh}}
+        .wsum-kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin:12px 0}.wsum-kpis-eng{margin-top:-2px}.wsum-kpi b small{font-size:12px;font-weight:700;color:#6e6e73}
+        .wsum-kpi{background:#fff;border:1px solid #e5e7eb;border-top:3px solid var(--kc,#e5e7eb);border-radius:10px;padding:12px 14px;min-height:78px;display:flex;align-items:center;gap:12px;cursor:pointer;text-align:left;font:inherit;width:100%;transition:box-shadow .15s,transform .15s}
+        .wsum-kpi:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);transform:translateY(-1px)}
+        .wsum-kpi-txt{min-width:0;flex:1}
+        .wsum-kpi b{display:block;font-size:22px;font-weight:800;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;line-height:1.2}
+        .wsum-kpi span{font-size:10.5px;font-weight:700;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em}
+        .wsum-kpi .sub{display:block;font-size:11.5px;font-weight:600;color:#8a8a8e;text-transform:none;letter-spacing:0;margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .wsum-section{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px 16px;margin-top:0;min-width:0;display:flex;flex-direction:column}
+        .wsum-section h3{margin:0 0 10px;font-size:13px;font-weight:800}
+        .wsum-body{display:grid;grid-template-columns:minmax(0,.8fr) minmax(0,1.2fr);gap:14px;align-items:stretch;margin-top:4px}
+        .wsum-timeline{display:flex;flex-direction:column;gap:0;margin:0;padding:0}
+        .wsum-tl-step{all:unset;box-sizing:border-box;display:grid;grid-template-columns:18px minmax(0,1fr) auto;column-gap:10px;align-items:start;width:100%;padding:0 8px;border-radius:9px;cursor:default;text-align:left;font:inherit}
+        button.wsum-tl-step{cursor:pointer}
+        button.wsum-tl-step:hover{background:#f5f7fb}
+        button.wsum-tl-step:focus-visible{outline:2px solid #2f6fed;outline-offset:1px}
+        .wsum-tl-step.current{background:#eef4ff}
+        .wsum-tl-rail{display:flex;flex-direction:column;align-items:center;align-self:stretch}
+        .wsum-tl-line{width:2px;flex:1;min-height:10px;background:#e5e7eb}
+        .wsum-tl-line.hide{visibility:hidden}
+        .wsum-tl-dot{width:12px;height:12px;border-radius:50%;flex:none;border:2px solid #fff;box-shadow:0 0 0 1px #d2d2d7}
+        .wsum-tl-dot.latest{box-shadow:0 0 0 4px rgba(47,111,237,.22)}
+        .wsum-tl-body{padding:9px 0;min-width:0}
+        .wsum-tl-name{font-size:12.5px;font-weight:700;color:#1d1d1f;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .wsum-tl-cap{font-size:10px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-top:2px}
+        .wsum-tl-count{padding:9px 0;font-size:11px;font-weight:700;color:#6e6e73;white-space:nowrap;font-variant-numeric:tabular-nums}
+        .wsum-cat-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+        .wsum-cat-tile{border:1px solid #e5e7eb;border-top:3px solid var(--cc,#e5e7eb);border-radius:10px;padding:10px 12px;min-height:66px;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;font:inherit;background:#fff;width:100%;transition:box-shadow .15s,transform .15s}
+        .wsum-cat-tile:hover{box-shadow:0 4px 14px rgba(0,0,0,.08);transform:translateY(-1px)}
+        .wsum-cat-txt{min-width:0}
+        .wsum-cat-tile b{display:block;font-size:11.5px;font-weight:600;margin-bottom:2px;line-height:1.25;color:#424245;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .wsum-cat-tile span{font-size:20px;font-weight:800;color:#1d1d1f;line-height:1.1}
+        .wsum-avatar{width:30px;height:30px;border-radius:50%;background:#2f6fed;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px;flex:none}
+        .wsum-team-row{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #f0f0f2}.wsum-team-row:last-child{border-bottom:0}.wsum-team-row>div{min-width:0}.wsum-team-row b{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .wsum-team-row b{font-size:13px;font-weight:600}
+        .wsum-team-row span{display:block;font-size:11px;color:#8a8a8e;text-transform:capitalize}
+        .wsum-team-row{justify-content:space-between}
+        .wsum-team-rm{border:none;background:transparent;color:#b91c1c;font-size:10.5px;font-weight:800;cursor:pointer;padding:4px 6px}
+        .wsum-team-add{display:grid;grid-template-columns:minmax(0,1fr) 104px auto;gap:8px;align-items:end;margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #e5e7eb}
+        .wsum-team-add label{display:block;font-size:10px;font-weight:700;color:#8a8a8e;text-transform:uppercase;letter-spacing:.04em;margin-bottom:4px}
+        .wsum-team-add select{width:100%;height:32px;padding:0 8px;background:#fff;border:1px solid #d2d2d7;border-radius:8px;font-size:11.5px;cursor:pointer}
+        .wsum-team-add button{height:32px;padding:0 12px;border:none;background:#007aff;color:#fff;border-radius:8px;font-size:11px;font-weight:800;cursor:pointer;white-space:nowrap}
+        .wsum-team-add button:disabled{opacity:.5;cursor:default}
+        @media screen and (max-width:520px){.wsum-team-add{grid-template-columns:1fr}.wsum-kpis{grid-template-columns:1fr!important}}
+        
+        @media screen and (max-width:900px){
+          .wsum-body{grid-template-columns:1fr}
+          .wsum-kpis{grid-template-columns:repeat(2,minmax(0,1fr))}
+          .wsum-cat-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+          .wsum-cover{height:140px}
+          .wsum-cover-info{right:14px}
+          .wsum-cover-edit{font-size:10px;padding:5px 10px}
+          .wsum-cover-back{font-size:10px;padding:5px 10px}
+        }
+      `}</style>
+      <input ref={picRef} type="file" accept="image/png,image/jpeg,image/webp" style={{display:"none"}} onChange={onPic} />
+      <div className="wsum-cover">
+        {!!selected && <img src={selected.url} alt="" onError={()=>{}}/>}
+        <div className="wsum-cover-scrim"/>
+        <div className="wsum-cover-topleft">
+          {!!onBack && <button type="button" className="wsum-cover-back" onClick={onBack}>← All</button>}
+          {!!meta.clientLogoUrl && <div className="wsum-cover-logo"><img src={meta.clientLogoUrl} alt="Client logo"/></div>}
+        </div>
+        {canManage && <button type="button" className="wsum-cover-edit" onClick={openDetails}>✎ Edit Project</button>}
+        <div className="wsum-cover-info">
+          <div className="wsum-cover-title">
+            {proj.name || "Untitled project"}
+            {!!latest && <span className="wsum-cover-pill">{latest.name}</span>}
+            {!!latest && <span className="wsum-cover-stagetag">Current stage</span>}
+          </div>
+          <div className="wsum-cover-meta">
+            {!!(proj.location || proj.country) && <span>📍 {[proj.location, (FLS_COUNTRIES.find(c=>c[0]===proj.country)||[,proj.country])[1]].filter(Boolean).join(", ")}</span>}
+            {!!meta.revision && <span>· Rev {meta.revision}</span>}
+          </div>
+        </div>
+      </div>
+      {editOpen && <div className="wsum-modal-backdrop" onClick={()=>setEditOpen(false)}>
+        <div className="wsum-modal" onClick={e=>e.stopPropagation()}>
+          <div className="wsum-modal-head"><b>Edit Project</b><button type="button" className="wsum-modal-x" aria-label="Close" onClick={()=>setEditOpen(false)}>×</button></div>
+          <div className="wsum-modal-body">
+            {canManage && <div className="wsum-pic-row">
+              <div className="wsum-pic-thumb">{selected ? <img src={selected.url} alt=""/> : <span>No picture</span>}</div>
+              <div style={{flex:1,minWidth:0}}>
+                <label style={{display:"block",fontSize:11,fontWeight:700,color:"#6e6e73",marginBottom:6}}>Cover picture</label>
+                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                  <button type="button" className="wsum-pic-btn" disabled={busy} onClick={pickPic}>{selected?"Change picture":"Add picture"}</button>
+                  {!!selected && <button type="button" className="wsum-pic-btn danger" disabled={busy} onClick={removeSelected}>Remove picture</button>}
+                </div>
+              </div>
+            </div>}
+            {stages!==null && !!stageRows.length && <div className="setup-grid" style={{marginBottom:12}}>
+              <div>
+                <label style={{display:"block",fontSize:11,fontWeight:700,color:"#6e6e73",marginBottom:4}}>Stage being edited</label>
+                <select value={currentStageId||""} onChange={e=>onSwitchStage&&onSwitchStage(e.target.value)} style={{width:"100%",padding:"7px 8px",fontSize:12,border:"1px solid #d2d2d7",borderRadius:7}}>
+                  {stageRows.map(s=><option key={s.id} value={s.id}>{s.name}{s.id===stageRows[stageRows.length-1].id?" (Latest)":""}</option>)}
+                </select>
+              </div>
+              {!!onRenameStage && <div>
+                <label style={{display:"block",fontSize:11,fontWeight:700,color:"#6e6e73",marginBottom:4}}>Stage name</label>
+                <button type="button" className="wsum-rename-stage-btn"
+                  onClick={()=>{ const stg=(stages||[]).find(x=>x.id===currentStageId); if (stg) onRenameStage(stg); }}>✎ Rename…</button>
+              </div>}
+            </div>}
+            {children}
+            <div className="wsum-modal-team" id="wsum-team">
+              <label className="wsum-modal-lbl">Team &amp; access</label>
+              {canManage && <div className="wsum-team-add">
+                <div><label>Team member</label><select value={addEmail} onChange={e=>setAddEmail(e.target.value)}><option value="">— Select —</option>{teamCandidates.map(t=><option key={t.id||t.email} value={t.email}>{t.name||t.email}</option>)}</select></div>
+                <div><label>Access</label><select value={addRole} onChange={e=>setAddRole(e.target.value)}><option value="reviewer">Reviewer</option><option value="editor">Editor</option></select></div>
+                <button type="button" disabled={teamBusy} onClick={addTeamMember}>+ Add</button>
+              </div>}
+              {teamMsg && <div style={{marginBottom:10,fontSize:11,color:"#b91c1c"}}>{teamMsg}</div>}
+              {!teamRows.length ? <div style={{fontSize:12,color:"#8a8a8e"}}>No one else has access yet.</div>
+              : teamRows.map(t=>
+                <div key={t.email} className="wsum-team-row">
+                  <div style={{display:"flex",alignItems:"center",gap:10}}>
+                    <div className="wsum-avatar">{t.initials}</div>
+                    <div><b>{t.label}</b><span>{t.role||"member"}</span></div>
+                  </div>
+                  {canManage && <button type="button" className="wsum-team-rm" disabled={teamBusy} onClick={()=>removeTeamMember(t)}>Remove</button>}
+                </div>)}
+            </div>
+          </div>
+          <div className="wsum-modal-foot"><button type="button" className="wsum-modal-done" onClick={()=>setEditOpen(false)}>Done</button></div>
+        </div>
+      </div>}
+      <div className="wsum-kpis">
+        <button type="button" className="wsum-kpi" style={{"--kc":"#2f6fed"}} onClick={()=>onGoTab&&onGoTab("pumps")} title="Go to Pumps & Equipment">
+          <KpiRing pct={catPct} color="#2f6fed" />
+          <div className="wsum-kpi-txt"><span>Total calculations</span><b>{stages===null?"—":totalCalc}</b><span className="sub">{stages===null?"":`across ${cats.length} of ${CAT_TYPES_TOTAL} categories`}</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":"#0ea5a3"}} onClick={goStages} title="Go to stage timeline">
+          <KpiRing pct={stagesClosedPct} color="#0ea5a3" />
+          <div className="wsum-kpi-txt"><span>Stages</span><b>{stages===null?"—":stageRows.length}</b><span className="sub" title={stageRows.map(s=>s.name).join(" · ")}>{stageRows.length?`${stageRows.filter(s=>s.status==="closed").length} of ${stageRows.length} issued`:"—"}</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":signOff.color}} onClick={()=>onGoTab&&onGoTab("print")} title="Go to Calculation Report & Sign-off">
+          <KpiRing pct={signOff.pct} color={signOff.color} />
+          <div className="wsum-kpi-txt"><span>Sign-off status</span><b style={{color:signOff.color}}>{signOff.label}</b><span className="sub">{signOff.caption}</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":"#7c3aed"}} onClick={goTeam} title="Go to team">
+          <KpiRing pct={teamRows.length?100*teamRows.filter(t=>t.role==="editor").length/teamRows.length:0} color="#7c3aed" />
+          <div className="wsum-kpi-txt"><span>Team</span><b>{teamRows.length}</b><span className="sub">{teamRows.length ? `${teamRows.filter(t=>t.role==="editor").length} editor${teamRows.filter(t=>t.role==="editor").length===1?"":"s"} · ${teamRows.filter(t=>t.role!=="editor").length} reviewer${teamRows.filter(t=>t.role!=="editor").length===1?"":"s"}` : "no one assigned yet"}</span></div>
+        </button>
+      </div>
+      <div className="wsum-kpis wsum-kpis-eng">
+        <button type="button" className="wsum-kpi" style={{"--kc":"#0f766e"}} onClick={()=>onGoTab&&onGoTab("schedule")} title="Go to Equipment Schedule">
+          <KpiRing pct={eng.installed>0?100*eng.running/eng.installed:0} color="#0f766e" />
+          <div className="wsum-kpi-txt"><span>Installed motor load{stageName?` · ${stageName}`:""}</span><b>{fkW(eng.installed)} <small>kW</small></b><span className="sub">{eng.motorisedN} motorised item{eng.motorisedN===1?"":"s"} · {eng.sets} motor{eng.sets===1?"":"s"} incl. standby</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":"#0284c7"}} onClick={()=>onGoTab&&onGoTab("schedule")} title="Running load — duty and assist pumps only">
+          <KpiRing pct={eng.installed>0?100*eng.running/eng.installed:0} color="#0284c7" />
+          <div className="wsum-kpi-txt"><span>Running load (duty)</span><b>{fkW(eng.running)} <small>kW</small></b><span className="sub">standby {fkW(Math.max(0,eng.standby))} kW not counted</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":"#9333ea"}} onClick={()=>onGoTab&&onGoTab("schedule")} title="Largest single motor">
+          <KpiRing pct={eng.big&&eng.installed>0?100*eng.big.kw/eng.installed:0} color="#9333ea" />
+          <div className="wsum-kpi-txt"><span>Largest motor</span><b>{eng.big?fkW(eng.big.kw):"—"} {eng.big&&<small>kW</small>}</b><span className="sub" title={eng.big?eng.big.tag:""}>{eng.big?eng.big.tag||"—":"no motorised equipment"}</span></div>
+        </button>
+        <button type="button" className="wsum-kpi" style={{"--kc":eng.c.blocked?"#dc2626":eng.c.review?"#d97706":"#16a34a"}} onClick={()=>onGoTab&&onGoTab("schedule")} title="Calculation checks in the Equipment Schedule">
+          <KpiRing pct={eng.n?100*eng.c.pass/eng.n:0} color={eng.c.blocked?"#dc2626":eng.c.review?"#d97706":"#16a34a"} />
+          <div className="wsum-kpi-txt"><span>Design checks</span><b>{eng.c.pass}<small> / {eng.n} pass</small></b><span className="sub">{eng.c.review} review · {eng.c.blocked} blocked</span></div>
+        </button>
+      </div>
+      <div className="wsum-body">
+        <div className="wsum-section" id="wsum-stage-timeline">
+          <h3>Stage timeline</h3>
+          {stages===null ? <div style={{fontSize:12,color:"#8a8a8e"}}>Loading…</div>
+          : !stageRows.length ? <div style={{fontSize:12,color:"#8a8a8e"}}>No stages yet.</div>
+          : <div className="wsum-timeline">
+            {stageRows.map((s,i)=>{
+              const dotColor = s.status==="closed"?"#16803a":s.status==="awaiting_approver"?"#b45309":"#2f6fed";
+              const isLatest = i===stageRows.length-1;
+              const isCurrent = s.id===currentStageId;
+              const prevIssued = i>0 && stageRows[i-1].status==="closed";
+              const Tag = onSwitchStage ? "button" : "div";
+              return <Tag key={s.id} type={onSwitchStage?"button":undefined} className={"wsum-tl-step"+(isCurrent?" current":"")} onClick={onSwitchStage?()=>onSwitchStage(s.id):undefined} title={onSwitchStage?`Switch to ${s.name}`:undefined} aria-current={isCurrent?"step":undefined}>
+                <div className="wsum-tl-rail">
+                  <div className={"wsum-tl-line"+(i===0?" hide":"")} style={{background:prevIssued?"#16803a":"#c7d7f8"}}/>
+                  <div className={"wsum-tl-dot"+(isLatest?" latest":"")} style={{background:dotColor}}/>
+                  <div className={"wsum-tl-line"+(i===stageRows.length-1?" hide":"")} style={{background:s.status==="closed"?"#16803a":"#c7d7f8"}}/>
+                </div>
+                <div className="wsum-tl-body">
+                  <div className="wsum-tl-name">{s.name}</div>
+                  <div className="wsum-tl-cap" style={{color:dotColor}}>{statusLabel(s.status)}{isCurrent?" · Current":isLatest?" · Latest":""}</div>
+                </div>
+                <div className="wsum-tl-count">{s.count} calc{s.count===1?"":"s"}</div>
+              </Tag>;
+            })}
+          </div>}
+        </div>
+        <div className="wsum-section">
+          <h3>Calculation categories</h3>
+          {!cats.length ? <div style={{fontSize:12,color:"#8a8a8e"}}>No calculations yet.</div>
+          : <div className="wsum-cat-grid">
+            {cats.map(([k,n])=>{
+              const nav = CAT_NAV[k] || {color:"#8a8a8e", go:()=>{}};
+              const pct = totalCalc ? Math.round((n/totalCalc)*100) : 0;
+              return <button type="button" key={k} className="wsum-cat-tile" style={{"--cc":nav.color}} onClick={nav.go} title={`Go to ${k}`}>
+                <KpiRing pct={pct} color={nav.color} size={32} stroke={3} />
+                <div className="wsum-cat-txt"><b>{k}</b><span>{n}</span></div>
+              </button>;
+            })}
+          </div>}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function App({session, projectId, projectRow, onBackToProjects, team, roles=[], isAdmin=false}) {
   const userId = session.user.id;
   const [proj, setProj] = useState(projectRow.project); // shared across stages: name + client only
@@ -21160,13 +21572,13 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
     if (!pickList.length) { if (printPick!==null) setPrintPick(null); return; }
     if (!printPick || !pickList.some(p=>p.id===printPick)) setPrintPick(pickList[0].id);
   }, [pickIds, printPick]);
-  const [tab, _setTab]        = useState("setup");
+  const [tab, _setTab]        = useState("summary");
   // Browser Back used to leave the site entirely from any in-app view, because
   // switching workspace tabs never touched history — the previous entry was
   // still whatever page the user arrived from (usually the Resource Plan).
   // Every navigation now pushes an entry, so Back walks back through the app
   // first and only leaves once there is nothing left to pop.
-  const tabRef = React.useRef("setup");
+  const tabRef = React.useRef("summary");
   const setTab = React.useCallback((next, fromPop) => {
     if (next === tabRef.current) return;
     tabRef.current = next;
@@ -21188,9 +21600,10 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
   // Left menu can be hidden on any page (handle on its edge, or Ctrl+B). The Pipe Sizing page hides it on entry and restores it on leaving.
   const [navHidden, setNavHidden] = useState(() => { try { return localStorage.getItem("mep_nav_hidden") === "1"; } catch(e) { return false; } });
   const navRestore = useRef(false);
+  useEffect(() => { setNavHidden(false); try { localStorage.setItem("mep_nav_hidden","0"); } catch(e) {} }, [projectId]);   // v1.125: always land on the project with the menu open
   const toggleNav = useCallback(() => { navRestore.current = false; setNavHidden(h => { const n = !h; try { localStorage.setItem("mep_nav_hidden", n ? "1" : "0"); } catch(e) {} return n; }); }, []);
   useEffect(() => { const k = e => { if ((e.ctrlKey || e.metaKey) && !e.altKey && !e.shiftKey && e.key.toLowerCase() === "b") { e.preventDefault(); toggleNav(); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, [toggleNav]);
-  const [logoStatus, setLogoStatus] = useState(''), [cardStatus, setCardStatus] = useState('');
+  const [logoStatus, setLogoStatus] = useState('');
   const currentEmail = (session.user.email||'').toLowerCase();
   const myRoles = roles.filter(r=>r.active!==false && (r.email||'').toLowerCase()===currentEmail).map(r=>r.role);
   const engineerTeam = team.filter(t=>{ const rs=roles.filter(r=>r.active!==false && (r.email||'').toLowerCase()===(t.email||'').toLowerCase()).map(r=>r.role); return t.active!==false && (rs.includes('engineer') || rs.includes('admin') || t.is_admin); });
@@ -21257,8 +21670,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
         setPumps(ps);
         setMeta(normalizeStageMeta(full && full.meta));
         setEditId(ps[0]?.id ?? null);
-        const savedTab = (() => { try { return localStorage.getItem('mep_tab_'+projectId); } catch(e) { return null; } })();
-        setTab(!ps.length ? "setup" : (["schedule","pumps","print"].includes(savedTab) ? savedTab : "schedule"));
+        setTab("summary");
       }
       setStagesReady(true);
     })();
@@ -21722,12 +22134,6 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           </div>
           <div className="sbx-body">
             {/* ── 2. Project ── */}
-            <div className="sbx-card sbx-proj">
-              <div className="sbx-proj-top"><div className="sbx-logos"><img src={MEINHARDT_LOGO_SRC} alt="Meinhardt"/>{proj.clientLogoUrl?<><i/><img src={proj.clientLogoUrl} alt="Client"/></>:<em>No client logo</em>}</div>
-                <button className="sbx-link" onClick={exitProject} title="Back to all projects">← All</button></div>
-              <div className="sbx-proj-name" title={proj.name||""}>{proj.name||"Untitled Project"}</div>
-              <div className="sbx-proj-meta">{proj.client||"No client"} · Rev {projForDisplay.revision||"—"} · {projForDisplay.date||"—"}</div>
-            </div>
             {/* ── 3. Stage + sign-off ── */}
             <div className="sbx-label sbx-label-row"><span>Stage</span>
               <span className="sbx-ic-acts">
@@ -21737,7 +22143,7 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
               </span></div>
             <div className={`sbx-card sbx-stage ${onOldStage?"old":""}`}>
               <div className="sbx-stage-list sbx-chips">
-                {stagesOrdered.map((stg,i)=><button key={stg.id} onClick={()=>{switchStage(stg.id);setSidebarOpen(false);}} className={stg.id===currentStageId?"on":""}>
+                {stagesOrdered.map((stg,i)=>stg.id!==currentStageId?null:<button key={stg.id} type="button" className="on" onClick={()=>{setTab("summary");setSidebarOpen(false);setTimeout(()=>{const el=document.getElementById("wsum-stage-timeline"); if(el) el.scrollIntoView({behavior:"smooth",block:"center"});},60);}} title="Switch stage from the Summary timeline">
                   <i>{i+1}</i><span>{stg.stage_name}</span>{stg.id===latestStage?.id&&<small>Latest</small>}
                 </button>)}
               </div>
@@ -21757,12 +22163,19 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 const group=(g,ic,l,kids)=>{ const on=kids.some(x=>x[3]!=null?x[3]:x[0]===tab), open=navOpen[g]!=null?navOpen[g]||on:on, tot=kids.reduce((a,x)=>a+(cnt[x[0]]||0),0);
                   return <React.Fragment key={g}><button className={"sbx-grp"+(on?" has":"")} onClick={()=>setNavOpen(o=>{ const n={...o,[g]:!open}; try{localStorage.setItem("ec.navOpen",JSON.stringify(n));}catch(e){} return n; })} aria-expanded={open}><span className="ic">{ic}</span><span className="tx">{l}</span>{!open&&<span className="pill">{tot}</span>}<span className="car">{open?"▾":"▸"}</span></button>
                     {open&&kids.map(x=>item(x[0],x[1],x[2],true,x[3],x[4]))}</React.Fragment>; };
-                return <>{item("setup","⚙","Setup")}
-                  {group("inputs","⊕","Calculation Inputs",[["pumps","◎","Pumps and equipment"],["storm","☂","Stormwater"],["fuel","⛁","Fuel"],["tools","∑","Tools"]])}
-                  {group("pipe","▦","Pipe Sizing",[pz("water","◌","Water supply"),pz("drain","⌄","Drainage"),...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),pz("gas","◇","Gas / LPG"),pz("stress","⌁","Stress analysis"),...(cnt["pipe:fuel"]>0?[pz("fuel","⛁","Fuel oil (network)")]:[])])}
-                  {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲","Fire Pump (UAE FLS)"]]),["agent","❄","Clean Agent"],["foam","◍","Foam"]])}
-                  {item("revizto","⬡","Revizto (BIM)")}{item("schedule","▤","Equipment Schedule")}{item("print","◈","Submission")}</>; })()}
-              <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recently deleted ({meta.trash.length})</button>}</div>
+                const svg=(d)=><svg width="13" height="13" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" style={{verticalAlign:"-2px"}}>{d}</svg>;
+                const icImp=svg(<><circle cx="8" cy="8" r="1.6"/><path d="M8 6.4C8 3.5 10 2 12.5 2.5M9.6 8c2.9 0 4.4 2 3.9 4.5M8 9.6c0 2.9-2 4.4-4.5 3.9M6.4 8C3.5 8 2 6 2.5 3.5"/></>);
+                const icCyl=svg(<><rect x="5" y="4" width="6" height="10.5" rx="2.5"/><path d="M6.5 4V2h3v2M8 2V1"/></>);
+                const flsLbl=<>Fire Pump &amp; Tank <small className="sbx-badge">UAE FLS</small></>;
+                return <>{item("summary","▥","Summary")}
+                  {group("ph","◌","Public Health",[pz("water","◌","Water Supply"),pz("drain","⌄","Drainage"),["storm","☂","Stormwater"],...(cnt["pipe:storm"]>0?[pz("storm","☂","Stormwater (network)")]:[]),["pumps",icImp,"Pumps & Equipment"]])}
+                  {group("gasfuel","◇","Gas & Fuel",[pz("gas","◇","Gas / LPG"),["fuel","⛁","Fuel Systems"],...(cnt["pipe:fuel"]>0?[pz("fuel","⛁","Fuel Oil (network)")]:[])])}
+                  {group("fire","⛨","Fire Protection",[...(FLS_OFF?[]:[["flsp","▲",flsLbl]]),["agent",icCyl,"Clean Agent"],["foam","◍","Foam"]])}
+                  {group("tools","∑","Tools",[["tools","∑","Engineering Tools"],pz("stress","⌁","Pipe Stress & Expansion")])}
+                  {item("revizto","⬡","BIM Fixtures (Revizto)")}
+                  <div className="sbx-sublabel">Outputs</div>
+                  {item("schedule","▤","Equipment Schedule")}{item("print","◈","Calculation Report & Sign-off")}</>; })()}
+              <div className="sbx-minor"><a href="spec.html" className="sbx-applink" title="MEP Specifications app">§ Specifications ↗</a>{(meta.trash||[]).length>0&&<button type="button" onClick={()=>setTrashOpen(v=>!v)}>🗑 Recycle Bin ({meta.trash.length})</button>}</div>
             </nav>
             {(meta.trash||[]).length>0 && trashOpen && <details open className="sbx-trash" style={{marginTop:6,border:"1px solid #e1e1e6",borderRadius:10,background:"#fff",padding:"6px 9px"}}>
               <summary style={{cursor:"pointer",fontSize:11,fontWeight:700,color:"#6e6e73"}} onClick={e=>{e.preventDefault();setTrashOpen(false);}}>🗑 Recently deleted ({meta.trash.length}) ✕</summary>
@@ -21797,57 +22210,37 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
           <div className="pump-mobile-bar no-print"><button className="pump-mobile-menu" onClick={()=>setSidebarOpen(true)} aria-label="Open navigation">☰</button><div className="pump-mobile-title">{proj.name||"Equipment Calculator"} <span className={`mobile-stage ${onOldStage?"old":""}`}>{currentStage?.stage_name||''}</span></div><div className="pump-mobile-save">{saveStatus==="saving"?"Saving…":saveIssue?"Not saved":saveStatus==="error"?"Error":"Saved"}</div></div>
           <div className="app-content sidebar-content" style={{maxWidth: tab==="pumps"||tab==="agent"||tab==="foam"||tab==="flsp"||tab==="storm"||tab==="fuel"||tab==="tools"||tab==="revizto" ? 1560 : (tab==="pipe"||tab==="schedule") ? "none" : 1180, margin:"0 auto", padding:"20px 24px"}}>
         {/* ── PROJECT SETUP — one compact card, minimum inputs ── */}
-        {tab==="setup" && (
-          <div className="setup-card">
-            {stageLocked&&<LockedNotice/>}
-            <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>
-              <div className="setup-grid">
-                <Field label="Project Name" value={proj.name} onChange={v=>setProj(p=>({...p,name:v}))} />
-                <Field label="Client" value={proj.client} onChange={v=>setProj(p=>({...p,client:v}))} />
-                <Sel label="Country" value={proj.country||""} onChange={v=>setProj(p=>({...p,country:v}))} options={FLS_COUNTRIES.map(([value,label])=>({value,label}))} />
-                <Field label="Location" value={proj.location} onChange={v=>setProj(p=>({...p,location:v}))} note="City / emirate, e.g. Dubai" />
-                <Field label="Revision" value={meta.revision} onChange={v=>setMeta(m=>({...m,revision:v}))} />
-                <Field label="Date" type="date" value={meta.date} onChange={v=>setMeta(m=>({...m,date:v}))} />
-              </div>
-              <div className="setup-grid3">
-                <Field label="Reference No. (PDF report cover)" value={proj.reference||""} onChange={v=>setProj(p=>({...p,reference:v}))} />
-                <div style={{gridColumn:"span 2"}}><Field label="Report Title (blank = Equipment Calculations – stage)" value={proj.reportTitle||""} onChange={v=>setProj(p=>({...p,reportTitle:v}))} /></div>
-              </div>
-              <div className="setup-grid3">
-                <SignOff label="Prepared by · Engineer" team={engineerTeam} who={meta.calcBy||proj.calcBy} when={meta.calcDate||proj.calcDate}
-                  onWho={v=>setMeta(m=>({...m,calcBy:v}))} onWhen={v=>setMeta(m=>({...m,calcDate:v}))} />
-                <SignedField label="Checked by · Lead" team={team} who={meta.checkedBy} when={meta.checkedDate} pending="Filled automatically at Lead sign-off" />
-                <SignedField label="Approved by · Associate / Approver" team={team} who={meta.reviewedBy} when={meta.reviewedDate} pending="Filled automatically at Approver sign-off" />
-              </div>
-              <div className="setup-logo">
-                <div className="client-brand-preview">{proj.clientLogoUrl?<img src={proj.clientLogoUrl} alt="Client logo"/>:<span style={{fontSize:10,color:'#86868b'}}>No logo</span>}</div>
-                <div>
-                  <label style={lbl}>Client logo (PNG / JPG / SVG)</label>
-                  <input type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={e=>uploadClientLogo(e.target.files?.[0])} style={{fontSize:11}}/>
-                  {logoStatus&&<div style={{marginTop:4,fontSize:10,color:/failed|Use a/.test(logoStatus)?'#b91c1c':'#16803a'}}>{logoStatus}</div>}
+        {/* Always mounted (visibility toggled via CSS, not unmount/remount) so its
+            Supabase-backed stages/members data survives tab switches — otherwise every
+            return to Summary re-fetches from scratch and flashes the loading/zero state. */}
+        <div style={{display: tab==="summary" ? undefined : "none"}}>
+          <WorkspaceSummaryTab livePumps={pumps} liveMeta={meta} stageName={(stagesOrdered.find(x=>x.id===currentStageId)||{}).stage_name||""} projectId={projectId} proj={proj} setProj={setProj} team={team} roles={roles} session={session} canManage={isAdmin || projectRow.user_id===session.user.id} onGoTab={setTab} onGoPipe={k=>{setPipeSvcReq({k,t:Date.now()});setTab("pipe");}} onBack={exitProject} onSwitchStage={switchStage} currentStageId={currentStageId} onRenameStage={renameStage}>
+            <div className="setup-card" style={{marginTop:16, marginBottom:4}}>
+              {stageLocked&&<LockedNotice/>}
+              <fieldset disabled={stageLocked} style={{border:0,padding:0,margin:0,minWidth:0}}>
+                <div className="setup-grid">
+                  <Field label="Project Name" value={proj.name} onChange={v=>setProj(p=>({...p,name:v}))} />
+                  <Field label="Client" value={proj.client} onChange={v=>setProj(p=>({...p,client:v}))} />
+                  <Sel label="Country" value={proj.country||""} onChange={v=>setProj(p=>({...p,country:v}))} options={FLS_COUNTRIES.map(([value,label])=>({value,label}))} />
+                  <Field label="Location" value={proj.location} onChange={v=>setProj(p=>({...p,location:v}))} note="City / emirate, e.g. Dubai" />
+                  <Field label="Revision" value={meta.revision} onChange={v=>setMeta(m=>({...m,revision:v}))} />
+                  <Field label="Date" type="date" value={meta.date} onChange={v=>setMeta(m=>({...m,date:v}))} />
                 </div>
-                <button type="button" className="setup-next" onClick={()=>setTab("pumps")}>Continue →</button>
-              </div>
-              <div className="setup-logo">
-                <div className="client-brand-preview" style={{width:120,height:68,overflow:"hidden",padding:0}}>{proj.cardImageUrl?<img src={proj.cardImageUrl} alt="Project picture" style={{width:"100%",height:"100%",objectFit:"cover"}}/>:<span style={{fontSize:10,color:'#86868b'}}>No picture</span>}</div>
-                <div>
-                  <label style={lbl}>Project picture (shown on the project list card only — never printed)</label>
-                  <input type="file" accept="image/png,image/jpeg,image/webp" onChange={async e=>{ const fl=e.target.files&&e.target.files[0]; e.target.value=""; if(!fl) return; setCardStatus("Uploading picture…"); try { const r=await mepCardImage(projectId, fl); setProj(x=>({...x,cardImageUrl:r.url,cardImagePath:r.path})); setCardStatus("Picture saved — it appears on the project card."); } catch(err) { setCardStatus(err.message||String(err)); } }} style={{fontSize:11}}/>
-                  {proj.cardImageUrl && <button type="button" onClick={()=>{ setProj(x=>({...x,cardImageUrl:"",cardImagePath:""})); setCardStatus("Picture removed from the card."); }} style={{marginLeft:8,fontSize:10.5,border:"1px solid #d2d2d7",background:"#fff",borderRadius:7,padding:"3px 8px",cursor:"pointer"}}>Remove</button>}
-                  {cardStatus&&<div style={{marginTop:4,fontSize:10,color:/failed|Use a|could not/.test(cardStatus)?'#b91c1c':'#16803a'}}>{cardStatus}</div>}
+                <div className="setup-grid3">
+                  <SignOff label="Prepared by · Engineer" team={engineerTeam} who={meta.calcBy||proj.calcBy} when={meta.calcDate||proj.calcDate}
+                    onWho={v=>setMeta(m=>({...m,calcBy:v}))} onWhen={v=>setMeta(m=>({...m,calcDate:v}))} />
                 </div>
-              </div>
-              <details className="setup-more">
-                <summary>Optional — design basis &amp; reviewers</summary>
-                <div style={{marginTop:10}}>
-                  <label style={lbl}>Design basis (blank = auto text)</label>
-                  {[0,1,2,3].map(i=><input key={i} value={(meta.designBasis||[])[i]||''} onChange={e=>setMeta(m=>{const a=[...(m.designBasis||[])];a[i]=e.target.value;return {...m,designBasis:a};})} placeholder={defaultDesignBasis(editing||pumps[0]||{})[i]||''} style={{...inp,marginBottom:6}} />)}
+                <div className="setup-logo">
+                  <div>
+                    <label style={lbl}>Client logo (PNG / JPG / SVG) — shown on the cover image</label>
+                    <input type="file" accept="image/png,image/jpeg,image/svg+xml" onChange={e=>uploadClientLogo(e.target.files?.[0])} style={{fontSize:11}}/>
+                    {logoStatus&&<div style={{marginTop:4,fontSize:10,color:/failed|Use a/.test(logoStatus)?'#b91c1c':'#16803a'}}>{logoStatus}</div>}
+                  </div>
                 </div>
-                <ProjectReviewAccess projectId={projectId} team={team} roles={roles} session={session} canManage={isAdmin || projectRow.user_id===session.user.id} />
-              </details>
-            </fieldset>
-          </div>
-        )}
+              </fieldset>
+            </div>
+          </WorkspaceSummaryTab>
+        </div>
         {/* ── PUMP INPUTS ── */}
         {tab==="pumps" && (
           <div className={"piw rz"+(editing?"":" no-r")+(editing&&editing.type==="sump"?" has-fig":"")} style={{"--piwL":(editing&&editing.type==="sump"?Math.max(piwL,300):piwL)+"px","--piwR":piwR+"px"}}>
@@ -21976,6 +22369,11 @@ function App({session, projectId, projectRow, onBackToProjects, team, roles=[], 
                 display:block under @media print — so the issued pack is
                 unchanged and cannot silently lose a calculation. */}
             <div className="ca-head no-print" style={{marginBottom:10}}><div><h2>Submission</h2><span>Calculation sheets and export · Rev {meta.revision||"—"}{currentStage?.stage_name ? " · " + currentStage.stage_name : ""}</span></div></div>
+            <details className="wsp-wrap no-print"><summary>Design basis — shown on the PDF report cover (blank = auto text)</summary>
+              <div style={{marginTop:10}}>
+                {[0,1,2,3].map(i=><input key={i} disabled={stageLocked} value={(meta.designBasis||[])[i]||''} onChange={e=>setMeta(m=>{const a=[...(m.designBasis||[])];a[i]=e.target.value;return {...m,designBasis:a};})} placeholder={defaultDesignBasis(editing||pumps[0]||{})[i]||''} style={{...inp,marginBottom:6}} />)}
+              </div>
+            </details>
             <div className="cs-sticky no-print">
             <div className="cs-issue no-print">
               <div className="sbx-export">
@@ -22708,7 +23106,7 @@ function ProjectsHome({session, me, isAdmin, roles=[], pendingCount, onOpen, onO
                   <div className="pl-ic">{String(row.name||"P").trim().slice(0,2).toUpperCase()}</div>
                   <div className="pl-card-t"><b title={row.name}>{row.name||"Untitled Project"}</b>
                     <span>{st.length} stage{st.length===1?"":"s"} · updated {ago(row.updated_at)}</span></div>
-                  {mine && <div className="pl-more" onClick={e=>e.stopPropagation()}>
+                  {(mine || isAdmin) && <div className="pl-more" onClick={e=>e.stopPropagation()}>
                     <button type="button" className="pl-dots" onClick={()=>setPmenu(pmenu===row.id?null:row.id)} aria-label="Project actions" title="Rename, duplicate, delete">⋯</button>
                     {pmenu===row.id && <><div className="pl-menu-back" onClick={()=>setPmenu(null)}/><div className="pl-menu">
                       <button type="button" onClick={()=>{setPmenu(null);renameProject(row);}}>✎ Rename</button>
